@@ -12,7 +12,8 @@ const Contest = require('../models/Contest/contestSchema');
 const autoTrade = require('../PlaceOrder/autoTradeContest')
 const client = require('../marketData/redisClient');
 const getKiteCred = require('../marketData/getKiteCred');
-const ContestInstrument = require('../models/Instruments/contestInstrument') 
+const ContestInstrument = require('../models/Instruments/contestInstrument') ;
+const DummyMarketData = require('../marketData/dummyMarketData');
 
 
 exports.newTrade = async (req, res, next) => {
@@ -634,19 +635,41 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
           Authorization: auth,
         },
       };
-      let arr = [];
+      // let arr = [];
+
+      // dummy market data
+      let marketdata = await DummyMarketData();
+      // setTimeout(DummyMarketData, 10000);
+      
+
       let livePrices = {};
       const response = await axios.get(ltpBaseUrl, authOptions);
-      for (let instrument in response.data.data) {
-          let obj = {};
-          // console.log(instrument, response.data.data[instrument].last_price);
-          livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
-          obj.last_price = response.data.data[instrument].last_price;
-          obj.instrument_token = response.data.data[instrument].instrument_token;
-          obj.average_price = response.data.data[instrument].ohlc.close;
-          obj.timestamp = response.data.data[instrument].timestamp
-          arr.push(obj);
-      }
+      // for (let instrument in response.data.data) {
+        
+      //     // let obj = {};
+      //     // console.log(instrument, response.data.data[instrument].last_price);
+      //     livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+      //     // obj.last_price = response.data.data[instrument].last_price;
+      //     // obj.instrument_token = response.data.data[instrument].instrument_token;
+      //     // obj.average_price = response.data.data[instrument].ohlc.close;
+      //     // obj.timestamp = response.data.data[instrument].timestamp
+      //     // arr.push(obj);
+      // }
+
+      for (let instrument in marketdata) {
+        
+        // let obj = {};
+        // console.log(instrument, marketdata[instrument].last_price);
+        livePrices[marketdata[instrument].instrument_token] = marketdata[instrument].last_price;
+        // obj.last_price = response.data.data[instrument].last_price;
+        // obj.instrument_token = response.data.data[instrument].instrument_token;
+        // obj.average_price = response.data.data[instrument].ohlc.close;
+        // obj.timestamp = response.data.data[instrument].timestamp
+        // arr.push(obj);
+    }
+      
+
+
       const ranks = await ContestTrade.aggregate([
         // Match documents for the given contestId
         {

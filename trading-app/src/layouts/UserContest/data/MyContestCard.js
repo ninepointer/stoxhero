@@ -121,9 +121,9 @@ const ContestCard = () => {
             <MDButton variant="contained" color="dark" size="small" 
             component={Link} 
             to={{
-              pathname: `/battleground/${e?.contestName}/trade`,
+              pathname: `/battleground/${e?.contestName}`,
             }}
-            state= {{contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy}}
+            state= {{id: e?._id, contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy}}
             >
                 <Grid container>
                     <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">

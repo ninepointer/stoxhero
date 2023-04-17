@@ -28,7 +28,7 @@ import MDBox from '../../../../components/MDBox';
 import { borderBottom } from '@mui/system';
 import { marketDataContext } from "../../../../MarketDataContext";
 
-const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId}) => {
+const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
 
   console.log("rendering in userPosition: buyModel")
 
@@ -268,7 +268,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   return (
     <div>
 
-      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={handleClickOpen} >
+      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={handleClickOpen} disabled={isFromHistory} >
         B
       </MDButton>
       <div>
