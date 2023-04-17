@@ -267,8 +267,8 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
   return (
     <div>
-
-      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={handleClickOpen} disabled={isFromHistory} >
+{/* disabled={isFromHistory} */}
+      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={handleClickOpen}  >
         B
       </MDButton>
       <div>
