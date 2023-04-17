@@ -18,6 +18,11 @@ function Tables() {
 //   const [contestId,setContestId] = useState();
 const location = useLocation();
 const  fromMyContest  = location?.state?.fromMyContest;
+const  contestId  = location?.state?.contestId;
+const  portfolioId  = location?.state?.portfolioId;
+const isFromHistory = location?.state?.isFromHistory
+const  isDummy  = location?.state?.isDummy;
+
 
 
 
@@ -25,7 +30,13 @@ const  fromMyContest  = location?.state?.fromMyContest;
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      {fromMyContest ? <ContestTradePage /> : <ContestDetails />}
+      {fromMyContest || isFromHistory ? 
+      <ContestTradePage 
+        contestId={contestId} 
+        portfolioId={portfolioId}
+        isFromHistory={isFromHistory}
+        isDummy={isDummy}
+      /> : <ContestDetails />}
       
       <Footer />
     </DashboardLayout>
