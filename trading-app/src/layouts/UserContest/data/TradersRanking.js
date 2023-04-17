@@ -6,7 +6,7 @@ import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { userContext } from '../../../AuthContext';
 
-function TradersRanking({contestId, socket}){
+function TradersRanking({contestId}){
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [rankData, setRankData] = useState([]);
@@ -56,91 +56,6 @@ function TradersRanking({contestId, socket}){
     return () => clearInterval(intervalId);
   }, []);
 
-  // useEffect(()=>{
-  //   axios.get(`${baseUrl}api/v1/getliveprice`)
-  //   .then((res) => {
-  //     setMarketData(res.data);
-  //   }).catch((err) => {
-  //       return new Error(err);
-  //   })
-  //   socket?.on('check', (data)=>{
-  //     console.log("data from socket in instrument in parent", data)
-  //   })
-
-  //   // socket.on("tick", (data) => {
-  //   socket?.on("contest-ticks", (data) => {
-  //     console.log('data from socket in instrument in parent', data);
-  //     setMarketData(prevInstruments => {
-  //       const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-  //       data.forEach(instrument => {
-  //         instrumentMap.set(instrument.instrument_token, instrument);
-  //       });
-  //       return Array.from(instrumentMap.values());
-  //     });
-
-  //   })
-  // }, [])
-
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
-
-  console.log("in use effect", rankData, myRank)
-
-  // let allRank = receiveFinalArr(rankData);
-  // let myRankArr = receiveFinalArr(myRank?.data);
-
-
-  // console.log("finalTraderRank", allRank, myRankArr);
-
-  // let myNetPnl = myRankArr[0] && myRankArr[0].totalPnl - myRankArr[0].brokerage
-  // let myProfitChange = myRankArr[0] && myNetPnl*100/myRankArr[0].investedAmount;
-
-
-  // function receiveFinalArr(rankData){
-  //   let finalTraderRank = [];
-  //   if(rankData?.length !== 0){
-  //     let mapForParticularUser = new Map();
-  //     for(let i = 0; i < rankData?.length; i++){
-  //       if(mapForParticularUser.has(rankData[i].userId.trader)){
-  //         let marketDataInstrument = marketData.filter((elem)=>{
-  //           return elem.instrument_token == Number(rankData[i].userId.instrumentToken)
-  //         })
-  
-  //         let obj = mapForParticularUser.get(rankData[i].userId.trader)
-  //         obj.totalPnl += ((rankData[i].totalAmount+((rankData[i].lots)*marketDataInstrument[0]?.last_price)));
-  //         obj.runninglots += rankData[i].lots;
-  //         obj.brokerage += rankData[i].brokerage;
-  
-  //       } else{
-  //         let marketDataInstrument = marketData.filter((elem)=>{
-  //           return elem !== undefined && elem.instrument_token === Number(rankData[i].userId.instrumentToken)
-  //         })
-  //         mapForParticularUser.set(rankData[i].userId.traderId, {
-  //           name : rankData[i].userId.traderName,
-  //           totalPnl : ((rankData[i].totalAmount+((rankData[i].lots)*marketDataInstrument[0]?.last_price))),
-  //           runninglots : rankData[i].lots,
-  //           brokerage: rankData[i].brokerage,
-  //           name: rankData[i].userId.createdBy,
-  //           investedAmount: rankData[i].investedAmount
-  //         }) 
-  //       }
-  
-  //     }
-  
-  
-  //     for (let value of mapForParticularUser.values()){
-  //       finalTraderRank.push(value);
-  //     }
-  
-  //     finalTraderRank.sort((a, b)=> {
-  //       return (b.totalPnl-b.brokerage)-(a.totalPnl-a.brokerage)
-  //     });
-  //   }
-  //   return finalTraderRank;
-  // }
 
 
 return (

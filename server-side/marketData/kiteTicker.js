@@ -4,6 +4,7 @@ const getKiteCred = require('./getKiteCred');
 const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
+const DummyMarketData = require("./dummyMarketData")
 
 const io = require('../marketData/socketio');
 const client = require("./redisClient");
@@ -32,7 +33,7 @@ const disconnectTicker = () => {
 const subscribeTokens = async() => {
   // getKiteCred.getAccess().then(async (data)=>{
     let tokens = await fetchToken();
-    console.log("token in kite", tokens)
+    // console.log("token in kite", tokens)
     ticker?.subscribe(tokens);
   // });
 }
@@ -136,39 +137,11 @@ const getTicks = async (socket) => {
 
       // if(filteredTicks > 0){
         // socket.emit('tick-room', ticks);
-        filteredTicks = [
-          {
-            tradable: true,
-            mode: 'quote',
-            instrument_token: 12575490,
-            last_price: Math.random()*100,
-            last_traded_quantity: 50,
-            average_traded_price: 485.86,
-            volume_traded: 391950,
-            total_buy_quantity: 52000,
-            total_sell_quantity: 6350,
-            ohlc: { open: 494.9, high: 532.8, low: 427.1, close: 512.8 },
-            change: 2.9933697347893964
-          },
-          {
-            tradable: true,
-            mode: 'quote',
-            instrument_token: 12584706,
-            last_price: Math.random()*100,
-            last_traded_quantity: 50,
-            average_traded_price: 213.8,
-            volume_traded: 12516700,
-            total_buy_quantity: 164000,
-            total_sell_quantity: 28600,
-            ohlc: { open: 204.55, high: 274.8, low: 167.95, close: 197.05 },
-            change: -12.991626490738403
-          }
-        ]
-        setInterval(() => {
-          io.to(`${userId}`).emit('contest-ticks', filteredTicks);
-        }, 1000);
+        filteredTicks = await DummyMarketData()
+      // console.log(filteredTicks)
+      io.to(`${userId}`).emit('contest-ticks', filteredTicks);
         // io.to(`${userId}`).emit('contest-ticks', filteredTicks);
-
+        setTimeout(DummyMarketData, 10000);
         io.to(`${userId}`).emit('tick-room', filteredTicks);
 
       // }

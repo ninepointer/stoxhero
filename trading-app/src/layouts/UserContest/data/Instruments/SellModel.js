@@ -28,7 +28,7 @@ import { Box, Typography } from '@mui/material';
 import { marketDataContext } from "../../../../MarketDataContext";
 
 
-const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId}) => {
+const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
   console.log("rendering in userPosition: sellModel")
 
   // const marketDetails = useContext(marketDataContext)
@@ -276,7 +276,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
         S
       </MDBox>
       :  */}
-      <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3}} color="error" onClick={handleClickOpen} >
+      <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3}} color="error" onClick={handleClickOpen} disabled={isFromHistory}>
         S
       </MDButton>
       {/* } */}

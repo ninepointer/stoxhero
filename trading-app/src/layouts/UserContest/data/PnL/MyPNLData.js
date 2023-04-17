@@ -8,7 +8,7 @@ import { CircularProgress } from "@mui/material";
 
 
 
-function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory, setUserPnl}){
+function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
@@ -228,11 +228,12 @@ return (
           {/* <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>140</MDTypography> */}
           {((liveDetail[0]?.last_price)) ?
           <MDTypography component="a" variant="caption" color="text" style={{fontWeight:700}}>
-            {"₹"+(liveDetail[0]?.last_price)?.toFixed(2)}
+            {/* {"₹"+(liveDetail[0]?.last_price)?.toFixed(2)} */}
+            {(liveDetail[0]?.last_price) ? "₹"+(liveDetail[0]?.last_price)?.toFixed(2) : "₹"+0.00}
           </MDTypography>
           :
           <MDTypography component="a" variant="caption" color="dark" style={{fontWeight:700}}>
-            {"₹"+(liveDetail[0]?.last_price)}
+            {(liveDetail[0]?.last_price) ? "₹"+(liveDetail[0]?.last_price) : "₹"+0.00}
           </MDTypography>
           }
         </Grid>
@@ -240,7 +241,7 @@ return (
         <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
         {/* <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>+1250</MDTypography> */}
           <MDTypography component="a" variant="caption" color={gpnlcolor} style={{fontWeight:700}}>
-            {updatedValue >= 0.00 ? "+₹" + (updatedValue?.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2))}
+            {updatedValue ? (updatedValue >= 0.00 ? "+₹" + updatedValue?.toFixed(2): "-₹" + (-updatedValue).toFixed(2)) : subelem?.amount}
           </MDTypography>
         </Grid>
 

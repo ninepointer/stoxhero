@@ -17,7 +17,7 @@ import { CircularProgress } from "@mui/material";
 
 
 
-function InstrumentsData({contestId, socket, portfolioId, Render}){
+function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}){
 
     // const marketDetails = useContext(marketDataContext)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -172,16 +172,37 @@ return (
     
                 <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
                 {/* <MDButton variant="contained" color="info" style={{fontSize:12,minWidth:"80%",padding:'none',cursor:"pointer"}}>B</MDButton> */}
-                    <BuyModel render={render} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} contestId={contestId} portfolioId={portfolioId}/>
+                    <BuyModel 
+                        render={render} 
+                        setReRender={setReRender} 
+                        symbol={elem.symbol} 
+                        exchange={elem.exchange} 
+                        instrumentToken={elem.instrumentToken} 
+                        symbolName={elem.instrument} 
+                        lotSize={elem.lotSize} 
+                        maxLot={elem.maxLot} 
+                        ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} 
+                        contestId={contestId} 
+                        portfolioId={portfolioId}
+                        isFromHistory={isFromHistory}
+                    />
                 </Grid>
-                {/* render={render} setReRender={setReRender} */}
-                <Grid item xs={12} md={12} lg={0.5} display="flex" justifyContent="center">
-                
-                </Grid>
-    
+
                 <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
-                {/* <MDButton variant="contained" color="error" style={{fontSize:12,minWidth:"80%",padding:'none',cursor:"pointer"}}>S</MDButton> */}
-                    <SellModel render={render} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} contestId={contestId} portfolioId={portfolioId}/>
+                    <SellModel 
+                        render={render} 
+                        setReRender={setReRender} 
+                        symbol={elem.symbol} 
+                        exchange={elem.exchange} 
+                        instrumentToken={elem.instrumentToken} 
+                        symbolName={elem.instrument} 
+                        lotSize={elem.lotSize} 
+                        maxLot={elem.maxLot} 
+                        ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} 
+                        contestId={contestId} 
+                        portfolioId={portfolioId}
+                        isFromHistory={isFromHistory}
+                    />
                 </Grid>
     
             </Grid>

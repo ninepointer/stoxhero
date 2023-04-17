@@ -25,17 +25,6 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const nevigate = useNavigate();
-  console.log("contestId", contestId, objectId)
-
-  // let nextPagePath = 'notstarted';
-  // if((new Date()) < new Date(endDate)){
-  //   // nextPagePath = 'notstarted'
-  //   setIsDummy(true);
-  // } else{
-  //   console.log(new Date(), new Date(endDate))
-  //   // nextPagePath = 'trade'
-  //   setIsDummy(false);
-  // }
 
   const isDummy = (new Date()) < new Date(endDate);
 
@@ -75,7 +64,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
   
     useEffect(() => {
       if (shouldNavigate) {
-        nevigate(`/arena/${contestName}/trade`, {
+        nevigate(`/battleground/${contestName}/trade`, {
           state: {contestId: objectId, portfolioId: selectedPortfolio, isDummy: isDummy}
         });
       }
