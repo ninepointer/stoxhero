@@ -188,6 +188,9 @@ return (
                     />
                 </Grid>
 
+                <Grid item xs={12} md={12} lg={0.5} display="flex" justifyContent="center">
+                </Grid>
+
                 <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
                     <SellModel 
                         render={render} 
