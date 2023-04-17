@@ -123,7 +123,7 @@ const ContestCard = () => {
             to={{
               pathname: `/battleground/${e?.contestName}`,
             }}
-            state= {{id: e?._id, contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy}}
+            state= {{contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy, fromMyContest: true}}
             >
                 <Grid container>
                     <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">

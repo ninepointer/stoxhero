@@ -9,11 +9,12 @@ const axios = require('axios')
 const uuid = require('uuid');
 const ObjectId = require('mongodb').ObjectId;
 const Contest = require('../models/Contest/contestSchema');
-const autoTrade = require('../PlaceOrder/autoTradeContest')
+const autoTrade = require('../PlaceOrder/autoTradeContestHelper')
 const client = require('../marketData/redisClient');
 const getKiteCred = require('../marketData/getKiteCred');
 const ContestInstrument = require('../models/Instruments/contestInstrument') ;
 const DummyMarketData = require('../marketData/dummyMarketData');
+const singleLivePrice = require('../marketData/sigleLivePrice')
 
 
 exports.newTrade = async (req, res, next) => {
@@ -23,14 +24,10 @@ exports.newTrade = async (req, res, next) => {
   let {  exchange, symbol, buyOrSell, Quantity, Price, 
         Product, OrderType, TriggerPrice, stopLoss, uId,
         validity, variety, createdBy, order_id,
-        userId, instrumentToken, trader, portfolioId, autoTrade, dontSendResp} = JSON.parse(JSON.stringify(req.body));
+        userId, instrumentToken, trader, portfolioId, dontSendResp} = JSON.parse(JSON.stringify(req.body));
 
-        let tradeBy ;
-        if(autoTrade){
-          tradeBy = new ObjectId("63ecbc570302e7cf0153370c")
-        } else{
           tradeBy = req.user._id
-        }
+
         console.log("req.body", req.body)
 
     const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
@@ -51,22 +48,19 @@ exports.newTrade = async (req, res, next) => {
   }
 
   console.log("1st")
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let originalLastPriceUser;
   let newTimeStamp = "";
   let trade_time = "";
   try{
       
-      let liveData = await axios.get(`${baseUrl}api/v1/getliveprice`)
-      for(let elem of liveData.data){
+    console.log("above")
+      let liveData = await singleLivePrice(exchange, symbol)
+      console.log(liveData)
+      for(let elem of liveData){
           if(elem.instrument_token == instrumentToken){
               newTimeStamp = elem.timestamp;
               originalLastPriceUser = elem.last_price;
           }
-          // if(elem.instrument_token == real_instrument_token){
-          //     originalLastPriceCompany = elem.last_price;
-          // }
       }
 
       trade_time = newTimeStamp;
@@ -76,7 +70,7 @@ exports.newTrade = async (req, res, next) => {
 
 
   } catch(err){
-    // console.log(err)
+    console.log(err)
       return new Error(err);
   }
 
@@ -150,6 +144,140 @@ exports.newTrade = async (req, res, next) => {
   }).catch(err => {console.log( "fail")});  
   
   // console.log("6st")
+
+}
+
+exports.takeAutoTrade = async (tradeDetails, contestId) => {
+
+  // const contestId = req.params.id;
+
+  let {  exchange, symbol, buyOrSell, Quantity, Price, 
+        Product, OrderType, TriggerPrice, stopLoss, uId,
+        validity, variety, createdBy, order_id,
+        userId, instrumentToken, trader, portfolioId, autoTrade, dontSendResp} = tradeDetails;
+
+        let tradeBy ;
+        if(autoTrade){
+          tradeBy = new ObjectId("63ecbc570302e7cf0153370c")
+        } else{
+          tradeBy = trader
+        }
+        console.log("req.body", tradeDetails)
+
+    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
+    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
+
+
+  if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
+      //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+      if(!dontSendResp){
+        return res.status(422).json({error : "please fill all the feilds..."})
+      } else{
+        return;
+      }
+  }
+
+  if(buyOrSell === "SELL"){
+      Quantity = "-"+Quantity;
+  }
+
+  console.log("1st")
+  let originalLastPriceUser;
+  let newTimeStamp = "";
+  let trade_time = "";
+  try{
+      
+    console.log("above")
+      let liveData = await singleLivePrice(exchange, symbol)
+      // console.log(liveData)
+      for(let elem of liveData){
+          if(elem.instrument_token == instrumentToken){
+              newTimeStamp = elem.timestamp;
+              originalLastPriceUser = elem.last_price;
+          }
+      }
+
+      trade_time = newTimeStamp;
+      let firstDateSplit = (newTimeStamp).split(" ");
+      let secondDateSplit = firstDateSplit[0].split("-");
+      newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
+
+
+  } catch(err){
+    console.log(err)
+      return new Error(err);
+  }
+
+  console.log("2nd")
+
+  function buyBrokerage(totalAmount){
+      let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
+      let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailBuy[0].gst) / 100);
+      let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
+      let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
+      let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
+      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+      return finalCharge;
+  }
+
+  function sellBrokerage(totalAmount){
+      let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
+      let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailSell[0].gst) / 100);
+      let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
+      let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
+      let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
+      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+      return finalCharge
+  }
+
+  let brokerageUser;
+
+  // console.log("3st")
+  if(buyOrSell === "BUY"){
+      brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+  } else{
+      brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+  }
+  
+  ContestTrade.findOne({order_id : order_id})
+  .then((dateExist)=>{
+      if(dateExist){
+          //console.log("data already");
+          if(!dontSendResp){
+            // return res.status(422).json({error : "date already exist..."})
+          } else{
+            return;
+          }
+          
+      }
+
+
+      // console.log("4st")
+      const contestTrade = new ContestTrade({
+          status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
+          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "ninepointer", userId,
+          order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
+          tradeBy: tradeBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          
+      });
+
+      // console.log("mockTradeDetails", mockTradeDetailsUser);
+      contestTrade.save().then(()=>{
+          // console.log("sending response");
+          // if(!dontSendResp){
+          //   res.status(201).json({status: 'Complete', message: 'COMPLETE'});
+          // }
+      }).catch((err)=> {
+          console.log("in err", err)
+          // res.status(500).json({error:"Failed to enter data"})
+      });
+      
+      // console.log("5st")
+  }).catch(err => {console.log( "fail", err)});  
+  
+  console.log("6st")
 
 }
 
@@ -430,7 +558,7 @@ exports.getMyContestRank = async (req, res, next) => {
 
 }
 
-exports.autoTradeContest = async(req, res, next) => {
+exports.autoTradeContest = async() => {
   // console.log("in get contest")
     // const userId = req.user._id;
     // const contestId = req.params.id;
@@ -452,7 +580,7 @@ exports.autoTradeContest = async(req, res, next) => {
     console.log(contests)
     const userIds = contests.map(async (contest) => {
       // console.log(contest._id)
-      req.params.id = contest._id;
+      // req.params.id = contest._id;
       let openTrade = await ContestTrade.aggregate([
         {
           $match:
@@ -487,66 +615,12 @@ exports.autoTradeContest = async(req, res, next) => {
       // console.log("open trade", openTrade)
   
       // res.status(201).json(openTrade);
-      await autoTrade.switchAllTrade(openTrade, res, req)
+      await autoTrade.autoTradeHelper(openTrade, contest._id)
       return contest.participants.map((participant) => {
         return participant.userId;
       });
     
     })
-
-    // console.log(await userIds)
-    // try{
-    //     let pnlDetails = await ContestTrade.aggregate([
-    //         {
-    //           $match: {
-    //             trade_time: {
-    //               $regex: today,
-    //             },
-    //             status: "COMPLETE",
-    //             trader: userId,
-    //             contestId: new ObjectId(contestId),
-    //             // portfolioId: new ObjectId(portfolioId)
-    //           },
-    //         },
-    //         {
-    //           $group: {
-    //             _id: {
-    //               symbol: "$symbol",
-    //               product: "$Product",
-    //               instrumentToken: "$instrumentToken",
-    //               exchange: "$exchange"
-    //             },
-    //             amount: {
-    //               $sum: {$multiply : ["$amount",-1]},
-    //             },
-    //             brokerage: {
-    //               $sum: {
-    //                 $toDouble: "$brokerage",
-    //               },
-    //             },
-    //             lots: {
-    //               $sum: {
-    //                 $toInt: "$Quantity",
-    //               },
-    //             },
-    //             lastaverageprice: {
-    //               $last: "$average_price",
-    //             },
-    //           },
-    //         },
-    //         {
-    //           $sort: {
-    //             _id: -1,
-    //           },
-    //         },
-    //     ]);
-
-    //     
-
-    // }catch(e){
-    //     console.log(e);
-    //     return res.status(500).json({status:'success', message: 'something went wrong.'})
-    // }
 
 }
 

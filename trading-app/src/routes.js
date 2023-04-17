@@ -342,9 +342,9 @@ const routes = [
   {
     type: "collapse",
     name: "Position",
-    key: "Position",
+    key: "position",
     icon: <BusinessIcon/>,
-    route: "/Position",
+    route: "/position",
     component: <UserPosition />,
   },
   {

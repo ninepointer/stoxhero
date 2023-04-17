@@ -273,10 +273,10 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
     <div>
       {/* {fromUserPos ? 
       <MDBox color="light" onClick={handleClickOpen}>
-        S
+        disabled={isFromHistory}
       </MDBox>
       :  */}
-      <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3}} color="error" onClick={handleClickOpen} disabled={isFromHistory}>
+      <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3}} color="error" onClick={handleClickOpen} >
         S
       </MDButton>
       {/* } */}

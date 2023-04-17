@@ -175,10 +175,6 @@ app.use('/api/v1', require("./PlaceOrder/switching"));
 
 require('./db/conn');
 
-const autoTradeWrapper = (req, res, next) => {
-  autoTradeContest(req, res, next);
-};
-
 
 let date = new Date();
 let weekDay = date.getDay();
@@ -193,7 +189,7 @@ let weekDay = date.getDay();
   }
 
   try{
-    const autotrade = nodeCron.schedule(`*/900 * 3-10 * * *`, autoTradeWrapper);
+    const autotrade = nodeCron.schedule(`*/15 3-10 * * *`, autoTradeContest);
 
   } catch(err){
     console.log("err from cronjob", err)

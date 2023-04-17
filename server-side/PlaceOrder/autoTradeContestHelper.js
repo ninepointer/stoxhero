@@ -1,6 +1,6 @@
 const contestTrade = require('../controllers/contestTradeController');
 
-exports.switchAllTrade = async (data, res, req) => { 
+exports.autoTradeHelper = async (data, contestId) => { 
     for(let i = 0; i < data.length; i++){
         let date = new Date();
         let transaction_type = data[i].lots > 0 ? "BUY" : "SELL";
@@ -38,20 +38,19 @@ exports.switchAllTrade = async (data, res, req) => {
             if (quantity > 1800) {
                 Obj.Quantity = 1800
                 Obj.dontSendResp = true
-                req.body = JSON.parse(JSON.stringify(Obj))
-                await contestTrade.newTrade(req, res);
+                await contestTrade.takeAutoTrade(Obj, contestId);
                 quantity = quantity - 1800;
             } else {
                 Obj.Quantity = quantity
                 if(i === (data.length-1)){
                     Obj.dontSendResp = false;
                   } 
-                req.body = JSON.parse(JSON.stringify(Obj))
-                // console.log(req.body)
+                // console.log(Obj.body)
                 if(quantity > 0){
-                    await contestTrade.newTrade(req, res);
+                    clearInterval(interval);
+                    await contestTrade.takeAutoTrade(Obj, contestId);
                 }
-                await clearInterval(interval);
+                
             }
         }, 300);
 

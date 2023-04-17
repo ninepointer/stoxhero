@@ -10,22 +10,23 @@ import React,{useState, memo} from 'react'
 // import projectsTableData from "./data/projectsTableData";
 import ContestDetails from "./data/ContestDetails";
 import {useLocation} from 'react-router-dom';
+import ContestTradePage from './data/ContestTradePage'
 
 function Tables() {
   // const { columns, rows } = authorsTableData();
   // const { columns: pColumns, rows: pRows } = projectsTableData();
 //   const [contestId,setContestId] = useState();
 const location = useLocation();
-const  id  = location?.state?.data;
+const  fromMyContest  = location?.state?.fromMyContest;
 
-console.log("this is id", id)
 
 
   return (
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <ContestDetails />
+      {fromMyContest ? <ContestTradePage /> : <ContestDetails />}
+      
       <Footer />
     </DashboardLayout>
     </>
