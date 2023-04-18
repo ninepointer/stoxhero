@@ -101,14 +101,14 @@ return (
                 <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                     
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light">{myRank?.rank}</MDTypography>
+                      <MDTypography fontSize={13} color="light">{myRank?.rank && myRank?.rank}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light">{getDetails?.userDetails?.name}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                         <MDTypography fontSize={13} color={myRank?.npnl >= 0 ? "success" : "error"}>
-                            {myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))}
+                            {myRank?.npnl && (myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2)))}
                         </MDTypography>
                       </Grid>
                       {/* <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
