@@ -52,6 +52,11 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
     const [shouldNavigate, setShouldNavigate] = useState(false);
   
     const handleButtonClick = async () => {
+      if(!selectedPortfolio){
+        console.log("in join if")
+        openSuccessSB("Failed","Please select a portfolio", "FAIL")
+        return;
+      }
       await joinContest();
       setButtonClicked(true);
     };
@@ -79,13 +84,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
 
   async function joinContest(){
     console.log("in join")
-    if(!selectedPortfolio){
-      console.log("in join if")
-      // openSuccessSB("Great",`You have successfully registered for the contest ${contestName}`, "SUCCESS")
 
-      openSuccessSB("Failed","Please select a portfolio", "FAIL")
-      return;
-    }
     // console.log("in joinContest func", contestId, selectedPortfolio)
     const res = await fetch(`${baseUrl}api/v1/contest/${contestId}`, {
         method: "POST",
@@ -234,14 +233,15 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
                 >
                     Join
                 </MDButton>
-                {buttonClicked && renderSuccessSB}
+                { renderSuccessSB}
+                {/* {buttonClicked && renderSuccessSB} */}
                 {/* {nevigate(`/arena/contest/${nextPagePath}`)} */}
             </Grid>
             <Grid item mt={2} xs={6} md={3} lg={6} display="flex" justifyContent="center"> 
                 <MDButton variant="outlined" size="small" color="light" 
                   component={Link} 
                   to={{
-                      pathname: `/arena`,
+                      pathname: `/battleground`,
                     }}
                 >
                     Back

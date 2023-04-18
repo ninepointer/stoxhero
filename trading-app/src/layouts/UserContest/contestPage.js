@@ -22,6 +22,7 @@ const  contestId  = location?.state?.contestId;
 const  portfolioId  = location?.state?.portfolioId;
 const isFromHistory = location?.state?.isFromHistory
 const  isDummy  = location?.state?.isDummy;
+const isFromUpcomming = location?.state?.isFromUpcomming;
 
 
 
@@ -30,7 +31,7 @@ const  isDummy  = location?.state?.isDummy;
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      {fromMyContest || isFromHistory ? 
+      {!isFromUpcomming ? 
       <ContestTradePage 
         contestId={contestId} 
         portfolioId={portfolioId}
