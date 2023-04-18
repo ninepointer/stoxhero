@@ -5,6 +5,7 @@ const CountdownTimer = ({ targetDate,text }) => {
 
   useEffect(() => {
     const timerId = setInterval(() => {
+      console.log("timer running")
       setTimeRemaining(calculateTimeRemaining());
     }, 1000);
 
