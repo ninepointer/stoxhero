@@ -64,7 +64,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
   
     useEffect(() => {
       if (shouldNavigate) {
-        nevigate(`/battleground/${contestName}/trade`, {
+        nevigate(`/battleground/${contestName}`, {
           state: {contestId: objectId, portfolioId: selectedPortfolio, isDummy: isDummy}
         });
       }

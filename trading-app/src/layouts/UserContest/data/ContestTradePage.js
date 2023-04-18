@@ -34,7 +34,6 @@ function ContestTradeView () {
     const [contest,setContest] = useState();
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
-    // const  contestName  = location?.state?.data; isDummy
     const  portfolioId  = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
     const  isDummy  = location?.state?.isDummy;
@@ -148,10 +147,40 @@ function ContestTradeView () {
                     </MDTypography>
                   </MDBox>
 
-                    {isDummy &&
+                    {isDummy ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
-                        <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>Contest is Starts in:</span> <div style={style} ><AvTimerIcon/><Timer targetDate={contest?.contestStartDate} text="Contest Started" /></div>
+                        <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+                          Contest is Starts in:
+                        </span> 
+                        <div style={style} >
+                          <AvTimerIcon/>
+                          <Timer 
+                            targetDate={contest?.contestStartDate} 
+                            text="Contest Started"
+                            contestId={contestId}
+                            portfolioId={portfolioId}
+                            isDummy={isDummy}
+                            contestName={contest?.contestName}
+                          />
+                        </div>
                       </Grid>
+                      :
+                      <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
+                      <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+                        Contest Ends in:
+                      </span> 
+                      <div style={style} >
+                        <AvTimerIcon/>
+                        <Timer 
+                          targetDate={contest?.contestEndDate} 
+                          text="Contest Started"
+                          contestId={contestId}
+                          portfolioId={portfolioId}
+                          isDummy={isDummy}
+                          contestName={contest?.contestName}
+                        />
+                      </div>
+                    </Grid>
                     }
                     
                     {!isDummy ?
