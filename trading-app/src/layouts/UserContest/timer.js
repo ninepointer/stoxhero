@@ -1,11 +1,22 @@
 import React, { useState, useEffect, memo } from "react";
+import { useNavigate } from "react-router-dom";
 
-const CountdownTimer = ({ targetDate,text }) => {
+const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, contestName }) => {
   const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining());
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timerId = setInterval(() => {
-      console.log("timer running")
+      console.log("timer running", new Date(), new Date(targetDate))
+      if(new Date() == new Date(targetDate) && isDummy){
+        navigate(`/battleground/${contestName}`, {
+          state: {contestId: contestId, portfolioId: portfolioId, isDummy: false}
+        });
+      } else if(new Date() == new Date(targetDate) && !isDummy){
+        navigate(`/battleground`, {
+          state: {contestId: contestId, portfolioId: portfolioId, isDummy: false}
+        });
+      }
       setTimeRemaining(calculateTimeRemaining());
     }, 1000);
 
