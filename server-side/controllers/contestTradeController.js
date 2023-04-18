@@ -712,35 +712,35 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       // let arr = [];
 
       // dummy market data
-      let marketdata = await DummyMarketData();
+      // let marketdata = await DummyMarketData();
       // setTimeout(DummyMarketData, 10000);
       
 
       let livePrices = {};
       const response = await axios.get(ltpBaseUrl, authOptions);
-      // for (let instrument in response.data.data) {
+      for (let instrument in response.data.data) {
         
-      //     // let obj = {};
-      //     // console.log(instrument, response.data.data[instrument].last_price);
-      //     livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
-      //     // obj.last_price = response.data.data[instrument].last_price;
-      //     // obj.instrument_token = response.data.data[instrument].instrument_token;
-      //     // obj.average_price = response.data.data[instrument].ohlc.close;
-      //     // obj.timestamp = response.data.data[instrument].timestamp
-      //     // arr.push(obj);
-      // }
+          // let obj = {};
+          // console.log(instrument, response.data.data[instrument].last_price);
+          livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+          // obj.last_price = response.data.data[instrument].last_price;
+          // obj.instrument_token = response.data.data[instrument].instrument_token;
+          // obj.average_price = response.data.data[instrument].ohlc.close;
+          // obj.timestamp = response.data.data[instrument].timestamp
+          // arr.push(obj);
+      }
 
-      for (let instrument in marketdata) {
+    //   for (let instrument in marketdata) {
         
-        // let obj = {};
-        // console.log(instrument, marketdata[instrument].last_price);
-        livePrices[marketdata[instrument].instrument_token] = marketdata[instrument].last_price;
-        // obj.last_price = response.data.data[instrument].last_price;
-        // obj.instrument_token = response.data.data[instrument].instrument_token;
-        // obj.average_price = response.data.data[instrument].ohlc.close;
-        // obj.timestamp = response.data.data[instrument].timestamp
-        // arr.push(obj);
-    }
+    //     // let obj = {};
+    //     // console.log(instrument, marketdata[instrument].last_price);
+    //     livePrices[marketdata[instrument].instrument_token] = marketdata[instrument].last_price;
+    //     // obj.last_price = response.data.data[instrument].last_price;
+    //     // obj.instrument_token = response.data.data[instrument].instrument_token;
+    //     // obj.average_price = response.data.data[instrument].ohlc.close;
+    //     // obj.timestamp = response.data.data[instrument].timestamp
+    //     // arr.push(obj);
+    // }
       
 
 
