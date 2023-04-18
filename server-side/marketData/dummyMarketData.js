@@ -32,7 +32,7 @@ const DummyMarketData = async () => {
             }
           ]
 
-          setTimeout(DummyMarketData, 10000);
+          setTimeout(await DummyMarketData, 10000);
 
       return filteredTicks
   

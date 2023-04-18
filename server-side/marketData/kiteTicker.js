@@ -137,11 +137,11 @@ const getTicks = async (socket) => {
 
       // if(filteredTicks > 0){
         // socket.emit('tick-room', ticks);
-        filteredTicks = await DummyMarketData()
+      //   filteredTicks = await DummyMarketData()
       // console.log(filteredTicks)
       io.to(`${userId}`).emit('contest-ticks', filteredTicks);
         // io.to(`${userId}`).emit('contest-ticks', filteredTicks);
-        setTimeout(DummyMarketData, 10000);
+        // setTimeout(await DummyMarketData, 10000);
         io.to(`${userId}`).emit('tick-room', filteredTicks);
 
       // }
