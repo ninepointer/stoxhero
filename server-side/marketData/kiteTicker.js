@@ -62,17 +62,6 @@ const getTicks = async (socket) => {
     indecies = JSON.parse(indecies);  
   }
 
-  // let contestInstrument = await client.get("contest")
-  // if(!contestInstrument){
-  //   contestInstrument = await ContestInstrument.find({status: "Active"});
-  //   await client.set("contest", JSON.stringify(contestInstrument));
-  // } else{
-  //   contestInstrument = JSON.parse(contestInstrument);  
-  // }
-
-  
-
-  // console.log("checking get ticks", contestInstrument, indecies)
   ticker.on('ticks', async (ticks) => {
     // console.log(ticks)
 
@@ -137,8 +126,8 @@ const getTicks = async (socket) => {
 
       // if(filteredTicks > 0){
         // socket.emit('tick-room', ticks);
-      //   filteredTicks = await DummyMarketData()
-      // console.log(filteredTicks)
+      // filteredTicks = await DummyMarketData();
+      // console.log('behold',filteredTicks);
       if(filteredTicks.length > 0){
         io.to(`${userId}`).emit('contest-ticks', filteredTicks);
         io.to(`${userId}`).emit('tick-room', filteredTicks);
@@ -160,6 +149,12 @@ const getTicks = async (socket) => {
 
 
   });
+}
+
+const getDummyTicks = async(socket) => {
+  let userId = await client.get(socket.id);
+  let filteredTicks = await DummyMarketData();
+  io.to(userId).emit('contest-ticks', filteredTicks);
 }
 
 const onError = ()=>{
@@ -224,7 +219,7 @@ const onOrderUpdate = ()=>{
 
 
 const getTicker = () => ticker;
-module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken };
+module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, getDummyTicks, unSubscribeTokens, onOrderUpdate, subscribeSingleToken };
 
 //https://vvv201214.s3.ap-south-1.amazonaws.com/cbc1.jpeg
 

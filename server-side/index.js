@@ -16,7 +16,8 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
-const {autoTradeContest} = require('./controllers/contestTradeController')
+const {autoTradeContest} = require('./controllers/contestTradeController');
+const {getDummyTicks} = require('./marketData/kiteTicker');
 // import * as ioredis from 'ioredis';
 
 // const redis = require('redis');
@@ -38,7 +39,8 @@ app.use(xssClean());
 app.use(hpp());
 
 // issue fix --> if enviournment variable path is not work
-const path = require('path')
+const path = require('path');
+const {DummyMarketData} = require('./marketData/dummyMarketData');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 
 console.log("index.js")
@@ -88,8 +90,10 @@ getKiteCred.getAccess().then(async (data)=>{
 
     socket.on('hi', async (data) => {
       // getKiteCred.getAccess().then(async (data)=>{
-      console.log("in hii event")
+      console.log("in hii event");
         await getTicks(socket);
+        // await getDummyTicks(socket);
+        await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
 
