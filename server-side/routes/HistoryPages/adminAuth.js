@@ -16,6 +16,56 @@ const traderwiseDailyPnlController = require("../../controllers/traderwiseDailyP
 const DailyPNLData = require("../../models/InstrumentHistoricalData/DailyPnlDataSchema")
 const TraderDailyPnlData = require("../../models/InstrumentHistoricalData/TraderDailyPnlDataSchema");
 const UserDetail = require("../../models/User/userDetailSchema");
+const PortFolio = require("../../models/userPortfolio/UserPortfolio");
+// const Instrument = require('../')
+
+
+router.get("/updatePortfolio", async (req, res)=>{
+  let users = await UserDetail.find();
+
+  for(let user of users){
+    const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
+
+    let portfolioArr = [];
+    for (const portfolio of activeFreePortfolios) {
+        let obj = {};
+        obj.portfolioId = portfolio._id;
+        obj.activationDate = new Date();
+        portfolioArr.push(obj);
+    }
+    
+    const idOfUser = user._id; // Replace with the actual user ID
+    
+    await UserDetail.findByIdAndUpdate(
+        idOfUser,
+        { $set: { portfolio: portfolioArr } }
+    );
+    
+    for (const portfolio of activeFreePortfolios) {
+        const portfolioValue = portfolio.portfolioValue;
+    
+        await PortFolio.findByIdAndUpdate(
+            portfolio._id,
+            { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
+        );
+    }
+  
+  }
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 router.get("/removefeild", async (req, res)=>{

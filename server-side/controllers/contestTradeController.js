@@ -171,7 +171,8 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
   if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
       //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
       if(!dontSendResp){
-        return res.status(422).json({error : "please fill all the feilds..."})
+        console.log("Please fill all fields, autotrade");
+        // return res.status(422).json({error : "please fill all the feilds..."})
       } else{
         return;
       }
@@ -244,12 +245,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
   ContestTrade.findOne({order_id : order_id})
   .then((dateExist)=>{
       if(dateExist){
-          //console.log("data already");
-          if(!dontSendResp){
-            // return res.status(422).json({error : "date already exist..."})
-          } else{
-            return;
-          }
+          console.log("data already");
           
       }
 

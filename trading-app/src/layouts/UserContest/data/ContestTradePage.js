@@ -1,4 +1,4 @@
-import React,{useState, useEffect, memo} from 'react'
+import React,{useState, useEffect, memo, useMemo, useCallback} from 'react'
 import { io } from "socket.io-client";
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
@@ -99,9 +99,42 @@ function ContestTradeView () {
 
     },[])
 
-    // console.log("Contest Registration Data: ",id)
-    // console.log(`/arena/${contest?.contestName}/${contest?._id}`)
+    const memoizedUsedPortfolio = useMemo(() => {
+      return <UsedPortfolio portfolioId={portfolioId} />;
+    }, [portfolioId]);
+
+    const memoizedTradersRanking = useMemo(() => {
+      return <TradersRanking contestId={contestId} />;
+    }, [contestId]);
   
+    const memoizedLastTrade = useMemo(() => {
+      return <LastTrade
+        contestId={contestId}
+        Render={{render, setReRender}}
+      />;
+    }, [render, contestId]);
+  
+    const memoizedInstrumentDetails = useMemo(() => {
+      return <InstrumentsData
+        socket={socket}
+        contestId={contestId}
+        portfolioId={portfolioId}
+        isFromHistory={isFromHistory}
+        Render={{render, setReRender}}
+      />;
+    }, [socket, render, contestId, portfolioId, isFromHistory]);
+  
+    const memoizedOverallPnl = useMemo(() => {
+      return <MYPNLData
+        socket={socket}
+        contestId={contestId}
+        portfolioId={portfolioId}
+        isFromHistory={isFromHistory}
+        Render={{render, setReRender}}
+      />;
+    }, [socket, render, contestId, portfolioId, isFromHistory]);
+
+
     return (
     <MDBox key={contest?._id} width="100%" bgColor="dark" color="light" p={2}>
         <Grid container spacing={2}>
@@ -123,10 +156,13 @@ function ContestTradeView () {
                     
                     {!isDummy ?
                     <>
-                    <InstrumentsData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory}/>
-                    <MYPNLData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory} />
-                    {isFromHistory && <UsedPortfolio portfolioId={portfolioId} />}
-                    <LastTrade contestId={contestId} Render={{render, setReRender}}/>
+                    {memoizedInstrumentDetails}
+                    {/* <InstrumentsData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory}/> */}
+                    {memoizedOverallPnl}
+                    {/* <MYPNLData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory} /> */}
+                    {isFromHistory && memoizedUsedPortfolio}
+                    {memoizedLastTrade}
+                    {/* <LastTrade contestId={contestId} Render={{render, setReRender}}/> */}
                     </>
                     :
                     <>
@@ -145,7 +181,8 @@ function ContestTradeView () {
             {isDummy ?
             <DummyRank />
             :
-            <TradersRanking contestId={contestId} />
+            // <TradersRanking contestId={contestId} />
+            memoizedTradersRanking
             }
 
 
