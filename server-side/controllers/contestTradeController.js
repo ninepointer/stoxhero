@@ -14,7 +14,8 @@ const client = require('../marketData/redisClient');
 const getKiteCred = require('../marketData/getKiteCred');
 const ContestInstrument = require('../models/Instruments/contestInstrument') ;
 const DummyMarketData = require('../marketData/dummyMarketData');
-const singleLivePrice = require('../marketData/sigleLivePrice')
+const singleLivePrice = require('../marketData/sigleLivePrice');
+const {getFilteredTicks} = require('../marketData/dummyMarketData');
 
 
 exports.newTrade = async (req, res, next) => {
@@ -674,7 +675,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
     if(await client.exists(`leaderboard:${id}`)){
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = formatData(leaderBoard)
-
+      
       console.log('cached');
       return res.status(200).json({
         status: 'success',
@@ -685,45 +686,57 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
     else{
       //get ltp for the contest instruments
       // const contestInstruments = await Contest.findById(id).select('instruments');
-      const contestInstruments = await ContestInstrument.find({'contest.contestId': id}).select('instrumentToken exchange symbol');
-      const data = await getKiteCred.getAccess();
       let addUrl;
-      contestInstruments.forEach((elem, index) => {
-        if (index === 0) {
-          addUrl = ('i=' + elem.exchange + ':'+ elem.symbol);
-        } else {
-          addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
-        }
-      });
-      // console.log(addUrl);
-      const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
-      let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
-
-      let authOptions = {
-        headers: {
-          'X-Kite-Version': '3',
-          Authorization: auth,
-        },
-      };
-      // let arr = [];
-
-      // dummy market data
-      // let marketdata = await DummyMarketData();
-      // setTimeout(DummyMarketData, 10000);
-      
-
       let livePrices = {};
-      const response = await axios.get(ltpBaseUrl, authOptions);
-      for (let instrument in response.data.data) {
+      let dummyTesting = true;
+      if(dummyTesting){
+        let filteredTicks = getFilteredTicks();
+        console.log('filtered ticks received', filteredTicks);
+        if(filteredTicks.length > 0){
+          for (tick of filteredTicks){
+            livePrices[tick.instrument_token] = tick.last_price;
+          }
+          console.log(livePrices);
+        }
+      }else{
+        const contestInstruments = await ContestInstrument.find({'contest.contestId': id}).select('instrumentToken exchange symbol');
+        const data = await getKiteCred.getAccess();
+        contestInstruments.forEach((elem, index) => {
+          if (index === 0) {
+            addUrl = ('i=' + elem.exchange + ':'+ elem.symbol);
+          } else {
+            addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+          }
+        });
+        // console.log(addUrl);
+        const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
+        let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
+  
+        let authOptions = {
+          headers: {
+            'X-Kite-Version': '3',
+            Authorization: auth,
+          },
+        };
+        // let arr = [];
+  
+        // dummy market data
+        // let marketdata = await DummyMarketData();
+        // setTimeout(DummyMarketData, 10000);
         
-          // let obj = {};
-          // console.log(instrument, response.data.data[instrument].last_price);
-          livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
-          // obj.last_price = response.data.data[instrument].last_price;
-          // obj.instrument_token = response.data.data[instrument].instrument_token;
-          // obj.average_price = response.data.data[instrument].ohlc.close;
-          // obj.timestamp = response.data.data[instrument].timestamp
-          // arr.push(obj);
+  
+        const response = await axios.get(ltpBaseUrl, authOptions);
+        for (let instrument in response.data.data) {
+          
+            // let obj = {};
+            // console.log(instrument, response.data.data[instrument].last_price);
+            livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+            // obj.last_price = response.data.data[instrument].last_price;
+            // obj.instrument_token = response.data.data[instrument].instrument_token;
+            // obj.average_price = response.data.data[instrument].ohlc.close;
+            // obj.timestamp = response.data.data[instrument].timestamp
+            // arr.push(obj);
+        }
       }
 
     //   for (let instrument in marketdata) {
