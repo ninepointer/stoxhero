@@ -50,7 +50,7 @@ const unSubscribeTokens = async(token) => {
     let tokens = [];
     tokens?.push(token)
    let x =  ticker.unsubscribe(tokens);
-  //  console.log("unsubscribed token", x, tokens);
+  //  console.log("unsubscribed token", x, tokens); 
 }
 
 const getTicks = async (socket) => {
@@ -147,11 +147,11 @@ const getTicks = async (socket) => {
       // }
       console.log("performance", performance.now()-now, socket.id);
 
-      // filteredTicks = null;
-      // ticks = null;
-      // indexData = null;
-      // instrumentTokenArr = null;
-      // instruments = null;
+      filteredTicks = null;
+      ticks = null;
+      indexData = null;
+      instrumentTokenArr = null;
+      instruments = null;
 
 
     } catch (err){
@@ -159,6 +159,103 @@ const getTicks = async (socket) => {
     }
 
 
+  });
+}
+
+const getTicksForUserPosition = async (socket) => {
+  let indecies = await client.get("index")
+  if(!indecies){
+    indecies = await StockIndex.find({status: "Active"});
+    await client.set("index", JSON.stringify(indecies));
+  } else{
+    indecies = JSON.parse(indecies);  
+  }
+
+  ticker.on('ticks', async (ticks) => {
+
+    let indexObj = {};
+    let now = performance.now();
+    // populate hash table with indexObj from indecies
+    for (let i = 0; i < indecies?.length; i++) {
+      indexObj[indecies[i]?.instrumentToken] = true;
+    }
+    // filter ticks using hash table lookups
+    let indexData = ticks.filter(function(item) {
+      return indexObj[item.instrument_token];
+    });
+
+
+    try{
+      let userId = await client.get(socket.id)
+      let instruments = await client.SMEMBERS(userId)
+      console.log(userId, instruments)
+      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
+      console.log(instrumentTokenArr)
+      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+      if(indexData?.length > 0){
+        socket.emit('index-tick', indexData)
+      }
+      
+      if(filteredTicks.length > 0){
+        io.to(`${userId}`).emit('tick-room', filteredTicks);
+      }
+      // console.log("performance", performance.now()-now, socket.id);
+
+      filteredTicks = null;
+      ticks = null;
+      indexData = null;
+      instrumentTokenArr = null;
+      instruments = null;
+
+    } catch (err){
+      console.log(err)
+    }
+
+
+  });
+}
+
+const getTicksForContest = async (socket) => {
+
+  ticker.on('ticks', async (ticks) => {
+
+
+    try{
+      let contestId = await client.get(socket.id)
+      let instruments = await client.SMEMBERS(contestId)
+      console.log(contestId, instruments)
+      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
+      console.log(instrumentTokenArr)
+      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+    
+      if(filteredTicks.length > 0){
+        io.to(`${contestId}`).emit('contest-ticks', filteredTicks);
+      }
+      // console.log("performance", performance.now()-now, socket.id);
+
+      filteredTicks = null;
+      ticks = null;
+      indexData = null;
+      instrumentTokenArr = null;
+      instruments = null;
+
+
+    } catch (err){
+      console.log(err)
+    }
+
+
+  });
+}
+
+const getTicksForCompanySide = async (socket) => {
+  ticker.on('ticks', async (ticks) => {
+    try{
+      socket.emit('tick', ticks);
+      ticks = null;
+    } catch (err){
+      console.log(err)
+    }
   });
 }
 
@@ -224,8 +321,7 @@ const onOrderUpdate = ()=>{
 
 
 const getTicker = () => ticker;
-module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken };
+module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken, getTicksForContest, getTicksForUserPosition, getTicksForCompanySide };
 
-//https://vvv201214.s3.ap-south-1.amazonaws.com/cbc1.jpeg
 
 
