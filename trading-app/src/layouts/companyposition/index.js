@@ -55,13 +55,7 @@ function CompanyPosition() {
 
     useEffect(() => {
       socket.on("connect", () => {
-        socket.emit("hi", true)
-      })
-      socket.on("noToken", (data) => {
-        window.alert(data);
-      })
-      socket.on("wrongToken", (data) => {
-        window.alert(data);
+        socket.emit("company-ticks", true)
       })
   
     }, []);

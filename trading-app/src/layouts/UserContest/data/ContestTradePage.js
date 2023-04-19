@@ -73,7 +73,7 @@ function ContestTradeView () {
         // socket.emit('userId', contestId)
 
         // socket.emit('contest', contestId)
-        socket.emit("hi", true)
+        socket.emit("contest", true)
       })
     }, []);
 
