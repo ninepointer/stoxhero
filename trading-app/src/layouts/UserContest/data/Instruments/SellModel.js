@@ -156,7 +156,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
       let id = setTimeout(()=>{
         render ? setReRender(false) : setReRender(true)
-      }, 2000);
+      }, 1800);
       
   }
 

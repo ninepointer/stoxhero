@@ -17,6 +17,7 @@ function TradersRanking({contestId}){
 
 
   const fetchData = async () => {
+    // console.log("runnning every 2 sec")
     try {
       const [api1Response, api2Response] = await Promise.all([
         axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/leaderboard`, {
@@ -50,7 +51,7 @@ function TradersRanking({contestId}){
   };
   
   useEffect(() => {
-    const intervalId = setInterval(fetchData, 10000); // run every 10 seconds
+    const intervalId = setInterval(fetchData, 3000); // run every 10 seconds
     fetchData(); // run once on mount
     // socket.emit('hi')
     return () => clearInterval(intervalId);
