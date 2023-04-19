@@ -1,4 +1,4 @@
-import React,{useState, useEffect, memo} from 'react'
+import React,{useState, useEffect, memo, useContext} from 'react'
 // import MDBox from '../../../../components/MDBox'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../../components/MDTypography'
@@ -8,9 +8,9 @@ import MDButton from '../../../../components/MDButton'
 // import { HiUserGroup } from 'react-icons/hi';
 // import { Link } from 'react-router-dom';
 // import TaskAltIcon from '@mui/icons-material/TaskAlt';
-// import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom'; marketDetails.contestMarketData
 import axios from "axios";
-import { marketDataContext } from '../../../../MarketDataContext';
+import  { marketDataContext } from '../../../../MarketDataContext';
 import BuyModel from "./BuyModel";
 import SellModel from "./SellModel";
 import { CircularProgress } from "@mui/material";
@@ -19,17 +19,19 @@ import { CircularProgress } from "@mui/material";
 
 function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}){
 
-    // const marketDetails = useContext(marketDataContext)
+    // const marketDetails = useContext(marketDetails.contestMarketDataContext)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [instrumentData, setInstrumentData] = useState([]);
-    const [marketData, setMarketData] = useState([]);
+    // const [marketDetails.contestMarketData, marketDetails.setContestMarketData] = useState([]);
     const [isLoading,setIsLoading] = useState(true)
     const {render, setReRender} = Render;
+    const marketDetails = useContext(marketDataContext)
+
 
     useEffect(()=>{
         axios.get(`${baseUrl}api/v1/getliveprice`)
         .then((res) => {
-          setMarketData(res.data);
+          marketDetails.setContestMarketData(res.data);
         }).catch((err) => {
             return new Error(err);
         })
@@ -41,12 +43,12 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
             socket.emit('userId', contestId)
     
             // socket.emit('contest', contestId)
-            socket.emit("hi", true)
+            socket.emit("contest", true)
         //   })
         // socket.on("tick", (data) => {
         socket.on("contest-ticks", (data) => {
           console.log('data from socket in instrument in parent', data);
-          setMarketData(prevInstruments => {
+          marketDetails.setContestMarketData(prevInstruments => {
             const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
             data.forEach(instrument => {
               instrumentMap.set(instrument.instrument_token, instrument);
@@ -85,7 +87,7 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
 
     }, [])
     
-    console.log("instrument", contestId, portfolioId, marketData)
+    console.log("instrument", contestId, portfolioId, marketDetails.contestMarketData)
 
 return (
     <>
@@ -137,7 +139,7 @@ return (
         </Grid>
 
         {instrumentData.map((elem)=>{
-            let perticularInstrumentMarketData = marketData.filter((subelem)=>{
+            let perticularInstrumentMarketData = marketDetails.contestMarketData.filter((subelem)=>{
             return elem.instrumentToken === subelem.instrument_token
             })
             return(
