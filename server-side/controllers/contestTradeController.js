@@ -130,6 +130,8 @@ exports.newTrade = async (req, res, next) => {
       });
 
       // console.log("mockTradeDetails", mockTradeDetailsUser);
+      // const newredisClient = await client.SADD((_id), (instrumentToken).toString());
+
       contestTrade.save().then(()=>{
           console.log("sending response");
           if(!dontSendResp){
