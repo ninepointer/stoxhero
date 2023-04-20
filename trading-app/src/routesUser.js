@@ -131,7 +131,7 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "My Portfolio",
+    name: "Portfolio",
     key: "portfolio",
     icon: <BusinessCenterIcon/>,
     route: "/portfolio",
