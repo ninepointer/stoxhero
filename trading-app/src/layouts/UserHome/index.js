@@ -10,10 +10,13 @@ import ReportsLineChart from "../../examples/Charts/BarCharts/ReportsBarChart";
 
 // Data
 import Carousel from "./data/Carousel";
-import Indicies from "../traderHome/components/IndicesComponent";
+import Indicies from "./components/IndicesComponent";
+import Leaderboard from "./data/leaderboard"
 import { display } from "@mui/system";
 // import PnlPosition from "../../layouts/User Position/OverallP&L/OverallGrid";
 import PnlPosition from "./data/Pnl";
+import MDTypography from "../../components/MDTypography";
+import MDButton from "../../components/MDButton";
 
 
 function Tables() {
@@ -22,13 +25,36 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <Grid container spacing={2} mb={2}>
-        <Indicies/>
+      <Grid container>
+        
+        <Grid item xs={12} md={6} lg={12}>
+          <Indicies/>
+        </Grid>
+
+        <Grid container display="flex" style={{height:'100%'}}>
+        <Grid item xs={12} md={6} lg={9} mb={4}>
+          <MDBox ml={0} mr={1} display="flex" justifyContent="space-between">
+            <MDTypography variant="text" color="dark" fontSize={13}>Upcoming Contests</MDTypography>
+            <MDTypography fontSize={13}><button variant="text" color="dark" size="small" style={{border:"none"}}>View All</button></MDTypography>
+          </MDBox>
+          <Carousel/>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3} mb={4} style={{height:'100%'}}>
+          <MDBox ml={1.5} mr={1} display="flex" justifyContent="center">
+            <MDTypography variant="text" color="dark" fontSize={13}><button variant="text" color="dark" size="small" style={{border:"none"}}>Leaderboard</button></MDTypography>
+          </MDBox>
+          <Leaderboard/>
+        </Grid>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={12}>
+          <PnlPosition />
+        </Grid>
+
       </Grid>
-      <Carousel/>
-      <Grid sx={{mb: "40px", mt: "40px"}}>
-        <PnlPosition />
-      </Grid>
+      
+      
       
       <Grid style={{display: 'flex'}} mt={4}>
           <MDBox style={{flex:2}}>
