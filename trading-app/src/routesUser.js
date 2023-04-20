@@ -4,7 +4,6 @@ import Profile from "./layouts/profile";
 
 // @mui icons
 
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import ReorderIcon from '@mui/icons-material/Reorder';
@@ -25,17 +24,18 @@ import ContestTradePage from './layouts/UserContest/ContestTrade'
 import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
 import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
+import Home from './layouts/UserHome'
+import HomeIcon from '@mui/icons-material/OtherHouses';
 
 const routes = [
 
   // {
   //   type: "collapse",
-  //   name: "Dashboard",
+  //   name: "DashBoard",
   //   key: "Dashboard",
-  //   // icon: <Icon fontSize="small">person</Icon>,
-  //   icon: <DashboardIcon/>,
+  //   icon: <HomeIcon/>,
   //   route: "/Dashboard",
-  //   component: <Dashboard />,
+  //   component: <Home />,
   // },
   {
     type: "collapse",
@@ -57,7 +57,7 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Battleground",
+    name: "Battle Ground",
     key: "battleground",
     icon: <StadiumIcon/>,
     route: "/battleground",
