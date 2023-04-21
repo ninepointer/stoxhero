@@ -97,7 +97,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/:name/result",
+    route: "battleground/result",
     component: <ResultPage />,
   },
   {
