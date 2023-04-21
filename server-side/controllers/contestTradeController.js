@@ -1018,4 +1018,15 @@ exports.getRedisMyRank = async(req,res,next) => {
 
 }
 
+exports.getHistoryRanks = async(req,res,next) => {
+
+  const contestId = req.params.id;
+  const ranks = await Contest.find({_id: contestId}).select('rank')
+  return res.status(200).json({
+    status: 'success',
+    data: ranks[0].rank
+  });
+
+}
+
 

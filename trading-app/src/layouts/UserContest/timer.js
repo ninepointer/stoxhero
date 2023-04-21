@@ -62,7 +62,7 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
     });
   } else if(timeRemaining.total <= 0 && !isDummy && flag.current && redirect){
     console.log("timer running 2nd")
-    navigate(`/battleground/${contestName}/result`, {
+    navigate(`/battleground/result`, {
       state: {contestId: contestId, portfolioId: portfolioId}
     });
   } else if(timeRemaining.total <= 0 && isDummy && redirect){

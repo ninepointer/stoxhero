@@ -13,12 +13,12 @@ function TradersRanking({contestId, isFromHistory, reward}){
   const [myRank, setMyRank] = useState({});
   const [isLoading,setIsLoading] = useState(true)
   const getDetails = useContext(userContext)
-
+  const historyUrl = isFromHistory ? "historyLeaderboard" : "leaderboard"
 
   const fetchData = async () => {
     // console.log("runnning every 2 sec")
 
-      const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/leaderboard`, {
+      const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${historyUrl}`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
