@@ -15,7 +15,7 @@ const UsedPortfolio = ({portfolioId}) => {
   const [portfolioRemainData,setPortfolioRemainData] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
   
@@ -66,7 +66,7 @@ const UsedPortfolio = ({portfolioId}) => {
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center">
-                    <MDTypography fontSize={15} style={{color:"black",fontWeight:800}}>Portfolio Current Value : ₹{`${((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)).toFixed(0)}`}</MDTypography>
+                    <MDTypography fontSize={15} style={{color:"black",fontWeight:800}}>Portfolio Current Value : {(((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)).toFixed(0) >= 0.00 ? "+₹" + (((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)).toFixed(0)): "-₹" + ((-((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)).toFixed(0))))}</MDTypography>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">

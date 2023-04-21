@@ -9,7 +9,7 @@ import { CircularProgress } from "@mui/material";
 
 function LastTrade({contestId, portfolioId, Render}){
 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [orders, setOrders] = useState([]);
     const [isLoading,setIsLoading] = useState(true)
     const {render, setReRender} = Render;

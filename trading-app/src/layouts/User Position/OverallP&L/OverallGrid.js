@@ -55,9 +55,8 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
   let url = getDetails.userDetails.isAlgoTrader ? "getoverallpnlmocktradeparticularusertoday" : "getoverallpnlmocktradeparticulartradertoday"
 
   // const { reRender, setReRender } = Render
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [liveDetail, setLiveDetail] = useState([]);
-  const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,
@@ -71,37 +70,6 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
   let totalRunningLots = 0;
   let rows = [];
 
-    // useEffect(()=>{
-
-    //   let abortController;
-    //   (async () => {
-    //        abortController = new AbortController();
-    //        let signal = abortController.signal;    
-
-    //        // the signal is passed into the request(s) we want to abort using this controller
-    //        const { data } = await axios.get(
-    //         `${baseUrl}api/v1/getliveprice`,
-    //            { signal: signal }
-    //        );
-    //        setMarketData(data);
-    //   })();
-
-
-    //   socket.on("tick-room", (data) => {
-    //     console.log("tick data in overallpnl", data)
-    //     setMarketData(prevInstruments => {
-    //       const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-    //       data.forEach(instrument => {
-    //         instrumentMap.set(instrument.instrument_token, instrument);
-    //       });
-    //       return Array.from(instrumentMap.values());
-    //     });
-    //   })
-
-    //   return () => abortController.abort();
-    // }, [])
-
-    console.log("marketdata", marketDetails?.marketData)
 
     useEffect(()=>{
 
@@ -122,7 +90,8 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
 
       // reRender ? setRender(false) : setRender(true);
       return () => abortController.abort();
-    }, [marketDetails.marketData, reRender])
+    // }, [reRender])
+  }, [marketDetails.marketData, reRender])
 
     // useEffect(() => {
     //   return () => {

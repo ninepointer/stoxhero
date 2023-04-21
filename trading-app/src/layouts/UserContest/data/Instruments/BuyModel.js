@@ -35,7 +35,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   // const marketDetails = useContext(marketDataContext)
 
   // console.log("data from props", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   // const { reRender, setReRender } = Render;
   const getDetails = React.useContext(userContext);
@@ -123,7 +123,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
     }).catch((err) => {
         return new Error(err);
     })
-  }, [getDetails, ltp])
+  }, [])
 
   async function buyFunction(e, uId) {
       e.preventDefault()
@@ -155,7 +155,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
       let id = setTimeout(()=>{
         render ? setReRender(false) : setReRender(true)
-      }, 1000);
+      }, 1800);
       
   }
 

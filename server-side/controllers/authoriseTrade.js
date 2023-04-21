@@ -332,7 +332,8 @@ exports.contestFundCheck = async(req, res, next) => {
             console.log(runningLots, contestFunds)
             if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
                 //console.log("checking runninglot- reverse trade");
-                return next();
+                next();
+                return ;
             }
             //console.log(transactionTypeRunningLot, runningLots[0]?._id?.symbol, Math.abs(Number(Quantity)), Math.abs(runningLots[0]?.runningLots))
             let marginData;

@@ -18,26 +18,11 @@ const MyPortfolioCard = ({type}) => {
   
   const [myPortfolio,setMyPortfolio] = useState([]);
   const [portfolioPnl, setPortfolioPnl] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{
   
-    // axios.get(`${baseUrl}api/v1/portfolio/my`,{
-    //   withCredentials: true,
-    //   headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //       "Access-Control-Allow-Credentials": true
-    //   },
-    // })
-    // .then((res)=>{
-    //     setMyPortfolio(res.data.data);
-    //     console.log(res.data.data)
-    //   }).catch((err)=>{
-    //     return new Error(err);
-    // })
-
 
     let call1 = axios.get(`${baseUrl}api/v1/portfolio/my`,{
                 withCredentials: true,

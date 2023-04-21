@@ -8,7 +8,7 @@ import { userContext } from '../../../AuthContext';
 
 function TradersRanking({contestId}){
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [rankData, setRankData] = useState([]);
   const [myRank, setMyRank] = useState({});
   const [marketData, setMarketData] = useState([]);
@@ -17,6 +17,7 @@ function TradersRanking({contestId}){
 
 
   const fetchData = async () => {
+    // console.log("runnning every 2 sec")
     try {
       const [api1Response, api2Response] = await Promise.all([
         axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/leaderboard`, {
@@ -50,7 +51,7 @@ function TradersRanking({contestId}){
   };
   
   useEffect(() => {
-    const intervalId = setInterval(fetchData, 10000); // run every 10 seconds
+    const intervalId = setInterval(fetchData, 1000); // run every 10 seconds
     fetchData(); // run once on mount
     // socket.emit('hi')
     return () => clearInterval(intervalId);
@@ -101,14 +102,14 @@ return (
                 <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                     
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light">{myRank?.rank}</MDTypography>
+                      <MDTypography fontSize={13} color="light">{myRank?.rank ? myRank?.rank : "-"}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light">{getDetails?.userDetails?.name}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                         <MDTypography fontSize={13} color={myRank?.npnl >= 0 ? "success" : "error"}>
-                            {myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))}
+                            {myRank?.npnl ? (myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))) : "-"}
                         </MDTypography>
                       </Grid>
                       {/* <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">

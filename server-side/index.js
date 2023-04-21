@@ -8,7 +8,10 @@ const fetch = require('./marketData/placeOrder');
 app.use(require("cookie-parser")());
 const fetchData = require('./marketData/fetchToken');
 const io = require('./marketData/socketio');
-const {createNewTicker, disconnectTicker, getTicker, subscribeTokens, getTicks, onError, getMargins, onOrderUpdate} = require('./marketData/kiteTicker');
+const {createNewTicker, disconnectTicker, getTicker, 
+      subscribeTokens, getTicks, onError, getMargins, 
+      onOrderUpdate, getTicksForContest, getTicksForUserPosition, 
+      getTicksForCompanySide} = require('./marketData/kiteTicker');
 const getKiteCred = require('./marketData/getKiteCred'); 
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
 const helmet = require("helmet");
@@ -58,12 +61,12 @@ getKiteCred.getAccess().then(async (data)=>{
       console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
     })
-    socket.on('contest', async (contestId)=>{
-      socket.join(`${contestId}`)
-      console.log("in index.js contest ", socket.id, data)
-      await client.set(socket.id, contestId);
-      console.log("contestId ", contestId)
-    })
+    // socket.on('contest', async (contestId)=>{
+    //   socket.join(`${contestId}`)
+    //   console.log("in index.js contest ", socket.id, data)
+    //   await client.set(socket.id, contestId);
+    //   console.log("contestId ", contestId)
+    // })
 
     //  socket.emit('check', true)
 
@@ -98,6 +101,25 @@ getKiteCred.getAccess().then(async (data)=>{
         await onOrderUpdate();
 
       // });
+    });
+    socket.on('company-ticks', async (data) => {
+      console.log("in company-ticks event")
+        await getTicksForCompanySide(socket);
+        await onError();
+        // await onOrderUpdate();
+    });
+    socket.on('user-ticks', async (data) => {
+      console.log("in user-ticks event")
+        await getTicksForUserPosition(socket);
+        await onError();
+        await onOrderUpdate();
+
+    });
+    socket.on('contest', async (data) => {
+      console.log("in contest event")
+        await getTicksForContest(socket);
+        await onError();
+
     });
     subscribeTokens();
 
