@@ -688,7 +688,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       // const contestInstruments = await Contest.findById(id).select('instruments');
       let addUrl;
       let livePrices = {};
-      let dummyTesting = true;
+      let dummyTesting = false;
       if(dummyTesting){
         let filteredTicks = getFilteredTicks();
         console.log('filtered ticks received', filteredTicks);

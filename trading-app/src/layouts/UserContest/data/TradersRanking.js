@@ -8,7 +8,7 @@ import { userContext } from '../../../AuthContext';
 
 function TradersRanking({contestId}){
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [rankData, setRankData] = useState([]);
   const [myRank, setMyRank] = useState({});
   const [marketData, setMarketData] = useState([]);
