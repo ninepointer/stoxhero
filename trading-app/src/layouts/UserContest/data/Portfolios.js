@@ -16,7 +16,7 @@ import { CircularProgress } from "@mui/material";
 
 
 
-const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
+const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}) => {
   
   const [contestPortfolioData,setContestPortfolioData] = useState([]);
   const [objectId,setObjectId] = useState(contestId);
@@ -70,7 +70,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
     useEffect(() => {
       if (shouldNavigate) {
         nevigate(`/battleground/${contestName}`, {
-          state: {contestId: objectId, portfolioId: selectedPortfolio, isDummy: isDummy}
+          state: {entry: entry, minEntry: minEntry, contestId: objectId, portfolioId: selectedPortfolio, isDummy: isDummy}
         });
       }
     }, [shouldNavigate]);

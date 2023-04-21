@@ -25,6 +25,11 @@ import ContestTradePage from './layouts/UserContest/ContestTrade'
 import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
 import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
+// import ContestResultPage from "./layouts/UserContest/data/contestTrade/ContestResultPage";
+import ResultPage from "./layouts/UserContest/ResultPage";
+import MyContestHistoryCard from "./layouts/UserContest/data/MyContestHistoryCard";
+import ContestHistory from "./layouts/UserContest/ContestHistory";
+import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
 
 const routes = [
 
@@ -86,6 +91,30 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "battleground/:name/trade",
     component: <ContestTradePage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/:name/result",
+    component: <ResultPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/history",
+    component: <ContestHistory />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/history/:name",
+    component: <ContestHistoryCard />,
   },
   // {
   //   // type: "collapse",

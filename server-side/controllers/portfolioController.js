@@ -152,7 +152,8 @@ exports.getUserPortfolio = async(req,res,next) => {
         const myContests = await Contest.find({
           "participants.userId": userId,
           "participants.status": "Joined",
-          "contestEndDate": { $gt: new Date() }
+          "contestEndDate": { $gt: new Date() },
+          status: "Live"
         });
         // console.log("myContests", myContests)
         const filteredPortfolioIds = portfolioIds.filter(portfolioId => {

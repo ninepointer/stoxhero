@@ -241,7 +241,7 @@ const getTicksForContest = async (socket) => {
 
 
     } catch (err){
-      console.log(err)
+      // console.log(err)
     }
 
 

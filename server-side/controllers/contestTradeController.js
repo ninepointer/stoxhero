@@ -16,7 +16,6 @@ const ContestInstrument = require('../models/Instruments/contestInstrument') ;
 const DummyMarketData = require('../marketData/dummyMarketData');
 const singleLivePrice = require('../marketData/sigleLivePrice')
 
-
 exports.newTrade = async (req, res, next) => {
 
   const contestId = req.params.id;
@@ -47,15 +46,15 @@ exports.newTrade = async (req, res, next) => {
       Quantity = "-"+Quantity;
   }
 
-  console.log("1st")
+  //console.log("1st")
   let originalLastPriceUser;
   let newTimeStamp = "";
   let trade_time = "";
   try{
       
-    console.log("above")
+    //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      console.log(liveData)
+      //console.log(liveData)
       for(let elem of liveData){
           if(elem.instrument_token == instrumentToken){
               newTimeStamp = elem.timestamp;
@@ -70,11 +69,11 @@ exports.newTrade = async (req, res, next) => {
 
 
   } catch(err){
-    console.log(err)
+      console.log(err)
       return new Error(err);
   }
 
-  console.log("2nd")
+  //console.log("2nd")
 
   function buyBrokerage(totalAmount){
       let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
@@ -100,7 +99,7 @@ exports.newTrade = async (req, res, next) => {
 
   let brokerageUser;
 
-  // console.log("3st")
+  // //console.log("3st")
   if(buyOrSell === "BUY"){
       brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
   } else{
@@ -110,7 +109,7 @@ exports.newTrade = async (req, res, next) => {
   ContestTrade.findOne({order_id : order_id})
   .then(async (dateExist)=>{
       if(dateExist){
-          //console.log("data already");
+          ////console.log("data already");
           if(!dontSendResp){
             return res.status(422).json({error : "date already exist..."})
           } else{
@@ -120,7 +119,7 @@ exports.newTrade = async (req, res, next) => {
       }
 
 
-      // console.log("4st")
+      // //console.log("4st")
       const contestTrade = new ContestTrade({
           status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "ninepointer", userId,
@@ -129,17 +128,17 @@ exports.newTrade = async (req, res, next) => {
           
       });
 
-      // console.log("mockTradeDetails", mockTradeDetailsUser);
+      // //console.log("mockTradeDetails", mockTradeDetailsUser);
 
       contestTrade.save().then(async ()=>{
 
           const newredisClient = await client.set((`${trader.toString()} ${contestId.toString()}`), JSON.stringify(contestTrade));
-          console.log("userid check", `${trader.toString()} ${contestId.toString()} pnl`)
+          //console.log("userid check", `${trader.toString()} ${contestId.toString()} pnl`)
           if(await client.exists(`${trader.toString()} ${contestId.toString()} pnl`)){
-            console.log("in the if condition")
+            //console.log("in the if condition")
             let pnl = await client.get(`${trader.toString()} ${contestId.toString()} pnl`)
             pnl = JSON.parse(pnl);
-            console.log("before pnl", pnl)
+            //console.log("before pnl", pnl)
             const matchingElement = pnl.find((element) => (element._id.instrumentToken === contestTrade.instrumentToken && element._id.product === contestTrade.Product ));
   
             // if instrument is same then just updating value
@@ -149,7 +148,7 @@ exports.newTrade = async (req, res, next) => {
               matchingElement.brokerage += Number(contestTrade.brokerage);
               matchingElement.lastaverageprice = contestTrade.average_price;
               matchingElement.lots += Number(contestTrade.Quantity);
-              console.log("matchingElement", matchingElement)
+              //console.log("matchingElement", matchingElement)
   
             } else {
               // Create a new element if instrument is not matching
@@ -169,14 +168,14 @@ exports.newTrade = async (req, res, next) => {
             }
             
             await client.set(`${trader.toString()} ${contestId.toString()} pnl`, JSON.stringify(pnl))
-            console.log("pnl", pnl)
+            //console.log("pnl", pnl)
   
           } 
           //appending documents in leaderboard
           if(await client.exists(`${contestId.toString()} allranks`)){
             let ranks = await client.get(`${contestId.toString()} allranks`)
             ranks = JSON.parse(ranks);
-            console.log("before ranks", ranks)
+            //console.log("before ranks", ranks)
             const matchingUserElem = ranks.find((element) => (element.userId.instrumentToken === contestTrade.instrumentToken && element.userId.product === contestTrade.Product && (element.userId.trader).toString() === (contestTrade.trader).toString() ));
   
             if (matchingUserElem) {
@@ -185,7 +184,7 @@ exports.newTrade = async (req, res, next) => {
               matchingUserElem.investedAmount += Math.abs(contestTrade.amount);
               matchingUserElem.brokerage += Number(contestTrade.brokerage);
               matchingUserElem.lots += Number(contestTrade.Quantity);
-              // console.log("matchingElement", matchingElement)
+              // //console.log("matchingElement", matchingElement)
   
             } else {
               // Create a new element in the array with the values of the first document
@@ -205,30 +204,30 @@ exports.newTrade = async (req, res, next) => {
               });
   
             }
-            console.log("ranks from redis", ranks)
+            //console.log("ranks from redis", ranks)
             await client.set(`${contestId.toString()} allranks`, JSON.stringify(ranks))
   
           } 
 
           //appending documents in pnl
-          console.log("above the if condition")
+          //console.log("above the if condition")
 
 
 
 
-          console.log("sending response");
+          //console.log("sending response");
           if(!dontSendResp){
             res.status(201).json({status: 'Complete', message: 'COMPLETE'});
           }
       }).catch((err)=> {
-          console.log("in err", err )
+          //console.log("in err", err )
           // res.status(500).json({error:"Failed to enter data"})
       });
       
-      // console.log("5st")
+      // //console.log("5st")
   }).catch(err => {console.log( "fail")});  
   
-  // console.log("6st")
+  // //console.log("6st")
 
 }
 
@@ -247,14 +246,14 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
         } else{
           tradeBy = trader
         }
-        console.log("req.body", tradeDetails)
+        //console.log("req.body", tradeDetails)
 
     const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
     const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
 
 
   if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
-      //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+      ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
       if(!dontSendResp){
         console.log("Please fill all fields, autotrade");
         // return res.status(422).json({error : "please fill all the feilds..."})
@@ -267,15 +266,15 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
       Quantity = "-"+Quantity;
   }
 
-  console.log("1st")
+  //console.log("1st")
   let originalLastPriceUser;
   let newTimeStamp = "";
   let trade_time = "";
   try{
       
-    console.log("above")
+    //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      // console.log(liveData)
+      // //console.log(liveData)
       for(let elem of liveData){
           if(elem.instrument_token == instrumentToken){
               newTimeStamp = elem.timestamp;
@@ -290,11 +289,11 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
 
 
   } catch(err){
-    console.log(err)
+      console.log(err)
       return new Error(err);
   }
 
-  console.log("2nd")
+  //console.log("2nd")
 
   function buyBrokerage(totalAmount){
       let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
@@ -320,7 +319,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
 
   let brokerageUser;
 
-  // console.log("3st")
+  // //console.log("3st")
   if(buyOrSell === "BUY"){
       brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
   } else{
@@ -335,7 +334,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
       }
 
 
-      // console.log("4st")
+      // //console.log("4st")
       const contestTrade = new ContestTrade({
           status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "ninepointer", userId,
@@ -344,15 +343,15 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           
       });
 
-      // console.log("mockTradeDetails", mockTradeDetailsUser);
+      // //console.log("mockTradeDetails", mockTradeDetailsUser);
       contestTrade.save().then(async ()=>{
         const newredisClient = await client.set((`${trader.toString()} ${contestId.toString()}`), JSON.stringify(contestTrade));
 
         if(await client.exists(`${trader.toString()} ${contestId.toString()} pnl`)){
-          console.log("in the if condition")
+          //console.log("in the if condition")
           let pnl = await client.get(`${trader.toString()} ${contestId.toString()} pnl`)
           pnl = JSON.parse(pnl);
-          console.log("before pnl", pnl)
+          //console.log("before pnl autotrade", pnl)
           const matchingElement = pnl.find((element) => (element._id.instrumentToken === contestTrade.instrumentToken && element._id.product === contestTrade.Product ));
 
           // if instrument is same then just updating value
@@ -362,7 +361,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
             matchingElement.brokerage += Number(contestTrade.brokerage);
             matchingElement.lastaverageprice = contestTrade.average_price;
             matchingElement.lots += Number(contestTrade.Quantity);
-            console.log("matchingElement", matchingElement)
+            //console.log("matchingElement autotrade", matchingElement)
 
           } else {
             // Create a new element if instrument is not matching
@@ -382,14 +381,14 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           }
           
           await client.set(`${trader.toString()} ${contestId.toString()} pnl`, JSON.stringify(pnl))
-          console.log("pnl", pnl)
+          //console.log("pnl autotrade", pnl)
 
         } 
         //appending documents in leaderboard
         if(await client.exists(`${contestId.toString()} allranks`)){
           let ranks = await client.get(`${contestId.toString()} allranks`)
           ranks = JSON.parse(ranks);
-          console.log("before ranks", ranks)
+          //console.log("before ranks autotarde", ranks)
           const matchingUserElem = ranks.find((element) => (element.userId.instrumentToken === contestTrade.instrumentToken && element.userId.product === contestTrade.Product && (element.userId.trader).toString() === (contestTrade.trader).toString() ));
 
           if (matchingUserElem) {
@@ -398,7 +397,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
             matchingUserElem.investedAmount += Math.abs(contestTrade.amount);
             matchingUserElem.brokerage += Number(contestTrade.brokerage);
             matchingUserElem.lots += Number(contestTrade.Quantity);
-            // console.log("matchingElement", matchingElement)
+            // //console.log("matchingElement", matchingElement)
 
           } else {
             // Create a new element in the array with the values of the first document
@@ -418,13 +417,13 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
             });
 
           }
-          console.log("ranks from redis", ranks)
+          //console.log("ranks from redis autotarde", ranks)
           await client.set(`${contestId.toString()} allranks`, JSON.stringify(ranks))
 
         } 
 
       }).catch((err)=> {
-          console.log("in err", err)
+          console.log("in err autotrade", err)
           // res.status(500).json({error:"Failed to enter data"})
       });
       
@@ -460,16 +459,14 @@ exports.getContestPnl = async(req, res, next) => {
   // console.log("in get contest")
     const userId = req.user._id;
     const contestId = req.params.id;
-    const portfolioId = req.query.portfolioId;
-    const today = new Date().toISOString().slice(0, 10);
 
-    console.log("contest id in redis", `${userId.toString()} ${contestId.toString()} pnl`)
+    // console.log("contest id in redis", `${userId.toString()} ${contestId.toString()} pnl`)
     try{
 
         if(await client.exists(`${userId.toString()} ${contestId.toString()} pnl`)){
           let pnl = await client.get(`${userId.toString()} ${contestId.toString()} pnl`)
           pnl = JSON.parse(pnl);
-          console.log("pnl redis", pnl)
+          // console.log("pnl redis", pnl)
 
           res.status(201).json(pnl);
 
@@ -521,7 +518,7 @@ exports.getContestPnl = async(req, res, next) => {
           ]); 
           // console.log("pnlDetails in else", pnlDetails)
           await client.set(`${userId.toString()} ${contestId.toString()} pnl`, JSON.stringify(pnlDetails))
-          console.log("pnlDetails", pnlDetails)
+          // console.log("pnlDetails", pnlDetails)
           res.status(201).json(pnlDetails);
         }
 
@@ -531,62 +528,6 @@ exports.getContestPnl = async(req, res, next) => {
     }
 }
 
-exports.getContestHistoryPnl = async(req, res, next) => {
-  // console.log("in get contest")
-    const userId = req.user._id;
-    const contestId = req.params.id;
-    const portfolioId = req.query.portfolioId;
-    // console.log("in getContestPnl", userId, contestId, portfolioId, today)
-    try{
-        let pnlDetails = await ContestTrade.aggregate([
-            {
-              $match: {
-                status: "COMPLETE",
-                trader: userId,
-                contestId: new ObjectId(contestId),
-                // portfolioId: new ObjectId(portfolioId)
-              },
-            },
-            {
-              $group: {
-                _id: {
-                  symbol: "$symbol",
-                  product: "$Product",
-                  instrumentToken: "$instrumentToken",
-                  exchange: "$exchange"
-                },
-                amount: {
-                  $sum: {$multiply : ["$amount",-1]},
-                },
-                brokerage: {
-                  $sum: {
-                    $toDouble: "$brokerage",
-                  },
-                },
-                lots: {
-                  $sum: {
-                    $toInt: "$Quantity",
-                  },
-                },
-                lastaverageprice: {
-                  $last: "$average_price",
-                },
-              },
-            },
-            {
-              $sort: {
-                _id: -1,
-              },
-            },
-        ]);
-
-        res.status(201).json(pnlDetails);
-
-    }catch(e){
-        console.log(e);
-        return res.status(500).json({status:'success', message: 'something went wrong.'})
-    }
-}
 
 exports.getContestRank = async (req, res, next) => {
     const contestId = req.params.id;
@@ -731,6 +672,7 @@ exports.autoTradeContest = async() => {
     // const userId = req.user._id;
     // const contestId = req.params.id;
     // const portfolioId = req.query.portfolioId;
+    console.log("in autotrade")
     const now = new Date();
     const thirtyMinutesBeforeNow = new Date(now.getTime() - 30 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
 
@@ -749,6 +691,15 @@ exports.autoTradeContest = async() => {
     const userIds = contests.map(async (contest) => {
       // console.log(contest._id)
       // req.params.id = contest._id;
+      let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+      const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contest._id}/trades/leaderboard`)
+      const rankData = api1Response.data.data;
+
+      const updatedContest = await Contest.updateOne(
+                                { _id: contest._id },
+                                { $set: { rank: rankData } }
+                              );
+
       let openTrade = await ContestTrade.aggregate([
         {
           $match:
@@ -1044,6 +995,7 @@ exports.getRedisMyRank = async(req,res,next) => {
   console.log(req.user.name)
   try{
     if(await client.exists(`leaderboard:${id}`)){
+
       const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({name:req.user.name}));
       const leaderBoardScore = await client.ZSCORE(`leaderboard:${id}`, JSON.stringify({name:req.user.name}));
   
