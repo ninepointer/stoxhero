@@ -233,7 +233,23 @@ const userDetailSchema = new mongoose.Schema({
     referredBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
-    }
+    },
+    contests:[{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail'
+    }],
+    portfolio:[{
+        activationDate: {type: Date},
+        portfolioId: {
+            type: Schema.Types.ObjectId,
+            ref: 'user-portfolio'
+        }
+    }],
+    isAlgoTrader:{
+        type: Boolean,
+        default: false
+    },
+
 })
 
 //Adding the ninepointer id before saving

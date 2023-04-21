@@ -1,39 +1,45 @@
 const kiteTicker = require('kiteconnect').KiteTicker;
-const fetchData = require('./fetchToken');
+const fetchToken = require('./fetchToken');
 const getKiteCred = require('./getKiteCred'); 
 const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
+const ContestInstrument = require("../models/Instruments/contestInstrument");
+const DummyMarketData = require("./dummyMarketData")
+
 const io = require('../marketData/socketio');
 const client = require("./redisClient");
 
 
 
 let ticker;
+
 const createNewTicker = (api_key, access_token) => {
+  console.log("createNewTicker")
     ticker = new kiteTicker({
         api_key,
         access_token 
     });
    
-    ticker.connect();
-    ticker.autoReconnect(true, 10000000000, 5);
+    ticker?.connect();
+    ticker?.autoReconnect(true, 10000000000, 5);
     return ticker;    
 }
 
 const disconnectTicker = () => {
     console.log('disconnecting ticker');
-    ticker.disconnect();
+    ticker?.disconnect();
 }
 
 const subscribeTokens = async() => {
-  getKiteCred.getAccess().then(async (data)=>{
-    let tokens = await fetchData(data.getApiKey, data.getAccessToken);
+  // getKiteCred.getAccess().then(async (data)=>{
+    let tokens = await fetchToken();
+    // console.log("token in kite", tokens)
     ticker?.subscribe(tokens);
-  });
+  // });
 }
 
 const subscribeSingleToken = async(instrumentToken) => {
-  ticker.subscribe(instrumentToken);
+  ticker?.subscribe(instrumentToken);
 }
 
 // const unSubscribeSingleToken = async(instrumentToken) => {
@@ -42,12 +48,12 @@ const subscribeSingleToken = async(instrumentToken) => {
 
 const unSubscribeTokens = async(token) => {
     let tokens = [];
-    tokens.push(token)
+    tokens?.push(token)
    let x =  ticker.unsubscribe(tokens);
-  //  console.log("unsubscribed token", x, tokens);
+  //  console.log("unsubscribed token", x, tokens); 
 }
 
-const getTicks = async (socket, tokens) => {
+const getTicks = async (socket) => {
   let indecies = await client.get("index")
   if(!indecies){
     indecies = await StockIndex.find({status: "Active"});
@@ -55,30 +61,64 @@ const getTicks = async (socket, tokens) => {
   } else{
     indecies = JSON.parse(indecies);  
   }
+
+  // let contestInstrument = await client.get("contest")
+  // if(!contestInstrument){
+  //   contestInstrument = await ContestInstrument.find({status: "Active"});
+  //   await client.set("contest", JSON.stringify(contestInstrument));
+  // } else{
+  //   contestInstrument = JSON.parse(contestInstrument);  
+  // }
+
   
 
-  // console.log("checking get ticks")
+  // console.log("checking get ticks", contestInstrument, indecies)
   ticker.on('ticks', async (ticks) => {
-    let indexObj = {};
+    // console.log(ticks)
 
+    socket.emit('tick', ticks);
+
+    // socket.emit('check', ticks);
+
+    let indexObj = {};
     let now = performance.now();
     // populate hash table with indexObj from indecies
-    for (let i = 0; i < indecies.length; i++) {
-      indexObj[indecies[i].instrumentToken] = true;
+    for (let i = 0; i < indecies?.length; i++) {
+      indexObj[indecies[i]?.instrumentToken] = true;
     }
-
     // filter ticks using hash table lookups
     let indexData = ticks.filter(function(item) {
       return indexObj[item.instrument_token];
     });
 
+    // console.log("contestInstrument", contestInstrument)
+    // let contestObj = {};
+    // // populate hash table with indexObj from indecies
+    // for (let i = 0; i < contestInstrument?.length; i++) {
+    //   contestObj[contestInstrument[i]?.instrumentToken] = true;
+    // }
+    // // filter ticks using hash table lookups
+    // let contestInstrumentData = ticks.filter(function(item) {
+    //   return contestObj[item.instrument_token];
+    // });
+    // console.log("contestInstrumentData", contestInstrumentData)
+
+    // socket.emit('contest-ticks', contestInstrumentData);
+
+
     try{
+      // console.log("contest id is ", contestId)
+      // let contestInstruments = await client.SMEMBERS((contestId).toString());
+      // let contestInstrumentSet = new Set(contestInstruments); // create a Set of tokenArray elements
+      // console.log("contestInstrumentData", contestInstrumentData, contestInstrument)
       let userId = await client.get(socket.id)
+      // console.log("userId", userId, socket.id)
       let instruments = await client.SMEMBERS(userId)
       // console.log(userId, instruments)
       let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
       // console.log(instrumentTokenArr)
       let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+      // let contestTicks = ticks.filter(tick => contestInstrumentSet.has((tick.instrument_token).toString()));
 
       // let userId = await client.get(socket.id)
       // let instruments = await client.SMEMBERS(await client.get(socket.id))
@@ -89,20 +129,23 @@ const getTicks = async (socket, tokens) => {
       //   return await client.SISMEMBER(await client.get(socket.id), (tick.instrument_token).toString());
       // })
 
-  
-      // console.log("indexData", filteredTicks.length);
-      if(indexData.length > 0){
+      // console.log("in/dexData", filteredTicks);
+      if(indexData?.length > 0){
         socket.emit('index-tick', indexData)
       }
       
-      socket.emit('tick', ticks);
-      socket.emit('check', true);
 
       // if(filteredTicks > 0){
         // socket.emit('tick-room', ticks);
+      //   filteredTicks = await DummyMarketData()
+      // console.log(filteredTicks)
+      if(filteredTicks.length > 0){
+        io.to(`${userId}`).emit('contest-ticks', filteredTicks);
         io.to(`${userId}`).emit('tick-room', filteredTicks);
+      }
+
       // }
-      // console.log("performance", performance.now()-now);
+      console.log("performance", performance.now()-now, socket.id);
 
       filteredTicks = null;
       ticks = null;
@@ -112,16 +155,113 @@ const getTicks = async (socket, tokens) => {
 
 
     } catch (err){
-      // console.log(err)
+      console.log(err)
     }
 
 
   });
 }
 
+const getTicksForUserPosition = async (socket) => {
+  let indecies = await client.get("index")
+  if(!indecies){
+    indecies = await StockIndex.find({status: "Active"});
+    await client.set("index", JSON.stringify(indecies));
+  } else{
+    indecies = JSON.parse(indecies);  
+  }
+
+  ticker.on('ticks', async (ticks) => {
+
+    let indexObj = {};
+    let now = performance.now();
+    // populate hash table with indexObj from indecies
+    for (let i = 0; i < indecies?.length; i++) {
+      indexObj[indecies[i]?.instrumentToken] = true;
+    }
+    // filter ticks using hash table lookups
+    let indexData = ticks.filter(function(item) {
+      return indexObj[item.instrument_token];
+    });
+
+
+    try{
+      let userId = await client.get(socket.id)
+      let instruments = await client.SMEMBERS(userId)
+      // console.log(userId, instruments)
+      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
+      // console.log(instrumentTokenArr)
+      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+      if(indexData?.length > 0){
+        socket.emit('index-tick', indexData)
+      }
+      
+      if(filteredTicks.length > 0){
+        io.to(`${userId}`).emit('tick-room', filteredTicks);
+      }
+      // console.log("performance", performance.now()-now, socket.id);
+
+      filteredTicks = null;
+      ticks = null;
+      indexData = null;
+      instrumentTokenArr = null;
+      instruments = null;
+
+    } catch (err){
+      console.log(err)
+    }
+
+
+  });
+}
+
+const getTicksForContest = async (socket) => {
+
+  ticker.on('ticks', async (ticks) => {
+
+
+    try{
+      let contestId = await client.get(socket.id)
+      let instruments = await client.SMEMBERS(contestId)
+      // console.log(contestId, instruments)
+      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
+      // console.log(instrumentTokenArr)
+      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+    
+      if(filteredTicks.length > 0){
+        io.to(`${contestId}`).emit('contest-ticks', filteredTicks);
+      }
+      // console.log("performance", performance.now()-now, socket.id);
+
+      filteredTicks = null;
+      ticks = null;
+      indexData = null;
+      instrumentTokenArr = null;
+      instruments = null;
+
+
+    } catch (err){
+      console.log(err)
+    }
+
+
+  });
+}
+
+const getTicksForCompanySide = async (socket) => {
+  ticker.on('ticks', async (ticks) => {
+    try{
+      socket.emit('tick', ticks);
+      ticks = null;
+    } catch (err){
+      console.log(err)
+    }
+  });
+}
+
 const onError = ()=>{
-    ticker.on('error', (error)=>{
-      // console.log(error);
+    ticker?.on('error', (error)=>{
+      console.log(error);
     });
 }
 
@@ -181,8 +321,7 @@ const onOrderUpdate = ()=>{
 
 
 const getTicker = () => ticker;
-module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken };
-
+module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken, getTicksForContest, getTicksForUserPosition, getTicksForCompanySide };
 
 
 

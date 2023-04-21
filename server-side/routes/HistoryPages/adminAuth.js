@@ -16,8 +16,114 @@ const traderwiseDailyPnlController = require("../../controllers/traderwiseDailyP
 const DailyPNLData = require("../../models/InstrumentHistoricalData/DailyPnlDataSchema")
 const TraderDailyPnlData = require("../../models/InstrumentHistoricalData/TraderDailyPnlDataSchema");
 const UserDetail = require("../../models/User/userDetailSchema");
+const PortFolio = require("../../models/userPortfolio/UserPortfolio");
+const ContestTrade = require("../../models/Contest/ContestTrade")
+const ObjectId = require('mongodb').ObjectId;
+
+// const Instrument = require('../')
 
 
+router.get("/updatePortfolio", async (req, res)=>{
+  let users = await UserDetail.find();
+
+  for(let user of users){
+    const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
+
+    let portfolioArr = [];
+    for (const portfolio of activeFreePortfolios) {
+        let obj = {};
+        obj.portfolioId = portfolio._id;
+        obj.activationDate = new Date();
+        portfolioArr.push(obj);
+    }
+    
+    const idOfUser = user._id; // Replace with the actual user ID
+    
+    await UserDetail.findByIdAndUpdate(
+        idOfUser,
+        { $set: { portfolio: portfolioArr } }
+    );
+    
+    for (const portfolio of activeFreePortfolios) {
+        const portfolioValue = portfolio.portfolioValue;
+    
+        await PortFolio.findByIdAndUpdate(
+            portfolio._id,
+            { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
+        );
+    }
+  
+  }
+
+})
+
+router.get("/pnldetails", async (req, res)=>{
+  let pnlDetails = await ContestTrade.aggregate([
+    {
+      $match: {
+        // trade_time: {
+        //   $regex: today,
+        // },
+        status: "COMPLETE",
+        trader: new ObjectId("64340f477818ebba306d49ad"),
+        contestId: new ObjectId("643fa4d8063b227a7685ff00"),
+        // portfolioId: new ObjectId(portfolioId)
+      },
+    },
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          product: "$Product",
+          instrumentToken: "$instrumentToken",
+          exchange: "$exchange"
+        },
+        amount: {
+          $sum: {$multiply : ["$amount",-1]},
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+        lastaverageprice: {
+          $last: "$average_price",
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]);
+
+  res.send(pnlDetails)
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+router.get("/removefeild", async (req, res)=>{
+  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+})
 async function generateUniqueReferralCode() {
   const length = 8; // change this to modify the length of the referral code
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -43,12 +149,24 @@ async function generateUniqueReferralCode() {
 router.get("/referralCode", async (req, res) => {
   const users = await UserDetail.find();
 
+  // for (let i = 0; i < users.length; i++) {
+  //   if (!users[i].myReferralCode) {
+  //     const code = await generateUniqueReferralCode();
+  //     const result = await UserDetail.updateOne(
+  //       { _id: users[i]._id },
+  //       { $set: { myReferralCode: code } },
+  //       { upsert: true }
+  //     );
+  //     console.log(result);
+  //   }
+  // }
+
   for (let i = 0; i < users.length; i++) {
-    if (!users[i].myReferralCode) {
-      const code = await generateUniqueReferralCode();
+    if (!users[i].isAlgoTrader) {
+      // const code = await generateUniqueReferralCode();
       const result = await UserDetail.updateOne(
         { _id: users[i]._id },
-        { $set: { myReferralCode: code } },
+        { $set: { isAlgoTrader: true } },
         { upsert: true }
       );
       console.log(result);
@@ -108,7 +226,7 @@ router.get("/dbbackup", async (req, res)=>{
   // const sourceUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
   const targetUri = "mongodb+srv://anshuman:ninepointerdev@cluster1.iwqmp4g.mongodb.net/?retryWrites=true&w=majority";
 
-  await dbBackup.backupDatabase(sourceUri, targetUri);
+  await dbBackup.backupDatabase(sourceUri, targetUri, res);
 
 })
 

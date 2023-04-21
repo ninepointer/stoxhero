@@ -109,7 +109,11 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         </Link>
       ) : (
         <NavLink key={key} to={route}>
-          <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
+          <SidenavCollapse 
+            name={name} 
+            icon={icon} 
+            active={key === collapseName} 
+            />
         </NavLink>
       );
     } else if (type === "title") {
@@ -164,8 +168,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             <CloseIcon sx={{ fontWeight: "bold" }}></CloseIcon>
           </MDTypography>
         </MDBox>
-        <MDBox component={NavLink} to="/" display="flex" alignItems="center">
-          {brand && <MDBox component="img" src={brand} alt="Brand" width="2rem" />}
+        <MDBox component={NavLink} to="/" display="flex" ml={4} alignItems="center">
+          {brand && <MDBox mr={0.5} component="img" src={brand} alt="Brand" width="2rem" borderRadius="4rem" />}
           <MDBox
             width={!brandName && "100%"}
             sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}

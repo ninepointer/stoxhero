@@ -55,13 +55,7 @@ function CompanyPosition() {
 
     useEffect(() => {
       socket.on("connect", () => {
-        socket.emit("hi", true)
-      })
-      socket.on("noToken", (data) => {
-        window.alert(data);
-      })
-      socket.on("wrongToken", (data) => {
-        window.alert(data);
+        socket.emit("company-ticks", true)
       })
   
     }, []);
@@ -84,7 +78,7 @@ function CompanyPosition() {
       <MDBox py={0}>
       <MDBox mt={1}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
+            <Grid item xs={12} md={12} lg={12}>
               <MismatchDetails socket={socket}/>
             </Grid>
           </Grid>
@@ -98,7 +92,7 @@ function CompanyPosition() {
         </MDBox> */}
         <MDBox mt={2}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
+            <Grid item xs={12} md={12} lg={12}>
               <MockOverallCompanyPNL socket={socket} />
             </Grid>
           </Grid>
@@ -106,7 +100,7 @@ function CompanyPosition() {
         
         <MDBox mt={2}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
+            <Grid item xs={12} md={12} lg={12}>
               <MockTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} />
             </Grid>
           </Grid>
@@ -114,7 +108,7 @@ function CompanyPosition() {
 
         <MDBox mt={2}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
+            <Grid item xs={12} md={12} lg={12}>
               <LiveOverallCompanyPNL socket={socket} />
             </Grid>
           </Grid>
@@ -122,7 +116,7 @@ function CompanyPosition() {
 
         <MDBox mt={2}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
+            <Grid item xs={12} md={12} lg={12}>
               <LiveTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} />
             </Grid>
           </Grid>

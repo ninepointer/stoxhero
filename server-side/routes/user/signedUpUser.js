@@ -9,6 +9,9 @@ const userPersonalDetail = require("../../models/User/userDetailSchema");
 const signedUpUser = require("../../models/User/signedUpUser");
 const sendSMS = require('../../utils/smsService');
 const Referral = require("../../models/campaigns/referralProgram");
+const Lead = require("../../models/leads/leads");
+const MarginAllocation = require("../../models/marginAllocation/marginAllocationSchema")
+const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 
 router.post("/signup", async (req, res)=>{
     console.log("Inside SignUp Routes")
@@ -40,7 +43,7 @@ router.post("/signup", async (req, res)=>{
 
     res.status(201).json({message : "Mobile and mail OTPs have been sent. Check your email and messages. OTPs expire in 30 minutes.", 
         status: 201});
-                let subject = "OTP from ninepointer";
+                let subject = "OTP from StoxHero";
                 let message = 
                 `
                 <!DOCTYPE html>
@@ -112,7 +115,7 @@ router.post("/signup", async (req, res)=>{
                 `;
 
                 emailService(email,subject,message);
-                sendSMS([mobile.toString()], `Welcome to ninepointer. Your OTP for signup is ${mobile_otp}`);
+                sendSMS([mobile.toString()], `Welcome to StoxHero. Your OTP for signup is ${mobile_otp}`);
             }catch(err){console.log(err);res.status(500).json({message:'Something went wrong',status:"error"})}
 })
 
@@ -157,7 +160,7 @@ router.patch("/verifyotp", async (req, res)=>{
         }
 
         //Check for referrer code
-        console.log("Referrer Code: ",referrerCode,!referrerCode)
+        // console.log("Referrer Code: ",referrerCode,!referrerCode)
         // if(!referrerCode){
         //     console.log("Inside Referrer Code Empty Check")
         //     return res.status(404).json({message : "No referrer code. Please enter your referrer code"});
@@ -226,12 +229,21 @@ router.patch("/verifyotp", async (req, res)=>{
         }
         
         console.log("user Id(Line 204): ",userId)
-
-
-        // let referralDocs = [];
-        // referralDocs.push(referral._id)
         let referral = await Referral.findOne({status: "Active"});
         console.log("referral", referral)
+
+        // free portfolio adding in user collection
+        const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
+        console.log("active portfolio", activeFreePortfolios);
+        let portfolioArr = [];
+        for (const portfolio of activeFreePortfolios) {
+            let obj = {};
+            obj.portfolioId = portfolio._id;
+            obj.activationDate = new Date();
+            portfolioArr.push(obj);
+        }
+
+        console.log("portfolio arr", portfolioArr);
         try{
         let obj = {
             first_name, last_name, designation: 'Equity Trader', email, 
@@ -240,9 +252,10 @@ router.patch("/verifyotp", async (req, res)=>{
             createdBy: first_name + ' ' + last_name,last_modifiedBy: first_name + ' ' + last_name, 
             name: first_name + ' ' + last_name.substring(0,1), createdOn: user.last_modifiedOn, 
             lastModified: user.last_modifiedOn, password: 'np' + last_name + '@123', status: 'Active', 
-            employeeid: userId,fund: 0, creationProcess: 'Auto SignUp',
+            employeeid: userId,fund: 1000000, creationProcess: 'Auto SignUp',
             joining_date:user.last_modifiedOn,myReferralCode:(await myReferralCode).toString(), referrerCode:referrerCode,
             // referredBy: referredBy,
+            portfolio: portfolioArr,
             referralProgramme: referral._id
         }
         if(referredBy){
@@ -250,14 +263,48 @@ router.patch("/verifyotp", async (req, res)=>{
         }
         const newuser = await User.create(obj);
 
+        const idOfUser = newuser._id;
+
+        for (const portfolio of activeFreePortfolios) {
+            const portfolioValue = portfolio.portfolioValue;
+          
+            await PortFolio.findByIdAndUpdate(
+              portfolio._id,
+              { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
+            );
+        }
+
         referral?.users?.push(newuser._id)
         const referralProgramme = await Referral.findOneAndUpdate({status: "Active"}, {
             $set:{ 
-                
                 users: referral?.users
             }
-            
+        
         })
+
+        let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
+        if(lead){
+        lead.status = 'Joined'
+        lead.referralCode = newuser.referrerCode
+        lead.joinedOn = new Date();
+        await lead.save({validateBeforeSave:false});
+        }
+
+        let marginAllocation = await MarginAllocation.create(
+            {
+                amount:1000000,
+                createdOn:new Date(),
+                createdBy:newuser._id,
+                lastModifiedOn:new Date(),
+                lastModifiedBy:newuser._id,
+                userId: newuser._id,
+                traderName: newuser.name,
+                fund:1000000,
+                creditedOn: new Date(),
+                creditedBy:newuser._id 
+            })
+        
+        console.log("Margin Allcoation Data: ",marginAllocation)
 
         console.log("referralProgramme", referralProgramme);
 
@@ -265,7 +312,7 @@ router.patch("/verifyotp", async (req, res)=>{
 
         res.status(201).json({status: "Success", data:newuser, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
-            let subject = "Account Created - ninepointer";
+            let subject = "Account Created - StoxHero";
             let message = 
             `
             <!DOCTYPE html>
@@ -340,9 +387,9 @@ router.patch("/verifyotp", async (req, res)=>{
                     <p>Hello ${newuser.first_name},</p>
                     <p>Your login details are:</p>
                     <p>User ID: <span class="userid">${newuser.email}</span></p>
-                    <p>Password: <span class="password">np${last_name}@123</span></p>
+                    <p>Password: <span class="password">np${newuser.last_name}@123</span></p>
                     <p>Please use these credentials to log in to our website:</p>
-                    <a href="https://www.ninepointer.in/" class="login-button">Log In</a>
+                    <a href="https://www.stoxhero.com/" class="login-button">Log In</a>
                     </div>
                 </body>
                 </html>
@@ -371,11 +418,78 @@ router.patch("/resendotp", async (req, res)=>{
     }
     let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true,lowerCaseAlphabets: false, specialChars: false });
     let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
-    let subject = "OTP from ninepointer";
-    let message = `Your OTP for email verification is: ${email_otp}`
+    let subject = "OTP from StoxHero";
+    let message = `
+    <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Email OTP</title>
+            <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ccc;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            p {
+                margin: 0 0 20px;
+            }
+
+            .otp-code {
+                display: inline-block;
+                background-color: #f5f5f5;
+                padding: 10px;
+                font-size: 20px;
+                font-weight: bold;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+
+            .cta-button {
+                display: inline-block;
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px 20px;
+                font-size: 18px;
+                font-weight: bold;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+
+            .cta-button:hover {
+                background-color: #0069d9;
+            }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+            <h1>Email OTP</h1>
+            <p>Hello ${user.first_name},</p>
+            <p>Your OTP code is: <span class="otp-code">${email_otp}</span></p>
+            <p>Please use this code to verify your email address and complete your registration.</p>
+            <p>If you did not request this OTP, please ignore this email.</p>
+            </div>
+        </body>
+        </html>
+    `;
     if(type == 'mobile'){
         user.mobile_otp = mobile_otp;
-        sendSMS([mobile.toString()],`Your otp for ninepointer signup is ${mobile_otp}`);    
+        sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);    
     }
     else if(type == 'email'){
         user.email_otp = email_otp;
@@ -398,8 +512,8 @@ router.get("/signedupusers", (req, res)=>{
 })
 
 router.put("/updatesignedupuser/:id", async (req, res)=>{
-    //console.log(req.params)
-    //console.log("this is body", req.body);
+    console.log(req.params)
+    console.log("this is body", req.body);
 
     try{
         const {id} = req.params
