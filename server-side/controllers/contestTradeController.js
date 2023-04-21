@@ -733,14 +733,11 @@ exports.getLastFiveTrade = async(req, res, next) => {
 
 }
 
-
-
 exports.editLeaderboard = async(req,res,next) => {
   const {id} = req.params;
   const {userData, score} = req.body;
   await client.ZADD(`contest:${id}`, score, JSON.stringify(userData));
 }
-
 
 exports.getLeaderBoard = async(req,res,next) => {
   const leaderBoard = await client.ZREVRANGE(`contest:${id}`, 0, 19, 'WITHSCORES');
@@ -934,7 +931,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       }
       
       // await pipeline.exec();
-      await client.expire(`leaderboard:${id}`,3);
+      await client.expire(`leaderboard:${id}`,1);
 
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = formatData(leaderBoard)
