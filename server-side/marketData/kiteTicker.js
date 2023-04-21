@@ -222,7 +222,7 @@ const getTicksForContest = async (socket) => {
 
     try{
       let contestId = await client.get(socket.id)
-      let instruments = await client.SMEMBERS(contestId)
+      let instruments = await client.SMEMBERS((contestId).toString())
       // console.log(contestId, instruments)
       let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
       // console.log(instrumentTokenArr)
