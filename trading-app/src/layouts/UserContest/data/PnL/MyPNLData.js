@@ -20,37 +20,7 @@ function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
 
-  console.log("in mypnl")
 
-  // useEffect(()=>{
-
-  //   let abortController;
-  //   (async () => {
-  //        abortController = new AbortController();
-  //        let signal = abortController.signal;    
-
-  //        // the signal is passed into the request(s) we want to abort using this controller
-  //        const { data } = await axios.get(
-  //         `${baseUrl}api/v1/getliveprice`,
-  //            { signal: signal }
-  //        );
-  //        setMarketData(data);
-  //   })();
-
-
-  //   socket.on("contest-ticks", (data) => {
-  //     console.log("tick data in overallpnl", data)
-  //     setMarketData(prevInstruments => {
-  //       const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-  //       data.forEach(instrument => {
-  //         instrumentMap.set(instrument.instrument_token, instrument);
-  //       });
-  //       return Array.from(instrumentMap.values());
-  //     });
-  //   })
-
-  //   return () => abortController.abort();
-  // }, [])
 
   useEffect(()=>{
     let abortController;
@@ -85,35 +55,35 @@ function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
   }, [render])
   // }, [marketDetails.contestMarketData, render])
 
-  useEffect(()=>{
-    let abortController;
-    (async () => {
-      abortController = new AbortController();
-      let signal = abortController.signal;    
+  // useEffect(()=>{
+  //   let abortController;
+  //   (async () => {
+  //     abortController = new AbortController();
+  //     let signal = abortController.signal;    
 
-      // the signal is passed into the request(s) we want to abort using this controller
-      const { data } = await axios.get(
-       `${baseUrl}api/v1/contest/${contestId}/trades/historyPnl?portfolioId=${portfolioId}`,
+  //     // the signal is passed into the request(s) we want to abort using this controller
+  //     const { data } = await axios.get(
+  //      `${baseUrl}api/v1/contest/${contestId}/trades/historyPnl?portfolioId=${portfolioId}`,
          
-         {
-           withCredentials: true,
-           headers: {
-               Accept: "application/json",
-               "Content-Type": "application/json",
-               "Access-Control-Allow-Credentials": true
-           },
-         },
-         { signal: signal }
-      );
+  //        {
+  //          withCredentials: true,
+  //          headers: {
+  //              Accept: "application/json",
+  //              "Content-Type": "application/json",
+  //              "Access-Control-Allow-Credentials": true
+  //          },
+  //        },
+  //        { signal: signal }
+  //     );
 
-      console.log("in mypnl", data)
-      if(data){
-       setTradeData(data);
-       setIsLoading(false)
-      }
+  //     console.log("in mypnl", data)
+  //     if(data){
+  //      setTradeData(data);
+  //      setIsLoading(false)
+  //     }
 
-    })();
-  }, [])
+  //   })();
+  // }, [])
 
 
 
@@ -168,7 +138,7 @@ return (
       })
       totalRunningLots += Number(subelem.lots)
 
-      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+      let updatedValue = (liveDetail.length && liveDetail[0]?.last_price) ? (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price) : subelem.amount;
       totalGrossPnl += updatedValue;
 
       totalTransactionCost += Number(subelem.brokerage);
@@ -210,7 +180,7 @@ return (
           </MDTypography>
           :
           <MDTypography component="a" variant="caption" color="dark" style={{fontWeight:700}}>
-            {(liveDetail[0]?.last_price) ? "₹"+(liveDetail[0]?.last_price) : "₹"+0.00}
+            {(liveDetail.length && liveDetail[0]?.last_price) ? "₹"+(liveDetail[0]?.last_price) : "₹"+0.00}
           </MDTypography>
           }
         </Grid>
@@ -222,11 +192,6 @@ return (
           </MDTypography>
         </Grid>
 
-        {/* <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-          <MDTypography component="a" variant="caption" color={gpnlcolor} style={{fontWeight:700}}>
-            {netupdatedValue >= 0.00 ? "+₹" + (netupdatedValue.toFixed(2)): "-₹" + ((-netupdatedValue).toFixed(2))}
-          </MDTypography>
-        </Grid> */}
 
         </Grid>
 

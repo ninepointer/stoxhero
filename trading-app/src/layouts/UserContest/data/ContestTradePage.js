@@ -36,7 +36,10 @@ function ContestTradeView () {
     const  contestId  = location?.state?.contestId;
     const  portfolioId  = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
+    const minEntry = location?.state?.minEntry
+    const entry = location?.state?.entry
     const  isDummy  = location?.state?.isDummy;
+    const isContestCancelled = location?.state?.isContestCancelled;
     const redirect = useRef(true);
     const nevigate = useNavigate();
 
@@ -101,8 +104,12 @@ function ContestTradeView () {
     }, [portfolioId]);
 
     const memoizedTradersRanking = useMemo(() => {
-      return <TradersRanking contestId={contestId} />;
-    }, [contestId]);
+      return <TradersRanking contestId={contestId} reward={contest?.rewards}/>;
+    }, [contestId, contest?.rewards]);
+
+    const memoizedTradersRankingForHistory = useMemo(() => {
+      return <TradersRanking contestId={contestId} isFromHistory={isFromHistory} reward={contest?.rewards}/>;
+    }, [contestId, contest?.rewards]);
   
     const memoizedLastTrade = useMemo(() => {
       return <LastTrade
@@ -146,7 +153,8 @@ function ContestTradeView () {
                     </MDTypography>
                   </MDBox>
 
-                    {isDummy && !isFromHistory ?
+                  {!isContestCancelled ?
+                    isDummy && !isFromHistory ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
                           Contest is Starts in:
@@ -161,6 +169,8 @@ function ContestTradeView () {
                             isDummy={isDummy}
                             contestName={contest?.contestName}
                             redirect={redirect.current}
+                            minEntry={minEntry}
+                            entry={entry}
                           />
                         </div>
                       </Grid>
@@ -174,16 +184,26 @@ function ContestTradeView () {
                         <AvTimerIcon/>
                         <Timer 
                           targetDate={contest?.contestEndDate} 
-                          text="Contest Started"
+                          text="Contest Ends"
                           contestId={contestId}
                           portfolioId={portfolioId}
                           isDummy={isDummy}
                           contestName={contest?.contestName}
                           redirect={redirect.current}
+                          minEntry={minEntry}
+                          entry={entry}
                         />
                       </div>
                       </Grid>
-                      }
+
+                      :
+
+                      <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
+                        <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+                          Contest is cancelled due to minimum participants quata was not fullfilled
+                        </span> 
+                      </Grid>
+                  }
                     
                     {!isDummy ?
                     <>
@@ -212,8 +232,11 @@ function ContestTradeView () {
             {isDummy ?
             <DummyRank />
             :
-            // <TradersRanking contestId={contestId} />
+            isFromHistory ? 
+            memoizedTradersRankingForHistory
+            :
             memoizedTradersRanking
+            
             }
 
 

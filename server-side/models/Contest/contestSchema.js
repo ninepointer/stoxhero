@@ -97,6 +97,12 @@ const contestSchema = new mongoose.Schema({
         ref: 'user-personal-detail',
         // required : true
     },
+    rank:[
+        {
+            name: {type: String},
+            npnl: {type: Number}
+        }
+    ],
 })
 
 const contestData = mongoose.model("contest", contestSchema);
