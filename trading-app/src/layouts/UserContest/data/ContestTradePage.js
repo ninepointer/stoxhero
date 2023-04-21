@@ -1,4 +1,4 @@
-import React,{useState, useEffect, memo, useMemo, useCallback} from 'react'
+import React,{useState, useEffect, memo, useMemo, useCallback, useRef} from 'react'
 import { io } from "socket.io-client";
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
@@ -37,10 +37,8 @@ function ContestTradeView () {
     const  portfolioId  = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
     const  isDummy  = location?.state?.isDummy;
+    const redirect = useRef(true);
     const nevigate = useNavigate();
-
-
-    // const  isDummy  = false;
 
     const [render, setReRender] = useState(true);
     let style = {
@@ -56,7 +54,7 @@ function ContestTradeView () {
     }
 
     console.log("Location in tradePage: ",location)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
 
     let socket;
@@ -75,7 +73,7 @@ function ContestTradeView () {
         // socket.emit('userId', contestId)
 
         // socket.emit('contest', contestId)
-        socket.emit("hi", true)
+        socket.emit("contest", true)
       })
     }, []);
 
@@ -120,6 +118,7 @@ function ContestTradeView () {
         portfolioId={portfolioId}
         isFromHistory={isFromHistory}
         Render={{render, setReRender}}
+        
       />;
     }, [socket, render, contestId, portfolioId, isFromHistory]);
   
@@ -147,7 +146,7 @@ function ContestTradeView () {
                     </MDTypography>
                   </MDBox>
 
-                    {isDummy ?
+                    {isDummy && !isFromHistory ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
                           Contest is Starts in:
@@ -161,10 +160,12 @@ function ContestTradeView () {
                             portfolioId={portfolioId}
                             isDummy={isDummy}
                             contestName={contest?.contestName}
+                            redirect={redirect.current}
                           />
                         </div>
                       </Grid>
                       :
+                      !isFromHistory &&
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                       <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
                         Contest Ends in:
@@ -178,10 +179,11 @@ function ContestTradeView () {
                           portfolioId={portfolioId}
                           isDummy={isDummy}
                           contestName={contest?.contestName}
+                          redirect={redirect.current}
                         />
                       </div>
-                    </Grid>
-                    }
+                      </Grid>
+                      }
                     
                     {!isDummy ?
                     <>

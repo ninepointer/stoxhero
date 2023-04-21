@@ -1,15 +1,18 @@
-import React,{useState, useEffect, memo} from 'react'
+import React,{useState, useEffect, memo, useContext} from 'react'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../../components/MDTypography'
 import MDButton from '../../../../components/MDButton'
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
+import  { marketDataContext } from '../../../../MarketDataContext';
 
 
 
 function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
-  const [marketData, setMarketData] = useState([]);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // const [marketDetails.contestMarketData, setMarketData] = useState([]);
+  const marketDetails = useContext(marketDataContext)
+
   const [tradeData, setTradeData] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
   const {render, setReRender} = Render
@@ -19,35 +22,35 @@ function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
 
   console.log("in mypnl")
 
-  useEffect(()=>{
+  // useEffect(()=>{
 
-    let abortController;
-    (async () => {
-         abortController = new AbortController();
-         let signal = abortController.signal;    
+  //   let abortController;
+  //   (async () => {
+  //        abortController = new AbortController();
+  //        let signal = abortController.signal;    
 
-         // the signal is passed into the request(s) we want to abort using this controller
-         const { data } = await axios.get(
-          `${baseUrl}api/v1/getliveprice`,
-             { signal: signal }
-         );
-         setMarketData(data);
-    })();
+  //        // the signal is passed into the request(s) we want to abort using this controller
+  //        const { data } = await axios.get(
+  //         `${baseUrl}api/v1/getliveprice`,
+  //            { signal: signal }
+  //        );
+  //        setMarketData(data);
+  //   })();
 
 
-    socket.on("contest-ticks", (data) => {
-      console.log("tick data in overallpnl", data)
-      setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
-          instrumentMap.set(instrument.instrument_token, instrument);
-        });
-        return Array.from(instrumentMap.values());
-      });
-    })
+  //   socket.on("contest-ticks", (data) => {
+  //     console.log("tick data in overallpnl", data)
+  //     setMarketData(prevInstruments => {
+  //       const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+  //       data.forEach(instrument => {
+  //         instrumentMap.set(instrument.instrument_token, instrument);
+  //       });
+  //       return Array.from(instrumentMap.values());
+  //     });
+  //   })
 
-    return () => abortController.abort();
-  }, [])
+  //   return () => abortController.abort();
+  // }, [])
 
   useEffect(()=>{
     let abortController;
@@ -79,7 +82,8 @@ function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
     })();
 
     return () => abortController.abort();
-  }, [marketData, render])
+  }, [render])
+  // }, [marketDetails.contestMarketData, render])
 
   useEffect(()=>{
     let abortController;
@@ -111,11 +115,7 @@ function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
     })();
   }, [])
 
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+
 
   console.log("in mypnl", tradeData)
 
@@ -163,7 +163,7 @@ return (
 
 
       {tradeData?.map((subelem, index)=>{
-      let liveDetail = marketData.filter((elem)=>{
+      let liveDetail = marketDetails.contestMarketData.filter((elem)=>{
         return subelem._id.instrumentToken == elem.instrument_token;
       })
       totalRunningLots += Number(subelem.lots)
@@ -218,7 +218,7 @@ return (
         <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
         {/* <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>+1250</MDTypography> */}
           <MDTypography component="a" variant="caption" color={gpnlcolor} style={{fontWeight:700}}>
-            {updatedValue ? (updatedValue >= 0.00 ? "+₹" + updatedValue?.toFixed(2): "-₹" + (-updatedValue).toFixed(2)) : subelem?.amount}
+            {updatedValue ? (updatedValue >= 0.00 ? "+₹" + updatedValue?.toFixed(2): "-₹" + (-updatedValue).toFixed(2)) : (subelem?.amount)?.toFixed(2)}
           </MDTypography>
         </Grid>
 

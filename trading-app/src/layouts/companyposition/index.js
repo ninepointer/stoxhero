@@ -29,7 +29,7 @@ import LiveTraderwiseCompanyPNL from "./components/LiveTraderwiseCompanyPNL";
 
 function CompanyPosition() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   let socket;
   try{
@@ -55,13 +55,7 @@ function CompanyPosition() {
 
     useEffect(() => {
       socket.on("connect", () => {
-        socket.emit("hi", true)
-      })
-      socket.on("noToken", (data) => {
-        window.alert(data);
-      })
-      socket.on("wrongToken", (data) => {
-        window.alert(data);
+        socket.emit("company-ticks", true)
       })
   
     }, []);

@@ -33,7 +33,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
   // const marketDetails = useContext(marketDataContext)
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   // const { reRender, setReRender } = Render;
   const getDetails = React.useContext(userContext);
@@ -126,7 +126,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
         return new Error(err);
     })
 
-  }, [getDetails])
+  }, [])
 
 
   async function sellFunction(e, uId) {
@@ -156,7 +156,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
       let id = setTimeout(()=>{
         render ? setReRender(false) : setReRender(true)
-      }, 1000);
+      }, 1800);
       
   }
 

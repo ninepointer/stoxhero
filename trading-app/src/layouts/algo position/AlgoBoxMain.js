@@ -40,7 +40,7 @@ import LiveTraderwiseCompanyPNL from "./Component/LiveTraderwiseCompanyPNL";
 
 function AlgoBoxMain({id, algoName}) {
 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
     let socket;
     try{
@@ -57,15 +57,7 @@ function AlgoBoxMain({id, algoName}) {
           //console.log(socket);
           socket.on("connect", ()=>{
               //console.log(socket.id);
-              socket.emit("hi",true)
-          })
-          socket.on("noToken", (data)=>{
-              //console.log("no token");
-              window.alert(data);
-          })
-          socket.on("wrongToken", (data)=>{
-              //console.log("wrong Token");
-              window.alert(data);
+              socket.emit("company-ticks",true)
           })
   
       }, []);

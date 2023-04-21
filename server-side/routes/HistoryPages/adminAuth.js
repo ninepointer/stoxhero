@@ -17,6 +17,9 @@ const DailyPNLData = require("../../models/InstrumentHistoricalData/DailyPnlData
 const TraderDailyPnlData = require("../../models/InstrumentHistoricalData/TraderDailyPnlDataSchema");
 const UserDetail = require("../../models/User/userDetailSchema");
 const PortFolio = require("../../models/userPortfolio/UserPortfolio");
+const ContestTrade = require("../../models/Contest/ContestTrade")
+const ObjectId = require('mongodb').ObjectId;
+
 // const Instrument = require('../')
 
 
@@ -51,6 +54,56 @@ router.get("/updatePortfolio", async (req, res)=>{
     }
   
   }
+
+})
+
+router.get("/pnldetails", async (req, res)=>{
+  let pnlDetails = await ContestTrade.aggregate([
+    {
+      $match: {
+        // trade_time: {
+        //   $regex: today,
+        // },
+        status: "COMPLETE",
+        trader: new ObjectId("64340f477818ebba306d49ad"),
+        contestId: new ObjectId("643fa4d8063b227a7685ff00"),
+        // portfolioId: new ObjectId(portfolioId)
+      },
+    },
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          product: "$Product",
+          instrumentToken: "$instrumentToken",
+          exchange: "$exchange"
+        },
+        amount: {
+          $sum: {$multiply : ["$amount",-1]},
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+        lastaverageprice: {
+          $last: "$average_price",
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]);
+
+  res.send(pnlDetails)
 
 })
 
