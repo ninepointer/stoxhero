@@ -8,7 +8,7 @@ import { CircularProgress } from "@mui/material";
 
 
 function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const [isLoading,setIsLoading] = useState(true)

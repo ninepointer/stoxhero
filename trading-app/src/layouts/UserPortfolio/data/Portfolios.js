@@ -14,11 +14,11 @@ import {useNavigate} from 'react-router-dom';
 
 
 
-const MyPortfolioCard = () => {
+const MyPortfolioCard = ({type}) => {
   
   const [myPortfolio,setMyPortfolio] = useState([]);
   const [portfolioPnl, setPortfolioPnl] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
 
   useEffect(()=>{
@@ -135,46 +135,48 @@ const MyPortfolioCard = () => {
                   })
 
                   let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
+                  if(e.portfolioType == type){
+                    return (
+                      
+                      <Grid key={e._id} item xs={12} md={6} lg={6} >
+                      <MDBox bgColor='light' padding={0} style={{borderRadius:4, ml: "1000px"}}>
+                      <MDButton variant="contained" color={"dark"} size="small" 
+                        sx={{width: "80%"}}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} mb={2} display="flex" justifyContent="center">
+                                  <MDTypography fontSize={15} style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4}}>{e?.portfolioName}</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
+                                  <MDTypography fontSize={15} style={{color:"white"}}>Portfolio Value: <span>₹{(e?.portfolioValue).toLocaleString()}</span> </MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
+                                  <MDTypography fontSize={15} style={{color:"white"}}>Current Value: <span>₹{netPnl ? (e?.portfolioValue + netPnl).toFixed(0): e?.portfolioValue.toFixed(0)}</span> </MDTypography>
+                              </Grid>
+      
+                              {/* <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center">
+                                  <MDTypography fontSize={15} style={{color:"white",fontWeight:800}}>₹{(e?.portfolioValue).toLocaleString()}</MDTypography>
+                              </Grid> */}
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Portfolio Type <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioType}</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Portfolio Account <span style={{fontSize:11,fontWeight:700}}>{e.portfolioAccount}</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                      </MDButton>
+                      </MDBox>
+                      </Grid>
+                      
+                    )
+                  }
                 // let color = (myPortfolio === e._id) ? "warning" : "light";
-              return (
-                
-                <Grid key={e._id} item xs={12} md={6} lg={6} >
-                <MDBox bgColor='light' padding={0} style={{borderRadius:4, ml: "1000px"}}>
-                <MDButton variant="contained" color={"dark"} size="small" 
-                  sx={{width: "80%"}}
-                >
-                    <Grid container>
-                        
-                        <Grid item xs={12} md={6} lg={12} mt={1} mb={2} display="flex" justifyContent="center">
-                            <MDTypography fontSize={15} style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4}}>{e?.portfolioName}</MDTypography>
-                        </Grid>
-                        
-                        <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
-                            <MDTypography fontSize={15} style={{color:"white"}}>Portfolio Value: <span>₹{(e?.portfolioValue).toLocaleString()}</span> </MDTypography>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
-                            <MDTypography fontSize={15} style={{color:"white"}}>Current Value: <span>₹{netPnl ? (e?.portfolioValue + netPnl).toFixed(0): e?.portfolioValue.toFixed(0)}</span> </MDTypography>
-                        </Grid>
-
-                        {/* <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center">
-                            <MDTypography fontSize={15} style={{color:"white",fontWeight:800}}>₹{(e?.portfolioValue).toLocaleString()}</MDTypography>
-                        </Grid> */}
-
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{color:"white"}}>Portfolio Type <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioType}</span></MDTypography>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{color:"white"}}>Portfolio Account <span style={{fontSize:11,fontWeight:700}}>{e.portfolioAccount}</span></MDTypography>
-                        </Grid>
-
-                    </Grid>
-                </MDButton>
-                </MDBox>
-                </Grid>
-                
-              )
               })}
             </Grid>
           </MDBox>

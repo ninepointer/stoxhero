@@ -20,7 +20,7 @@ import { CircularProgress } from "@mui/material";
 function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}){
 
     // const marketDetails = useContext(marketDataContext)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [instrumentData, setInstrumentData] = useState([]);
     const [marketData, setMarketData] = useState([]);
     const [isLoading,setIsLoading] = useState(true)
