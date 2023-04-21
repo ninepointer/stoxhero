@@ -9,8 +9,10 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import SettingsIcon from '@mui/icons-material/Settings';
 
+
 // Material Dashboard 2 React components
 import MDBox from "./components/MDBox";
+import MDAvatar from "./components/MDAvatar";
 
 // Material Dashboard 2 React example components
 import Sidenav from "./examples/Sidenav";
@@ -40,6 +42,7 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "./
 
 // Images
 import brandWhite from "./assets/images/logo-ct.png";
+import Logo from "./assets/images/logo1.jpeg"
 import brandDark from "./assets/images/logo-ct-dark.png";
 import SignIn from "./layouts/authentication/sign-in"
 import NewMain from "./NewMain"
@@ -189,12 +192,7 @@ export default function App() {
                 <Sidenav
                 color={sidenavColor}
                 brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-                brandName="ninepointer"
-                // routes=
-                // {(detailUser.role === "admin" || getDetails.userDetails.role === "admin") ? 
-                // routes : ((detailUser.role === "user" || getDetails.userDetails.role === "user") ? userRoutes
-                // : (detailUser.role === "data" || getDetails.userDetails.role === "data") ? analyticsRoutes : '')}
-                // routes={(detailUser.role === "admin" || getDetails.userDetails.role === "admin") ? routes :  analyticsRoutes }
+                brandName="StoxHero"
                 routes={(detailUser.role === "admin" || getDetails.userDetails.role === "admin")
                 ? routes : (detailUser.role === "user" || getDetails.userDetails.role === "user") 
                 ? userRoutes : (detailUser.role === "data" || getDetails.userDetails.role === "data") 
@@ -211,7 +209,6 @@ export default function App() {
           )}
           {layout === "vr" && <Configurator />}
           <Routes>
-          {/* {(detailUser.role === "admin" || getDetails.userDetails.role === "admin") ? getRoutes(routes) : (detailUser.role === "user" || getDetails.userDetails.role === "user") && getRoutes(userRoutes)}  */}
           {(detailUser.role === "admin" || getDetails.userDetails.role === "admin") ? getRoutes(routes) : (detailUser.role === "data" || getDetails.userDetails.role === "data") && getRoutes(analyticsRoutes)}  
             <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
           </Routes>
@@ -219,7 +216,7 @@ export default function App() {
       </CacheProvider>
     
   ) : (
-    // (detailUser.role === "user" || getDetails.userDetails.role === "user") && 
+    
       <ThemeProvider theme={darkMode ? themeDark : theme}>
         <CssBaseline />
         {layout === "dashboard" && (
@@ -228,8 +225,8 @@ export default function App() {
             (getDetails?.userDetails?.role === "admin" || getDetails?.userDetails?.role === "user"|| getDetails?.userDetails?.role === "data") &&
             <Sidenav
               color={sidenavColor}
-              brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-              brandName="ninepointer"
+              brand={Logo}
+              brandName="StoxHero"
               routes={(detailUser?.role === "admin" || getDetails?.userDetails?.role === "admin")
                 ? routes : (detailUser?.role === "user" || getDetails?.userDetails?.role === "user") 
                 ? userRoutes : (detailUser?.role === "data" || getDetails?.userDetails?.role === "data") 
@@ -252,10 +249,6 @@ export default function App() {
         ? getRoutes(userRoutes) : (detailUser.role === "data" || getDetails.userDetails.role === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }          
-         {/* <Route path="*" element={<Navigate to="/traderdashboard" />} /> */}
-         {/* console.log(detailUser.role,getDetails.userDetails.role) */}
-         {/* {(detailUser.role === "admin" || getDetails.userDetails.role === "admin") ? getRoutes(routes) : (detailUser.role === "data" || getDetails.userDetails.role === "data") && getRoutes(analyticsRoutes)}           */}
-          {/* <Route path="*" element={<SignIn />} /> */}
 
           {!cookieValue  ?  
 

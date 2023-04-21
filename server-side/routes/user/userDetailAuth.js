@@ -318,7 +318,7 @@ router.patch("/generateOTP", async (req, res)=>{
         })
     }
     let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true,lowerCaseAlphabets: false, specialChars: false });
-    let subject = "Password Reset ninepointer";
+    let subject = "Password Reset StoxHero";
     let message = `Your OTP for password reset is: ${email_otp}`
     resetuser.resetPasswordOTP = email_otp
         await resetuser.save({validateBeforeSave:false});
@@ -378,7 +378,8 @@ router.put("/readuserdetails/:id", async (req, res)=>{
             user.role = req.body.Role,
             user.status = req.body.Status,
             user.password = req.body.userPassword,
-            user.employeeid = req.body.employeeId
+            user.employeeid = req.body.employeeId,
+            user.isAlgoTrader = req.body.isalgoTrader
         } else{
             user.lastModified = req.body.lastModified,
             user.name = req.body.Name,
@@ -395,7 +396,8 @@ router.put("/readuserdetails/:id", async (req, res)=>{
             user.joining_date = req.body.DateofJoining,
             user.role = req.body.Role,
             user.status = req.body.Status,
-            user.employeeid = req.body.employeeId
+            user.employeeid = req.body.employeeId,
+            user.isAlgoTrader = req.body.isalgoTrader
         }
 
         await user.save();

@@ -1,7 +1,5 @@
 const Referral = require('../models/campaigns/referralProgram');
 
-
-
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
     Object.keys(obj).forEach((el) => {
@@ -14,20 +12,19 @@ const filterObj = (obj, ...allowedFields) => {
 
 exports.createReferral = async(req, res, next)=>{
     console.log(req.body)
-    const{referrralProgramName, referralProgramStartDate, 
-        referralProgramEndDate, rewardPerReferral, currency, performanceMetrics,
-        termsAndConditions, description, status
+    const{referralProgramName, referralProgramStartDate, 
+        referralProgramEndDate, rewardPerReferral, currency,
+        description, status
     } = req.body;
 
-    const {impressions,clicks} = performanceMetrics;
-    if(await Referral.findOne({referrralProgramName})) return res.status(400).json({message:'This referral already exists.'});
+    if(await Referral.findOne({referralProgramName:referralProgramName})) return res.status(400).json({message:'This referral already exists.'});
 
-    const referral = await Referral.create({referrralProgramName, referralProgramStartDate, 
+    const referral = await Referral.create({referralProgramName, referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency, 
-        termsAndConditions, description, performanceMetrics: {impressions, clicks}, 
+        description, lastModifiedOn: new Date(), 
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
-    res.status(201).json({message: 'Programme successfully created.', data:referral});    
+    res.status(201).json({message: 'Referral Program successfully created.', data:referral});    
         
 
 }
@@ -46,6 +43,16 @@ exports.getReferral = async(req, res, next)=>{
     // ? req.params.id : '';
     try{
     const referral = await Referral.findById(id); 
+    // .select('_id referrralProgramId referrralProgramName rewardPerReferral status');
+    res.status(201).json({message: "Referral Retrived",data: referral});    
+    }
+    catch{(err)=>{res.status(401).json({message: "err referral", error:err}); }}  
+};
+
+exports.getActiveReferral = async(req, res, next)=>{
+    try{
+    const referral = await Referral.find({status : 'Active'}); 
+    console.log(referral)
     // .select('_id referrralProgramId referrralProgramName rewardPerReferral status');
     res.status(201).json({message: "Referral Retrived",data: referral});    
     }

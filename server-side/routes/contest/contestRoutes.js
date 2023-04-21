@@ -5,9 +5,12 @@ const AWS = require('aws-sdk');
 const sharp = require('sharp');
 const axios = require('axios');
 const Contest = require('../../models/Contest/contestSchema');
-const {createContest, getContests, editContest, getContest} = require('../../controllers/contestController');
+const {createContest, getContests, editContest, 
+       getActiveContests, getContest, joinContest, 
+       myContests, contestHistory} = require('../../controllers/contestController');
+const {autoTradeContest} = require('../../controllers/contestTradeController');
 const Authenticate = require('../../authentication/authentication');
-
+const contestTradeRoutes = require('../../routes/contest/contestTradeRoutes');
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
@@ -100,5 +103,11 @@ const uploadToS3 = async (req, res, next) => {
 
 router.route('/').post(Authenticate, uploadArray, resizePhoto, uploadToS3, createContest).get(getContests).
 patch(Authenticate, editContest);
-router.route('/:id').patch(Authenticate, editContest).get(getContest)
+router.route('/mycontests').get(Authenticate, myContests);
+router.route('/lots').get(autoTradeContest);
+router.route('/active').get(getActiveContests)
+router.route('/history').get(Authenticate, contestHistory)
+router.route('/:id').get(getContest).post(Authenticate, joinContest).patch(Authenticate, editContest)
+router.use('/:id/trades', contestTradeRoutes);
+
 module.exports = router;

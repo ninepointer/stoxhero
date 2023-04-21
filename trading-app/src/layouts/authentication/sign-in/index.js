@@ -177,8 +177,14 @@ function Basic() {
             setInvalidDetail(`Mobile number incorrect`);
 
         }else{
-            openSuccessSB("otp sent", data.message);
-            setOtpGen(true);
+          console.log(res.status);
+          if(res.status == 200 || res.status == 201){
+              openSuccessSB("otp sent", data.message);
+              setOtpGen(true);
+            }
+            else{
+              openSuccessSB("error", data.message);
+            }
         }
 
     }
@@ -272,6 +278,13 @@ function Basic() {
         messageObj.content = content;
 
     };
+    if(value === "error"){
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "Error";
+      messageObj.content = content;
+
+  }
     if(value === "resent otp"){
       messageObj.color = 'info'
       messageObj.icon = 'check'
@@ -318,7 +331,7 @@ function Basic() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Welcome to ninepointer!
+            Welcome to StoxHero!
           </MDTypography>
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
             Sign In

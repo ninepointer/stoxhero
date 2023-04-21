@@ -8,7 +8,10 @@ const fetch = require('./marketData/placeOrder');
 app.use(require("cookie-parser")());
 const fetchData = require('./marketData/fetchToken');
 const io = require('./marketData/socketio');
-const {createNewTicker, disconnectTicker, getTicker, subscribeTokens, getTicks, onError, getMargins, onOrderUpdate} = require('./marketData/kiteTicker');
+const {createNewTicker, disconnectTicker, getTicker, 
+      subscribeTokens, getTicks, onError, getMargins, 
+      onOrderUpdate, getTicksForContest, getTicksForUserPosition, 
+      getTicksForCompanySide} = require('./marketData/kiteTicker');
 const getKiteCred = require('./marketData/getKiteCred'); 
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
 const helmet = require("helmet");
@@ -16,6 +19,7 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
+const {autoTradeContest} = require('./controllers/contestTradeController')
 // import * as ioredis from 'ioredis';
 
 // const redis = require('redis');
@@ -40,60 +44,88 @@ app.use(hpp());
 const path = require('path')
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 
-getKiteCred.getAccess().then((data)=>{
+console.log("index.js")
+getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
-  createNewTicker(data.getApiKey, data.getAccessToken);
-});
-
-// redis connection
-client.connect();
+  await createNewTicker(data.getApiKey, data.getAccessToken);
+  // redis connection
+  client.connect();
 
 
-io.on("connection", (socket) => {
-  socket.on('userId', async (data)=>{
-    socket.join(`${data}`)
-    console.log("in index.js ", socket.id, data)
-    await client.set(socket.id, data);
-  })
-
-   socket.emit('check', true)
-
-  socket.on('unSubscribeToken', (data)=>{
-
-    data.map((elem)=>{
-      // console.log("in index.js  unSubscribeToken", elem, socket.id)
-      // console.log("rooms before", socket.rooms)
-      socket.leave(`instrument ${elem}`)
-      // console.log("rooms after", socket.rooms)
+  io.on("connection", (socket) => {
+    console.log(socket.id, "socket id")
+    socket.on('userId', async (data)=>{
+      socket.join(`${data}`)
+      console.log("in index.js ", socket.id, data)
+      await client.set(socket.id, data);
     })
-  })
+    // socket.on('contest', async (contestId)=>{
+    //   socket.join(`${contestId}`)
+    //   console.log("in index.js contest ", socket.id, data)
+    //   await client.set(socket.id, contestId);
+    //   console.log("contestId ", contestId)
+    // })
 
-  socket.on('removeKey', (key)=>{
-    client.del(key);
-  })
+    //  socket.emit('check', true)
 
-  socket.on('disconnect', ()=>{
-    console.log("disconnecting socket")
-    client.del(socket.id);
-  })
+    // socket.on('unSubscribeToken', (data)=>{
 
-  socket.on('hi', async (data) => {
-    getKiteCred.getAccess().then(async (data)=>{
+    //   data.map((elem)=>{
+    //     // console.log("in index.js  unSubscribeToken", elem, socket.id)
+    //     // console.log("rooms before", socket.rooms)
+    //     socket.leave(`instrument ${elem}`)
+    //     // console.log("rooms after", socket.rooms)
+    //   })
+    // })
 
-      let tokens = await fetchData(data.getApiKey, data.getAccessToken);
-  
-      
-      getTicks(socket, tokens);
-      onError();
-      onOrderUpdate();
+    // socket.on('removeKey', (key)=>{
+    //   client.del(key);
+    // })
+    socket.emit('check', false)
+
+
+    socket.on('disconnect', ()=>{
+      console.log("disconnecting socket")
+      // client.del(socket.id);
+    })
+
+    socket.on('hi', async (data) => {
+      // getKiteCred.getAccess().then(async (data)=>{
+      console.log("in hii event")
+        await getTicks(socket);
+        await onError();
+        await onOrderUpdate();
+
+      // });
+    });
+    socket.on('company-ticks', async (data) => {
+      console.log("in company-ticks event")
+        await getTicksForCompanySide(socket);
+        await onError();
+        // await onOrderUpdate();
+    });
+    socket.on('user-ticks', async (data) => {
+      console.log("in user-ticks event")
+        await getTicksForUserPosition(socket);
+        await onError();
+        await onOrderUpdate();
 
     });
+    socket.on('contest', async (data) => {
+      console.log("in contest event")
+        await getTicksForContest(socket);
+        await onError();
+
+    });
+    subscribeTokens();
+
   });
-  subscribeTokens();
+
+  io.on('disconnection', () => {disconnectTicker()});
+
 
 });
 
-io.on('disconnection', () => {disconnectTicker()});
 
 
 
@@ -136,7 +168,7 @@ app.use('/api/v1', require('./marketData/switchToRealTrade'));
 app.use('/api/v1', require('./routes/instrument/instrumentAuth'));
 app.use('/api/v1', require('./routes/instrument/tradableInstrument'));
 app.use('/api/v1', require('./routes/instrument/addInstrument'));
-
+app.use('/api/v1', require('./routes/leads/invite'));
 app.use('/api/v1', require('./routes/TradingAccountAuth/accountAuth'));
 app.use('/api/v1', require('./routes/TradingAccountAuth/brokerageAuth'));
 app.use('/api/v1', require('./routes/TradingAccountAuth/parameterAuth'));
@@ -145,6 +177,7 @@ app.use('/api/v1', require('./routes/user/userDetailAuth'));
 app.use('/api/v1', require("./routes/user/everyoneRoleAuth"));
 app.use('/api/v1', require("./routes/user/permissionAuth"));
 app.use('/api/v1', require("./routes/mockTrade/mockTradeUserAuth"));
+app.use('/api/v1', require("./routes/mockTrade/mockTradeTrader"));
 app.use('/api/v1', require("./routes/mockTrade/mockTradeCompanyAuth"));
 app.use('/api/v1', require("./routes/mockTrade/otmMockTradeAuth"));
 app.use('/api/v1', require("./models/TradeDetails/retreiveOrderAuth"));
@@ -152,7 +185,10 @@ app.use('/api/v1', require("./routes/HistoryPages/adminAuth"));
 app.use('/api/v1', require("./routes/marginAllocation/marginAllocationAuth"));
 app.use('/api/v1/contest', require("./routes/contest/contestRoutes"));
 app.use('/api/v1/referrals', require("./routes/campaigns/referralRoutes"));
+app.use('/api/v1/contestTrade', require("./routes/contest/contestTradeRoutes"));
+app.use('/api/v1/portfolio', require("./routes/userPortfolio/userPortfolioRoutes"));
 
+app.use('/api/v1/carousels', require("./routes/carousel/carouselRoutes"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
@@ -169,10 +205,18 @@ let weekDay = date.getDay();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
+        // const autotrade = nodeCron.schedule(`45-59/1 3-9 * * ${weekDay}`, autoTradeWrapper);
     }
 
   }
 
+  try{
+    const autotrade = nodeCron.schedule(`*/15 3-10 * * *`, autoTradeContest);
+
+  } catch(err){
+    console.log("err from cronjob", err)
+  }
+  // console.log(autotrade)
 
 const PORT = process.env.PORT;
 

@@ -30,6 +30,18 @@ import SignUp from './layouts/authentication/sign-up'
 import ResetPassword from './layouts/authentication/reset-password/cover'
 import Response from './layouts/authentication/sign-up/responseSubmit'
 import MyReferrals from "./layouts/referrals"
+import UserContest from "./layouts/UserContest"
+import Portfolio from './layouts/portfolio'
+import CreatePortfolio from './layouts/portfolio/createPortfolio'
+import CarouselDetails from './layouts/carousel/carouselDetails'
+import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
+import ContestPage from './layouts/UserContest/contestPage'
+import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
+import ContestTradePage from './layouts/UserContest/ContestTrade'
+import Carousel from './layouts/carousel'
+import Home from './layouts/UserHome'
+import HomeIcon from '@mui/icons-material/OtherHouses';
+import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
 
 // @mui icons
@@ -53,7 +65,8 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import WalletIcon from '@mui/icons-material/Wallet';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import DBEntry from "./layouts/InsertData/DBEntry";
-import Referral from "./layouts/refferal-programme";
+import Referral from "./layouts/referral-program";
+import Contest from "./layouts/user-contest"
 
 const routes = [
   {
@@ -90,6 +103,62 @@ const routes = [
     route: "/response",
     component: <Response />,
   },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "createportfolio",
+    // icon: <DashboardIcon/>,
+    route: "/createportfolio",
+    component: <CreatePortfolio />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "carouselDetails",
+    // icon: <DashboardIcon/>,
+    route: "/Carousel Details",
+    component: <CarouselDetails />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "referralprogramdetails",
+    // icon: <DashboardIcon/>,
+    route: "/referralprogramdetails",
+    component: <ReferralProgramDetails />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/arena/:name",
+    component: <ContestPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "arena/:name/register",
+    component: <ContestRegisterPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena", DummyPage
+    // icon: <BusinessIcon/>,
+    route: "arena/contest/trade",
+    component: <ContestTradePage />,
+  },
+  // {
+  //   // type: "collapse",
+  //   // name: "Arena", 
+  //   // key: "arena", DummyPage
+  //   // icon: <BusinessIcon/>,
+  //   route: "arena/contest/notstarted",
+  //   component: <DummyPage />,
+  // },
   {
     type: "collapse",
     name: "Company Position",
@@ -131,6 +200,14 @@ const routes = [
     route: "/contests",
     component: <Contests />,
   },
+  {
+    type: "collapse",
+    name: "Carousel",
+    key: "carousel",
+    icon: <HomeIcon/>,
+    route: "/carousel",
+    component: <Carousel />,
+  },
 
   {
     type: "collapse",
@@ -144,7 +221,7 @@ const routes = [
   {
     type: "collapse",
     name: "Referral Programme",
-    key: "referral",
+    key: "referralProgramme",
     icon: <DashboardIcon/>,
     route: "/referralProgramme",
     component: <Referral />,
@@ -224,11 +301,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Expenses",
-    key: "expense",
+    name: "Portfolio",
+    key: "portfolio",
     icon: <Shop2Icon/>,
-    route: "/expense",
-    component: <Expense />,
+    route: "/portfolio",
+    component: <Portfolio />,
   },
   {
     type: "collapse",
@@ -246,21 +323,37 @@ const routes = [
     route: "/users",
     component: <Users />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Notifications",
+  //   key: "notifications",
+  //   icon: <NotificationsActiveIcon/>,
+  //   route: "/notifications",
+  //   component: <Notifications />,
+  // },
   {
     type: "collapse",
-    name: "Notifications",
-    key: "notifications",
-    icon: <NotificationsActiveIcon/>,
-    route: "/notifications",
-    component: <Notifications />,
+    name: "User DashBoard",
+    key: "home",
+    icon: <HomeIcon/>,
+    route: "/home",
+    component: <Home />,
   },
   {
     type: "collapse",
     name: "Position",
-    key: "Position",
+    key: "position",
     icon: <BusinessIcon/>,
-    route: "/Position",
+    route: "/position",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Arena",
+    key: "arena",
+    icon: <BusinessIcon/>,
+    route: "/arena",
+    component: <UserContest />,
   },
   {
     type: "collapse",

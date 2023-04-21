@@ -32,11 +32,10 @@ function UserPosition() {
     throw new Error(err);
   }
 
-
   useEffect(() => {
     socket.on("connect", () => {
-      socket.emit("hi", true)
       socket.emit('userId', getDetails.userDetails._id)
+      socket.emit("user-ticks", true)
     })
   }, []);
 
@@ -66,7 +65,7 @@ function UserPosition() {
     return <InstrumentDetails
       socket={socket}
       reRender={reRender}
-      setReRender={memoizedSetReRender}
+      setReRender={setReRender}
       // setReRender={}
       // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}

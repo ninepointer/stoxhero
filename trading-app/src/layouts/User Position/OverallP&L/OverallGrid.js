@@ -25,6 +25,7 @@ import ExitPosition from './ExitPosition';
 import Buy from "../components/InstrumentDetails/data/BuyModel";
 import Sell from "../components/InstrumentDetails/data/SellModel"
 import OverallRow from './OverallRow';
+import { marketDataContext } from '../../../MarketDataContext';
 // import Button from '@mui/material/Button';
 
 function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
@@ -46,20 +47,16 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
     padding: "5px",  
     fontWeight: "600",
   }
-  let bottomRow = {
-    height: "10px",
-    [`@media only screen and (min-width: 546px)`]: {
-      height: "50px"
-    }
-  }
+
   
   const { updateNetPnl } = useContext(NetPnlContext);
-
+  const marketDetails = useContext(marketDataContext)
   const getDetails = useContext(userContext);
+  let url = getDetails.userDetails.isAlgoTrader ? "getoverallpnlmocktradeparticularusertoday" : "getoverallpnlmocktradeparticulartradertoday"
+
   // const { reRender, setReRender } = Render
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [liveDetail, setLiveDetail] = useState([]);
-  const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,
@@ -73,35 +70,6 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
   let totalRunningLots = 0;
   let rows = [];
 
-    useEffect(()=>{
-
-      let abortController;
-      (async () => {
-           abortController = new AbortController();
-           let signal = abortController.signal;    
-
-           // the signal is passed into the request(s) we want to abort using this controller
-           const { data } = await axios.get(
-            `${baseUrl}api/v1/getliveprice`,
-               { signal: signal }
-           );
-           setMarketData(data);
-      })();
-
-
-      socket.on("tick-room", (data) => {
-        console.log("tick data in overallpnl", data)
-        setMarketData(prevInstruments => {
-          const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-          data.forEach(instrument => {
-            instrumentMap.set(instrument.instrument_token, instrument);
-          });
-          return Array.from(instrumentMap.values());
-        });
-      })
-
-      return () => abortController.abort();
-    }, [])
 
     useEffect(()=>{
 
@@ -112,45 +80,37 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
 
            // the signal is passed into the request(s) we want to abort using this controller
            const { data } = await axios.get(
-            `${baseUrl}api/v1/getoverallpnlmocktradeparticularusertoday/${getDetails.userDetails.email}`,
+            `${baseUrl}api/v1/${url}/${getDetails?.userDetails?.email}`,
               { signal: signal }
            );
-
+          //  getoverallpnlmocktradeparticulartradertoday
            setTradeData(data);
-        //    data.map((elem)=>{
-        //      marketData.map((subElem)=>{
-        //           console.log(subElem.instrument_token , elem._id.instrumentToken)
-        //          if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-        //              liveDetailsArr.push(subElem)
-        //          }
-        //      })
-        //    })
- 
-        //  setLiveDetail(liveDetailsArr);
 
       })();
 
       // reRender ? setRender(false) : setRender(true);
       return () => abortController.abort();
-    }, [marketData, reRender])
+    // }, [reRender])
+  }, [marketDetails.marketData, reRender])
 
-    useEffect(() => {
-      return () => {
-          socket.emit('removeKey', socket.id);
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.emit('removeKey', socket.id);
+    //       socket.close();
+    //   }
+    // }, [])
 
 
     tradeData.map((subelem, index)=>{
       let obj = {};
-      let liveDetail = marketData.filter((elem)=>{
+      let liveDetail = marketDetails.marketData.filter((elem)=>{
         console.log("elem", elem, subelem)
         return subelem._id.instrumentToken == elem.instrument_token;
       })
       totalRunningLots += Number(subelem.lots)
 
       let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+      let netupdatedValue = updatedValue - Number(subelem.brokerage);
       totalGrossPnl += updatedValue;
 
       totalTransactionCost += Number(subelem.brokerage);
@@ -207,6 +167,12 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
       obj.grossPnl = (
         <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
           {updatedValue >= 0.00 ? "+₹" + (updatedValue.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2))}
+        </MDTypography>
+      );
+
+      obj.netPnl = (
+        <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
+          {netupdatedValue >= 0.00 ? "+₹" + (netupdatedValue.toFixed(2)): "-₹" + ((-netupdatedValue).toFixed(2))}
         </MDTypography>
       );
 
@@ -274,6 +240,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
                 <td style={styleTD} >AVG. PRICE</td>
                 <td style={styleTD} >LTP</td>
                 <td style={styleTD} >GROSS P&L</td>
+                <td style={styleTD} >NET P&L</td>
                 <td style={styleTD} >CHANGE(%)</td>
                 <td style={styleTD} >EXIT</td>
                 <td style={styleTD} >BUY</td>
@@ -296,6 +263,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
                     avgPrice={elem?.avgPrice?.props?.children}
                     last_price={elem?.last_price?.props?.children}
                     grossPnl={elem?.grossPnl?.props?.children}
+                    netPnl={elem?.netPnl?.props?.children}
                     change={elem?.change?.props?.children}
                   />
                   <Tooltip title="Exit Your Position" placement="top">
