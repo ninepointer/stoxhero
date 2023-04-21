@@ -51,7 +51,7 @@ function TradersRanking({contestId}){
   };
   
   useEffect(() => {
-    const intervalId = setInterval(fetchData, 3000); // run every 10 seconds
+    const intervalId = setInterval(fetchData, 1000); // run every 10 seconds
     fetchData(); // run once on mount
     // socket.emit('hi')
     return () => clearInterval(intervalId);
