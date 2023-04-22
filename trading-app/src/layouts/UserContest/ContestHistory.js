@@ -12,6 +12,7 @@ import ContestDetails from "./data/ContestDetails";
 import {useLocation} from 'react-router-dom';
 import ContestTradePage from './data/ContestTradePage'
 import MyContestHistoryCard from "./data/MyContestHistoryCard";
+import HistoryHeader from "./Header/HistoryHeader";
 
 function Tables() {
   // const { columns, rows } = authorsTableData();
@@ -32,6 +33,7 @@ const isFromUpcomming = location?.state?.isFromUpcomming;
     <>
     <DashboardLayout>
       <DashboardNavbar />
+       <HistoryHeader />
         <MyContestHistoryCard />
       <Footer />
     </DashboardLayout>

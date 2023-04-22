@@ -167,10 +167,7 @@ exports.getUserPortfolio = async(req,res,next) => {
           
 
         // console.log("filteredPortfolioIds", result)
-        const portfolios = await Portfolio.find({status: "Active", _id: {$in: filteredPortfolioIds}});
-
-
-
+        const portfolios = await Portfolio.find({status: "Active", portfolioType: "Contest", _id: {$in: filteredPortfolioIds}});
         res.status(200).json({status: 'success', data: portfolios, results: portfolios.length});
 
     }catch(e){

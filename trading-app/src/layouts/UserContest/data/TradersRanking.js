@@ -5,8 +5,9 @@ import MDTypography from '../../../components/MDTypography'
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { userContext } from '../../../AuthContext';
+// import PrizeDistribution from './PrizeDistribution';
 
-function TradersRanking({contestId, isFromHistory, reward}){
+function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward, setMyRankProps}){
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [rankData, setRankData] = useState([]);
@@ -41,6 +42,10 @@ function TradersRanking({contestId, isFromHistory, reward}){
     
       if(api2Response.data.status == "success"){
         setMyRank(api2Response.data.data);
+        if(isFromResult){
+          setMyRankProps(api2Response.data.data)
+        }
+        
       }
       
       setTimeout(()=>{setIsLoading(false)},500)
@@ -52,13 +57,13 @@ function TradersRanking({contestId, isFromHistory, reward}){
       fetchData(); // run once on mount
       // clearInterval(intervalId);
     } else{
-      const intervalId = setInterval(fetchData, 1000); // run every 10 seconds
+      const intervalId = setInterval(fetchData, 10000000); // run every 10 seconds
       fetchData(); // run once on mount
       // socket.emit('hi')
       return () => clearInterval(intervalId);
     }
 
-  }, []);
+  }, [historyUrl]);
 
 
   const myReward = reward?.filter((elem)=>{
@@ -99,7 +104,7 @@ return (
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Name</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>P&L</MDTypography>
+                      <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Net P&L</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Reward</MDTypography>
@@ -168,6 +173,9 @@ return (
                 }
 
             </MDBox>
+            {/* <MDBox  width="100%"> */}
+              {/* <PrizeDistribution  contest={contest} /> */}
+            {/* </MDBox> */}
         </Grid> 
 
     </>

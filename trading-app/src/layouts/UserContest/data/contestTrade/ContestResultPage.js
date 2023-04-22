@@ -34,14 +34,14 @@ import { userContext } from '../../../../AuthContext';
 function ContestResultPage () {
     const getDetails = useContext(userContext);
     const [contest,setContest] = useState();
-    const [myRank, setMyRank] = useState([]);
+    const [myRank, setMyRankProps] = useState([]);
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
     // const isFromHistory = location?.state?.isFromHistory
     // const  isDummy  = location?.state?.isDummy;
     // const redirect = useRef(true);
     const nevigate = useNavigate();
-    const isFromHistory = true
+    const isFromResult = true
     const  isDummy  = false
 
     let style = {
@@ -69,26 +69,26 @@ function ContestResultPage () {
           return new Error(err);
       })
 
-      axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/myrank`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-        },
-      })
-      .then((res)=>{
-        setMyRank(res?.data?.data);
-        console.log(res)
-      }).catch((err)=>{
-         return new Error(err);
-      })
+      // axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/myrank`, {
+      //   withCredentials: true,
+      //   headers: {
+      //     Accept: "application/json",
+      //     "Content-Type": "application/json",
+      //     "Access-Control-Allow-Credentials": true
+      //   },
+      // })
+      // .then((res)=>{
+      //   setMyRank(res?.data?.data);
+      //   console.log(res)
+      // }).catch((err)=>{
+      //    return new Error(err);
+      // })
 
     },[])
 
     const reward = contest?.rewards;
-    const rank =1;
-    // const rank = myRank?.rank;
+    // const rank =1;
+    const rank = myRank?.rank;
 
     console.log("rewards", reward , myRank)
 
@@ -97,8 +97,8 @@ function ContestResultPage () {
     })
 
     const memoizedTradersRankingForHistory = useMemo(() => {
-      return <TradersRanking contestId={contestId} isFromHistory={isFromHistory} reward={contest?.rewards} />;
-    }, [contestId, contest?.rewards]);
+      return <TradersRanking isFromResult={isFromResult} contestId={contestId} reward={contest?.rewards} setMyRankProps={setMyRankProps}/>;
+    }, [contestId, contest?.rewards, setMyRankProps, isFromResult]);
   
 
     return (

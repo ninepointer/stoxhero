@@ -1,4 +1,4 @@
-import React,{useState, useEffect, memo, useMemo, useCallback, useRef} from 'react'
+import React,{useState, useEffect, memo, useMemo, useRef} from 'react'
 import { io } from "socket.io-client";
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
@@ -12,8 +12,6 @@ import { Divider } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from "axios";
 
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import Portfolios from '../data/Portfolios'
 import MYPNLData from '../data/PnL/MyPNLData'
 import InstrumentsData from '../data/Instruments/Instruments'
 import TradersRanking from '../data/TradersRanking'
@@ -23,10 +21,10 @@ import DummyRank from "./DemoTradersRanking";
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import Timer from '../timer';
 import LastTrade from '../data/contestTrade/LastTrade'
-import MDButton from '../../../components/MDButton';
 import FastRewindIcon from '@mui/icons-material/FastRewind';
 import Button from '@mui/material/Button'
 import UsedPortfolio from './PnL/UsedPortfolio';
+import Margin from './marginDetails/margin';
 
 
 
@@ -99,16 +97,12 @@ function ContestTradeView () {
 
     },[])
 
-    const memoizedUsedPortfolio = useMemo(() => {
-      return <UsedPortfolio portfolioId={portfolioId} />;
+    const memoizedMargin = useMemo(() => {
+      return <Margin portfolioId={portfolioId} />;
     }, [portfolioId]);
 
     const memoizedTradersRanking = useMemo(() => {
       return <TradersRanking contestId={contestId} reward={contest?.rewards}/>;
-    }, [contestId, contest?.rewards]);
-
-    const memoizedTradersRankingForHistory = useMemo(() => {
-      return <TradersRanking contestId={contestId} isFromHistory={isFromHistory} reward={contest?.rewards}/>;
     }, [contestId, contest?.rewards]);
   
     const memoizedLastTrade = useMemo(() => {
@@ -207,13 +201,11 @@ function ContestTradeView () {
                     
                     {!isDummy ?
                     <>
+                    {memoizedMargin}
                     {memoizedInstrumentDetails}
-                    {/* <InstrumentsData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory}/> */}
                     {memoizedOverallPnl}
-                    {/* <MYPNLData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory} /> */}
-                    {isFromHistory && memoizedUsedPortfolio}
+                    
                     {memoizedLastTrade}
-                    {/* <LastTrade contestId={contestId} Render={{render, setReRender}}/> */}
                     </>
                     :
                     <>
@@ -231,9 +223,6 @@ function ContestTradeView () {
             </Grid>
             {isDummy ?
             <DummyRank />
-            :
-            isFromHistory ? 
-            memoizedTradersRankingForHistory
             :
             memoizedTradersRanking
             
