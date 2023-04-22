@@ -57,16 +57,9 @@ function AlgoBoxMain({batchName}) {
           //console.log(socket);
           socket.on("connect", ()=>{
               //console.log(socket.id);
-              socket.emit("hi",true)
+              socket.emit("company-ticks",true)
           })
-          socket.on("noToken", (data)=>{
-              //console.log("no token");
-              window.alert(data);
-          })
-          socket.on("wrongToken", (data)=>{
-              //console.log("wrong Token");
-              window.alert(data);
-          })
+
   
       }, []);
   
