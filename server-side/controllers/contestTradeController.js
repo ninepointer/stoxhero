@@ -15,6 +15,7 @@ const getKiteCred = require('../marketData/getKiteCred');
 const ContestInstrument = require('../models/Instruments/contestInstrument') ;
 const DummyMarketData = require('../marketData/dummyMarketData');
 const singleLivePrice = require('../marketData/sigleLivePrice')
+const Portfolio = require("../models/userPortfolio/UserPortfolio");
 
 exports.newTrade = async (req, res, next) => {
 
@@ -689,8 +690,60 @@ exports.autoTradeContest = async() => {
 
     console.log(contests)
     const userIds = contests.map(async (contest) => {
-      // console.log(contest._id)
-      // req.params.id = contest._id;
+      contest.participants.map(async (elem)=>{
+        console.log(elem.userId, elem.portfolioId)
+        let pnlDetails = await ContestTrade.aggregate([
+          {
+            $match: {
+              status: "COMPLETE",
+              trader: elem.userId,
+              portfolioId: elem.portfolioId
+            },
+          },
+          {
+            $group: {
+              _id: {
+                // portfolioId: "$portfolioId",
+              },
+              amount: {
+                $sum: {$multiply : ["$amount",-1]},
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+              lots: {
+                $sum: {
+                  $toInt: "$Quantity",
+                },
+              },
+              lastaverageprice: {
+                $last: "$average_price",
+              },
+            },
+          },
+          {
+            $sort: {
+              _id: -1,
+            },
+          },
+        ]);
+
+        console.log(pnlDetails)
+        await Portfolio.updateOne(
+          { 
+            "users.userId": elem.userId,
+            "_id": elem.portfolioId
+          },
+          { 
+            "$inc": { 
+              "users.$.portfolioValue": pnlDetails[0].amount
+            } 
+          }
+        );
+      })
+      
       let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
       const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contest._id}/trades/leaderboard`)
       const rankData = api1Response.data.data;
