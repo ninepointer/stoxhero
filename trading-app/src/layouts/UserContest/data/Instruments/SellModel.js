@@ -126,7 +126,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
         return new Error(err);
     })
 
-  }, [getDetails])
+  }, [])
 
 
   async function sellFunction(e, uId) {
@@ -156,7 +156,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
       let id = setTimeout(()=>{
         render ? setReRender(false) : setReRender(true)
-      }, 1000);
+      }, 1800);
       
   }
 

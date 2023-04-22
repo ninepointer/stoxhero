@@ -1,10 +1,16 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, memo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
-const CountdownTimer = ({ targetDate,text }) => {
+const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, contestName, redirect }) => {
+  console.log(targetDate,text, contestId, portfolioId, isDummy, contestName, redirect)
   const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining());
+  const navigate = useNavigate();
+  const flag = useRef(true);
+
 
   useEffect(() => {
     const timerId = setInterval(() => {
+
       setTimeRemaining(calculateTimeRemaining());
     }, 1000);
 
@@ -30,9 +36,26 @@ const CountdownTimer = ({ targetDate,text }) => {
 
   const { days, hours, minutes, seconds } = timeRemaining
 
+  console.log(timeRemaining.total <= 0 , !isDummy , flag.current , redirect)
+
+ if(timeRemaining.total <= 0 && !isDummy && flag.current && redirect){
+    console.log("timer running 2nd")
+    navigate(`/battleground`, {
+      state: {contestId: contestId, portfolioId: portfolioId}
+    });
+  } else if(timeRemaining.total <= 0 && isDummy && redirect){
+    flag.current = (false)
+    console.log("timer running 1st")
+    navigate(`/battleground/${contestName}`, {
+      state: {contestId: contestId, portfolioId: portfolioId, isDummy: false, redirect: true}
+    });
+  }
+
   if (timeRemaining.total <= 0) {
     return <div>{text}</div>
   }
+
+
 
   return (
     <div>

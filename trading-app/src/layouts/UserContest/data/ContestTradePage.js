@@ -1,4 +1,4 @@
-import React,{useState, useEffect, memo} from 'react'
+import React,{useState, useEffect, memo, useMemo, useCallback, useRef} from 'react'
 import { io } from "socket.io-client";
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
@@ -34,14 +34,11 @@ function ContestTradeView () {
     const [contest,setContest] = useState();
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
-    // const  contestName  = location?.state?.data; isDummy
     const  portfolioId  = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
     const  isDummy  = location?.state?.isDummy;
+    const redirect = useRef(true);
     const nevigate = useNavigate();
-
-
-    // const  isDummy  = false;
 
     const [render, setReRender] = useState(true);
     let style = {
@@ -76,7 +73,7 @@ function ContestTradeView () {
         // socket.emit('userId', contestId)
 
         // socket.emit('contest', contestId)
-        socket.emit("hi", true)
+        socket.emit("contest", true)
       })
     }, []);
 
@@ -99,9 +96,43 @@ function ContestTradeView () {
 
     },[])
 
-    // console.log("Contest Registration Data: ",id)
-    // console.log(`/arena/${contest?.contestName}/${contest?._id}`)
+    const memoizedUsedPortfolio = useMemo(() => {
+      return <UsedPortfolio portfolioId={portfolioId} />;
+    }, [portfolioId]);
+
+    const memoizedTradersRanking = useMemo(() => {
+      return <TradersRanking contestId={contestId} />;
+    }, [contestId]);
   
+    const memoizedLastTrade = useMemo(() => {
+      return <LastTrade
+        contestId={contestId}
+        Render={{render, setReRender}}
+      />;
+    }, [render, contestId]);
+  
+    const memoizedInstrumentDetails = useMemo(() => {
+      return <InstrumentsData
+        socket={socket}
+        contestId={contestId}
+        portfolioId={portfolioId}
+        isFromHistory={isFromHistory}
+        Render={{render, setReRender}}
+        
+      />;
+    }, [socket, render, contestId, portfolioId, isFromHistory]);
+  
+    const memoizedOverallPnl = useMemo(() => {
+      return <MYPNLData
+        socket={socket}
+        contestId={contestId}
+        portfolioId={portfolioId}
+        isFromHistory={isFromHistory}
+        Render={{render, setReRender}}
+      />;
+    }, [socket, render, contestId, portfolioId, isFromHistory]);
+
+
     return (
     <MDBox key={contest?._id} width="100%" bgColor="dark" color="light" p={2}>
         <Grid container spacing={2}>
@@ -115,18 +146,54 @@ function ContestTradeView () {
                     </MDTypography>
                   </MDBox>
 
-                    {isDummy &&
+                    {isDummy && !isFromHistory ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
-                        <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>Contest is Starts in:</span> <div style={style} ><AvTimerIcon/><Timer targetDate={contest?.contestStartDate} text="Contest Started" /></div>
+                        <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+                          Contest is Starts in:
+                        </span> 
+                        <div style={style} >
+                          <AvTimerIcon/>
+                          <Timer 
+                            targetDate={contest?.contestStartDate} 
+                            text="Contest Started"
+                            contestId={contestId}
+                            portfolioId={portfolioId}
+                            isDummy={isDummy}
+                            contestName={contest?.contestName}
+                            redirect={redirect.current}
+                          />
+                        </div>
                       </Grid>
-                    }
+                      :
+                      !isFromHistory &&
+                      <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
+                      <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+                        Contest Ends in:
+                      </span> 
+                      <div style={style} >
+                        <AvTimerIcon/>
+                        <Timer 
+                          targetDate={contest?.contestEndDate} 
+                          text="Contest Started"
+                          contestId={contestId}
+                          portfolioId={portfolioId}
+                          isDummy={isDummy}
+                          contestName={contest?.contestName}
+                          redirect={redirect.current}
+                        />
+                      </div>
+                      </Grid>
+                      }
                     
                     {!isDummy ?
                     <>
-                    <InstrumentsData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory}/>
-                    <MYPNLData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory} />
-                    {isFromHistory && <UsedPortfolio portfolioId={portfolioId} />}
-                    <LastTrade contestId={contestId} Render={{render, setReRender}}/>
+                    {memoizedInstrumentDetails}
+                    {/* <InstrumentsData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory}/> */}
+                    {memoizedOverallPnl}
+                    {/* <MYPNLData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory} /> */}
+                    {isFromHistory && memoizedUsedPortfolio}
+                    {memoizedLastTrade}
+                    {/* <LastTrade contestId={contestId} Render={{render, setReRender}}/> */}
                     </>
                     :
                     <>
@@ -145,7 +212,8 @@ function ContestTradeView () {
             {isDummy ?
             <DummyRank />
             :
-            <TradersRanking contestId={contestId} />
+            // <TradersRanking contestId={contestId} />
+            memoizedTradersRanking
             }
 
 

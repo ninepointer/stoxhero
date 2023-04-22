@@ -33,26 +33,23 @@ exports.autoTradeHelper = async (data, contestId) => {
         Obj.order_id = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
         Obj.dontSendResp = (i !== (data.length-1));
 
-    //    console.log("Obj", Obj)
-        let interval = setInterval(async () => {
-            if (quantity > 1800) {
-                Obj.Quantity = 1800
-                Obj.dontSendResp = true
-                await contestTrade.takeAutoTrade(Obj, contestId);
-                quantity = quantity - 1800;
-            } else {
-                Obj.Quantity = quantity
-                if(i === (data.length-1)){
-                    Obj.dontSendResp = false;
-                  } 
-                // console.log(Obj.body)
-                if(quantity > 0){
-                    clearInterval(interval);
-                    await contestTrade.takeAutoTrade(Obj, contestId);
-                }
-                
+        await recursiveFunction(quantity)
+ 
+        async function recursiveFunction(quantity) {
+            if(quantity == 0){
+                return;
             }
-        }, 300);
+            else if (quantity < 1800) {
+                Obj.Quantity = quantity;
+                await contestTrade.takeAutoTrade(Obj, contestId);
+                return;
+            } else {
+                Obj.Quantity = 1800;
+                await contestTrade.takeAutoTrade(Obj, contestId);
+                return recursiveFunction(quantity - 1800);
+            }
+        }
+
 
     }
 }
