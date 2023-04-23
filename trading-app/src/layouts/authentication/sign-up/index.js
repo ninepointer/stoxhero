@@ -59,7 +59,7 @@ function Cover(props) {
     mobile_otp:"",
   });
   // console.log('search params', location.search.split('=')[1]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
     setformstate(prevState => ({...prevState, referrerCode: location.search.split('=')[1]??''}));

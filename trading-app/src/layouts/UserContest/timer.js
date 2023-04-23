@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, contestName, redirect, minEntry, entry }) => {
   //console.log(targetDate,text, contestId, portfolioId, isDummy, contestName, redirect)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining());
   const navigate = useNavigate();
   const flag = useRef(true);
