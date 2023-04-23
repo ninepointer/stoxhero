@@ -1,10 +1,6 @@
 const ContestTrade = require('../models/Contest/ContestTrade');
 const util = require('util');
-
-// const MockTradeDetails = require("../models/mock-trade/mockTradeCompanySchema");
-// const MockTradeDetailsUser = require("../models/mock-trade/mockTradeUserSchema");
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
-// const MockTradeDetailsTrader = require("../models/mock-trade/mockTradeTraders");
 const axios = require('axios')
 const uuid = require('uuid');
 const ObjectId = require('mongodb').ObjectId;
@@ -436,7 +432,6 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
 }
 
 exports.checkContestTradeEligibility = async(req, res,next) => {
-
 }
 
 exports.currentUser = async (req, res, next) => {
@@ -668,11 +663,7 @@ exports.getMyContestRank = async (req, res, next) => {
 
 }
 
-exports.autoTradeContest = async() => {
-  // console.log("in get contest")
-    // const userId = req.user._id;
-    // const contestId = req.params.id;
-    // const portfolioId = req.query.portfolioId;
+exports.autoTradeContest = async(req, res, next) => {
     console.log("in autotrade")
     const now = new Date();
     const thirtyMinutesBeforeNow = new Date(now.getTime() - 30 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
@@ -794,20 +785,40 @@ exports.autoTradeContest = async() => {
     
     })
 
+    res.send("ok")
+
 }
 
-exports.getLastFiveTrade = async(req, res, next) => {
-    const userId = req.user._id;
-    const contestId = req.params.id;
+exports.getTradeByPagination = async(req, res, next) => {
+  const userId = req.user._id;
+  const contestId = req.params.id;
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10; // default limit of 10 trades
+  console.log(skip, limit)
+  try {
+    const lastTrade = await ContestTrade.find({trader: userId, contestId: contestId}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1})
+      .sort({_id: -1})
+      .skip(skip)
+      .limit(limit);
+    console.log(lastTrade)
+    res.status(200).json({status: 'success', data: lastTrade});
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({status:'error', message: 'Something went wrong'});
+  }
+}
 
-    try{
-      const lastTrade = await ContestTrade.find({trader: userId, contestId: contestId}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1}).sort({_id: -1});
-      res.status(200).json({status: 'success', data: lastTrade});
-    }catch(e){
-      console.log(e)
-        res.status(500).json({status:'error', message: 'Something went wrong'});
-    }
-
+exports.countTrades = async(req, res, next) => {
+  const userId = req.user._id;
+  const contestId = req.params.id;
+  try {
+    const count = await ContestTrade.countDocuments({trader: userId, contestId: contestId})
+    console.log(count)
+    res.status(200).json({status: 'success', data: count});
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({status:'error', message: 'Something went wrong'});
+  }
 }
 
 exports.editLeaderboard = async(req,res,next) => {
@@ -841,11 +852,11 @@ exports.getMyLeaderBoardRank = async(req,res, next) => {
 
 exports.getRedisLeaderBoard = async(req,res,next) => {
   const {id} = req.params;
-  console.log("contest id", id, `${id.toString()} allranks`)
+  // console.log("contest id", id, `${id.toString()} allranks`)
   //Check if leaderBoard for contest exists in Redis
   try{
     if(await client.exists(`leaderboard:${id}`)){
-      console.log("in if con")
+      // console.log("in if con")
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = formatData(leaderBoard)
 
@@ -900,13 +911,13 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
           // arr.push(obj);
       }
 
-      console.log("live price", livePrices)
+      // console.log("live price", livePrices)
       let ranks;
 
       if(await client.exists(`${id.toString()} allranks`)){
         ranks = await client.get(`${id.toString()} allranks`);
         ranks = JSON.parse(ranks);
-        console.log('ranks in redis',ranks);
+        // console.log('ranks in redis',ranks);
       } else{
 
         ranks = await ContestTrade.aggregate([
@@ -964,7 +975,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
             }
           },
         ]);
-        console.log("ranks from db", ranks)
+        // console.log("ranks from db", ranks)
         await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
 
       }
@@ -997,7 +1008,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
         return acc;
       }, {}));
 
-      console.log("rsult", result)
+      // console.log("rsult", result)
       for (rank of result){
         // console.log(rank);
         // console.log(`leaderboard${id}`);
@@ -1045,14 +1056,14 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
 
 exports.getRedisMyRank = async(req,res,next) => {
   const {id} = req.params;
-  console.log(req.user.name)
+  // console.log(req.user.name)
   try{
     if(await client.exists(`leaderboard:${id}`)){
 
       const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({name:req.user.name}));
       const leaderBoardScore = await client.ZSCORE(`leaderboard:${id}`, JSON.stringify({name:req.user.name}));
   
-      console.log(leaderBoardRank, leaderBoardScore)
+      // console.log(leaderBoardRank, leaderBoardScore)
       return res.status(200).json({
         status: 'success',
         data: {rank: leaderBoardRank+1, npnl: leaderBoardScore}

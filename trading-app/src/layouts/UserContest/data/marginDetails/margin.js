@@ -9,6 +9,8 @@ import Paper from '@mui/material/Paper';
 import {useState, useEffect} from 'react';
 import axios from 'axios';
 import { NetPnlContext } from "../../../../PnlContext";
+import { CircularProgress } from "@mui/material";
+
 
 
 function UsedPortfolio({portfolioId}) {
@@ -50,7 +52,7 @@ function UsedPortfolio({portfolioId}) {
     let runningPnl = Number(contestNetPnl?.toFixed(0));
     const currentValue = portfolioRemainData?.pnl?.length && ((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage));
     const availableValue = currentValue + contestNetPnl;
-    const usedValue = contestTotalRunningLots === 0 ? currentValue - availableValue : currentValue - availableValue + runningPnl;
+    const usedValue = (!contestTotalRunningLots) ? 0 : runningPnl >= 0 ? 0 : runningPnl
 
 
     const Item = styled(Paper)(({ theme }) => ({
@@ -66,6 +68,11 @@ function UsedPortfolio({portfolioId}) {
 
   return (
     <MDBox mb={0} mt={0}>
+        {isLoading ?
+        <Grid mt={12} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+            <CircularProgress color="light" />
+        </Grid>
+        :
         <Grid container spacing={2}>
         {[lightTheme].map((theme, index) => (
             <Grid item xs={12} key={index} >
@@ -78,21 +85,21 @@ function UsedPortfolio({portfolioId}) {
                     bgcolor: 'none',
                     display: 'grid',
                     gridTemplateColumns: { md: '1fr 1fr 1fr' },
-                    gap: 1.5,
+                    gap: 1,
                 }}
                 >
 
                     <Item elevation={2}>           
-                        <MDBox m={0.4} fontWeight={700} >Opening Value:</MDBox>
-                        <MDBox m={0.4} fontWeight={700} color={"black"}>{currentValue >= 0.00 ? "+₹" + (currentValue.toFixed(0)): "-₹" + ((-currentValue).toFixed(0))}</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Opening Value:</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} color={"black"}>{currentValue >= 0.00 ? "+₹" + (currentValue.toFixed(0)): "-₹" + ((-currentValue).toFixed(0))}</MDBox>
                     </Item>
                     <Item elevation={2}>           
-                        <MDBox m={0.4} fontWeight={700} >Available Value:</MDBox>
-                        <MDBox m={0.4} fontWeight={700} color={"black"}>{availableValue >= 0.00 ? "+₹" + (availableValue.toFixed(0)): "-₹" + ((-availableValue).toFixed(0))}</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Available Value:</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} color={"black"}>{availableValue >= 0.00 ? "+₹" + (availableValue.toFixed(0)): "-₹" + ((-availableValue).toFixed(0))}</MDBox>
                     </Item>
                     <Item elevation={2}>           
-                        <MDBox m={0.4} fontWeight={700} >Used Value:</MDBox>
-                        <MDBox m={0.4} fontWeight={700} color={"black"}>{usedValue >= 0.00 ? "+₹" + (usedValue.toFixed(0)): "-₹" + ((-usedValue).toFixed(0))}</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Used Value:</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} color={"black"}>{usedValue >= 0.00 ? "+₹" + (usedValue.toFixed(0)): "-₹" + ((-usedValue).toFixed(0))}</MDBox>
                     </Item>
                 </MDBox>
             </ThemeProvider>
@@ -100,6 +107,7 @@ function UsedPortfolio({portfolioId}) {
         ))}
 
         </Grid>
+        }
     </MDBox>
     )
 }

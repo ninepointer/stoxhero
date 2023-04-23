@@ -140,10 +140,13 @@ function ContestTradeView () {
         {/* display="flex" justifyContent="flexEnd" display="flex" justifyContent="center"*/}
         <Grid item xs={12} md={6} lg={6.5} mb={2}>
                 <MDBox color="light" >
-                  <MDBox display="flex" alignItems= "center" gap={"130px"} mb={1} >
+                  <MDBox display="flex" alignItems="center" mb={1} justifyContent="space-between">
                     <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{nevigate('/battleground')}}>< FastRewindIcon/></Button>
                     <MDTypography mt={1.5} color="light"  style={{fontWeight:700, filter: isDummy && 'blur(2px)'}}>
                         {contest?.contestName}
+                    </MDTypography>
+                    <MDTypography mt={1.5} color="light"  style={{fontWeight:600, fontSize: "10px", filter: isDummy && 'blur(2px)'}}>
+                        Contest On: {contest?.contestOn}
                     </MDTypography>
                   </MDBox>
 
@@ -194,7 +197,7 @@ function ContestTradeView () {
 
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
-                          Contest is cancelled due to minimum participants quata was not fullfilled
+                        Contest is canceled due to minimum participant quota was not fulfilled.
                         </span> 
                       </Grid>
                   }

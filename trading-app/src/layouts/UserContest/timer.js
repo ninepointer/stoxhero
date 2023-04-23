@@ -10,6 +10,7 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
 
 
   useEffect(() => {
+    flag.current = true;
     const timerId = setInterval(() => {
       setTimeRemaining(calculateTimeRemaining());
     }, 1000);
@@ -34,33 +35,34 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
     };
   }
 
-  async function updateStatus(){
-    const res = await fetch(`${baseUrl}api/v1/contest/${contestId}/updateStatus`, {
-      method: "PATCH",
-      credentials:"include",
-      headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-        status: "Cancelled"
-      })
-    });
+  // async function updateStatus(){
+  //   const res = await fetch(`${baseUrl}api/v1/contest/${contestId}/updateStatus`, {
+  //     method: "PATCH",
+  //     credentials:"include",
+  //     headers: {
+  //         "content-type" : "application/json",
+  //         "Access-Control-Allow-Credentials": true
+  //     },
+  //     body: JSON.stringify({
+  //       status: "Cancelled"
+  //     })
+  //   });
   
-    const updateContestStatus = await res.json();
+  //   const updateContestStatus = await res.json();
 
-  }
+  // }
 
   const { days, hours, minutes, seconds } = timeRemaining
 
-  //console.log(timeRemaining.total <= 0 , !isDummy , flag.current , redirect, entry , minEntry)
-  if(timeRemaining.total <= 0 && entry < minEntry){
-    //console.log("in timer if");
-    updateStatus().then(()=>{})
-    navigate(`/battleground/${contestName}`, {
-      state: {isContestCancelled: true, isDummy: true, redirect: false}
-    });
-  } else if(timeRemaining.total <= 0 && !isDummy && flag.current && redirect){
+  console.log(timeRemaining.total <= 0 , !isDummy , flag.current , redirect, entry , minEntry)
+  // if(timeRemaining.total <= 0 && entry < minEntry){
+  //   //console.log("in timer if");
+  //   updateStatus().then(()=>{})
+  //   navigate(`/battleground/${contestName}`, {
+  //     state: {isContestCancelled: true, isDummy: true, redirect: false}
+  //   });
+  // } else 
+  if(timeRemaining.total <= 0 && !isDummy && flag.current && redirect){
     console.log("timer running 2nd")
     navigate(`/battleground/result`, {
       state: {contestId: contestId, portfolioId: portfolioId}

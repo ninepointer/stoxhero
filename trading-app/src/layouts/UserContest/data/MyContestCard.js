@@ -114,6 +114,7 @@ const ContestCard = () => {
         })
 
         const isDummy = (new Date()) < new Date(e?.contestStartDate);
+        console.log("isDummy", isDummy)
         return <>
         
             <Grid key={e._id} item xs={12} md={6} lg={3} >

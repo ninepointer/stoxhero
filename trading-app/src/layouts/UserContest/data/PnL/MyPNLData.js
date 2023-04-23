@@ -5,9 +5,8 @@ import MDButton from '../../../../components/MDButton'
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import  { marketDataContext } from '../../../../MarketDataContext';
-import ExitPosition from '../../../User Position/OverallP&L/ExitPosition';
 import { NetPnlContext } from '../../../../PnlContext';
-
+import ExitPosition from './ExitPosition';
 
 
 function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
@@ -23,6 +22,14 @@ function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
   let totalRunningLots = 0;
 
 
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/getliveprice`)
+    .then((res) => {
+      marketDetails.setContestMarketData(res.data);
+    }).catch((err) => {
+        return new Error(err);
+    })
+  },[])
 
   useEffect(()=>{
     let abortController;
@@ -56,6 +63,7 @@ function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
     return () => abortController.abort();
   }, [render])
 
+  console.log("market data", marketDetails.contestMarketData)
 
 return (
     <>
@@ -76,28 +84,28 @@ return (
 
       <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
           
-          <Grid item xs={12} md={12} lg={2.5} display="flex" justifyContent="center">
-            <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Instrument</MDTypography>
+          <Grid item xs={12} md={12} lg={4} display="flex" justifyContent="center">
+            <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Instrument</MDTypography>
           </Grid>
 
-          <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-            <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Quantity</MDTypography>
+          <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+            <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Quantity</MDTypography>
           </Grid>
 
-          <Grid item xs={12} md={12} lg={1.5} display="flex" justifyContent="center">
-            <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Avg. Price</MDTypography>
+          <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+            <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Avg. Price</MDTypography>
           </Grid>
 
-          <Grid item xs={12} md={12} lg={1.5} display="flex" justifyContent="center">
-            <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>LTP</MDTypography>
+          <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+            <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>LTP</MDTypography>
           </Grid>
 
-          <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-          <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Gross P&L</MDTypography>
+          <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+          <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Gross P&L</MDTypography>
           </Grid>
 
-          <Grid item xs={12} md={12} lg={2.5} display="flex" justifyContent="center">
-          <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Exit</MDTypography>
+          <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+          <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Exit</MDTypography>
           </Grid>
 
 
@@ -125,49 +133,45 @@ return (
 
         <Grid key={subelem._id.symbol} container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}} alignItems="center">
           
-        <Grid item xs={12} md={12} lg={2.5} display="flex" justifyContent="center">
-          <MDTypography component="a" variant="caption" color={instrumentcolor} style={{fontWeight:700}}>
+        <Grid item xs={12} md={12} lg={4} display="flex" justifyContent="center">
+          <MDTypography component="a" variant="caption" color={instrumentcolor} style={{fontWeight:500, fontSize: "12px"}}>
             {(subelem._id.symbol)}
           </MDTypography>
         </Grid>
 
-        <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-          <MDTypography component="a" variant="caption" color={quantitycolor} style={{fontWeight:700}}>
+        <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+          <MDTypography component="a" variant="caption" color={quantitycolor} style={{fontWeight:500, fontSize: "12px"}}>
             {subelem.lots}
           </MDTypography>
         </Grid>
 
-        <Grid item xs={12} md={12} lg={1.5} display="flex" justifyContent="center">
-          <MDTypography component="a" variant="caption" color="text" style={{fontWeight:700}}>
+        <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+          <MDTypography component="a" variant="caption" color="text" style={{fontWeight:500, fontSize: "12px"}}>
             {"₹"+subelem?.lastaverageprice?.toFixed(2)}
           </MDTypography>
         </Grid>
 
-        <Grid item xs={12} md={12} lg={1.5} display="flex" justifyContent="center">
+        <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
           {((liveDetail[0]?.last_price)) ?
-          <MDTypography component="a" variant="caption" color="text" style={{fontWeight:700}}>
+          <MDTypography component="a" variant="caption" color="text" style={{fontWeight:500, fontSize: "12px"}}>
             {(liveDetail[0]?.last_price) ? "₹"+(liveDetail[0]?.last_price)?.toFixed(2) : "₹"+0.00}
           </MDTypography>
           :
-          <MDTypography component="a" variant="caption" color="dark" style={{fontWeight:700}}>
+          <MDTypography component="a" variant="caption" color="dark" style={{fontWeight:500, fontSize: "12px"}}>
             {(liveDetail.length && liveDetail[0]?.last_price) ? "₹"+(liveDetail[0]?.last_price) : "₹"+0.00}
           </MDTypography>
           }
         </Grid>
 
-        <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-          <MDTypography component="a" variant="caption" color={gpnlcolor} style={{fontWeight:700}}>
-            {updatedValue ? (updatedValue >= 0.00 ? "+₹" + updatedValue?.toFixed(2): "-₹" + (-updatedValue).toFixed(2)) : (subelem?.amount)?.toFixed(2)}
+        <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+          <MDTypography component="a" variant="caption" color={gpnlcolor} style={{fontWeight:500, fontSize: "12px"}}>
+            {updatedValue !== undefined ? (updatedValue >= 0.00 ? "+₹" + updatedValue?.toFixed(2): "-₹" + (-updatedValue).toFixed(2)) : (subelem?.amount)?.toFixed(2)}
           </MDTypography>
         </Grid>
 
-        <Grid item xs={12} md={12} lg={2.5} display="flex" justifyContent="center">
-          {/* <MDTypography component="a" variant="caption" > */}
-            < ExitPosition Render={{render, setReRender}} contestId={contestId} portfolioId={portfolioId} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
-          {/* </MDTypography> */}
+        <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+            < ExitPosition isFromHistory={isFromHistory} Render={{render, setReRender}} contestId={contestId} portfolioId={portfolioId} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
         </Grid>
-
-
         </Grid>
 
       )})
@@ -176,16 +180,16 @@ return (
         <Grid container  mt={1} mb={2} p={1} style={{border:'1px solid white',borderRadius:4, }}>
       
             <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-              <MDTypography fontSize={13} color="light">Open Quantity : {totalRunningLots}</MDTypography>
+              <MDTypography fontSize={10} color="light">Open Quantity : {totalRunningLots}</MDTypography>
             </Grid>
             <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-              <MDTypography fontSize={13} color={`${totalGrossPnl >= 0 ? 'success' : 'error'}`}>Gross P&L : {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)): "-₹" + ((-totalGrossPnl).toFixed(2))}</MDTypography>
+              <MDTypography fontSize={10} color={`${totalGrossPnl >= 0 ? 'success' : 'error'}`}>Gross P&L : {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)): "-₹" + ((-totalGrossPnl).toFixed(2))}</MDTypography>
             </Grid>
             <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-              <MDTypography fontSize={13} color="light">Brokerage : {"₹"+(totalTransactionCost).toFixed(2)}</MDTypography>
+              <MDTypography fontSize={10} color="light">Brokerage : {"₹"+(totalTransactionCost).toFixed(2)}</MDTypography>
             </Grid>
             <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-              <MDTypography fontSize={13} color={`${(totalGrossPnl-totalTransactionCost) > 0 ? 'success' : 'error'}`}>Net P&L : {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}</MDTypography>
+              <MDTypography fontSize={10} color={`${(totalGrossPnl-totalTransactionCost) > 0 ? 'success' : 'error'}`}>Net P&L : {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}</MDTypography>
             </Grid>
 
         </Grid>
