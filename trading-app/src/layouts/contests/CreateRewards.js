@@ -78,7 +78,7 @@ async function onAddReward(e,childFormState,setChildFormState){
   }
   const {rankStart, rankEnd, reward, currency} = childFormState;
 
-  const res = await fetch(`${baseUrl}api/v1/contest/${newObjectId}`, {
+  const res = await fetch(`${baseUrl}api/v1/contest/${id}`, {
       method: "PATCH",
       credentials:"include",
       headers: {

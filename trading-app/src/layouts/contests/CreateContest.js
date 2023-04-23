@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import CreateRewardForm from './CreateRewards'
 import RewardsData from './data/rewardsData'
 import LinkedContestRuleData from './data/contestLinkedRuleData'
+import ContestParticipantsData from './data/contestParticipants'
 import Stack from '@mui/material/Stack';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
 
@@ -120,7 +121,7 @@ React.useEffect(()=>{
 React.useEffect(()=>{
   axios.get(`${baseUrl}api/v1/contestrule`)
   .then((res)=>{
-    setContestRules(res.data);
+    setContestRules(res?.data);
   }).catch((err)=>{
       return new Error(err)
   })
@@ -743,6 +744,12 @@ console.log("Rule Name: ",contestData?.contestRule?.ruleName)
           {(isSubmitted || oldObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
                     <LinkedContestRuleData linkedRuleId={linkedContestRule} setLinkedRuleId={setLinkedContestRule} isSubmitted={isSubmitted} setIsSubmitted={setIsSubmitted}/>
+                </MDBox>
+          </Grid>}
+
+          {(isSubmitted || oldObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                <MDBox>
+                    <ContestParticipantsData contestData={contestData} setContestData={setContestData} isSubmitted={isSubmitted} setIsSubmitted={setIsSubmitted}/>
                 </MDBox>
           </Grid>}
             

@@ -59,28 +59,7 @@ getKiteCred.getAccess().then(async (data)=>{
       console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
     })
-    // socket.on('contest', async (contestId)=>{
-    //   socket.join(`${contestId}`)
-    //   console.log("in index.js contest ", socket.id, data)
-    //   await client.set(socket.id, contestId);
-    //   console.log("contestId ", contestId)
-    // })
 
-    //  socket.emit('check', true)
-
-    // socket.on('unSubscribeToken', (data)=>{
-
-    //   data.map((elem)=>{
-    //     // console.log("in index.js  unSubscribeToken", elem, socket.id)
-    //     // console.log("rooms before", socket.rooms)
-    //     socket.leave(`instrument ${elem}`)
-    //     // console.log("rooms after", socket.rooms)
-    //   })
-    // })
-
-    // socket.on('removeKey', (key)=>{
-    //   client.del(key);
-    // })
     socket.emit('check', false)
 
 
@@ -187,7 +166,6 @@ app.use('/api/v1/contest', require("./routes/contest/contestRoutes"));
 app.use('/api/v1/referrals', require("./routes/campaigns/referralRoutes"));
 app.use('/api/v1/contestTrade', require("./routes/contest/contestTradeRoutes"));
 app.use('/api/v1/portfolio', require("./routes/userPortfolio/userPortfolioRoutes"));
-
 app.use('/api/v1/carousels', require("./routes/carousel/carouselRoutes"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));

@@ -51,7 +51,7 @@ const contestSchema = new mongoose.Schema({
         paymentId:{type:Schema.Types.ObjectId, ref: 'contest-payment'},
         portfolioId:{type:Schema.Types.ObjectId, ref: 'user-portfolio'},
         status:{type:String, enum:['Joined','Exited']},
-        exitDate:{type:Date, default: new Date()},
+        exitDate:{type:Date},
         myRank: {
             rank: {type: Number},
             npnl: {type: Number},

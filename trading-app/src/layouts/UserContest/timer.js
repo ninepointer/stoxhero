@@ -80,7 +80,7 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
 
 
   if (timeRemaining.total <= 0 && text !== "Contest Ends") {
-    return <div>{text}</div>
+    return <div style={{fontSize:9}}>{text}</div>
   }
 
   //console.log("time difference", timeRemaining.total)
@@ -88,7 +88,7 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
 
 
   return (
-    <div>
+    <div style={{fontSize:9}}>
       {days >= 0 &&
       `${days} days, ${hours} hrs, ${minutes} mins, ${seconds} seconds` 
       }
