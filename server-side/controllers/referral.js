@@ -160,7 +160,7 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
                 value: item.user
               });
         }
-        
+        await client.expire(`referralLeaderboard`,100);
         const userReferralRanks = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
         // console.log(userReferralRanks);
         const transformedData = transformData(userReferralRanks);
