@@ -240,22 +240,22 @@ export default function BasicModal({invited,setInvited,referralCode,referralProg
                     <Typography fontSize={14} p={1}>Copy and paste this in your chat to invite {formData.name} to StoxHero.</Typography>
 
                     <Typography fontSize={14} p={1}>
-                    <Box id="content" style={{backgroundColor:"grey"}} p={2}>
+                    <Box id="content" style={{backgroundColor:"#c3c3c3"}} p={2}>
                       <Typography fontSize={11}>Hey,</Typography>                      
 
-                      <Typography fontSize={11}>*AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR*</Typography>
+                      {/* <Typography fontSize={11}>*AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR*</Typography> */}
 
                       <Typography fontSize={11}>Join me at StoxHero - India's First Options Trading and Investment Platform 🤝</Typography>                             
 
-                      <Typography fontSize={11}>👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.</Typography>                             
+                      {/* <Typography fontSize={11}>👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.</Typography>                              */}
 
-                      <Typography fontSize={11}>👉 Join the community of ace traders and learn real-time options trading.</Typography>
+                      {/* <Typography fontSize={11}>👉 Join the community of ace traders and learn real-time options trading.</Typography> */}
 
-                      <Typography fontSize={11}>👉 Participate in free options trading contests to sharpen your trading skills.</Typography>                        
+                      {/* <Typography fontSize={11}>👉 Participate in free options trading contests to sharpen your trading skills.</Typography>                         */}
 
-                      <Typography fontSize={11}>📲 Visit https://www.stoxhero.com/signup/?referral=${referralCode}</Typography>                           
+                      <Typography fontSize={11}>📲 Visit https://www.stoxhero.com/signup?referral={referralCode}</Typography>                           
 
-                      <Typography fontSize={11}>Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading.</Typography>                             
+                      {/* <Typography fontSize={11}>Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading.</Typography>                              */}
 
                       <Typography fontSize={11}>My Referral Code to join the StoxHero: {referralCode}</Typography>
                     </Box> 
