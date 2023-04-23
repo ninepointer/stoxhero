@@ -46,6 +46,7 @@ function ReferralHomePage() {
   const [earnings, setEarnings] = useState(0);
   const [copied, setCopied] = useState(false);
   const[referralRanks, setReferralRanks] = useState([]);
+  const[rank, setRank] = useState();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const id = getDetails.userDetails._id
   const referralCode = getDetails.userDetails.myReferralCode
@@ -89,7 +90,11 @@ function ReferralHomePage() {
   const fetchData = async()=>{
     const res = await axios.get(`${baseUrl}api/v1/referrals/leaderboard`, {withCredentials: true});
     // console.log('referral data',res.data.data);
-    setReferralRanks(res.data.data)
+    setReferralRanks(res.data.data);
+    const rankRes = await axios.get(`${baseUrl}api/v1/referrals/myrank`, {withCredentials: true});
+    if(rankRes.data.status == 'success'){
+        setRank(rankRes.data.data);
+    }
   };
 
   useEffect(() => {
@@ -146,67 +151,67 @@ function ReferralHomePage() {
   
   
 
-  invitedData?.map((elem)=>{
+//   invitedData?.map((elem)=>{
         
-    let refData = {}
+//     let refData = {}
 
-    function dateConvert(dateToConvert){
-    if(dateToConvert){
-    const date = new Date(dateToConvert);
-    const formattedDate = date.toLocaleString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    });
-    return formattedDate;
-    }
-    else{
-        return '-';
-    }
-    }
+//     function dateConvert(dateToConvert){
+//     if(dateToConvert){
+//     const date = new Date(dateToConvert);
+//     const formattedDate = date.toLocaleString('en-US', {
+//       day: '2-digit',
+//       month: 'short',
+//       year: 'numeric',
+//       hour: 'numeric',
+//       minute: 'numeric',
+//       hour12: true
+//     });
+//     return formattedDate;
+//     }
+//     else{
+//         return '-';
+//     }
+//     }
 
-    refData.name = (
-      <MDButton variant="Contained" color="info" fontWeight="medium">
-        {elem.name}
-      </MDButton>
-    );
+//     refData.name = (
+//       <MDButton variant="Contained" color="info" fontWeight="medium">
+//         {elem.name}
+//       </MDButton>
+//     );
     
-    refData.email = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.email ? elem.email : '-'}
-      </MDTypography>
-    );
+//     refData.email = (
+//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//         {elem.email ? elem.email : '-'}
+//       </MDTypography>
+//     );
 
-    refData.mobile = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.mobile ? elem.mobile : '-'}
-        </MDTypography>
-      );
+//     refData.mobile = (
+//         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//           {elem.mobile ? elem.mobile : '-'}
+//         </MDTypography>
+//       );
     
-    refData.invitedon = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {dateConvert(elem.invitedOn)}
-      </MDTypography>
-    );
+//     refData.invitedon = (
+//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//         {dateConvert(elem.invitedOn)}
+//       </MDTypography>
+//     );
 
-    refData.joinedon = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {dateConvert(elem.joinedOn)}
-        </MDTypography>
-      );
+//     refData.joinedon = (
+//         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//           {dateConvert(elem.joinedOn)}
+//         </MDTypography>
+//       );
     
-    refData.status = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.status}
-      </MDTypography>
-    );
+//     refData.status = (
+//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//         {elem.status}
+//       </MDTypography>
+//     );
  
-    rows.push(refData)
+//     rows.push(refData)
     
-})
+// })
   let columns = [
     { Header: "Rank", accessor: "rank",align: "center" },
     { Header: "Name", accessor: "name",align: "center" },
@@ -215,24 +220,60 @@ function ReferralHomePage() {
   let rows = [];
   referralRanks?.map((elem, index)=>{
     let refData = {}
-    refData.rank =(
-        <MDTypography variant="Contained" fontWeight="medium">
-          {index+1}
-        </MDTypography>
-    );
-    refData.name = (
-        <MDTypography variant="Contained" fontWeight="medium">
-          {elem.user}
-        </MDTypography>
-      );
-    refData.earnings = (
-        <MDTypography variant="Contained" fontWeight="medium">
-          {elem.earnings}
-        </MDTypography>
-      )  ;
+    if(rank && rank.rank == index+1){
+        refData.rank =(
+            <MDTypography variant="Contained" color='info' fontWeight="medium">
+              {index+1}
+            </MDTypography>
+        );
+        refData.name = (
+            <MDTypography variant="Contained" color = 'info' fontWeight="medium">
+              {elem.user}(you)
+            </MDTypography>
+          );
+        refData.earnings = (
+            <MDTypography variant="Contained" color='info' fontWeight="medium">
+              {elem.earnings}
+            </MDTypography>
+          );
+    }else{
+        refData.rank =(
+            <MDTypography variant="Contained" fontWeight="medium">
+              {index+1}
+            </MDTypography>
+        );
+        refData.name = (
+            <MDTypography variant="Contained" fontWeight="medium">
+              {elem.user}
+            </MDTypography>
+          );
+        refData.earnings = (
+            <MDTypography variant="Contained" fontWeight="medium">
+              {elem.earnings}
+            </MDTypography>
+          );
+    }
     rows.push(refData);  
   });
-
+  if(rank && rank.rank>referralRanks.length){
+    rows.push({
+        rank:(
+            <MDTypography variant="Contained" fontWeight="medium">
+              {rank.rank}
+            </MDTypography>
+        ),
+        name:(
+            <MDTypography variant="Contained" fontWeight="medium">
+              you
+            </MDTypography>
+          ),
+        earnings: (
+            <MDTypography variant="Contained" fontWeight="medium">
+              {rank.earnings}
+            </MDTypography>
+          )  
+    })
+  }
   return (
     <>
         <MDBox width="100%" p={5} bgColor="dark" mb={2}>
