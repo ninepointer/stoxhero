@@ -191,8 +191,8 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
     console.log(req.user.name)
     try{
       if(await client.exists(`referralLeaderboard`)){
-        const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard`, JSON.stringify({name:req.user.employeeid}));
-        const leaderBoardScore = await client.ZSCORE(`referralLeaderboard`, JSON.stringify({name:req.user.employeeid}));
+        const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard`, req.user.employeeid);
+        const leaderBoardScore = await client.ZSCORE(`referralLeaderboard`, req.user.employeeid);
     
         console.log(leaderBoardRank, leaderBoardScore)
         return res.status(200).json({
