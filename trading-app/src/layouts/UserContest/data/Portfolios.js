@@ -74,7 +74,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}
         return;
       }
       await joinContest();
-      setButtonClicked(true);
+      
     };
   
     useEffect(() => {
@@ -116,15 +116,17 @@ const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}
     
     const data = await res.json();
     console.log(data);
-    if(data.status === 422 || data.error || !data){
+    if(data.status === "error" || data.error || !data){
         // window.alert(data.error);
         console.log("invalid entry");
+        openSuccessSB("Warning", data.message, "FAIL")
     }else{
         // setNextPage(false)
         // window.alert("entry succesfull");
         openSuccessSB("Great",`You have successfully registered for the contest ${contestName}`, "SUCCESS")
         
         console.log("entry succesfull");
+        setButtonClicked(true);
     }
 
   }

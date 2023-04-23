@@ -52,7 +52,7 @@ function UsedPortfolio({portfolioId}) {
     let runningPnl = Number(contestNetPnl?.toFixed(0));
     const currentValue = portfolioRemainData?.pnl?.length && ((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage));
     const availableValue = currentValue + contestNetPnl;
-    const usedValue = (!contestTotalRunningLots) ? 0 : runningPnl >= 0 ? 0 : runningPnl
+    const usedValue =  runningPnl >= 0 ? 0 : runningPnl
 
 
     const Item = styled(Paper)(({ theme }) => ({

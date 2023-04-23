@@ -29,9 +29,10 @@ exports.autoTradeHelper = async (data, contestId) => {
         Obj.trader = data[i]._id.trader ;
         Obj.portfolioId = data[i]._id.portfolioId ;
         Obj.autoTrade = true ;
-        Obj.uId = Date.now(),
+        Obj.uId = Date.now();
         Obj.order_id = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
         Obj.dontSendResp = (i !== (data.length-1));
+        Obj.employeeid = data[i]._id.employeeid
 
         await recursiveFunction(quantity)
  
