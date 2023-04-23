@@ -1,4 +1,6 @@
 const Referral = require('../models/campaigns/referralProgram');
+const User = require('../models/User/userDetailSchema');
+const client = require('../marketData/redisClient');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -115,5 +117,85 @@ exports.editReferralWithId = async(req, res, next) => {
         res.status(500).json({error:"Failed to edit data"});
     }
 }
+
+exports.getReferralLeaderboard = async(req,res,next) =>{
+    
+    //If the leaderboard exisits in redis
+    if(client.exists(`$referralLeaderboard`)){
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderBoard`, "0", "19",  'WITHSCORES']);
+        return res.status(200).json({
+            status: 'success',
+            results: leaderBoard.length,
+            data: leaderBoard
+          });  
+    }else{
+        //If the leaderboard doesn't exist in redis
+        const leaderboard = await User.aggregate([
+            {
+              $unwind: "$referrals"
+            },
+            {
+              $group: {
+                _id: "$employeeid",
+                totalReferralEarning: {
+                  $sum: "$referrals.referralEarning"
+                }
+              }
+            },
+            {
+                $project:{
+                  _id: 0,
+                  user: '$_id',
+                  totalReferralEarning: 1                  
+                }
+              }
+          ]);
+          
+        for (item of leaderboard){
+            await client.ZADD(`referralLeaderboard`, {
+                score: item.totalReferralEarning,
+                value: item.user
+              });
+        }
+        
+        const userReferralRanks = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
+
+        return res.status(200).json({
+            status: 'success',
+            results: userReferralRanks.length,
+            data: userReferralRanks
+          });  
+
+    }
+
+
+}
+
+exports.getMyLeaderBoardRank = async(req,res,next) => {
+    // const {id} = req.params;
+    console.log(req.user.name)
+    try{
+      if(await client.exists(`referralLeaderboard`)){
+        const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard`, JSON.stringify({name:req.user.employeeid}));
+        const leaderBoardScore = await client.ZSCORE(`referralLeaderboard`, JSON.stringify({name:req.user.employeeid}));
+    
+        console.log(leaderBoardRank, leaderBoardScore)
+        return res.status(200).json({
+          status: 'success',
+          data: {rank: leaderBoardRank+1, earnings: leaderBoardScore}
+        }); 
+    
+      }else{
+          res.status(200).json({
+          status: 'loading',
+          message:'loading rank'
+        }); 
+      }
+  
+    } catch(err){
+      console.log(err);
+    }
+  
+  }
 
 
