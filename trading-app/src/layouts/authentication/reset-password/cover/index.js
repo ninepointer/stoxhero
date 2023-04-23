@@ -39,7 +39,7 @@ function Cover() {
     resetPasswordOTP:"",
   });
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
 
   useEffect(() => {
@@ -152,8 +152,8 @@ async function logInButton(e){
 
   return (
     <CoverLayout coverHeight="30vh" image={bgImage}>
-      <Grid container spacing={3} display="flex" justifyContent="space-around">
-      <Grid item xs={12} md={6} lg={6} mb={3}>
+      <Grid container spacing={2} display="flex" justifyContent="space-around">
+      <Grid item xs={12} md={6} lg={12} mb={3}>
       <Card 
       // style={{width:"50%", margin: "0 auto"}}
       >
@@ -184,10 +184,10 @@ async function logInButton(e){
         </MDBox>
         : 
         <MDBox pt={2} pb={3} px={3} display="flex" justifyContent="space-around">
-        <Grid item xs={12} md={6} lg={6} mb={1}>
+        <Grid item xs={12} md={6} lg={12} mb={1}>
           <MDBox component="form" role="form">
-            {responseMessage && 
-            <Typography mb={2} style={{ border: '0.1em solid white', backgroundColor:responseMessage.type === 'success' ? "#5F9954" : "red", color:"white", borderRadius:4 ,textAlign:"center", fontSize:15 }}>{responseMessage.message}</Typography>}
+            {/* {responseMessage && 
+            <Typography mb={2} style={{ border: '0.1em solid white', backgroundColor:responseMessage.type === 'success' ? "#5F9954" : "red", color:"white", borderRadius:4 ,textAlign:"center", fontSize:15 }}>{responseMessage.message}</Typography>} */}
           < MDBox mb={4} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
              
               <MDInput disabled={!editable} type="email" label="Email" variant="standard" fullWidth onChange={(e)=>{formstate.email = e.target.value}}/>
@@ -202,7 +202,7 @@ async function logInButton(e){
 
             {!editable &&
             <>
-            <MDBox display="flex" flexDirection="column" mt={2} mb={0}>
+            <MDBox display="flex" flexDirection="column" mt={2} mb={0} alignItems='center' width='100%' >
             
             <OtpInput
               value={formstate.resetPasswordOTP}
@@ -211,7 +211,8 @@ async function logInButton(e){
               numInputs={6}
               renderSeparator={<span>-</span>}
               renderInput={(props) => <input {...props} />}
-              inputStyle={{width:50, height:50}}
+              inputStyle={{width:45, height:45}}
+              style={{display:'flex', justifyContent: 'center', margin: 'auto'}}
             />
             <MDButton disabled={timerActive} mb={2} variant="text" color="info" fullWidth onClick={resendOTP}>
               {timerActive ? `Resend OTP in ${resendTimer} seconds` : 'Resend OTP'}
