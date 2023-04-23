@@ -46,7 +46,7 @@ function ReferralHomePage() {
   const [earnings, setEarnings] = useState(0);
   const [copied, setCopied] = useState(false);
   const[referralRanks, setReferralRanks] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const id = getDetails.userDetails._id
   const referralCode = getDetails.userDetails.myReferralCode
   console.log(getDetails)
