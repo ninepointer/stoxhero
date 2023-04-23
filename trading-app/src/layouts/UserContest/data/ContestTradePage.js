@@ -1,4 +1,4 @@
-import React,{useState, useEffect, memo, useMemo, useCallback, useRef} from 'react'
+import React,{useState, useEffect, memo, useMemo, useRef} from 'react'
 import { io } from "socket.io-client";
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
@@ -12,8 +12,6 @@ import { Divider } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from "axios";
 
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import Portfolios from '../data/Portfolios'
 import MYPNLData from '../data/PnL/MyPNLData'
 import InstrumentsData from '../data/Instruments/Instruments'
 import TradersRanking from '../data/TradersRanking'
@@ -23,10 +21,10 @@ import DummyRank from "./DemoTradersRanking";
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import Timer from '../timer';
 import LastTrade from '../data/contestTrade/LastTrade'
-import MDButton from '../../../components/MDButton';
 import FastRewindIcon from '@mui/icons-material/FastRewind';
 import Button from '@mui/material/Button'
 import UsedPortfolio from './PnL/UsedPortfolio';
+import Margin from './marginDetails/margin';
 
 
 
@@ -36,7 +34,10 @@ function ContestTradeView () {
     const  contestId  = location?.state?.contestId;
     const  portfolioId  = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
+    const minEntry = location?.state?.minEntry
+    const entry = location?.state?.entry
     const  isDummy  = location?.state?.isDummy;
+    const isContestCancelled = location?.state?.isContestCancelled;
     const redirect = useRef(true);
     const nevigate = useNavigate();
 
@@ -96,13 +97,13 @@ function ContestTradeView () {
 
     },[])
 
-    const memoizedUsedPortfolio = useMemo(() => {
-      return <UsedPortfolio portfolioId={portfolioId} />;
+    const memoizedMargin = useMemo(() => {
+      return <Margin portfolioId={portfolioId} />;
     }, [portfolioId]);
 
     const memoizedTradersRanking = useMemo(() => {
-      return <TradersRanking contestId={contestId} />;
-    }, [contestId]);
+      return <TradersRanking contestId={contestId} reward={contest?.rewards}/>;
+    }, [contestId, contest?.rewards]);
   
     const memoizedLastTrade = useMemo(() => {
       return <LastTrade
@@ -139,14 +140,18 @@ function ContestTradeView () {
         {/* display="flex" justifyContent="flexEnd" display="flex" justifyContent="center"*/}
         <Grid item xs={12} md={6} lg={6.5} mb={2}>
                 <MDBox color="light" >
-                  <MDBox display="flex" alignItems= "center" gap={"130px"} mb={1} >
+                  <MDBox display="flex" alignItems="center" mb={1} justifyContent="space-between">
                     <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{nevigate('/battleground')}}>< FastRewindIcon/></Button>
                     <MDTypography mt={1.5} color="light"  style={{fontWeight:700, filter: isDummy && 'blur(2px)'}}>
                         {contest?.contestName}
                     </MDTypography>
+                    <MDTypography mt={1.5} color="light"  style={{fontWeight:600, fontSize: "10px", filter: isDummy && 'blur(2px)'}}>
+                        Contest On: {contest?.contestOn}
+                    </MDTypography>
                   </MDBox>
 
-                    {isDummy && !isFromHistory ?
+                  {!isContestCancelled ?
+                    isDummy && !isFromHistory ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
                           Contest is Starts in:
@@ -161,6 +166,8 @@ function ContestTradeView () {
                             isDummy={isDummy}
                             contestName={contest?.contestName}
                             redirect={redirect.current}
+                            minEntry={minEntry}
+                            entry={entry}
                           />
                         </div>
                       </Grid>
@@ -174,26 +181,34 @@ function ContestTradeView () {
                         <AvTimerIcon/>
                         <Timer 
                           targetDate={contest?.contestEndDate} 
-                          text="Contest Started"
+                          text="Contest Ends"
                           contestId={contestId}
                           portfolioId={portfolioId}
                           isDummy={isDummy}
                           contestName={contest?.contestName}
                           redirect={redirect.current}
+                          minEntry={minEntry}
+                          entry={entry}
                         />
                       </div>
                       </Grid>
-                      }
+
+                      :
+
+                      <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
+                        <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+                        Contest is canceled due to minimum participant quota was not fulfilled.
+                        </span> 
+                      </Grid>
+                  }
                     
                     {!isDummy ?
                     <>
+                    {memoizedMargin}
                     {memoizedInstrumentDetails}
-                    {/* <InstrumentsData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory}/> */}
                     {memoizedOverallPnl}
-                    {/* <MYPNLData contestId={contestId} socket={socket} portfolioId={portfolioId} Render={{render, setReRender}} isFromHistory={isFromHistory} /> */}
-                    {isFromHistory && memoizedUsedPortfolio}
+                    
                     {memoizedLastTrade}
-                    {/* <LastTrade contestId={contestId} Render={{render, setReRender}}/> */}
                     </>
                     :
                     <>
@@ -212,8 +227,8 @@ function ContestTradeView () {
             {isDummy ?
             <DummyRank />
             :
-            // <TradersRanking contestId={contestId} />
             memoizedTradersRanking
+            
             }
 
 

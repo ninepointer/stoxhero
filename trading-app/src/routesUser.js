@@ -11,6 +11,7 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
+import HelpIcon from '@mui/icons-material/Help';
 
 //page routes
 import UserOrders from "./layouts/userorders";
@@ -26,6 +27,12 @@ import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
 import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
+// import ContestResultPage from "./layouts/UserContest/data/contestTrade/ContestResultPage";
+import ResultPage from "./layouts/UserContest/ResultPage";
+import MyContestHistoryCard from "./layouts/UserContest/data/MyContestHistoryCard";
+import ContestHistory from "./layouts/UserContest/ContestHistory";
+import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
+import FAQs from "./layouts/FAQs";
 
 const routes = [
 
@@ -87,6 +94,30 @@ const routes = [
     route: "battleground/:name/trade",
     component: <ContestTradePage />,
   },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/result",
+    component: <ResultPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/history",
+    component: <ContestHistory />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/history/:name",
+    component: <ContestHistoryCard />,
+  },
   // {
   //   // type: "collapse",
   //   // name: "Arena", 
@@ -136,6 +167,15 @@ const routes = [
     icon: <BusinessCenterIcon/>,
     route: "/portfolio",
     component: <MyPortfolio />,
+  },
+  {
+    type: "collapse",
+    name: "FAQs",
+    key: "faqs",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <HelpIcon/>,
+    route: "/faqs",
+    component: <FAQs />,
   },
   {
     type: "collapse",
