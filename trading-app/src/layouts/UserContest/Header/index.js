@@ -11,10 +11,12 @@ import MDBox from '../../../components/MDBox';
 import UpcomingContest from '../data/UserContestCard'
 import MyContestCard from '../data/MyContestCard'
 import MyContestHistoryCard from '../data/MyContestHistoryCard'
+import { useNavigate } from 'react-router-dom';
 
 function LabTabs() {
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (event, newValue) => {
     setIsLoading(true)
@@ -24,14 +26,18 @@ function LabTabs() {
     }, 500);
   };
 
+  function history(){
+    navigate("/battleground/history");
+  }
+
   return (
-    <Box sx={{ width: '100%', typography: 'body1' }}>
+    <Box mt={2} sx={{ width: '100%', typography: 'body1' }}>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Upcoming Battles" value="1" />
             <Tab label="My Battles" value="2" />
-            <Tab label="History" value="3" />
+            <Tab label="History" value="3" onClick={history}/>
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -52,17 +58,16 @@ function LabTabs() {
           <MyContestCard />
           }
         </TabPanel>
-        <TabPanel value="3">
+        {/* <TabPanel value="3">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <MyContestHistoryCard />
+
+          navigate("/battleground/history")
           }
-        </TabPanel>
-        {/* <TabPanel value="2">Item Two</TabPanel>
-        <TabPanel value="3">Item Three</TabPanel> */}
+        </TabPanel> */}
       </TabContext>
     </Box>
   );

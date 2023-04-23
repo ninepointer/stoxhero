@@ -19,7 +19,6 @@ import { userContext } from "../../AuthContext";
 
 function UserPosition() {
 
-  console.log("user position rendering")
   const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -88,7 +87,7 @@ function UserPosition() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox py={0}>
+      <MDBox py={0} mt={1}>
 
         {/* <StockIndex /> */}
         {/* <StockIndex socket={socket}/> */}

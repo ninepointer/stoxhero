@@ -152,7 +152,8 @@ exports.getUserPortfolio = async(req,res,next) => {
         const myContests = await Contest.find({
           "participants.userId": userId,
           "participants.status": "Joined",
-          "contestEndDate": { $gt: new Date() }
+          "contestEndDate": { $gt: new Date() },
+          status: "Live"
         });
         // console.log("myContests", myContests)
         const filteredPortfolioIds = portfolioIds.filter(portfolioId => {
@@ -166,10 +167,7 @@ exports.getUserPortfolio = async(req,res,next) => {
           
 
         // console.log("filteredPortfolioIds", result)
-        const portfolios = await Portfolio.find({status: "Active", _id: {$in: filteredPortfolioIds}});
-
-
-
+        const portfolios = await Portfolio.find({status: "Active", portfolioType: "Contest", _id: {$in: filteredPortfolioIds}});
         res.status(200).json({status: 'success', data: portfolios, results: portfolios.length});
 
     }catch(e){

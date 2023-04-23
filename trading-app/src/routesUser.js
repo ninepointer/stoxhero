@@ -4,7 +4,6 @@ import Profile from "./layouts/profile";
 
 // @mui icons
 
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import ReorderIcon from '@mui/icons-material/Reorder';
@@ -12,6 +11,7 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
+import HelpIcon from '@mui/icons-material/Help';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
@@ -26,17 +26,24 @@ import ContestTradePage from './layouts/UserContest/ContestTrade'
 import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
 import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
+import Home from './layouts/UserHome'
+import HomeIcon from '@mui/icons-material/OtherHouses';
+// import ContestResultPage from "./layouts/UserContest/data/contestTrade/ContestResultPage";
+import ResultPage from "./layouts/UserContest/ResultPage";
+import MyContestHistoryCard from "./layouts/UserContest/data/MyContestHistoryCard";
+import ContestHistory from "./layouts/UserContest/ContestHistory";
+import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
+import FAQs from "./layouts/FAQs";
 
 const routes = [
 
   // {
   //   type: "collapse",
-  //   name: "Dashboard",
+  //   name: "DashBoard",
   //   key: "Dashboard",
-  //   // icon: <Icon fontSize="small">person</Icon>,
-  //   icon: <DashboardIcon/>,
+  //   icon: <HomeIcon/>,
   //   route: "/Dashboard",
-  //   component: <Dashboard />,
+  //   component: <Home />,
   // },
   {
     type: "collapse",
@@ -58,7 +65,7 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Battleground",
+    name: "Battle Ground",
     key: "battleground",
     icon: <StadiumIcon/>,
     route: "/battleground",
@@ -87,6 +94,30 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "battleground/:name/trade",
     component: <ContestTradePage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/result",
+    component: <ResultPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/history",
+    component: <ContestHistory />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/history/:name",
+    component: <ContestHistoryCard />,
   },
   // {
   //   // type: "collapse",
@@ -132,11 +163,20 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "My Portfolio",
+    name: "Portfolio",
     key: "portfolio",
     icon: <BusinessCenterIcon/>,
     route: "/portfolio",
     component: <MyPortfolio />,
+  },
+  {
+    type: "collapse",
+    name: "FAQs",
+    key: "faqs",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <HelpIcon/>,
+    route: "/faqs",
+    component: <FAQs />,
   },
   {
     type: "collapse",

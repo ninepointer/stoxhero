@@ -1,18 +1,20 @@
 const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
-const {newTrade, getUserTrades, currentUser, getContestRank, getMyContestRank, getContestPnl, getLastFiveTrade, getRedisLeaderBoard, getContestHistoryPnl, getRedisMyRank} = require('../../controllers/contestTradeController');
+const {getHistoryRanks, newTrade, getUserTrades, currentUser, getContestRank, getMyContestRank, getContestPnl, getTradeByPagination, countTrades, getRedisLeaderBoard, getRedisMyRank} = require('../../controllers/contestTradeController');
 const authoizeTrade = require('../../controllers/authoriseTrade');
 const client = require('../../marketData/redisClient');
 
 router.route('/myTrades').get(Authenticate, currentUser , getUserTrades);
 router.route('/pnl').get(Authenticate, getContestPnl);
-router.route('/historyPnl').get(Authenticate, getContestHistoryPnl);
-router.route('/lastFiveTrade').get(Authenticate, getLastFiveTrade);
+router.route('/countTrades').get(Authenticate, countTrades);
+router.route('/tradesByPagination').get(Authenticate, getTradeByPagination);
 router.route('/rank').get(getContestRank);
 // router.route('/myrank').get(Authenticate, getMyContestRank);
 
-router.route('/leaderboard').get(Authenticate, getRedisLeaderBoard);
+router.route('/leaderboard').get( getRedisLeaderBoard);
+router.route('/historyLeaderboard').get( getHistoryRanks);
+
 router.route('/myrank').get(Authenticate, getRedisMyRank);
 router.route('/redtest').get( async(req,res,next)=>{
     try{
