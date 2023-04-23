@@ -226,7 +226,7 @@ exports.myContests = async(req,res,next) => {
 exports.contestHistory = async(req, res, next) => {
     const userId = req.user._id;
     try{
-       const myContestHistory = await Contest.find({"participants.userId": userId, contestEndDate: {$lt: new Date()}});
+       const myContestHistory = await Contest.find({"participants.userId": userId, contestEndDate: {$lt: new Date()}}).sort({contestEndDate:-1});
        if(!myContestHistory){
            return res.status(404).json({status:'error', message: 'No contests found'});
        }

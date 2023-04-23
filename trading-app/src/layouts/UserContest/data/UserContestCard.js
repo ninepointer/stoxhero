@@ -15,6 +15,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import ProgressBar from '../data/ProgressBar'
 import { CircularProgress } from "@mui/material";
+import Logo from "../../../assets/images/logo1.jpeg"
 
   
 
@@ -139,33 +140,35 @@ const ContestCard = () => {
             state= {{data:e._id, isDummy: true, isFromUpcomming: true}}
             >
                 <Grid container>
-                    <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">
-                        <img src={ContestIcon} width={50} height={50}/>
-                    </Grid>
-                    <Grid item xs={12} md={6} lg={12} mt={1} mb={2} display="flex" justifyContent="center">
-                        <Typography fontSize={15} style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4}}>{e.contestName}</Typography>
+                  <Grid mt={1} container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
+                    <Grid item xs={12} md={6} lg={3} display="flex" justifyContent="center">
+                        <img style={{borderRadius:'50%'}} src={Logo} width={50} height={50}/>
                     </Grid>
                     
-                    <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
-                        <Typography fontSize={15} style={{color:"white"}}>Total Reward</Typography>
+                    <Grid item xs={12} md={6} lg={9} mb={2} mt={0.4} display="flex" justifyContent="center">
+                        <MDBox display="flex" flexDirection="column" justifyContent="left" alignItems="left">
+                        <Typography align='center' fontSize={15} style={{color:"whitesmoke",fontSize:15,fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>{e.contestName}</Typography>
+                        <Typography align='center' fontSize={10} style={{color:"white"}}><span style={{fontSize:10,fontWeight:700,paddingLeft:4,paddingRight:4}}>{dateConvert(e?.contestStartDate)}</span></Typography>
+                        </MDBox>
+                    </Grid> 
+                  </Grid>
+
+                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
+                        <Typography fontSize={13} style={{fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>Contest On: {e.contestOn}</Typography>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
+                        <Typography fontSize={13} style={{color:"white",fontWeight:700}}>Reward Pool: {e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0).toLocaleString()}</Typography>
                     </Grid>
 
-                    <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center">
-                        <Typography fontSize={15} style={{color:"white",fontWeight:800}}>{e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0).toLocaleString()}</Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={12} mb={1} style={{color:"white",fontSize:11}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
+                    <Grid item xs={12} md={6} lg={12} mb={1} style={{color:"white",fontSize:10}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                       <span style={timerStyle}>
                         <AvTimerIcon/><Timer targetDate={e.contestStartDate} text="Contest Started" />
                       </span>
                     </Grid>
 
-                    <Grid item xs={12} md={6} lg={8} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={8} style={{color:"white"}}>Starts <span style={{fontSize:10,fontWeight:700}}>{dateConvert(e?.contestStartDate)}</span></Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={8} style={{color:"white"}}>Entry <span style={{fontSize:10,fontWeight:700}}>{e?.entryFee?.amount ? 'FREE' : e?.entryFee?.amount}</span></Typography>
+                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
+                        <Typography fontSize={8} style={{color:"white"}}>Entry Fee: <span style={{fontSize:10,fontWeight:700}}>{e?.entryFee?.amount === 0 ? 'FREE' : e?.entryFee?.amount}</span></Typography>
                     </Grid>
                     
                     <Grid item xs={12} md={6} lg={12} sx={{width:"100%"}}>
@@ -174,13 +177,10 @@ const ContestCard = () => {
 
                     <Grid item xs={12} md={12} lg={12} display="flex" mt={1} ml={1} mr={1} justifyContent="space-between" alignItems="center" alignContent="center">
                         <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Min: {e?.minParticipants}</span>
+                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Seats Left: {e?.maxParticipants-e?.participants?.length}</span>
                         </MDTypography>
                         <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Entries: {e?.participants?.length}</span>
-                        </MDTypography>
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Max: {e?.maxParticipants}</span>
+                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Max Seat: {e?.maxParticipants}</span>
                         </MDTypography>
                     </Grid>
 
