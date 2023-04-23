@@ -44,9 +44,9 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
       console.log("my rank", api2Response.data)
       if(api2Response.data.status == "success"){
         setMyRank(api2Response.data.data);
-        // if(isFromResult){
-        //   setMyRankProps(api2Response.data.data)
-        // }
+        if(isFromResult){
+          setMyRankProps(api2Response.data.data)
+        }
         
       }
       
