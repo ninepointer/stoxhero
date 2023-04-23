@@ -12,7 +12,6 @@ import ContestIcon from "../../../assets/images/contest.png";
 import { HiUserGroup } from 'react-icons/hi';
 import Timer from '../timer'
 import { Typography } from '@mui/material';
-import LinearProgress from '@mui/material/LinearProgress';
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import ProgressBar from '../data/ProgressBar'
 import { userContext } from '../../../AuthContext';
