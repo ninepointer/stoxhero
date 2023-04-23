@@ -5,8 +5,9 @@ const TradableInstrument = require("../../models/Instruments/tradableInstruments
 const getKiteCred = require('../../marketData/getKiteCred'); 
 
 
-exports.tradableInstrument = async () => {
+exports.tradableInstrument = async (req,res,next) => {
 
+    let userId = req.user._id;
     getKiteCred.getAccess().then((data)=>{
         console.log(data)
         // createNewTicker(data.getApiKey, data.getAccessToken);
@@ -59,12 +60,15 @@ exports.tradableInstrument = async () => {
                     if(row.name === "NIFTY"){
                         row.name = row.name+"50"
                     }
+                    row.lastModifiedBy = userId;
+                    row.createdBy = userId;
                     
                     await TradableInstrument.create(row);
                 }
             })
             .on('end', () => {
                 console.log('CSV file successfully processed');
+                res.send('CSV file successfully processed')
             });
         })
         .catch((error) => {

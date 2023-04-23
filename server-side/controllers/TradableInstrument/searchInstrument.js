@@ -25,33 +25,41 @@ const size = parseInt(req.query.size);
 console.log(page, size)
 
 try {
-
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   let fromLessThen = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+7).padStart(2, '0')}`
   console.log(todayDate, fromLessThen)
   const data = await TradableInstrument.find({
-    $or: [
-      { tradingsymbol: { $regex: searchString, $options: 'i' } },
-      { name: { $regex: searchString, $options: 'i' } },
-      { exchange: { $regex: searchString, $options: 'i' } },
-      { expiry: { $regex: searchString, $options: 'i' } },
-    ],
-    expiry: {
-      $gte: todayDate, // expiry is greater than or equal to today's date
-      $lt: fromLessThen
-      // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
-    }
+    $and: [
+      {
+        $or: [
+          { tradingsymbol: { $regex: searchString, $options: 'i' } },
+          { name: { $regex: searchString, $options: 'i' } },
+          { exchange: { $regex: searchString, $options: 'i' } },
+          { expiry: { $regex: searchString, $options: 'i' } },
+        ]
+      },
+      { 
+        status: 'Active'
+      },
+      { 
+        expiry: {
+          $gte: todayDate, // expiry is greater than or equal to today's date
+          $lt: fromLessThen
+          // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+        }
+      }
+    ]
   })
   .sort({ expiry: 1 })
   .limit(size)
   .exec();
 
   res.json(data);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+} catch (error) {
+  console.log(error);
+  res.status(500).json({ error: 'Internal Server Error' });
+}
 
 }
 
