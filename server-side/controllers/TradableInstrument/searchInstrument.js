@@ -6,19 +6,7 @@ const getKiteCred = require('../../marketData/getKiteCred');
 
 
 exports.search = async (searchString, res, req) => {
-    console.log(searchString)
-    // const searchedInstrument = await TradableInstrument.find({
-    //     $or: [
-    //         { tradingsymbol: { $regex: searchString, $options: 'i' } },
-    //         { name: { $regex: searchString, $options: 'i' } },
-    //         { exchange: { $regex: searchString, $options: 'i' } }
-    //       ]
-    //     // { tradingsymbol: { $regex: searchString }, $options: 'i' })
-    //     }).sort({expiry: 1});
 
-    // res.send(searchedInstrument)
-
-//------------------------------------
 const page = parseInt(req.query.page);
 const size = parseInt(req.query.size);
 

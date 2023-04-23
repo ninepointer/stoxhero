@@ -135,7 +135,7 @@ return (
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
                       <MDTypography fontSize={11}  color="light">
-                        {myReward.length && myReward[0]?.reward ? `${myReward[0]?.reward} ${myReward[0]?.currency}` : "-"}
+                        {myReward.length && myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : "-"}
                       </MDTypography>
                     </Grid>
 

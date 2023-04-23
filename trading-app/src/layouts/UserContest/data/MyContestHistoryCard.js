@@ -8,13 +8,11 @@ import axios from "axios";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import ContestIcon from "../../../assets/images/contest.png";
-import { HiUserGroup } from 'react-icons/hi';
-import Timer from '../timer'
 import { Typography } from '@mui/material';
-import AvTimerIcon from '@mui/icons-material/AvTimer';
-import ProgressBar from '../data/ProgressBar'
 import { userContext } from '../../../AuthContext';
+import Logo from "../../../assets/images/logo1.jpeg"
+import StarIcon from '@mui/icons-material/Star';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
   
 
 const MyContestHistoryCard = () => {
@@ -98,8 +96,12 @@ const MyContestHistoryCard = () => {
       <Grid container spacing={2}>
       {contestData?.map((e)=>{
 
-        let portfolioId = e?.participants?.filter((elem)=>{
+        let participatedUser = e?.participants?.filter((elem)=>{
           return elem?.userId == getDetails?.userDetails?._id
+        })
+
+        const myReward = e?.rewards?.filter((elem)=>{
+          return elem?.rankStart <= participatedUser[0]?.myRank?.rank && elem?.rankEnd >=  participatedUser[0]?.myRank?.rank;
         })
 
         return <>
@@ -111,7 +113,7 @@ const MyContestHistoryCard = () => {
             to={{
               pathname: `/battleground/history/${e.contestName}`,
             }}
-            state= {{contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isFromHistory: true}}
+            state= {{contestId: e?._id, portfolioId: participatedUser[0].portfolioId, isFromHistory: true}}
 
           // to={ selectedPortfolio && {
           //     pathname: `/arena/contest/${nextPagePath}`,
@@ -121,46 +123,37 @@ const MyContestHistoryCard = () => {
 
             >
                 <Grid container>
-                    <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">
-                        <img src={ContestIcon} width={50} height={50}/>
-                    </Grid>
-                    <Grid item xs={12} md={6} lg={12} mt={1} mb={2} display="flex" justifyContent="center">
-                        <Typography fontSize={15} style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4}}>{e.contestName}</Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
-                        <Typography fontSize={15} style={{color:"white"}}>Total Reward</Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center">
-                        <Typography fontSize={15} style={{color:"white",fontWeight:800}}>{e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0).toLocaleString()}</Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={12} mb={1} style={{color:"white",fontSize:11}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
-                        <AvTimerIcon/><Timer targetDate={e.contestStartDate} text="Contest Started" />
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={8} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={8} style={{color:"white"}}>Starts <span style={{fontSize:10,fontWeight:700}}>{dateConvert(e?.contestStartDate)}</span></Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={4} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={8} style={{color:"white"}}>Entry <span style={{fontSize:10,fontWeight:700}}>{e?.entryFee?.amount ? 'FREE' : e?.entryFee?.amount}</span></Typography>
+                  <Grid mt={1} container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
+                      <Grid item xs={12} md={6} lg={3} display="flex" justifyContent="center">
+                          <img style={{borderRadius:'50%'}} src={Logo} width={50} height={50}/>
+                      </Grid>
+                      
+                      <Grid item xs={12} md={6} lg={9} mb={2} display="flex" justifyContent="center">
+                          <MDBox display="flex" flexDirection="column" justifyContent="left" alignItems="left">
+                          <Typography align='center' style={{color:"whitesmoke",fontSize:15,fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>{e.contestName}</Typography>
+                          <Typography align='center' fontSize={8} style={{color:"white"}}><span style={{fontSize:10,fontWeight:700,paddingLeft:4,paddingRight:4}}>{dateConvert(e?.contestStartDate)}</span></Typography>
+                          </MDBox>
+                      </Grid> 
                     </Grid>
                     
-                    <Grid item xs={12} md={6} lg={12} sx={{width:"100%"}}>
-                      <ProgressBar progress={((e?.participants?.length)/(e?.maxParticipants)*100)}/>
+                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
+                        <Typography fontSize={13} style={{fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>Contest On: {e.contestOn}</Typography>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
+                        <Typography fontSize={13} style={{color:"white",fontWeight:700}}>Reward Pool: {e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0).toLocaleString()}</Typography>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
+                        <Typography fontSize={8} style={{color:"white"}}>Entry Fee: <span style={{fontSize:10,fontWeight:700}}>{e?.entryFee?.amount === 0  ? 'FREE' : e?.entryFee?.amount}</span></Typography>
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={12} display="flex" mt={1} ml={1} mr={1} justifyContent="space-between" alignItems="center" alignContent="center">
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Min: {e?.minParticipants}</span>
+                        <MDTypography color="white" fontSize={9} display="flex" justifyContent="center">
+                            <StarIcon /><span style={{marginLeft:2,fontWeight:600}}>My Rank: {participatedUser[0]?.myRank?.rank ? participatedUser[0]?.myRank?.rank : "NA"}</span>
                         </MDTypography>
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Entries: {e?.minParticipants}</span>
-                        </MDTypography>
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Max: {e?.maxParticipants}</span>
+                        <MDTypography color="white" fontSize={9} display="flex" justifyContent="center">
+                            <EmojiEventsIcon /><span style={{marginLeft:2,fontWeight:600}}>My Reward: {myReward.length && myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : "NA"}</span>
                         </MDTypography>
                     </Grid>
 

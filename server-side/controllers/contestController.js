@@ -31,6 +31,7 @@ exports.createContest = async(req, res, next)=>{
 }
 
 exports.getContests = async(req, res, next)=>{
+    console.log("inside getContests")
     try{
         const contests = await Contest.find().populate('contestRule','ruleName');
         
@@ -42,6 +43,7 @@ exports.getContests = async(req, res, next)=>{
         
 };
 exports.getActiveContests = async(req, res, next)=>{
+    console.log("inside ActiveContest")
     try {
         const contests = await Contest.find({ contestEndDate: { $gte: new Date() }, status: 'Live', entryClosingDate:{$gte: new Date()} }).populate('contestRule','ruleName'); 
     
@@ -209,11 +211,15 @@ exports.joinContest = async(req, res, next) => {
 }
 
 exports.getContest = async (req,res,next) => {
+    console.log("inside getContest")
     const {id} = req.params;
     try{
         const contest = await Contest.findById(id)
         .populate('contestRule', { ruleName: 1, contestRules: 1 })
-        .populate('lastModifiedBy', { first_name: 1, last_name: 1 });
+        .populate('participants.userId','first_name')
+        .populate('participants.portfolioId','portfolioName')
+        .populate('lastModifiedBy', { first_name: 1, last_name: 1 })
+        .populate('createdBy', { first_name: 1, last_name: 1 });
         if(!contest){
             return res.status(404).json({status: 'error', message: 'Contest not found.'});
         }
