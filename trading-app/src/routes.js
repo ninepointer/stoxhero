@@ -30,7 +30,6 @@ import SignUp from './layouts/authentication/sign-up'
 import ResetPassword from './layouts/authentication/reset-password/cover'
 import Response from './layouts/authentication/sign-up/responseSubmit'
 import MyReferrals from "./layouts/referrals"
-import UserContest from "./layouts/UserContest"
 import Portfolio from './layouts/portfolio'
 import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
@@ -45,6 +44,7 @@ import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
 
 // @mui icons
+import StadiumIcon from '@mui/icons-material/Stadium';
 import Shop2Icon from '@mui/icons-material/Shop2';
 import ReportIcon from '@mui/icons-material/Assessment';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
@@ -67,6 +67,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
 import Contest from "./layouts/user-contest"
+import UserContest from "./layouts/UserContest"
 
 const routes = [
   {
@@ -349,11 +350,35 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Arena",
-    key: "arena",
-    icon: <BusinessIcon/>,
-    route: "/arena",
+    name: "Battle Ground",
+    key: "battleground",
+    icon: <StadiumIcon/>,
+    route: "/battleground",
     component: <UserContest />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/battleground/:name",
+    component: <ContestPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/:name/register",
+    component: <ContestRegisterPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", 
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "battleground/:name/trade",
+    component: <ContestTradePage />,
   },
   {
     type: "collapse",
@@ -365,7 +390,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "My Referrals",
+    name: "Referrals",
     key: "myreferrals",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <PersonIcon/>,
