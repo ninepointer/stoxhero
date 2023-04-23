@@ -808,7 +808,7 @@ exports.autoTradeContest = async(req, res, next) => {
           let obj = {
             rank: leaderBoardRank+1,
             npnl: leaderBoardScore,
-            investedAmount: investedAmount
+            investedAmount: Number(investedAmount)
           }
 
           console.log("object", obj);
@@ -908,7 +908,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
     if(await client.exists(`leaderboard:${id}`)){
       // console.log("in if con")
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
-      const formattedLeaderboard = formatData(leaderBoard)
+      const formattedLeaderboard = await formatData(leaderBoard)
 
       // console.log('cached');
       return res.status(200).json({
@@ -1101,7 +1101,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
         // Add the npnl property to the object
         const investedAmount = await client.get(`${obj.name} investedAmount`)
         obj.npnl = Number(arr[index + 1]);
-        obj.investedAmount = investedAmount;
+        obj.investedAmount = Number(investedAmount);
         // Add the object to the accumulator array
         acc.push(obj);
       }
@@ -1153,7 +1153,7 @@ exports.getHistoryRanks = async(req,res,next) => {
 exports.getHistoryMyRank = async(req,res,next) => {
 
   const contestId = req.params.id;
-  const userId = req.params.userId;
+  const userId = req.user._id;
 
   const contest = await Contest.findOne(
     { _id: contestId, 'participants.userId': userId }, 
@@ -1168,7 +1168,7 @@ exports.getHistoryMyRank = async(req,res,next) => {
   }
 
   const myRank = contest.participants[0].myRank;
-
+  console.log("myrank", myRank)
   return res.status(200).json({
     status: 'success',
     data: myRank
