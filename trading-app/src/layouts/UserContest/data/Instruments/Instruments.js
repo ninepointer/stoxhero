@@ -2,7 +2,6 @@ import React,{useState, useEffect, memo, useContext} from 'react'
 // import MDBox from '../../../../components/MDBox'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../../components/MDTypography'
-import MDButton from '../../../../components/MDButton'
 // import Logo from '../../../assets/images/logo1.jpeg'
 // import { Divider } from '@mui/material'
 // import { HiUserGroup } from 'react-icons/hi';
@@ -109,23 +108,23 @@ return (
         <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
             
             <Grid item xs={12} md={12} lg={2.5} display="flex" justifyContent="center">
-                <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Contract Date</MDTypography>
+                <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Contract Date</MDTypography>
             </Grid>
 
             <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Symbol</MDTypography>
+                <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Symbol</MDTypography>
             </Grid>
 
             <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-                <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>LTP</MDTypography>
+                <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>LTP</MDTypography>
             </Grid>
 
             <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-                <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Change(%)</MDTypography>
+                <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Change(%)</MDTypography>
             </Grid>
 
             <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
-            <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Buy</MDTypography>
+            <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Buy</MDTypography>
             </Grid>
 
             <Grid item xs={12} md={12} lg={0.5} display="flex" justifyContent="center">
@@ -133,7 +132,7 @@ return (
             </Grid>
 
             <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
-                <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Sell</MDTypography>
+                <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Sell</MDTypography>
             </Grid>
 
         </Grid>
@@ -146,26 +145,26 @@ return (
             <Grid container mt={1} p={1} style={{border:'1px solid white',borderRadius:4}} alignItems="center">
         
                 <Grid item xs={12} md={12} lg={2.5} display="flex" justifyContent="center">
-                    <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>{elem.contractDate}</MDTypography>
+                    <MDTypography fontSize={13} color="light" style={{fontWeight:500, fontSize: "10px"}}>{elem.contractDate}</MDTypography>
                 </Grid>
     
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                    <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>{elem.symbol}</MDTypography>
+                    <MDTypography fontSize={13} color="light" style={{fontWeight:500, fontSize: "10px"}}>{elem.symbol}</MDTypography>
                 </Grid>
     
                 <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-                    <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>{"₹"+(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} color="light" style={{fontWeight:500, fontSize: "10px"}}>{"₹"+(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}</MDTypography>
                 </Grid>
     
                 {perticularInstrumentMarketData[0]?.change !== undefined ?
                 <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-                    <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>
+                    <MDTypography fontSize={13} color="light" style={{fontWeight:500, fontSize: "10px"}}>
                         {perticularInstrumentMarketData[0]?.change >= 0 ? "+" + ((perticularInstrumentMarketData[0]?.change)?.toFixed(2))+"%" : ((perticularInstrumentMarketData[0]?.change)?.toFixed(2))+"%"}
                     </MDTypography>
                 </Grid>
                 :
                 <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
-                    <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>
+                    <MDTypography fontSize={13} color="light" style={{fontWeight:500, fontSize: "10px"}}>
                         {(((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "+" + (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100)?.toFixed(2)+"%" : (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100)?.toFixed(2)+"%"}
                     </MDTypography>
                 </Grid>

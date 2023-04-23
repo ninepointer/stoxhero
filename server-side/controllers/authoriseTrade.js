@@ -242,6 +242,8 @@ exports.contestFundCheck = async(req, res, next) => {
            // const MockTrade = req.user.isAlgoTrader ? MockTradeDataUser : MockTradeTrader;
     ////console.log("margin req", req.body)
 
+    console.log(contestId, userId)
+
     getKiteCred.getAccess().then(async (data)=>{
     // //console.log(data)
 
@@ -277,7 +279,7 @@ exports.contestFundCheck = async(req, res, next) => {
                     return (elem.userId).toString() == (userId).toString();
                 })   
 
-                // console.log("users", users)
+                console.log("users", users)
                 // (user => user.userId);
 
                 // const contest = await Contest.findOne({_id: contestId});
@@ -293,7 +295,7 @@ exports.contestFundCheck = async(req, res, next) => {
                     {
                     $match:
                         {
-                            trade_time: {$regex: todayDate},
+                            // trade_time: {$regex: todayDate},
                             symbol: symbol,
                             trader: userId,
                             status: "COMPLETE",
@@ -329,7 +331,7 @@ exports.contestFundCheck = async(req, res, next) => {
                 isOpposite = true;
             }
 
-            console.log(runningLots, contestFunds)
+            console.log("lots and fund", runningLots, contestFunds)
             if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
                 //console.log("checking runninglot- reverse trade");
                 next();
@@ -357,9 +359,7 @@ exports.contestFundCheck = async(req, res, next) => {
             let pnlDetails = await MockTradeContest.aggregate([
                 {
                     $match: {
-                      trade_time: {
-                        $regex: todayDate,
-                      },
+
                       status: "COMPLETE",
                       trader: userId,
                       contestId: new ObjectId(contestId),
@@ -394,6 +394,8 @@ exports.contestFundCheck = async(req, res, next) => {
                     },
                 },
             ])
+
+            console.log("pnlDetails", pnlDetails)
 
 
             let userNetPnl = pnlDetails[0]?.npnl;

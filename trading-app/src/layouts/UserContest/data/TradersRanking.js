@@ -5,59 +5,69 @@ import MDTypography from '../../../components/MDTypography'
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { userContext } from '../../../AuthContext';
+// import PrizeDistribution from './PrizeDistribution';
 
-function TradersRanking({contestId}){
+function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward, setMyRankProps}){
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [rankData, setRankData] = useState([]);
   const [myRank, setMyRank] = useState({});
-  const [marketData, setMarketData] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
   const getDetails = useContext(userContext)
-
+  const historyUrl = isFromHistory ? "historyLeaderboard" : "leaderboard"
 
   const fetchData = async () => {
     // console.log("runnning every 2 sec")
-    try {
-      const [api1Response, api2Response] = await Promise.all([
-        axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/leaderboard`, {
-          withCredentials: true,
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true
-          },
-        }),
-        axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/myrank`, {
-          withCredentials: true,
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true
-          },
-        })
-      ]);
 
-      console.log("leaderboard", api1Response.data.data)
+      const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${"leaderboard"}`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+      //console.log("leaderboard", api1Response.data.data)
       setRankData(api1Response.data.data);
+
+      const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/myrank`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+
+    
       if(api2Response.data.status == "success"){
         setMyRank(api2Response.data.data);
+        if(isFromResult){
+          setMyRankProps(api2Response.data.data)
+        }
+        
       }
       
       setTimeout(()=>{setIsLoading(false)},500)
-    } catch (error) {
-      console.error("leaderboard", error);
-    }
   };
   
   useEffect(() => {
-    const intervalId = setInterval(fetchData, 1000); // run every 10 seconds
-    fetchData(); // run once on mount
-    // socket.emit('hi')
-    return () => clearInterval(intervalId);
-  }, []);
+    // if(isFromHistory){
+    //   fetchData(); // run once on mount
+    // } else{
+      const intervalId = setInterval(fetchData, 1000); // run every 10 seconds
+      fetchData(); // run once on mount
+      return () => clearInterval(intervalId);
+    // }
+
+  }, [historyUrl]);
 
 
+  const myReward = reward?.filter((elem)=>{
+    return elem?.rankStart <= myRank?.rank && elem?.rankEnd >=  myRank?.rank;
+  })
+
+  //console.log("rewards", myReward, reward)
 
 return (
     <>
@@ -84,39 +94,47 @@ return (
 
                 <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                     
-                    <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Rank</MDTypography>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Rank</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Name</MDTypography>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Name</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>P&L</MDTypography>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Net P&L</MDTypography>
                     </Grid>
-                    {/* <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light" style={{fontWeight:700}}>Profit(%)</MDTypography>
-                    </Grid> */}
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Profit(%)</MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Reward</MDTypography>
+                    </Grid>
 
                 </Grid>
 
                 <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                     
-                    <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light">{myRank?.rank ? myRank?.rank : "-"}</MDTypography>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={11} color="light">{myRank?.rank ? myRank?.rank : "-"}</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light">{getDetails?.userDetails?.name}</MDTypography>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={11} color="light">{getDetails?.userDetails?.name}</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={13} color={myRank?.npnl >= 0 ? "success" : "error"}>
-                            {myRank?.npnl ? (myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))) : "-"}
-                        </MDTypography>
-                      </Grid>
-                      {/* <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={13} color={myProfitChange >= 0 ? "success" : "error"}>
-                            {myProfitChange >= 0.00 ? "+" + (myProfitChange?.toFixed(2)): "-" + ((-myProfitChange).toFixed(2))}%
-                        </MDTypography>
-                      </Grid> */}
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={11} color={myRank?.npnl >= 0 ? "success" : "error"}>
+                          {myRank?.npnl ? (myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))) : "-"}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={11} color={myRank?.npnl >= 0 ? "success" : "error"}>
+                          {myRank?.npnl ? (myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))) : "-"}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                      <MDTypography fontSize={11}  color="light">
+                        {myReward.length && myReward[0]?.reward ? `${myReward[0]?.reward} ${myReward[0]?.currency}` : "-"}
+                      </MDTypography>
+                    </Grid>
 
                 </Grid>
 
@@ -127,27 +145,35 @@ return (
                 </Grid>
 
                 {rankData.map((elem, index)=>{
-                  // let netPnl = elem?.totalPnl - elem?.brokerage;
-                  // let profitChange = netPnl*100/elem?.investedAmount;
+
+                  const rewards = reward?.filter((elem)=>{
+                    return elem?.rankStart <= (index+1) && elem?.rankEnd >= (index+1);
+                  })
+
                   return(
                     <Grid key={elem.name} container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
   
-                      <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={13} color="light">{index+1}</MDTypography>
+                      <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                        <MDTypography fontSize={11} color="light">{index+1}</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={13} color="light">{elem?.name}</MDTypography>
+                      <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                        <MDTypography fontSize={11} color="light">{elem?.name}</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={13} color={elem.npnl >= 0 ? "success" : "error"}>
+                      <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                        <MDTypography fontSize={11} color={elem.npnl >= 0 ? "success" : "error"}>
                             {elem.npnl >= 0.00 ? "+₹" + (elem.npnl?.toFixed(2)): "-₹" + ((-elem.npnl).toFixed(2))}
                         </MDTypography>
                       </Grid>
-                      {/* <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={13} color={profitChange >= 0 ? "success" : "error"}>
-                            {profitChange >= 0.00 ? "+" + (profitChange?.toFixed(2)): "-" + ((-profitChange).toFixed(2))}%
+                      <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                        <MDTypography fontSize={11} color={elem.npnl >= 0 ? "success" : "error"}>
+                            {elem.npnl >= 0.00 ? "+₹" + (elem.npnl?.toFixed(2)): "-₹" + ((-elem.npnl).toFixed(2))}
                         </MDTypography>
-                      </Grid> */}
+                      </Grid>
+                      <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
+                        <MDTypography fontSize={11} color="light">
+                            {rewards[0]?.reward ?  `${rewards[0]?.reward} ${rewards[0]?.currency}` : "-"}
+                        </MDTypography>
+                      </Grid>
 
                     </Grid>
                   )
@@ -157,6 +183,9 @@ return (
                 }
 
             </MDBox>
+            {/* <MDBox  width="100%"> */}
+              {/* <PrizeDistribution  contest={contest} /> */}
+            {/* </MDBox> */}
         </Grid> 
 
     </>

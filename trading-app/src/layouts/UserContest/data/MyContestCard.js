@@ -114,6 +114,7 @@ const ContestCard = () => {
         })
 
         const isDummy = (new Date()) < new Date(e?.contestStartDate);
+        console.log("isDummy", isDummy)
         return <>
         
             <Grid key={e._id} item xs={12} md={6} lg={3} >
@@ -123,7 +124,7 @@ const ContestCard = () => {
             to={{
               pathname: `/battleground/${e?.contestName}`,
             }}
-            state= {{contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy, fromMyContest: true}}
+            state= {{entry: e?.participants?.length, minEntry: e?.minParticipants, contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy, fromMyContest: true}}
             >
                 <Grid container>
                     <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">

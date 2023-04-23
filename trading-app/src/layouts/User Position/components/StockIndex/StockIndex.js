@@ -5,7 +5,6 @@ import MDTypography from "../../../../components/MDTypography";
 
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import { marketDataContext } from "../../../../MarketDataContext";
 import {useState, useEffect} from 'react';
 import axios from 'axios';
 import { NetPnlContext } from "../../../../PnlContext";

@@ -5,9 +5,7 @@ import axios from "axios";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import { HiUserGroup } from 'react-icons/hi';
 import {Link} from 'react-router-dom'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import MDSnackbar from "../../../components/MDSnackbar";
 import {useNavigate} from 'react-router-dom';
 import { CircularProgress } from "@mui/material";
@@ -16,9 +14,10 @@ import { CircularProgress } from "@mui/material";
 
 
 
-const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
+const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}) => {
   
   const [contestPortfolioData,setContestPortfolioData] = useState([]);
+  const [portfolioPnl, setUserPortfolioPnl] = useState([]);
   const [objectId,setObjectId] = useState(contestId);
   const [selectedPortfolio, setSelectedPortfolio] = useState("");
   const [isLoading,setIsLoading] = useState(true)
@@ -46,6 +45,23 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
       }).catch((err)=>{
         return new Error(err);
     })
+
+    axios.get(`${baseUrl}api/v1/portfolio/pnl`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+      .then((res)=>{
+        setUserPortfolioPnl(res.data);
+        setIsLoading(false);
+        console.log(res.data)
+      }).catch((err)=>{
+        return new Error(err);
+      })
+
   },[])
 
     const [buttonClicked, setButtonClicked] = useState(false);
@@ -70,7 +86,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
     useEffect(() => {
       if (shouldNavigate) {
         nevigate(`/battleground/${contestName}`, {
-          state: {contestId: objectId, portfolioId: selectedPortfolio, isDummy: isDummy}
+          state: {entry: entry, minEntry: minEntry, contestId: objectId, portfolioId: selectedPortfolio, isDummy: isDummy}
         });
       }
     }, [shouldNavigate]);
@@ -178,6 +194,12 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
           {contestPortfolioData?.map((e)=>{
 
             let color = (selectedPortfolio === e._id) ? "warning" : "light";
+            let portfolio = portfolioPnl.filter((elem)=>{
+              return e?._id === elem?._id?.portfolioId
+            })
+
+            let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
+
           return (
             
             <Grid key={e._id} item xs={12} md={6} lg={6} >
@@ -195,11 +217,11 @@ const ContestPortfolioCard = ({contestId, endDate, contestName}) => {
                     </Grid>
                     
                     <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
-                        <MDTypography fontSize={15} style={{color:"black"}}>Portfolio Value</MDTypography>
+                        <MDTypography fontSize={15} style={{color:"black"}}>Portfolio Value: <span>₹{(e?.portfolioValue).toLocaleString()}</span> </MDTypography>
                     </Grid>
 
-                    <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center">
-                        <MDTypography fontSize={15} style={{color:"black",fontWeight:800}}>₹{(e?.portfolioValue).toLocaleString()}</MDTypography>
+                    <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
+                        <MDTypography fontSize={15} style={{color:"black"}}>Current Value: <span>₹{netPnl ? (e?.portfolioValue + netPnl).toFixed(0): e?.portfolioValue.toFixed(0)}</span> </MDTypography>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">

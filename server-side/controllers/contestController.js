@@ -11,7 +11,7 @@ const filterObj = (obj, ...allowedFields) => {
       }
     });
     return newObj;
-  };
+};
 
 exports.createContest = async(req, res, next)=>{
     console.log(req.body)
@@ -86,6 +86,24 @@ exports.editContest = async(req, res, next) => {
     await Contest.findByIdAndUpdate(id, filteredBody);
 
     res.status(200).json({message: 'Successfully edited contest.'});
+}
+
+exports.updateStatus = async(req, res, next) => {
+    const status = req.body.status;
+    const id = req.params.id;
+
+    console.log("id is ,", id)
+
+    try{
+        const contest = await Contest.findOneAndUpdate({_id : id}, {
+            $set:{ 
+                status: status
+            }
+        })
+        res.status(200).json({message: 'Successfully edited contest.'});
+    } catch (e){
+        res.status(500).json({error:"Failed to edit data"});
+    }
 }
 
 exports.joinContest = async(req, res, next) => {

@@ -5,13 +5,6 @@ import axios from "axios";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import { HiUserGroup } from 'react-icons/hi';
-import {Link} from 'react-router-dom'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import MDSnackbar from "../../../components/MDSnackbar";
-import {useNavigate} from 'react-router-dom';
-
-
 
 
 const MyPortfolioCard = ({type}) => {
@@ -59,55 +52,7 @@ const MyPortfolioCard = ({type}) => {
   },[])
 
 
-  const [successSB, setSuccessSB] = useState(false);
-  const [msgDetail, setMsgDetail] = useState({
-    title: "",
-    content: "",
-    // successSB: false,
-    color: "",
-    icon: ""
-  })
-  const openSuccessSB = (title,content, message) => {
-    msgDetail.title = title;
-    msgDetail.content = content;
-    // msgDetail.successSB = true;
-    if(message == "SUCCESS"){
-      msgDetail.color = 'success';
-      msgDetail.icon = 'check'
-    } else {
-      msgDetail.color = 'error';
-      msgDetail.icon = 'warning'
-    }
-    console.log(msgDetail)
-    setMsgDetail(msgDetail)
-    // setTitle(title)
-    // setContent(content)
-    setSuccessSB(true);
-  }
 
-  const closeSuccessSB = () =>{
-    // msgDetail.successSB = false
-    setSuccessSB(false);
-
-  }
-
-  // const closeSuccessSB = () => msgDetail.successSB = false;
-
-
-  const renderSuccessSB = (
-  <MDSnackbar
-      color={msgDetail.color}
-      icon={msgDetail.icon}
-      title={msgDetail.title}
-      content={msgDetail.content}
-      open={successSB}
-      onClose={closeSuccessSB}
-      close={closeSuccessSB}
-      bgWhite="info"
-  />
-  );
-      
-  console.log(renderSuccessSB) 
     
     return (
       <>
