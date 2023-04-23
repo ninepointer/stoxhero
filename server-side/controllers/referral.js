@@ -121,13 +121,16 @@ exports.editReferralWithId = async(req, res, next) => {
 exports.getReferralLeaderboard = async(req,res,next) =>{
     
     //If the leaderboard exisits in redis
-    if(client.exists(`$referralLeaderboard`)){
-        const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderBoard`, "0", "19",  'WITHSCORES']);
+    if(await client.exists(`referralLeaderboard`)){
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
+        const transformedData = transformData(leaderBoard);
+
         return res.status(200).json({
             status: 'success',
-            results: leaderBoard.length,
-            data: leaderBoard
+            results: transformedData.length,
+            data: transformedData
           });  
+  
     }else{
         //If the leaderboard doesn't exist in redis
         const leaderboard = await User.aggregate([
@@ -159,14 +162,26 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
         }
         
         const userReferralRanks = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
+        // console.log(userReferralRanks);
+        const transformedData = transformData(userReferralRanks);
 
         return res.status(200).json({
             status: 'success',
-            results: userReferralRanks.length,
-            data: userReferralRanks
+            results: transformedData.length,
+            data: transformedData
           });  
 
     }
+    function transformData(inputArray) {
+        const outputArray = [];
+        for (let i = 0; i < inputArray.length; i += 2) {
+          const user = inputArray[i];
+          const earnings = parseInt(inputArray[i + 1]);
+          const obj = { user, earnings };
+          outputArray.push(obj);
+        }
+        return outputArray;
+      }
 
 
 }
