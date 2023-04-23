@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import axios from "axios";
-import { userContext } from '../../../AuthContext';
+import { userContext } from '../../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import uniqid from "uniqid"
-import MDSnackbar from '../../../components/MDSnackbar';
+import MDSnackbar from '../../../../components/MDSnackbar';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
-import MDButton from '../../../components/MDButton';
+import MDButton from '../../../../components/MDButton';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -61,7 +61,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
     buyOrSell: "",
     variety: "",
     Product: product,
-    Quantity: "",
+    Quantity: (Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity),
     Price: "",
     OrderType: "",
     TriggerPrice: "",
@@ -70,11 +70,19 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
   })
 
 
+  let newQuantity = (Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity);
 
-  const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity));
+  console.log(newQuantity)
+  const [filledQuantity, setFilledQuantity] = useState(newQuantity);
+
+  useEffect(() => {
+    setFilledQuantity(newQuantity);
+  }, [newQuantity]);
+    // let filledQuantity = useRef(newQuantity);
 
   function quantityChange(e) {
     setFilledQuantity(e.target.value)
+    // filledQuantity = e.target.value;
     exitPositionFormDetails.Quantity = e.target.value
   }
 
@@ -111,6 +119,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
 
   useEffect(() => {
 
+    setFilledQuantity(newQuantity)
     axios.get(`${baseUrl}api/v1/readsetting`)
       .then((res) => {
         setAppLive(res.data);

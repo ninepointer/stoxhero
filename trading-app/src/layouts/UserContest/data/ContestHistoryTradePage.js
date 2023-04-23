@@ -1,4 +1,4 @@
-import React,{useState, useEffect, memo, useMemo, useCallback, useRef} from 'react'
+import React,{useState, memo, useMemo} from 'react'
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../components/MDTypography'
@@ -11,7 +11,6 @@ import LastTrade from './contestTrade/LastTrade'
 import FastRewindIcon from '@mui/icons-material/FastRewind';
 import Button from '@mui/material/Button'
 import UsedPortfolio from './PnL/UsedPortfolio';
-import PrizeDistribution from './PrizeDistribution';
 
 
 
@@ -54,7 +53,7 @@ function ContestHistoryTradeView () {
 
     const memoizedTradersRankingForHistory = useMemo(() => {
       return <TradersRanking contestId={contestId} isFromHistory={true} reward={contest?.rewards}  contest={contest}/>;
-    }, [contestId, contest?.rewards, contest]);
+    }, [contestId, contest, contest?.rewards]);
   
     const memoizedLastTrade = useMemo(() => {
       return <LastTrade
