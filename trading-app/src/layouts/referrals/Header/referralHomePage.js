@@ -34,7 +34,7 @@ import { Link } from 'react-router-dom';
 function ReferralHomePage() {
   const [invited,setInvited] = useState(false)
   const getDetails = useContext(userContext);
-  const {columns, rows} = Invited();
+//   const {columns, rows} = Invited();
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -45,6 +45,7 @@ function ReferralHomePage() {
   const [joinedCount,setJoinedCount] = useState([]);
   const [earnings, setEarnings] = useState(0);
   const [copied, setCopied] = useState(false);
+  const[referralRanks, setReferralRanks] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const id = getDetails.userDetails._id
   const referralCode = getDetails.userDetails.myReferralCode
@@ -85,12 +86,17 @@ function ReferralHomePage() {
     setJoinedCount(res.data.data.joined);
   }, []);
 
-//   useEffect(async()=>{
-//     const res = await axios.get(`${baseUrl}api/v1/referrals/leaderboard`, {withCredentials: true});
-//     console.log('referral data',res.data.data);
-//   }, [])
+  const fetchData = async()=>{
+    const res = await axios.get(`${baseUrl}api/v1/referrals/leaderboard`, {withCredentials: true});
+    // console.log('referral data',res.data.data);
+    setReferralRanks(res.data.data)
+  };
 
-
+  useEffect(() => {
+    const intervalId = setInterval(fetchData, 10000); // run every 10 seconds
+    fetchData(); // run once on mount
+    return () => clearInterval(intervalId);
+  }, []);
   const handleCopy = () => {
     setCopied(true);
     openSuccessSB('success', 'Copied');
@@ -137,7 +143,8 @@ function ReferralHomePage() {
   My Referral Code to join the StoxHero: ${referralCode}`
 
 //   console.log("Invited Data: ",invitedData)
-  console.log("ye hai ref Active Referral Program ID: ",activeReferralProgram);
+  
+  
 
   invitedData?.map((elem)=>{
         
@@ -200,6 +207,31 @@ function ReferralHomePage() {
     rows.push(refData)
     
 })
+  let columns = [
+    { Header: "Rank", accessor: "rank",align: "center" },
+    { Header: "Name", accessor: "name",align: "center" },
+    { Header: "Earnings", accessor: "earnings", align: "center"},
+  ];
+  let rows = [];
+  referralRanks?.map((elem, index)=>{
+    let refData = {}
+    refData.rank =(
+        <MDTypography variant="Contained" fontWeight="medium">
+          {index+1}
+        </MDTypography>
+    );
+    refData.name = (
+        <MDTypography variant="Contained" fontWeight="medium">
+          {elem.user}
+        </MDTypography>
+      );
+    refData.earnings = (
+        <MDTypography variant="Contained" fontWeight="medium">
+          {elem.earnings}
+        </MDTypography>
+      )  ;
+    rows.push(refData);  
+  });
 
   return (
     <>
@@ -410,7 +442,7 @@ function ReferralHomePage() {
                 </Grid>
             </MDBox>
 
-            {/* <MDBox pt={6} pb={3}>
+            <MDBox pt={6} pb={3}>
                 <Grid container spacing={6}>
                     <Grid item xs={12} md={12} lg={12}>
                         <Card>
@@ -443,7 +475,7 @@ function ReferralHomePage() {
                         </Card>
                     </Grid>
                 </Grid>
-            </MDBox> */}
+            </MDBox>
             {renderSuccessSB}
         </MDBox>
     </>
