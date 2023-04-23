@@ -52,7 +52,12 @@ const contestSchema = new mongoose.Schema({
         portfolioId:{type:Schema.Types.ObjectId, ref: 'user-portfolio'},
         status:{type:String, enum:['Joined','Exited']},
         exitDate:{type:Date, default: new Date()},
-
+        myRank: {
+            rank: {type: Number},
+            npnl: {type: Number},
+            investedAmount: {type: Number}
+        },
+        employeeid: {type: String}
     }],
     instruments:[{
         displayName:String,
@@ -97,10 +102,11 @@ const contestSchema = new mongoose.Schema({
         ref: 'user-personal-detail',
         // required : true
     },
-    rank:[
+    leaderboard:[
         {
             name: {type: String},
-            npnl: {type: Number}
+            npnl: {type: Number},
+            investedAmount: {type: Number}
         }
     ],
 })
