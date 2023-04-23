@@ -14,12 +14,14 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
   const [myRank, setMyRank] = useState({});
   const [isLoading,setIsLoading] = useState(true)
   const getDetails = useContext(userContext)
-  const historyUrl = isFromHistory ? "historyLeaderboard" : "leaderboard"
+  const leaderBoardEndPoint = isFromHistory ? "historyLeaderboard" : "leaderboard"
+  const myRankEndPOint = isFromHistory ? "historyMyrank" : "myrank"
 
+  console.log(leaderBoardEndPoint, myRankEndPOint)
   const fetchData = async () => {
     // console.log("runnning every 2 sec")
 
-      const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${"leaderboard"}`, {
+      const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${leaderBoardEndPoint}`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -27,10 +29,10 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
           "Access-Control-Allow-Credentials": true
         },
       })
-      //console.log("leaderboard", api1Response.data.data)
+      console.log("leaderboard", api1Response.data)
       setRankData(api1Response.data.data);
 
-      const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/myrank`, {
+      const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${myRankEndPOint}`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -39,12 +41,12 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
         },
       })
 
-    
+      console.log("my rank", api2Response.data)
       if(api2Response.data.status == "success"){
         setMyRank(api2Response.data.data);
-        if(isFromResult){
-          setMyRankProps(api2Response.data.data)
-        }
+        // if(isFromResult){
+        //   setMyRankProps(api2Response.data.data)
+        // }
         
       }
       
@@ -52,22 +54,23 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
   };
   
   useEffect(() => {
-    // if(isFromHistory){
-    //   fetchData(); // run once on mount
-    // } else{
+    if(isFromHistory){
+      fetchData(); // run once on mount
+    } else{
       const intervalId = setInterval(fetchData, 1000); // run every 10 seconds
       fetchData(); // run once on mount
       return () => clearInterval(intervalId);
-    // }
+    }
 
-  }, [historyUrl]);
+  }, [leaderBoardEndPoint, myRankEndPOint]);
 
 
   const myReward = reward?.filter((elem)=>{
     return elem?.rankStart <= myRank?.rank && elem?.rankEnd >=  myRank?.rank;
   })
 
-  //console.log("rewards", myReward, reward)
+  const myProfitPercentage = myRank?.npnl*100/Number(myRank?.investedAmount);
+  console.log("myProfitPercentage", myProfitPercentage)
 
 return (
     <>
@@ -118,7 +121,7 @@ return (
                       <MDTypography fontSize={11} color="light">{myRank?.rank ? myRank?.rank : "-"}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={11} color="light">{getDetails?.userDetails?.name}</MDTypography>
+                      <MDTypography fontSize={11} color="light">{getDetails?.userDetails?.employeeid}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
                       <MDTypography fontSize={11} color={myRank?.npnl >= 0 ? "success" : "error"}>
@@ -127,7 +130,7 @@ return (
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
                       <MDTypography fontSize={11} color={myRank?.npnl >= 0 ? "success" : "error"}>
-                          {myRank?.npnl ? (myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))) : "-"}
+                          {myProfitPercentage ? (myProfitPercentage >= 0.00 ? "+" + (myProfitPercentage?.toFixed(2))+"%": "-" + ((myProfitPercentage).toFixed(2))+"%") : "-"}
                       </MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
@@ -150,6 +153,8 @@ return (
                     return elem?.rankStart <= (index+1) && elem?.rankEnd >= (index+1);
                   })
 
+                  const profitPercentage = elem.npnl*100/elem.investedAmount;
+
                   return(
                     <Grid key={elem.name} container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
   
@@ -166,7 +171,7 @@ return (
                       </Grid>
                       <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
                         <MDTypography fontSize={11} color={elem.npnl >= 0 ? "success" : "error"}>
-                            {elem.npnl >= 0.00 ? "+₹" + (elem.npnl?.toFixed(2)): "-₹" + ((-elem.npnl).toFixed(2))}
+                            {profitPercentage >= 0.00 ?  "+"+(profitPercentage?.toFixed(2))+"%":  "-"+((-profitPercentage).toFixed(2))+"%"}
                         </MDTypography>
                       </Grid>
                       <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
