@@ -249,6 +249,21 @@ const userDetailSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    referrals:[{
+        referredUserId: {
+            type: Schema.Types.ObjectId,
+            ref: 'user-personal-detail'
+        },
+        referralEarning: Number,
+        referralProgram:  {
+            type: Schema.Types.ObjectId,
+            ref: "referral-program"
+        },
+        joiningDate:{
+            type: Date,
+        },
+        referralCurrency: String
+    }],
 
 })
 
