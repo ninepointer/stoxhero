@@ -845,13 +845,8 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       console.log("in if con")
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = formatData(leaderBoard)
-<<<<<<< HEAD
-      
-      console.log('cached');
-=======
 
       // console.log('cached');
->>>>>>> 9a7f248b1da399a408ece2d6ecdeabc0bf0aff2e
       return res.status(200).json({
         status: 'success',
         results: formattedLeaderboard.length,
