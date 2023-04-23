@@ -114,9 +114,9 @@ const getTicks = async (socket) => {
       let userId = await client.get(socket.id)
       // console.log("userId", userId, socket.id)
       let instruments = await client.SMEMBERS(userId)
-      console.log(userId, instruments)
+      // console.log(userId, instruments)
       let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      console.log(instrumentTokenArr)
+      // console.log(instrumentTokenArr)
       let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
       // let contestTicks = ticks.filter(tick => contestInstrumentSet.has((tick.instrument_token).toString()));
 
@@ -222,7 +222,7 @@ const getTicksForContest = async (socket) => {
 
     try{
       let contestId = await client.get(socket.id)
-      let instruments = await client.SMEMBERS((contestId).toString())
+      let instruments = await client.SMEMBERS((contestId))
       // console.log(contestId, instruments)
       let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
       // console.log(instrumentTokenArr)
@@ -241,7 +241,7 @@ const getTicksForContest = async (socket) => {
 
 
     } catch (err){
-      console.log(err)
+      // console.log(err)
     }
 
 

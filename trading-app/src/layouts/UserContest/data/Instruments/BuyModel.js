@@ -152,10 +152,6 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
       placeOrder();
 
-
-      let id = setTimeout(()=>{
-        render ? setReRender(false) : setReRender(true)
-      }, 1800);
       
   }
 
@@ -202,6 +198,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
           openSuccessSB('else', dataResp.message)
           // window.alert(dataResp.message);
         }
+        render ? setReRender(false) : setReRender(true)
     }
   }
 
