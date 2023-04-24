@@ -80,11 +80,14 @@ function ReferralHomePage() {
     });
   },[invited]);
 
-  useEffect(async()=>{
+  const getEarnings = async()=>{
     const res = await axios.get(`${baseUrl}api/v1/earnings`, {withCredentials: true});
     console.log('earnings data',res.data.data);
     setEarnings(res.data.data.earnings);
     setJoinedCount(res.data.data.joined);
+  }
+  useEffect(()=>{
+    getEarnings();
   }, []);
 
   const fetchData = async()=>{
