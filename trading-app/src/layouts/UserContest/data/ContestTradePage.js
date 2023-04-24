@@ -135,7 +135,7 @@ function ContestTradeView () {
 
 
     return (
-    <MDBox key={contest?._id} width="100%" bgColor="dark" color="light" p={2}>
+    <MDBox key={contest?._id} bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10}>
         <Grid container spacing={2}>
         {/* display="flex" justifyContent="flexEnd" display="flex" justifyContent="center"*/}
         <Grid item xs={12} md={6} lg={6.5} mb={2}>
