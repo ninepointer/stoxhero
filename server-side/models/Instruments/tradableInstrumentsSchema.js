@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const tradableInstrumentSchema = new mongoose.Schema({
     instrument_token:{
@@ -50,24 +51,24 @@ const tradableInstrumentSchema = new mongoose.Schema({
         required : true
     },
     lastModifiedBy:{
-        type: String,
+        type:Schema.Types.ObjectId,
         required : true,
-        default: "System"
+        ref: 'user-personal-detail'
     },
     createdBy:{
-        type: String,
+        type:Schema.Types.ObjectId,
         required : true,
-        default: "System"
+        ref: 'user-personal-detail'
     },
     lastModifiedOn:{
-        type: String,
+        type: Date,
         required : true,
-        default: Date.now()
+        default: new Date()
     },
     createdOn:{
-        type: String,
+        type: Date,
         required : true,
-        default: Date.now()
+        default: new Date()
     },
     status: {
         type: String,

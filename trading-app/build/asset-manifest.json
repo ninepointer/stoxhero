@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.c8fb8d11.css",
-    "main.js": "/static/js/main.4ca609c5.js",
+    "main.css": "/static/css/main.98c2477f.css",
+    "main.js": "/static/js/main.41c677e4.js",
     "static/js/498.e7cb86be.chunk.js": "/static/js/498.e7cb86be.chunk.js",
     "static/js/703.e5427e5c.chunk.js": "/static/js/703.e5427e5c.chunk.js",
     "static/js/513.b4ac4a25.chunk.js": "/static/js/513.b4ac4a25.chunk.js",
@@ -11,13 +11,20 @@
     "static/media/home-decor-3.jpg": "/static/media/home-decor-3.74d13fcbd3c631fc7908.jpg",
     "static/media/home-decor-2.jpg": "/static/media/home-decor-2.b4e5397c9846645ba275.jpg",
     "static/media/home-decor-1.jpg": "/static/media/home-decor-1.05e218fd495ccc65c99d.jpg",
-    "static/media/carousel1.png": "/static/media/carousel1.e3f477ffcb426529ead1.png",
+    "static/media/abs4.png": "/static/media/abs4.3278509e7d31ca71e75e.png",
+    "static/media/abs3.png": "/static/media/abs3.aa51ed4e14f385fdfef5.png",
+    "static/media/thursday.png": "/static/media/thursday.fe4ed57b8afc8ee20f3a.png",
+    "static/media/tuesday.png": "/static/media/tuesday.78ebc55550dddebc5260.png",
+    "static/media/friday.png": "/static/media/friday.98b8bf74c2b1610d1914.png",
+    "static/media/monday.png": "/static/media/monday.27f095576eba1b65b3c1.png",
     "static/media/referral.png": "/static/media/referral.852ef40a0cf7d4b0f0a1.png",
     "static/media/home-decor-4.jpeg": "/static/media/home-decor-4.5b448fd339a14695f6aa.jpeg",
     "static/media/rule.png": "/static/media/rule.de53acfc1a7069f9e714.png",
+    "static/media/leaderboard.png": "/static/media/leaderboard.6a389ddfb77862f5b578.png",
     "static/media/visa.png": "/static/media/visa.71c0d5e9e2aaee42e4c3.png",
     "static/media/mastercard.png": "/static/media/mastercard.27fca3e7637a9458fb64.png",
     "static/media/default-profile.png": "/static/media/default-profile.04fa960999505dcd5a7e.png",
+    "static/media/abs2.png": "/static/media/abs2.e6aadb585c8af6bb9105.png",
     "static/media/team-1.jpg": "/static/media/team-1.0fd36e0ee93dcfacdef8.jpg",
     "static/media/bruce-mars.jpg": "/static/media/bruce-mars.8a606c4a6dab54c9ceff.jpg",
     "static/media/marie.jpg": "/static/media/marie.c28f32663b6432b46f78.jpg",
@@ -44,14 +51,14 @@
     "static/media/logo-asana.svg": "/static/media/logo-asana.5c9ced4f9006cfb2d4c10f905cf6d310.svg",
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
-    "main.c8fb8d11.css.map": "/static/css/main.c8fb8d11.css.map",
-    "main.4ca609c5.js.map": "/static/js/main.4ca609c5.js.map",
+    "main.98c2477f.css.map": "/static/css/main.98c2477f.css.map",
+    "main.41c677e4.js.map": "/static/js/main.41c677e4.js.map",
     "498.e7cb86be.chunk.js.map": "/static/js/498.e7cb86be.chunk.js.map",
     "703.e5427e5c.chunk.js.map": "/static/js/703.e5427e5c.chunk.js.map",
     "513.b4ac4a25.chunk.js.map": "/static/js/513.b4ac4a25.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.c8fb8d11.css",
-    "static/js/main.4ca609c5.js"
+    "static/css/main.98c2477f.css",
+    "static/js/main.41c677e4.js"
   ]
 }

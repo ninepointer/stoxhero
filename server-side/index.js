@@ -19,7 +19,8 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
-const {autoTradeContest} = require('./controllers/contestTradeController')
+const {autoTradeContest} = require('./controllers/contestTradeController');
+const {getDummyTicks} = require('./marketData/kiteTicker');
 // import * as ioredis from 'ioredis';
 
 // const redis = require('redis');
@@ -41,7 +42,8 @@ app.use(xssClean());
 app.use(hpp());
 
 // issue fix --> if enviournment variable path is not work
-const path = require('path')
+const path = require('path');
+const {DummyMarketData} = require('./marketData/dummyMarketData');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 
 console.log("index.js")
@@ -59,28 +61,7 @@ getKiteCred.getAccess().then(async (data)=>{
       console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
     })
-    // socket.on('contest', async (contestId)=>{
-    //   socket.join(`${contestId}`)
-    //   console.log("in index.js contest ", socket.id, data)
-    //   await client.set(socket.id, contestId);
-    //   console.log("contestId ", contestId)
-    // })
 
-    //  socket.emit('check', true)
-
-    // socket.on('unSubscribeToken', (data)=>{
-
-    //   data.map((elem)=>{
-    //     // console.log("in index.js  unSubscribeToken", elem, socket.id)
-    //     // console.log("rooms before", socket.rooms)
-    //     socket.leave(`instrument ${elem}`)
-    //     // console.log("rooms after", socket.rooms)
-    //   })
-    // })
-
-    // socket.on('removeKey', (key)=>{
-    //   client.del(key);
-    // })
     socket.emit('check', false)
 
 
@@ -91,8 +72,10 @@ getKiteCred.getAccess().then(async (data)=>{
 
     socket.on('hi', async (data) => {
       // getKiteCred.getAccess().then(async (data)=>{
-      console.log("in hii event")
+      console.log("in hii event");
         await getTicks(socket);
+        // await getDummyTicks(socket);
+        // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
 
