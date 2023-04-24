@@ -7,7 +7,6 @@ import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import money from "../../../assets/images/money.png"
-import link from "../../../assets/images/link.png"
 
 
 const MyPortfolioCard = ({type}) => {
@@ -68,7 +67,7 @@ const MyPortfolioCard = ({type}) => {
                   })
 
                   let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
-                  if(e?.portfolioType === type){
+                  // if(e?.portfolioType == type){
                     return (
                       
                       <Grid key={e._id} item xs={12} md={6} lg={6} >
@@ -77,15 +76,7 @@ const MyPortfolioCard = ({type}) => {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDBox>
-                                    <MDTypography fontSize={20} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>{e?.portfolioName}</MDTypography>
-                                    {e?.portfolioType === 'Battle' ? <MDBox display="flex" alignContent="center" alignItems="center" size="small">
-                                    <MDAvatar src={link} size="sm" display="flex" justifyContent="left"/>
-                                    <MDTypography fontSize={10} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio linked to Battle: 'Add Battle Name Here'</MDTypography>
-                                    </MDBox>
-                                    :
-                                    ''}
-                                  </MDBox>
+                                  <MDTypography fontSize={20} style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>{e?.portfolioName}</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
@@ -126,7 +117,7 @@ const MyPortfolioCard = ({type}) => {
                       </Grid>
                       
                     )
-                  }
+                  // }
                 // let color = (myPortfolio === e._id) ? "warning" : "light";
               })}
             </Grid>
