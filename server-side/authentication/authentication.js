@@ -5,6 +5,8 @@ const Authenticate = async (req, res, next)=>{
     try{
 
         const token = req.cookies.jwtoken;
+        if(!token) console.log('token nahi hai');
+        if(token) console.log('token hai')
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
 
         const user = await User.findOne({_id: verifyToken._id});
