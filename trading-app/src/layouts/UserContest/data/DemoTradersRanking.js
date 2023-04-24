@@ -128,44 +128,11 @@ return (
 
             </Grid>
 
-            <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
-                
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="light">5</MDTypography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="light">Piyush Bansal</MDTypography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="success">+₹14,000</MDTypography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="success">+21%</MDTypography>
-                </Grid>
-
-            </Grid>
 
             <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                 
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                   <MDTypography fontSize={13} color="light">6</MDTypography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="light">Piyush Bansal</MDTypography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="success">+₹10,300</MDTypography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="success">+21%</MDTypography>
-                </Grid>
-
-            </Grid>
-
-            <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
-                
-                <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="light">7</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                   <MDTypography fontSize={13} color="light">Amit Kumar</MDTypography>
@@ -182,7 +149,7 @@ return (
             <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                 
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="light">8</MDTypography>
+                  <MDTypography fontSize={13} color="light">7</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                   <MDTypography fontSize={13} color="light">Jitesh Duggar</MDTypography>
@@ -199,7 +166,7 @@ return (
             <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                 
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="light">9</MDTypography>
+                  <MDTypography fontSize={13} color="light">8</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                   <MDTypography fontSize={13} color="light">Rajesh Sharma</MDTypography>
@@ -216,7 +183,7 @@ return (
             <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                 
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
-                  <MDTypography fontSize={13} color="light">10</MDTypography>
+                  <MDTypography fontSize={13} color="light">9</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">
                   <MDTypography fontSize={13} color="light">Kumar Jitendra</MDTypography>
