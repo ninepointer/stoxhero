@@ -360,7 +360,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           //console.log("in the if condition")
           let pnl = await client.get(`${trader.toString()} ${contestId.toString()} pnl`)
           pnl = JSON.parse(pnl);
-          //console.log("before pnl autotrade", pnl)
+          //console.log("before pnl", pnl)
           const matchingElement = pnl.find((element) => (element._id.instrumentToken === contestTrade.instrumentToken && element._id.product === contestTrade.Product ));
 
           // if instrument is same then just updating value
@@ -370,7 +370,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
             matchingElement.brokerage += Number(contestTrade.brokerage);
             matchingElement.lastaverageprice = contestTrade.average_price;
             matchingElement.lots += Number(contestTrade.Quantity);
-            //console.log("matchingElement autotrade", matchingElement)
+            //console.log("matchingElement", matchingElement)
 
           } else {
             // Create a new element if instrument is not matching
@@ -390,14 +390,14 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           }
           
           await client.set(`${trader.toString()} ${contestId.toString()} pnl`, JSON.stringify(pnl))
-          //console.log("pnl autotrade", pnl)
+          //console.log("pnl", pnl)
 
         } 
         //appending documents in leaderboard
         if(await client.exists(`${contestId.toString()} allranks`)){
           let ranks = await client.get(`${contestId.toString()} allranks`)
           ranks = JSON.parse(ranks);
-          //console.log("before ranks autotarde", ranks)
+          //console.log("before ranks", ranks)
           const matchingUserElem = ranks.find((element) => (element.userId.instrumentToken === contestTrade.instrumentToken && element.userId.product === contestTrade.Product && (element.userId.trader).toString() === (contestTrade.trader).toString() ));
 
           if (matchingUserElem) {
@@ -426,7 +426,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
             });
 
           }
-          //console.log("ranks from redis autotarde", ranks)
+          //console.log("ranks from redis", ranks)
           await client.set(`${contestId.toString()} allranks`, JSON.stringify(ranks))
 
         } 
@@ -1088,7 +1088,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       }
       
       // await pipeline.exec();
-      await client.expire(`leaderboard:${id}`,10);
+      await client.expire(`leaderboard:${id}`,1);
 
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = await formatData(leaderBoard)
@@ -1106,21 +1106,20 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
     console.log("redis error", e);
   }
 
-  function formatData(arr){
-    const formattedLeaderboard = arr.reduce(async (acc, val, index, arr) => {
-      if (index % 2 === 0) {
-        // Parse the JSON string to an object
-        console.log("arr is", arr, val["name"])
-        const obj = JSON.parse(val);
-        // Add the npnl property to the object
-        const investedAmount = await client.get(`${obj.name} investedAmount`)
-        obj.npnl = Number(arr[index + 1]);
-        obj.investedAmount = Number(investedAmount);
-        // Add the object to the accumulator array
-        acc.push(obj);
-      }
-      return acc;
-    }, []);
+  async function formatData(arr) {
+    const formattedLeaderboard = [];
+  
+    for (let i = 0; i < arr.length; i += 2) {
+      // Parse the JSON string to an object
+      const obj = JSON.parse(arr[i]);
+      // Add the npnl property to the object
+      const investedAmount = await client.get(`${obj.name} investedAmount`)
+      obj.npnl = Number(arr[i + 1]);
+      obj.investedAmount = Number(investedAmount);
+      // Add the object to the formattedLeaderboard array
+      formattedLeaderboard.push(obj);
+    }
+  
     return formattedLeaderboard;
   }
 
