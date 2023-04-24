@@ -131,11 +131,11 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Trades",
-    key: "Trades",
+    name: "Orders",
+    key: "Orders",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <ReorderIcon/>,
-    route: "/Trades",
+    route: "/Orders",
     component: <UserOrders />,
   },
   {

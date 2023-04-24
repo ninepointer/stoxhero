@@ -4,9 +4,10 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MyPortfolio from '../data/Portfolios'
+import MDTypography from '../../../components/MDTypography';
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
@@ -21,24 +22,39 @@ export default function LabTabs() {
   };
 
   return (
-    <Box sx={{ width: '100%', typography: 'body1' }}>
-      <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Trading Portfolios" value="1" />
-            <Tab label="Contest Portfolios" value="2" />
-          </TabList>
-        </Box>
-        <TabPanel value="1">
-          {isLoading ? 
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MyPortfolio />
-          }
-        </TabPanel>
-      </TabContext>
-    </Box>
+    // <Box sx={{ width: '100%', typography: 'body1' }}>
+    //   <TabContext value={value}>
+    //     <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
+    //       <TabList onChange={handleChange} aria-label="lab API tabs example">
+    //         <Tab label="Trading Portfolios" value="1" />
+    //         <Tab label="Contest Portfolios" value="2" />
+    //       </TabList>
+    //     </Box>
+    //     <TabPanel value="1">
+    //       {isLoading ? 
+    //       <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+    //         <CircularProgress color="info" />
+    //       </MDBox>
+    //       : 
+    //       <MyPortfolio />
+    //       }
+    //     </TabPanel>
+    //   </TabContext>
+    // </Box>
+    <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
+          
+          <Grid container >
+              <Grid item xs={12} md={6} lg={12} mb={2}>
+                <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>Trading Porfolio(s)</MDTypography>
+                <MyPortfolio type="Trading"/>
+              </Grid>
+        
+              <Grid item xs={12} md={6} lg={12}>
+                <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>Battle Porfolio(s)</MDTypography>
+                <MyPortfolio type="Battle"/>
+              </Grid>
+          </Grid>
+
+    </MDBox>
   );
 }

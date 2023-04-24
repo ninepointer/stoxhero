@@ -5,10 +5,9 @@ import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
 import MDButton from '../../../components/MDButton'
-import WalletIcon from '@mui/icons-material/Wallet';
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import {Link} from 'react-router-dom'
 
-import image from '../../../assets/images/logo1.jpeg'
+
 import wallet from '../../../assets/images/wallet.png'
 import bonus from '../../../assets/images/bonus.png'
 import rupee from '../../../assets/images/rupee.png'
@@ -77,9 +76,9 @@ export default function Wallet() {
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
       <Grid container xs={12} md={6} lg={12}>
         
-        <Grid item xs={12} md={12} lg={6}>
+        <Grid item xs={12} md={12} lg={6} mb={1}>
           <MDBox mb={2}>
-            <MDTypography color="light" fontSize={15}>Transactions</MDTypography>
+            <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Transactions</MDTypography>
           </MDBox>
            
           {myWallet?.transactions?.length > 0 ? 
@@ -110,9 +109,9 @@ export default function Wallet() {
                 </Grid>
                 <MDTypography mt={3} color="light" display="flex" justifyContent="center">No Transactions Yet!</MDTypography>
                 <MDTypography mt={3} color="light" display="flex" justifyContent="center" fontSize={15}>Participate in Battles and invite your friends to the app to earn cash & bonus.</MDTypography>
-                <MDBox mt={3} display="flex" justifyContent="center" flexDirection="column">
-                <MDButton variant="outlined" color="warning" size="small" style={{marginBottom:15,marginLeft:100,marginRight:100}}>Check Upcoming Battles</MDButton>
-                <MDButton variant="outlined" color="warning" size="small" style={{marginBottom:30,marginLeft:100,marginRight:100}}>Invite A Friend</MDButton>
+                <MDBox mt={3} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                  <Link to ='/BattleGround'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:15,marginLeft:100,marginRight:100}}>Check Upcoming Battles</MDButton></Link>
+                  <Link to ='/Referrals'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:30,marginLeft:100,marginRight:100}}>Invite A Friend</MDButton></Link>
                 </MDBox>
               </Grid>
             </MDBox>
@@ -123,46 +122,47 @@ export default function Wallet() {
           
         </Grid>
 
-        <Grid item xs={0} md={0} lg={0.5}>
-          <Divider orientation="vertical" style={{backgroundColor: 'white', height: '96vh'}} />
+        <Grid item xs={0} md={0.5} lg={0.5}>
+          <Divider orientation="vertical" style={{backgroundColor: 'white', height: '96vh'}} hidden={{ mdDown: true }} />
         </Grid>
 
-        <Grid item xs={6} md={6} lg={5.5}>
+
+        <Grid item xs={12} md={6} lg={5.5}>
           <MDBox>
-            <MDTypography color="light" fontSize={15}>Complete Your KYC for withdrawals.</MDTypography>
+            <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Complete Your KYC for withdrawals.</MDTypography>
           </MDBox>
           <Grid container mt={1} spacing={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-            <Grid item xs={6} md={6} lg={12} display="flex" justifyContent="center">
+            <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">
               <MDAvatar src={photo} name={name} size="xl" />
             </Grid>
 
-            <Grid item xs={6} md={6} lg={12} mb={2} display="flex" justifyContent="center" alignItems="center">
+            <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center" alignItems="center">
               <MDTypography color="light">{myWallet?.userId?.first_name} {myWallet?.userId?.last_name}</MDTypography>
             </Grid>
 
             
-            <Grid item xs={6} md={6} lg={12} style={{border:'1px solid white', borderRadius:5}}>
+            <Grid item xs={12} md={6} lg={12} style={{border:'1px solid white', borderRadius:5}}>
               
               <Grid container spacing={1} mt={0.5} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
-                <Grid item xs={6} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
+                <Grid item xs={3} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
                   <MDAvatar src={wallet} name={name} size="sm" />
                   <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">Deposit</MDTypography>
                 </Grid>
-                <Grid item xs={6} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹0</MDTypography></Grid>
-                <Grid item xs={6} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}}>Add Money</MDButton></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹0</MDTypography></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}}>Add Money</MDButton></Grid>
               </Grid>
-
+              
               <Grid item xs={12} md={6} lg={12} mr={1} style={{maxWidth:'100vw'}}>
                 <Divider variant="middle" style={{ backgroundColor: '#fff' }} />
               </Grid>
 
               <Grid container spacing={1} display="flex" justifyContent="space-between" alignItems="center">
-                <Grid item xs={6} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
+                <Grid item xs={3} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
                   <MDAvatar src={rupee} name={name} size="sm" />
                   <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">Cash</MDTypography>
                 </Grid>
-                <Grid item xs={6} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalCashAmount ? totalCashAmount : 0}</MDTypography></Grid>
-                <Grid item xs={6} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}}>Withdraw</MDButton></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalCashAmount ? totalCashAmount : 0}</MDTypography></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}}>Withdraw</MDButton></Grid>
               </Grid>
 
               <Grid item xs={12} md={6} lg={12} mr={1} style={{maxWidth:'100vw'}}>
@@ -170,12 +170,12 @@ export default function Wallet() {
               </Grid>
 
               <Grid container spacing={1} mb={1.5} display="flex" justifyContent="space-between" alignItems="center">
-                <Grid item xs={6} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
+                <Grid item xs={3} md={6} lg={3} ml={1} display="flex" justifyContent="left" alignItems="center">
                   <MDAvatar src={bonus} name={name} size="sm" />
                   <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">Bonus</MDTypography>
                 </Grid>
-                <Grid item xs={6} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalBonusAmount ? totalBonusAmount : 0}</MDTypography></Grid>
-                <Grid item xs={6} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}}>Redeem</MDButton></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalBonusAmount ? totalBonusAmount : 0}</MDTypography></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}}>Redeem</MDButton></Grid>
               </Grid>
 
             </Grid>
