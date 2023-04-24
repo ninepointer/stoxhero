@@ -27,13 +27,13 @@ function LabTabs() {
 
 
   return (
-    <Box sx={{ width: '100%', typography: 'body1' }}>
+    <Box mt={2} sx={{ width: '100%', typography: 'body1' }}>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Go to Upcoming Battles" value="2" onClick={()=>{navigate('/battleground')}}/>
-            {/* <Tab label="My Battles" value="3" onClick={()=>{navigate('/battleground')}}/> */}
-            {/* <Tab label="History" value="3" onClick={history}/> */}
+            <Tab label="Upcoming Battles" value="2" onClick={()=>{navigate('/battleground')}}/>
+            <Tab label="My Battles" value="3" onClick={()=>{navigate('/battleground')}}/>
+            <Tab label="History" value="3" onClick={()=>{navigate('/battleground/history')}}/>
           </TabList>
         </Box>
         <TabPanel value="2">

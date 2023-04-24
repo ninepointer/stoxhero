@@ -10,7 +10,10 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
 
 
   useEffect(() => {
-    flag.current = true;
+    setTimeout(()=>{
+      flag.current = true;
+    }, 10000)
+    
     const timerId = setInterval(() => {
       setTimeRemaining(calculateTimeRemaining());
     }, 1000);

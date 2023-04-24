@@ -74,6 +74,10 @@ const ContestTrade = new mongoose.Schema({
         type: String,
         // required: true        
     },
+    employeeid:{
+        type: String,
+        // required: true        
+    },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',

@@ -169,10 +169,10 @@ router.patch("/verifyotp", async (req, res)=>{
 
         //------
         let referredBy;
+        console.log('this is referrer code', referrerCode);
         if(referrerCode){
             const referrerCodeMatch = await User.findOne({myReferralCode: referrerCode});
-            
-            console.log("Referrer Code Match: ",referrerCodeMatch)
+    
 
             if(!referrerCodeMatch){
                 return res.status(404).json({message : "No such referrer code. Please enter a valid referrer code"});
@@ -189,7 +189,6 @@ router.patch("/verifyotp", async (req, res)=>{
             // res.status(200).json({
             //     message: "OTP verification done"
             // })
-
             referredBy = referrerCodeMatch._id;
         }
         //--------
@@ -229,9 +228,7 @@ router.patch("/verifyotp", async (req, res)=>{
              console.log(userId)
         }
         
-        console.log("user Id(Line 204): ",userId)
         let referral = await Referral.findOne({status: "Active"});
-        console.log("referral", referral)
 
         // free portfolio adding in user collection
         const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
@@ -264,26 +261,38 @@ router.patch("/verifyotp", async (req, res)=>{
         }
         const newuser = await User.create(obj);
 
+        
         const idOfUser = newuser._id;
-
+        
         for (const portfolio of activeFreePortfolios) {
             const portfolioValue = portfolio.portfolioValue;
-          
+            
             await PortFolio.findByIdAndUpdate(
-              portfolio._id,
-              { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
-            );
-        }
-
-        referral?.users?.push(newuser._id)
-        const referralProgramme = await Referral.findOneAndUpdate({status: "Active"}, {
-            $set:{ 
-                users: referral?.users
+                portfolio._id,
+                { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
+                );
             }
-        
-        })
-
-        let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
+            
+            referral?.users?.push(newuser._id)
+            const referralProgramme = await Referral.findOneAndUpdate({status: "Active"}, {
+                $set:{ 
+                    users: referral?.users
+                }
+                
+            })
+            
+            if(referrerCode){
+                let referrerCodeMatch = await User.findOne({myReferralCode: referrerCode});
+                referrerCodeMatch.referrals= [...referrerCodeMatch.referrals, {
+                    referredUserId: newuser._id,
+                    joining_date: newuser.createdOn,
+                    referralProgram: referralProgramme._id,
+                    referralEarning: referralProgramme.rewardPerReferral,
+                    referralCurrency: referralProgramme.currency,
+                }];
+                await referrerCodeMatch.save({validateBeforeSave: false});
+            }
+            let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
         if(lead){
         lead.status = 'Joined'
         lead.referralCode = newuser.referrerCode
@@ -305,7 +314,7 @@ router.patch("/verifyotp", async (req, res)=>{
                 creditedBy:newuser._id 
             })
         
-        console.log("Margin Allcoation Data: ",marginAllocation)
+        // console.log("Margin Allcoation Data: ",marginAllocation)
 
         let userWallet = await UserWallet.create(
             {
@@ -317,6 +326,7 @@ router.patch("/verifyotp", async (req, res)=>{
         console.log("User Wallet Created: ",userWallet)
 
         console.log("referralProgramme", referralProgramme);
+        // console.log("referralProgramme", referralProgramme);
 
         if(!newuser) return res.status(400).json({message: 'Something went wrong'});
 

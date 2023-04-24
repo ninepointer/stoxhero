@@ -17,9 +17,10 @@ const DailyPNLData = require("../../models/InstrumentHistoricalData/DailyPnlData
 const TraderDailyPnlData = require("../../models/InstrumentHistoricalData/TraderDailyPnlDataSchema");
 const UserDetail = require("../../models/User/userDetailSchema");
 const PortFolio = require("../../models/userPortfolio/UserPortfolio");
-const ContestTrade = require("../../models/Contest/ContestTrade")
+const ContestTrade = require("../../models/Contest/ContestTrade");
 const ObjectId = require('mongodb').ObjectId;
-
+const TradableInstrumentSchema = require("../../models/Instruments/tradableInstrumentsSchema")
+const authentication = require("../../authentication/authentication");
 // const Instrument = require('../')
 
 
@@ -107,20 +108,6 @@ router.get("/pnldetails", async (req, res)=>{
 
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 router.get("/removefeild", async (req, res)=>{
   await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
 })
@@ -176,8 +163,9 @@ router.get("/referralCode", async (req, res) => {
   res.send('Referral codes generated and inserted');
 });
 
-router.get("/tradableInstrument", async (req, res)=>{
-  await TradableInstrument.tradableInstrument();
+router.get("/tradableInstrument", authentication, async (req, res, next)=>{
+  await TradableInstrumentSchema.updateMany({}, {$set: {status: "Inactive"}});
+  await TradableInstrument.tradableInstrument(req,res,next);
 })
 
 router.get("/updateName", async (req, res)=>{

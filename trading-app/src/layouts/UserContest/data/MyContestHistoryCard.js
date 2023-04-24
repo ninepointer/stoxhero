@@ -8,13 +8,7 @@ import axios from "axios";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import ContestIcon from "../../../assets/images/contest.png";
-import { HiUserGroup } from 'react-icons/hi';
-import Timer from '../timer'
 import { Typography } from '@mui/material';
-import LinearProgress from '@mui/material/LinearProgress';
-import AvTimerIcon from '@mui/icons-material/AvTimer';
-import ProgressBar from '../data/ProgressBar'
 import { userContext } from '../../../AuthContext';
 import Logo from "../../../assets/images/logo1.jpeg"
 import StarIcon from '@mui/icons-material/Star';
@@ -102,8 +96,12 @@ const MyContestHistoryCard = () => {
       <Grid container spacing={2}>
       {contestData?.map((e)=>{
 
-        let portfolioId = e?.participants?.filter((elem)=>{
+        let participatedUser = e?.participants?.filter((elem)=>{
           return elem?.userId == getDetails?.userDetails?._id
+        })
+
+        const myReward = e?.rewards?.filter((elem)=>{
+          return elem?.rankStart <= participatedUser[0]?.myRank?.rank && elem?.rankEnd >=  participatedUser[0]?.myRank?.rank;
         })
 
         return <>
@@ -115,7 +113,7 @@ const MyContestHistoryCard = () => {
             to={{
               pathname: `/battleground/history/${e.contestName}`,
             }}
-            state= {{contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isFromHistory: true}}
+            state= {{contestId: e?._id, portfolioId: participatedUser[0].portfolioId, isFromHistory: true}}
 
           // to={ selectedPortfolio && {
           //     pathname: `/arena/contest/${nextPagePath}`,
@@ -151,11 +149,11 @@ const MyContestHistoryCard = () => {
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={12} display="flex" mt={1} ml={1} mr={1} justifyContent="space-between" alignItems="center" alignContent="center">
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <StarIcon /><span style={{marginLeft:2,fontWeight:700}}>My Rank: NA</span>
+                        <MDTypography color="white" fontSize={9} display="flex" justifyContent="center">
+                            <StarIcon /><span style={{marginLeft:2,fontWeight:600}}>My Rank: {participatedUser[0]?.myRank?.rank ? participatedUser[0]?.myRank?.rank : "NA"}</span>
                         </MDTypography>
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <EmojiEventsIcon /><span style={{marginLeft:2,fontWeight:700}}>My Reward: NA</span>
+                        <MDTypography color="white" fontSize={9} display="flex" justifyContent="center">
+                            <EmojiEventsIcon /><span style={{marginLeft:2,fontWeight:600}}>My Reward: {myReward.length && myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : "NA"}</span>
                         </MDTypography>
                     </Grid>
 

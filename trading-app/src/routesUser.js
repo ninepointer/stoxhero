@@ -15,6 +15,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 //page routes
+import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
 import UserPosition from "./layouts/User Position";
 import UserReport from "./layouts/userreports";
@@ -195,6 +196,15 @@ const routes = [
     icon: <PersonPinIcon/>,
     route: "/profile",
     component: <Profile />,
+  },
+  {
+    // type: "collapse",
+    // name: "Terms",
+    // key: "terms",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <PersonPinIcon/>,
+    route: "/terms",
+    component: <Tnc />,
   },
 
 ];

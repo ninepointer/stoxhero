@@ -8,6 +8,7 @@ const authController = require("../../controllers/authController");
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
+const Authenticate = require("../../authentication/authentication");
 
 
 const storage = multer.memoryStorage();
@@ -580,7 +581,30 @@ router.get("/myreferrals/:id", (req, res)=>{
   .catch((err)=>{
       return res.status(422).json({error : err})
   })
-})
+});
+
+router.get('/earnings', Authenticate, async (req,res, next)=>{
+  const id = req.user._id;
+  try{
+    const userReferrals = await UserDetail.findById(id).select('referrals');
+    let earnings = 0;
+    console.log(userReferrals);
+    userReferrals.referrals.forEach((ref)=>{
+      earnings += ref.referralEarning;
+    });
+    
+    res.status(200).json({
+      status:'success',
+      data: {
+        joined: userReferrals.referrals.length,
+        earnings: earnings
+      },
+    });
+  }catch(e){
+    console.log(e);
+    return res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+});
 
 module.exports = router;
 

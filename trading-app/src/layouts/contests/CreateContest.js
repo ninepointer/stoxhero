@@ -449,7 +449,7 @@ console.log("Rule Name: ",contestData?.contestRule?.ruleName)
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          {/* <Grid item xs={12} md={6} xl={3}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
@@ -462,7 +462,7 @@ console.log("Rule Name: ",contestData?.contestRule?.ruleName)
                   contestMargin: e.target.value
                 }))}}
                 />
-            </Grid>
+            </Grid> */}
 
           <Grid item xs={12} md={6} xl={3}>
               <FormControl sx={{width: "100%" }}>

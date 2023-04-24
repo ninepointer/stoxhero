@@ -110,6 +110,7 @@ exports.updateStatus = async(req, res, next) => {
 
 exports.joinContest = async(req, res, next) => {
     const userId = req.user._id;
+    const employeeid = req.user.employeeid;
     const contestId = req.params.id;
     const {paymentId, portfolioId} = req.body;
     console.log(req.body, contestId)
@@ -129,6 +130,24 @@ exports.joinContest = async(req, res, next) => {
             return res.status(400).json({
                 status: 'error',
                 message: 'The contest has expired. Join an active contest.'
+            });
+        }
+
+        //check entry date open or not
+        if(Date.now()<Date.parse(contest.entryOpeningDate)){
+            // console.log("in 2st")
+            return res.status(400).json({
+                status: 'error',
+                message: 'Entry for this contest is not started yet. Please wait.'
+            });
+        }
+
+        // check if entry closed for the contest
+        if(Date.now()>Date.parse(contest.entryClosingDate)){
+            // console.log("in 2st")
+            return res.status(400).json({
+                status: 'error',
+                message: 'Entry is closed for this contest. Please join another contest.'
             });
         }
 
@@ -174,7 +193,7 @@ exports.joinContest = async(req, res, next) => {
         // }
         
         // console.log("in 6st", {userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined"})
-        contest.participants.push({userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined"});
+        contest.participants.push({userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined", employeeid});
         await contest.save({validateBeforeSave: false});
         const user = await User.findById(userId);
         user.contests.push(contest._id);

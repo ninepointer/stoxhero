@@ -11,10 +11,14 @@ import MDTypography from "../../../components/MDTypography";
 import DataTable from "../../../examples/Tables/DataTable";
 import InviteFriendModal from './InviteFriendModel'
 import { CircularProgress, Typography } from "@mui/material";
+import MDSnackbar from "../../../components/MDSnackbar";
 import { FaUsers } from 'react-icons/fa';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { IoLogoWhatsapp } from 'react-icons/io';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import QRCode from "react-qr-code";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+
 
 // Icons
 import SendIcon from '@mui/icons-material/Send';
@@ -25,11 +29,12 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import ReferralProgramImage from '../../../assets/images/referral-program.png'
 import ReferralImage from '../../../assets/images/referral.png'
 import Invited from '../data/invitedData'
-
+import {BiCopy} from 'react-icons/bi'
+import { Link } from 'react-router-dom';
 function ReferralHomePage() {
   const [invited,setInvited] = useState(false)
   const getDetails = useContext(userContext);
-  const {columns, rows} = Invited();
+//   const {columns, rows} = Invited();
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -38,6 +43,10 @@ function ReferralHomePage() {
   const [invitedCount,setInvitedCount] = useState([]);
   const [joinedData,setJoinedData] = useState([]);
   const [joinedCount,setJoinedCount] = useState([]);
+  const [earnings, setEarnings] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const[referralRanks, setReferralRanks] = useState([]);
+  const[rank, setRank] = useState();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const id = getDetails.userDetails._id
   const referralCode = getDetails.userDetails.myReferralCode
@@ -45,22 +54,22 @@ function ReferralHomePage() {
   
   useEffect(()=>{
   
-    axios.get(`${baseUrl}api/v1/leadsinvited/${id}`)
-    .then((res)=>{
-       console.log(res)
-       setInvitedData(res?.data?.data);
-       setInvitedCount(res?.data?.count);
-    }).catch((err)=>{
-        return new Error(err);
-    })
+    // axios.get(`${baseUrl}api/v1/leadsinvited/${id}`)
+    // .then((res)=>{
+    //    console.log(res)
+    //    setInvitedData(res?.data?.data);
+    //    setInvitedCount(res?.data?.count);
+    // }).catch((err)=>{
+    //     return new Error(err);
+    // })
 
-    axios.get(`${baseUrl}api/v1/leadsjoined/${id}`)
-    .then((res)=>{
-       setJoinedData(res?.data?.data);
-       setJoinedCount(res?.data?.count);
-    }).catch((err)=>{
-        return new Error(err);
-    })
+    // axios.get(`${baseUrl}api/v1/leadsjoined/${id}`)
+    // .then((res)=>{
+    //    setJoinedData(res?.data?.data);
+    //    setJoinedCount(res?.data?.count);
+    // }).catch((err)=>{
+    //     return new Error(err);
+    // })
 
     axios.get(`${baseUrl}api/v1/referrals/active`)
     .then((res)=>{
@@ -68,74 +77,203 @@ function ReferralHomePage() {
        setActiveReferralProgram(res?.data?.data[0]);
     }).catch((err)=>{
         return new Error(err);
-    })
-  },[invited])
+    });
+  },[invited]);
+
+  useEffect(async()=>{
+    const res = await axios.get(`${baseUrl}api/v1/earnings`, {withCredentials: true});
+    console.log('earnings data',res.data.data);
+    setEarnings(res.data.data.earnings);
+    setJoinedCount(res.data.data.joined);
+  }, []);
+
+  const fetchData = async()=>{
+    const res = await axios.get(`${baseUrl}api/v1/referrals/leaderboard`, {withCredentials: true});
+    // console.log('referral data',res.data.data);
+    setReferralRanks(res.data.data);
+    const rankRes = await axios.get(`${baseUrl}api/v1/referrals/myrank`, {withCredentials: true});
+    if(rankRes.data.status == 'success'){
+        setRank(rankRes.data.data);
+    }
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(fetchData, 10000); // run every 10 seconds
+    fetchData(); // run once on mount
+    return () => clearInterval(intervalId);
+  }, []);
+  const handleCopy = () => {
+    setCopied(true);
+    openSuccessSB('success', 'Copied');
+  }
+  const [title,setTitle] = useState('')
+  const [content,setContent] = useState('')
+  const [time,setTime] = useState('')
+ 
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (value,content) => {
+        setTitle(value);
+        setContent(content);
+        setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="success"
+    />
+  );    
+  const copyText = `                    
+
+  AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR
+
+  Join me at StoxHero - India's First Options Trading and Investment Platform 🤝                            
+
+  👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code
+
+  👉 Join the community of ace traders and learn real-time options trading
+
+  👉 Participate in free options trading contests to sharpen your trading skills
+
+  📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}                          
+
+  Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading
+
+  My Referral Code to join the StoxHero: ${referralCode}`
 
 //   console.log("Invited Data: ",invitedData)
-  console.log("ye hai ref Active Referral Program ID: ",activeReferralProgram);
+  
+  
 
-  invitedData?.map((elem)=>{
+//   invitedData?.map((elem)=>{
         
-    let refData = {}
+//     let refData = {}
 
-    function dateConvert(dateToConvert){
-    if(dateToConvert){
-    const date = new Date(dateToConvert);
-    const formattedDate = date.toLocaleString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    });
-    return formattedDate;
-    }
-    else{
-        return '-';
-    }
-    }
+//     function dateConvert(dateToConvert){
+//     if(dateToConvert){
+//     const date = new Date(dateToConvert);
+//     const formattedDate = date.toLocaleString('en-US', {
+//       day: '2-digit',
+//       month: 'short',
+//       year: 'numeric',
+//       hour: 'numeric',
+//       minute: 'numeric',
+//       hour12: true
+//     });
+//     return formattedDate;
+//     }
+//     else{
+//         return '-';
+//     }
+//     }
 
-    refData.name = (
-      <MDButton variant="Contained" color="info" fontWeight="medium">
-        {elem.name}
-      </MDButton>
-    );
+//     refData.name = (
+//       <MDButton variant="Contained" color="info" fontWeight="medium">
+//         {elem.name}
+//       </MDButton>
+//     );
     
-    refData.email = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.email ? elem.email : '-'}
-      </MDTypography>
-    );
+//     refData.email = (
+//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//         {elem.email ? elem.email : '-'}
+//       </MDTypography>
+//     );
 
-    refData.mobile = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.mobile ? elem.mobile : '-'}
-        </MDTypography>
-      );
+//     refData.mobile = (
+//         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//           {elem.mobile ? elem.mobile : '-'}
+//         </MDTypography>
+//       );
     
-    refData.invitedon = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {dateConvert(elem.invitedOn)}
-      </MDTypography>
-    );
+//     refData.invitedon = (
+//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//         {dateConvert(elem.invitedOn)}
+//       </MDTypography>
+//     );
 
-    refData.joinedon = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {dateConvert(elem.joinedOn)}
-        </MDTypography>
-      );
+//     refData.joinedon = (
+//         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//           {dateConvert(elem.joinedOn)}
+//         </MDTypography>
+//       );
     
-    refData.status = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.status}
-      </MDTypography>
-    );
+//     refData.status = (
+//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+//         {elem.status}
+//       </MDTypography>
+//     );
  
-    rows.push(refData)
+//     rows.push(refData)
     
-})
-
+// })
+  let columns = [
+    { Header: "Rank", accessor: "rank",align: "center" },
+    { Header: "Name", accessor: "name",align: "center" },
+    { Header: "Earnings", accessor: "earnings", align: "center"},
+  ];
+  let rows = [];
+  referralRanks?.map((elem, index)=>{
+    let refData = {}
+    if(rank && rank.rank == index+1){
+        refData.rank =(
+            <MDTypography variant="Contained" color='info' fontWeight="medium">
+              {index+1}
+            </MDTypography>
+        );
+        refData.name = (
+            <MDTypography variant="Contained" color = 'info' fontWeight="medium">
+              {elem.user}(you)
+            </MDTypography>
+          );
+        refData.earnings = (
+            <MDTypography variant="Contained" color='info' fontWeight="medium">
+              {elem.earnings}
+            </MDTypography>
+          );
+    }else{
+        refData.rank =(
+            <MDTypography variant="Contained" fontWeight="medium">
+              {index+1}
+            </MDTypography>
+        );
+        refData.name = (
+            <MDTypography variant="Contained" fontWeight="medium">
+              {elem.user}
+            </MDTypography>
+          );
+        refData.earnings = (
+            <MDTypography variant="Contained" fontWeight="medium">
+              {elem.earnings}
+            </MDTypography>
+          );
+    }
+    rows.push(refData);  
+  });
+  if(rank && rank.rank>referralRanks.length){
+    rows.push({
+        rank:(
+            <MDTypography variant="Contained" fontWeight="medium">
+              {rank.rank}
+            </MDTypography>
+        ),
+        name:(
+            <MDTypography variant="Contained" fontWeight="medium">
+              you
+            </MDTypography>
+          ),
+        earnings: (
+            <MDTypography variant="Contained" fontWeight="medium">
+              {rank.earnings}
+            </MDTypography>
+          )  
+    })
+  }
   return (
     <>
         <MDBox width="100%" bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
@@ -185,12 +323,48 @@ function ReferralHomePage() {
                                     </MDBox>
                                 </Grid>
 
-                                <Grid item xs={12} md={12} lg={12} mt={2} display="flex" justifyContent="center">
-                                    <MDTypography fontSize={16}>Terms & Conditions</MDTypography>
+                                <Grid item xs={12} md={12} lg={12} mt={2} display="flex" justifyContent="start" style={{cursor:'pointer'}}>
+                                        <Link to ='/terms'>
+                                            <MDTypography fontSize={16}>
+                                                Terms & Conditions
+                                            </MDTypography>
+                                        </Link>
+                                        
                                 </Grid>
-                                <Grid item xs={12} md={12} lg={12} mt={2} display="flex" justifyContent="center">
+                                <Grid item xs={12} md={12} lg={12} mt={2} display="flex" justifyContent="space-between">
+                                    <MDBox display='flex' alignItems='center' style={{
+                                        backgroundColor:'#c3c3c3', 
+                                        padding: '10px',
+                                        borderRadius: '10px'
+                                    }}>
+                                        <MDTypography paddingLeft = '15px'>{referralCode}</MDTypography>
+                                        <MDButton variant='text' color='black' padding={0} margin={0} >
+                                            <CopyToClipboard text = {copyText} onCopy={handleCopy}>
+                                                <BiCopy/>
+                                            </CopyToClipboard>
+                                        </MDButton>
+                                    </MDBox>
+                                    <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", marginRight: '10px'}}>
+                                        <a 
+                                        href={`https://api.whatsapp.com/send?text=Hey,
+                                        %0A%0A*AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR*
+                                        %0A%0AJoin me at StoxHero - India's First Options Trading and Investment Platform 🤝 
+                                        %0A%0A👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code.
+                                        %0A%0A👉 Join the community of ace traders and learn real-time options trading.
+                                        %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
+                                        %0A%0A📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}
+                                        %0A%0AUse my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading.
+                                        %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
+                                        target="_blank">
+                                        <MDTypography variant="contained">
+                                           <IoLogoWhatsapp color="green" lineHeight={1} size={40} />
+                                        </MDTypography>
+                                        </a>
+                                    </MDBox>
+                                </Grid>
+                                {/* <Grid item xs={12} md={12} lg={12} mt={2} display="flex" justifyContent="center">
                                     <InviteFriendModal invited={invited} setInvited={setInvited} referralCode={referralCode} referralProgramId={activeReferralProgram?._id}/>
-                                </Grid>
+                                </Grid> */}
                             </Grid>
                         </MDBox>
                     </Grid>
@@ -200,7 +374,7 @@ function ReferralHomePage() {
 
             <MDBox mt={3}>
                 <Grid container >
-                <Grid items xs={12} md={6} lg={3}>
+                <Grid items xs={12} md={6} lg={4}>
                     <MDBox 
                         style={{
                             backgroundColor:"white",
@@ -213,7 +387,8 @@ function ReferralHomePage() {
                             }}
                         >
                         <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", width:"40%"}}>
-                            <QrCode2Icon color="success" fontSize="large" style={{width:"80%", height:"80%"}}/>
+                            {/* <QrCode2Icon color="success" fontSize="large" style={{width:"80%", height:"80%"}}/> */}
+                            <QRCode value = {`https://stoxhero.com/signup?referral=${referralCode}`} fgColor='green' style={{padding:'20px'}}/>
                         </MDBox>
                         <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", flexDirection:"column", width:"60%"}}>
                                 <MDTypography fontSize="13px" lineHeight={1}>My Referral Code</MDTypography>
@@ -242,7 +417,7 @@ function ReferralHomePage() {
                         </MDBox>
                     </MDBox>
                 </Grid>
-                <Grid items xs={12} md={6} lg={3}>
+                {/* <Grid items xs={12} md={6} lg={3}>
                     <MDBox 
                         style={{
                             backgroundColor:"white",
@@ -262,8 +437,8 @@ function ReferralHomePage() {
                                 <MDTypography fontSize="12px" lineHeight={1}>Friends Invited</MDTypography>  
                         </MDBox>
                     </MDBox>
-                </Grid>
-                <Grid items xs={12} md={6} lg={3}>
+                </Grid> */}
+                <Grid items xs={12} md={6} lg={4}>
                     <MDBox 
                         style={{
                             backgroundColor:"white",
@@ -284,7 +459,7 @@ function ReferralHomePage() {
                         </MDBox>
                     </MDBox>
                 </Grid>
-                <Grid items xs={12} md={6} lg={3}>
+                <Grid items xs={12} md={6} lg={4}>
                     <MDBox 
                         style={{
                             backgroundColor:"white",
@@ -300,7 +475,7 @@ function ReferralHomePage() {
                             <CurrencyRupeeIcon color="info" fontSize="large" style={{width:"80%", height:"80%"}}/>
                         </MDBox>
                         <MDBox style={{display:"flex", alignItems: "center", justifyContent: "center", flexDirection:"column", width:"60%"}}>
-                                <MDTypography fontSize="30px" lineHeight={1}>0</MDTypography>
+                                <MDTypography fontSize="30px" lineHeight={1}>{earnings}</MDTypography>
                                 <MDTypography fontSize="12px" lineHeight={1}>Earnings in INR</MDTypography>  
                         </MDBox>
                     </MDBox>
@@ -326,7 +501,7 @@ function ReferralHomePage() {
                                     justifyContent: "space-between",
                                 }}>
                                 <MDTypography variant="h6" color="white" py={1}>
-                                    Referral Status
+                                    Referral Leaderboard
                                 </MDTypography>
                             </MDBox>
                             <MDBox pt={2}>
@@ -342,6 +517,7 @@ function ReferralHomePage() {
                     </Grid>
                 </Grid>
             </MDBox>
+            {renderSuccessSB}
         </MDBox>
     </>
   );
