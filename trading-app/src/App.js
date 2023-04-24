@@ -50,6 +50,7 @@ import { userContext } from "./AuthContext";
 import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
+import ResetPassword from './layouts/authentication/reset-password/cover';
 
 
 export default function App() {
@@ -262,7 +263,7 @@ export default function App() {
           :
           <Route path="/" element={<Navigate to={pathname} />} />
           }
-
+          <Route path='/resetpassword' element={<ResetPassword/>}/>
         </Routes>
       </ThemeProvider>
     
