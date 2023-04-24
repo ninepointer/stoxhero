@@ -50,7 +50,7 @@ function ReferralHomePage() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const id = getDetails.userDetails._id
   const referralCode = getDetails.userDetails.myReferralCode
-  console.log(getDetails)
+
   
   useEffect(()=>{
   
@@ -221,11 +221,12 @@ function ReferralHomePage() {
     { Header: "Earnings", accessor: "earnings", align: "center"},
   ];
   let rows = [];
+  console.log('checking',referralRanks[0]?.user, getDetails.userDetails.employeeid);
   referralRanks?.map((elem, index)=>{
     let refData = {}
     if(rank && rank.rank == index+1){
         refData.rank =(
-            <MDTypography variant="Contained" color='info' fontWeight="medium">
+            <MDTypography variant="Contained" fontWeight="medium">
               {index+1}
             </MDTypography>
         );
@@ -239,6 +240,23 @@ function ReferralHomePage() {
               {elem.earnings}
             </MDTypography>
           );
+          if(index == 0 && referralRanks[0]?.user != getDetails.userDetails.employeeid){
+            refData.rank =(
+                <MDTypography variant="Contained" fontWeight="medium">
+                  {index+1}
+                </MDTypography>
+            );
+            refData.name = (
+                <MDTypography variant="Contained" fontWeight="medium">
+                  {elem.user}
+                </MDTypography>
+              );
+            refData.earnings = (
+                <MDTypography variant="Contained" fontWeight="medium">
+                  {elem.earnings}
+                </MDTypography>
+              );
+          }
     }else{
         refData.rank =(
             <MDTypography variant="Contained" fontWeight="medium">
