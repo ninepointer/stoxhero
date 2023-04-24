@@ -138,7 +138,7 @@ function ReferralHomePage() {
 
   return (
     <>
-        <MDBox width="100%" p={5} bgColor="dark" mb={2}>
+        <MDBox width="100%" bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
             <MDBox>
                 <Grid container spacing={4}>
                     
