@@ -1136,21 +1136,20 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
     console.log("redis error", e);
   }
 
-  function formatData(arr){
-    const formattedLeaderboard = arr.reduce(async (acc, val, index, arr) => {
-      if (index % 2 === 0) {
-        // Parse the JSON string to an object
-        console.log("arr is", arr, val["name"])
-        const obj = JSON.parse(val);
-        // Add the npnl property to the object
-        const investedAmount = await client.get(`${obj.name} investedAmount`)
-        obj.npnl = Number(arr[index + 1]);
-        obj.investedAmount = Number(investedAmount);
-        // Add the object to the accumulator array
-        acc.push(obj);
-      }
-      return acc;
-    }, []);
+  async function formatData(arr) {
+    const formattedLeaderboard = [];
+  
+    for (let i = 0; i < arr.length; i += 2) {
+      // Parse the JSON string to an object
+      const obj = JSON.parse(arr[i]);
+      // Add the npnl property to the object
+      const investedAmount = await client.get(`${obj.name} investedAmount`)
+      obj.npnl = Number(arr[i + 1]);
+      obj.investedAmount = Number(investedAmount);
+      // Add the object to the formattedLeaderboard array
+      formattedLeaderboard.push(obj);
+    }
+  
     return formattedLeaderboard;
   }
 
