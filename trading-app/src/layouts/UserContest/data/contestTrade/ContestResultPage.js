@@ -28,6 +28,8 @@ import FastRewindIcon from '@mui/icons-material/FastRewind';
 import Button from '@mui/material/Button'
 // import UsedPortfolio from './PnL/UsedPortfolio';
 import { userContext } from '../../../../AuthContext';
+import winnerCup from "../../../../assets/images/winnerImage.jpg"
+import loose from "../../../../assets/images/lost.jpg"
 
 
 
@@ -48,7 +50,7 @@ function ContestResultPage () {
       textAlign: "center", 
       fontSize: ".99rem", 
       color: "#003366", 
-      backgroundColor: "#CCCCCC", 
+      backgroundColor: "white", 
       borderRadius: "5px", 
       padding: "5px",  
       fontWeight: "600",
@@ -69,20 +71,6 @@ function ContestResultPage () {
           return new Error(err);
       })
 
-      // axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/myrank`, {
-      //   withCredentials: true,
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //     "Access-Control-Allow-Credentials": true
-      //   },
-      // })
-      // .then((res)=>{
-      //   setMyRank(res?.data?.data);
-      //   console.log(res)
-      // }).catch((err)=>{
-      //    return new Error(err);
-      // })
 
     },[])
 
@@ -117,16 +105,47 @@ function ContestResultPage () {
                         Contest Ended
                   </MDTypography>
 
+                  {/* <img style={{ marginTop: "10px",  maxWidth: '100%', height: 'auto', borderRadius: "5px" }} src={winnerCup} />
+
                   <MDTypography  mt={8}  style={{fontWeight:500}} color="light" display="flex" justifyContent="center">
                         {(myReward?.length && myReward[0]?.reward) && `Congratulation's ${getDetails?.userDetails?.name} you have won`}
                   </MDTypography>
                   <MDTypography  mt={3}  style={{fontWeight:700}} color="light" display="flex" justifyContent="center">
                         {(myReward?.length && myReward[0]?.reward) && `${myReward[0]?.reward} ${myReward[0]?.currency}`}
-                  </MDTypography>
+                  </MDTypography> */}
 
-                  <MDTypography  mt={4}  style={{fontWeight:600}} color="light" display="flex" justifyContent="center">
+                  {!(myReward?.length && myReward[0]?.reward) ?
+                  <div style={{position: 'relative'}}>
+                    <img style={{marginTop: '10px', maxWidth: '100%', height: 'auto', borderRadius: '5px', display: 'block'}} src={winnerCup} />
+                    <div style={{position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px'}}>
+                      <MDTypography mt={5} style={{fontWeight: 700, fontSize: "15px"}} color="dark" display="flex" justifyContent="center">
+                        {(myReward?.length && myReward[0]?.reward) && `Congratulations ${getDetails?.userDetails?.employeeid}`}
+                      </MDTypography>
+                      <MDTypography mt={2} style={{fontWeight: 600, fontSize: "13px"}} color="dark" display="flex" justifyContent="center">
+                        {(myReward?.length && myReward[0]?.reward) && `Your rank is ${rank} and you have won`}
+                      </MDTypography>
+                      <MDTypography mt={2} style={{fontWeight: 700}} color="dark" display="flex" justifyContent="center">
+                        {(myReward?.length && myReward[0]?.reward) && `${myReward[0]?.reward} ${myReward[0]?.currency}`}
+                      </MDTypography>
+                    </div>
+                  </div>
+                  :
+                  <div style={{position: 'relative'}}>
+                  <img style={{marginTop: '10px', maxWidth: '100%', height: 'auto', borderRadius: '5px', display: 'block'}} src={winnerCup} />
+                  <div style={{position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px'}}>
+                    <MDTypography mt={5} style={{fontWeight: 700, fontSize: "15px"}} color="dark" display="flex" justifyContent="center">
+                      {`Hey ${getDetails?.userDetails?.employeeid}`}
+                    </MDTypography>
+                    <MDTypography mt={2} style={{fontWeight: 600, fontSize: "13px"}} color="dark" display="flex" justifyContent="center">
+                      {`Your rank is ${rank}`}
+                    </MDTypography>
+                    <MDTypography  mt={4}  style={{fontWeight:600}} color="light" display="flex" justifyContent="center">
                         Practice and learn with stoxhero and earn more.
-                  </MDTypography>
+                    </MDTypography>
+                  </div>
+                </div>
+
+                  }
                   
 
                 </MDBox>
