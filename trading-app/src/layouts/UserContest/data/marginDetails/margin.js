@@ -90,15 +90,15 @@ function UsedPortfolio({portfolioId}) {
                 >
 
                     <Item elevation={2}>           
-                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Opening Value:</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Opening Balance:</MDBox>
                         <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} color={"black"}>{currentValue >= 0.00 ? "+₹" + (currentValue.toFixed(0)): "-₹" + ((-currentValue).toFixed(0))}</MDBox>
                     </Item>
                     <Item elevation={2}>           
-                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Available Value:</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Available Margin:</MDBox>
                         <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} color={"black"}>{availableValue >= 0.00 ? "+₹" + (availableValue.toFixed(0)): "-₹" + ((-availableValue).toFixed(0))}</MDBox>
                     </Item>
                     <Item elevation={2}>           
-                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Used Value:</MDBox>
+                        <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} >Used Margin:</MDBox>
                         <MDBox m={0.2} style={{fontSize: "10px"}} fontWeight={700} color={"black"}>{usedValue >= 0.00 ? "+₹" + (usedValue.toFixed(0)): "-₹" + ((-usedValue).toFixed(0))}</MDBox>
                     </Item>
                 </MDBox>
