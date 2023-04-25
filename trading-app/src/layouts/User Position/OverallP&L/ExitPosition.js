@@ -23,7 +23,7 @@ import InputLabel from '@mui/material/InputLabel';
 
 function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, symbol, quantity, exchange, instrumentToken }) {
   console.log("rendering in userPosition/overall: exitPosition", quantity)
-  const { render, setReRender } = Render
+  // const { render, setReRender } = Render
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -131,7 +131,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
 
     setTradeData([...tradeData])
 
-  }, [render])
+  }, [])
 
   let lotSize = tradeData[0]?.lotSize;
   let maxLot = tradeData[0]?.maxLot;
@@ -229,7 +229,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
         openSuccessSB('else', dataResp.message)
         // window.alert(dataResp.message);
       }
-      render ? setReRender(false) : setReRender(true)
+      // render ? setReRender(false) : setReRender(true)
     }
   }
 
