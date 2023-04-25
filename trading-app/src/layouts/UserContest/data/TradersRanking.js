@@ -130,7 +130,7 @@ return (
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
                       <MDTypography fontSize={11} color={myRank?.npnl >= 0 ? "success" : "error"}>
-                          {myProfitPercentage ? (myProfitPercentage >= 0.00 ? "+" + (myProfitPercentage?.toFixed(2))+"%": "-" + ((myProfitPercentage).toFixed(2))+"%") : "-"}
+                          {myProfitPercentage ? (myProfitPercentage >= 0.00 ? "+" + (myProfitPercentage?.toFixed(2))+"%": "-" + ((-myProfitPercentage).toFixed(2))+"%") : "-"}
                       </MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
@@ -176,7 +176,7 @@ return (
                       </Grid>
                       <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
                         <MDTypography fontSize={11} color="light">
-                            {rewards[0]?.reward ?  `${rewards[0]?.reward} ${rewards[0]?.currency}` : "-"}
+                            {rewards[0]?.reward ?  `${rewards[0]?.currency} ${rewards[0]?.reward}` : "-"}
                         </MDTypography>
                       </Grid>
 

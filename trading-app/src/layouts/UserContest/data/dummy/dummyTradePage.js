@@ -1,17 +1,20 @@
-import React,{useState, useEffect, memo} from 'react'
+import React,{ memo} from 'react'
 import MDBox from '../../../../components/MDBox'
-import MDButton from '../../../../components/MDButton'
+// import MDButton from '../../../../components/MDButton'
 import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
+// import Button from '@mui/material/Button'
 import MDTypography from '../../../../components/MDTypography'
 import { Divider } from '@mui/material'
 import DemoTradersRanking from '../../data/DemoTradersRanking'
 import DummyInstrument from "./dummyInstrument"
 import DummyPnl from "./dummyPnl"
-import {useNavigate} from 'react-router-dom';
+// import {useNavigate} from 'react-router-dom';
+import PrizeDistribution from "../PrizeDistribution";
+import ContestRules from "../ContestRules";
+
 
 function ContestRegistration () {
-    const nevigate = useNavigate();
+    // const nevigate = useNavigate();
   
     return (
     <MDBox  width="100%" bgColor="dark" color="light" p={2}>

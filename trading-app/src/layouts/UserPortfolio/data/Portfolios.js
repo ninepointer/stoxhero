@@ -65,7 +65,7 @@ const MyPortfolioCard = ({type}) => {
                   })
 
                   let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
-                  if(e.portfolioType == type){
+                  // if(e.portfolioType == type){
                     return (
                       
                       <Grid key={e._id} item xs={12} md={6} lg={6} >
@@ -105,9 +105,10 @@ const MyPortfolioCard = ({type}) => {
                       </Grid>
                       
                     )
-                  }
+                  // }
                 // let color = (myPortfolio === e._id) ? "warning" : "light";
-              })}
+              })
+              }
             </Grid>
           </MDBox>
           :
