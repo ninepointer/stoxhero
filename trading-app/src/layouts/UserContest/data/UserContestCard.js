@@ -6,6 +6,8 @@ import axios from "axios";
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
+import {Tooltip} from '@mui/material';
+import MDAvatar from "../../../components/MDAvatar";
 import MDTypography from "../../../components/MDTypography";
 import ContestIcon from "../../../assets/images/contest.png";
 import { HiUserGroup } from 'react-icons/hi';
@@ -16,6 +18,8 @@ import AvTimerIcon from '@mui/icons-material/AvTimer';
 import ProgressBar from '../data/ProgressBar'
 import { CircularProgress } from "@mui/material";
 import Logo from "../../../assets/images/logo1.jpeg"
+import nifty from "../../../assets/images/nifty.png"
+import banknifty from "../../../assets/images/banknifty.png"
 
   
 
@@ -31,8 +35,8 @@ const ContestCard = () => {
   let timerStyle = {
     textAlign: "center", 
     fontSize: ".75rem", 
-    color: "#003366", 
-    backgroundColor: "white", 
+    color: "white", 
+    backgroundColor: "#344767", 
     borderRadius: "5px", 
     padding: "5px",  
     fontWeight: "600",
@@ -119,79 +123,83 @@ const ContestCard = () => {
       {!isLoading ?    
       <>
       <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-      <CircularProgress color="info" />
+        <CircularProgress color="info" />
       </MDBox>
       </>
       :
       <>
-      <MDBox bgColor="light" minWidth="100%" minHeight='auto'>
-      <Grid container spacing={2}>
-      {contestData?.map((e)=>{
-
-        return <>
+      <MDBox minWidth="100%" minHeight='auto'>
         
-            <Grid key={e._id} item xs={12} md={6} lg={3} >
-            <MDBox bgColor='dark' padding={0} style={{borderRadius:4}}>
-            <MDButton variant="contained" color="dark" size="small" 
-            component={Link} 
-            to={{
-              pathname: `/battleground/${e.contestName}`,
-            }}
-            state= {{data:e._id, isDummy: true, isFromUpcomming: true}}
-            >
-                <Grid container>
-                  <Grid mt={1} container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
-                    <Grid item xs={12} md={6} lg={3} display="flex" justifyContent="center">
-                        <img style={{borderRadius:'50%'}} src={Logo} width={50} height={50}/>
+        <Grid container spacing={2}>
+        {contestData?.map((e)=>{
+
+          return <>
+          
+              <Grid key={e._id} item xs={12} md={6} lg={4} >
+              <MDBox style={{borderRadius:4}}>
+              <Tooltip title="Click me!">
+              <MDButton variant="contained" color="light" size="small" 
+              component={Link} 
+              to={{
+                pathname: `/battleground/${e.contestName}`,
+              }}
+              state= {{data:e._id, isDummy: true, isFromUpcomming: true}}
+              >
+                  
+                  <Grid container>
+                    <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
+                        <Grid item xs={12} md={6} lg={12} mb={1} display="flex" alignContent="center" alignItems="center">
+                            <MDAvatar src={e?.contestOn === 'NIFTY 50' ? nifty : banknifty} size="xl" display="flex" justifyContent="left"/>
+                            <MDBox ml={2} display="flex" flexDirection="column">
+                            <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>{e?.contestName}</MDTypography>
+                            <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Index: {e?.contestOn}</MDTypography>
+                            <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Start Time: {dateConvert(e?.contestStartDate)}</MDTypography>
+                            </MDBox>
+                        </Grid>
+                      
                     </Grid>
-                    
-                    <Grid item xs={12} md={6} lg={9} mb={2} mt={0.4} display="flex" justifyContent="center">
-                        <MDBox display="flex" flexDirection="column" justifyContent="left" alignItems="left">
-                        <Typography align='center' fontSize={15} style={{color:"whitesmoke",fontSize:15,fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>{e.contestName}</Typography>
-                        <Typography align='center' fontSize={10} style={{color:"white"}}><span style={{fontSize:10,fontWeight:700,paddingLeft:4,paddingRight:4}}>{dateConvert(e?.contestStartDate)}</span></Typography>
-                        </MDBox>
-                    </Grid> 
+                      
+                      <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
+                          <Typography fontSize={13} style={{color:"black",fontWeight:700}}>Reward: {e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0).toLocaleString()}</Typography>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} lg={12} mb={1} style={{color:"black",fontSize:10}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
+                        <span style={timerStyle}>
+                          <AvTimerIcon/><Timer targetDate={e?.contestStartDate} text="Battle Started" />
+                        </span>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                          <Typography fontSize={8} style={{color:"black"}}>Prize: <span style={{fontSize:10,fontWeight:700}}>{e?.entryFee?.currency === 'INR' ? 'Cash' : 'Bonus'}</span></Typography>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                          <Typography fontSize={8} style={{color:"black"}}>Entry Fee: <span style={{fontSize:10,fontWeight:700}}>{e?.entryFee?.amount === 0 ? 'FREE' : e?.entryFee?.amount}</span></Typography>
+                      </Grid>
+                      
+                      <Grid item xs={12} md={6} lg={12} sx={{width:"100%"}}>
+                        <ProgressBar progress={((e?.participants?.length)/(e?.maxParticipants)*100)}/>
+                      </Grid>
+
+                      <Grid item xs={12} md={12} lg={12} display="flex" mt={1} mb={1} justifyContent="space-between" alignItems="center" alignContent="center">
+                          <MDBox color="light" p={0.5} borderRadius={4} bgColor="success" fontSize={9} display="flex" justifyContent="center">
+                              <HiUserGroup /><MDBox color="light" style={{marginLeft:2,fontWeight:700}}>Seats Left: {e?.maxParticipants-e?.participants?.length}</MDBox>
+                          </MDBox>
+                          <MDBox color="light" p={0.5} borderRadius={4} bgColor="success" fontSize={9} display="flex" justifyContent="center">
+                              <HiUserGroup /><MDBox display="flex" color="light" bgColor="success" justifyContent="center" alignContent="center" alignItems="center" style={{marginLeft:2,fontWeight:700}}>Total Seats: {e?.maxParticipants}</MDBox>
+                          </MDBox>
+                      </Grid>
+
                   </Grid>
 
-                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={13} style={{fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>Contest On: {e.contestOn}</Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={13} style={{color:"white",fontWeight:700}}>Reward Pool: {e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0).toLocaleString()}</Typography>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={12} mb={1} style={{color:"white",fontSize:10}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
-                      <span style={timerStyle}>
-                        <AvTimerIcon/><Timer targetDate={e.contestStartDate} text="Contest Started" />
-                      </span>
-                    </Grid>
-
-                    <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={8} style={{color:"white"}}>Entry Fee: <span style={{fontSize:10,fontWeight:700}}>{e?.entryFee?.amount === 0 ? 'FREE' : e?.entryFee?.amount}</span></Typography>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={6} lg={12} sx={{width:"100%"}}>
-                      <ProgressBar progress={((e?.participants?.length)/(e?.maxParticipants)*100)}/>
-                    </Grid>
-
-                    <Grid item xs={12} md={12} lg={12} display="flex" mt={1} ml={1} mr={1} justifyContent="space-between" alignItems="center" alignContent="center">
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Seats Left: {e?.maxParticipants-e?.participants?.length}</span>
-                        </MDTypography>
-                        <MDTypography color="white" fontSize={10} display="flex" justifyContent="center">
-                            <HiUserGroup /><span style={{marginLeft:2,fontWeight:700}}>Max Seat: {e?.maxParticipants}</span>
-                        </MDTypography>
-                    </Grid>
-
-                </Grid>
-                </MDButton>
-            </MDBox>
-            </Grid>
-        
-        </>
-        })}
-    </Grid>
+              </MDButton>
+              </Tooltip>
+              </MDBox>
+              </Grid>
+          
+          </>
+          })}
+        </Grid>
 
       </MDBox>
       </>

@@ -151,7 +151,7 @@ function ContestTradeView () {
         </Grid>
 
         :
-    <MDBox width="100%" bgColor="dark" color="light" p={2}>
+    <MDBox width="100%" bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10}>
       {Object.keys(contest).length !== 0 ?
         <Grid container spacing={2}>
             <Grid item xs={12} md={6} lg={6.5} mb={2}>
