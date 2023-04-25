@@ -7,15 +7,15 @@ import { Divider } from '@mui/material'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 
-function ContestRules({contest}){
+function ContestRules({contest, isDummy}){
 
 console.log(contest?.contestRule?.contestRules)
 return (
 
-<Grid item xs={12} md={6} lg={3.5} mb={2}>
+<Grid item xs={12} md={6} lg={isDummy ? 12 : 3.5} mb={2}>
                 <MDBox color="light">
 
-                    <MDTypography mb={4} color="light" display="flex" justifyContent="center">
+                    <MDTypography mb={2} color="light" display="flex" justifyContent="center">
                         Contest Rules
                     </MDTypography>
 

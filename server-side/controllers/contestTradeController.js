@@ -677,7 +677,35 @@ exports.getMyContestRank = async (req, res, next) => {
 
 exports.autoTradeContest = async(req, res, next) => {
     console.log("in autotrade")
+
     const now = new Date();
+    const twoMinutesBeforeNow = new Date(now.getTime() - 2 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
+
+
+    try {
+      const contest = await Contest.findOneAndUpdate(
+        {
+          entryClosingDate:{
+            $gte: twoMinutesBeforeNow,
+            $lte: now,
+          },
+          // 'participants.0': { $exists: true },
+          $expr: { $lt: [{$size: "$participants"}, "$minParticipants"] }
+        },
+        { status: 'Cancelled' },
+        { new: true }
+      );
+      if (contest) {
+        console.log(`Contest ${contest._id} status updated to ${contest.status}`);
+      } else {
+        console.log('No contests to update');
+      }
+    } catch (error) {
+      console.error(error.message);
+      throw error;
+    }
+    
+    // const now = new Date();
     const thirtyMinutesBeforeNow = new Date(now.getTime() - 30 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
 
     const today = new Date().toISOString().slice(0, 10);
@@ -746,6 +774,8 @@ exports.autoTradeContest = async(req, res, next) => {
       //     }
       //   );
       // })
+
+
 
       
       let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"

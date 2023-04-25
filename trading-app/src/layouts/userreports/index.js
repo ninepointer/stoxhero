@@ -1,11 +1,6 @@
 // @mui material components
 import Grid from "@mui/material/Grid";
-import Divider from "@mui/material/Divider";
 
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -16,19 +11,7 @@ import ReportsLineChart from "../../examples/Charts/LineCharts/ReportsLineChart"
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
-import ProfileInfoCard from "../../examples/Cards/InfoCards/ProfileInfoCard";
-import ProfilesList from "../../examples/Lists/ProfilesList";
-import DefaultProjectCard from "../../examples/Cards/ProjectCards/DefaultProjectCard";
 import Card from "@mui/material/Card";
-// import DataTable from '../../../examples/Tables/DataTable';
-
-// Overview page components
-// import Header from "./components/Header";
-// import PlatformSettings from "./components/PlatformSettings";
-
-// Data
-// import profilesListData from "./data/profilesListData";
 
 // Images
 import UserReportData from "./data/authorsTableData";
@@ -69,7 +52,7 @@ function UserReport() {
       overallPnl = 0;
   },[getDetails])
 
-  //console.log(getDetails)
+  console.log(getDetails)
 
   function startDate(e){
     e.preventDefault();
@@ -105,7 +88,7 @@ function UserReport() {
   // gettraderreportdatewise
 
   function pnlCalculation(firstDate, secondDate){
-    axios.get(`${baseUrl}api/v1/${url}/${getDetails.userDetails.email}/${firstDate}/${secondDate}`)
+    axios.get(`${baseUrl}api/v1/${url}/${getDetails?.userDetails?.email}/${firstDate}/${secondDate}`)
     .then((res) => {
       let data = res.data;
       let hash = new Map();
@@ -141,7 +124,7 @@ function UserReport() {
 
               }
           } else {
-              if (data[i]._id.buyOrSell === "BUY") {
+              if (data[i]?._id?.buyOrSell === "BUY") {
                   hash.set(data[i]._id.date, {
                       totalBuy: Number(data[i].amount),
                       totalBuyLot: (Number(data[i].lots)),
@@ -151,7 +134,7 @@ function UserReport() {
                       brokerage: data[i].brokerage,
                       noOfTrade: data[i].noOfTrade,
                   })
-              } if (data[i]._id.buyOrSell === "SELL") {
+              } if (data[i]?._id?.buyOrSell === "SELL") {
                   hash.set(data[i]._id.date, {
                       totalSell: Number(data[i].amount),
                       totalSellLot: (Number(data[i].lots)),
@@ -168,19 +151,19 @@ function UserReport() {
       //console.log(hash)
       
       let pnlArr = []
-      for (let value of hash.values()) {
-        pnlArr.push(value);
+      for (let value of hash?.values()) {
+        pnlArr?.push(value);
       }
 
       setOverallPnl(pnlArr)
 
       //console.log(overallPnl)
 
-      pnlArr.map((elem, index) => {
+      pnlArr?.map((elem, index) => {
 
-        totalPnl += (elem.totalBuy + elem.totalSell)
-        totalTransactionCost += elem.brokerage;
-        totalTrade += elem.noOfTrade
+        totalPnl += (elem?.totalBuy + elem?.totalSell)
+        totalTransactionCost += elem?.brokerage;
+        totalTrade += elem?.noOfTrade
         totalTradingDays += 1
       })
       setPnl(totalPnl); setCost(totalTransactionCost); setTrade(totalTrade); setTradingDay(totalTradingDays)
@@ -215,12 +198,12 @@ function UserReport() {
   let graphtradesarray = []
   let graphdatearrayday = [];
 
-  overallPnl.map((elem)=>{
+  overallPnl?.map((elem)=>{
     let obj={}
-    let updatedValue = (-(elem.totalBuy+elem.totalSell));
+    let updatedValue = (-(elem?.totalBuy+elem?.totalSell));
     let newDate = (elem.date).split("-");
-    const gpnlcolor = -(elem.totalBuy+elem.totalSell) >= 0 ? "success" : "error"
-    const npnlcolor = -((elem.totalBuy+elem.totalSell)-(elem.brokerage)) >= 0 ? "success" : "error"
+    const gpnlcolor = -(elem?.totalBuy+elem?.totalSell) >= 0 ? "success" : "error"
+    const npnlcolor = -((elem?.totalBuy+elem?.totalSell)-(elem?.brokerage)) >= 0 ? "success" : "error"
     obj.name = (
       <MDTypography component="a" variant="caption"  fontWeight="medium">
         {getDetails.userDetails.name}
@@ -258,11 +241,11 @@ function UserReport() {
       </MDTypography>
     );
 
-    graphdatearray.push(elem.date);
-    graphbrokeragearray.push(elem.brokerage.toFixed(0));
-    graphnpnlarray.push(((updatedValue)-(elem.brokerage)).toFixed(0));
-    graphgpnlarray.push(updatedValue.toFixed(0));
-    graphtradesarray.push(elem.noOfTrade);
+    graphdatearray?.push(elem.date);
+    graphbrokeragearray?.push(elem.brokerage.toFixed(0));
+    graphnpnlarray?.push(((updatedValue)-(elem.brokerage)).toFixed(0));
+    graphgpnlarray?.push(updatedValue.toFixed(0));
+    graphtradesarray?.push(elem.noOfTrade);
 
     
     // graphdatearray.map((elem)=>{
@@ -270,7 +253,7 @@ function UserReport() {
     //   graphdatearrayday.push(elem.slice(0,2));
     // })
 
-    rows.push(obj);
+    rows?.push(obj);
     
   })
 

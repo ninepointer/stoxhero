@@ -28,6 +28,10 @@ import FastRewindIcon from '@mui/icons-material/FastRewind';
 import Button from '@mui/material/Button'
 // import UsedPortfolio from './PnL/UsedPortfolio';
 import { userContext } from '../../../../AuthContext';
+import winnerCup from "../../../../assets/images/winnerImage.jpg"
+import loose from "../../../../assets/images/lost.jpg"
+import { CircularProgress } from "@mui/material";
+
 
 
 
@@ -41,6 +45,7 @@ function ContestResultPage () {
     // const  isDummy  = location?.state?.isDummy;
     // const redirect = useRef(true);
     const nevigate = useNavigate();
+    const [isLoading,setIsLoading] = useState(true)
     const isFromResult = true
     const  isDummy  = false
 
@@ -48,7 +53,7 @@ function ContestResultPage () {
       textAlign: "center", 
       fontSize: ".99rem", 
       color: "#003366", 
-      backgroundColor: "#CCCCCC", 
+      backgroundColor: "white", 
       borderRadius: "5px", 
       padding: "5px",  
       fontWeight: "600",
@@ -65,24 +70,11 @@ function ContestResultPage () {
       .then((res)=>{
               setContest(res?.data?.data);
               console.log(res?.data?.data)
+              setIsLoading(false)
       }).catch((err)=>{
           return new Error(err);
       })
 
-      // axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/myrank`, {
-      //   withCredentials: true,
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //     "Access-Control-Allow-Credentials": true
-      //   },
-      // })
-      // .then((res)=>{
-      //   setMyRank(res?.data?.data);
-      //   console.log(res)
-      // }).catch((err)=>{
-      //    return new Error(err);
-      // })
 
     },[])
 
@@ -102,44 +94,85 @@ function ContestResultPage () {
   
 
     return (
-    <MDBox key={contest?._id} width="100%" bgColor="dark" color="light" p={2}>
-        <Grid container spacing={2}>
-        <Grid item xs={12} md={6} lg={6.5} mb={2}>
-                <MDBox color="light" >
-                  <MDBox display="flex" alignItems= "center" gap={"130px"} mb={1} >
-                    <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{nevigate('/battleground')}}>< FastRewindIcon/></Button>
-                    <MDTypography mt={1.5} color="light"  style={{fontWeight:700, filter: isDummy && 'blur(2px)'}}>
-                        {contest?.contestName}
-                    </MDTypography>
-                  </MDBox>
-
-                  <MDTypography style={style} mt={1.5} color="light" display="flex" justifyContent="center">
-                        Contest Ended
-                  </MDTypography>
-
-                  <MDTypography  mt={8}  style={{fontWeight:500}} color="light" display="flex" justifyContent="center">
-                        {(myReward?.length && myReward[0]?.reward) && `Congratulation's ${getDetails?.userDetails?.name} you have won`}
-                  </MDTypography>
-                  <MDTypography  mt={3}  style={{fontWeight:700}} color="light" display="flex" justifyContent="center">
-                        {(myReward?.length && myReward[0]?.reward) && `${myReward[0]?.reward} ${myReward[0]?.currency}`}
-                  </MDTypography>
-
-                  <MDTypography  mt={4}  style={{fontWeight:600}} color="light" display="flex" justifyContent="center">
-                        Practice and learn with stoxhero and earn more.
-                  </MDTypography>
-                  
-
-                </MDBox>
-            </Grid>
-
-            <Grid item xs={0} md={0} lg={0.5}>
-                <Divider orientation="vertical" style={{backgroundColor: 'white', height: '100%'}} />
-            </Grid>
-            {memoizedTradersRankingForHistory}
-
-
+      <>
+      {isLoading ?
+        <Grid mt={1} mb={1} display="flex" width="100%" justifyContent="center" alignItems="center">
+            <CircularProgress color="light" />
         </Grid>
-    </MDBox>
+
+        :
+      <MDBox key={contest?._id} width="100%" bgColor="dark" color="light" p={2}>
+          <Grid container spacing={2}>
+          <Grid item xs={12} md={6} lg={6.5} mb={2}>
+                  <MDBox color="light" >
+                    <MDBox display="flex" alignItems= "center" gap={"130px"} mb={1} >
+                      <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{nevigate('/battleground')}}>< FastRewindIcon/></Button>
+                      <MDTypography mt={1.5} color="light"  style={{fontWeight:700, filter: isDummy && 'blur(2px)'}}>
+                          {contest?.contestName}
+                      </MDTypography>
+                    </MDBox>
+
+                    <MDTypography style={style} mt={1.5} color="light" display="flex" justifyContent="center">
+                          Contest Ended
+                    </MDTypography>
+
+                    {/* <img style={{ marginTop: "10px",  maxWidth: '100%', height: 'auto', borderRadius: "5px" }} src={winnerCup} />
+
+                    <MDTypography  mt={8}  style={{fontWeight:500}} color="light" display="flex" justifyContent="center">
+                          {(myReward?.length && myReward[0]?.reward) && `Congratulation's ${getDetails?.userDetails?.name} you have won`}
+                    </MDTypography>
+                    <MDTypography  mt={3}  style={{fontWeight:700}} color="light" display="flex" justifyContent="center">
+                          {(myReward?.length && myReward[0]?.reward) && `${myReward[0]?.reward} ${myReward[0]?.currency}`}
+                    </MDTypography> */}
+
+                    {(myReward?.length && myReward[0]?.reward) ?
+                    <div style={{position: 'relative'}}>
+                      <img style={{marginTop: '10px', maxWidth: '100%', height: 'auto', borderRadius: '5px', display: 'block'}} src={winnerCup} />
+                      <div style={{position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px'}}>
+                        <MDTypography mt={5} style={{fontWeight: 700, fontSize: "15px"}} color="dark" display="flex" justifyContent="center">
+                          {(myReward?.length && myReward[0]?.reward) && `Congratulations ${getDetails?.userDetails?.employeeid}`}
+                        </MDTypography>
+                        <MDTypography mt={2} style={{fontWeight: 600, fontSize: "13px"}} color="dark" display="flex" justifyContent="center">
+                          {(myReward?.length && myReward[0]?.reward) && `Your rank is ${rank} and you have won`}
+                        </MDTypography>
+                        <MDTypography mt={2} style={{fontWeight: 700}} color="dark" display="flex" justifyContent="center">
+                          {(myReward?.length && myReward[0]?.reward) && `${myReward[0]?.reward} ${myReward[0]?.currency}`}
+                        </MDTypography>
+                      </div>
+                    </div>
+                    :
+                    <div style={{position: 'relative'}}>
+                    <img style={{marginTop: '10px', maxWidth: '100%', height: 'auto', borderRadius: '5px', display: 'block'}} src={loose} />
+                    <div style={{position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px'}}>
+                      <MDTypography mb={3.5} style={{fontWeight: 700, fontSize: "15px"}} color="dark" display="flex" justifyContent="center">
+                        {`Hey ${getDetails?.userDetails?.employeeid}, Your rank is ${rank}`}
+                      </MDTypography>
+                      {/* <MDTypography style={{fontWeight: 600, fontSize: "13px"}} color="dark" display="flex" justifyContent="center">
+                        {`Your rank is ${rank}`}
+                      </MDTypography> */}
+
+                    </div>
+                    <MDTypography   style={{fontWeight:600}} color="light" display="flex" justifyContent="center">
+                          Practice and learn more with stoxhero and earn.
+                      </MDTypography>
+                  </div>
+
+                    }
+                    
+
+                  </MDBox>
+              </Grid>
+
+              <Grid item xs={0} md={0} lg={0.5}>
+                  <Divider orientation="vertical" style={{backgroundColor: 'white', height: '100%'}} />
+              </Grid>
+              {memoizedTradersRankingForHistory}
+
+
+          </Grid>
+      </MDBox>
+        }
+        </>
   )
 
 }

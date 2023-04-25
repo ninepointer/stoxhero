@@ -33,7 +33,7 @@ exports.createContest = async(req, res, next)=>{
 exports.getContests = async(req, res, next)=>{
     console.log("inside getContests")
     try{
-        const contests = await Contest.find().populate('contestRule','ruleName');
+        const contests = await Contest.find({status: "Live"}).populate('contestRule','ruleName');
         
         res.status(201).json({status: 'success', data: contests, results: contests.length});    
     }catch(e){
@@ -57,17 +57,17 @@ exports.getActiveContests = async(req, res, next)=>{
         
 };
 
-exports.getContest = async(req, res, next)=>{
+// exports.getContest = async(req, res, next)=>{
     
-    const id = req.params.id ? req.params.id : '';
-    try{
-    const contest = await Contest.findById(id).populate('contestRule','ruleName')
-    .populate('lastModifiedBy', { first_name: 1, last_name: 1 });
+//     const id = req.params.id ? req.params.id : '';
+//     try{
+//     const contest = await Contest.findById(id).populate('contestRule','ruleName')
+//     .populate('lastModifiedBy', { first_name: 1, last_name: 1 });
 
-    res.status(201).json({message: "Contest Retrived",data: contest});    
-    }
-    catch{(err)=>{res.status(401).json({message: "New Contest", error:err}); }}  
-};
+//     res.status(201).json({message: "Contest Retrived",data: contest});    
+//     }
+//     catch{(err)=>{res.status(401).json({message: "New Contest", error:err}); }}  
+// };
 
 exports.editContest = async(req, res, next) => {
     const id = req.params.id;
@@ -213,22 +213,26 @@ exports.joinContest = async(req, res, next) => {
 exports.getContest = async (req,res,next) => {
     console.log("inside getContest")
     const {id} = req.params;
-    try{
-        const contest = await Contest.findById(id)
+    try {
+        const contest = await Contest.findOne({
+          _id: id,
+          status: "Live"
+        })
         .populate('contestRule', { ruleName: 1, contestRules: 1 })
-        .populate('participants.userId','first_name')
-        .populate('participants.portfolioId','portfolioName')
+        .populate('participants.userId', 'first_name')
+        .populate('participants.portfolioId', 'portfolioName')
         .populate('lastModifiedBy', { first_name: 1, last_name: 1 })
         .populate('createdBy', { first_name: 1, last_name: 1 });
-        if(!contest){
-            return res.status(404).json({status: 'error', message: 'Contest not found.'});
+        console.log("contest", contest)
+        if (!contest) {
+            console.log("in if of contest")
+          return res.status(200).json({ status: 'success', message: 'Contest not found.', data: {} });
         }
-        return res.status(200).json({status: 'success', message:'Successful', data:contest});
-
-    }catch(e){
+        return res.status(200).json({ status: 'success', message: 'Successful', data: contest });
+      } catch (e) {
         console.log(e);
-        res.status(500).json({status: 'error', message: 'Something went wrong'});
-    }
+        res.status(500).json({ status: 'error', message: 'Something went wrong' });
+      }
 }
 
 exports.myContests = async(req,res,next) => {
@@ -274,6 +278,19 @@ exports.myPortfolio = async(req,res,next) => {
         }
 
         res.status(200).json({status: 'success', data: myContests, results: myContests.length});
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+}
+
+exports.getTimeForSync = async(req,res,next) => {
+    try{
+        let now = new Date();
+        let minus5Hours30Minutes = 5.5 * 60 * 60 * 1000;
+        let dateTimeMinus5Hours30Minutes = new Date(now - minus5Hours30Minutes);
+        res.status(200).json({status: 'success', data: dateTimeMinus5Hours30Minutes});
 
     }catch(e){
         console.log(e);

@@ -12,6 +12,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
@@ -34,6 +35,7 @@ import MyContestHistoryCard from "./layouts/UserContest/data/MyContestHistoryCar
 import ContestHistory from "./layouts/UserContest/ContestHistory";
 import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
 import FAQs from "./layouts/FAQs";
+import UserWallet from "./layouts/userWallet"
 
 const routes = [
 
@@ -66,9 +68,9 @@ const routes = [
   {
     type: "collapse",
     name: "Battle Ground",
-    key: "battleground",
+    key: "BattleGround",
     icon: <StadiumIcon/>,
-    route: "/battleground",
+    route: "/BattleGround",
     component: <UserContest />,
   },
   {
@@ -129,11 +131,11 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Trades",
-    key: "orders",
+    name: "Orders",
+    key: "Orders",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <ReorderIcon/>,
-    route: "/orders",
+    route: "/Orders",
     component: <UserOrders />,
   },
   {
@@ -147,10 +149,10 @@ const routes = [
   {
     type: "collapse",
     name: "Analytics",
-    key: "userreport",
+    key: "Analytics",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <AnalyticsIcon/>,
-    route: "/userreport",
+    route: "/Analytics",
     component: <UserReport />,
   },
   // {
@@ -168,6 +170,14 @@ const routes = [
     icon: <BusinessCenterIcon/>,
     route: "/portfolio",
     component: <MyPortfolio />,
+  },
+  {
+    type: "collapse",
+    name: "Wallet",
+    key: "Wallet",
+    icon: <AccountBalanceWalletIcon/>,
+    route: "/Wallet",
+    component: <UserWallet />,
   },
   {
     type: "collapse",
