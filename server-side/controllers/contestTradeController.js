@@ -957,7 +957,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       let dummyTesting = false;
       if(dummyTesting){
         let filteredTicks = getFilteredTicks();
-        console.log('filtered ticks received', filteredTicks);
+        // console.log('filtered ticks received', filteredTicks);
         if(filteredTicks.length > 0){
           for (tick of filteredTicks){
             livePrices[tick.instrument_token] = tick.last_price;
@@ -1073,7 +1073,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
             }
           },
         ]);
-        console.log("ranks from db", ranks)
+        // console.log("ranks from db", ranks)
         await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
 
       }
@@ -1106,7 +1106,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
         return acc;
       }, {}));
 
-      console.log("rsult", result)
+      // console.log("rsult", result)
       for (rank of result){
         // console.log(rank);
         // console.log(`leaderboard${id}`);
@@ -1123,7 +1123,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = await formatData(leaderBoard)
 
-      console.log("formattedLeaderboard", leaderBoard, formattedLeaderboard)
+      // console.log("formattedLeaderboard", leaderBoard, formattedLeaderboard)
       return res.status(200).json({
         status: 'success',
         results: formattedLeaderboard.length,
