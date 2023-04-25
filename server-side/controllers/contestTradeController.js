@@ -1118,7 +1118,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       }
       
       // await pipeline.exec();
-      await client.expire(`leaderboard:${id}`,10);
+      await client.expire(`leaderboard:${id}`,1);
 
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = await formatData(leaderBoard)
