@@ -54,9 +54,18 @@ exports.fundCheck = async(req, res, next) => {
                 "trigger_price": 0
             }]
             let userFunds;
-            try{
-                const user = await UserDetail.findOne({email: userId});
-                userFunds = user.fund;
+            try{ //portfolioType
+                if(req.user.isAlgoTrader){
+                    const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Equity Trading"});
+                    userFunds = myPortfolios.portfolioValue;
+                } else{
+                    // console.log("in userfund if")
+                    const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
+                    // console.log(myPortfolios)
+                    userFunds = myPortfolios.portfolioValue;
+                }
+                // const user = await UserDetail.findOne({email: userId});
+                // userFunds = user.fund;
             }catch(e){
                 console.log("errro fetching user", e);
             }
@@ -126,13 +135,23 @@ exports.fundCheck = async(req, res, next) => {
 
 
             //TODO: get user pnl data and replace 0 with the value 
-
+            // let date = new Date();
+            let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+            let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+            let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}`
+            let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}`
+            console.log(firstDayOfMonthDate, lastDayOfMonthDate)
             let pnlDetails = await MockTrade.aggregate([
                 {
                 $match:
                     {
-                    userId: userId,
-                    status: "COMPLETE",
+                        trade_time: {
+                            $gte: (firstDayOfMonthDate),
+                            $lt: (lastDayOfMonthDate)
+                          },
+                        userId: userId,
+                        status: "COMPLETE",
                     },
                 },
                 {
@@ -164,7 +183,7 @@ exports.fundCheck = async(req, res, next) => {
                 },
             ])
 
-
+            console.log("pnlDetails", pnlDetails)
             let userNetPnl = pnlDetails[0]?.npnl;
             console.log( userFunds , userNetPnl , zerodhaMargin)
             console.log((userFunds + userNetPnl - zerodhaMargin))
