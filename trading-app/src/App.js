@@ -259,7 +259,7 @@ export default function App() {
           <Route path="/" element={<SignIn />} />
           :
           pathname == "/" || !pathname ?
-          <Route path="/" element={<Navigate to="/Position" />} />
+          <Route path="/" element={<Navigate to="/PaperTrading" />} />
           :
           <Route path="/" element={<Navigate to={pathname} />} />
           }
