@@ -86,7 +86,7 @@ router.get("/contestInstrument/:id", async (req, res) => {
       console.error(error);
       return res.status(500).send("Internal server error");
     }
-  });
+});
 
 router.get("/readInstrumentDetails", (req, res)=>{
     Instrument.find((err, data)=>{

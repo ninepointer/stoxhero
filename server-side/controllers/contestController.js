@@ -110,7 +110,7 @@ exports.updateStatus = async(req, res, next) => {
 
 exports.joinContest = async(req, res, next) => {
     const userId = req.user._id;
-    const employeeid = req.user.employeeid;
+    // const employeeid = req.user.employeeid;
     const contestId = req.params.id;
     const {paymentId, portfolioId} = req.body;
     console.log(req.body, contestId)
@@ -193,7 +193,7 @@ exports.joinContest = async(req, res, next) => {
         // }
         
         // console.log("in 6st", {userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined"})
-        contest.participants.push({userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined", employeeid});
+        contest.participants.push({userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined"});
         await contest.save({validateBeforeSave: false});
         const user = await User.findById(userId);
         user.contests.push(contest._id);
@@ -289,7 +289,7 @@ exports.getTimeForSync = async(req,res,next) => {
     try{
         let now = new Date();
         let minus5Hours30Minutes = 5.5 * 60 * 60 * 1000;
-        let dateTimeMinus5Hours30Minutes = new Date(now - minus5Hours30Minutes);
+        let dateTimeMinus5Hours30Minutes = new Date(now + minus5Hours30Minutes);
         res.status(200).json({status: 'success', data: dateTimeMinus5Hours30Minutes});
 
     }catch(e){

@@ -137,7 +137,7 @@ const MyContestHistoryCard = () => {
                     </Grid>
                     
                     <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
-                        <Typography fontSize={13} style={{fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>Contest On: {e.contestOn}</Typography>
+                        <Typography fontSize={13} style={{fontWeight:700,borderRadius:3,paddingLeft:4,paddingRight:4}}>Battle On: {e.contestOn}</Typography>
                     </Grid>
                     
                     <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">

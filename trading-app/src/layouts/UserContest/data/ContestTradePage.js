@@ -141,7 +141,7 @@ function ContestTradeView () {
     }, [socket, render, contestId, portfolioId, isFromHistory]);
 
 
-    console.log("contest", contest, Boolean(contest))
+    // console.log("contest", contest, Boolean(contest))
 
     return (
       <>
@@ -162,20 +162,20 @@ function ContestTradeView () {
                         {contest?.contestName}
                     </MDTypography>
                     <MDTypography mt={1.5} color="light"  style={{fontWeight:600, fontSize: "10px"}}>
-                        Contest On: {contest?.contestOn}
+                        Battle On: {contest?.contestOn}
                     </MDTypography>
                   </MDBox>
 
                   {isDummy && !isFromHistory ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
-                          Contest is Starts in:
+                          Battle is Starts in:
                         </span> 
                         <div style={style} >
                           <AvTimerIcon/>
                           <Timer 
                             targetDate={contest?.contestStartDate} 
-                            text="Contest Started"
+                            text="Battle Started"
                             contestId={contestId}
                             portfolioId={portfolioId}
                             isDummy={isDummy}
@@ -190,13 +190,13 @@ function ContestTradeView () {
                       !isFromHistory &&
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                       <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
-                        Contest Ends in:
+                        Battle Ends in:
                       </span> 
                       <div style={style} >
                         <AvTimerIcon/>
                         <Timer 
                           targetDate={contest?.contestEndDate} 
-                          text="Contest Ends"
+                          text="Battle Ends"
                           contestId={contestId}
                           portfolioId={portfolioId}
                           isDummy={isDummy}

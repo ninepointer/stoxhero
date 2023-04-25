@@ -123,7 +123,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}
     }else{
         // setNextPage(false)
         // window.alert("entry succesfull");
-        openSuccessSB("Great",`You have successfully registered for the contest ${contestName}`, "SUCCESS")
+        openSuccessSB("Great",`You have successfully registered for the battle ${contestName}`, "SUCCESS")
         
         console.log("entry succesfull");
         setButtonClicked(true);
@@ -277,7 +277,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">You do not have any portfolio to join the contest</MDTypography>
+            <MDTypography color="light">You do not have any portfolio to join the battle</MDTypography>
           </Grid>
          </Grid>
          } 

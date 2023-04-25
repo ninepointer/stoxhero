@@ -32,7 +32,7 @@ return (
                            <MDTypography color="light" fontSize={15}>Prize Amount</MDTypography>
                         </Grid>
 
-                        {contest?.rewards.length === 0 ?
+                        {contest?.rewards?.length === 0 ?
                                
                                   <>
                                     <Grid item xs={12} md={6} lg={12} mt={-2} ml={2} mr={1}>

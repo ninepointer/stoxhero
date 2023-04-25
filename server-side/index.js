@@ -51,7 +51,7 @@ getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
   // redis connection
-  client.connect();
+  await client.connect();
 
 
   io.on("connection", (socket) => {

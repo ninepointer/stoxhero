@@ -24,7 +24,7 @@ import UserContest from "./layouts/UserContest"
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
-import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
+// import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
 import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
 import Home from './layouts/UserHome'
