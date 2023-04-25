@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../components/MDTypography'
-// import MDButton from '../../../components/MDButton'
+import MDButton from '../../../components/MDButton'
 // import Logo from '../../../assets/images/logo1.jpeg'
 import { Divider } from '@mui/material'
 // import { HiUserGroup } from 'react-icons/hi';
@@ -25,21 +25,27 @@ import FastRewindIcon from '@mui/icons-material/FastRewind';
 import Button from '@mui/material/Button'
 import UsedPortfolio from './PnL/UsedPortfolio';
 import Margin from './marginDetails/margin';
+import cancelledImage from "../../../assets/images/cancelled.jpg"
+import ContestRules from './ContestRules';
+import PrizeDistribution from './PrizeDistribution';
+import { CircularProgress } from "@mui/material";
+
+
 
 
 
 function ContestTradeView () {
-    const [contest,setContest] = useState();
+    const [contest,setContest] = useState({});
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
     const  portfolioId  = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
     const minEntry = location?.state?.minEntry
     const entry = location?.state?.entry
-    const  isDummy  = location?.state?.isDummy;
-    const isContestCancelled = location?.state?.isContestCancelled;
+    const isDummy = location?.state?.isDummy
     const redirect = useRef(true);
-    const nevigate = useNavigate();
+    const navigate = useNavigate();
+    const [isLoading,setIsLoading] = useState(true)
 
     const [render, setReRender] = useState(true);
     let style = {
@@ -86,16 +92,17 @@ function ContestTradeView () {
     }, [])
 
     React.useEffect(()=>{
-      
+      console.log("contest useEffect")
       axios.get(`${baseUrl}api/v1/contest/${contestId}`)
       .then((res)=>{
               setContest(res?.data?.data);
               console.log(res?.data?.data)
+              setIsLoading(false)
       }).catch((err)=>{
           return new Error(err);
       })
 
-    },[])
+    },[isDummy])
 
     const memoizedMargin = useMemo(() => {
       return <Margin portfolioId={portfolioId} />;
@@ -134,24 +141,32 @@ function ContestTradeView () {
     }, [socket, render, contestId, portfolioId, isFromHistory]);
 
 
+    console.log("contest", contest, Boolean(contest))
+
     return (
-    <MDBox key={contest?._id} width="100%" bgColor="dark" color="light" p={2}>
+      <>
+      {isLoading ?
+        <Grid mt={1} mb={1} display="flex" width="100%" justifyContent="center" alignItems="center">
+            <CircularProgress color="light" />
+        </Grid>
+
+        :
+    <MDBox width="100%" bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10}>
+      {Object.keys(contest).length !== 0 ?
         <Grid container spacing={2}>
-        {/* display="flex" justifyContent="flexEnd" display="flex" justifyContent="center"*/}
-        <Grid item xs={12} md={6} lg={6.5} mb={2}>
+            <Grid item xs={12} md={6} lg={6.5} mb={2}>
                 <MDBox color="light" >
                   <MDBox display="flex" alignItems="center" mb={1} justifyContent="space-between">
-                    <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{nevigate('/battleground')}}>< FastRewindIcon/></Button>
+                    <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{navigate('/battleground')}}>< FastRewindIcon/></Button>
                     <MDTypography mt={1.5} color="light"  style={{fontWeight:700, filter: isDummy && 'blur(2px)'}}>
                         {contest?.contestName}
                     </MDTypography>
-                    <MDTypography mt={1.5} color="light"  style={{fontWeight:600, fontSize: "10px", filter: isDummy && 'blur(2px)'}}>
+                    <MDTypography mt={1.5} color="light"  style={{fontWeight:600, fontSize: "10px"}}>
                         Contest On: {contest?.contestOn}
                     </MDTypography>
                   </MDBox>
 
-                  {!isContestCancelled ?
-                    isDummy && !isFromHistory ?
+                  {isDummy && !isFromHistory ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
                           Contest is Starts in:
@@ -193,13 +208,7 @@ function ContestTradeView () {
                       </div>
                       </Grid>
 
-                      :
 
-                      <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
-                        <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
-                        Contest is canceled due to minimum participant quota was not fulfilled.
-                        </span> 
-                      </Grid>
                   }
                     
                     {!isDummy ?
@@ -212,8 +221,12 @@ function ContestTradeView () {
                     </>
                     :
                     <>
-                    <DummyInstrument />
-                    <DummyPnl />
+                    {/* <DummyInstrument />
+                    <DummyPnl /> */}
+                     <Grid item xs={12} md={6} lg={12} mb={2} mt={4}>
+                      <PrizeDistribution contest={contest} isDummy={isDummy}/>
+                      <ContestRules contest={contest} isDummy={isDummy}/>
+                    </Grid>
 
                     </>
                     }
@@ -233,7 +246,39 @@ function ContestTradeView () {
 
 
         </Grid>
+        
+        :
+
+        <div style={{display: "flex", justifyContent: "space-between"}}>
+        <img style={{marginTop: '10px', maxWidth: '50%', height: '30%', borderRadius: '5px', display: 'block'}} src={cancelledImage} />
+        <div style={{color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px'}}>
+          <MDTypography mt={5} style={{fontWeight: 700, fontSize: "15px"}} color="light">
+              Battle was cancelled as minimum participant quota was not fulfilled.         
+           </MDTypography>
+          <MDTypography mt={2} style={{fontWeight: 600, fontSize: "13px"}} color="light">
+            But dont worry you can participate in other battles          
+          </MDTypography>
+          <MDButton mt={2} onClick={()=>{navigate("/battleground")}} color="light">
+            Join other battles
+          </MDButton>
+        </div>
+      </div>
+
+        // <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} alignItems="center" alignContent="center">
+        //   <div style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+        //   Battle was cancelled as minimum participant quota was not fulfilled.
+        //   </div>  display="flex" justifyContent="center"
+//  display="flex" justifyContent="center"
+//  display="flex" justifyContent="center"
+        //   <div style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+        //   But dont worry you can participate in other battles
+        //   </div> 
+        // </Grid>
+        
+        }
     </MDBox>
+      }
+      </>
   )
 
 }
