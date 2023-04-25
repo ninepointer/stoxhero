@@ -7,14 +7,14 @@ import { Divider } from '@mui/material'
 import Prize from '../../../assets/images/prize.png'
 
 
-function PrizeDistribution({contest}){
+function PrizeDistribution({contest, isDummy}){
 
 
 return (
-        <Grid item xs={12} md={6} lg={3} mb={2}>
+        <Grid item xs={12} md={6} lg={isDummy ? 12 : 3} mb={2}>
                 <MDBox color="light">
 
-                    <MDTypography mb={4} color="light" display="flex" justifyContent="center">
+                    <MDTypography mb={2} color="light" display="flex" justifyContent="center">
                         Prize Distribution
                     </MDTypography>
 
