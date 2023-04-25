@@ -12,6 +12,7 @@ const Referral = require("../../models/campaigns/referralProgram");
 const Lead = require("../../models/leads/leads");
 const MarginAllocation = require("../../models/marginAllocation/marginAllocationSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
+const UserWallet = require("../../models/UserWallet/userWalletSchema")
 
 router.post("/signup", async (req, res)=>{
     console.log("Inside SignUp Routes")
@@ -315,6 +316,16 @@ router.patch("/verifyotp", async (req, res)=>{
         
         // console.log("Margin Allcoation Data: ",marginAllocation)
 
+        let userWallet = await UserWallet.create(
+            {
+                userId: newuser._id,
+                createdOn: new Date(),
+                createdBy:newuser._id
+            })
+        
+        console.log("User Wallet Created: ",userWallet)
+
+        console.log("referralProgramme", referralProgramme);
         // console.log("referralProgramme", referralProgramme);
 
         if(!newuser) return res.status(400).json({message: 'Something went wrong'});

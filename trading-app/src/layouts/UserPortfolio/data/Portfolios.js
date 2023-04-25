@@ -3,8 +3,11 @@ import Grid from "@mui/material/Grid";
 import axios from "axios";
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
+import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
+import money from "../../../assets/images/money.png"
+import link from "../../../assets/images/link.png"
 
 
 const MyPortfolioCard = ({type}) => {
@@ -57,7 +60,7 @@ const MyPortfolioCard = ({type}) => {
     return (
       <>
       {myPortfolio.length > 0 ?
-          <MDBox bgColor="light" minWidth="100%" minHeight='auto'>
+          <MDBox>
             <Grid container spacing={2}>
               {myPortfolio?.map((e)=>{
                   let portfolio = portfolioPnl.filter((elem)=>{
@@ -65,38 +68,56 @@ const MyPortfolioCard = ({type}) => {
                   })
 
                   let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
-                  // if(e.portfolioType == type){
+                  if(e?.portfolioType === type){
                     return (
                       
                       <Grid key={e._id} item xs={12} md={6} lg={6} >
-                      <MDBox bgColor='light' padding={0} style={{borderRadius:4, ml: "1000px"}}>
-                      <MDButton variant="contained" color={"dark"} size="small" 
-                        sx={{width: "80%"}}
-                      >
+                      <MDBox padding={0} style={{borderRadius:4}}>
+                      <MDButton variant="contained" color={"light"} size="small" >
                           <Grid container>
                               
-                              <Grid item xs={12} md={6} lg={12} mt={1} mb={2} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={15} style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4}}>{e?.portfolioName}</MDTypography>
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDBox>
+                                    <MDTypography fontSize={20} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>{e?.portfolioName}</MDTypography>
+                                    {e?.portfolioType === 'Battle' ? <MDBox display="flex" alignContent="center" alignItems="center" size="small">
+                                    <MDAvatar src={link} size="sm" display="flex" justifyContent="left"/>
+                                    <MDTypography fontSize={10} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio linked to Battle: 'Add Battle Name Here'</MDTypography>
+                                    </MDBox>
+                                    :
+                                    ''}
+                                  </MDBox>
                               </Grid>
                               
-                              <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={15} style={{color:"white"}}>Portfolio Value: <span>₹{(e?.portfolioValue).toLocaleString()}</span> </MDTypography>
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDAvatar src={money} size="xl" display="flex" justifyContent="left"/>
+                                  <MDBox ml={2} display="flex" flexDirection="column">
+                                  <MDTypography fontSize={15} display="flex" justifyContent="left" style={{color:"black"}}>Portfolio Value</MDTypography>
+                                  <MDTypography fontSize={15} display="flex" justifyContent="left" style={{color:"black"}}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.portfolioValue)}</MDTypography>
+                                  </MDBox>
                               </Grid>
       
-                              <Grid item xs={12} md={6} lg={12} style={{fontWeight:1000}} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={15} style={{color:"white"}}>Current Value: <span>₹{netPnl ? (e?.portfolioValue + netPnl).toFixed(0): e?.portfolioValue.toFixed(0)}</span> </MDTypography>
+                              <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>Invested Amount</MDTypography>
+                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>NA</MDTypography>
+                                  </MDBox>
                               </Grid>
-      
-                              {/* <Grid item xs={12} md={6} lg={12} mb={2} display="flex" justifyContent="center">
-                                  <MDTypography fontSize={15} style={{color:"white",fontWeight:800}}>₹{(e?.portfolioValue).toLocaleString()}</MDTypography>
-                              </Grid> */}
-      
+
+                              <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="right" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>Cash Balance</MDTypography>
+                                  <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(netPnl ? (e?.portfolioValue + netPnl).toFixed(0): e?.portfolioValue.toFixed(0))}
+                                  </MDTypography>
+                                  </MDBox>
+                              </Grid>
+
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Portfolio Type <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioType}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Type <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioType}</span></MDTypography>
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Portfolio Account <span style={{fontSize:11,fontWeight:700}}>{e.portfolioAccount}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Account <span style={{fontSize:11,fontWeight:700}}>{e.portfolioAccount}</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -105,7 +126,7 @@ const MyPortfolioCard = ({type}) => {
                       </Grid>
                       
                     )
-                  // }
+                  }
                 // let color = (myPortfolio === e._id) ? "warning" : "light";
               })
               }
