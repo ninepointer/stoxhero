@@ -20,6 +20,7 @@ import { CircularProgress } from "@mui/material";
 import Logo from "../../../assets/images/logo1.jpeg"
 import nifty from "../../../assets/images/nifty.png"
 import banknifty from "../../../assets/images/banknifty.png"
+import upcoming from "../../../assets/images/upcoming.png"
 
   
 
@@ -128,6 +129,7 @@ const ContestCard = () => {
       </>
       :
       <>
+      {contestData.length > 0 ? 
       <MDBox minWidth="100%" minHeight='auto'>
         
         <Grid container spacing={2}>
@@ -202,6 +204,18 @@ const ContestCard = () => {
         </Grid>
 
       </MDBox>
+      :
+      <MDBox style={{border:'1px solid white', borderRadius:5, minHeight:'20vh'}}>
+        <Grid container>
+          <Grid item xs={12} md={6} lg={12}>
+            <MDBox style={{minHeight:"20vh"}} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+            <img src={upcoming} width={50} height={50}/>
+            <MDTypography color="light" fontSize={15}>Keep watching this space for upcoming battles!</MDTypography>
+            </MDBox>
+          </Grid>
+        </Grid>
+      </MDBox>
+      }
       </>
       }
       </>
