@@ -32,6 +32,15 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
       })
       console.log("leaderboard", api1Response.data)
       setRankData(api1Response.data.data);
+      // let dataArr = api1Response.data.data;
+
+      // setRankData((prev) => {
+      //   const dataMap = new Map((prev).map(elem => [elem.name, elem]));
+      //   dataArr.forEach(elem => {
+      //     dataMap.set(elem.name, elem);
+      //   });
+      //   return Array.from(dataMap.values());
+      // });
 
       const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${myRankEndPOint}`, {
         withCredentials: true,
@@ -50,7 +59,6 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
         }
         
       }
-      
       setTimeout(()=>{setIsLoading(false)},500)
   };
   
@@ -104,7 +112,7 @@ return (
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Rank</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Name</MDTypography>
+                      <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>UserId</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Net P&L</MDTypography>
