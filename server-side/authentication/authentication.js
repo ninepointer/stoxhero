@@ -9,7 +9,7 @@ const Authenticate = async (req, res, next)=>{
         if(token) console.log('token hai')
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
 
-        const user = await User.findOne({_id: verifyToken._id});
+        const user = await User.findOne({_id: verifyToken._id}).populate('role', 'roleName');
 
         if(!user){ throw new Error("User not found")}
 

@@ -3,7 +3,7 @@ import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 import { Grid } from '@mui/material';
 
-const EChartsDemo = () => {
+const EChartsDemo = (traderType) => {
   const chartRef = useRef(null);
   const [chartInstance, setChartInstance] = useState(null);
 

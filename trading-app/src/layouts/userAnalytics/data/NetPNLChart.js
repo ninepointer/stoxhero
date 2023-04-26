@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 
-const EchartsBarChart = () => {
+const EchartsBarChart = (traderType) => {
 const chartRef = useRef(null);
 
 useEffect(() => {
@@ -50,7 +50,7 @@ const option = {
         {
             name: 'Net P&L',
             type: 'bar',
-            color:'#fb8c00',
+            color:'#1A73E8',
             barWidth: '60%',
             data: [55, 102, -200, 34, 39, 33, 22, 102, 200, 34, 39, 33, 22]
         }

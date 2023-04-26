@@ -27,6 +27,8 @@ import bgImage from "../../../assets/images/trading.jpg";
 import { userContext } from '../../../AuthContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { adminRole } from '../../../variables';
+import { userRole } from '../../../variables';
 
 function Basic() {
   const [rememberMe, setRememberMe] = useState(false);
@@ -141,13 +143,13 @@ function Basic() {
             // this function is extracting data of user who is logged in
             await userDetail();
 
-            if(userData.role === "admin"){
+            if(userData.role?.roleName === adminRole){
               navigate("/companyposition");
             }
-            else if(userData.role === "data"){
+            else if(userData.role?.roleName === "data"){
               navigate("/analytics");
             } 
-            else if(userData.role === "user"){
+            else if(userData.role?.roleName === userRole){
               navigate("/PaperTrading");
             }
             
@@ -226,13 +228,13 @@ function Basic() {
         }else{
           await userDetail();
 
-          if(userData.role === "admin"){
+          if(userData.role?.roleName === adminRole){
             navigate("/companyposition");
           }
-          else if(userData.role === "data"){
+          else if(userData.role?.roleName === "data"){
             navigate("/analytics");
           } 
-          else if(userData.role === "user"){
+          else if(userData.role?.roleName === userRole){
             navigate("/Position");
           }
         }
