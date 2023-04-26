@@ -73,6 +73,7 @@ exports.fundCheck = async(req, res, next) => {
             let runningLots;
             try{
 
+                
                 runningLots = await MockTrade.aggregate([
                     {
                     $match:

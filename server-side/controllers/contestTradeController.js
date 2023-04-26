@@ -941,21 +941,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
   // const employeeid = req.user.employeeid;
   // console.log("contest id", id, `${id.toString()} allranks`)
   //Check if leaderBoard for contest exists in Redis
-  if(!await client.exists(`${id.toString()}employeeid`)){
-    let allUsers = await User.find({status: "Active"});
 
-    let obj = {};
-    for(let i = 0; i < allUsers.length; i++){
-      obj[allUsers[i]._id.toString()] = allUsers[i].employeeid;
-    }
-  
-    try{
-      let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
-  
-    } catch(err){
-      console.log(err)
-    }
-  }
 
 
   // for(let i = 0; i < allUsers.length; i++){
@@ -970,6 +956,22 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
   // }
 
   try{
+    if(!await client.exists(`${id.toString()}employeeid`)){
+      let allUsers = await User.find({status: "Active"});
+  
+      let obj = {};
+      for(let i = 0; i < allUsers.length; i++){
+        obj[allUsers[i]._id.toString()] = allUsers[i].employeeid;
+      }
+    
+      try{
+        let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
+    
+      } catch(err){
+        console.log(err)
+      }
+    }
+
     if(await client.exists(`leaderboard:${id}`)){
       // console.log("in if con")
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
@@ -1044,7 +1046,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       if(await client.exists(`${id.toString()} allranks`)){
         ranks = await client.get(`${id.toString()} allranks`);
         ranks = JSON.parse(ranks);
-        // console.log('ranks in redis',ranks);
+        console.log('ranks in redis',ranks);
       } else{
 
         ranks = await ContestTrade.aggregate([
@@ -1106,7 +1108,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
             }
           },
         ]);
-        // console.log("ranks from db", ranks)
+        console.log("ranks from db", ranks)
         await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
 
       }
@@ -1140,31 +1142,55 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       //   return acc;
       // }, {}));
 
-      async function aggregateRanks() {
-        const result = Object.values(await ranks.reduce(async (acc, curr) => {
+      // async function aggregateRanks(ranks) {
+      //   const result = Object.values(await ranks.reduce(async (acc, curr) => {
+      //     const { userId, npnl, investedAmount } = curr;
+      //     const traderId = userId.trader;
+      //     let employeeidObj = await client.get(`${(id).toString()}employeeid`);
+      //     employeeidObj = JSON.parse(employeeidObj);
+      //     console.log("employeeid", employeeidObj[traderId.toString()])
+      //     if (!acc[traderId]) {
+      //       acc[traderId] = {
+      //         traderId,
+      //         name: employeeidObj[traderId.toString()],
+      //         npnl: 0,
+      //         investedAmount: 0
+      //       };
+      //     }
+      //     acc[traderId].npnl += npnl;
+      //     acc[traderId].investedAmount += investedAmount
+      //     console.log("acc", acc)
+      //     return acc;
+      //   }, {}));
+      //   return result;
+      // }
+
+      async function aggregateRanks(ranks) {
+        const result = {};
+        for (const curr of ranks) {
           const { userId, npnl, investedAmount } = curr;
           const traderId = userId.trader;
           let employeeidObj = await client.get(`${(id).toString()}employeeid`);
           employeeidObj = JSON.parse(employeeidObj);
-          // console.log("employeeid", employeeidObj,  employeeidObj[traderId.toString()])
-          if (!acc[traderId]) {
-            acc[traderId] = {
+          console.log("employeeid", employeeidObj[traderId.toString()])
+          if (!result[traderId]) {
+            result[traderId] = {
               traderId,
               name: employeeidObj[traderId.toString()],
               npnl: 0,
               investedAmount: 0
             };
           }
-          acc[traderId].npnl += npnl;
-          acc[traderId].investedAmount += investedAmount
-          return acc;
-        }, {}));
-        return result;
+          result[traderId].npnl += npnl;
+          result[traderId].investedAmount += investedAmount
+          console.log("result", result)
+        }
+        return Object.entries(result).map(([key, value]) => value);
       }
 
-      const result = await aggregateRanks();
+      const result = await aggregateRanks(ranks);
 
-      // console.log("rsult", result)
+      console.log("rsult", result)
       for (rank of result){
         // console.log(rank);
         // console.log(`leaderboard${id}`);
