@@ -113,7 +113,7 @@ function ContestResultPage () {
                     </MDBox>
 
                     <MDTypography style={style} mt={1.5} color="light" display="flex" justifyContent="center">
-                          Contest Ended
+                          Battle Ended
                     </MDTypography>
 
                     {/* <img style={{ marginTop: "10px",  maxWidth: '100%', height: 'auto', borderRadius: "5px" }} src={winnerCup} />
