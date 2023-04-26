@@ -7,7 +7,7 @@ const SignedUpUser = require("../../models/User/signedUpUser");
 const User = require("../../models/User/userDetailSchema");
 const userPersonalDetail = require("../../models/User/userDetailSchema");
 const signedUpUser = require("../../models/User/signedUpUser");
-const sendSMS = require('../../utils/smsService');
+const {sendSMS, sendOTP} = require('../../utils/smsService');
 const Referral = require("../../models/campaigns/referralProgram");
 const Lead = require("../../models/leads/leads");
 const MarginAllocation = require("../../models/marginAllocation/marginAllocationSchema")
@@ -117,7 +117,9 @@ router.post("/signup", async (req, res)=>{
                 `;
 
                 emailService(email,subject,message);
-                sendSMS([mobile.toString()], `Welcome to StoxHero. Your OTP for signup is ${mobile_otp}`);
+                // sendSMS([mobile.toString()], `Welcome to StoxHero. Your OTP for signup is ${mobile_otp}`);
+                sendOTP(mobile.toString(), mobile_otp);
+
             }catch(err){console.log(err);res.status(500).json({message:'Something went wrong',status:"error"})}
 })
 
@@ -519,7 +521,8 @@ router.patch("/resendotp", async (req, res)=>{
     `;
     if(type == 'mobile'){
         user.mobile_otp = mobile_otp;
-        sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);    
+        // sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);
+        sendOTP(mobile.toString(), mobile_otp);    
     }
     else if(type == 'email'){
         user.email_otp = email_otp;
