@@ -16,6 +16,7 @@ const {getFilteredTicks} = require('../marketData/dummyMarketData');
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
+const userWallet = require('../models/UserWallet/userWalletSchema');
 const User = require("../models/User/userDetailSchema");
 
 // Create a new CookieJar to store cookies
@@ -831,6 +832,55 @@ exports.autoTradeContest = async(req, res, next) => {
           await updateParticularUserRank(contest, participant);
         }
         else{
+          const leaderBoardRank = await client.ZREVRANK(`leaderboard:${contest._id}`, JSON.stringify({name:participant.employeeid}));
+          const leaderBoardScore = await client.ZSCORE(`leaderboard:${contest._id}`, JSON.stringify({name:participant.employeeid}));
+      
+          // console.log(leaderBoardRank, leaderBoardScore)
+          // return res.status(200).json({
+          //   status: 'success',
+          //   data: {rank: leaderBoardRank+1, npnl: leaderBoardScore}
+          // }); 
+          const investedAmount = await client.get(`${participant.employeeid} investedAmount`)
+          let obj = {
+            rank: leaderBoardRank+1,
+            npnl: leaderBoardScore,
+            investedAmount: Number(investedAmount)
+          }
+
+          console.log("object", obj);
+          console.log('query filter:', { 'participants.userId': participant.userId });
+          try{
+           const result =  await Contest.findOneAndUpdate(
+              { _id: contest._id, 'participants.userId': participant.userId },
+              { $set: { 'participants.$.myRank': obj } },
+              { new: true }
+            );
+
+            console.log(result)
+  
+            await client.del(`${participant.employeeid} investedAmount`);
+
+            if(leaderBoardRank <= contest.rewards[contest.rewards.length -1].rankEnd){
+              const wallet = await userWallet.findOne({userId: participant.userId});
+              for(reward of contest.rewards){
+                if(leaderBoardRank <= reward.rankEnd && leaderBoardRank >= reward.rankStart){
+                  wallet.transactions = [...wallet.transactions, {
+                    title: 'Battle Credit',
+                    description: `Amount credited for battle ${contest.contestName}`,
+                    amout: reward.reward,
+                    transactionId: uuid.v4(),
+                    transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
+                }];
+                }
+              }
+            }
+            
+  
+
+          } catch(err){
+            console.log(err)
+          }
+      
           await updateParticularUserRank(contest, participant);
         }
       });

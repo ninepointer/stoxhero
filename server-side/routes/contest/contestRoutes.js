@@ -7,7 +7,7 @@ const axios = require('axios');
 const Contest = require('../../models/Contest/contestSchema');
 const {createContest, getContests, editContest, 
        getActiveContests, getContest, joinContest, 
-       myContests, contestHistory, updateStatus, getTimeForSync} = require('../../controllers/contestController');
+       myContests, contestHistory, updateStatus, getTimeForSync, exitContest} = require('../../controllers/contestController');
 const {autoTradeContest} = require('../../controllers/contestTradeController');
 const Authenticate = require('../../authentication/authentication');
 const contestTradeRoutes = require('../../routes/contest/contestTradeRoutes');
@@ -108,6 +108,7 @@ router.route('/lots').get(autoTradeContest);
 router.route('/active').get(getActiveContests)
 router.route('/history').get(Authenticate, contestHistory)
 router.route('/:id').get(getContest).post(Authenticate, joinContest).patch(Authenticate, editContest)
+router.route('/:id/exit').delete(exitContest)
 router.use('/:id/trades', contestTradeRoutes);
 router.use('/:id/updateStatus', updateStatus);
 router.use('/:id/syncTime', getTimeForSync);

@@ -12,7 +12,8 @@ const Referral = require("../../models/campaigns/referralProgram");
 const Lead = require("../../models/leads/leads");
 const MarginAllocation = require("../../models/marginAllocation/marginAllocationSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
-const UserWallet = require("../../models/UserWallet/userWalletSchema")
+const UserWallet = require("../../models/UserWallet/userWalletSchema");
+const uuid = require('uuid');
 
 router.post("/signup", async (req, res)=>{
     console.log("Inside SignUp Routes")
@@ -291,6 +292,15 @@ router.patch("/verifyotp", async (req, res)=>{
                     referralCurrency: referralProgramme.currency,
                 }];
                 await referrerCodeMatch.save({validateBeforeSave: false});
+                const wallet = await UserWallet.findOne({userId: referrerCodeMatch._id});
+                wallet.transactions = [...wallet.transactions, {
+                    title: 'Referral Credit',
+                    description: `Amount credited for referral of ${newuser.first_name} + ${newuser.last_name}`,
+                    amout: referralProgramme.rewardPerReferral,
+                    transactionId: uuid.v4(),
+                    transactionType: referralProgramme.currency == 'INR'?'Cash':'Bonus' 
+                }];
+                await wallet.save({validateBeforeSave:false});
             }
             let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
         if(lead){
