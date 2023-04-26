@@ -12,6 +12,7 @@ import MDInput from "../../../../components/MDInput";
 import MDButton from "../../../../components/MDButton";
 import MDAlert from "../../../../components/MDAlert";
 import OtpInput from 'react-otp-input';
+import MDSnackbar from "../../../../components/MDSnackbar";
 
 // Authentication layout components
 import CoverLayout from "../../../../layouts/authentication/components/CoverLayout";
@@ -32,6 +33,9 @@ function Cover() {
   const [isVisible, setIsVisible] = useState(false);
   const [editable, setEditable] = useState(true);
   const [passwordResetDone, setPasswordResetDone] = useState(false);
+  const [successSB, setSuccessSB] = useState(false);
+  const [title,setTitle] = useState('')
+  const [infoSB, setInfoSB] = useState(false);
   const [formstate, setformstate] = useState({
     email:"",
     password:"",
@@ -97,9 +101,11 @@ function Cover() {
   console.log(res.status);
   if(res.status === 200 || res.status === 201){ 
       setResponseMessage({message:data.message,type:'success'});
+      openSuccessSB('OTP Sent', data.message);
       setEditable(false);  
   }else{
       setResponseMessage({message:data.message,type:'error'});
+      openInfoSB('Something went wrong' ,data.message);
       console.log("Invalid Entry");
   }
 
@@ -134,11 +140,13 @@ function Cover() {
 const data = await res.json();
 // console.log(data);
 if(res.status === 200 || res.status === 201){ 
-    setResponseMessage({message:data.message,type:'success'})  
+    setResponseMessage({message:data.message,type:'success'})
+    openSuccessSB('Password Reset', data.message);  
     setPasswordResetDone(true);
     // console.log("Error:",data.message);
 }else{
-    setResponseMessage({message:data.message,type:'error'})
+    setResponseMessage({message:data.message,type:'error'});
+    openInfoSB('error', data.message);
     // console.log("entry succesfull");
 }
 
@@ -148,6 +156,47 @@ async function logInButton(e){
   e.preventDefault();
   navigate("/");
 }
+
+  const [content,setContent] = useState('')
+const openSuccessSB = (value,content) => {
+  // console.log("Value: ",value)
+      setTitle(value);
+      setContent(content);
+      setSuccessSB(true);
+    };
+const closeSuccessSB = () => setSuccessSB(false);
+
+const renderSuccessSB = (
+  <MDSnackbar
+    color="success"
+    icon="check"
+    title={title}
+    content={content}
+    open={successSB}
+    onClose={closeSuccessSB}
+    close={closeSuccessSB}
+    bgWhite="info"
+  />
+);
+
+  const openInfoSB = (title,content) => {
+    setTitle(title)
+    setContent(content)
+    setInfoSB(true);
+  }
+  const closeInfoSB = () => setInfoSB(false);
+
+  const renderInfoSB = (
+    <MDSnackbar
+      icon="notifications"
+      title={title}
+      content={content}
+      open={infoSB}
+      onClose={closeInfoSB}
+      close={closeInfoSB}
+    />
+  );
+
 
 
   return (
@@ -244,6 +293,8 @@ async function logInButton(e){
       </Card>
       </Grid>
       </Grid>
+      {renderSuccessSB}
+      {renderInfoSB}
     </CoverLayout>
   );
 }
