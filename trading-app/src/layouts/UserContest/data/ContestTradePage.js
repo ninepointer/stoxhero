@@ -142,6 +142,9 @@ function ContestTradeView () {
 
 
     // console.log("contest", contest, Boolean(contest))
+    function exitContest(){
+      
+    }
 
     return (
       <>
@@ -238,7 +241,12 @@ function ContestTradeView () {
                 <Divider orientation="vertical" style={{backgroundColor: 'white', height: '100%'}} />
             </Grid>
             {isDummy ?
-            <DummyRank />
+            <>
+              <DummyRank />
+              <MDButton onClick={exitContest}>
+                Exit Battle
+              </MDButton>
+            </>
             :
             memoizedTradersRanking
             
