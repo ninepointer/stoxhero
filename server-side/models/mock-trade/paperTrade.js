@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const mockTradeTraderSchema = new mongoose.Schema({
+const paperTrade = new mongoose.Schema({
     order_id:{
         type: String,
         required: true
@@ -110,7 +110,7 @@ const mockTradeTraderSchema = new mongoose.Schema({
     }
 })
 
-const MockTradeTrader = mongoose.model("mock-trade-trader", mockTradeTraderSchema);
+const MockTradeTrader = mongoose.model("paper-trade", paperTrade);
 module.exports = MockTradeTrader;
 
 
