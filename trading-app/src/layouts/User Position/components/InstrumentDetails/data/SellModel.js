@@ -162,9 +162,9 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
       placeOrder();
 
-      let id = setTimeout(()=>{
-          reRender ? setReRender(false) : setReRender(true)
-      }, 1000);
+      // let id = setTimeout(()=>{
+      //     reRender ? setReRender(false) : setReRender(true)
+      // }, 1000);
       
   }
 
@@ -173,7 +173,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
     let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}:${String(date.getMilliseconds()).padStart(2, '0')}`
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
-    const res = await fetch(`${baseUrl}api/v1/placingOrder`, {
+    const res = await fetch(`${baseUrl}api/v1/paperTrade`, {
         method: "POST",
         credentials:"include",
         headers: {
@@ -184,7 +184,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
           exchange, symbol, buyOrSell, Quantity, Price, 
           Product, OrderType, TriggerPrice, stopLoss, uId,
           validity, variety, createdBy, order_id:dummyOrderId,
-          userId, instrumentToken, trader
+          userId, instrumentToken, trader, paperTrade: true
 
         })
     });
@@ -213,6 +213,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
           // window.alert(dataResp.message);
         }
     }
+    reRender ? setReRender(false) : setReRender(true)
   }
 
   async function addInstrument(){
