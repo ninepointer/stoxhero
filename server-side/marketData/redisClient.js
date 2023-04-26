@@ -1,4 +1,4 @@
-// if(process.env.PROD){
+if(process.env.PROD){
 
     // const redis = require('redis');
     // client = redis.createClient(
@@ -8,11 +8,11 @@
     // )
     // module.exports = client;
 
-// } else{
+} else{
 
     const redis = require('redis');
     const client = redis.createClient(6379, 'http://127.0.0.1:8081/');
 
     module.exports = client;
 
-// }
+}
