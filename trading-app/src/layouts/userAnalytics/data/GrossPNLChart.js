@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 
-const EchartsBarChart = () => {
+const EchartsBarChart = (traderType) => {
 const chartRef = useRef(null);
 
 useEffect(() => {

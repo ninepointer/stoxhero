@@ -51,7 +51,8 @@ import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
 import ResetPassword from './layouts/authentication/reset-password/cover';
-
+import { adminRole } from "./variables";
+import { userRole } from "./variables";
 
 export default function App() {
   const cookieValue = Cookies.get("jwt");
@@ -179,7 +180,7 @@ export default function App() {
       <SettingsIcon/>
     </MDBox>
   );
-  // console.log("Analytics Routes: ",analyticsRoutes)
+  console.log("route value ",getDetails?.userDetails?.role?.roleName, adminRole, userRole, detailUser.role?.roleName)
 
   return direction === "rtl" ? (
     
@@ -189,14 +190,15 @@ export default function App() {
           {layout === "companyposition" && (
             <>
               {
-                (getDetails.userDetails.role === "admin" || getDetails.userDetails.role === "user"|| getDetails.userDetails.role === "data") &&
+                console.log("sidenav",getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName === "data")
+                (getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
                 <Sidenav
                 color={sidenavColor}
                 brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
                 brandName="StoxHero"
-                routes={(detailUser.role === "admin" || getDetails.userDetails.role === "admin")
-                ? routes : (detailUser.role === "user" || getDetails.userDetails.role === "user") 
-                ? userRoutes : (detailUser.role === "data" || getDetails.userDetails.role === "data") 
+                routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
+                ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
+                ? userRoutes : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
                 ? analyticsRoutes : homeRoutes
                 }
                   onMouseEnter={handleOnMouseEnter}
@@ -210,7 +212,7 @@ export default function App() {
           )}
           {layout === "vr" && <Configurator />}
           <Routes>
-          {(detailUser.role === "admin" || getDetails.userDetails.role === "admin") ? getRoutes(routes) : (detailUser.role === "data" || getDetails.userDetails.role === "data") && getRoutes(analyticsRoutes)}  
+          {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) ? getRoutes(routes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") && getRoutes(analyticsRoutes)}  
             <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
           </Routes>
         </ThemeProvider>
@@ -223,14 +225,16 @@ export default function App() {
         {layout === "dashboard" && (
           <>
           {
-            (getDetails?.userDetails?.role === "admin" || getDetails?.userDetails?.role === "user"|| getDetails?.userDetails?.role === "data") &&
+                            // console.log("sidenav",getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName === "data")
+
+            (getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
             <Sidenav
               color={sidenavColor}
               brand={Logo}
               brandName="StoxHero"
-              routes={(detailUser?.role === "admin" || getDetails?.userDetails?.role === "admin")
-                ? routes : (detailUser?.role === "user" || getDetails?.userDetails?.role === "user") 
-                ? userRoutes : (detailUser?.role === "data" || getDetails?.userDetails?.role === "data") 
+              routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role === adminRole)
+                ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role === userRole) 
+                ? userRoutes : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role === "data") 
                 ? analyticsRoutes : homeRoutes
               }
               onMouseEnter={handleOnMouseEnter}
@@ -245,9 +249,9 @@ export default function App() {
         {layout === "companyposition" && <Configurator />}
         {/* {layout === "analytics" && <Configurator />} */}
         <Routes>
-        {(detailUser.role === "admin" || getDetails.userDetails.role === "admin") 
-        ? getRoutes(routes) : (detailUser.role === "user" || getDetails.userDetails.role === "user") 
-        ? getRoutes(userRoutes) : (detailUser.role === "data" || getDetails.userDetails.role === "data") 
+        {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
+        ? getRoutes(routes) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
+        ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }          
 

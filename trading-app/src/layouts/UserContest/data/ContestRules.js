@@ -16,7 +16,7 @@ return (
                 <MDBox color="light">
 
                     <MDTypography mb={2} color="light" display="flex" justifyContent="center">
-                        Contest Rules
+                        Battle Rules
                     </MDTypography>
 
                     <MDBox display="flex" justifyContent="center" >

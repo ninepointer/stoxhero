@@ -8,7 +8,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import stock from "../../../assets/images/analyticspnl.png"
 
-export default function PNLMetrics() {
+export default function PNLMetrics(traderType) {
 
   return (
    

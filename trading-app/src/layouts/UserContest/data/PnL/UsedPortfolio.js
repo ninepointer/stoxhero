@@ -46,7 +46,7 @@ const UsedPortfolio = ({portfolioId}) => {
       <>
                 
         <Grid item xs={12} md={12} lg={2} mb={1} display="flex" justifyContent="center">
-          <MDTypography fontSize={13} color="light" style={{fontWeight:500}}>Contest Portfolio</MDTypography>
+          <MDTypography fontSize={13} color="light" style={{fontWeight:500}}>Battle Portfolio</MDTypography>
         </Grid>
         <Grid container spacing={1} xs={12} md={6} lg={12} mb={2}>
 

@@ -21,8 +21,47 @@ const ContestTrade = require("../../models/Contest/ContestTrade");
 const ObjectId = require('mongodb').ObjectId;
 const TradableInstrumentSchema = require("../../models/Instruments/tradableInstrumentsSchema")
 const authentication = require("../../authentication/authentication");
+const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 
+
+
+router.get("/updateRole", async (req, res) => {
+  let users = await UserDetail.find();
+  console.log(users);
+  for (let user of users) {
+    console.log(user.role)
+    if (user.role === "admin") {
+      console.log("in if admin");
+      await UserDetail.findOneAndUpdate(
+        { _id: user._id },
+        { $set: { role: new ObjectId("6448f834446977851c23b3f5") } },
+        { new: true }
+      ).exec();
+    } else if (user.role === "user") {
+      console.log("in if user");
+      await UserDetail.findOneAndUpdate(
+        { _id: user._id },
+        { $set: { role: new ObjectId("644902f1236de3fd7cfd73a7") } },
+        { new: true }
+      ).exec();
+    }
+  }
+});
+
+// router.get("/updateInstrumentStatus", async (req, res)=>{
+//   let instrument = await Instrument.updateMany(
+//     { contractDate: { $lte: "20-04-2023" } },
+//     { $set: { status: "Inactive" } }
+//   )
+// })
+
+// router.get("/updateInstrumentStatus", async (req, res)=>{
+//   let instrument = await Instrument.updateMany(
+//     { contractDate: "27-04-2023" },
+//     { $set: { status: "Active" } }
+//   )
+// })
 
 router.get("/updatePortfolio", async (req, res)=>{
   let users = await UserDetail.find();
