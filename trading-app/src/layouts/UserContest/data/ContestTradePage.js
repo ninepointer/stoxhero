@@ -15,20 +15,22 @@ import axios from "axios";
 import MYPNLData from '../data/PnL/MyPNLData'
 import InstrumentsData from '../data/Instruments/Instruments'
 import TradersRanking from '../data/TradersRanking'
-import DummyInstrument from "../data/dummy/dummyInstrument"
-import DummyPnl from "../data/dummy/dummyPnl"
+// import DummyInstrument from "../data/dummy/dummyInstrument"
+// import DummyPnl from "../data/dummy/dummyPnl"
 import DummyRank from "./DemoTradersRanking";
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import Timer from '../timer';
 import LastTrade from '../data/contestTrade/LastTrade'
 import FastRewindIcon from '@mui/icons-material/FastRewind';
 import Button from '@mui/material/Button'
-import UsedPortfolio from './PnL/UsedPortfolio';
+// import UsedPortfolio from './PnL/UsedPortfolio';
 import Margin from './marginDetails/margin';
 import cancelledImage from "../../../assets/images/cancelled.jpg"
 import ContestRules from './ContestRules';
 import PrizeDistribution from './PrizeDistribution';
 import { CircularProgress } from "@mui/material";
+import MDSnackbar from "../../../components/MDSnackbar";
+
 
 
 
@@ -142,6 +144,75 @@ function ContestTradeView () {
 
 
     // console.log("contest", contest, Boolean(contest))
+    function exitContest(){
+      // axios.delete(`${baseUrl}api/v1/contest/${contestId}/exit`)
+      axios.delete(`${baseUrl}api/v1/contest/${contestId}/exit`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+      })
+      .then((res)=>{
+        navigate("/battleground")
+        openSuccessSB("Warning","You exited from this contest", "FAIL")
+
+              // setContest(res?.data?.data);
+              // console.log(res?.data?.data)
+              // setIsLoading(false)
+      }).catch((err)=>{
+          return new Error(err);
+      })
+    }
+
+    const [successSB, setSuccessSB] = useState(false);
+    const [msgDetail, setMsgDetail] = useState({
+      title: "",
+      content: "",
+      // successSB: false,
+      color: "",
+      icon: ""
+    })
+    const openSuccessSB = (title,content, message) => {
+      msgDetail.title = title;
+      msgDetail.content = content;
+      // msgDetail.successSB = true;
+      if(message == "SUCCESS"){
+        msgDetail.color = 'success';
+        msgDetail.icon = 'check'
+      } else {
+        msgDetail.color = 'warning';
+        msgDetail.icon = 'warning'
+      }
+      console.log(msgDetail)
+      setMsgDetail(msgDetail)
+      // setTitle(title)
+      // setContent(content)
+      setSuccessSB(true);
+    }
+  
+    const closeSuccessSB = () =>{
+      // msgDetail.successSB = false
+      setSuccessSB(false);
+  
+    }
+  
+    // const closeSuccessSB = () => msgDetail.successSB = false;
+  
+  
+    const renderSuccessSB = (
+    <MDSnackbar
+        color={msgDetail.color}
+        icon={msgDetail.icon}
+        title={msgDetail.title}
+        content={msgDetail.content}
+        open={successSB}
+        onClose={closeSuccessSB}
+        close={closeSuccessSB}
+        bgWhite="info"
+    />
+    );
 
     return (
       <>
@@ -223,9 +294,12 @@ function ContestTradeView () {
                     <>
                     {/* <DummyInstrument />
                     <DummyPnl /> */}
-                     <Grid item xs={12} md={6} lg={12} mb={2} mt={4}>
+                     <Grid textAlign="center" item xs={12} md={6} lg={12} mb={2} mt={4}>
                       <PrizeDistribution contest={contest} isDummy={isDummy}/>
                       <ContestRules contest={contest} isDummy={isDummy}/>
+                      <MDButton display="flex" alignItems="center" onClick={exitContest}>
+                        Exit Battle
+                      </MDButton>
                     </Grid>
 
                     </>
@@ -238,7 +312,12 @@ function ContestTradeView () {
                 <Divider orientation="vertical" style={{backgroundColor: 'white', height: '100%'}} />
             </Grid>
             {isDummy ?
-            <DummyRank />
+            <>
+            {/* <Grid item xs={0} md={0} lg={5}> */}
+              <DummyRank />
+
+            {/* </Grid> */}
+            </>
             :
             memoizedTradersRanking
             
@@ -263,19 +342,9 @@ function ContestTradeView () {
           </MDButton>
         </div>
       </div>
-
-        // <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} alignItems="center" alignContent="center">
-        //   <div style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
-        //   Battle was cancelled as minimum participant quota was not fulfilled.
-        //   </div>  display="flex" justifyContent="center"
-//  display="flex" justifyContent="center"
-//  display="flex" justifyContent="center"
-        //   <div style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
-        //   But dont worry you can participate in other battles
-        //   </div> 
-        // </Grid>
         
         }
+        {renderSuccessSB}
     </MDBox>
       }
       </>

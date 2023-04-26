@@ -1,68 +1,67 @@
 // Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
-import MDAvatar from "../../../components/MDAvatar";
-import MDBadge from "../../../components/MDBadge";
+import {useEffect, useState} from 'react';
+import axios from 'axios';
 
-// Images
-import team2 from "../../../assets/images/team-2.jpg";
-import team3 from "../../../assets/images/team-3.jpg";
-import team4 from "../../../assets/images/team-4.jpg";
+export default function RoleData(reRender) {
 
-export default function RoleData() {
-  const Author = ({ image, name, email }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDAvatar src={image} name={name} size="sm" />
-      <MDBox ml={2} lineHeight={1}>
-        <MDTypography display="block" variant="button" fontWeight="medium">
-          {name}
-        </MDTypography>
-        <MDTypography variant="caption">{email}</MDTypography>
-      </MDBox>
-    </MDBox>
-  );
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  const Job = ({ title, description }) => (
-    <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-        {title}
+  const [role, setRole] = useState([]);
+
+  useEffect(()=>{
+
+      // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
+      axios.get(`${baseUrl}api/v1/role`)
+      .then((res)=>{
+            setRole(res?.data?.data);
+            console.log(res?.data?.data);
+      }).catch((err)=>{
+          //window.alert("Server Down");
+          return new Error(err);
+      })
+  },[reRender])
+
+  // numberOfClickForRemoveNext = Math.ceil(((orderCountHistoryCompany))/limit);
+  // console.log(numberOfClickForRemoveNext, clickToRemove, orderCountHistoryCompany)
+console.log(role)
+  let roleArr = [];
+  
+  role?.map((elem)=>{
+    let obj = {}
+
+    obj.createdOn = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {(elem.createdOn)?.toString()?.split("T")[0]}
       </MDTypography>
-      <MDTypography variant="caption">{description}</MDTypography>
-    </MDBox>
-  );
+      );
+      obj.roleName = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem.roleName}
+      </MDTypography>
+    );
+    obj.createdBy = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem?.createdBy?.name}
+      </MDTypography>
+    );
+    obj.status = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem.status}
+      </MDTypography>
+    );
+
+    roleArr.push(obj)
+  })
 
   return {
     columns: [
-      { Header: "Created On", accessor: "Created On", align: "center"},
-      { Header: "Role Name", accessor: "Role Name", align: "center" },
-      { Header: "Instruments", accessor: "Instruments", align: "center" },
-      { Header: "Trading Account", accessor: "Trading Account", align: "center" },
-      { Header: "API Parameters", accessor: "API Parameters", align: "center" },
-      { Header: "Users", accessor: "Users", align: "center" },
-      { Header: "AlgoBox", accessor: "AlgoBox", align: "center" },
-      { Header: "Reports", accessor: "Reports", align: "center" },
+      { Header: "Created On", accessor: "createdOn", align: "center"},
+      { Header: "Role Name", accessor: "roleName", align: "center" },
+      { Header: "Created By", accessor: "createdBy", align: "center" },
+      { Header: "status", accessor: "status", align: "center" },
     ],
 
-    rows: [
-      {
-        author: <Author image={team2} name="John Michael" email="john@creative-tim.com" />,
-        function: <Job title="Manager" description="Organization" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            23/04/18
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-    ],
+    rows: roleArr,
   };
 }
