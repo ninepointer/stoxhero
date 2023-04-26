@@ -7,10 +7,14 @@ import MDAvatar from '../../../components/MDAvatar';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import {Tooltip} from '@mui/material';
-import stock from "../../../assets/images/pnl.png"
+import stock from "../../../assets/images/analyticspnl.png"
 import PNLMetrics from '../data/PNLMetrics';
 import MonthLineChart from '../data/MonthLineChart'
 import DayLineChart from '../data/DayLineChart'
+import BrokerageChart from '../data/BrokerageChart'
+import OrdersChart from '../data/OrderChart'
+import NetPNLChart from '../data/NetPNLChart'
+import GrossPNLChart from '../data/GrossPNLChart'
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
@@ -54,23 +58,50 @@ export default function LabTabs() {
       <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value="StoxHero Trading">StoxHero Trading</ToggleButton>
       </ToggleButtonGroup>
     </MDBox>
-        <PNLMetrics/>
-        
-        <MDBox mt={2} bgColor="light" borderRadius={4}>
-        <Grid container>
-          <Grid item xs={12} md={6} lg={12} p={1} m={1} overflow='auto'>
-            <DayLineChart/>
-          </Grid>
-        </Grid>
-        </MDBox>
 
-        <MDBox mt={2} bgColor="light" borderRadius={4}>
-        <Grid container>
-          <Grid item xs={12} md={6} lg={12} p={1} m={1} overflow='auto'>
-            <MonthLineChart/>
+        <PNLMetrics/>
+
+        
+        <Grid mt={1} container spacing={3}>
+          
+          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <GrossPNLChart/>
+          </MDBox>
           </Grid>
+          
+          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <NetPNLChart/>
+          </MDBox>
+          </Grid>
+          
+          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <BrokerageChart/>
+          </MDBox>
+          </Grid>
+          
+          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <OrdersChart/>
+          </MDBox>
+          </Grid>
+          
+          <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <DayLineChart/>
+          </MDBox>
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <MonthLineChart/>
+          </MDBox>
+          </Grid>
+
         </Grid>
-        </MDBox>
+
     </MDBox>
   );
 }

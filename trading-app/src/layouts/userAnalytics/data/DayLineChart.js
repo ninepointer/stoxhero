@@ -98,8 +98,11 @@ const EChartsDemo = () => {
     }
   }, [chartInstance]);
 
-  return <MDBox ref={chartRef} style={{ width: '100%', height: '500px' }} />
+  return <MDBox ref={chartRef} style={{ width: '100%', height: '400px' }} />
 
 };
 
 export default EChartsDemo;
+
+
+
