@@ -6,7 +6,7 @@ import MDButton from '../../../components/MDButton';
 import MDAvatar from '../../../components/MDAvatar';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import stock from "../../../assets/images/pnl.png"
+import stock from "../../../assets/images/analyticspnl.png"
 
 export default function PNLMetrics() {
 
@@ -18,7 +18,7 @@ export default function PNLMetrics() {
             <MDButton variant="contained" color="light" size="small" style={{minWidth:"100%"}}>
                     <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
                         <Grid item xs={12} md={6} lg={12}  display="flex" alignContent="center" alignItems="center">
-                            <MDAvatar src={stock} size="xl" display="flex" justifyContent="left"/>
+                            <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Today</MDTypography>
                               <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
@@ -35,7 +35,7 @@ export default function PNLMetrics() {
             <MDButton variant="contained" color="light" size="small" style={{minWidth:"100%"}}>
                     <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
                         <Grid item xs={12} md={6} lg={12} display="flex" alignContent="center" alignItems="center">
-                            <MDAvatar src={stock} size="xl" display="flex" justifyContent="left"/>
+                            <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>This Month</MDTypography>
                               <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
@@ -51,7 +51,7 @@ export default function PNLMetrics() {
             <MDButton variant="contained" color="light" size="small" style={{minWidth:"100%"}}>
                     <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
                         <Grid item xs={12} md={6} lg={12} display="flex" alignContent="center" alignItems="center">
-                            <MDAvatar src={stock} size="xl" display="flex" justifyContent="left"/>
+                            <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>This Year</MDTypography>
                               <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
@@ -68,8 +68,8 @@ export default function PNLMetrics() {
             <MDButton variant="contained" color="light" size="small" style={{minWidth:"100%"}}>
                     <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
                         <Grid item xs={12} md={6} lg={12} display="flex" alignContent="center" alignItems="center">
-                            <MDAvatar src={stock} size="xl" display="flex" justifyContent="left"/>
-                            <MDBox ml={2} display="flex" flexDirection="column">
+                            <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
+                            <MDBox ml={4} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Lifetime</MDTypography>
                               <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
                               <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: 1000</MDTypography>
