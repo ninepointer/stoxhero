@@ -303,15 +303,16 @@ exports.exitContest = async(req,res,next)=>{
     const userId = req.user._id;
     const {id} = req.params;
     try{
+        const user = await userPersonalDetail.findById(userId);
         const contest = await Contest.findById(id);
         const index = contest.participants.findIndex(obj => obj.userId == userId);
-    
+        const indexToRemove = user.contests.indexOf(id);
         if (indexToRemove !== -1) {
             contest.participants.splice(index, 1);
           }
         await contest.save({validateBeforeSave: false});
-        const user = await userPersonalDetail.findById(userId);
-        const indexToRemove = user.contests.indexOf(id);
+        
+        
         if (indexToRemove !== -1) {
             user.contests.splice(indexToRemove, 1);
           }
