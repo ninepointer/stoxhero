@@ -16,6 +16,7 @@ const {getFilteredTicks} = require('../marketData/dummyMarketData');
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
+const userWallet = require('../models/UserWallet/userWalletSchema');
 
 // Create a new CookieJar to store cookies
 const cookieJar = new tough.CookieJar();
@@ -854,7 +855,23 @@ exports.autoTradeContest = async(req, res, next) => {
 
             console.log(result)
   
-            await client.del(`${participant.employeeid} investedAmount`)
+            await client.del(`${participant.employeeid} investedAmount`);
+
+            if(leaderBoardRank <= contest.rewards[contest.rewards.length -1].rankEnd){
+              const wallet = await userWallet.findOne({userId: participant.userId});
+              for(reward of contest.rewards){
+                if(leaderBoardRank <= reward.rankEnd && leaderBoardRank >= reward.rankStart){
+                  wallet.transactions = [...wallet.transactions, {
+                    title: 'Battle Credit',
+                    description: `Amount credited for battle ${contest.contestName}`,
+                    amout: reward.reward,
+                    transactionId: uuid.v4(),
+                    transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
+                }];
+                }
+              }
+            }
+            
   
 
           } catch(err){
