@@ -135,7 +135,7 @@ exports.joinContest = async(req, res, next) => {
         }
 
         //check entry date open or not
-        if(Date.now()<Date.parse(contest.entryOpeningDate)){
+        if(Date.now()<=Date.parse(contest.entryOpeningDate)){
             // console.log("in 2st")
             return res.status(400).json({
                 status: 'error',
