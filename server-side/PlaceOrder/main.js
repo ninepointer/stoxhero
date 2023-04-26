@@ -18,13 +18,15 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
     
 })
 
-router.post("/paperTrade", authentication, authoizeTrade.fundCheck,  async (req, res)=>{
+router.post("/paperTrade", authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
 
-    if(req.body.apiKey && req.body.accessToken){
-        LiveTradeFunc.liveTrade(req.body, res)
-    } else{
-        MockTradeFunc.mockTrade(req.body, res)
-    }
+    // if(req.body.apiKey && req.body.accessToken){
+    //     LiveTradeFunc.liveTrade(req.body, res)
+    // } else{
+        
+    // }
+
+    MockTradeFunc.mockTrade(req.body, res)
     
 })
 
