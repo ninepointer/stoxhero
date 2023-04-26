@@ -13,7 +13,7 @@ const filterObj = (obj, ...allowedFields) => {
   };
 
 exports.createReferral = async(req, res, next)=>{
-    console.log(req.body)
+    console.log(req.body);
     const{referralProgramName, referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency,
         description, status
@@ -21,6 +21,9 @@ exports.createReferral = async(req, res, next)=>{
 
     if(await Referral.findOne({referralProgramName:referralProgramName})) return res.status(400).json({message:'This referral already exists.'});
 
+    if(status == 'Live' && (await Referral.find({referralProgramEndDate:{$gte: referralProgramEndDate}})).length == 0){
+      return res.status(400).json({status: 'error',message:'There is a referral program that is active in the same time.'});
+    }
     const referral = await Referral.create({referralProgramName, referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency, 
         description, lastModifiedOn: new Date(), 
@@ -102,13 +105,20 @@ exports.editReferral = async(req, res, next) => {
 
 exports.editReferralWithId = async(req, res, next) => {
     try{ 
-        const {_id} = req.params;
-        const {status, referralProgramEndDate} = req.body
+        const {id} = req.params;
+        const {status, referralProgramEndDate, rewardPerReferral} = req.body;
 
-        const editReferral = await Referral.findOneAndUpdate({_id : _id}, {
+        const referralProgram = await Referral.findById(id);
+        if (referralProgram.users.length >0 && rewardPerReferral){
+          return res.status(400).json({status: 'error', message: 'Can\'t edit reward after users have joined'});
+        }
+
+
+        const editReferral = await Referral.findOneAndUpdate({_id : id}, {
             $set:{ 
                 status: status,
-                referralProgramEndDate: referralProgramEndDate
+                referralProgramEndDate: referralProgramEndDate,
+                rewardPerReferral: referralProgram
             }
         })
         res.status(201).json({message : "data edit succesfully"});

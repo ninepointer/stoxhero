@@ -1,5 +1,6 @@
 const Contest = require('../models/Contest/contestSchema');
 const Payment = require('../models/Payment/payment');
+const userPersonalDetail = require('../models/User/userDetailSchema');
 const User = require('../models/User/userDetailSchema');
 
 
@@ -297,3 +298,29 @@ exports.getTimeForSync = async(req,res,next) => {
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 }
+
+exports.exitContest = async(req,res,next)=>{
+    const userId = req.user._id;
+    const {id} = req.params;
+    try{
+        const contest = await Contest.findById(id);
+        const index = contest.participants.findIndex(obj => obj.userId == userId);
+    
+        if (indexToRemove !== -1) {
+            contest.participants.splice(index, 1);
+          }
+        await contest.save({validateBeforeSave: false});
+        const user = await userPersonalDetail.findById(userId);
+        const indexToRemove = user.contests.indexOf(id);
+        if (indexToRemove !== -1) {
+            user.contests.splice(indexToRemove, 1);
+          }
+        await user.save({validateBeforeSave: false});
+        res.status(200).json({status:'success', message:'Exited from the contest'});
+    }catch(e){
+        console.log(e);
+        return res.status(500).json({status:'error', message:'Something went wrong'});
+    }
+
+}
+
