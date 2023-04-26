@@ -1,15 +1,15 @@
-const HistoryInstrumentData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
-const DailyPnlData = require("../models/InstrumentHistoricalData/DailyPnlDataSchema");
+// const HistoryInstrumentData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
+// const DailyPnlData = require("../models/InstrumentHistoricalData/DailyPnlDataSchema");
 const MockTradeDataUser = require("../models/mock-trade/mockTradeUserSchema");
-const MockTradeTrader = require("../models/mock-trade/mockTradeTraders");
-
+const MockTradeTrader = require("../models/mock-trade/paperTrade");
+const MockTradeCompany = require("../models/mock-trade/mockTradeCompanySchema")
 const MockTradeContest = require("../models/Contest/ContestTrade");
 
-const Contest = require("../models/Contest/contestSchema");
+// const Contest = require("../models/Contest/contestSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 
-const UserDetail = require("../models/User/userDetailSchema");
-const MarginAllocation = require('../models/marginAllocation/marginAllocationSchema');
+// const UserDetail = require("../models/User/userDetailSchema");
+// const MarginAllocation = require('../models/marginAllocation/marginAllocationSchema');
 const axios = require("axios");
 const getKiteCred = require('../marketData/getKiteCred'); 
 const MarginCall = require('../models/marginAllocation/MarginCall');
@@ -54,9 +54,18 @@ exports.fundCheck = async(req, res, next) => {
                 "trigger_price": 0
             }]
             let userFunds;
-            try{
-                const user = await UserDetail.findOne({email: userId});
-                userFunds = user.fund;
+            try{ //portfolioType
+                if(req.user.isAlgoTrader){
+                    const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Equity Trading"});
+                    userFunds = myPortfolios.portfolioValue;
+                } else{
+                    // console.log("in userfund if")
+                    const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
+                    // console.log(myPortfolios)
+                    userFunds = myPortfolios.portfolioValue;
+                }
+                // const user = await UserDetail.findOne({email: userId});
+                // userFunds = user.fund;
             }catch(e){
                 console.log("errro fetching user", e);
             }
@@ -126,13 +135,23 @@ exports.fundCheck = async(req, res, next) => {
 
 
             //TODO: get user pnl data and replace 0 with the value 
-
+            // let date = new Date();
+            let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+            let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+            let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}`
+            let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}`
+            console.log(firstDayOfMonthDate, lastDayOfMonthDate)
             let pnlDetails = await MockTrade.aggregate([
                 {
                 $match:
                     {
-                    userId: userId,
-                    status: "COMPLETE",
+                        trade_time: {
+                            $gte: (firstDayOfMonthDate),
+                            $lt: (lastDayOfMonthDate)
+                          },
+                        userId: userId,
+                        status: "COMPLETE",
                     },
                 },
                 {
@@ -164,7 +183,7 @@ exports.fundCheck = async(req, res, next) => {
                 },
             ])
 
-
+            console.log("pnlDetails", pnlDetails)
             let userNetPnl = pnlDetails[0]?.npnl;
             console.log( userFunds , userNetPnl , zerodhaMargin)
             console.log((userFunds + userNetPnl - zerodhaMargin))
@@ -177,51 +196,92 @@ exports.fundCheck = async(req, res, next) => {
                 return next();
             } else{
                 console.log("in else")
-                if(userNetPnl !== undefined && Number(userFunds + userNetPnl - zerodhaMargin)  < 0){
+                if(userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0){
                     let uid = uuidv4();
                     let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
                         TriggerPrice, validity, variety, createdBy,
                             createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
-                            accessToken, userId, checkingMultipleAlgoFlag, real_instrument_token, realSymbol, trader} = req.body;
-
-                    let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];    
+                            accessToken, userId, checkingMultipleAlgoFlag, real_instrument_token, realSymbol, trader, order_id} = req.body;
+                    // let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];    
                     
+                    let date = new Date();
+                    let dateString = date.toISOString();
+                    let date1 = dateString.split("T");
+                    let date2 = date1[1].split(".");
+                    let trade_time = date1[0]+" "+date2[0];
+                    let date3 = date1[0].split("-");
+                    let newTimeStamp = `${date3[2]}-${date3[1]}-${date3[0]} ${date2[0]}`;
+                    
+                    console.log(newTimeStamp, trade_time);
                     try{
-                        const marginCall = new MarginCall({status: 'MARGIN CALL', uId: uid, createdBy: createdBy, average_price: zerodhaMargin/Quantity, Quantity: Quantity, Product:Product,
-                            buyOrSell: buyOrSell, order_timestamp: dateNow, validity: validity, exchange: exchange, order_type: OrderType, variety: variety,
-                        symbol: symbol, instrumentToken: instrumentToken, tradeBy: createdBy, marginCallFor: trader, amount: Number(Quantity)*Number(Price), trade_time: dateNow, lastModifiedBy: userId});
-    
+                        if(req.user.isAlgoTrader){
+                            
+                            let {algoName, transactionChange, instrumentChange, exchangeChange, 
+                                lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault} = algoBox
+
+                            const mockTradeCompany = new MockTradeCompany({
+                                status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity: realQuantity, 
+                                Product, buyOrSell:realBuyOrSell, order_timestamp: newTimeStamp,
+                                variety, validity, exchange, order_type: OrderType, symbol: realSymbol, placed_by: "stoxhero", userId,
+                                    algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
+                                lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault}, order_id, instrumentToken: real_instrument_token, brokerage: null,
+                                tradeBy: createdBy,trader : req.user._id, isRealTrade: false, amount: null, trade_time:trade_time,
+                                
+                            });
+                            await mockTradeCompany.save();
+                        }
+                        const mockTradeDetailsUser = new MockTrade({
+                            status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
+                            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+                            order_id: req.body.order_id, instrumentToken, brokerage: null, 
+                            tradeBy: createdBy,trader: req.user._id, amount: null, trade_time:trade_time,
+                            
+                        });    
                         console.log("margincall saving")
-                        await marginCall.save();
+                        await mockTradeDetailsUser.save();
                     }catch(e){
                         console.log("error saving margin call", e);
                     }
 
                     //console.log("sending response from authorise trade");
                     return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
-                } else if(Number(userFunds - zerodhaMargin) < 0){
-                    let uid = uuidv4();
-                    let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
-                        TriggerPrice, validity, variety, createdBy,
-                            createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
-                            accessToken, userId, checkingMultipleAlgoFlag, real_instrument_token, realSymbol, trader} = req.body;
+                } 
+                
+                // else if(Number(userFunds - zerodhaMargin) < 0){
+                //     let uid = uuidv4();
+                //     let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
+                //         TriggerPrice, validity, variety, createdBy,
+                //             createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
+                //             accessToken, userId, checkingMultipleAlgoFlag, real_instrument_token, realSymbol, trader} = req.body;
 
-                    let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];    
+                //     let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];  
+                //     //  2023-04-25T18:29:59.720Z
+                //     let date = new Date();
+                //     let date1 = date.split("T");
+                //     let date2 = date1[1].split(".");
+                //     let trade_time = date1[0]+" "+date2[0];
+                //     let date3 = date1.split("-");
+                //     let newTimeStamp = `${date3[2]}-${date3[1]}-${date3[0]} ${date2[0]}`
+
+                //     console.log(newTimeStamp, trade_time)
                     
-                    try{
-                        const marginCall = new MarginCall({status: 'MARGIN CALL', uId: uid, createdBy: createdBy, average_price: zerodhaMargin/Quantity, Quantity: Quantity, Product:Product,
-                            buyOrSell: buyOrSell, order_timestamp: dateNow, validity: validity, exchange: exchange, order_type: OrderType, variety: variety,
-                        symbol: symbol, instrumentToken: instrumentToken, tradeBy: createdBy, marginCallFor: trader, amount: Number(Quantity)*Number(Price), trade_time: dateNow, lastModifiedBy: userId});
-    
-                        console.log("margincall saving")
-                        await marginCall.save();
-                    }catch(e){
-                        console.log("error saving margin call", e);
-                    }
+                //     try{
+                //         const mockTradeDetailsUser = new MockTrade({
+                //             status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
+                //             variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+                //             order_id: req.body.order_id, instrumentToken, brokerage: null, 
+                //             tradeBy: createdBy,trader: req.user._id, amount: null, trade_time:trade_time,
+                            
+                //         });    
+                //         console.log("margincall saving")
+                //         await mockTradeDetailsUser.save();
+                //     }catch(e){
+                //         console.log("error saving margin call", e);
+                //     }
 
-                    //console.log("sending response from authorise trade");
-                    return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
-                }
+                //     //console.log("sending response from authorise trade");
+                //     return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
+                // }
                 else{
                     console.log("if user have enough funds")
                     return next();
@@ -281,6 +341,7 @@ exports.contestFundCheck = async(req, res, next) => {
 
                 console.log("users", users)
                 // (user => user.userId);
+
 
                 // const contest = await Contest.findOne({_id: contestId});
                 contestFunds = users[0].portfolioValue;
@@ -362,7 +423,7 @@ exports.contestFundCheck = async(req, res, next) => {
 
                       status: "COMPLETE",
                       trader: userId,
-                      contestId: new ObjectId(contestId),
+                    //   contestId: new ObjectId(contestId),
                       portfolioId: new ObjectId(portfolioId)
                     },
                 },
@@ -410,51 +471,76 @@ exports.contestFundCheck = async(req, res, next) => {
                 return next();
             } else{
                 console.log("in else")
-                if(userNetPnl !== undefined && Number(contestFunds + userNetPnl - zerodhaMargin)  < 0){
+                if(userNetPnl !== undefined ? Number(contestFunds + userNetPnl - zerodhaMargin)  < 0 : Number(contestFunds - zerodhaMargin) < 0){
                     let uid = uuidv4();
                     let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
                         TriggerPrice, validity, variety, createdBy,
                             createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
                             accessToken, userId, checkingMultipleAlgoFlag, real_instrument_token, realSymbol, trader} = req.body;
 
-                    let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];    
+                    // let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];    
+                    const now = new Date();
+                    const date = new Date(now.getTime() - 330 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
+                    let dateString = date.toISOString();
+                    let date1 = dateString.split("T");
+                    let date2 = date1[1].split(".");
+                    let trade_time = date1[0]+" "+date2[0];
+                    let date3 = date1[0].split("-");
+                    let newTimeStamp = `${date3[2]}-${date3[1]}-${date3[0]} ${date2[0]}`;
                     
+                    console.log(newTimeStamp, trade_time);
+
                     try{
-                        const marginCall = new MarginCall({status: 'MARGIN CALL', uId: uid, createdBy: createdBy, average_price: zerodhaMargin/Quantity, Quantity: Quantity, Product:Product,
-                            buyOrSell: buyOrSell, order_timestamp: dateNow, validity: validity, exchange: exchange, order_type: OrderType, variety: variety,
-                        symbol: symbol, instrumentToken: instrumentToken, tradeBy: createdBy, marginCallFor: trader, amount: Number(Quantity)*Number(Price), trade_time: dateNow, lastModifiedBy: userId});
-    
-                        console.log("margincall saving")
-                        await marginCall.save();
+                        // const mockTradeContest = new MockTradeContest({
+                        //     status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
+                        //     variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+                        //     order_id: req.body.order_id, instrumentToken, brokerage: null, 
+                        //     tradeBy: req.user._id,trader: req.user._id, amount: null, trade_time:trade_time,
+                            
+                        // });   
+                        
+                        const mockTradeContest = new MockTradeContest({
+                            status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
+                            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+                            order_id: req.body.order_id, instrumentToken, brokerage: null, contestId: req.params.id,
+                            tradeBy: req.user._id,trader: req.user._id, amount: null, trade_time:trade_time, portfolioId: req.body.portfolioId, employeeid: req.user.employeeid
+                            
+                        });
+
+                        console.log("margincall saving", mockTradeContest)
+                        await mockTradeContest.save();
+
                     }catch(e){
                         console.log("error saving margin call", e);
                     }
 
                     //console.log("sending response from authorise trade");
                     return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
-                } else if(Number(contestFunds - zerodhaMargin) < 0){
-                    let uid = uuidv4();
-                    let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
-                        TriggerPrice, validity, variety, createdBy,
-                            createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
-                            accessToken, userId, checkingMultipleAlgoFlag, real_instrument_token, realSymbol, trader} = req.body;
+                } 
+                
+                // else if(Number(contestFunds - zerodhaMargin) < 0){
+                //     let uid = uuidv4();
+                //     let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
+                //         TriggerPrice, validity, variety, createdBy,
+                //             createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
+                //             accessToken, userId, checkingMultipleAlgoFlag, real_instrument_token, realSymbol, trader} = req.body;
 
-                    let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];    
+                //     let dateNow = new Date().toISOString().split('T').join(' ').split('.')[0];    
                     
-                    try{
-                        const marginCall = new MarginCall({status: 'MARGIN CALL', uId: uid, createdBy: createdBy, average_price: zerodhaMargin/Quantity, Quantity: Quantity, Product:Product,
-                            buyOrSell: buyOrSell, order_timestamp: dateNow, validity: validity, exchange: exchange, order_type: OrderType, variety: variety,
-                        symbol: symbol, instrumentToken: instrumentToken, tradeBy: createdBy, marginCallFor: trader, amount: Number(Quantity)*Number(Price), trade_time: dateNow, lastModifiedBy: userId});
+                //     try{
+                //         const marginCall = new MarginCall({status: 'MARGIN CALL', uId: uid, createdBy: createdBy, average_price: zerodhaMargin/Quantity, Quantity: Quantity, Product:Product,
+                //             buyOrSell: buyOrSell, order_timestamp: dateNow, validity: validity, exchange: exchange, order_type: OrderType, variety: variety,
+                //         symbol: symbol, instrumentToken: instrumentToken, tradeBy: createdBy, marginCallFor: trader, amount: Number(Quantity)*Number(Price), trade_time: dateNow, lastModifiedBy: userId});
     
-                        console.log("margincall saving")
-                        await marginCall.save();
-                    }catch(e){
-                        console.log("error saving margin call", e);
-                    }
+                //         console.log("margincall saving")
+                //         await marginCall.save();
+                //     }catch(e){
+                //         console.log("error saving margin call", e);
+                //     }
 
-                    //console.log("sending response from authorise trade");
-                    return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
-                }
+                //     //console.log("sending response from authorise trade");
+                //     return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
+                // }
                 else{
                     console.log("if user have enough funds")
                     return next();

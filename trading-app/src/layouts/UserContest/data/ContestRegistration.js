@@ -51,8 +51,8 @@ function ContestRegistration () {
 
     },[])
 
-    console.log("Contest Registration Data: ",id)
-    console.log(`/arena/${contest?.contestName}/${contest?._id}`)
+    // console.log("Contest Registration Data: ",id)
+    // console.log(`/arena/${contest?.contestName}/${contest?._id}`)
   
     return (
     <MDBox key={contest?._id} bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10}>

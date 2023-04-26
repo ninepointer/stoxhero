@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 require("../../db/conn");
-const MockTradeDetails = require("../../models/mock-trade/mockTradeTraders");
+const MockTradeDetails = require("../../models/mock-trade/paperTrade");
 
 
 router.get("/getoverallpnlmocktradeparticulartradertoday/:email", async(req, res)=>{
