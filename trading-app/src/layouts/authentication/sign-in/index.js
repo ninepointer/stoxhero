@@ -150,7 +150,7 @@ function Basic() {
               navigate("/analytics");
             } 
             else if(userData.role?.roleName === userRole){
-              navigate("/position");
+              navigate("/PaperTrading");
             }
             
         }
