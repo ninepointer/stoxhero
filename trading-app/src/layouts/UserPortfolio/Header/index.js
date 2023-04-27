@@ -22,25 +22,7 @@ export default function LabTabs() {
   };
 
   return (
-    // <Box sx={{ width: '100%', typography: 'body1' }}>
-    //   <TabContext value={value}>
-    //     <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
-    //       <TabList onChange={handleChange} aria-label="lab API tabs example">
-    //         <Tab label="Trading Portfolios" value="1" />
-    //         <Tab label="Contest Portfolios" value="2" />
-    //       </TabList>
-    //     </Box>
-    //     <TabPanel value="1">
-    //       {isLoading ? 
-    //       <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-    //         <CircularProgress color="info" />
-    //       </MDBox>
-    //       : 
-    //       <MyPortfolio />
-    //       }
-    //     </TabPanel>
-    //   </TabContext>
-    // </Box>
+   
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
           
           <Grid container >
