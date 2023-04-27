@@ -3,7 +3,7 @@ const Schema = mongoose;
 const settingSchema = new mongoose.Schema({
 
     modifiedOn:{
-        type: String,
+        type: Date,
         required : true
     },
     modifiedBy:{
@@ -21,6 +21,10 @@ const settingSchema = new mongoose.Schema({
     },
     AppEndTime:{
         type: Date,
+        required: true,
+    },
+    leaderBoardTimming:{
+        type: Number,
         required: true,
     }
 })

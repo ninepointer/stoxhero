@@ -91,6 +91,26 @@ router.patch("/applive/:id", async (req, res)=>{
     }
 })
 
+router.patch("/leaderboardTime/:id", async (req, res)=>{
+    //console.log(req.params)
+
+    try{ 
+        const {id} = req.params
+        const setting = await Setting.findOneAndUpdate({_id : id}, {
+            $set:{ 
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
+                leaderBoardTimming: req.body.leaderBoardTimming
+            }
+        })
+        //console.log("this is role", setting);
+        // res.send(setting)
+        res.status(201).json({message : "Timming updated succesfully"});
+    } catch (e){
+        res.status(500).json({error:"Failed to edit data"});
+    }
+})
+
 
 // router.delete("/readpermission/:id", async (req, res)=>{
 //     //console.log(req.params)

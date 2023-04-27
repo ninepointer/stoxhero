@@ -131,7 +131,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
     }).catch((err) => {
         return new Error(err);
     })
-  }, [getDetails, ltp])
+  }, [getDetails])
 
   async function buyFunction(e, uId) {
       e.preventDefault()
@@ -160,11 +160,6 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
       placeOrder();
 
-
-      // let id = setTimeout(()=>{
-          
-      // }, 1000);
-      
   }
 
   async function placeOrder() {

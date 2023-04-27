@@ -3,11 +3,12 @@ const MockTradeDetails = require("../models/mock-trade/mockTradeCompanySchema");
 const MockTradeDetailsUser = require("../models/mock-trade/mockTradeUserSchema");
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
 const PaperTrade = require("../models/mock-trade/paperTrade");
+const singleLivePrice = require('../marketData/sigleLivePrice');
 
 
 
 exports.mockTrade = async (reqBody, res) => {
-
+    console.log("in mock trade")
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, createdBy, userId, uId, algoBox, order_id, instrumentToken,  
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = reqBody 
@@ -42,14 +43,13 @@ exports.mockTrade = async (reqBody, res) => {
     let newTimeStamp = "";
     let trade_time = "";
     try{
-        
-        let liveData = await axios.get(`${baseUrl}api/v1/getliveprice`)
-        for(let elem of liveData.data){
+        console.log("above data")
+        let liveData = await singleLivePrice(exchange, symbol)
+        console.log("live data", liveData)
+        for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){
                 newTimeStamp = elem.timestamp;
                 originalLastPriceUser = elem.last_price;
-            }
-            if(elem.instrument_token == real_instrument_token){
                 originalLastPriceCompany = elem.last_price;
             }
         }
@@ -182,7 +182,7 @@ exports.mockTrade = async (reqBody, res) => {
             });
             
     
-        }).catch(err => {console.log("fail")});  
+        }).catch(err => {console.log(err, "fail")});  
     }
 
 }
