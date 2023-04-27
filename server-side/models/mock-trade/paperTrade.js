@@ -107,6 +107,11 @@ const paperTrade = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
         // required : true
+    },
+    portfolioId:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-portfolio',
+        // required : true
     }
 })
 

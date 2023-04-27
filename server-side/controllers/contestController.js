@@ -20,7 +20,7 @@ exports.createContest = async(req, res, next)=>{
         stockType, contestOn, contestRule, rewards, entryFee, instruments, maxParticipants, 
         minParticipants,status, contestMargin
     } = req.body;
-    if(await Contest.findOne({contestName})) return res.status(400).json({message:'This contest already exists.'});
+    if(await Contest.findOne({contestName, status: "Live"})) return res.status(400).json({message:'This contest already exists.'});
 
     const contest = await Contest.create({contestName, contestStartDate, contestEndDate, entryOpeningDate, entryClosingDate, 
         stockType, contestOn, contestRule, rewards, entryFee, instruments, maxParticipants, 
