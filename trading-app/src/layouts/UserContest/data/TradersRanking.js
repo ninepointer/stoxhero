@@ -15,8 +15,8 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
   const [myRank, setMyRank] = useState({});
   const [isLoading,setIsLoading] = useState(true)
   const getDetails = useContext(userContext)
-  const leaderBoardEndPoint = isFromHistory ? "historyLeaderboard" : "leaderboard"
-  const myRankEndPOint = isFromHistory ? "historyMyrank" : "myrank"
+  const leaderBoardEndPoint = (isFromHistory || isFromResult) ? "historyLeaderboard" : "leaderboard"
+  const myRankEndPOint = (isFromHistory || isFromResult) ? "historyMyrank" : "myrank"
 
   console.log(leaderBoardEndPoint, myRankEndPOint)
   const fetchData = async () => {

@@ -10,6 +10,7 @@ const AWS = require('aws-sdk');
 const sharp = require('sharp');
 const Authenticate = require("../../authentication/authentication");
 const Wallet = require('../../models/UserWallet/userWalletSchema');
+const { ObjectId } = require("mongodb");
 
 
 const storage = multer.memoryStorage();
@@ -438,7 +439,7 @@ router.get("/readparticularuserdetails/:email", (req, res)=>{
 })
 
 router.get("/getAdmins/", (req, res)=>{
-    UserDetail.find({role : "admin" })
+    UserDetail.find({role : new ObjectId("6448f834446977851c23b3f5") })
     .then((data)=>{
         return res.status(200).send(data);
     })
