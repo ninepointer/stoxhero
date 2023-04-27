@@ -21,9 +21,9 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 
-function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, symbol, quantity, exchange, instrumentToken }) {
+function ExitPosition({ isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken }) {
   console.log("rendering in userPosition/overall: exitPosition", quantity)
-  const { render, setReRender } = Render
+  // const { render, setReRender } = Render
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -118,12 +118,9 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
         return new Error(err);
       })
 
-    let instrumentEndpoint = contestId ? `contestInstrument` : `readInstrumentDetails`
-    axios.get(`${baseUrl}api/v1/${instrumentEndpoint}`)
+    axios.get(`${baseUrl}api/v1/${"readInstrumentDetails"}`)
       .then((res) => {
-        let dataArr = (res.data).filter((elem) => {
-          return elem.status === "Active" && elem.symbol === symbol
-        })
+        let dataArr = (res.data)
         setTradeData(dataArr)
       }).catch((err) => {
         return new Error(err);
@@ -131,7 +128,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
 
     setTradeData([...tradeData])
 
-  }, [render])
+  }, [])
 
   let lotSize = tradeData[0]?.lotSize;
   let maxLot = tradeData[0]?.maxLot;
@@ -187,10 +184,9 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
 
   async function placeOrder() {
 
-    let endpoint = contestId ? `contest/${contestId}/trades/` : `placingOrder`
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
 
-    const res = await fetch(`${baseUrl}api/v1/${endpoint}`, {
+    const res = await fetch(`${baseUrl}api/v1/${"paperTrade"}`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -201,7 +197,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
         exchange, symbol, buyOrSell, Quantity, Price,
         Product, OrderType, TriggerPrice, stopLoss, uId,
         validity, variety, createdBy, order_id: dummyOrderId,
-        userId, instrumentToken, trader, portfolioId
+        userId, instrumentToken, trader, paperTrade: true
 
       })
     });
@@ -229,7 +225,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
         openSuccessSB('else', dataResp.message)
         // window.alert(dataResp.message);
       }
-      render ? setReRender(false) : setReRender(true)
+      reRender ? setReRender(false) : setReRender(true)
     }
   }
 

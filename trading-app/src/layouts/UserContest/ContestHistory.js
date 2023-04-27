@@ -18,13 +18,13 @@ function Tables() {
   // const { columns, rows } = authorsTableData();
   // const { columns: pColumns, rows: pRows } = projectsTableData();
 //   const [contestId,setContestId] = useState();
-const location = useLocation();
-const  fromMyContest  = location?.state?.fromMyContest;
-const  contestId  = location?.state?.contestId;
-const  portfolioId  = location?.state?.portfolioId;
-const isFromHistory = location?.state?.isFromHistory
-const  isDummy  = location?.state?.isDummy;
-const isFromUpcomming = location?.state?.isFromUpcomming;
+// const location = useLocation();
+// const  fromMyContest  = location?.state?.fromMyContest;
+// const  contestId  = location?.state?.contestId;
+// const  portfolioId  = location?.state?.portfolioId;
+// const isFromHistory = location?.state?.isFromHistory
+// const  isDummy  = location?.state?.isDummy;
+// const isFromUpcomming = location?.state?.isFromUpcomming;
 
 
 

@@ -162,7 +162,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
 
       // let id = setTimeout(()=>{
-          reRender ? setReRender(false) : setReRender(true)
+          
       // }, 1000);
       
   }
@@ -171,7 +171,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
 
-    const res = await fetch(`${baseUrl}api/v1/placingOrder`, {
+    const res = await fetch(`${baseUrl}api/v1/paperTrade`, {
         method: "POST",
         credentials:"include",
         headers: {
@@ -182,7 +182,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
           exchange, symbol, buyOrSell, Quantity, Price, 
           Product, OrderType, TriggerPrice, stopLoss, uId,
           validity, variety, createdBy, order_id:dummyOrderId,
-          userId, instrumentToken, trader
+          userId, instrumentToken, trader, paperTrade: true
 
         })
     });
@@ -211,6 +211,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
           // window.alert(dataResp.message);
         }
     }
+    reRender ? setReRender(false) : setReRender(true)
   }
 
   async function addInstrument(){

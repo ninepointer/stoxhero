@@ -9,6 +9,7 @@ const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
 const Authenticate = require("../../authentication/authentication");
+const Wallet = require('../../models/UserWallet/userWalletSchema');
 
 
 const storage = multer.memoryStorage();

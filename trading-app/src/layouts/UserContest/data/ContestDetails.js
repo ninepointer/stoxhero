@@ -1,4 +1,4 @@
-import React,{useState, useContext, memo} from 'react'
+import React,{useState, useContext, memo, useEffect} from 'react'
 import MDBox from '../../../components/MDBox'
 import Grid from '@mui/material/Grid'
 import MDTypography from '../../../components/MDTypography'
@@ -6,7 +6,7 @@ import MDButton from '../../../components/MDButton'
 import Logo from '../../../assets/images/logo1.jpeg'
 import { Divider } from '@mui/material'
 import { HiUserGroup } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useLocation } from 'react-router-dom';
 import axios from "axios";
@@ -15,12 +15,14 @@ import Timer from '../timer'
 import PrizeDistribution from './PrizeDistribution'
 import ContestRules from './ContestRules'
 import InviteFriend from '../../referrals/Header/InviteFriendModel'
-import { userContext } from '../../../AuthContext'
+import { userContext } from '../../../AuthContext';
+import MDSnackbar from "../../../components/MDSnackbar";
+
 
 function ContestDetails () {
     const getDetails = useContext(userContext);
     const [isLoading,setIsLoading] = useState(false);
-    const [contest,setContest] = useState();
+    const [contest,setContest] = useState({});
     const [invited,setInvited] = useState(false)
     const [activeReferralProgram,setActiveReferralProgram] = useState();
     const location = useLocation();
@@ -29,6 +31,7 @@ function ContestDetails () {
 
     console.log("Location: ",location)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    const nevigate = useNavigate();
   
     React.useEffect(()=>{
       
@@ -53,6 +56,52 @@ function ContestDetails () {
         })
 
     },[])
+
+    // const [buttonClicked, setButtonClicked] = useState(false);
+    // const [shouldNavigate, setShouldNavigate] = useState(false);
+  
+    // const handleButtonClick = async () => {
+    //     console.log("id is", contest?._id)
+    //     axios.get(`${baseUrl}api/v1/contest/${contest?._id}/syncTime`)
+    //     .then((res)=>{
+
+    //         const resTime = new Date(res?.data?.data);
+    //         const currentTime = new Date();
+
+    //         if (resTime.getUTCHours() === currentTime.getUTCHours() && resTime.getUTCMinutes() === currentTime.getUTCMinutes()) {
+    //             setButtonClicked(true);
+    //         } else{
+    //             openSuccessSB("Failed","Your timestamp is not correct", "FAIL");
+    //             return;
+    //         }
+            
+    //     }).catch((err)=>{
+    //         return new Error(err);
+    //     })
+    // //   if(!selectedPortfolio){
+    // //     console.log("in join if")
+
+    // //   }
+    // //   await joinContest();
+      
+    // };
+  
+    // useEffect(() => {
+    //   if (buttonClicked) {
+    //     setShouldNavigate(true);
+    //   }
+    // }, [buttonClicked, contest]);
+  
+    // useEffect(() => {
+    //   if (shouldNavigate) {
+    //     nevigate(`/battleground/${contest?.contestName}/register`, {
+    //       state: {data:contest?._id}
+    //     });
+    //   }
+    // }, [shouldNavigate, contest]);
+
+
+
 
     function timeChange(timeString){
         // const timeString = "18:27:36.000Z";
@@ -88,6 +137,56 @@ function ContestDetails () {
     }
 
 
+    const [successSB, setSuccessSB] = useState(false);
+    const [msgDetail, setMsgDetail] = useState({
+      title: "",
+      content: "",
+      // successSB: false,
+      color: "",
+      icon: ""
+    })
+    const openSuccessSB = (title,content, message) => {
+      msgDetail.title = title;
+      msgDetail.content = content;
+      // msgDetail.successSB = true;
+      if(message == "SUCCESS"){
+        msgDetail.color = 'success';
+        msgDetail.icon = 'check'
+      } else {
+        msgDetail.color = 'error';
+        msgDetail.icon = 'warning'
+      }
+      console.log(msgDetail)
+      setMsgDetail(msgDetail)
+      // setTitle(title)
+      // setContent(content)
+      setSuccessSB(true);
+    }
+  
+    const closeSuccessSB = () =>{
+      // msgDetail.successSB = false
+      setSuccessSB(false);
+  
+    }
+  
+    // const closeSuccessSB = () => msgDetail.successSB = false;
+  
+  
+    const renderSuccessSB = (
+    <MDSnackbar
+        color={msgDetail.color}
+        icon={msgDetail.icon}
+        title={msgDetail.title}
+        content={msgDetail.content}
+        open={successSB}
+        onClose={closeSuccessSB}
+        close={closeSuccessSB}
+        bgWhite="info"
+    />
+    );
+  
+
+
     console.log("Contest Registration Data: ",contest)
   
     return (
@@ -105,7 +204,7 @@ function ContestDetails () {
 
                     <MDTypography mb={2} color="light" display="flex" flexDirection="row" alignItems="center" alignContent="center">
                         <MDBox mr={2} fontSize={14} display="flex" justifyContent="left" color="light">League is about to begin in</MDBox>
-                        <MDBox display="flex" justifyContent="right" fontWeight={700} borderRadius={4} p={0.5} bgColor="light" fontSize={12} color="dark"><Timer targetDate={contest?.contestStartDate} text="Contest has Started" /></MDBox>
+                        <MDBox display="flex" justifyContent="right" fontWeight={700} borderRadius={4} p={0.5} bgColor="light" fontSize={12} color="dark"><Timer targetDate={contest?.contestStartDate} text="Battle has Started" /></MDBox>
                     </MDTypography>
 
                     <MDTypography color="light" display="flex" flexDirection="row" alignItems="center" alignContent="center">
@@ -174,7 +273,7 @@ function ContestDetails () {
 
                         <Grid item xs={12} md={6} lg={12} mt={2} display="flex" justifyContent="center" alignItems="center">
                             <TaskAltIcon />
-                            <MDTypography color="light" fontSize={15}>I accept the <Link style={{color:"grey"}} href="#">terms and conditions</Link> for this contest</MDTypography>
+                            <MDTypography color="light" fontSize={15}>I accept the <Link style={{color:"grey"}} href="#">terms and conditions</Link> for this battle</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={6} lg={12} mt={2} display="flex" justifyContent="space-between" alignItems="center">
@@ -189,7 +288,7 @@ function ContestDetails () {
                                   }}
                                   state= {{data:contest?._id}}
 
-                                //   onClick={()=>{joinContest(contest?._id)}}
+                                //   onClick={handleButtonClick}
                             >
                                 Register
                             </MDButton>
@@ -228,6 +327,7 @@ function ContestDetails () {
             <ContestRules contest={contest}/>
 
         </Grid>
+        {renderSuccessSB}
         </MDBox>
     }
     </>

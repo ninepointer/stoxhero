@@ -1,52 +1,41 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const everyoneRoleSchema = new mongoose.Schema({
-    uId:{
-        type: String,
-        required : true
-    },
-    createdOn:{
-        type: String,
-        required : true
-    },
-    lastModified:{
-        type: String,
-        required : true
-    },
-    createdBy:{
-        type: String,
-        required : true
-    },
+const roleSchema = new mongoose.Schema({
+
     roleName:{
         type: String,
-        required : true
+        required : true,
+        enum: ["Admin", "User", "Infinity Trader", "Super Admin", "Moderator"]
     },
-    instruments:{
-        type: String,
-        required : true
+
+    createdOn:{
+        type: Date,
+        required : true,
+        default: new Date(),
     },
-    tradingAccount:{
-        type: String,
-        required : true
+    lastModifiedOn:{
+        type: Date,
+        required : true,
+        default: new Date(),
     },
-    APIParameters:{
-        type: String,
-        required : true
+    createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+        // required : true
     },
-    users:{
-        type: String,
-        required : true
+    lastModifiedBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+        // required : true
     },
-    algoBox:{
+    status:{
         type: String,
-        required : true
-    },
-    reports:{
-        type: String,
-        required : true
+        required : true,
+        enum: ["Active", "Inactive"]
     }
 
 })
 
-const everyoneRoleDetail = mongoose.model("role-detail", everyoneRoleSchema);
+const everyoneRoleDetail = mongoose.model("role-detail", roleSchema);
 module.exports = everyoneRoleDetail;

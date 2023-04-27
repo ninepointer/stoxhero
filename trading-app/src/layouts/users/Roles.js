@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -7,24 +7,17 @@ import Card from "@mui/material/Card";
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
-
-// Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
-
-// Data
-// import authorsTableData from "./data/authorsTableData";
-import projectsTableData from "./data/projectsTableData";
 import RolesModel from './RolesModel';
 import RoleData from './data/RoleData';
 
 
 
 const Roles = () => {
-    const { columns, rows } = RoleData();
-    const { columns: pColumns, rows: pRows } = projectsTableData();
+    const [reRender, setReRender] = useState(true);
+
+    const { columns, rows } = RoleData(reRender);
+    console.log(rows)
     return (
         <>
             <MDBox pt={6} pb={3}>
@@ -48,7 +41,7 @@ const Roles = () => {
                                 <MDTypography variant="h6" color="white" py={2.5}>
                                     User Roles
                                 </MDTypography>
-                                <RolesModel />
+                                <RolesModel Render={{reRender, setReRender}} />
                             </MDBox>
                             <MDBox pt={3}>
                                 <DataTable

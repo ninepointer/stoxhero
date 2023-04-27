@@ -90,8 +90,8 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
 
       // reRender ? setRender(false) : setRender(true);
       return () => abortController.abort();
-    // }, [reRender])
-  }, [marketDetails.marketData, reRender])
+    }, [reRender])
+  // }, [marketDetails.marketData, reRender])
 
     // useEffect(() => {
     //   return () => {
@@ -190,7 +190,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
         );
       }
       obj.exit = (
-        < ExitPosition product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
+        < ExitPosition reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
       );
       obj.buy = (
         <Buy reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
