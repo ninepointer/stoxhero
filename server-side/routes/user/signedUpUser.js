@@ -249,7 +249,7 @@ router.patch("/verifyotp", async (req, res)=>{
         let obj = {
             first_name, last_name, designation: 'Equity Trader', email, 
             mobile,
-            role: 'user', 
+            // role: 'user', 
             createdBy: first_name + ' ' + last_name,last_modifiedBy: first_name + ' ' + last_name, 
             name: first_name + ' ' + last_name.substring(0,1), createdOn: user.last_modifiedOn, 
             lastModified: user.last_modifiedOn, password: 'np' + last_name + '@123', status: 'Active', 
@@ -297,8 +297,8 @@ router.patch("/verifyotp", async (req, res)=>{
                 const wallet = await UserWallet.findOne({userId: referrerCodeMatch._id});
                 wallet.transactions = [...wallet.transactions, {
                     title: 'Referral Credit',
-                    description: `Amount credited for referral of ${newuser.first_name} + ${newuser.last_name}`,
-                    amout: referralProgramme.rewardPerReferral,
+                    description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                    amount: referralProgramme.rewardPerReferral,
                     transactionId: uuid.v4(),
                     transactionType: referralProgramme.currency == 'INR'?'Cash':'Bonus' 
                 }];
@@ -430,7 +430,7 @@ router.patch("/verifyotp", async (req, res)=>{
             emailService(newuser.email,subject,message);
         }
         catch(error){
-            throw new Error(error);
+            console.log(error);
         }
         
 
