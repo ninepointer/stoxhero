@@ -18,6 +18,7 @@ const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const tough = require('tough-cookie');
 const userWallet = require('../models/UserWallet/userWalletSchema');
 const User = require("../models/User/userDetailSchema");
+const AppSetting = require('../models/settings/setting')
 
 // Create a new CookieJar to store cookies
 const cookieJar = new tough.CookieJar();
@@ -34,7 +35,7 @@ exports.newTrade = async (req, res, next) => {
 
           tradeBy = req.user._id
           employeeid = req.user.employeeid;
-        // console.log("req.body", req.body)
+        console.log("req.body", req.body)
 
     const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
     const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
@@ -69,10 +70,8 @@ exports.newTrade = async (req, res, next) => {
           }
       }
 
-      trade_time = newTimeStamp;
-      // let firstDateSplit = (newTimeStamp).split(" ");
-      // let secondDateSplit = firstDateSplit[0].split("-");
-      // newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
+      console.log("trade time", new Date(new Date(newTimeStamp).getTime() + 330*60000));
+      trade_time = new Date(new Date(newTimeStamp).getTime() + 330*60000);
 
 
   } catch(err){
@@ -131,7 +130,7 @@ exports.newTrade = async (req, res, next) => {
           status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
-          createdBy: tradeBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
           
       });
 
@@ -289,11 +288,8 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           }
       }
 
-      trade_time = newTimeStamp;
-      // let firstDateSplit = (newTimeStamp).split(" ");
-      // let secondDateSplit = firstDateSplit[0].split("-");
-      // newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
 
+      trade_time = new Date(new Date(newTimeStamp).getTime() + 330*60000);
 
   } catch(err){
       console.log(err)
@@ -346,7 +342,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
-          createdBy: tradeBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
           
       });
 
@@ -707,7 +703,7 @@ exports.autoTradeContest = async(req, res, next) => {
     // const thirtyMinutesBeforeNow = new Date(now.getTime() - 30 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
 
     const today = new Date().toISOString().slice(0, 10);
-    console.log(now)
+    // console.log(now)
     const contests = await Contest.find({
       contestEndDate: {
         $gte: twoMinutesBeforeNow,
@@ -717,7 +713,7 @@ exports.autoTradeContest = async(req, res, next) => {
     );
 
 
-    console.log(contests)
+    // console.log(contests)
     const userIds = await contests.map(async (contest) => {
       // contest.participants.map(async (elem)=>{
       //   console.log(elem.userId, elem.portfolioId)
@@ -843,8 +839,8 @@ exports.autoTradeContest = async(req, res, next) => {
             investedAmount: Number(investedAmount)
           }
 
-          console.log("object", obj);
-          console.log('query filter:', { 'participants.userId': participant.userId });
+          // console.log("object", obj);
+          // console.log('query filter:', { 'participants.userId': participant.userId });
           try{
            const result =  await Contest.findOneAndUpdate(
               { _id: contest._id, 'participants.userId': participant.userId },
@@ -852,7 +848,7 @@ exports.autoTradeContest = async(req, res, next) => {
               { new: true }
             );
 
-            console.log(result)
+            // console.log(result)
   
             await client.del(`${participant.employeeid} investedAmount`);
 
@@ -897,8 +893,8 @@ exports.autoTradeContest = async(req, res, next) => {
         investedAmount: Number(investedAmount)
       }
 
-      console.log("object", obj);
-      console.log('query filter:', { 'participants.userId': participant.userId });
+      // console.log("object", obj);
+      // console.log('query filter:', { 'participants.userId': participant.userId });
       try{
        const result =  await Contest.findOneAndUpdate(
           { _id: contest._id, 'participants.userId': participant.userId },
@@ -916,7 +912,7 @@ exports.autoTradeContest = async(req, res, next) => {
 
     }
     let data = userIds;
-    console.log(data)
+    // console.log(data)
     res.send("ok")
 
 }
@@ -984,22 +980,8 @@ exports.getMyLeaderBoardRank = async(req,res, next) => {
 
 exports.getRedisLeaderBoard = async(req,res,next) => {
   const {id} = req.params;
-  // const employeeid = req.user.employeeid;
-  // console.log("contest id", id, `${id.toString()} allranks`)
-  //Check if leaderBoard for contest exists in Redis
+  const appSetting = await AppSetting.find();
 
-
-
-  // for(let i = 0; i < allUsers.length; i++){
-  //   try{
-  //     // let temp = await client.HSET(id.toString(), {vijay: allUsers[i]._id.toString(), verma: allUsers[i].employeeid});
-
-  //     let temp = await client.hSet(id.toString(), allUsers[i]._id.toString(), JSON.stringify(allUsers[i].employeeid));
-  //     console.log(temp);
-  //   } catch(err){
-  //     console.log(err)
-  //   }
-  // }
 
   try{
     if(!await client.exists(`${id.toString()}employeeid`)){
@@ -1043,7 +1025,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
           for (tick of filteredTicks){
             livePrices[tick.instrument_token] = tick.last_price;
           }
-          console.log(livePrices);
+          // console.log(livePrices);
         }
       }else{
         const contestInstruments = await ContestInstrument.find({'contest.contestId': id}).select('instrumentToken exchange symbol');
@@ -1074,15 +1056,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
   
         const response = await axios.get(ltpBaseUrl, authOptions);
         for (let instrument in response.data.data) {
-          
-            // let obj = {};
-            // console.log(instrument, response.data.data[instrument].last_price);
             livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
-            // obj.last_price = response.data.data[instrument].last_price;
-            // obj.instrument_token = response.data.data[instrument].instrument_token;
-            // obj.average_price = response.data.data[instrument].ohlc.close;
-            // obj.timestamp = response.data.data[instrument].timestamp
-            // arr.push(obj);
         }
       }
 
@@ -1092,7 +1066,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       if(await client.exists(`${id.toString()} allranks`)){
         ranks = await client.get(`${id.toString()} allranks`);
         ranks = JSON.parse(ranks);
-        console.log('ranks in redis',ranks);
+        // console.log('ranks in redis',ranks);
       } else{
 
         ranks = await ContestTrade.aggregate([
@@ -1154,7 +1128,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
             }
           },
         ]);
-        console.log("ranks from db", ranks)
+        // console.log("ranks from db", ranks)
         await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
 
       }
@@ -1168,49 +1142,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
         // console.log('npnl is', doc?.npnl);
       }
 
-      
-
-      // const result = Object.values(ranks.reduce(async (acc, curr) => {
-      //   const { userId, npnl, investedAmount } = curr;
-      //   const traderId = userId.trader;
-      //   // const employeeid = userId.employeeid;
-      //   const employeeid = await client.HGET(`${id}`, `${traderId}`);
-      //   if (!acc[traderId]) {
-      //     acc[traderId] = {
-      //       traderId,
-      //       name: employeeid,
-      //       npnl: 0,
-      //       investedAmount: 0
-      //     };
-      //   }
-      //   acc[traderId].npnl += npnl;
-      //   acc[traderId].investedAmount += investedAmount
-      //   return acc;
-      // }, {}));
-
-      // async function aggregateRanks(ranks) {
-      //   const result = Object.values(await ranks.reduce(async (acc, curr) => {
-      //     const { userId, npnl, investedAmount } = curr;
-      //     const traderId = userId.trader;
-      //     let employeeidObj = await client.get(`${(id).toString()}employeeid`);
-      //     employeeidObj = JSON.parse(employeeidObj);
-      //     console.log("employeeid", employeeidObj[traderId.toString()])
-      //     if (!acc[traderId]) {
-      //       acc[traderId] = {
-      //         traderId,
-      //         name: employeeidObj[traderId.toString()],
-      //         npnl: 0,
-      //         investedAmount: 0
-      //       };
-      //     }
-      //     acc[traderId].npnl += npnl;
-      //     acc[traderId].investedAmount += investedAmount
-      //     console.log("acc", acc)
-      //     return acc;
-      //   }, {}));
-      //   return result;
-      // }
-
+    
       async function aggregateRanks(ranks) {
         const result = {};
         for (const curr of ranks) {
@@ -1218,7 +1150,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
           const traderId = userId.trader;
           let employeeidObj = await client.get(`${(id).toString()}employeeid`);
           employeeidObj = JSON.parse(employeeidObj);
-          console.log("employeeid", employeeidObj[traderId.toString()])
+          // console.log("employeeid", employeeidObj[traderId.toString()])
           if (!result[traderId]) {
             result[traderId] = {
               traderId,
@@ -1229,14 +1161,14 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
           }
           result[traderId].npnl += npnl;
           result[traderId].investedAmount += investedAmount
-          console.log("result", result)
+          // console.log("result", result)
         }
         return Object.entries(result).map(([key, value]) => value);
       }
 
       const result = await aggregateRanks(ranks);
 
-      console.log("rsult", result)
+      // console.log("rsult", result)
       for (rank of result){
         // console.log(rank);
         // console.log(`leaderboard${id}`);
@@ -1248,7 +1180,8 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       }
       
       // await pipeline.exec();
-      await client.expire(`leaderboard:${id}`,1);
+      console.log("app setting", appSetting[0].leaderBoardTimming)
+      await client.expire(`leaderboard:${id}`, appSetting[0].leaderBoardTimming);
 
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = await formatData(leaderBoard)

@@ -18,7 +18,7 @@ import { GiNinjaHeroicStance } from 'react-icons/gi';
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
-import UserPosition from "./layouts/User Position";
+import UserPosition from "./layouts/PaperTrade";
 import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
 import UserContest from "./layouts/UserContest"
@@ -57,7 +57,7 @@ const routes = [
     key: "PaperTrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
-    route: "/PaperTrading",
+    route: "/paperTrading",
     component: <UserPosition />,
   },
   {
@@ -66,7 +66,7 @@ const routes = [
     key: "StoxHeroTrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <GiNinjaHeroicStance/>,
-    route: "/StoxHeroTrading",
+    route: "/stoxHeroTrading",
     component: <StoxHeroTrading />,
   },
   // {

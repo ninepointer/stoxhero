@@ -333,9 +333,9 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             try{ //portfolioType
 
                     // console.log("in userfund if")
-                    const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
+                    // const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
                     // console.log(myPortfolios)
-                    userFunds = myPortfolios.portfolioValue;
+                    // userFunds = myPortfolios.portfolioValue;
                
                 // const user = await UserDetail.findOne({email: userId});
                 // userFunds = user.fund;
@@ -464,21 +464,27 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
 
             
             const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
+            console.log("myPortfolios", myPortfolios)
             let addPortfolioFund = 0;
+            let flag = false;
             for(let i = 0; i < myPortfolios.length; i++){
                 let fund = myPortfolios[i].portfolioValue;
-                if(userNetPnl ? Number(fund + userNetPnl - zerodhaMargin) > 0 : Number(fund - zerodhaMargin) > 0){
+                if(!flag && userNetPnl ? Number(fund + userNetPnl - zerodhaMargin) > 0 : Number(fund - zerodhaMargin) > 0){
                     userFunds = fund;
                     req.body.portfolioId = myPortfolios[i]._id;
                     break;
                 } else if (fund > 0){
+                    flag = true;
                     addPortfolioFund += fund;
                     if(userNetPnl ? Number(addPortfolioFund + userNetPnl - zerodhaMargin) > 0 : Number(addPortfolioFund - zerodhaMargin) > 0){
                         userFunds = addPortfolioFund;
-                        req.body.portfolioId = myPortfolios[i]._id;
+                        req.body.portfolioId = myPortfolios[i-1]._id;
                     }
                 }
             }
+            // 20 15
+            // 10 15 -->2nd 50
+            // 0  15
 
             // if(( !runningLots[0]?.runningLots || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) && Number(userFunds + userNetPnl - zerodhaMargin)  < 0){
             // if(( !runningLots[0]?.runningLots || (((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot == buyOrSell))) && Number(userFunds + userNetPnl - zerodhaMargin)  < 0){   
@@ -547,7 +553,7 @@ exports.contestFundCheck = async(req, res, next) => {
     console.log(contestId, userId)
 
     getKiteCred.getAccess().then(async (data)=>{
-    // //console.log(data)
+    // console.log(data)
 
             let date = new Date();
             let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -573,6 +579,8 @@ exports.contestFundCheck = async(req, res, next) => {
                 "price": 0,
                 "trigger_price": 0
             }]
+
+            console.log(orderData);
             let contestFunds;
             try{
                 const portfolio = await Portfolio.findById({_id: portfolioId});
@@ -636,7 +644,7 @@ exports.contestFundCheck = async(req, res, next) => {
 
             console.log("lots and fund", runningLots, contestFunds)
             if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
-                //console.log("checking runninglot- reverse trade");
+                console.log("checking runninglot- reverse trade");
                 next();
                 return ;
             }
@@ -646,11 +654,11 @@ exports.contestFundCheck = async(req, res, next) => {
 
             // if( (!runningLots[0]?.runningLots) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             try{
-                //console.log("fetching margin data")
+                // console.log("fetching margin data")
                 marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, {headers : headers})
                 
                 zerodhaMargin = marginData.data.data.orders[0].total;
-                //console.log("zerodhaMargin", zerodhaMargin);
+                // console.log("zerodhaMargin", marginData);
             }catch(e){
                 // console.log("error fetching zerodha margin", e);
             } 
@@ -698,7 +706,7 @@ exports.contestFundCheck = async(req, res, next) => {
                 },
             ])
 
-            console.log("pnlDetails", pnlDetails)
+            // console.log("pnlDetails", pnlDetails)
 
 
             let userNetPnl = pnlDetails[0]?.npnl;
@@ -742,10 +750,10 @@ exports.contestFundCheck = async(req, res, next) => {
                         // });   
                         
                         const mockTradeContest = new MockTradeContest({
-                            status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
-                            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+                            status:"REJECTED", status_message: "insufficient fund",average_price: null, Quantity, Product, buyOrSell,
+                            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                             order_id: req.body.order_id, instrumentToken, brokerage: null, contestId: req.params.id,
-                            tradeBy: req.user._id,trader: req.user._id, amount: null, trade_time:trade_time, portfolioId: req.body.portfolioId, employeeid: req.user.employeeid
+                            createdBy: req.user._id,trader: req.user._id, amount: null, trade_time:trade_time, portfolioId: req.body.portfolioId
                             
                         });
 

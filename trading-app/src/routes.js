@@ -16,7 +16,7 @@ import Setting from "./layouts/settings/Setting";
 import Expense from "./layouts/expenses/";
 import AlgoPosition from "./layouts/algo position";
 import UserOrders from "./layouts/userorders";
-import UserPosition from "./layouts/User Position";
+import UserPosition from "./layouts/PaperTrade";
 import UserReport from "./layouts/userreports";
 import TradersReport from "./layouts/tradersReportMock";
 import AdminReport from "./layouts/adminreportMock";

@@ -151,7 +151,7 @@ function Basic() {
               navigate("/analytics");
             } 
             else if(userData.role?.roleName === userRole){
-              navigate("/PaperTrading");
+              navigate("/paperTrading");
             }
             else if(userData.role?.roleName === InfinityTraderRole){
               navigate("/position");

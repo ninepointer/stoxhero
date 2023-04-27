@@ -7,15 +7,12 @@ const singleLivePrice = require('../marketData/sigleLivePrice');
 
 
 
-exports.mockTrade = async (reqBody, res) => {
+exports.mockTrade = async (req, res) => {
     console.log("in mock trade")
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, createdBy, userId, uId, algoBox, order_id, instrumentToken,  
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = reqBody 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
-        // console.log(reqBody)
-        // let algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
-        //     productChange, tradingAccount, _id, marginDeduction, isDefault;
         if(isAlgoTrader){
             var {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
                 productChange, tradingAccount, _id, marginDeduction, isDefault} = algoBox
@@ -43,9 +40,9 @@ exports.mockTrade = async (reqBody, res) => {
     let newTimeStamp = "";
     let trade_time = "";
     try{
-        console.log("above data")
+        // console.log("above data")
         let liveData = await singleLivePrice(exchange, symbol)
-        console.log("live data", liveData)
+        // console.log("live data", liveData)
         for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){
                 newTimeStamp = elem.timestamp;
@@ -54,11 +51,7 @@ exports.mockTrade = async (reqBody, res) => {
             }
         }
 
-        trade_time = newTimeStamp;
-        // let firstDateSplit = (newTimeStamp).split(" ");
-        // let secondDateSplit = firstDateSplit[0].split("-");
-        // newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
-
+        trade_time = new Date(new Date(newTimeStamp).getTime() + 330*60000);
 
     } catch(err){
         return new Error(err);
@@ -117,7 +110,7 @@ exports.mockTrade = async (reqBody, res) => {
                 variety, validity, exchange, order_type: OrderType, symbol: realSymbol, placed_by: "ninepointer",
                     algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
                 lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault}, order_id, instrumentToken: real_instrument_token, brokerage: brokerageCompany,
-                tradeBy: req.user._id,trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), trade_time:trade_time,
+                createdBy: req.user._id,trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), trade_time:trade_time,
                 
             });
     
@@ -139,7 +132,7 @@ exports.mockTrade = async (reqBody, res) => {
                 status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
-                tradeBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+                createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
     
