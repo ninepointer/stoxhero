@@ -263,7 +263,7 @@ const uploadToS3 = async (req, res, next) => {
   };
 
 
-router.post("/userdetail", authController.protect, authController.restrictTo("admin"), (req, res)=>{
+router.post("/userdetail", authController.protect, (req, res)=>{
     const {status, uId, createdOn, lastModified, createdBy, name, cohort, designation, email, mobile, degree, dob, gender, trading_exp, location, last_occupation, joining_date, role, userId, password, employeeId} = req.body;
     console.log(req.body)
     if(!status || !uId || !createdOn || !lastModified || !createdBy || !name || !cohort || !designation || !email || !mobile || !degree || !dob || !gender || !trading_exp || !location || !last_occupation || !joining_date || !role){
@@ -438,6 +438,7 @@ router.get("/readparticularuserdetails/:email", (req, res)=>{
     })
 })
 
+// admin id --> new ObjectId("6448f834446977851c23b3f5")
 router.get("/getAdmins/", (req, res)=>{
     UserDetail.find({role : new ObjectId("6448f834446977851c23b3f5") })
     .then((data)=>{

@@ -74,10 +74,10 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true        
     },
-    tradeBy:{
-        type: Schema.Types.ObjectId,
-        ref: 'user-personal-detail',      
-    },
+    // tradeBy:{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'user-personal-detail',      
+    // },
     amount:{
         type: Number,
         // required: true        
@@ -98,6 +98,11 @@ const paperTrade = new mongoose.Schema({
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+    },
+    portfolioId:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-portfolio',
+        // required : true
     }
 })
 

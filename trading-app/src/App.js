@@ -36,6 +36,7 @@ import routes from "./routes";
 // import adminRoutes from "./routes";
 import userRoutes from "./routesUser";
 import analyticsRoutes from "./analyticsRoutes"
+import routesInfinityTrader from "./routesInfinityTrader";
 
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "./context";
@@ -53,6 +54,7 @@ import SignUp from './layouts/authentication/sign-up'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
+import { InfinityTraderRole } from "./variables";
 
 export default function App() {
   const cookieValue = Cookies.get("jwt");
@@ -180,8 +182,7 @@ export default function App() {
       <SettingsIcon/>
     </MDBox>
   );
-  console.log("route value ",getDetails?.userDetails?.role?.roleName, adminRole, userRole, detailUser.role?.roleName)
-
+    console.log(getDetails?.userDetails?.role?.roleName , adminRole , getDetails?.userDetails?.role?.roleName , userRole, getDetails?.userDetails?.role?.roleName , InfinityTraderRole , getDetails?.userDetails?.role?.roleName , "data")
   return direction === "rtl" ? (
     
       <CacheProvider value={rtlCache}>
@@ -190,14 +191,14 @@ export default function App() {
           {layout === "companyposition" && (
             <>
               {
-                console.log("sidenav",getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName === "data")
-                (getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
+                (getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName == InfinityTraderRole || getDetails?.userDetails?.role?.roleName === "data") &&
                 <Sidenav
                 color={sidenavColor}
                 brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
                 brandName="StoxHero"
                 routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
-                ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
+                ? routes : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
+                ? routesInfinityTrader : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
                 ? userRoutes : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
                 ? analyticsRoutes : homeRoutes
                 }
@@ -212,7 +213,7 @@ export default function App() {
           )}
           {layout === "vr" && <Configurator />}
           <Routes>
-          {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) ? getRoutes(routes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") && getRoutes(analyticsRoutes)}  
+          {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") && getRoutes(analyticsRoutes)}  
             <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
           </Routes>
         </ThemeProvider>
@@ -225,23 +226,22 @@ export default function App() {
         {layout === "dashboard" && (
           <>
           {
-                            // console.log("sidenav",getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName === "data")
-
-            (getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
+            (getDetails?.userDetails?.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
             <Sidenav
               color={sidenavColor}
               brand={Logo}
               brandName="StoxHero"
               routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role === adminRole)
                 ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role === userRole) 
-                ? userRoutes : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role === "data") 
+                ? userRoutes : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
+                ? routesInfinityTrader : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role === "data") 
                 ? analyticsRoutes : homeRoutes
               }
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
           }
-            
+
             <Configurator />
             {/* {configsButton} */}
           </>
@@ -250,10 +250,11 @@ export default function App() {
         {/* {layout === "analytics" && <Configurator />} */}
         <Routes>
         {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
-        ? getRoutes(routes) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
+        ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
+        ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
         ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
-        }          
+        }
 
           {!cookieValue  ?  
 
@@ -263,7 +264,7 @@ export default function App() {
           <Route path="/" element={<SignIn />} />
           :
           pathname == "/" || !pathname ?
-          <Route path="/" element={<Navigate to="/Position" />} />
+          <Route path="/" element={<Navigate to="/PaperTrading" />} />
           :
           <Route path="/" element={<Navigate to={pathname} />} />
           }
