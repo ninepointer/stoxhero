@@ -2,26 +2,22 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Setting = require("../../models/settings/setting");
+const Authentication = require("../../authentication/authentication")
 
-// router.post("/settings", async (req, res)=>{
-//     const {modifiedOn, modifiedBy, isAppLive, AppStartDate, AppEndDate} = req.body;
-//     console.log(req.body)
-//     const id = req.params.id;
-//     if(!modifiedOn || !modifiedBy){
-//         //console.log("data nhi h pura");
-//         return res.status(422).json({error : "Please fill all the fields..."})
-//     }
 
-    // Permission.findOne({_id})
-    // .then((dateExist)=>{
-    //     if(dateExist){
-    //         //console.log("data already");
-    //         return res.status(422).json({error : "date already exist..."})
+router.get("/leaderboardSetting", async (req, res)=>{
+    // Setting.find((err, data)=>{
+    //     if(err){
+    //         return res.status(500).send(err);
+    //     }else{
+    //         return res.status(200).send(data);
     //     }
-//         const setting = await new Setting.findByIdAndUpdate(id,
-//             {isAppLive,AppStartDate,AppEndDate,modifiedBy,modifiedOn})
-//         res.status(200).json({message:"Settings updated successfully"})
-// })
+    // }).select('leaderBoardTimming')
+
+    let leaderboardTime = await Setting.find().select('leaderBoardTimming')
+    return res.status(200).send(leaderboardTime);
+
+})
 
 router.get("/readsetting", (req, res)=>{
     Setting.find((err, data)=>{
@@ -69,24 +65,49 @@ router.get("/readsetting/:id", (req, res)=>{
 //     }
 // })
 
-router.patch("/applive/:id", async (req, res)=>{
+// router.patch("/applive/:id", async (req, res)=>{
+//     //console.log(req.params)
+//     console.log("this is body", req.body);
+//     try{ 
+//         const {id} = req.params
+//         const setting = await Setting.findOneAndUpdate({_id : id}, {
+//             $set:{ 
+//                 modifiedOn: req.body.modifiedOn,
+//                 modifiedBy: req.body.modifiedBy,
+//                 isAppLive: req.body.isAppLive,
+//                 AppStartTime: req.body.AppStartTime,
+//                 AppEndTime: req.body.AppEndTime,
+//             }
+//         })
+//         //console.log("this is role", setting);
+//         res.send(setting)
+//         // res.status(201).json({message : "data edit succesfully"});
+//     } catch (e){
+//         res.status(500).json({error:"Failed to edit data"});
+//     }
+// })
+
+router.patch("/applive/:id", Authentication, async (req, res)=>{
     //console.log(req.params)
-    console.log("this is body", req.body);
+
     try{ 
         const {id} = req.params
+        console.log(id, req.body)
         const setting = await Setting.findOneAndUpdate({_id : id}, {
             $set:{ 
-                modifiedOn: req.body.modifiedOn,
-                modifiedBy: req.body.modifiedBy,
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
+                leaderBoardTimming: req.body.leaderBoardTimming,
                 isAppLive: req.body.isAppLive,
                 AppStartTime: req.body.AppStartTime,
                 AppEndTime: req.body.AppEndTime,
             }
         })
-        //console.log("this is role", setting);
-        res.send(setting)
-        // res.status(201).json({message : "data edit succesfully"});
+        console.log("this is role", setting);
+        // res.send(setting)
+        res.status(201).json({message : "Timming updated succesfully"});
     } catch (e){
+        console.log(e)
         res.status(500).json({error:"Failed to edit data"});
     }
 })

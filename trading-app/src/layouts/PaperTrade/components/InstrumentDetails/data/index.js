@@ -37,7 +37,7 @@
 //   console.log(reRender)
 
 //   useEffect(()=>{
-//     console.log("user position rendering in data in useEffect")
+//     console.log("PaperTrade rendering in data in useEffect")
 
 //     axios.get(`${baseUrl}api/v1/instrumentDetails`,{
 //       withCredentials: true,

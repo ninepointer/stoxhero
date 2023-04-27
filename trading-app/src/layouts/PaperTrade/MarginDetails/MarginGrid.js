@@ -66,7 +66,7 @@ const MarginGrid = () => {
 
   
     return () => abortController.abort();
-  }, [netPnl, totalRunningLots]);
+  }, []);
 
   let totalCredit = 0;
   marginDetails?.map((elem)=>{

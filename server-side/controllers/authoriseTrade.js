@@ -1,7 +1,7 @@
 // const HistoryInstrumentData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 // const DailyPnlData = require("../models/InstrumentHistoricalData/DailyPnlDataSchema");
 const MockTradeDataUser = require("../models/mock-trade/mockTradeUserSchema");
-const MockTradeTrader = require("../models/mock-trade/paperTrade");
+const PaperTrade = require("../models/mock-trade/paperTrade");
 const MockTradeCompany = require("../models/mock-trade/mockTradeCompanySchema")
 const MockTradeContest = require("../models/Contest/ContestTrade");
 
@@ -23,7 +23,7 @@ exports.fundCheck = async(req, res, next) => {
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity, userId} = req.body;
     
-    const MockTrade = req.user.isAlgoTrader ? MockTradeDataUser : MockTradeTrader;
+    const MockTrade = req.user.isAlgoTrader ? MockTradeDataUser : PaperTrade;
     ////console.log("margin req", req.body)
 
     getKiteCred.getAccess().then(async (data)=>{
@@ -295,10 +295,11 @@ exports.fundCheck = async(req, res, next) => {
 
 exports.fundCheckPaperTrade = async(req, res, next) => {
 
+    console.log("in fundCheckPaperTrade")
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity, userId} = req.body;
     
-    const MockTrade = req.user.isAlgoTrader ? MockTradeDataUser : MockTradeTrader;
+    // const MockTrade = req.user.isAlgoTrader ? MockTradeDataUser : PaperTrade;
     ////console.log("margin req", req.body)
 
     getKiteCred.getAccess().then(async (data)=>{
@@ -330,15 +331,12 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             }]
             let userFunds;
             try{ //portfolioType
-                if(req.user.isAlgoTrader){
-                    const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Equity Trading"});
-                    userFunds = myPortfolios.portfolioValue;
-                } else{
+
                     // console.log("in userfund if")
-                    const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
+                    // const myPortfolios = await Portfolio.findOne({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
                     // console.log(myPortfolios)
-                    userFunds = myPortfolios.portfolioValue;
-                }
+                    // userFunds = myPortfolios.portfolioValue;
+               
                 // const user = await UserDetail.findOne({email: userId});
                 // userFunds = user.fund;
             }catch(e){
@@ -349,7 +347,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             try{
 
                 
-                runningLots = await MockTrade.aggregate([
+                runningLots = await PaperTrade.aggregate([
                     {
                     $match:
                         {
@@ -418,7 +416,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}`
             let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}`
             console.log(firstDayOfMonthDate, lastDayOfMonthDate)
-            let pnlDetails = await MockTrade.aggregate([
+            let pnlDetails = await PaperTrade.aggregate([
                 {
                 $match:
                     {
@@ -463,6 +461,31 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             let userNetPnl = pnlDetails[0]?.npnl;
             console.log( userFunds , userNetPnl , zerodhaMargin)
             console.log((userFunds + userNetPnl - zerodhaMargin))
+
+            
+            const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
+            console.log("myPortfolios", myPortfolios)
+            let addPortfolioFund = 0;
+            let flag = false;
+            for(let i = 0; i < myPortfolios.length; i++){
+                let fund = myPortfolios[i].portfolioValue;
+                if(!flag && userNetPnl ? Number(fund + userNetPnl - zerodhaMargin) > 0 : Number(fund - zerodhaMargin) > 0){
+                    userFunds = fund;
+                    req.body.portfolioId = myPortfolios[i]._id;
+                    break;
+                } else if (fund > 0){
+                    flag = true;
+                    addPortfolioFund += fund;
+                    if(userNetPnl ? Number(addPortfolioFund + userNetPnl - zerodhaMargin) > 0 : Number(addPortfolioFund - zerodhaMargin) > 0){
+                        userFunds = addPortfolioFund;
+                        req.body.portfolioId = myPortfolios[i-1]._id;
+                    }
+                }
+            }
+            // 20 15
+            // 10 15 -->2nd 50
+            // 0  15
+
             // if(( !runningLots[0]?.runningLots || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) && Number(userFunds + userNetPnl - zerodhaMargin)  < 0){
             // if(( !runningLots[0]?.runningLots || (((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot == buyOrSell))) && Number(userFunds + userNetPnl - zerodhaMargin)  < 0){   
                 // //console.log("in if")
@@ -490,23 +513,8 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                     
                     console.log(newTimeStamp, trade_time);
                     try{
-                        if(req.user.isAlgoTrader){
-                            
-                            let {algoName, transactionChange, instrumentChange, exchangeChange, 
-                                lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault} = algoBox
 
-                            const mockTradeCompany = new MockTradeCompany({
-                                status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity: realQuantity, 
-                                Product, buyOrSell:realBuyOrSell, order_timestamp: newTimeStamp,
-                                variety, validity, exchange, order_type: OrderType, symbol: realSymbol, placed_by: "stoxhero", userId,
-                                    algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
-                                lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault}, order_id, instrumentToken: real_instrument_token, brokerage: null,
-                                tradeBy: createdBy,trader : req.user._id, isRealTrade: false, amount: null, trade_time:trade_time,
-                                
-                            });
-                            await mockTradeCompany.save();
-                        }
-                        const mockTradeDetailsUser = new MockTrade({
+                        const paperTrade = new PaperTrade({
                             status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
                             variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
                             order_id: req.body.order_id, instrumentToken, brokerage: null, 
@@ -514,7 +522,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                             
                         });    
                         console.log("margincall saving")
-                        await mockTradeDetailsUser.save();
+                        await paperTrade.save();
                     }catch(e){
                         console.log("error saving margin call", e);
                     }
@@ -539,13 +547,13 @@ exports.contestFundCheck = async(req, res, next) => {
 
     const contestId = req.params.id;
     const userId = req.user._id;
-           // const MockTrade = req.user.isAlgoTrader ? MockTradeDataUser : MockTradeTrader;
+           // const MockTrade = req.user.isAlgoTrader ? MockTradeDataUser : PaperTrade;
     ////console.log("margin req", req.body)
 
     console.log(contestId, userId)
 
     getKiteCred.getAccess().then(async (data)=>{
-    // //console.log(data)
+    // console.log(data)
 
             let date = new Date();
             let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -571,6 +579,8 @@ exports.contestFundCheck = async(req, res, next) => {
                 "price": 0,
                 "trigger_price": 0
             }]
+
+            console.log(orderData);
             let contestFunds;
             try{
                 const portfolio = await Portfolio.findById({_id: portfolioId});
@@ -634,7 +644,7 @@ exports.contestFundCheck = async(req, res, next) => {
 
             console.log("lots and fund", runningLots, contestFunds)
             if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
-                //console.log("checking runninglot- reverse trade");
+                console.log("checking runninglot- reverse trade");
                 next();
                 return ;
             }
@@ -644,11 +654,11 @@ exports.contestFundCheck = async(req, res, next) => {
 
             // if( (!runningLots[0]?.runningLots) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             try{
-                //console.log("fetching margin data")
+                // console.log("fetching margin data")
                 marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, {headers : headers})
                 
                 zerodhaMargin = marginData.data.data.orders[0].total;
-                //console.log("zerodhaMargin", zerodhaMargin);
+                // console.log("zerodhaMargin", marginData);
             }catch(e){
                 // console.log("error fetching zerodha margin", e);
             } 
@@ -696,7 +706,7 @@ exports.contestFundCheck = async(req, res, next) => {
                 },
             ])
 
-            console.log("pnlDetails", pnlDetails)
+            // console.log("pnlDetails", pnlDetails)
 
 
             let userNetPnl = pnlDetails[0]?.npnl;
@@ -740,10 +750,10 @@ exports.contestFundCheck = async(req, res, next) => {
                         // });   
                         
                         const mockTradeContest = new MockTradeContest({
-                            status:"REJECTED", status_message: "insufficient fund", uId, createdBy, average_price: null, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
-                            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+                            status:"REJECTED", status_message: "insufficient fund",average_price: null, Quantity, Product, buyOrSell,
+                            variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                             order_id: req.body.order_id, instrumentToken, brokerage: null, contestId: req.params.id,
-                            tradeBy: req.user._id,trader: req.user._id, amount: null, trade_time:trade_time, portfolioId: req.body.portfolioId, employeeid: req.user.employeeid
+                            createdBy: req.user._id,trader: req.user._id, amount: null, trade_time:trade_time, portfolioId: req.body.portfolioId
                             
                         });
 

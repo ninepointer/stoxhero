@@ -29,6 +29,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { adminRole } from '../../../variables';
 import { userRole } from '../../../variables';
+import { InfinityTraderRole } from '../../../variables';
 
 function Basic() {
   const [rememberMe, setRememberMe] = useState(false);
@@ -150,7 +151,10 @@ function Basic() {
               navigate("/analytics");
             } 
             else if(userData.role?.roleName === userRole){
-              navigate("/PaperTrading");
+              navigate("/paperTrading");
+            }
+            else if(userData.role?.roleName === InfinityTraderRole){
+              navigate("/position");
             }
             
         }
