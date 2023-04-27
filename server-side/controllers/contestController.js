@@ -43,6 +43,7 @@ exports.getContests = async(req, res, next)=>{
     }
         
 };
+
 exports.getActiveContests = async(req, res, next)=>{
     console.log("inside ActiveContest")
     try {
@@ -57,18 +58,6 @@ exports.getActiveContests = async(req, res, next)=>{
        
         
 };
-
-// exports.getContest = async(req, res, next)=>{
-    
-//     const id = req.params.id ? req.params.id : '';
-//     try{
-//     const contest = await Contest.findById(id).populate('contestRule','ruleName')
-//     .populate('lastModifiedBy', { first_name: 1, last_name: 1 });
-
-//     res.status(201).json({message: "Contest Retrived",data: contest});    
-//     }
-//     catch{(err)=>{res.status(401).json({message: "New Contest", error:err}); }}  
-// };
 
 exports.editContest = async(req, res, next) => {
     const id = req.params.id;
