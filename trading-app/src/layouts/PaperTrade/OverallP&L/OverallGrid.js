@@ -51,20 +51,12 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
   
   const { updateNetPnl } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
-  const getDetails = useContext(userContext);
-  let url = getDetails.userDetails.isAlgoTrader ? "getoverallpnlmocktradeparticularusertoday" : "getoverallpnlmocktradeparticulartradertoday"
-
-  // const { reRender, setReRender } = Render
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  // const [liveDetail, setLiveDetail] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,
     closePosition: 0
   };
-  // const [render, setRender] = useState(true);
-
-  // let liveDetailsArr = [];
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -79,12 +71,16 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
            let signal = abortController.signal;    
 
            // the signal is passed into the request(s) we want to abort using this controller
-           const { data } = await axios.get(
-            `${baseUrl}api/v1/${url}/${getDetails?.userDetails?.email}`,
-              { signal: signal }
+           const { data } = await axios.get(`${baseUrl}api/v1/paperTrade/pnl`,{
+           withCredentials: true,
+           headers: {
+               Accept: "application/json",
+               "Content-Type": "application/json",
+               "Access-Control-Allow-Credentials": true
+           },
+           signal: signal }
            );
-          //  getoverallpnlmocktradeparticulartradertoday
-           setTradeData(data);
+           setTradeData(data.data);
 
       })();
 
@@ -99,7 +95,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
     //       socket.close();
     //   }
     // }, [])
-
+    console.log("tradeData", tradeData)
 
     tradeData.map((subelem, index)=>{
       let obj = {};

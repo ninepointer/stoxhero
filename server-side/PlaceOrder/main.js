@@ -13,20 +13,16 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
     if(req.body.apiKey && req.body.accessToken){
         LiveTradeFunc.liveTrade(req.body, res)
     } else{
-        MockTradeFunc.mockTrade(req.body, res)
+        MockTradeFunc.mockTrade(req, res)
     }
     
 })
 
 router.post("/paperTrade", authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
 
-    // if(req.body.apiKey && req.body.accessToken){
-    //     LiveTradeFunc.liveTrade(req.body, res)
-    // } else{
-        
-    // }
+    console.log("in papper trade")
 
-    MockTradeFunc.mockTrade(req.body, res)
+    MockTradeFunc.mockTrade(req, res)
     
 })
 
