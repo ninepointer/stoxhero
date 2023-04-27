@@ -39,12 +39,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
   // const { reRender, setReRender } = Render;
   const getDetails = React.useContext(userContext);
-  let uId = uniqid();
   let date = new Date();
-  let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
-  let createdBy = getDetails.userDetails.name;
-  let userId = getDetails.userDetails.email;
-  let tradeBy = getDetails.userDetails.name;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
   const [messageObj, setMessageObj] = useState({
@@ -71,7 +66,6 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   const [buyFormDetails, setBuyFormDetails] = React.useState({
     exchange: "",
     symbol: "",
-    ceOrPe: "",
     buyOrSell: "",
     variety: "",
     Product: "",
@@ -156,7 +150,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   }
 
   async function placeOrder() {
-
+    console.log("buyFormDetails", buyFormDetails)
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
 
     const res = await fetch(`${baseUrl}api/v1/contest/${contestId}/trades/`, {
@@ -168,9 +162,9 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
         body: JSON.stringify({
           
           exchange, symbol, buyOrSell, Quantity, Price, 
-          Product, OrderType, TriggerPrice, stopLoss, uId,
-          validity, variety, createdBy, order_id:dummyOrderId,
-          userId, instrumentToken, trader, portfolioId
+          Product, OrderType, TriggerPrice, stopLoss,
+          validity, variety, order_id:dummyOrderId,
+          instrumentToken, trader, portfolioId
 
         })
     });
@@ -389,3 +383,4 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 }
 
 export default memo(BuyModel);
+

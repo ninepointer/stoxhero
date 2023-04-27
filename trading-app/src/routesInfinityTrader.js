@@ -14,7 +14,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
-import UserPosition from "./layouts/User Position";
+import UserPosition from "./layouts/PaperTrade";
 import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
 import MyPortfolio from './layouts/UserPortfolio'

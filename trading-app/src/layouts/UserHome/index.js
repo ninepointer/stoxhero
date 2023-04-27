@@ -13,7 +13,7 @@ import Carousel from "./data/Carousel";
 import Indicies from "./components/IndicesComponent";
 import Leaderboard from "./data/leaderboard"
 import { display } from "@mui/system";
-// import PnlPosition from "../../layouts/User Position/OverallP&L/OverallGrid";
+// import PnlPosition from "../../layouts/PaperTrade/OverallP&L/OverallGrid";
 import PnlPosition from "./data/Pnl";
 import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDButton";
