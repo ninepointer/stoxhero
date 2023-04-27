@@ -22,10 +22,6 @@ const User = require("../models/User/userDetailSchema");
 // Create a new CookieJar to store cookies
 const cookieJar = new tough.CookieJar();
 
-// Add support for cookies to Axios using the CookieJar
-// axiosCookieJarSupport(axios);
-// axios.defaults.jar = cookieJar;
-// axios.defaults.withCredentials = true;
 
 exports.newTrade = async (req, res, next) => {
 
@@ -65,7 +61,7 @@ exports.newTrade = async (req, res, next) => {
       
     //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      //console.log(liveData)
+      console.log(liveData)
       for(let elem of liveData){
           if(elem.instrument_token == instrumentToken){
               newTimeStamp = elem.timestamp;
@@ -74,9 +70,9 @@ exports.newTrade = async (req, res, next) => {
       }
 
       trade_time = newTimeStamp;
-      let firstDateSplit = (newTimeStamp).split(" ");
-      let secondDateSplit = firstDateSplit[0].split("-");
-      newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
+      // let firstDateSplit = (newTimeStamp).split(" ");
+      // let secondDateSplit = firstDateSplit[0].split("-");
+      // newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
 
 
   } catch(err){
@@ -132,10 +128,10 @@ exports.newTrade = async (req, res, next) => {
 
       // //console.log("4st")
       const contestTrade = new ContestTrade({
-          status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
-          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+          status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
-          tradeBy: tradeBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          createdBy: tradeBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
           
       });
 
@@ -294,9 +290,9 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
       }
 
       trade_time = newTimeStamp;
-      let firstDateSplit = (newTimeStamp).split(" ");
-      let secondDateSplit = firstDateSplit[0].split("-");
-      newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
+      // let firstDateSplit = (newTimeStamp).split(" ");
+      // let secondDateSplit = firstDateSplit[0].split("-");
+      // newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
 
 
   } catch(err){
@@ -347,10 +343,10 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
 
       // //console.log("4st")
       const contestTrade = new ContestTrade({
-          status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
-          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", userId,
+          status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
-          tradeBy: tradeBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          createdBy: tradeBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
           
       });
 
@@ -555,7 +551,7 @@ exports.getContestRank = async (req, res, next) => {
               $group: {
                 _id: {
                   trader: "$trader",
-                  createdBy: "$createdBy",
+                  // createdBy: "$createdBy",
                   instrumentToken: "$instrumentToken"
                 },
                 totalAmount: { $sum: "$amount" },
@@ -622,7 +618,7 @@ exports.getMyContestRank = async (req, res, next) => {
               $group: {
                 _id: {
                   trader: "$trader",
-                  createdBy: "$createdBy",
+                  // createdBy: "$createdBy",
                   instrumentToken: "$instrumentToken"
                 },
                 totalAmount: { $sum: "$amount" },
@@ -708,13 +704,13 @@ exports.autoTradeContest = async(req, res, next) => {
     }
     
     // const now = new Date();
-    const thirtyMinutesBeforeNow = new Date(now.getTime() - 30 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
+    // const thirtyMinutesBeforeNow = new Date(now.getTime() - 30 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
 
     const today = new Date().toISOString().slice(0, 10);
     console.log(now)
     const contests = await Contest.find({
       contestEndDate: {
-        $gte: thirtyMinutesBeforeNow,
+        $gte: twoMinutesBeforeNow,
         $lte: now,
       },
     }
@@ -809,7 +805,7 @@ exports.autoTradeContest = async(req, res, next) => {
                 validity: "$validity",
                 order_type: "$order_type",
                 variety: "$variety",
-                name: "$createdBy",
+                // name: "$createdBy",
                 employeeid: "$employeeid"
               },
               lots: {
@@ -1112,7 +1108,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
             $group: {
               _id: {
                 trader: "$trader",
-                employeeid: "$employeeid",
+                // employeeid: "$employeeid",
                 instrumentToken: "$instrumentToken",
                 symbol: "$symbol",
                 product: "$Product",
