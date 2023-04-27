@@ -10,17 +10,24 @@ const authentication = require("../authentication/authentication")
 
 router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
 
-    // console.log(req.body, "in placing order");
-    
-
     if(req.body.apiKey && req.body.accessToken){
         LiveTradeFunc.liveTrade(req.body, res)
     } else{
         MockTradeFunc.mockTrade(req.body, res)
     }
     
+})
 
+router.post("/paperTrade", authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
 
+    // if(req.body.apiKey && req.body.accessToken){
+    //     LiveTradeFunc.liveTrade(req.body, res)
+    // } else{
+        
+    // }
+
+    MockTradeFunc.mockTrade(req.body, res)
+    
 })
 
 module.exports = router;

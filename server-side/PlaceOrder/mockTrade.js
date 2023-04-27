@@ -2,7 +2,7 @@ const axios = require("axios")
 const MockTradeDetails = require("../models/mock-trade/mockTradeCompanySchema");
 const MockTradeDetailsUser = require("../models/mock-trade/mockTradeUserSchema");
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
-const MockTradeDetailsTrader = require("../models/mock-trade/mockTradeTraders");
+const PaperTrade = require("../models/mock-trade/paperTrade");
 
 
 
@@ -10,7 +10,7 @@ exports.mockTrade = async (reqBody, res) => {
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, createdBy, userId, uId, algoBox, order_id, instrumentToken,  
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader } = reqBody 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = reqBody 
 
         // console.log(reqBody)
         // let algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
@@ -103,7 +103,7 @@ exports.mockTrade = async (reqBody, res) => {
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
     }
     
-    if(isAlgoTrader){
+    if(!paperTrade && isAlgoTrader){
         MockTradeDetails.findOne({order_id : order_id})
         .then((dateExist)=>{
             if(dateExist && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
@@ -154,15 +154,17 @@ exports.mockTrade = async (reqBody, res) => {
             
     
         }).catch(err => {console.log("fail", err)});    
-    } else{
-        MockTradeDetailsTrader.findOne({order_id : order_id})
+    }
+    
+    if(paperTrade){
+        PaperTrade.findOne({order_id : order_id})
         .then((dateExist)=>{
             if(dateExist){
                 //console.log("data already");
                 return res.status(422).json({error : "date already exist..."})
             }
     
-            const mockTradeDetailsUser = new MockTradeDetailsTrader({
+            const mockTradeDetailsUser = new PaperTrade({
                 status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "ninepointer", userId,
                 order_id, instrumentToken, brokerage: brokerageUser, 

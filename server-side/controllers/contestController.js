@@ -1,5 +1,6 @@
 const Contest = require('../models/Contest/contestSchema');
 const Payment = require('../models/Payment/payment');
+const userPersonalDetail = require('../models/User/userDetailSchema');
 const User = require('../models/User/userDetailSchema');
 
 
@@ -110,7 +111,7 @@ exports.updateStatus = async(req, res, next) => {
 
 exports.joinContest = async(req, res, next) => {
     const userId = req.user._id;
-    const employeeid = req.user.employeeid;
+    // const employeeid = req.user.employeeid;
     const contestId = req.params.id;
     const {paymentId, portfolioId} = req.body;
     console.log(req.body, contestId)
@@ -134,7 +135,7 @@ exports.joinContest = async(req, res, next) => {
         }
 
         //check entry date open or not
-        if(Date.now()<Date.parse(contest.entryOpeningDate)){
+        if(Date.now()<=Date.parse(contest.entryOpeningDate)){
             // console.log("in 2st")
             return res.status(400).json({
                 status: 'error',
@@ -193,7 +194,7 @@ exports.joinContest = async(req, res, next) => {
         // }
         
         // console.log("in 6st", {userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined"})
-        contest.participants.push({userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined", employeeid});
+        contest.participants.push({userId, registeredOn: Date.now(), paymentId, portfolioId: portfolioId, status: "Joined"});
         await contest.save({validateBeforeSave: false});
         const user = await User.findById(userId);
         user.contests.push(contest._id);
@@ -289,7 +290,7 @@ exports.getTimeForSync = async(req,res,next) => {
     try{
         let now = new Date();
         let minus5Hours30Minutes = 5.5 * 60 * 60 * 1000;
-        let dateTimeMinus5Hours30Minutes = new Date(now - minus5Hours30Minutes);
+        let dateTimeMinus5Hours30Minutes = new Date(now + minus5Hours30Minutes);
         res.status(200).json({status: 'success', data: dateTimeMinus5Hours30Minutes});
 
     }catch(e){
@@ -297,3 +298,30 @@ exports.getTimeForSync = async(req,res,next) => {
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 }
+
+exports.exitContest = async(req,res,next)=>{
+    const userId = req.user._id;
+    const {id} = req.params;
+    try{
+        const user = await userPersonalDetail.findById(userId);
+        const contest = await Contest.findById(id);
+        const index = contest.participants.findIndex(obj => obj.userId == userId);
+        const indexToRemove = user.contests.indexOf(id);
+        if (indexToRemove !== -1) {
+            contest.participants.splice(index, 1);
+          }
+        await contest.save({validateBeforeSave: false});
+        
+        
+        if (indexToRemove !== -1) {
+            user.contests.splice(indexToRemove, 1);
+          }
+        await user.save({validateBeforeSave: false});
+        res.status(200).json({status:'success', message:'Exited from the contest'});
+    }catch(e){
+        console.log(e);
+        return res.status(500).json({status:'error', message:'Something went wrong'});
+    }
+
+}
+

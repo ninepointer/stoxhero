@@ -1,4 +1,4 @@
-import * as React from 'react';
+import {useState} from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -15,10 +15,18 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 
 
-const RolesModel = () => {
-  const [open, setOpen] = React.useState(false);
+const RolesModel = ({Render}) => {
+  const {reRender, setReRender} = Render
+  const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+  const [formstate, setformstate] = useState({
+    roleName: "",
+    status: ""
+  });
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -27,6 +35,40 @@ const RolesModel = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+
+  async function formSubmit() {
+    setformstate(formstate);
+
+    const { roleName, status} = formstate;
+
+    const res = await fetch(`${baseUrl}api/v1/role`, {
+      
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          roleName, status
+        })
+    });
+
+
+    const data = await res.json();
+    //console.log(data);
+    if(data.status === 422 || data.error || !data){ 
+        window.alert(data.error);
+        //console.log("Invalid Entry");
+    }else{
+        window.alert("User Created Successfully");
+        //console.log("entry succesfull");
+    }
+    setOpen(false);
+    reRender ? setReRender(false) : setReRender(true)
+
+  }
 
   return (
     <div>
@@ -44,41 +86,46 @@ const RolesModel = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ display: "flex", flexDirection: "column" }}>
-            <TextField
+            {/* <TextField
               id="outlined-basic" label="Role Name" variant="standard"
-              sx={{ margin: 1, padding: 1, width: "300px" }} />
+              sx={{ margin: 1, padding: 1, width: "300px" }} /> */}
 
-            <TextField
-              id="outlined-basic" label="Instruments" variant="standard" 
-              sx={{ margin: 1, padding: 1, width: "300px" }} />
-            
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">Role Name</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                label="Role Name"
+                sx={{ margin: 1, padding: 1, width: "300px" }}
+                onChange={(e)=>{formstate.roleName = e.target.value}}
+              > 
+                <MenuItem value="Admin">Admin</MenuItem>
+                <MenuItem value="User">User</MenuItem>
+                <MenuItem value="Infinity Trader">Infinity Trader</MenuItem>
+                <MenuItem value="Super Admin">Super Admin</MenuItem>
+                <MenuItem value="Moderator">Moderator</MenuItem>
+              </Select>
+            </FormControl>
 
-            <TextField
-              id="outlined-basic" label="Trading Account" variant="standard"
-              sx={{ margin: 1, padding: 1, width: "300px" }} />
-
-            
-            <TextField
-              id="outlined-basic" label="API Parameters" variant="standard" 
-              sx={{ margin: 1, padding: 1, width: "300px" }} />
-
-            <TextField
-              id="outlined-basic" label="Users" variant="standard" 
-              sx={{ margin: 1, padding: 1, width: "300px" }} />
-
-            <TextField
-              id="outlined-basic" label="AlgoBox" variant="standard" 
-              sx={{ margin: 1, padding: 1, width: "300px" }} />
-
-            <TextField
-              id="outlined-basic" label="Reports" variant="standard" 
-              sx={{ margin: 1, padding: 1, width: "300px" }} />
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">Status</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                label="Status"
+                sx={{ margin: 1, padding: 1, width: "300px" }}
+                onChange={(e)=>{formstate.status = e.target.value}}
+              >
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
+              </Select>
+            </FormControl>
 
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleClose}>
-            OK
+          <Button autoFocus onClick={formSubmit}>
+            Save
           </Button>
           <Button onClick={handleClose} autoFocus>
             Close

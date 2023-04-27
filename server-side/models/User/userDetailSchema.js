@@ -117,8 +117,8 @@ const userDetailSchema = new mongoose.Schema({
         // required: true,
     },
     role:{
-        type: String,
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'role-detail',
     },
     creationProcess:{
         type: String,

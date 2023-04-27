@@ -11,13 +11,17 @@ const ContestTrade = new mongoose.Schema({
         type: String,
         required: true
     },
+    status_message:{
+        type: String,
+        // required: true
+    },
     createdBy:{
         type: String,
         required : true
     },
     average_price:{
         type: Number,
-        required: true
+        // required: true
     },
     Quantity:{
         type: String,
@@ -68,16 +72,16 @@ const ContestTrade = new mongoose.Schema({
     },
     amount:{
         type: Number,
-        required: true        
+        // required: true        
     },
     trade_time:{
         type: String,
         // required: true        
     },
-    employeeid:{
-        type: String,
-        // required: true        
-    },
+    // employeeid:{
+    //     type: String,
+    //     // required: true        
+    // },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',

@@ -40,7 +40,7 @@ import ContestTradePage from './layouts/UserContest/ContestTrade'
 import Carousel from './layouts/carousel'
 import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
-import DummyPage from "./layouts/UserContest/dummyContestTradePage";
+// import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
 
 // @mui icons
@@ -66,7 +66,6 @@ import WalletIcon from '@mui/icons-material/Wallet';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
-import Contest from "./layouts/user-contest"
 import UserContest from "./layouts/UserContest"
 
 const routes = [

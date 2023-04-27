@@ -10,6 +10,10 @@ const mockTradeCompanySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    status_message:{
+        type: String,
+        // required: true
+    },
     uId:{
         type: String,
         required : true
@@ -20,7 +24,7 @@ const mockTradeCompanySchema = new mongoose.Schema({
     },
     average_price:{
         type: Number,
-        required: true
+        // required: true
     },
     Quantity:{
         type: String,
@@ -83,7 +87,7 @@ const mockTradeCompanySchema = new mongoose.Schema({
     },
     amount:{
         type: Number,
-        required: true        
+        // required: true        
     },
     trade_time:{
         type: String,

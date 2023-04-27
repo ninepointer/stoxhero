@@ -118,7 +118,7 @@ return (
     <>
         <Grid container>
             <Grid item xs={12} md={12} lg={12}>
-                <MDTypography fontSize={13} style={{fontWeight:500}} color="light">Contest Order</MDTypography>
+                <MDTypography fontSize={13} style={{fontWeight:500}} color="light">Battle Order</MDTypography>
             </Grid>
         </Grid>
 
@@ -186,7 +186,7 @@ return (
                 </Grid>
                 <Grid item xs={12} md={12} lg={1.5} display="flex" justifyContent="center">
                     <MDTypography fontSize={11.5} color="light" style={{fontWeight:500, fontSize: "10px"}}>
-                        {"₹"+elem.average_price.toFixed(2)}
+                        {elem.average_price ? "₹"+elem.average_price.toFixed(2) : "₹"+0.00}
                     </MDTypography>
                 </Grid>
                 
