@@ -13,10 +13,11 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [rankData, setRankData] = useState([]);
   const [myRank, setMyRank] = useState({});
+  const [setting, setSetting] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
   const getDetails = useContext(userContext)
-  const leaderBoardEndPoint = isFromHistory ? "historyLeaderboard" : "leaderboard"
-  const myRankEndPOint = isFromHistory ? "historyMyrank" : "myrank"
+  const leaderBoardEndPoint = (isFromHistory || isFromResult) ? "historyLeaderboard" : "leaderboard"
+  const myRankEndPOint = (isFromHistory || isFromResult) ? "historyMyrank" : "myrank"
 
   console.log(leaderBoardEndPoint, myRankEndPOint)
   const fetchData = async () => {
@@ -32,15 +33,6 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
       })
       console.log("leaderboard", api1Response.data)
       setRankData(api1Response.data.data);
-      // let dataArr = api1Response.data.data;
-
-      // setRankData((prev) => {
-      //   const dataMap = new Map((prev).map(elem => [elem.name, elem]));
-      //   dataArr.forEach(elem => {
-      //     dataMap.set(elem.name, elem);
-      //   });
-      //   return Array.from(dataMap.values());
-      // });
 
       const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${myRankEndPOint}`, {
         withCredentials: true,
@@ -59,19 +51,38 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
         }
         
       }
+
+
       setTimeout(()=>{setIsLoading(false)},500)
   };
-  
+
+  async function fetchSettingData(){
+    const appsetting = await axios.get(`${baseUrl}api/v1/leaderboardSetting`, {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    setSetting(appsetting.data);
+  }
+
   useEffect(() => {
-    if(isFromHistory){
+    fetchSettingData()
+  }, []);
+
+  useEffect(() => {
+    console.log("timming", setting, setting[0]?.leaderBoardTimming*1000)
+    if(isFromHistory || isFromResult){
       fetchData(); // run once on mount
     } else{
-      const intervalId = setInterval(fetchData, 1000); // run every 10 seconds
+      const intervalId = setInterval(fetchData, setting[0]?.leaderBoardTimming*1000); // run every 10 seconds
       fetchData(); // run once on mount
       return () => clearInterval(intervalId);
     }
 
-  }, [leaderBoardEndPoint, myRankEndPOint]);
+  }, [setting, leaderBoardEndPoint, myRankEndPOint]);
 
 
   const myReward = reward?.filter((elem)=>{

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const contestSchema = new mongoose.Schema({
+const batchSchema = new mongoose.Schema({
     batchName:{
         type: String,
         required: true
@@ -14,18 +14,18 @@ const contestSchema = new mongoose.Schema({
         type:Date,
         required: true
     },
-    registrationStartDate:{
+    applicationStartDate:{
         type:Date,
         required: true
     },
-    registrationEndDate:{
+    applicationEndDate:{
         type:Date,
         required: true
     },
     applicants:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         appliedOn:{type:Date},
-        status:{type:String, enum:['Approve','Rejected']},
+        status:{type:String, enum:['Approve','Rejected', 'Applied']},
     }],
     participants:[{
         type: Schema.Types.ObjectId,
@@ -69,5 +69,12 @@ const contestSchema = new mongoose.Schema({
     }
 })
 
-const contestData = mongoose.model("contest", contestSchema);
-module.exports = contestData;
+const batchData = mongoose.model("batch", batchSchema);
+module.exports = batchData;
+
+
+
+
+
+
+

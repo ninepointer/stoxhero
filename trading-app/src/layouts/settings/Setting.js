@@ -33,14 +33,6 @@ import MarginSettings from "./components/MarginSettings";
 // import profilesListData from "./data/profilesListData";
 
 // Images
-import homeDecor1 from "../../assets/images/home-decor-1.jpg";
-import homeDecor2 from "../../assets/images/home-decor-2.jpg";
-import homeDecor3 from "../../assets/images/home-decor-3.jpg";
-import homeDecor4 from "../../assets/images/home-decor-4.jpeg";
-import team1 from "../../assets/images/team-1.jpg";
-import team2 from "../../assets/images/team-2.jpg";
-import team3 from "../../assets/images/team-3.jpg";
-import team4 from "../../assets/images/team-4.jpg";
 import TraderSettingView from "./TraderSettingView";
 
 function Setting() {
