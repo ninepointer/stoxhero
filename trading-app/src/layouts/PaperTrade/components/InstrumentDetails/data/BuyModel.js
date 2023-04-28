@@ -206,6 +206,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
           // window.alert(dataResp.message);
         }
     }
+    setBuyFormDetails({});
     reRender ? setReRender(false) : setReRender(true)
   }
 
@@ -306,7 +307,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
       onClose={closeSuccessSB}
       close={closeSuccessSB}
       bgWhite="info"
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: `${messageObj.title == "Error" ? "500px" : "auto"}`}}
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
     />
   );
 

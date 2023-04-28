@@ -182,7 +182,6 @@ export default function App() {
       <SettingsIcon/>
     </MDBox>
   );
-    console.log(getDetails?.userDetails?.role?.roleName , adminRole , getDetails?.userDetails?.role?.roleName , userRole, getDetails?.userDetails?.role?.roleName , InfinityTraderRole , getDetails?.userDetails?.role?.roleName , "data")
   return direction === "rtl" ? (
     
       <CacheProvider value={rtlCache}>
@@ -201,7 +200,7 @@ export default function App() {
                 ? routesInfinityTrader : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
                 ? userRoutes : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
                 ? analyticsRoutes : homeRoutes
-                }
+                }  
                   onMouseEnter={handleOnMouseEnter}
                   onMouseLeave={handleOnMouseLeave}
                 />
@@ -226,12 +225,15 @@ export default function App() {
         {layout === "dashboard" && (
           <>
           {
+                // console.log(getDetails?.userDetails?.role?.roleName , adminRole , getDetails?.userDetails?.role?.roleName , userRole, getDetails?.userDetails?.role?.roleName , InfinityTraderRole , getDetails?.userDetails?.role?.roleName , "data")
+
             (getDetails?.userDetails?.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
             <Sidenav
               color={sidenavColor}
               brand={Logo}
               brandName="StoxHero"
-              routes={(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role === adminRole)
+              routes={
+                (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role === adminRole)
                 ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role === userRole) 
                 ? userRoutes : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
                 ? routesInfinityTrader : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role === "data") 
