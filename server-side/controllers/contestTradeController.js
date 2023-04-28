@@ -33,8 +33,8 @@ exports.newTrade = async (req, res, next) => {
         validity, variety, createdBy, order_id,
         userId, instrumentToken, trader, portfolioId, dontSendResp} = JSON.parse(JSON.stringify(req.body));
 
-          tradeBy = req.user._id
-          employeeid = req.user.employeeid;
+          // tradeBy = req.user._id
+          // employeeid = req.user.employeeid;
         console.log("req.body", req.body)
 
     const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
@@ -250,6 +250,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
         if(autoTrade){
           // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
           createdBy = await User.findOne({email: "system@ninepointer.in"})._id
+          console.log("createdBy", createdBy)
         } else{
           createdBy = trader
         }
@@ -710,12 +711,20 @@ exports.autoTradeContest = async(req, res, next) => {
         $gte: twoMinutesBeforeNow,
         $lte: now,
       },
+      status: "Live"
     }
     );
 
 
     // console.log(contests)
     const userIds = await contests.map(async (contest) => {
+      const contestStatusChanged = await Contest.findOneAndUpdate(
+        {
+          _id:contest._id
+        },
+        { status: 'Not Live' },
+        { new: true }
+      );
       // contest.participants.map(async (elem)=>{
       //   console.log(elem.userId, elem.portfolioId)
       //   let pnlDetails = await ContestTrade.aggregate([
@@ -770,9 +779,6 @@ exports.autoTradeContest = async(req, res, next) => {
       //   );
       // })
 
-
-
-      
       let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
       const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contest._id}/trades/${"leaderboard"}`)
       const rankData = api1Response.data.data;
@@ -802,8 +808,6 @@ exports.autoTradeContest = async(req, res, next) => {
                 validity: "$validity",
                 order_type: "$order_type",
                 variety: "$variety",
-                // name: "$createdBy",
-                employeeid: "$employeeid"
               },
               lots: {
                 $sum: {
