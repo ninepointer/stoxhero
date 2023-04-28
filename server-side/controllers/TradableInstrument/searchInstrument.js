@@ -15,7 +15,11 @@ console.log(page, size)
 try {
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  let fromLessThen = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+7).padStart(2, '0')}`
+  // let fromLessThen = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+7).padStart(2, '0')}`
+  date.setDate(date.getDate() + 7);
+
+  let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  
   console.log(todayDate, fromLessThen)
   const data = await TradableInstrument.find({
     $and: [
