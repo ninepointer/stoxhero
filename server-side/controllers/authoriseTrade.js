@@ -597,6 +597,7 @@ exports.contestFundCheck = async(req, res, next) => {
 
                 // const contest = await Contest.findOne({_id: contestId});
                 contestFunds = users[0].portfolioValue;
+                // contestFunds = 10000000;
             }catch(e){
                 console.log("errro fetching contest", e);
             }
