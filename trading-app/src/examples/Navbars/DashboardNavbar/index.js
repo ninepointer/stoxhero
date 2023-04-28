@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect, useContext } from "react";
 import { userContext } from "../../../AuthContext";
 
@@ -29,6 +14,8 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
 import IconEmail from "@mui/material/Icon";
+import purse from "../../../assets/images/purse.png"
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -96,6 +83,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
+
   // Render the notifications menu
   const renderMenu = () => (
     <Menu
@@ -109,11 +97,12 @@ function DashboardNavbar({ absolute, light, isMini }) {
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
     >
-      <NotificationItem icon={<Icon>email</Icon>} title="Check new messages" />
-      <NotificationItem icon={<Icon>podcasts</Icon>} title="Manage Podcast sessions" />
-      <NotificationItem icon={<Icon>shopping_cart</Icon>} title="Payment successfully completed" />
+      <NotificationItem icon={<Icon>email</Icon>} title="Messages" />
+      {/* <NotificationItem icon={<Icon>podcasts</Icon>} title="Manage Podcast sessions" /> */}
+      <NotificationItem icon={<Icon>shopping_cart</Icon>} title="Orders" />
     </Menu>
   );
+
 
   // Styles for the navbar icons
   const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
@@ -141,12 +130,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox pr={1}>
-              Hello {getDetails.userDetails.first_name}!
+              Hello {getDetails?.userDetails?.first_name}!
             </MDBox>
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/profile">
+            
+              <Link to="/wallet">
                 <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <img src={getDetails.userDetails?.profilePhoto?.url} width={30} height={30} style={{borderRadius:'50%'}}/>
+                  <AccountBalanceWalletIcon color="dark"/>
                 </IconButton>
               </Link>
               <IconButton
@@ -160,6 +150,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   {miniSidenav ? "menu_open" : "menu"}
                 </Icon>
               </IconButton>
+              
               {/* <IconButton
                 size="small"
                 disableRipple
@@ -182,6 +173,12 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 <Icon sx={iconsStyle}>notifications</Icon>
               </IconButton>
               {renderMenu()}
+              <Link to="/profile">
+                <IconButton sx={navbarIconButton} size="small" disableRipple>
+                  <img src={getDetails.userDetails?.profilePhoto?.url} width={30} height={30} style={{borderRadius:'50%'}}/>
+                </IconButton>
+              </Link>
+              
             </MDBox>
           </MDBox>
         )}

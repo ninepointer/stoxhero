@@ -15,10 +15,10 @@ const ContestTrade = new mongoose.Schema({
         type: String,
         // required: true
     },
-    createdBy:{
-        type: String,
-        required : true
-    },
+    // createdBy:{
+    //     type: String,
+    //     required : true
+    // },
     average_price:{
         type: Number,
         // required: true
@@ -66,16 +66,16 @@ const ContestTrade = new mongoose.Schema({
         type: String,
         required: true        
     },
-    tradeBy:{
-        type: Schema.Types.ObjectId,
-        ref: 'user-personal-detail',       
-    },
+    // tradeBy:{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'user-personal-detail',       
+    // },
     amount:{
         type: Number,
         // required: true        
     },
     trade_time:{
-        type: String,
+        type: Date,
         // required: true        
     },
     // employeeid:{
@@ -96,6 +96,15 @@ const ContestTrade = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio',
         // required : true
+    },
+    createdOn:{
+        type: Date,
+        default: new Date()
+    },
+    createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+        required: true
     }
 })
 

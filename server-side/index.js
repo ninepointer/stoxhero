@@ -167,11 +167,14 @@ app.use('/api/v1', require("./models/TradeDetails/retreiveOrderAuth"));
 app.use('/api/v1', require("./routes/HistoryPages/adminAuth"));
 app.use('/api/v1', require("./routes/marginAllocation/marginAllocationAuth"));
 app.use('/api/v1/contest', require("./routes/contest/contestRoutes"));
+app.use('/api/v1/batch', require("./routes/stoxheroTrading/batchRoutes"));
 app.use('/api/v1/referrals', require("./routes/campaigns/referralRoutes"));
 app.use('/api/v1/contestTrade', require("./routes/contest/contestTradeRoutes"));
 app.use('/api/v1/portfolio', require("./routes/userPortfolio/userPortfolioRoutes"));
 app.use('/api/v1/userwallet', require("./routes/userWallet/userWalletRoutes"));
 app.use('/api/v1/carousels', require("./routes/carousel/carouselRoutes"));
+app.use('/api/v1/paperTrade', require("./routes/mockTrade/paperTrade"));
+app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
@@ -194,8 +197,8 @@ let weekDay = date.getDay();
   }
 
   try{
-    const autotrade = nodeCron.schedule(`*/1 3-10 * * *`, autoTradeContest);
-
+    const autotrade = nodeCron.schedule(`*/10 * * * * *`, autoTradeContest);
+    console.log(autotrade)
   } catch(err){
     console.log("err from cronjob", err)
   }

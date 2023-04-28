@@ -21,10 +21,10 @@ import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import { userContext } from '../../../AuthContext';
 // import MDButton from '../../../components/MDButton';
-import ExitPosition from '../../User Position/OverallP&L/ExitPosition';
-import Buy from "../../User Position/components/InstrumentDetails/data/BuyModel"
-import Sell from "../../User Position/components/InstrumentDetails/data/SellModel"
-import OverallRow from '../../User Position/OverallP&L/OverallRow';
+import ExitPosition from '../../tradingCommonComponent/OverallP&L/ExitPosition';
+import Buy from "../../tradingCommonComponent/BuyModel"
+import Sell from "../../tradingCommonComponent/SellModel"
+import OverallRow from '../../tradingCommonComponent/OverallP&L/OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
 // import Button from '@mui/material/Button';
 

@@ -5,6 +5,9 @@ require("../../db/conn");
 const RetreiveOrder = require("../../models/TradeDetails/retreiveOrder");
 const LiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const MockCompany = require("../../models/mock-trade/mockTradeCompanySchema");
+const MockUser = require("../../models/mock-trade/mockTradeUserSchema");
+const InfinityTrader = require("../../models/mock-trade/infinityTrader");
+
 const RetreiveTrade = require("../../models/TradeDetails/retireivingTrade")
 const BrokerageDetail = require("../../models/Trading Account/brokerageSchema");
 const dbBackup = require("../../Backup/mongoDbBackUp")
@@ -25,6 +28,16 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 
 
+router.get("/copyCollection", async (req, res) => {
+  // InfinityTrader
+  // MockUser
+  const mock = await MockUser.find();
+  
+  mock.forEach(async function(doc) {
+    doc._id = new ObjectId();
+    await InfinityTrader.insertMany([doc]);
+  });
+});
 
 router.get("/updateRole", async (req, res) => {
   let users = await UserDetail.find();

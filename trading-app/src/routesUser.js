@@ -13,11 +13,12 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import { GiNinjaHeroicStance } from 'react-icons/gi';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
-import UserPosition from "./layouts/User Position";
+import UserPosition from "./layouts/PaperTrade";
 import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
 import UserContest from "./layouts/UserContest"
@@ -36,6 +37,9 @@ import ContestHistory from "./layouts/UserContest/ContestHistory";
 import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
 import FAQs from "./layouts/FAQs";
 import UserWallet from "./layouts/userWallet"
+import StoxHeroTrading from "./layouts/StoxHeroTrading"
+import UserAnalytics from "./layouts/userAnalytics"
+import logo from "../src/assets/images/logo1.jpeg"
 
 const routes = [
 
@@ -49,12 +53,21 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Position",
-    key: "position",
+    name: "Paper Trading",
+    key: "paperTrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
-    route: "/position",
+    route: "/paperTrading",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "StoxHero Trading",
+    key: "stoxHeroTrading",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <GiNinjaHeroicStance/>,
+    route: "/stoxHeroTrading",
+    component: <StoxHeroTrading />,
   },
   // {
   //   type: "collapse",
@@ -153,7 +166,7 @@ const routes = [
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <AnalyticsIcon/>,
     route: "/Analytics",
-    component: <UserReport />,
+    component: <UserAnalytics />,
   },
   // {
   //   type: "collapse",
@@ -172,10 +185,10 @@ const routes = [
     component: <MyPortfolio />,
   },
   {
-    type: "collapse",
-    name: "Wallet",
+    // type: "collapse",
+    // name: "Wallet",
     key: "Wallet",
-    icon: <AccountBalanceWalletIcon/>,
+    // icon: <AccountBalanceWalletIcon/>,
     route: "/Wallet",
     component: <UserWallet />,
   },
@@ -189,11 +202,11 @@ const routes = [
     component: <FAQs />,
   },
   {
-    type: "collapse",
-    name: "Profile",
+    // type: "collapse",
+    // name: "Profile",
     key: "profile",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <PersonPinIcon/>,
+    // icon: <PersonPinIcon/>,
     route: "/profile",
     component: <Profile />,
   },

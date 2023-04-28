@@ -27,6 +27,7 @@ import { useMaterialUIController } from "../../../../context";
 // Material Dashboard 2 React components
 import axios from "axios";
 import { userContext } from '../../../../AuthContext';
+import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
 
 function PlatformSettings() {
 
@@ -41,6 +42,7 @@ function PlatformSettings() {
   const { darkMode } = controller;
   const [reRender, setReRender] = useState(true);
   const [settingData, setSettingData] = useState([]);
+  const [LeaderBoardTimming, setLeaderBoardTimming] = useState();
   let date = new Date();
   let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
 
@@ -54,6 +56,7 @@ function PlatformSettings() {
   axios.get(`${baseUrl}api/v1/readsetting`)
   .then((res)=>{
       setSettingData(res.data)
+      setLeaderBoardTimming(res.data[0]?.leaderBoardTimming)
       setAppStartTime(dayjs(res.data[0].AppStartTime))
       setAppEndTime(dayjs(res.data[0].AppEndTime))
       console.log(res.data);
@@ -103,6 +106,38 @@ function PlatformSettings() {
       reRender ? setReRender(false) : setReRender(true)
   }
 
+  async function saveSetting(){
+    setEditable(false);
+    const res = await fetch(`${baseUrl}api/v1/applive/${ settingData[0]?._id}`, {
+      method: "PATCH",
+      credentials:"include",
+      headers: {
+          "Accept": "application/json",
+          "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        ...settingData[0] , leaderBoardTimming: LeaderBoardTimming
+      })
+  }); 
+  const dataResp = await res.json();
+  console.log(dataResp);
+  if (dataResp.status === 422 || dataResp.error || !dataResp) {
+      window.alert(dataResp.error);
+      // console.log("Failed to Edit");
+  } else {
+      setEditable(false)
+      if(appLiveValue){
+          //window.alert("Trading Enabled");
+          openSuccessSB();
+      } else{
+          //window.alert("Trading Disabled");
+          openSuccessSB();
+      }
+  }
+  reRender ? setReRender(false) : setReRender(true)
+
+  }
+
 
   console.log(settingData,AppStartTime,AppEndTime)
   let appstatus = settingData[0]?.isAppLive === true ? "Online" : "Offline"
@@ -133,10 +168,28 @@ function PlatformSettings() {
           Settings 
         </MDTypography>
         <MDBox>
-          <MdModeEditOutline cursor="pointer" onClick={()=>{setEditable(true)}}/>
+          {editable ?
+          <LibraryAddCheckIcon cursor="pointer" onClick={saveSetting} />
+          :
+          <MdModeEditOutline cursor="pointer" onClick={()=>{setEditable(true)}} />
+          }
         </MDBox>
       </MDBox>
       <MDBox pt={1} pb={2} px={2} lineHeight={1.25}>
+
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='LeaderBoard Timming(second)'
+          fullWidth
+          defaultValue={LeaderBoardTimming}
+          // defaultValue={oldObjectId ? contestData?.contestName : formState?.contestName}
+          // onChange={(e) => {setFormState(prevState => ({
+          //     ...prevState,
+          //     contestName: e.target.value
+          //   }))}}
+          onChange={(e)=>{setLeaderBoardTimming(e.target.value)}}
+        />
 
         <MDBox>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
