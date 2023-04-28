@@ -57,6 +57,7 @@ function UserPosition() {
       setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={'paperTrade'}
     />;
   }, [socket, reRender, isGetStartedClicked, handleSetIsGetStartedClicked]);
 

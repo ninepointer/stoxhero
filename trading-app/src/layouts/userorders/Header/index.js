@@ -4,6 +4,7 @@ import { userContext } from '../../../AuthContext';
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
+import tradesicon from '../../../assets/images/tradesicon.png'
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -32,11 +33,20 @@ import MDTypography from "../../../components/MDTypography";
 
 function Header({ children }) {
   const [view,setView] = useState('today');
+  const [infinityView,setInfinityView] = useState('today');
   const [buyFilter, setBuyFilter] = useState(false);
   const [sellFilter, setSellFilter] = useState(false);
+  const [buyInfinityFilter, setBuyInfinityFilter] = useState(false);
+  const [sellInfinityFilter, setSellInfinityFilter] = useState(false);
   const [completeFilter, setCompleteFilter] = useState(false);
   const [rejectedFilter, setRejectedFilter] = useState(false);
   const [filterData, setFilteredData] = useState([])
+  const [orders, setOrders] = useState([]);
+  const [isLoading,setIsLoading] = useState(true)
+  let [skip, setSkip] = useState(0);
+  let [InfinitySkip, setInfinitySkip] = useState(0);
+  const limitSetting = 5;
+  const [count, setCount] = useState(0);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const [data, setData] = useState([]);
@@ -44,63 +54,89 @@ function Header({ children }) {
   console.log("getDetails", getDetails)
   let todayColor = (view === 'today' ? 'warning' : 'light')
   let historyColor = (view === 'history' ? 'warning' : 'light')
-  let url1 = getDetails.userDetails.isAlgoTrader ? "gettodaysmocktradesparticularuser" : "gettodaysmocktradesparticulartrader"
-  let url2 = getDetails.userDetails.isAlgoTrader ? "gethistorymocktradesparticularuser" : "gethistorymocktradesparticulartrader"
+  let todayInfinityColor = (infinityView === 'today' ? 'warning' : 'light')
+  let historyInfinityColor = (infinityView === 'history' ? 'warning' : 'light')
+  let url1 = 'my/todayorders'
+  let url2 = 'my/historyorders'
   let url = (view === 'today' ? url1 : url2)
 
   useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/${url}/${getDetails.userDetails.email}`)
-      .then((res)=>{
-          console.log(res?.data)
-          setData(res?.data);
-          setFilteredData(res?.data);
-      }).catch((err)=>{
-          //window.alert("Server Down");
-          return new Error(err);
-      })
-  },[getDetails,view])
-  // gettodaysmocktradesparticulartrader
+    axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip}&limit=${limitSetting}`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+      },
+    })
+    .then((res) => {
+        console.log("Orders:",res.data)
+        setData(res.data.data)
+        setCount(res.data.count)
+        setFilteredData(res.data.data)
+        setIsLoading(false)
+    }).catch((err) => {
+        console.log(err)
+        return new Error(err);
+    })
+    
+  }, [getDetails,view,url1,url2])
   console.log(data);
 
-  // function handleClick(e){
-  //   console.log(e)
-  //   let filtered = data;
-  //   if(e === 'BUY' && !buyFilter)
-  //   {
-  //     console.log("inside buy filter",buyFilter)
-  //     setFilteredData(filtered.filter((item) => item.buyOrSell === 'BUY'))
-  //   }
-  
-  //   if(e === 'SELL' && !sellFilter)
-  //   {setFilteredData(filtered.filter((item) => item.buyOrSell === 'SELL'))}
-  
-  //   if(e === 'COMPLETE' && !completeFilter)
-  //   {setFilteredData(filtered.filter((item) => item.status === 'COMPLETE'))}
-   
-  //   if(e === 'REJECTED' && !rejectedFilter)
-  //   {setFilteredData(filtered.filter((item) => item.status === 'REJECTED'))}
-    
-  //     setFilteredData(filtered)
-    
-  // }
+  function backHandler(){
+    if(skip <= 0){
+        return;
+    }
+    setSkip(prev => prev-limitSetting);
+    setOrders([]);
+    axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    })
+    .then((res) => {
+        console.log("Orders:",res.data)
+        setData(res.data.data)
+        setCount(res.data.count)
+        setFilteredData(res.data.data)
+        setIsLoading(false)
+    }).catch((err) => {
+        console.log(err)
+        return new Error(err);
+    })
+}
 
-  // function handleClick(e){
-  //   let filtered = [];
-  //   if((!buyFilter || !sellFilter)) {
-  //     filtered = data.filter((item) => item.buyOrSell === buyFilter);
-  //   } else if(e === 'SELL' && !sellFilter) {
-  //     filtered = data.filter((item) => item.buyOrSell === 'SELL');
-  //   } else if(e === 'COMPLETE' && !completeFilter) {
-  //     filtered = data.filter((item) => item.status === 'COMPLETE');
-  //   } else if(e === 'REJECTED' && !rejectedFilter) {
-  //     filtered = data.filter((item) => item.status === 'REJECTED');
-  //   } else {
-  //     filtered = data;
-  //   }
-  //   setFilteredData(filtered);
-  // }
-
+function nextHandler(){
+    if(skip+limitSetting >= count){
+      console.log("inside skip",count,skip+limitSetting)  
+      return;
+    }
+    console.log("inside next handler")
+    setSkip(prev => prev+limitSetting);
+    setOrders([]);
+    axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    })
+    .then((res) => {
+        console.log("orders",res.data)
+        setData(res.data.data)
+        setCount(res.data.count)
+        setFilteredData(res.data.data)
+        setIsLoading(false)
+    }).catch((err) => {
+        console.log(err)
+        return new Error(err);
+    })
+}
   
   useEffect(()=>{
     handleClick();
@@ -119,104 +155,116 @@ function Header({ children }) {
       if(!sellFilter && !buyFilter) {
         return true;
         }
-      // if(rejectedFilter && item.status === 'REJECTED') {
-      //   console.log("inside rejected")
-      //   return true;
-      //   }
-      // if(completeFilter && item.status === 'COMPLETE') {
-      //   console.log("inside complete")
-      //   return true;
-      //   }
       else{
         return false;
-      }
-      // if(!sellFilter && !buyFilter){
-      //   return true;
-      // }
-      
+      }    
     }))
   }
 
+  useEffect(()=>{
+    handleInfinityClick();
+  },[buyInfinityFilter,sellInfinityFilter,rejectedFilter,completeFilter])
+
+  function handleInfinityClick(){
+    console.log("HandleClick",rejectedFilter)
+    setFilteredData(data?.filter((item)=> {
+       console.log(!buyInfinityFilter,!sellInfinityFilter)
+       if(buyInfinityFilter && item.buyOrSell === 'BUY') {
+        return true;
+        }
+       if(sellInfinityFilter && item.buyOrSell === 'SELL') {
+        return true;
+        }
+      if(!sellInfinityFilter && !buyInfinityFilter) {
+        return true;
+        }
+      else{
+        return false;
+      }    
+    }))
+  }
+
+  function dateConvert(dateConvert){
+    console.log("Date Convert",dateConvert)
+    // const dateString = dateConvert;
+    // const date = new Date(dateString);
+    dateConvert = new Date(dateConvert)
+    const options = { 
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric', 
+      hour: 'numeric', 
+      minute: 'numeric',
+      second: 'numeric'
+    };
+    
+    const formattedDate = new Intl.DateTimeFormat('en-IN', options).format(dateConvert);
+    
+    // get day of month and add ordinal suffix
+    const dayOfMonth = dateConvert.getDate();
+    let suffix = "th";
+    if (dayOfMonth === 1 || dayOfMonth === 21 || dayOfMonth === 31) {
+      suffix = "st";
+    } else if (dayOfMonth === 2 || dayOfMonth === 22) {
+      suffix = "nd";
+    } else if (dayOfMonth === 3 || dayOfMonth === 23) {
+      suffix = "rd";
+    }
+    
+    // combine date and time string with suffix
+    const finalFormattedDate = `${dayOfMonth}${suffix} ${formattedDate?.split(" ")[1]}, ${dateConvert.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false })}`;
+    
+    console.log(finalFormattedDate); // Output: "3rd April, 9:27 PM"
+    
+ 
+
+  return finalFormattedDate
+}
+
   console.log(filterData)
   return (
-   
-    // <MDBox position="relative" mb={5}>
-
-    //   <MDBox
-    //     display="flex"
-    //     alignItems="center"
-    //     position="relative"
-    //     minHeight="10rem"
-    //     borderRadius="x1"
-    //     sx={{
-    //       backgroundImage: ({ functions: { rgba, linearGradient }, palette: { gradients } }) =>
-    //         `${linearGradient(
-    //           rgba(gradients.info.main, 0.6),
-    //           rgba(gradients.info.state, 0.6)
-    //         )}, url(${backgroundImage})`,
-    //       backgroundSize: "cover",
-    //       backgroundPosition: "50%",
-    //       overflow: "hidden",
-    //     }}
-    //   />
-    //   <Card
-    //     sx={{
-    //       position: "relative",
-    //       mt: -8,
-    //       mx: 3,
-    //       py: 2,
-    //       px: 2,
-    //     }}
-    //   >
-      
-    //     <Grid container spacing={6} alignItems="center">
-    //       <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }}>
-    //         <AppBar position="static">
-    //           {/* <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}> */}
-    //           <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
-    //             <Tab
-    //               label="Today Orders"
-    //               icon={
-    //                 <Icon fontSize="small" sx={{ mt: -0.25}}>
-    //                   home
-    //                 </Icon>
-    //               }
-    //             />
-    //             <Tab
-    //               label="History Orders"
-    //               icon={
-    //                 <AddShoppingCartIcon fontSize="small" sx={{ mt: -0.25 }}/>
-    //               }
-    //             />
-    //           </Tabs>
-    //         </AppBar>
-    //         <TabPanel value={tabValue} index={0}><UserTodayOrders/> </TabPanel>
-    //         <TabPanel value={tabValue} index={1}><UserHistoryOrders/> </TabPanel>
-    //         {/* <TabPaneltwo/> */}
-    //       </Grid>
-    //     </Grid>
-    //     </Card>
-    //     {/* {children} */}
-     
-    //  </MDBox>
-    
     
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
       <Grid container>
+          
           <Grid item xs={12} md={6} lg={12}>
-            <MDBox display="flex" justifyContent="space-between">
-              <MDBox display="flex" alignItems="center" alignContent="center">
-                <MDButton color={todayColor} style={{marginRight:4}} onClick={()=>{setView('today')}}>Today's Order(s)</MDButton>
-                <MDButton color={historyColor} style={{marginRight:4}} onClick={()=>{setView('history')}}>History</MDButton>
+            <MDBox border='1px solid white' bgColor='light' borderRadius={5} mb={2} p={0.5} display='flex' justifyContent='center' alignItems='center'>
+              <MDTypography color="dark" fontSize={15} fontWeight='bold'>Infinity Trading Order(s)</MDTypography>
+            </MDBox>
+    
+            <MDBox display="flex" justifyContent="space-between" mb={2}>
+            <Grid container spacing={2} display="flex" justifyContent="space-between">
+              <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="space-between">
+              <MDBox display="flex" justifyContent="space-between">
+                <MDButton color={todayInfinityColor} size="small" style={{marginRight:4}} onClick={()=>{setInfinityView('today');setInfinitySkip(0)}}>Today's Order(s)</MDButton>
+                <MDButton color={historyInfinityColor} size="small" style={{marginRight:4}} onClick={()=>{setInfinityView('history');setInfinitySkip(0)}}>All Order(s)</MDButton>
               </MDBox>
-              <MDBox display="flex" alignItems="center" alignContent="center">
+              </Grid>
+              <Grid item xs={8} md={6} lg={6} display="flex" justifyContent="flex-end">
+              <MDBox display="flex" justifyContent="flex-end" alignItems='center'>
                 <MDTypography style={{marginRight:10}} color="light" fontSize={15}>Filters:</MDTypography>
-                <MDButton color={buyFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setBuyFilter(!buyFilter)}}>Buy</MDButton>
-                <MDButton color={sellFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setSellFilter(!sellFilter)}}>Sell</MDButton>
+                <MDButton color={buyInfinityFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setBuyInfinityFilter(!buyInfinityFilter)}}>Buy</MDButton>
+                <MDButton color={sellInfinityFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setSellInfinityFilter(!sellInfinityFilter)}}>Sell</MDButton>
                 {/* <MDButton color={completeFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setCompleteFilter(!completeFilter)}}>Complete</MDButton> */}
                 {/* <MDButton color={rejectedFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setRejectedFilter(!rejectedFilter)}}>Rejected</MDButton> */}
               </MDBox>
+              </Grid>
+            </Grid>
             </MDBox>
+
+            {true ? 
+            <>
+            <Grid item xs={12} md={6} lg={12}>
+              <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                <img src={tradesicon} width={50} height={50}/>
+                <MDTypography color="light" fontSize={15}>You do not have any Infinity trading orders!</MDTypography>
+              </MDBox>
+            </Grid>
+            </>
+            :
+            
+            <>
             
             <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
               <Grid item xs={12} md={2} lg={2}>
@@ -248,6 +296,7 @@ function Header({ children }) {
             {filterData?.map((elem)=>{
               let buysellcolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
               let statuscolor = elem?.status === 'COMPLETE' ? 'success' : 'error'
+           
             return (
             <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
                 <Grid item xs={12} md={2} lg={2}>
@@ -272,15 +321,139 @@ function Header({ children }) {
                   <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{elem?.trade_time}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{dateConvert(elem?.trade_time)}</MDTypography>
+                </Grid>
+            </Grid>
+            )
+            })}
+            
+            {count !== 0 &&
+            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+                <MDButton variant='outlined' size="small" color="light" onClick={backHandler}>Back</MDButton>
+                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {count} | Page {(skip+limitSetting)/limitSetting} of {Math.ceil(count/limitSetting)}</MDTypography>
+                <MDButton variant='outlined' size="small" color="light" onClick={nextHandler}>Next</MDButton>
+            </MDBox>
+            }
+            </>}
+        </Grid>
+            
+          
+      </Grid>
+      
+      <MDBox mt={2}>
+      <Grid container>
+          <Grid item xs={12} md={6} lg={12}>
+            <MDBox border='1px solid white' bgColor='light' borderRadius={5} mb={2} p={0.5} display='flex' justifyContent='center' alignItems='center'>
+            <MDTypography color="dark" fontSize={15} fontWeight='bold'>Paper Trading Orders</MDTypography>
+            </MDBox>
+
+            <MDBox display="flex" justifyContent="space-between" mb={2}>
+            <Grid container spacing={2} display="flex" justifyContent="space-between">
+              <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="space-between">
+              <MDBox display="flex" justifyContent="space-between">
+                <MDButton color={todayColor} size="small" style={{marginRight:4}} onClick={()=>{setView('today');setSkip(0)}}>Today's Order(s)</MDButton>
+                <MDButton color={historyColor} size="small" style={{marginRight:4}} onClick={()=>{setView('history');setSkip(0)}}>All Order(s)</MDButton>
+              </MDBox>
+              </Grid>
+              <Grid item xs={8} md={6} lg={6} display="flex" justifyContent="flex-end">
+              <MDBox display="flex" justifyContent="flex-end" alignItems='center'>
+                <MDTypography style={{marginRight:10}} color="light" fontSize={15}>Filters:</MDTypography>
+                <MDButton color={buyFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setBuyFilter(!buyFilter)}}>Buy</MDButton>
+                <MDButton color={sellFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setSellFilter(!sellFilter)}}>Sell</MDButton>
+                {/* <MDButton color={completeFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setCompleteFilter(!completeFilter)}}>Complete</MDButton> */}
+                {/* <MDButton color={rejectedFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setRejectedFilter(!rejectedFilter)}}>Rejected</MDButton> */}
+              </MDBox>
+              </Grid>
+            </Grid>
+            </MDBox>
+
+            {filterData.length === 0 ?
+            <>
+            <Grid item xs={12} md={6} lg={12}>
+              <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                <img src={tradesicon} width={50} height={50}/>
+                <MDTypography color="light" fontSize={15}>You do not have any Paper trading orders!</MDTypography>
+              </MDBox>
+            </Grid>
+            </>
+            :
+            <>
+            
+            <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+              <Grid item xs={12} md={2} lg={2}>
+                <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Contract</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Quantity</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Price</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Amount</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Type</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Order Id</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Status</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Time</MDTypography>
+              </Grid>
+            </Grid>
+
+            {filterData?.map((elem)=>{
+              let buysellcolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
+              let statuscolor = elem?.status === 'COMPLETE' ? 'success' : 'error'
+           
+            return (
+            <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+                <Grid item xs={12} md={2} lg={2}>
+                  <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>{elem?.Quantity}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.average_price))}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.amount))}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color={buysellcolor} fontSize={13} fontWeight="bold">{elem?.buyOrSell}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>{elem?.order_id}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>{dateConvert(elem?.trade_time)}</MDTypography>
                 </Grid>
             </Grid>
             )
             })}
 
+            {count !== 0 &&
+            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+                <MDButton variant='outlined' size="small" color="light" onClick={backHandler}>Back</MDButton>
+                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {count} | Page {(skip+limitSetting)/limitSetting} of {Math.ceil(count/limitSetting)}</MDTypography>
+                <MDButton variant='outlined' size="small" color="light" onClick={nextHandler}>Next</MDButton>
+            </MDBox>
+            }
+            </>}
+
           </Grid>
           
       </Grid>
+      </MDBox>
+    
     </MDBox>
   );
 }

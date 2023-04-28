@@ -21,7 +21,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 
-function ExitPosition({ isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken }) {
+function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken }) {
   console.log("rendering in userPosition/overall: exitPosition", quantity)
   // const { render, setReRender } = Render
   let checkBuyOrSell;
@@ -186,7 +186,16 @@ function ExitPosition({ isFromHistory, reRender, setReRender, product, symbol, q
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = exitPositionFormDetails;
 
-    const res = await fetch(`${baseUrl}api/v1/${"paperTrade"}`, {
+    let endPoint 
+    let paperTrade = false;
+    if(from === "paperTrade"){
+      endPoint = 'paperTrade';
+      paperTrade = true;
+    } else if(from === "algoTrader"){
+      endPoint = 'placingOrder';
+      paperTrade = false;
+    }
+    const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -195,9 +204,9 @@ function ExitPosition({ isFromHistory, reRender, setReRender, product, symbol, q
       body: JSON.stringify({
 
         exchange, symbol, buyOrSell, Quantity, Price,
-        Product, OrderType, TriggerPrice, stopLoss, uId,
-        validity, variety, createdBy, order_id: dummyOrderId,
-        userId, instrumentToken, trader, paperTrade: true
+        Product, OrderType, TriggerPrice, stopLoss,
+        validity, variety, order_id: dummyOrderId,
+        userId, instrumentToken, trader, paperTrade: paperTrade
 
       })
     });
@@ -284,9 +293,6 @@ function ExitPosition({ isFromHistory, reRender, setReRender, product, symbol, q
       sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: `auto` }}
     />
   );
-
-
-
 
   return (
     <div>
