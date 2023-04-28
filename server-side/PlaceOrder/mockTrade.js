@@ -3,18 +3,16 @@ const MockTradeDetails = require("../models/mock-trade/mockTradeCompanySchema");
 const MockTradeDetailsUser = require("../models/mock-trade/mockTradeUserSchema");
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
 const PaperTrade = require("../models/mock-trade/paperTrade");
+const singleLivePrice = require('../marketData/sigleLivePrice');
 
 
 
-exports.mockTrade = async (reqBody, res) => {
-
+exports.mockTrade = async (req, res) => {
+    console.log("in mock trade")
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, createdBy, userId, uId, algoBox, order_id, instrumentToken,  
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = reqBody 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
-        // console.log(reqBody)
-        // let algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
-        //     productChange, tradingAccount, _id, marginDeduction, isDefault;
         if(isAlgoTrader){
             var {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
                 productChange, tradingAccount, _id, marginDeduction, isDefault} = algoBox
@@ -42,23 +40,18 @@ exports.mockTrade = async (reqBody, res) => {
     let newTimeStamp = "";
     let trade_time = "";
     try{
-        
-        let liveData = await axios.get(`${baseUrl}api/v1/getliveprice`)
-        for(let elem of liveData.data){
+        // console.log("above data")
+        let liveData = await singleLivePrice(exchange, symbol)
+        // console.log("live data", liveData)
+        for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){
                 newTimeStamp = elem.timestamp;
                 originalLastPriceUser = elem.last_price;
-            }
-            if(elem.instrument_token == real_instrument_token){
                 originalLastPriceCompany = elem.last_price;
             }
         }
 
-        trade_time = newTimeStamp;
-        let firstDateSplit = (newTimeStamp).split(" ");
-        let secondDateSplit = firstDateSplit[0].split("-");
-        newTimeStamp = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]} ${firstDateSplit[1]}`
-
+        trade_time = new Date(new Date(newTimeStamp).getTime() + 330*60000);
 
     } catch(err){
         return new Error(err);
@@ -112,12 +105,12 @@ exports.mockTrade = async (reqBody, res) => {
             }
     
             const mockTradeDetails = new MockTradeDetails({
-                status:"COMPLETE", uId, createdBy, average_price: originalLastPriceCompany, Quantity: realQuantity, 
-                Product, buyOrSell:realBuyOrSell, order_timestamp: newTimeStamp,
-                variety, validity, exchange, order_type: OrderType, symbol: realSymbol, placed_by: "ninepointer", userId,
+                status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
+                Product, buyOrSell:realBuyOrSell,
+                variety, validity, exchange, order_type: OrderType, symbol: realSymbol, placed_by: "ninepointer",
                     algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
                 lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault}, order_id, instrumentToken: real_instrument_token, brokerage: brokerageCompany,
-                tradeBy: createdBy,trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), trade_time:trade_time,
+                createdBy: req.user._id,trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), trade_time:trade_time,
                 
             });
     
@@ -136,10 +129,10 @@ exports.mockTrade = async (reqBody, res) => {
             }
     
             const mockTradeDetailsUser = new MockTradeDetailsUser({
-                status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "ninepointer", userId,
+                status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
-                tradeBy: createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+                createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
     
@@ -164,16 +157,16 @@ exports.mockTrade = async (reqBody, res) => {
                 return res.status(422).json({error : "date already exist..."})
             }
     
-            const mockTradeDetailsUser = new PaperTrade({
-                status:"COMPLETE", uId, createdBy, average_price: originalLastPriceUser, Quantity, Product, buyOrSell, order_timestamp: newTimeStamp,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "ninepointer", userId,
+            const paperTrade = new PaperTrade({
+                status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 order_id, instrumentToken, brokerage: brokerageUser, 
-                tradeBy: createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+                createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
     
-            //console.log("mockTradeDetails", mockTradeDetailsUser);
-            mockTradeDetailsUser.save().then(()=>{
+            //console.log("mockTradeDetails", paperTrade);
+            paperTrade.save().then(()=>{
                 console.log("sending response");
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
@@ -182,7 +175,7 @@ exports.mockTrade = async (reqBody, res) => {
             });
             
     
-        }).catch(err => {console.log("fail")});  
+        }).catch(err => {console.log(err, "fail")});  
     }
 
 }

@@ -15,14 +15,10 @@ const paperTrade = new mongoose.Schema({
         type: String,
         // required: true
     },
-    uId:{
-        type: String,
-        required : true
-    },
-    createdBy:{
-        type: String,
-        required : true
-    },
+    // createdBy:{
+    //     type: String,
+    //     required : true
+    // },
     average_price:{
         type: Number,
         // required: true
@@ -39,10 +35,10 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    order_timestamp:{
-        type: String,
-        required: true
-    },
+    // order_timestamp:{
+    //     type: String,
+    //     required: true
+    // },
     variety:{
         type: String,
         required: true
@@ -67,45 +63,45 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    userId:{
-        type: String,
-        required: true        
-    },
+    // userId:{
+    //     type: String,
+    //     required: true        
+    // },
     brokerage:{
-        type: String,        
+        type: Number,        
     },
     instrumentToken:{
         type: String,
         required: true        
     },
-    tradeBy:{
-        type: String,
-        required: true        
-    },
+    // tradeBy:{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'user-personal-detail',      
+    // },
     amount:{
         type: Number,
         // required: true        
     },
     trade_time:{
-        type: String,
+        type: Date,
         // required: true        
-    },
-    otm:{
-        type: String,
-    },
-    otm_quantity:{
-        type: String,
-    },
-    otm_token:{
-        type: String,
-    },
-    isMissed:{
-        type: Boolean,
-        default: false
     },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        // required : true
+    },
+    createdOn:{
+        type: Date,
+        default: new Date()
+    },
+    createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+    },
+    portfolioId:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-portfolio',
         // required : true
     }
 })
