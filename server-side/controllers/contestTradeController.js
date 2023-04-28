@@ -926,7 +926,7 @@ exports.getTradeByPagination = async(req, res, next) => {
   const userId = req.user._id;
   const contestId = req.params.id;
   const skip = parseInt(req.query.skip) || 0;
-  const limit = parseInt(req.query.limit) || 10; // default limit of 10 trades
+  const limit = parseInt(req.query.limit) || 5; // default limit of 10 trades
   console.log(skip, limit)
   try {
     const lastTrade = await ContestTrade.find({trader: userId, contestId: contestId}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1})
