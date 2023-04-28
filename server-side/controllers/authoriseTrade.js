@@ -457,14 +457,12 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                 },
             ])
 
-            console.log("pnlDetails", pnlDetails)
+            // console.log("pnlDetails", pnlDetails)
             let userNetPnl = pnlDetails[0]?.npnl;
-            console.log( userFunds , userNetPnl , zerodhaMargin)
-            console.log((userFunds + userNetPnl - zerodhaMargin))
 
             
             const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
-            console.log("myPortfolios", myPortfolios)
+            // console.log("myPortfolios", myPortfolios)
             let addPortfolioFund = 0;
             let flag = false;
             for(let i = 0; i < myPortfolios.length; i++){
@@ -490,6 +488,10 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             // if(( !runningLots[0]?.runningLots || (((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot == buyOrSell))) && Number(userFunds + userNetPnl - zerodhaMargin)  < 0){   
                 // //console.log("in if")
                 // return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
+            
+            console.log( userFunds , userNetPnl , zerodhaMargin)
+            console.log((userFunds + userNetPnl - zerodhaMargin))
+    
             if(Number(userFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
                 console.log("user wants square off")
                 return next();
