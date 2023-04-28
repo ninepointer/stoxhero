@@ -159,7 +159,7 @@ return (
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
                       <MDTypography fontSize={11}  color="light">
-                        {myReward?.length && myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : `${reward[0].currency} 0`}
+                        {(myReward && myReward?.length !== 0) && myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : `${reward[0].currency} 0`}
                       </MDTypography>
                     </Grid>
 
@@ -200,7 +200,7 @@ return (
                       </Grid>
                       <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
                         <MDTypography fontSize={11} color="light">
-                            {rewards[0]?.reward ?  `${rewards[0]?.currency} ${rewards[0]?.reward}` : `${reward[0].currency} 0`}
+                            {(rewards && rewards?.length !== 0) && rewards[0]?.reward ?  `${rewards[0]?.currency} ${rewards[0]?.reward}` : `${reward[0].currency} 0`}
                         </MDTypography>
                       </Grid>
 
