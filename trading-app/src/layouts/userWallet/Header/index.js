@@ -54,6 +54,7 @@ export default function Wallet() {
   const cashTransactions = myWallet?.transactions?.filter((transaction) => {
     return transaction.transactionType === "Cash";
   });
+  console.log(myWallet?.transactions);
   
   const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
     return total + transaction?.amount;

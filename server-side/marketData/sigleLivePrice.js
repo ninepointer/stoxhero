@@ -38,7 +38,7 @@ async function singleLivePrice (exchange, symbol){
         //   const response = await axios.get("https://jsonplaceholder.typicode.com/posts/1");
           const response = await axios.get(url, authOptions);
 
-          console.log("response", response.data.data)
+          // console.log("response", response.data.data)
           for (let instrument in response.data.data) {
               let obj = {};
               obj.last_price = response.data.data[instrument].last_price;
