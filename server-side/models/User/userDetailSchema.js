@@ -119,6 +119,7 @@ const userDetailSchema = new mongoose.Schema({
     role:{
         type: Schema.Types.ObjectId,
         ref: 'role-detail',
+        default: '644902f1236de3fd7cfd73a7'
     },
     creationProcess:{
         type: String,
