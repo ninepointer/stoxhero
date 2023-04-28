@@ -344,7 +344,8 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
-          createdBy: createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          createdBy: createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), 
+          trade_time:trade_time, portfolioId
           
       });
 
@@ -792,7 +793,8 @@ exports.autoTradeContest = async(req, res, next) => {
         {
           $match:
             {
-              contestId: contest._id
+              contestId: contest._id,
+              status: "COMPLETE"
             },
         },
         {
@@ -1261,12 +1263,14 @@ exports.getHistoryRanks = async(req,res,next) => {
     ranks = await Contest.findOne({_id: contestId}).select('leaderboard');
   }
 
-  if(ranks?.leaderboard?.length !== 0){
-    return res.status(200).json({
-      status: 'success',
-      data: ranks.leaderboard
-    });
-  }
+  setTimeout(()=>{
+    if(ranks?.leaderboard?.length !== 0){
+      return res.status(200).json({
+        status: 'success',
+        data: ranks.leaderboard
+      });
+    }
+  }, 5000)
 }
 
 exports.getHistoryMyRank = async(req,res,next) => {
@@ -1291,13 +1295,16 @@ exports.getHistoryMyRank = async(req,res,next) => {
   //   status: 'success',
   //   data: myRank
   // });
-  if (Object.keys(contest.participants[0].myRank).length !== 0) {
-    const myRank = contest.participants[0].myRank
-    return res.status(200).json({
-      status: 'success',
-      data: myRank
-    });
-  }
+  setTimeout(()=>{
+    if (Object.keys(contest.participants[0].myRank).length !== 0) {
+      const myRank = contest.participants[0].myRank
+      return res.status(200).json({
+        status: 'success',
+        data: myRank
+      });
+    }
+  }, 5000)
+
 }
 
 

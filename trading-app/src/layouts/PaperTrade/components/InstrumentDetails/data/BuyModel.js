@@ -4,7 +4,7 @@ import axios from "axios"
 import uniqid from "uniqid"
 import { userContext } from "../../../../../AuthContext";
 
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -24,9 +24,9 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { Box, Typography } from '@mui/material';
-import MDBox from '../../../../../components/MDBox';
-import { borderBottom } from '@mui/system';
-import { marketDataContext } from "../../../../../MarketDataContext";
+// import MDBox from '../../../../../components/MDBox';
+// import { borderBottom } from '@mui/system';
+// import { marketDataContext } from "../../../../../MarketDataContext";
 
 const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry}) => {
 
@@ -165,7 +165,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   async function placeOrder() {
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
-
+    
     const res = await fetch(`${baseUrl}api/v1/paperTrade`, {
         method: "POST",
         credentials:"include",

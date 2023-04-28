@@ -241,31 +241,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
     reRender ? setReRender(false) : setReRender(true);
   }
 
-  async function subscribeInstrumentFromBuySell(elem){
-    const {instrument_token, exchange} = elem
 
-    const res = await fetch(`${baseUrl}api/v1/subscribeInstrument`, {
-      method: "POST",
-      credentials:"include",
-      headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-        instrumentToken: instrument_token, exchange
-      })
-    });
-  
-    const data = await res.json();
-    //console.log(data);
-    if(data.status === 422 || data.error || !data){
-        window.alert(data.error);
-    }else{
-      // openSuccessSB();
-      console.log(data.message)
-    }
-
-  }
 
   let title = `Instrument ${state.addOrRemoveCheck ? "Added" : "Removed"}`
   let content = `${state.instrumentName} is ${state.addOrRemoveCheck ? "Added to" : "Removed from"} your watchlist`
