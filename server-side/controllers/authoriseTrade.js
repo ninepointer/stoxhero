@@ -322,7 +322,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
         firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
         console.log(firstDayOfMonthDate, lastDayOfMonthDate);
-        let pnlDetails = await AlgoTrader.aggregate([
+        let pnlDetails = await PaperTrade.aggregate([
             {
             $match:
                 {
