@@ -30,7 +30,7 @@ import { Box, Typography } from '@mui/material';
 
 const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry, from}) => {
 
-  console.log("rendering in userPosition: buyModel")
+  console.log("rendering in userPosition: buyModel", from)
 
   // const marketDetails = useContext(marketDataContext)
 

@@ -28,7 +28,7 @@ import OverallRow from './OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
 // import Button from '@mui/material/Button';
 
-function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
+function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
   console.log("rendering in userPosition: overallPnl")
   let styleTD = {
     textAlign: "center",
@@ -61,6 +61,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let rows = [];
+  let pnlEndPoint = from === "paperTrade" ? "paperTrade/pnl" : from === "algoTrader" && "infinityTrade/pnl";
 
 
     useEffect(()=>{
@@ -71,7 +72,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
            let signal = abortController.signal;    
 
            // the signal is passed into the request(s) we want to abort using this controller
-           const { data } = await axios.get(`${baseUrl}api/v1/paperTrade/pnl`,{
+           const { data } = await axios.get(`${baseUrl}api/v1/${pnlEndPoint}`,{
            withCredentials: true,
            headers: {
                Accept: "application/json",
@@ -186,14 +187,14 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
         );
       }
       obj.exit = (
-        < ExitPosition reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
+        < ExitPosition from={from} reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
       );
       obj.buy = (
-        <Buy reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
+        <Buy from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
       );
       
       obj.sell = (
-        <Sell reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
+        <Sell from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
       );
 
       if(subelem.lots != 0){
@@ -284,7 +285,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked}) {
                   <td  ></td>
                   <td  ></td>
                   <td style={{ padding: "8px 10px"}} ><div style={styleBottomRow}>Running Lots: {totalRunningLots}</div></td>
-                  <td  ></td>
+                  {/* <td  ></td> */}
                   <td style={{ padding: "8px 10px"}}><div style={styleBottomRow} >Brokerage: {"₹"+(totalTransactionCost).toFixed(2)}</div></td>
                   <td style={{ padding: "8px 10px"}} ><div style={{...styleBottomRow, color: `${totalGrossPnl > 0 ? 'green' : 'red'}`}}>Gross P&L: {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)): "-₹" + ((-totalGrossPnl).toFixed(2))}</div></td>
                   <td style={{ padding: "8px 10px"}} ><div style={{...styleBottomRow, color: `${(totalGrossPnl-totalTransactionCost) > 0 ? 'green' : 'red'}`}}>Net P&L: {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}</div></td>

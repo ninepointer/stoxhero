@@ -66,6 +66,7 @@ export default function Wallet() {
       setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={"algoTrader"}
     />;
   }, [socket, reRender, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
@@ -221,13 +222,13 @@ export default function Wallet() {
       </Grid>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6} lg={9}>
+        <Grid item xs={12} md={6} lg={12}>
           {/* <WatchList/> */}
           {memoizedInstrumentDetails}
         </Grid>
-        <Grid item xs={12} md={6} lg={3}>
+        {/* <Grid item xs={12} md={6} lg={3}>
           <BuySell/>
-        </Grid>
+        </Grid> */}
         <Grid item xs={12} md={6} lg={12}>
           {/* <OverallPnl/> */}
           {memoizedOverallPnl}
