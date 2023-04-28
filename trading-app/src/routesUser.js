@@ -54,7 +54,7 @@ const routes = [
   {
     type: "collapse",
     name: "Paper Trading",
-    key: "PaperTrading",
+    key: "paperTrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
     route: "/paperTrading",
@@ -63,7 +63,7 @@ const routes = [
   {
     type: "collapse",
     name: "StoxHero Trading",
-    key: "StoxHeroTrading",
+    key: "stoxHeroTrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <GiNinjaHeroicStance/>,
     route: "/stoxHeroTrading",
