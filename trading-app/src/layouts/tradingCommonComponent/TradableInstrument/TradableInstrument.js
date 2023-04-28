@@ -278,7 +278,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
           InputProps={{
             onFocus: () => textRef.current.select(),
             endAdornment: (
-              <MDButton variant="text" color="dark" onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
+              <MDButton variant="text" color={from === "paperTrade" ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
             ),
             startAdornment: (
               <>{<AiOutlineSearch/>}</>
@@ -323,7 +323,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  color:"white",
+                  color: from === "paperTrade" ? "dark" : from === "algoTrader" && "light",
                   padding:"0.5px",
                   '&:hover': {
                     backgroundColor: 'lightgray',
