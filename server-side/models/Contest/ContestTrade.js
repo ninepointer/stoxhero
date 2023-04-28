@@ -66,10 +66,10 @@ const ContestTrade = new mongoose.Schema({
         type: String,
         required: true        
     },
-    tradeBy:{
-        type: Schema.Types.ObjectId,
-        ref: 'user-personal-detail',       
-    },
+    // tradeBy:{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'user-personal-detail',       
+    // },
     amount:{
         type: Number,
         // required: true        
@@ -104,6 +104,7 @@ const ContestTrade = new mongoose.Schema({
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true
     }
 })
 

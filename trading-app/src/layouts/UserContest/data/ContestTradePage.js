@@ -240,7 +240,7 @@ function ContestTradeView () {
                   {isDummy && !isFromHistory ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
-                          Battle is Starts in:
+                          Battle Starts in:
                         </span> 
                         <div style={style} >
                           <AvTimerIcon/>
