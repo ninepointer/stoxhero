@@ -5,6 +5,8 @@ const ApiKey = require("../models/Trading Account/accountSchema");
 const UserPermission = require("../models/User/permissionSchema");
 // const UserPermission = require("../models/User/permissionSchema");
 const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
+const authoizeTrade = require('../controllers/authoriseTrade');
+ 
 
 
 const ApplyAlgo = async (req, res, next)=>{
@@ -59,10 +61,7 @@ const ApplyAlgo = async (req, res, next)=>{
     }
 
     async function tradingAlgo() {
-
-
         userPermissionAlgo?.map((elem) => {
-    
             if(elem.transactionChange === "TRUE") {
                 if(buyOrSell === "BUY"){
                     companyTrade.realBuyOrSell = "SELL"
@@ -112,7 +111,7 @@ const ApplyAlgo = async (req, res, next)=>{
                         req.body.realQuantity = companyTrade.realQuantity;
                         req.body.apiKey = apiKey;
                         req.body.accessToken = accessToken;
-                        req.body.algoBox = elem;
+                        req.body.algoBoxId = elem._id;
                         req.body.isAlgoTrader = req.user.isAlgoTrader
 
                     } else if(subElem.isTradeEnable){
@@ -121,7 +120,7 @@ const ApplyAlgo = async (req, res, next)=>{
                         req.body.real_instrument_token = companyTrade.real_instrument_token;
                         req.body.realBuyOrSell = companyTrade.realBuyOrSell;
                         req.body.realQuantity = companyTrade.realQuantity;
-                        req.body.algoBox = elem;
+                        req.body.algoBoxId = elem._id,
                         req.body.isAlgoTrader = req.user.isAlgoTrader
                     }
                 }

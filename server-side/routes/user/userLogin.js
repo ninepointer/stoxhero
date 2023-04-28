@@ -4,7 +4,7 @@ require("../../db/conn");
 const UserDetail = require("../../models/User/userDetailSchema");
 const jwt = require("jsonwebtoken")
 const authentication = require("../../authentication/authentication");
-const sendSMS = require('../../utils/smsService');
+const {sendSMS, sendOTP} = require('../../utils/smsService');
 const otpGenerator = require('otp-generator');
 
 router.post("/login", async (req, res)=>{
@@ -63,7 +63,8 @@ router.post('/phonelogin', async (req,res, next)=>{
         console.log(user);
         await user.save({validateBeforeSave: false});
     
-        sendSMS([mobile.toString()], `Your otp to login to StoxHero is: ${mobile_otp}`);
+        // sendSMS([mobile.toString()], `Your otp to login to StoxHero is: ${mobile_otp}`);
+        sendOTP(mobile.toString(), mobile_otp);
     
         res.status(200).json({status: 'Success', message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`});
     }catch(e){
@@ -118,7 +119,8 @@ router.post("/resendmobileotp", async(req, res)=>{
         user.mobile_otp = mobile_otp;
         await user.save({validateBeforeSave: false});
     
-        sendSMS([mobile.toString()], `Your OTP is ${mobile_otp}`);
+        // sendSMS([mobile.toString()], `Your OTP is ${mobile_otp}`);
+        sendOTP(mobile.toString(), mobile_otp);
         res.status(200).json({status: 'success', message : "Otp sent. Check again."});
     }catch(e){
         console.log(e);

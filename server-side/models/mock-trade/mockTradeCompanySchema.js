@@ -14,20 +14,12 @@ const mockTradeCompanySchema = new mongoose.Schema({
         type: String,
         // required: true
     },
-    uId:{
-        type: String,
-        required : true
-    },
-    createdBy:{
-        type: String,
-        required : true
-    },
     average_price:{
         type: Number,
         // required: true
     },
     Quantity:{
-        type: String,
+        type: Number,
         required: true
     },
     Product:{
@@ -35,10 +27,6 @@ const mockTradeCompanySchema = new mongoose.Schema({
         required: true
     },
     buyOrSell:{
-        type: String,
-        required: true
-    },
-    order_timestamp:{
         type: String,
         required: true
     },
@@ -66,20 +54,12 @@ const mockTradeCompanySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    userId:{
-        type: String,
-        required: true        
-    },
     brokerage:{
-        type: String,        
+        type: Number,        
     },
     instrumentToken:{
         type: String, 
         required: true 
-    },
-    tradeBy:{
-        type: String,
-        required: true        
     },
     isRealTrade:{ 
         type: Boolean,
@@ -90,20 +70,8 @@ const mockTradeCompanySchema = new mongoose.Schema({
         // required: true        
     },
     trade_time:{
-        type: String,
+        type: Date,
         required: true        
-    },
-    date_part:{
-        type: String,
-    },
-    otm:{
-        type: String,
-    },
-    otm_quantity:{
-        type: String,
-    },
-    otm_token:{
-        type: String,
     },
     isMissed:{
         type: Boolean,
@@ -114,48 +82,17 @@ const mockTradeCompanySchema = new mongoose.Schema({
         ref: 'user-personal-detail',
         // required : true
     },
+    createdOn:{
+        type: Date,
+        default: new Date()
+    },
+    createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+    },
     algoBox:{
-        _id:{
-            type: String,
-            required: true
-        },
-        algoName:{
-            type: String,
-            required: true
-        },
-        isDefault:{
-            type: Boolean,
-            required: true
-        },
-        marginDeduction:{
-            type: Boolean,
-            required: true
-        },
-        transactionChange:{
-            type: String,
-            required : true
-        },
-        instrumentChange:{
-            type: String,
-            required : true
-        },
-        exchangeChange:{
-            type: String,
-            required : true
-        },
-        lotMultipler:{
-            type: String,
-            required : true
-        },
-        productChange:{
-            type: String,
-            required : true
-        },
-        tradingAccount:{
-            type: String,
-            required : true
-        }
-        
+        type: Schema.Types.ObjectId,
+        ref: 'algo-trading', 
     }
 })
 

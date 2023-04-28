@@ -24,7 +24,7 @@ const paperTrade = new mongoose.Schema({
         // required: true
     },
     Quantity:{
-        type: String,
+        type: Number,
         required: true
     },
     Product:{
