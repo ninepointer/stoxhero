@@ -169,8 +169,6 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
   }
 
   async function placeOrder() {
-    let date = new Date();
-    let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}:${String(date.getMilliseconds()).padStart(2, '0')}`
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = sellFormDetails;
     const res = await fetch(`${baseUrl}api/v1/paperTrade`, {
@@ -315,7 +313,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
       close={closeSuccessSB}
       bgWhite="info"
       
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width:"500px"}}
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
     />
   );
 

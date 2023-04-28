@@ -243,14 +243,15 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
 
   let {  exchange, symbol, buyOrSell, Quantity, Price, 
         Product, OrderType, TriggerPrice, stopLoss, uId,
-        validity, variety, createdBy, order_id,
+        validity, variety, order_id,
         userId, instrumentToken, trader, portfolioId, autoTrade, dontSendResp, employeeid} = tradeDetails;
 
-        let tradeBy ;
+        let createdBy ;
         if(autoTrade){
-          tradeBy = new ObjectId("63ecbc570302e7cf0153370c")
+          // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
+          createdBy = await User.findOne({email: "system@ninepointer.in"})._id
         } else{
-          tradeBy = trader
+          createdBy = trader
         }
         //console.log("req.body", tradeDetails)
 
@@ -342,7 +343,7 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
-          createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          createdBy: createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
           
       });
 
@@ -670,7 +671,7 @@ exports.getMyContestRank = async (req, res, next) => {
 }
 
 exports.autoTradeContest = async(req, res, next) => {
-    console.log("in autotrade")
+    console.log("in autotrade", new Date())
 
     const now = new Date();
     const twoMinutesBeforeNow = new Date(now.getTime() - 2 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
@@ -1066,7 +1067,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       if(await client.exists(`${id.toString()} allranks`)){
         ranks = await client.get(`${id.toString()} allranks`);
         ranks = JSON.parse(ranks);
-        // console.log('ranks in redis',ranks);
+        console.log('ranks in redis',ranks);
       } else{
 
         ranks = await ContestTrade.aggregate([
@@ -1249,37 +1250,50 @@ exports.getRedisMyRank = async(req,res,next) => {
 
 exports.getHistoryRanks = async(req,res,next) => {
   const contestId = req.params.id;
-  const ranks = await Contest.find({_id: contestId}).select('leaderboard')
-  return res.status(200).json({
-    status: 'success',
-    data: ranks[0].leaderboard
-  });
+  
+  let ranks = await Contest.findOne({_id: contestId}).select('leaderboard');
+
+  while (ranks?.leaderboard?.length === 0) {
+    ranks = await Contest.findOne({_id: contestId}).select('leaderboard');
+  }
+
+  if(ranks?.leaderboard?.length !== 0){
+    return res.status(200).json({
+      status: 'success',
+      data: ranks.leaderboard
+    });
+  }
 }
 
 exports.getHistoryMyRank = async(req,res,next) => {
-
   const contestId = req.params.id;
   const userId = req.user._id;
 
-  const contest = await Contest.findOne(
+  let contest = await Contest.findOne(
     { _id: contestId, 'participants.userId': userId }, 
     { 'participants.$': 1 }
   );
 
-  if (!contest) {
-    return res.status(404).json({
-      status: 'error',
-      message: 'Contest or user not found'
-    });
+  while (Object.keys(contest.participants[0].myRank).length === 0) {
+    let contest = await Contest.findOne(
+      { _id: contestId, 'participants.userId': userId }, 
+      { 'participants.$': 1 }
+    );
   }
 
-  const myRank = contest.participants[0].myRank;
-  console.log("myrank", myRank)
-  return res.status(200).json({
-    status: 'success',
-    data: myRank
-  });
-
+  ;
+  // console.log("myrank", myRank);
+  // return res.status(200).json({
+  //   status: 'success',
+  //   data: myRank
+  // });
+  if (Object.keys(contest.participants[0].myRank).length !== 0) {
+    const myRank = contest.participants[0].myRank
+    return res.status(200).json({
+      status: 'success',
+      data: myRank
+    });
+  }
 }
 
 
