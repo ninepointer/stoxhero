@@ -1,4 +1,5 @@
-const fastTwoSms = require("fast-two-sms")
+const fastTwoSms = require("fast-two-sms");
+const axios = require('axios');
 
 
 function sendSMS(numbers, message){
@@ -19,5 +20,9 @@ function sendSMS(numbers, message){
 
 }
 
-module.exports = sendSMS;
+async function sendOTP(number, OTP){
+    const res = await axios.get(`https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.SMS_AUTH}&variables_values=${OTP}&route=otp&numbers=${number}`);
+}
+
+module.exports = {sendSMS, sendOTP};
 

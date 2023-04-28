@@ -7,11 +7,11 @@ import Grid from "@mui/material/Grid";
 import MDBox from "../../components/MDBox";
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import InstrumentDetails from "./components/InstrumentDetails";
-import OverallGrid from "./OverallP&L/OverallGrid";
-import MarginGrid from "./MarginDetails/MarginGrid";
-import TradableInstrument from "./components/TradableInstrument/TradableInstrument";
-import StockIndex from "./components/StockIndex/StockIndex";
+import InstrumentDetails from "../tradingCommonComponent/InstrumentDetails";
+import OverallGrid from "../tradingCommonComponent/OverallP&L/OverallGrid";
+import MarginGrid from "../tradingCommonComponent/MarginDetails/MarginGrid";
+import TradableInstrument from "../tradingCommonComponent/TradableInstrument/TradableInstrument";
+import StockIndex from "../tradingCommonComponent/StockIndex/StockIndex";
 import { userContext } from "../../AuthContext";
 
 
@@ -68,6 +68,7 @@ function UserPosition() {
       // setReRender={}
       // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={"paperTrade"}
     />;
   }, [socket, reRender, handleSetIsGetStartedClicked]);
 
@@ -79,6 +80,7 @@ function UserPosition() {
       // setReRender={}
       // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={"paperTrade"}
     />;
   }, [socket, reRender, handleSetIsGetStartedClicked]);
 
