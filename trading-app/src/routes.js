@@ -27,6 +27,7 @@ import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
 import AnalyticsRoutes from './analyticsRoutes'
 import SignUp from './layouts/authentication/sign-up'
+import SignIn from './layouts/authentication/sign-in'
 import ResetPassword from './layouts/authentication/reset-password/cover'
 import Response from './layouts/authentication/sign-up/responseSubmit'
 import MyReferrals from "./layouts/referrals"
@@ -67,6 +68,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
 import UserContest from "./layouts/UserContest"
+import LandingPage from './layouts/landingPage'
 
 const routes = [
   {
@@ -85,6 +87,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/signup",
     component: <SignUp />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "login",
+    // icon: <DashboardIcon/>,
+    route: "/login",
+    component: <SignIn />,
   },
   
   {

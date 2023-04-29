@@ -51,6 +51,7 @@ import { userContext } from "./AuthContext";
 import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
+import LandingPage from './layouts/landingPage'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
@@ -264,6 +265,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           :
           <Route path="/" element={<SignIn />} />
+          // <Route path="/" element={<LandingPage />} />
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate to="/PaperTrading" />} />
