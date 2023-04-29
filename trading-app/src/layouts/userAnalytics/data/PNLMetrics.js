@@ -1,14 +1,27 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { CircularProgress, Grid } from '@mui/material';
+import axios from 'axios';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
 import MDAvatar from '../../../components/MDAvatar';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import stock from "../../../assets/images/analyticspnl.png"
+import stock from "../../../assets/images/analyticspnl.png";
+import { apiUrl } from '../../../constants/constants';
 
 export default function PNLMetrics(traderType) {
+
+  const [overview, setOverview] = React.useState({});
+
+  const getOverview = async()=>{
+    const res = await axios.get(`${apiUrl}analytics/papertrade/myoverview`, {withCredentials: true});
+    setOverview(prev=>res.data.data[0]);
+  }
+
+  useEffect(()=>{
+    getOverview();
+  },[])
 
   return (
    
@@ -21,9 +34,9 @@ export default function PNLMetrics(traderType) {
                             <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Today</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: 1000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: 9000</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : ₹{overview?.grossPNLDaily?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: ₹{overview?.brokerageSumDaily?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: ₹{overview?.netPNLDaily?.toFixed(2)}</MDTypography>
                             </MDBox>
                         </Grid>
                     </Grid>
@@ -38,9 +51,9 @@ export default function PNLMetrics(traderType) {
                             <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>This Month</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: 1000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: 9000</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L :₹{overview?.grossPNLMonthly?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: ₹{overview?.brokerageSumMonthly?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: ₹{overview?.netPNLMonthly?.toFixed(2)}</MDTypography>
                             </MDBox>
                         </Grid>
                     </Grid>
@@ -54,9 +67,9 @@ export default function PNLMetrics(traderType) {
                             <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>This Year</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: 1000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: 9000</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : ₹{overview?.grossPNLYearly?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: ₹{overview?.brokerageSumYearly?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: ₹{overview?.netPNLYearly?.toFixed(2)}</MDTypography>
                             </MDBox>
                         </Grid>
                     </Grid>
@@ -71,9 +84,9 @@ export default function PNLMetrics(traderType) {
                             <MDAvatar src={stock} size="sm" display="flex" justifyContent="left"/>
                             <MDBox ml={4} display="flex" flexDirection="column">
                               <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Lifetime</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : 10000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: 1000</MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: 9000</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Gross P&L : ₹{overview?.grossPNLLifetime?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Brokerage: ₹{overview?.brokerageSumLifetime?.toFixed(2)}</MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Net P&L: ₹{overview?.netPNLLifetime?.toFixed(2)}</MDTypography>
                             </MDBox>
                         </Grid>
                     </Grid>
