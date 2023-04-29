@@ -3,7 +3,7 @@ import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 import { Grid } from '@mui/material';
 
-const EChartsDemo = (traderType) => {
+const EChartsDemo = ({traderType, monthWiseData}) => {
   const chartRef = useRef(null);
   const [chartInstance, setChartInstance] = useState(null);
 
@@ -11,7 +11,7 @@ const EChartsDemo = (traderType) => {
     if (!chartInstance) {
       setChartInstance(echarts.init(chartRef.current));
     }
-  }, [chartInstance]);
+  }, [chartInstance, monthWiseData]);
 
   useEffect(() => {
     if (chartInstance) {
@@ -38,7 +38,7 @@ const EChartsDemo = (traderType) => {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          data: monthWiseData.map((e)=>e.date),
         },
         yAxis: {
           type: 'value',
@@ -50,7 +50,7 @@ const EChartsDemo = (traderType) => {
           {
             name: 'Gorss P&L',
             type: 'line',
-            data: [10000, -11000, 13000, 5000, -12000, 12000, 9000],
+            data: monthWiseData.map((e)=>e.gpnl.toFixed(2)),
             markPoint: {
               data: [
                 { type: 'max', name: 'Max' },
@@ -64,7 +64,7 @@ const EChartsDemo = (traderType) => {
           {
             name: 'Net P&L',
             type: 'line',
-            data: [9000, -12000, 12000, 4000, -13000, 11000, 8000],
+            data: monthWiseData.map((e)=>e.npnl.toFixed(2)),
             markPoint: {
               data: [
                 { name: 'Hello', value: 8000, xAxis: 6, yAxis: -1.5 },
@@ -95,7 +95,7 @@ const EChartsDemo = (traderType) => {
         ],
       });
     }
-  }, [chartInstance]);
+  }, [chartInstance, monthWiseData]);
 
   return <MDBox ref={chartRef} style={{ width: '100%', height: '400px' }} />
 

@@ -1,4 +1,5 @@
 const PaperTrade = require('../models/mock-trade/paperTrade');
+const TraderDailyPnlData = require('../models/InstrumentHistoricalData/TraderDailyPnlDataSchema');
 
 exports.getTraderOverview = async(req,res,next) => {
 
@@ -15,6 +16,7 @@ exports.getTraderOverview = async(req,res,next) => {
         {
           $match: {
             trader: userId,
+            trade_time:{$lte: today}
             // Replace with the actual user ID
           },
           
@@ -141,8 +143,9 @@ exports.getDateWiseStats = async(req, res)=>{
     const{to, from} = req.query;
     let date = new Date();
     const fromDate = new Date(from);
+    fromDate.setHours(0,0,0,0);
     const toDate = new Date(to);
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    toDate.setHours(23, 59, 59, 999);
     
     let pnlDetails = await PaperTrade.aggregate([
         { $match: { trade_time: {$gte : fromDate, $lte : toDate}, trader: id, status: "COMPLETE"} },
@@ -186,7 +189,7 @@ exports.getDateWiseStats = async(req, res)=>{
             
                 // //console.log(pnlDetails)
 
-        res.status(201).json(pnlDetails);
+        res.status(201).json({status:'success', data: pnlDetails});
  
 }
 
