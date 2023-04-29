@@ -38,7 +38,7 @@ const routes = [
     key: "Orders",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <ReorderIcon/>,
-    route: "/Orders",
+    route: "/orders",
     component: <UserOrders />,
   },
   {
@@ -55,7 +55,7 @@ const routes = [
     key: "Analytics",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <AnalyticsIcon/>,
-    route: "/Analytics",
+    route: "/analytics",
     component: <UserReport />,
   },
   {
@@ -71,7 +71,7 @@ const routes = [
     name: "Wallet",
     key: "Wallet",
     icon: <AccountBalanceWalletIcon/>,
-    route: "/Wallet",
+    route: "/wallet",
     component: <UserWallet />,
   },
   {

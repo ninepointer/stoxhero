@@ -28,7 +28,9 @@ import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 
 function Breadcrumbs({ icon, title, route, light }) {
+  
   const routes = route.slice(0, -1);
+  console.log("this is el", route, routes)
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
 
@@ -53,6 +55,7 @@ function Breadcrumbs({ icon, title, route, light }) {
           </MDTypography>
         </Link>
         {routes.map((el) => {
+          console.log("this is el", el);
           if(path == ' '){
             path=`${el}`
           }else{
