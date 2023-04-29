@@ -69,9 +69,7 @@ exports.newTrade = async (req, res, next) => {
               originalLastPriceUser = elem.last_price;
           }
       }
-
-      console.log("trade time", new Date(new Date(newTimeStamp).getTime() + 330*60000));
-      trade_time = new Date(new Date(newTimeStamp).getTime() + 330*60000);
+      trade_time = new Date(newTimeStamp);
 
 
   } catch(err){
@@ -241,15 +239,17 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
 
   // const contestId = req.params.id;
 
-  let {  exchange, symbol, buyOrSell, Quantity, Price, 
-        Product, OrderType, TriggerPrice, stopLoss, uId,
-        validity, variety, order_id,
-        userId, instrumentToken, trader, portfolioId, autoTrade, dontSendResp, employeeid} = tradeDetails;
+  let {  exchange, symbol, buyOrSell, Quantity, 
+        Product, OrderType, validity, variety, order_id,
+        instrumentToken, trader, portfolioId, autoTrade, 
+        dontSendResp} = tradeDetails;
 
+        console.log("tradeDetails", tradeDetails)
         let createdBy ;
         if(autoTrade){
           // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
-          createdBy = await User.findOne({email: "system@ninepointer.in"})._id
+          let system = await User.findOne({email: "system@ninepointer.in"})
+          createdBy = system._id
           console.log("createdBy", createdBy)
         } else{
           createdBy = trader
@@ -291,8 +291,8 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
       }
 
 
-      trade_time = new Date(new Date(newTimeStamp).getTime() + 330*60000);
-
+      trade_time = new Date(newTimeStamp);
+      console.log("trade_time", trade_time)
   } catch(err){
       console.log(err)
       return new Error(err);
@@ -826,69 +826,27 @@ exports.autoTradeContest = async(req, res, next) => {
       await autoTrade.autoTradeHelper(openTrade, contest._id)
       return contest.participants.map(async (participant) => {
         // return for(let i = 0; i) {
+          let employeeidObj = await client.get(`${(contest._id).toString()}employeeid`);
+          employeeidObj = JSON.parse(employeeidObj);
+    
         if(!await client.exists(`leaderboard:${contest._id}`)){
           const api1Response = await axios.get(`${baseUrl}api/v1/contest/${contest._id}/trades/${"leaderboard"}`)
-          await updateParticularUserRank(contest, participant);
+          await updateParticularUserRank(contest, participant, employeeidObj);
         }
         else{
-          const leaderBoardRank = await client.ZREVRANK(`leaderboard:${contest._id}`, JSON.stringify({name:participant.employeeid}));
-          const leaderBoardScore = await client.ZSCORE(`leaderboard:${contest._id}`, JSON.stringify({name:participant.employeeid}));
-      
-          // console.log(leaderBoardRank, leaderBoardScore)
-          // return res.status(200).json({
-          //   status: 'success',
-          //   data: {rank: leaderBoardRank+1, npnl: leaderBoardScore}
-          // }); 
-          const investedAmount = await client.get(`${participant.employeeid} investedAmount`)
-          let obj = {
-            rank: leaderBoardRank+1,
-            npnl: leaderBoardScore,
-            investedAmount: Number(investedAmount)
-          }
-
-          // console.log("object", obj);
-          // console.log('query filter:', { 'participants.userId': participant.userId });
           try{
-           const result =  await Contest.findOneAndUpdate(
-              { _id: contest._id, 'participants.userId': participant.userId },
-              { $set: { 'participants.$.myRank': obj } },
-              { new: true }
-            );
-
-            // console.log(result)
-  
-            await client.del(`${participant.employeeid} investedAmount`);
-
-            if(leaderBoardRank <= contest.rewards[contest.rewards.length -1].rankEnd){
-              const wallet = await userWallet.findOne({userId: participant.userId});
-              for(reward of contest.rewards){
-                if(leaderBoardRank <= reward.rankEnd && leaderBoardRank >= reward.rankStart){
-                  wallet.transactions = [...wallet.transactions, {
-                    title: 'Battle Credit',
-                    description: `Amount credited for battle ${contest.contestName}`,
-                    amout: reward.reward,
-                    transactionId: uuid.v4(),
-                    transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
-                }];
-                }
-              }
-            }
-            
-  
+            await updateParticularUserRank(contest, participant, employeeidObj);
+            await client.del(`${employeeidObj[participant.userId.toString()]} investedAmount`);
 
           } catch(err){
             console.log(err)
           }
-      
-          await updateParticularUserRank(contest, participant);
         }
       });
     })
 
-    async function updateParticularUserRank(contest, participant){
-      let employeeidObj = await client.get(`${(contest._id).toString()}employeeid`);
-      employeeidObj = JSON.parse(employeeidObj);
-      console.log("employeeid", employeeidObj,  employeeidObj[participant.userId.toString()])
+    async function updateParticularUserRank(contest, participant, employeeidObj){
+      // console.log("employeeid", employeeidObj,  employeeidObj[participant.userId.toString()])
 
       const leaderBoardRank = await client.ZREVRANK(`leaderboard:${contest._id}`, JSON.stringify({name:employeeidObj[participant.userId.toString()]}));
       const leaderBoardScore = await client.ZSCORE(`leaderboard:${contest._id}`, JSON.stringify({name:employeeidObj[participant.userId.toString()]}));
@@ -909,7 +867,23 @@ exports.autoTradeContest = async(req, res, next) => {
           { new: true }
        );
 
-        console.log(result)
+
+       if(leaderBoardRank <= contest.rewards[contest.rewards.length -1].rankEnd){
+        const wallet = await userWallet.findOne({userId: participant.userId});
+        for(reward of contest.rewards){
+          if(leaderBoardRank <= reward.rankEnd && leaderBoardRank >= reward.rankStart){
+            wallet.transactions = [...wallet.transactions, {
+              title: 'Battle Credit',
+              description: `Amount credited for battle ${contest.contestName}`,
+              amout: reward.reward,
+              transactionId: uuid.v4(),
+              transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
+          }];
+          }
+        }
+      }
+
+        // console.log(result)
         await client.del(`${employeeidObj[participant.userId.toString()]} investedAmount`)
         await client.del(`${contest._id.toString()}`)
 
@@ -918,7 +892,7 @@ exports.autoTradeContest = async(req, res, next) => {
       }
 
     }
-    let data = userIds;
+    // let data = userIds;
     // console.log(data)
     res.send("ok")
 
@@ -1073,7 +1047,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       if(await client.exists(`${id.toString()} allranks`)){
         ranks = await client.get(`${id.toString()} allranks`);
         ranks = JSON.parse(ranks);
-        console.log('ranks in redis',ranks);
+        // console.log('ranks in redis',ranks);
       } else{
 
         ranks = await ContestTrade.aggregate([
@@ -1263,14 +1237,14 @@ exports.getHistoryRanks = async(req,res,next) => {
     ranks = await Contest.findOne({_id: contestId}).select('leaderboard');
   }
 
-  setTimeout(()=>{
+  // setTimeout(()=>{
     if(ranks?.leaderboard?.length !== 0){
       return res.status(200).json({
         status: 'success',
         data: ranks.leaderboard
       });
     }
-  }, 5000)
+  // }, 5000)
 }
 
 exports.getHistoryMyRank = async(req,res,next) => {
@@ -1282,7 +1256,7 @@ exports.getHistoryMyRank = async(req,res,next) => {
     { 'participants.$': 1 }
   );
 
-  while (Object.keys(contest.participants[0].myRank).length === 0) {
+  while (contest?.participants?.length !== 0 && Object.keys(contest.participants[0].myRank).length === 0) {
     let contest = await Contest.findOne(
       { _id: contestId, 'participants.userId': userId }, 
       { 'participants.$': 1 }
@@ -1296,14 +1270,14 @@ exports.getHistoryMyRank = async(req,res,next) => {
   //   data: myRank
   // });
   setTimeout(()=>{
-    if (Object.keys(contest.participants[0].myRank).length !== 0) {
+    if (contest?.participants?.length !== 0 && Object.keys(contest.participants[0].myRank).length !== 0) {
       const myRank = contest.participants[0].myRank
       return res.status(200).json({
         status: 'success',
         data: myRank
       });
     }
-  }, 5000)
+  }, 3000)
 
 }
 

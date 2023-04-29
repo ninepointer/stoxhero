@@ -229,7 +229,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
 
     console.log("in fundCheckPaperTrade")
     const {exchange, symbol, buyOrSell, variety,
-           Product, OrderType, Quantity, userId} = req.body;
+           Product, OrderType, Quantity} = req.body;
     
 
     getKiteCred.getAccess().then(async (data)=>{
@@ -330,7 +330,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                         $gte: (firstDayOfMonthDate),
                         $lte: (lastDayOfMonthDate)
                         },
-                    trader: userId,
+                    trader: req.user._id,
                     status: "COMPLETE",
                 },
             },

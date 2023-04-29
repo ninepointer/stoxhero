@@ -14,9 +14,9 @@ import marginicon from '../../../assets/images/marginicon.png'
 import netpnlicon from '../../../assets/images/netpnlicon.png'
 
 
-import TradableInstrument from '../data/TradableInstruments';
+import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
 // import WatchList from '../data/WatchList';
-import BuySell from '../data/BuySell'
+// import BuySell from '../data/BuySell'
 // import MyPosition from '../data/MyPosition'
 import Orders from '../data/orders'
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
@@ -221,7 +221,7 @@ export default function Wallet() {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={12}>
           {/* <WatchList/> */}
           {memoizedInstrumentDetails}
@@ -233,9 +233,9 @@ export default function Wallet() {
           {/* <OverallPnl/> */}
           {memoizedOverallPnl}
         </Grid>
-        <Grid item xs={12} md={6} lg={12}>
+        {/* <Grid item xs={12} md={6} lg={12}>
           <Orders/>
-        </Grid>
+        </Grid> */}
       </Grid>
 
     </MDBox>

@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -21,6 +22,8 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { apiUrl } from '../../../constants/constants';
+
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
@@ -28,8 +31,13 @@ export default function LabTabs() {
   const [alignment, setAlignment] = React.useState('Paper Trading');
   const [textColor,setTextColor] = React.useState('info');
   const date = new Date();
-  const [startDate,setStartDate] = React.useState(dayjs(date));
+  const lastMonth = new Date();
+  lastMonth.setMonth(date.getMonth() -1);
+  const [startDate,setStartDate] = React.useState(dayjs(lastMonth));
   const [endDate,setEndDate] = React.useState(dayjs(date));
+  const [monthWiseData, setMonthWiseData] = useState([]);
+  const [dateWiseData, setDateWiseData] = useState([]);
+  
 
   // let color = (alignment === 'Paper Trading' ? 'linear-gradient(195deg, #49a3f1, #1A73E8)' : 'white')
 
@@ -38,7 +46,14 @@ export default function LabTabs() {
     setTextColor("info");
     setAlignment(newAlignment);
   };
-
+  const getMonthWiseStats = async() => {
+    const res = await axios.get(`${apiUrl}analytics/papertrade/mymonthlypnl`,{withCredentials:true});
+    // console.log('res data', res.data.data);
+    setMonthWiseData(res.data.data);
+  } 
+  useEffect(()=>{
+    getMonthWiseStats()
+  },[])
 
   const handleChange = (event, newValue) => {
     setIsLoading(true)
@@ -47,6 +62,37 @@ export default function LabTabs() {
       setIsLoading(false)
     }, 500);
   };
+
+  useEffect(()=>{
+    handleShowDetails();
+  },[])
+
+  const handleShowDetails = async() => {
+    const from = startDate.format('YYYY-MM-DD');
+    const to = endDate.format('YYYY-MM-DD');
+    const res = await axios.get(`${apiUrl}analytics/papertrade/mystats?from=${from}&to=${to}`, {withCredentials: true});
+    console.log(res.data.data);
+    setDateWiseData(prev=>res.data.data);
+    
+  }
+  let totalgpnl =0 , totalnpnl =0, totalBrokerage =0, totalOrders=0, totalTradingDays =0, totalGreenDays =0, totalRedDays = 0;
+  if(dateWiseData.length>0){
+    console.log('datewise',dateWiseData);
+    for(let item of dateWiseData ){
+      totalgpnl += item.gpnl;
+      totalnpnl += item.npnl;
+      totalBrokerage += item.brokerage;
+      totalOrders += item.noOfTrade;
+      if(item.npnl>=0){
+        totalGreenDays += 1;
+      }
+      else{
+        totalRedDays+=1;
+      }
+      totalTradingDays +=1;
+    }
+  }
+  console.log(totalgpnl, totalnpnl, totalBrokerage, totalOrders, totalTradingDays, totalGreenDays, totalRedDays);
 
   return (
    
@@ -88,8 +134,9 @@ export default function LabTabs() {
                           <DatePicker
                             label="Start Date"
                             // disabled={true}
-                            defaultValue={dayjs(date)}
-                            // value={dayjs(date)}
+                            // defaultValue={dayjs(date)}
+                            value={startDate}
+                            onChange={(e)=>{setStartDate(prev=>dayjs(e))}}
                             // onChange={(e) => {setFormStatePD(prevState => ({
                             //   ...prevState,
                             //   dateField: dayjs(e)
@@ -109,7 +156,9 @@ export default function LabTabs() {
                           <DatePicker
                             label="End Date"
                             // disabled={true}
-                            defaultValue={dayjs(date)}
+                            // defaultValue={dayjs(date)}
+                            value={endDate}
+                            onChange={(e)=>{setEndDate(prev=>dayjs(e))}}
                             // value={dayjs(date)}
                             // onChange={(e) => {setFormStatePD(prevState => ({
                             //   ...prevState,
@@ -123,7 +172,7 @@ export default function LabTabs() {
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={3} mt={1} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDButton variant="contained" color="info">Show Details</MDButton>
+                        <MDButton variant="contained" color="info" onClick={handleShowDetails}>Show Details</MDButton>
                     </Grid>
 
                     </Grid>
@@ -143,50 +192,50 @@ export default function LabTabs() {
                     {/* <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center"> */}
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={15} fontWeight="bold">Gross:&nbsp;</MDTypography>
-                      <MDTypography fontSize={15} fontWeight="bold" color="success">+₹1500000</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold">Gross:&nbsp;</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold" color="success">₹{totalgpnl?.toFixed(2)}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={15} fontWeight="bold">Net:&nbsp;</MDTypography>
-                      <MDTypography fontSize={15} fontWeight="bold" color="success">+₹1000000</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold">Net:&nbsp;</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold" color="success">₹{totalnpnl?.toFixed(2)}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={15} fontWeight="bold">Brokerage:&nbsp;</MDTypography>
-                      <MDTypography fontSize={15} fontWeight="bold" color="info">₹10000</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold">Brokerage:&nbsp;</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold" color="info">₹{totalBrokerage.toFixed(2)}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={15} fontWeight="bold">Orders:&nbsp;</MDTypography>
-                      <MDTypography fontSize={15} fontWeight="bold" color="#344767">1000</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold">Orders:&nbsp;</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold" color="#344767">{totalOrders }</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={15} fontWeight="bold">Trading Days:&nbsp;</MDTypography>
-                      <MDTypography fontSize={15} fontWeight="bold" color="#344767">100</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold">Trading Days:&nbsp;</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold" color="#344767">{totalTradingDays}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={15} fontWeight="bold">Green Days:&nbsp;</MDTypography>
-                      <MDTypography fontSize={15} fontWeight="bold" color="success">10</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold">Green Days:&nbsp;</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold" color="success">{totalGreenDays}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={15} fontWeight="bold">Red Days:&nbsp;</MDTypography>
-                      <MDTypography fontSize={15} fontWeight="bold" color="error">90</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold">Red Days:&nbsp;</MDTypography>
+                      <MDTypography fontSize={14} fontWeight="bold" color="error">{totalRedDays}</MDTypography>
                       </MDBox>
                     </Grid>
                     {/* </MDBox> */}
@@ -202,37 +251,37 @@ export default function LabTabs() {
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
-            <GrossPNLChart traderType={alignment}/>
+            <GrossPNLChart traderType={alignment} dateWiseData = {dateWiseData}/>
           </MDBox>
           </Grid>
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
-            <NetPNLChart traderType={alignment}/>
+            <NetPNLChart traderType={alignment} dateWiseData ={dateWiseData}/>
           </MDBox>
           </Grid>
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
-            <BrokerageChart traderType={alignment}/>
+            <BrokerageChart traderType={alignment} dateWiseData={dateWiseData}/>
           </MDBox>
           </Grid>
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
-            <OrdersChart traderType={alignment}/>
+            <OrdersChart traderType={alignment} dateWiseData={dateWiseData}/>
           </MDBox>
           </Grid>
           
-          <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          {/* <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <DayLineChart traderType={alignment}/>
           </MDBox>
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
-            <MonthLineChart traderType={alignment}/>
+            <MonthLineChart traderType={alignment} monthWiseData ={monthWiseData}/>
           </MDBox>
           </Grid>
 
