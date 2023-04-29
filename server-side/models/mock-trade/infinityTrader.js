@@ -1,8 +1,7 @@
-// import mongoose, { Schema } from "mongoose";
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const {Schema} = mongoose
 
-const paperTrade = new mongoose.Schema({
+const infinityTrader = new Schema({
     order_id:{
         type: String,
         required: true
@@ -13,19 +12,12 @@ const paperTrade = new mongoose.Schema({
     },
     status_message:{
         type: String,
-        // required: true
     },
-    // createdBy:{
-    //     type: String,
-    //     required : true
-    // },
     average_price:{
         type: Number,
-        // required: true
     },
     Quantity:{
         type: Number,
-        required: true
     },
     Product:{
         type: String,
@@ -35,10 +27,6 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    // order_timestamp:{
-    //     type: String,
-    //     required: true
-    // },
     variety:{
         type: String,
         required: true
@@ -63,21 +51,17 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    // userId:{
-    //     type: String,
-    //     required: true        
-    // },
     brokerage:{
-        type: Number,        
+        type: Number,     
+    },
+    isRealTrade:{ 
+        type: Boolean,
+        // required: true  
     },
     instrumentToken:{
         type: String,
-        required: true        
+        // required: true        
     },
-    // tradeBy:{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'user-personal-detail',      
-    // },
     amount:{
         type: Number,
         // required: true        
@@ -85,6 +69,10 @@ const paperTrade = new mongoose.Schema({
     trade_time:{
         type: Date,
         // required: true        
+    },
+    isMissed:{
+        type: Boolean,
+        default: false
     },
     trader:{
         type: Schema.Types.ObjectId,
@@ -98,15 +86,9 @@ const paperTrade = new mongoose.Schema({
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
-    },
-    portfolioId:{
-        type: Schema.Types.ObjectId,
-        ref: 'user-portfolio',
-        // required : true
     }
+
 })
 
-const MockTradeTrader = mongoose.model("paper-trade", paperTrade);
-module.exports = MockTradeTrader;
-
-
+const InfinityTrader = mongoose.model('infinity-trade-user', infinityTrader)
+module.exports = InfinityTrader;

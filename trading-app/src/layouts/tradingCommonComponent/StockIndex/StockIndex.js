@@ -1,13 +1,13 @@
 import React, {memo, useContext} from "react";
 import Grid from "@mui/material/Grid";
-import MDBox from "../../../../components/MDBox";
-import MDTypography from "../../../../components/MDTypography";
+import MDBox from "../../../components/MDBox";
+import MDTypography from "../../../components/MDTypography";
 
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import {useState, useEffect} from 'react';
 import axios from 'axios';
-import { NetPnlContext } from "../../../../PnlContext";
+import { NetPnlContext } from "../../../PnlContext";
 
 
 function StockIndex({socket}) {

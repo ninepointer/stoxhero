@@ -12,26 +12,26 @@ import { Tooltip } from '@mui/material';
 
 
 // Material Dashboard 2 React components
-import MDBox from "../../../../components/MDBox";
-import MDButton from "../../../../components/MDButton";
-import MDTypography from "../../../../components/MDTypography";
+import MDBox from "../../../components/MDBox";
+import MDButton from "../../../components/MDButton";
+import MDTypography from "../../../components/MDTypography";
 
 // Material Dashboard 2 React examples
-import MDSnackbar from "../../../../components/MDSnackbar";
+import MDSnackbar from "../../../components/MDSnackbar";
 
 import { useEffect } from "react";
 import axios from "axios";
-import BuyModel from "./data/BuyModel";
-import SellModel from "./data/SellModel";
+import BuyModel from "../BuyModel";
+import SellModel from "../SellModel";
 import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
-import { marketDataContext } from "../../../../MarketDataContext";
+import { marketDataContext } from "../../../MarketDataContext";
 
 
 
 
 
-function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClicked}) {
+function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
   const marketDetails = useContext(marketDataContext)
   console.log("socket print", socket)
 
@@ -175,11 +175,11 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
       }
 
       instrumentDetailObj.buy = (
-        <BuyModel reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}/> 
+        <BuyModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}/> 
       );
       
       instrumentDetailObj.sell = (
-        <SellModel reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}/>
+        <SellModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}/>
       );
 
       instrumentDetailObj.remove = (

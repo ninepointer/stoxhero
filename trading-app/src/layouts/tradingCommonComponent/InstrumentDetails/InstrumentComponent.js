@@ -26,27 +26,6 @@ function InstrumentComponent({last_price, change, contractDate, symbol, instrume
 export default memo(InstrumentComponent);
 
 
-// {data.map((elem)=>{
-//   return(
-//       {/* <tr
-//       style={{borderBottom: "1px solid grey"}}
-
-//   > */}
-//   <>
-
-//       {/* <td style={styleTD} >{chart}</td> */}
-//       {/* <td style={styleTD} >{elem.buy}</td>
-//       <td style={styleTD} >{elem.sell}</td>
-//       <td style={styleTD} >{elem.remove}</td> */}
-//     <>
-//   {/* </tr> */}
-//    )
-// })} 
-
-
-
-
-
 
 
 
