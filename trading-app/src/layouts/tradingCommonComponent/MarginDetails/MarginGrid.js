@@ -2,10 +2,10 @@ import React from 'react'
 import Grid from "@mui/material/Grid";
 import {useState, useContext, useEffect, memo} from "react"
 import axios from "axios";
-import { userContext } from "../../../AuthContext";
+// import { userContext } from "../../../AuthContext";
 import { NetPnlContext } from '../../../PnlContext';
 import MDBox from '../../../components/MDBox';
-import MarginDetails from './MarginDetails';
+// import MarginDetails from './MarginDetails';
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 
 const MarginGrid = () => {
@@ -14,82 +14,60 @@ const MarginGrid = () => {
   const { netPnl, totalRunningLots } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [marginDetails, setMarginDetails] = useState([]);
-  const { columns, rows } = MarginDetails();
+  // const { columns, rows } = MarginDetails();
 //   const { columns: pColumns, rows: pRows } = MarginDetails();
-  const [lifetimePNL, setLifetimePNL] = useState([]);
-  const [availableMarginPNL, setAvailableMarginPNL] = useState([]);
-  const [payIn, setPayIn] = useState([]);
-  const getDetails = useContext(userContext);
-  const id = getDetails?.userDetails?._id
+  // const [lifetimePNL, setLifetimePNL] = useState([]);
+  // const [availableMarginPNL, setAvailableMarginPNL] = useState([]);
+  // const [payIn, setPayIn] = useState([]);
+  // const getDetails = useContext(userContext);
+  // const id = getDetails?.userDetails?._id
 
 
 
   useEffect(() => {
-    let abortController;
-    (async () => {
-      abortController = new AbortController();
-      let signal = abortController.signal;
-  
-      try {
-        const { data: data1 } = await axios.get(`${baseUrl}api/v1/getUserMarginDetails/${id}`, {
-          signal: signal,
-        });
-        if (!signal.aborted) {
-          setMarginDetails(data1);
-        }
-  
-        const { data: data2 } = await axios.get(`${baseUrl}api/v1/gettraderpnlformargin/${id}`, {
-          signal: signal,
-        });
-        if (!signal.aborted) {
-          setLifetimePNL(data2);
-        }
-  
-        const { data: data3 } = await axios.get(`${baseUrl}api/v1/gettraderpnlforavailablemargin/${id}`, {
-          signal: signal,
-        });
-        if (!signal.aborted) {
-          setAvailableMarginPNL(data3);
-        }
-  
-        const { data: data4 } = await axios.get(`${baseUrl}api/v1/getUserPayInDetails/${id}`, {
-          signal: signal,
-        });
-        if (!signal.aborted) {
-          console.log("Data 4: ",data4)
-          setPayIn(data4);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    })();
-
-  
-    return () => abortController.abort();
+    axios.get(`${baseUrl}api/v1/paperTrade/margin`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+      },
+    })
+    .then((res) => {
+        //console.log("live price data", res)
+        // setUserInstrumentData(res.data);
+        // setDetails.setMarketData(data);
+        setMarginDetails(res.data.data)
+    }).catch((err) => {
+        return new Error(err);
+    })
   }, []);
 
-  let totalCredit = 0;
-  marginDetails?.map((elem)=>{
-    totalCredit =+ totalCredit + elem.amount
-  })
+  console.log("marginDetails", marginDetails)
+  let totalCredit = marginDetails?.totalCredit?.totalFund;
+  // marginDetails?.map((elem)=>{
+  //   totalCredit =+ totalCredit + elem.amount
+  // })
 
   let totalCreditString = totalCredit >= 0 ? "+₹" + totalCredit.toLocaleString() : "-₹" + ((-totalCredit).toLocaleString())
-  let lifetimenetpnl = lifetimePNL[0] ? Number((lifetimePNL[0]?.npnl).toFixed(0)) : 0;
-  console.log(lifetimenetpnl)
-  let runninglotnumber = totalRunningLots;
+  // let lifetimenetpnl = lifetimePNL[0] ? Number((lifetimePNL[0]?.npnl).toFixed(0)) : 0;
+  // console.log(lifetimenetpnl)
+  // let runninglotnumber = totalRunningLots;
   let runningPnl = Number(netPnl?.toFixed(0));
-  let openingBalance = (totalCredit + lifetimenetpnl);
+  let openingBalance = (marginDetails?.totalCredit?.totalFund + marginDetails?.lifetimePnl?.npnl).toFixed(0);
   let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance).toLocaleString() : "₹" + (-Number(openingBalance)).toLocaleString()
-  let availableMarginpnl = availableMarginPNL[0] ? Number((availableMarginPNL[0].npnl).toFixed(0)) : 0;
-  let availableMargin = (totalCredit + availableMarginpnl)
+  // let availableMarginpnl = availableMarginPNL[0] ? Number((availableMarginPNL[0].npnl).toFixed(0)) : 0;
+  let availableMargin = (Number(openingBalance) + runningPnl)
   let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
-  rows.OpeningBalance = openingBalance
-  let usedMargin = runninglotnumber == 0 ? openingBalance - availableMargin : openingBalance - availableMargin + runningPnl
+  // rows.OpeningBalance = openingBalance
+  let usedMargin = runningPnl >= 0 ? 0 : runningPnl
+  // let usedMargin = runninglotnumber == 0 ? openingBalance - availableMargin : openingBalance - availableMargin + runningPnl
   let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin).toLocaleString() : "-₹" + (-Number(usedMargin)).toLocaleString()
-  let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
-  let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount).toLocaleString() : "-₹" + (-Number(payInAmount)).toLocaleString()
+  // let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
+  // let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount).toLocaleString() : "-₹" + (-Number(payInAmount)).toLocaleString()
   
   
+  console.log("runningPnl", runningPnl, openingBalance)
 
     // const { columns, rows } = authorsTableData();
     
@@ -132,7 +110,8 @@ const MarginGrid = () => {
                     // icon={<CurrencyRupeeIcon/>}
                     title="Payin"
                     description="Funds added in your trading account today"
-                    value={payInString}
+                    // value={payInString}
+                    value={openingBalanceString}
                   />
                 </Grid>
                 <Grid item xs={16} md={8} xl={2.4}>

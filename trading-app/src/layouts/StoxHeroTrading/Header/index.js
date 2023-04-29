@@ -14,9 +14,9 @@ import marginicon from '../../../assets/images/marginicon.png'
 import netpnlicon from '../../../assets/images/netpnlicon.png'
 
 
-import TradableInstrument from '../data/TradableInstruments';
+import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
 // import WatchList from '../data/WatchList';
-import BuySell from '../data/BuySell'
+// import BuySell from '../data/BuySell'
 // import MyPosition from '../data/MyPosition'
 import Orders from '../data/orders'
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"

@@ -254,6 +254,7 @@ function ContestTradeView () {
                             redirect={redirect.current}
                             minEntry={minEntry}
                             entry={entry}
+                            contest={contest}
                           />
                         </div>
                       </Grid>
@@ -275,6 +276,7 @@ function ContestTradeView () {
                           redirect={redirect.current}
                           minEntry={minEntry}
                           entry={entry}
+                          contest={contest}
                         />
                       </div>
                       </Grid>

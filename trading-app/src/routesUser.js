@@ -1,5 +1,5 @@
 // Material Dashboard 2 React layouts
-import Funds from "./layouts/funds";
+// import Funds from "./layouts/funds";
 import Profile from "./layouts/profile";
 
 // @mui icons
@@ -12,34 +12,34 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+// import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { GiNinjaHeroicStance } from 'react-icons/gi';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
 import UserPosition from "./layouts/PaperTrade";
-import UserReport from "./layouts/userreports";
+// import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
 import UserContest from "./layouts/UserContest"
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
 // import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
-import Dashboard from './layouts/traderHome'
+// import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
-import Home from './layouts/UserHome'
-import HomeIcon from '@mui/icons-material/OtherHouses';
+// import Home from './layouts/UserHome'
+// import HomeIcon from '@mui/icons-material/OtherHouses';
 // import ContestResultPage from "./layouts/UserContest/data/contestTrade/ContestResultPage";
 import ResultPage from "./layouts/UserContest/ResultPage";
-import MyContestHistoryCard from "./layouts/UserContest/data/MyContestHistoryCard";
+// import MyContestHistoryCard from "./layouts/UserContest/data/MyContestHistoryCard";
 import ContestHistory from "./layouts/UserContest/ContestHistory";
 import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
 import FAQs from "./layouts/FAQs";
 import UserWallet from "./layouts/userWallet"
 import StoxHeroTrading from "./layouts/StoxHeroTrading"
 import UserAnalytics from "./layouts/userAnalytics"
-import logo from "../src/assets/images/logo1.jpeg"
+// import logo from "../src/assets/images/logo1.jpeg"
 
 const routes = [
 
@@ -54,19 +54,19 @@ const routes = [
   {
     type: "collapse",
     name: "Paper Trading",
-    key: "paperTrading",
+    key: "papertrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
-    route: "/paperTrading",
+    route: "/papertrading",
     component: <UserPosition />,
   },
   {
     type: "collapse",
-    name: "StoxHero Trading",
-    key: "stoxHeroTrading",
+    name: "Infinity Trading",
+    key: "infinitytrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <GiNinjaHeroicStance/>,
-    route: "/stoxHeroTrading",
+    route: "/infinitytrading",
     component: <StoxHeroTrading />,
   },
   // {
@@ -81,9 +81,9 @@ const routes = [
   {
     type: "collapse",
     name: "Battle Ground",
-    key: "BattleGround",
+    key: "battleground",
     icon: <StadiumIcon/>,
-    route: "/BattleGround",
+    route: "/battleground",
     component: <UserContest />,
   },
   {
@@ -145,10 +145,10 @@ const routes = [
   {
     type: "collapse",
     name: "Orders",
-    key: "Orders",
+    key: "orders",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <ReorderIcon/>,
-    route: "/Orders",
+    route: "/orders",
     component: <UserOrders />,
   },
   {
@@ -162,10 +162,10 @@ const routes = [
   {
     type: "collapse",
     name: "Analytics",
-    key: "Analytics",
+    key: "analytics",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <AnalyticsIcon/>,
-    route: "/Analytics",
+    route: "/analytics",
     component: <UserAnalytics />,
   },
   // {
@@ -187,9 +187,9 @@ const routes = [
   {
     // type: "collapse",
     // name: "Wallet",
-    key: "Wallet",
+    key: "wallet",
     // icon: <AccountBalanceWalletIcon/>,
-    route: "/Wallet",
+    route: "/wallet",
     component: <UserWallet />,
   },
   {

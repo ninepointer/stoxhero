@@ -1,4 +1,5 @@
 const PaperTrade = require("../models/mock-trade/paperTrade");
+const Portfolio = require("../models/userPortfolio/UserPortfolio");
 
 exports.overallPnl = async (req, res, next) => {
     
@@ -53,7 +54,6 @@ exports.overallPnl = async (req, res, next) => {
     res.status(201).json({message: "pnl received", data: pnlDetails});
 }
 
-
 exports.myTodaysTrade = async (req, res, next) => {
   
   // const id = req.params.id
@@ -102,3 +102,79 @@ exports.myHistoryTrade = async (req, res, next) => {
     res.status(500).json({status:'error', message: 'Something went wrong'});
   }
 }
+
+exports.marginDetail = async (req, res, next) => {
+
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  // console.log(userId, today)
+
+  try {
+    const portfoliosFund = await Portfolio.aggregate([
+      {
+        $match: {
+          status: "Active",
+          "users.userId": req.user._id,
+          portfolioType: "Trading"
+        },
+      },
+      {
+        $group: {
+          _id: {
+             $sum: "$portfolioValue"
+          }
+        }
+      },
+      {
+        $project: {
+          totalFund: "$_id",
+          _id: 0
+        }
+      }
+    ])
+  
+    let pnlDetails = await PaperTrade.aggregate([
+        {
+            $match: {
+                trade_time:{
+                    $lt: today
+                },
+                status: "COMPLETE",
+                trader: req.user._id
+            },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$trader",
+            },
+            amount: {
+              $sum: {$multiply : ["$amount",-1]},
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+
+          },
+        },
+
+        {
+          $project: {
+            _id: 0,
+            npnl: {
+              $subtract: ["$amount", "$brokerage"]
+             },
+          }
+        },
+    ])
+    res.status(200).json({status: 'success', data: {totalCredit: portfoliosFund[0], lifetimePnl: pnlDetails[0]}});
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({status:'error', message: 'Something went wrong'});
+  }
+}
+
