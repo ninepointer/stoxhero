@@ -25,15 +25,15 @@ import { useMaterialUIController } from "../../../../context";
 import { userContext } from "../../../../AuthContext";
 import uniqid from "uniqid"
 
-function AddFunds({marginDetails, setMarginDetails}) {
+function AddFunds({marginDetails, setMarginDetails, render, setRender}) {
 
   const [controller] = useMaterialUIController();
-  const getDetails = useContext(userContext);
+  // const getDetails = useContext(userContext);
   const { darkMode } = controller;
   const [traders, setTraders] = useState([]);
   // const [marginDetails, setMarginDetails] = useState([]);
   let valueInTraderName = 'Praveen K'
-  let [traderName, setTraderName] = useState(valueInTraderName);
+  // let [traderName, setTraderName] = useState(valueInTraderName);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [details, setDetails] = useState({
     traderName: valueInTraderName,
@@ -41,40 +41,40 @@ function AddFunds({marginDetails, setMarginDetails}) {
   })
 
 
-  let createdBy = getDetails.userDetails.name;
-  let lastModifiedBy = getDetails.userDetails.name;
+  // let createdBy = getDetails.userDetails.name;
+  // let lastModifiedBy = getDetails.userDetails.name;
   //let date = new Date();
   //let lastModifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getFullYear()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${(date.getMinutes())}:${String(date.getSeconds()).padStart(2, '0')}`
-  let uId = uniqid();
+  // let uId = uniqid();
 
   
   
 
   useEffect(()=>{
-      axios.get(`${baseUrl}api/v1/readuserdetails`)
-      .then((res)=>{
-        let data = res.data;
-        let traderdata = data.filter((elem) => {
-          return elem.designation === "Equity Trader"
-      })
-                setTraders(traderdata);
-      }).catch((err)=>{
-          window.alert("Error Fetching Trader Details");
-          return new Error(err);
-      })
+    axios.get(`${baseUrl}api/v1/readuserdetails`)
+    .then((res)=>{
+      let data = res.data;
+      let traderdata = data.filter((elem) => {
+        return elem.designation === "Equity Trader"
+    })
+        setTraders(traderdata);
+    }).catch((err)=>{
+        // window.alert("Error Fetching Trader Details");
+        return new Error(err);
+    })
   },[])
 
 
   async function addFund(){
     setDetails(details);
-    axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`)
-      .then((res)=>{
-              console.log("Inside Add Funds");
-              setMarginDetails(res.data);
-      }).catch((err)=>{
-          window.alert("Error Fetching Margin Details");
-          return new Error(err);
-      })
+    // axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`)
+    //   .then((res)=>{
+    //           console.log("Inside Add Funds");
+    //           setMarginDetails(res.data);
+    //   }).catch((err)=>{
+    //       // window.alert("Error Fetching Margin Details");
+    //       return new Error(err);
+    //   })
     let userIdArr = traders.filter((elem)=>{
       return elem.name === details.traderName;
     })
@@ -85,11 +85,12 @@ function AddFunds({marginDetails, setMarginDetails}) {
     console.log(traderName,amount);
     const res = await fetch(`${baseUrl}api/v1/setmargin`, {
         method: "POST",
+        credentials:"include",
         headers: {
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          traderName, amount, lastModifiedBy, uId, userId: userIdArr[0].email, createdBy 
+          amount, userId: userIdArr[0]._id
         })
     });
 
@@ -107,12 +108,7 @@ function AddFunds({marginDetails, setMarginDetails}) {
         console.log("Entry Succesful");
     }
     // reRender ? setReRender(false) : setReRender(true)
-    
-    
-    
-
-
-
+      setRender(!render)
 
   }
 
