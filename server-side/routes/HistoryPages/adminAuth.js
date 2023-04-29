@@ -26,7 +26,13 @@ const TradableInstrumentSchema = require("../../models/Instruments/tradableInstr
 const authentication = require("../../authentication/authentication");
 const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
+const {takeAutoTrade} = require("../../controllers/contestTradeController")
 
+
+router.post("/autotrade/:id", async (req, res) => {
+  const id = req.params.id
+  await takeAutoTrade(req.body, id)
+});
 
 router.get("/copyCollection", async (req, res) => {
   // InfinityTrader

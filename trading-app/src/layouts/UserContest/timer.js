@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, contestName, redirect, minEntry, entry }) => {
+const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, contestName, redirect, minEntry, entry, contest }) => {
   //console.log(targetDate,text, contestId, portfolioId, isDummy, contestName, redirect)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining());
@@ -46,7 +46,7 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
   if(timeRemaining.total <= 0 && !isDummy && flag.current && redirect){
     console.log("timer running 2nd")
     navigate(`/battleground/result`, {
-      state: {contestId: contestId, portfolioId: portfolioId}
+      state: {contestId: contestId, portfolioId: portfolioId, contest: contest}
     });
   } else if(timeRemaining.total <= 0 && isDummy && redirect){
     flag.current = (false)

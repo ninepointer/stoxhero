@@ -7,25 +7,14 @@ import PropTypes from "prop-types";
 import tradesicon from '../../../assets/images/tradesicon.png'
 
 // @mui material components
-import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-import AppBar from "@mui/material/AppBar";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Icon from "@mui/material/Icon";
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { render } from 'react-dom';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 
 // Material Dashboard 2 React base styles
-import breakpoints from "../../../assets/theme/base/breakpoints";
 
 // Images
-import backgroundImage from "../../../assets/images/trading.jpg";
-import UserTodayOrders from "../UserTodayOrders";
-import UserHistoryOrders from "../UserHistoryOrders";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 
@@ -40,7 +29,11 @@ function Header({ children }) {
   const [sellInfinityFilter, setSellInfinityFilter] = useState(false);
   const [completeFilter, setCompleteFilter] = useState(false);
   const [rejectedFilter, setRejectedFilter] = useState(false);
-  const [filterData, setFilteredData] = useState([])
+  const [filterData, setFilteredData] = useState([]);
+  const [infinityFilterData, setInfinityFilteredData] = useState([]);
+  const [infinityCount, setInfinityCount] = useState(0);
+  const [infinityData, setInfinityData] = useState([]);
+
   const [orders, setOrders] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
   let [skip, setSkip] = useState(0);
@@ -59,6 +52,7 @@ function Header({ children }) {
   let url1 = 'my/todayorders'
   let url2 = 'my/historyorders'
   let url = (view === 'today' ? url1 : url2)
+  let infinityUrl = infinityView === 'today' ? url1 : url2
 
   useEffect(()=>{
 
@@ -108,9 +102,9 @@ function Header({ children }) {
         console.log(err)
         return new Error(err);
     })
-}
+  }
 
-function nextHandler(){
+  function nextHandler(){
     if(skip+limitSetting >= count){
       console.log("inside skip",count,skip+limitSetting)  
       return;
@@ -136,7 +130,89 @@ function nextHandler(){
         console.log(err)
         return new Error(err);
     })
-}
+  }
+
+
+
+  useEffect(()=>{
+
+    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip+limitSetting}&limit=${limitSetting}`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+      },
+  })
+  .then((res) => {
+      console.log("orders",res.data)
+      setInfinityData(res.data.data)
+      setInfinityCount(res.data.count)
+      setInfinityFilteredData(res.data.data)
+      setIsLoading(false)
+  }).catch((err) => {
+      console.log(err)
+      return new Error(err);
+  })
+    
+  }, [getDetails,infinityView,url1,url2])
+  console.log(data);
+
+  function infinityBackHandler(){
+    if(InfinitySkip <= 0){
+        return;
+    }
+    setInfinitySkip(prev => prev-limitSetting);
+    setOrders([]);
+    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip-limitSetting}&limit=${limitSetting}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    })
+    .then((res) => {
+      console.log("orders",res.data)
+      setInfinityData(res.data.data)
+      setInfinityCount(res.data.count)
+      setInfinityFilteredData(res.data.data)
+      setIsLoading(false)
+    }).catch((err) => {
+        console.log(err)
+        return new Error(err);
+    })
+  }
+
+  function infinityNextHandler(){
+    if(InfinitySkip+limitSetting >= infinityCount){
+      console.log("inside InfinitySkip",infinityCount,InfinitySkip+limitSetting)  
+      return;
+    }
+    console.log("inside next handler")
+    setInfinitySkip(prev => prev+limitSetting);
+    setInfinityData([]);
+    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip+limitSetting}&limit=${limitSetting}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    })
+    .then((res) => {
+        console.log("orders",res.data)
+        setInfinityData(res.data.data)
+        setInfinityCount(res.data.count)
+        setInfinityFilteredData(res.data.data)
+        setIsLoading(false)
+    }).catch((err) => {
+        console.log(err)
+        return new Error(err);
+    })
+  }
+
+
   
   useEffect(()=>{
     handleClick();
@@ -167,7 +243,7 @@ function nextHandler(){
 
   function handleInfinityClick(){
     console.log("HandleClick",rejectedFilter)
-    setFilteredData(data?.filter((item)=> {
+    setInfinityFilteredData(infinityData?.filter((item)=> {
        console.log(!buyInfinityFilter,!sellInfinityFilter)
        if(buyInfinityFilter && item.buyOrSell === 'BUY') {
         return true;
@@ -220,9 +296,9 @@ function nextHandler(){
  
 
   return finalFormattedDate
-}
+  }
 
-  console.log(filterData)
+  console.log(filterData, infinityFilterData)
   return (
     
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
@@ -253,7 +329,7 @@ function nextHandler(){
             </Grid>
             </MDBox>
 
-            {true ? 
+            {infinityFilterData.length === 0 ? 
             <>
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
@@ -293,7 +369,7 @@ function nextHandler(){
               </Grid>
             </Grid>
 
-            {filterData?.map((elem)=>{
+            {infinityFilterData?.map((elem)=>{
               let buysellcolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
               let statuscolor = elem?.status === 'COMPLETE' ? 'success' : 'error'
            
@@ -327,11 +403,11 @@ function nextHandler(){
             )
             })}
             
-            {count !== 0 &&
+            {infinityCount !== 0 &&
             <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-                <MDButton variant='outlined' size="small" color="light" onClick={backHandler}>Back</MDButton>
-                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {count} | Page {(skip+limitSetting)/limitSetting} of {Math.ceil(count/limitSetting)}</MDTypography>
-                <MDButton variant='outlined' size="small" color="light" onClick={nextHandler}>Next</MDButton>
+                <MDButton variant='outlined' size="small" color="light" onClick={infinityBackHandler}>Back</MDButton>
+                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {infinityCount} | Page {(InfinitySkip+limitSetting)/limitSetting} of {Math.ceil(infinityCount/limitSetting)}</MDTypography>
+                <MDButton variant='outlined' size="small" color="light" onClick={infinityNextHandler}>Next</MDButton>
             </MDBox>
             }
             </>}
