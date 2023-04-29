@@ -1256,7 +1256,7 @@ exports.getHistoryMyRank = async(req,res,next) => {
     { 'participants.$': 1 }
   );
 
-  while (Object.keys(contest.participants[0].myRank).length === 0) {
+  while (contest?.participants?.length !== 0 && Object.keys(contest.participants[0].myRank).length === 0) {
     let contest = await Contest.findOne(
       { _id: contestId, 'participants.userId': userId }, 
       { 'participants.$': 1 }
@@ -1269,15 +1269,15 @@ exports.getHistoryMyRank = async(req,res,next) => {
   //   status: 'success',
   //   data: myRank
   // });
-  // setTimeout(()=>{
-    if (Object.keys(contest.participants[0].myRank).length !== 0) {
+  setTimeout(()=>{
+    if (contest?.participants?.length !== 0 && Object.keys(contest.participants[0].myRank).length !== 0) {
       const myRank = contest.participants[0].myRank
       return res.status(200).json({
         status: 'success',
         data: myRank
       });
     }
-  // }, 5000)
+  }, 3000)
 
 }
 
