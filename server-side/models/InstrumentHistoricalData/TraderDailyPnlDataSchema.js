@@ -5,6 +5,13 @@ const traderDailyPnlDataSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
+            trader:{
+                type: mongoose.Schema.Types.ObjectId,
+                ref:'user-personal-detail'
+            },
+            trade_time:{
+                type: Date
+            },
             traderName:{
                 type: String,
                 required: true
