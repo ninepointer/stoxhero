@@ -76,7 +76,7 @@ function reducer(state, action) {
 
 function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked, setIsGetStartedClicked, from}) {
 
-  console.log("rendering in userPosition: TradableInstrument")
+  console.log("rendering in userPosition: TradableInstrument", from)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let textRef = useRef(null);
   const PAGE_SIZE = 20;
@@ -323,10 +323,12 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  color:"white",
+                  backgroundColor: from==='algoTrader' && 'white',
+                  color: from === "paperTrade" ? "white" : "lightgray",
                   padding:"0.5px",
                   '&:hover': {
-                    backgroundColor: 'lightgray',
+                    color: from === 'algoTrader' && '#1e2e4a',
+                    backgroundColor: from === "paperTrade" ? 'lightgray' : 'lightgray',
                     cursor: 'pointer',
                     fontWeight: 600
                   }
