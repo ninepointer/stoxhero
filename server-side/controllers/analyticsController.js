@@ -1,8 +1,8 @@
 const PaperTrade = require('../models/mock-trade/paperTrade');
 
-exports.getTraderOverview = async() => {
+exports.getTraderOverview = async(req,res,next) => {
 
-    let userId = req.user._id;
+    let userId = req.params.id;
     let today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate()-1);
@@ -14,7 +14,7 @@ exports.getTraderOverview = async() => {
     let paperTradesOverview = await PaperTrade.aggregate([
         {
           $match: {
-            userId: userId,
+            trader: userId,
             // Replace with the actual user ID
           },
           
@@ -39,7 +39,7 @@ exports.getTraderOverview = async() => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', "2023-02-16 09:42:42"], // Filter for past month's data
+                    $gte: ['$trade_time', yesterday], // Filter for past month's data
                   },
                   '$brokerage',
                   0,
@@ -50,7 +50,7 @@ exports.getTraderOverview = async() => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', "2023-01-16 09:42:42"] // Filter for past month's data
+                    $gte: ['$trade_time', pastMonth] // Filter for past month's data
                   },
                   {
                     $multiply: ["$amount", -1],
@@ -63,7 +63,7 @@ exports.getTraderOverview = async() => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', "2022-11-16 09:42:42"], // Filter for past month's data
+                    $gte: ['$trade_time', pastMonth], // Filter for past month's data
                   },
                    '$brokerage',
                   0,
@@ -74,7 +74,7 @@ exports.getTraderOverview = async() => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', "2021-11-16 09:42:42"], // Filter for past year's data
+                    $gte: ['$trade_time', pastYear], // Filter for past year's data
                   },
                   {
                     $multiply: ["$amount", -1],
@@ -87,7 +87,7 @@ exports.getTraderOverview = async() => {
               $sum: {
                 $cond: [
                   {
-                    $gte: ['$trade_time', "2021-11-16 09:42:42"], // Filter for past year's data
+                    $gte: ['$trade_time', pastYear], // Filter for past year's data
                   },
                    '$brokerage',
                   0,
@@ -130,25 +130,30 @@ exports.getTraderOverview = async() => {
           },
         }
         ]);
+        console.log(paperTradesOverview);
 
     res.status(200).json({status:'success', data: paperTradesOverview});    
 
 }
 
 exports.getDateWiseStats = async(req, res)=>{
-    const {traderId} = req.params;
+    const {id} = req.params;
     const{to, from} = req.query;
     let date = new Date();
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     
     let pnlDetails = await PaperTrade.aggregate([
-        { $match: { trade_time: {$gte : from, $lte : to}, trader: traderId, status: "COMPLETE"} },
+        { $match: { trade_time: {$gte : fromDate, $lte : toDate}, trader: id, status: "COMPLETE"} },
         
-        { $group: { _id: null,
-                    buyOrSell: "$buyOrSell",
-                    date: {$substr:["$trade_time", 0, 10]},
+        { $group: {_id: {
+            "date": {$substr: [ "$trade_time", 0, 10 ]},
+           },
+                    // buyOrSell: "$buyOrSell",
+                    // date: {$substr:["$trade_time", 0, 10]},
                     gpnl:{
-                        $multiply: ["$amount", -1],
+                        $sum:{$multiply: ["$amount", -1]},
                     },       
                     amount: {
                         $sum: "$amount"
@@ -166,7 +171,7 @@ exports.getDateWiseStats = async(req, res)=>{
                     }},{
                         $project:{
                             _id: 0,
-                            date: 1,
+                            date: '$_id.date',
                             gpnl: 1,
                             brokerage: 1,
                             npnl: {
@@ -176,11 +181,122 @@ exports.getDateWiseStats = async(req, res)=>{
                             noOfTrade: 1
                         }
                     },
-             { $sort: {_id: -1}},
+             { $sort: {date: -1}},
             ])
             
                 // //console.log(pnlDetails)
 
         res.status(201).json(pnlDetails);
  
+}
+
+exports.setCurrentUser = async(req,res,next) => {
+    req.params.id = req.user._id;
+    next();
+}
+
+exports.getDailyPnlData = async(req,res,next) => {
+    const {id} = req.params;
+    let today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate()-1);
+    //console.log("Select Date in the API: "+selectDate,traderName)
+    const pipeline = [
+        {$match: {
+          trade_time : {$gte : yesterday, $lte : today},
+          trader: id,
+        }
+        },
+        {
+          $project: {
+            date: {
+                $dateToString: {
+                    format: "%Y-%m-%d %H:%M:%S",
+                    date: {
+                        $convert: {
+                            input: "$timestamp",
+                            to: "date"
+                        }
+                    }
+                }
+            },
+            calculatedGpnl: 1,
+            noOfTrades: 1,
+            traderName: 1,
+        }
+        },
+        {
+          $group: {
+            _id: {date : "$date", traderName : "$traderName"},
+            
+            pnl: {
+              $sum: "$calculatedGpnl"
+            },
+            trades: {
+              $sum: "$noOfTrades"
+            },
+          }
+        },
+        {
+          $sort: {
+            _id: 1
+          }
+        }
+         ]
+       
+       let x = await TraderDailyPnlData.aggregate(pipeline)
+    
+       res.status(200).json({status:'success',data:x});
+}
+
+exports.getMonthlyPnlData= async(req,res,next) => {
+    const {id} = req.params;
+    const today = new Date();
+    const pastYear = new Date();
+    pastYear.setFullYear(today.getFullYear()-1);
+    console.log(pastYear,today);
+    let pnlDetails = await PaperTrade.aggregate([
+        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: id, status: "COMPLETE"} },
+        
+        { $group: {_id: {
+            "date": {$substr: [ "$trade_time", 0, 7 ]},
+           },
+                    // buyOrSell: "$buyOrSell",
+                    // date: {$substr:["$trade_time", 0, 10]},
+                    gpnl:{
+                        $sum:{$multiply: ["$amount", -1]},
+                    },       
+                    amount: {
+                        $sum: "$amount"
+                    },
+                    brokerage: {
+                        $sum: "$brokerage"
+                    },
+                    lots: {
+                        $sum: {$toInt : "$Quantity"}
+                    },
+                    noOfTrade: {
+                        $count: {}
+                        // average_price: "$average_price"
+                    },
+                    }},{
+                        $project:{
+                            _id: 0,
+                            date: '$_id.date',
+                            gpnl: 1,
+                            brokerage: 1,
+                            npnl: {
+                                $subtract:["$gpnl", "$brokerage"]
+                            },
+                            lots: 1,
+                            noOfTrade: 1
+                        }
+                    },
+             { $sort: {date: -1}},
+            ])
+            
+                // //console.log(pnlDetails)
+
+        res.status(201).json({status: 'success', data: pnlDetails});
+
 }
