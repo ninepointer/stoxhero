@@ -11,9 +11,9 @@ const authentication = require("../authentication/authentication")
 router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
 
     if(req.body.apiKey && req.body.accessToken){
-        LiveTradeFunc.liveTrade(req.body, res)
+        LiveTradeFunc.liveTrade(req.body, res);
     } else{
-        MockTradeFunc.mockTrade(req, res)
+        MockTradeFunc.mockTrade(req, res);
     }
     
 })

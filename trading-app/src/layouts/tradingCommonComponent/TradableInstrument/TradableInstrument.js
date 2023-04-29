@@ -10,24 +10,24 @@ import Grid from "@mui/material/Grid";
 // Material Dashboard 2 React components
 
 // import MDButton from "../";
-import MDButton from "../../../../components/MDButton";
-import MDSnackbar from "../../../../components/MDSnackbar";
-import { userContext } from "../../../../AuthContext";
+import MDButton from "../../../components/MDButton";
+import MDSnackbar from "../../../components/MDSnackbar";
+import { userContext } from "../../../AuthContext";
 import { Tooltip } from '@mui/material';
 
 
 
 
 // Material Dashboard 2 React components
-import MDBox from "../../../../components/MDBox";
+import MDBox from "../../../components/MDBox";
 import TextField from '@mui/material/TextField';
 // import { createTheme } from '@mui/material/styles';
 import { RxCross2 } from 'react-icons/rx';
 import { AiOutlineSearch } from 'react-icons/ai';
 // import { userContext } from "../../AuthContext";
-import BuyModel from "../InstrumentDetails/data/BuyModel";
-import SellModel from "../InstrumentDetails/data/SellModel";
-import { marketDataContext } from "../../../../MarketDataContext";
+import BuyModel from "../BuyModel";
+import SellModel from "../SellModel";
+import { marketDataContext } from "../../../MarketDataContext";
 // import MDSnackbar from "../../../../components/MDSnackbar";
 import uniqid from "uniqid"
 
@@ -74,7 +74,7 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked, setIsGetStartedClicked}) {
+function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked, setIsGetStartedClicked, from}) {
 
   console.log("rendering in userPosition: TradableInstrument")
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -241,31 +241,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
     reRender ? setReRender(false) : setReRender(true);
   }
 
-  async function subscribeInstrumentFromBuySell(elem){
-    const {instrument_token, exchange} = elem
 
-    const res = await fetch(`${baseUrl}api/v1/subscribeInstrument`, {
-      method: "POST",
-      credentials:"include",
-      headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-        instrumentToken: instrument_token, exchange
-      })
-    });
-  
-    const data = await res.json();
-    //console.log(data);
-    if(data.status === 422 || data.error || !data){
-        window.alert(data.error);
-    }else{
-      // openSuccessSB();
-      console.log(data.message)
-    }
-
-  }
 
   let title = `Instrument ${state.addOrRemoveCheck ? "Added" : "Removed"}`
   let content = `${state.instrumentName} is ${state.addOrRemoveCheck ? "Added to" : "Removed from"} your watchlist`
@@ -302,7 +278,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
           InputProps={{
             onFocus: () => textRef.current.select(),
             endAdornment: (
-              <MDButton variant="text" color="dark" onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
+              <MDButton variant="text" color={from === "paperTrade" ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
             ),
             startAdornment: (
               <>{<AiOutlineSearch/>}</>
@@ -347,7 +323,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  color:"white",
+                  color: from === "paperTrade" ? "dark" : from === "algoTrader" && "light",
                   padding:"0.5px",
                   '&:hover': {
                     backgroundColor: 'lightgray',
@@ -364,7 +340,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
                     <Grid>
                       <Tooltip title="Buy" placement="top">
                         {/* <MDBox onClick={()=>{subscribeInstrumentFromBuySell(elem)}} > */}
-                          <BuyModel  reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromUserPos={true} expiry={elem.expiry}/>
+                          <BuyModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromUserPos={true} expiry={elem.expiry}/>
                         {/* </MDBox> */}
                       </Tooltip>
                     </Grid>
@@ -372,7 +348,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
                     <Grid>
                       <Tooltip title="Sell" placement="top">
                         {/* <MDBox onClick={()=>{subscribeInstrumentFromBuySell(elem)}} > */}
-                          <SellModel reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromUserPos={true} expiry={elem.expiry}/>
+                          <SellModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromUserPos={true} expiry={elem.expiry}/>
                         {/* </MDBox> */}
                       </Tooltip>
                     </Grid>

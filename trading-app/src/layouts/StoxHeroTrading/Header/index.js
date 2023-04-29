@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
 import axios from "axios";
 import { CircularProgress, Grid, Divider } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -15,12 +15,84 @@ import netpnlicon from '../../../assets/images/netpnlicon.png'
 
 
 import TradableInstrument from '../data/TradableInstruments';
-import WatchList from '../data/WatchList';
+// import WatchList from '../data/WatchList';
 import BuySell from '../data/BuySell'
-import MyPosition from '../data/MyPosition'
+// import MyPosition from '../data/MyPosition'
 import Orders from '../data/orders'
+import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
+import { userContext } from '../../../AuthContext';
+import { io } from 'socket.io-client';
+import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndex';
+import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 
 export default function Wallet() {
+
+  const [reRender, setReRender] = useState(true);
+  const getDetails = useContext(userContext);
+  const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
+
+  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+
+  let socket;
+  try {
+    socket = io.connect(`${baseUrl1}`)
+  } catch (err) {
+    throw new Error(err);
+  }
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      socket.emit('userId', getDetails.userDetails._id)
+      socket.emit("user-ticks", true)
+    })
+  }, []);
+
+  const memoizedStockIndex = useMemo(() => {
+    return <StockIndex socket={socket} />;
+  }, [socket]);
+
+  const handleSetIsGetStartedClicked = useCallback((value) => {
+    setIsGetStartedClicked(value);
+  }, []);
+
+  const memoizedSetReRender = useCallback((value) => {
+    setReRender(value);
+  }, []);
+
+  const memoizedTradableInstrument = useMemo(() => {
+    return <TradableInstrument
+      socket={socket}
+      reRender={reRender}
+      setReRender={memoizedSetReRender}
+      isGetStartedClicked={isGetStartedClicked}
+      setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={"algoTrader"}
+    />;
+  }, [socket, reRender, isGetStartedClicked, handleSetIsGetStartedClicked]);
+
+  const memoizedInstrumentDetails = useMemo(() => {
+    return <WatchList
+      socket={socket}
+      reRender={reRender}
+      setReRender={setReRender}
+      // setReRender={}
+      // isGetStartedClicked={isGetStartedClicked}
+      setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={"algoTrader"}
+    />;
+  }, [socket, reRender, handleSetIsGetStartedClicked]);
+
+  const memoizedOverallPnl = useMemo(() => {
+    return <OverallPnl
+      socket={socket}
+      reRender={reRender}
+      setReRender={memoizedSetReRender}
+      // setReRender={}
+      // isGetStartedClicked={isGetStartedClicked}
+      setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={"algoTrader"}
+    />;
+  }, [socket, reRender, handleSetIsGetStartedClicked]);
 
 
   return (
@@ -144,19 +216,22 @@ export default function Wallet() {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6} lg={12}>
-          <TradableInstrument/>
+          {/* <TradableInstrument/> */}
+          {memoizedTradableInstrument}
         </Grid>
       </Grid>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6} lg={9}>
-          <WatchList/>
-        </Grid>
-        <Grid item xs={12} md={6} lg={3}>
-          <BuySell/>
-        </Grid>
         <Grid item xs={12} md={6} lg={12}>
-          <MyPosition/>
+          {/* <WatchList/> */}
+          {memoizedInstrumentDetails}
+        </Grid>
+        {/* <Grid item xs={12} md={6} lg={3}>
+          <BuySell/>
+        </Grid> */}
+        <Grid item xs={12} md={6} lg={12}>
+          {/* <OverallPnl/> */}
+          {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
           <Orders/>

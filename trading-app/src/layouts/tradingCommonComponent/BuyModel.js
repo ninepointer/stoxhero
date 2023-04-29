@@ -2,9 +2,9 @@ import React, { useContext, useState } from "react";
 import { useEffect, memo } from 'react';
 import axios from "axios"
 import uniqid from "uniqid"
-import { userContext } from "../../../../../AuthContext";
+import { userContext } from "../../AuthContext";
 
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -17,20 +17,20 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import MDButton from '../../../../../components/MDButton';
-import MDSnackbar from '../../../../../components/MDSnackbar';
+import MDButton from '../../components/MDButton';
+import MDSnackbar from '../../components/MDSnackbar';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { Box, Typography } from '@mui/material';
-import MDBox from '../../../../../components/MDBox';
-import { borderBottom } from '@mui/system';
-import { marketDataContext } from "../../../../../MarketDataContext";
+// import MDBox from '../../../../../components/MDBox';
+// import { borderBottom } from '@mui/system';
+// import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry}) => {
+const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry, from}) => {
 
-  console.log("rendering in userPosition: buyModel")
+  console.log("rendering in userPosition: buyModel", from)
 
   // const marketDetails = useContext(marketDataContext)
 
@@ -165,19 +165,26 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   async function placeOrder() {
 
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
-
-    const res = await fetch(`${baseUrl}api/v1/paperTrade`, {
+    let endPoint 
+    let paperTrade = false;
+    if(from === "paperTrade"){
+      endPoint = 'paperTrade';
+      paperTrade = true;
+    } else if(from === "algoTrader"){
+      endPoint = 'placingOrder';
+      paperTrade = false;
+    }
+    const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
         credentials:"include",
         headers: {
             "content-type": "application/json"
         },
         body: JSON.stringify({
-            
           exchange, symbol, buyOrSell, Quantity, Price, 
           Product, OrderType, TriggerPrice, stopLoss, uId,
           validity, variety, createdBy, order_id:dummyOrderId,
-          userId, instrumentToken, trader, paperTrade: true
+          userId, instrumentToken, trader, paperTrade: paperTrade
 
         })
     });

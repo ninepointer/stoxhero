@@ -1,22 +1,24 @@
 const axios = require("axios")
-const MockTradeDetails = require("../models/mock-trade/mockTradeCompanySchema");
-const MockTradeDetailsUser = require("../models/mock-trade/mockTradeUserSchema");
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const singleLivePrice = require('../marketData/sigleLivePrice');
-
+const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
+const InfinityTrader = require("../models/mock-trade/infinityTrader");
+const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
+const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 
 
 exports.mockTrade = async (req, res) => {
     console.log("in mock trade")
+
+    let stoxheroTrader ;
+    const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
+    const MockTradeDetails = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
+
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
-        validity, variety, createdBy, userId, uId, algoBox, order_id, instrumentToken,  
+        validity, variety, createdBy, userId, uId, algoBoxId, order_id, instrumentToken,  
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
-        if(isAlgoTrader){
-            var {algoName, transactionChange, instrumentChange, exchangeChange, lotMultipler, 
-                productChange, tradingAccount, _id, marginDeduction, isDefault} = algoBox
-        }
 
       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
@@ -34,7 +36,6 @@ exports.mockTrade = async (req, res) => {
         realQuantity = "-"+realQuantity;
     }
 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     let originalLastPriceUser;
     let originalLastPriceCompany;
     let newTimeStamp = "";
@@ -51,7 +52,7 @@ exports.mockTrade = async (req, res) => {
             }
         }
 
-        trade_time = new Date(new Date(newTimeStamp).getTime() + 330*60000);
+        trade_time = new Date(newTimeStamp);
 
     } catch(err){
         return new Error(err);
@@ -96,6 +97,7 @@ exports.mockTrade = async (req, res) => {
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
     }
     
+    console.log(paperTrade, isAlgoTrader);
     if(!paperTrade && isAlgoTrader){
         MockTradeDetails.findOne({order_id : order_id})
         .then((dateExist)=>{
@@ -106,29 +108,29 @@ exports.mockTrade = async (req, res) => {
     
             const mockTradeDetails = new MockTradeDetails({
                 status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
-                Product, buyOrSell:realBuyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol: realSymbol, placed_by: "ninepointer",
-                    algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
-                lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault}, order_id, instrumentToken: real_instrument_token, brokerage: brokerageCompany,
-                createdBy: req.user._id,trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), trade_time:trade_time,
+                Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
+                symbol: realSymbol, placed_by: "ninepointer", algoBox:algoBoxId, order_id, 
+                instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
+                trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
+                trade_time:trade_time,
                 
             });
     
-            console.log("mockTradeDetails comapny", mockTradeDetails);
+            // console.log("mockTradeDetails comapny", mockTradeDetails);
             mockTradeDetails.save().then(()=>{
                 
             }).catch(err => {console.log(err, "fail")});
             
         }).catch(err => {console.log(err, "fail")});
     
-        MockTradeDetailsUser.findOne({order_id : order_id})
+        AlgoTrader.findOne({order_id : order_id})
         .then((dateExist)=>{
             if(dateExist){
                 //console.log("data already");
                 return res.status(422).json({error : "date already exist..."})
             }
     
-            const mockTradeDetailsUser = new MockTradeDetailsUser({
+            const algoTrader = new AlgoTrader({
                 status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
@@ -136,8 +138,8 @@ exports.mockTrade = async (req, res) => {
                 
             });
     
-            console.log("mockTradeDetails", mockTradeDetailsUser);
-            mockTradeDetailsUser.save().then(()=>{
+            // console.log("mockTradeDetails", algoTrader);
+            algoTrader.save().then(()=>{
                 console.log("sending response");
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
@@ -150,6 +152,7 @@ exports.mockTrade = async (req, res) => {
     }
     
     if(paperTrade){
+        
         PaperTrade.findOne({order_id : order_id})
         .then((dateExist)=>{
             if(dateExist){

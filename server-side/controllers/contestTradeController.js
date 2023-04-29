@@ -344,7 +344,8 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
           status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, contestId: contestId,
-          createdBy: createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time, portfolioId
+          createdBy: createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), 
+          trade_time:trade_time, portfolioId
           
       });
 
@@ -675,14 +676,14 @@ exports.autoTradeContest = async(req, res, next) => {
     console.log("in autotrade", new Date())
 
     const now = new Date();
-    const twoMinutesBeforeNow = new Date(now.getTime() - 2 * 60000); // 30 minutes * 60 seconds * 1000 milliseconds
+    const twentySecondsBeforeNow = new Date(now.getTime() - 20000); // 30 minutes * 60 seconds * 1000 milliseconds
 
 
     try {
       const contest = await Contest.findOneAndUpdate(
         {
           entryClosingDate:{
-            $gte: twoMinutesBeforeNow,
+            $gte: twentySecondsBeforeNow,
             $lte: now,
           },
           // 'participants.0': { $exists: true },
@@ -708,7 +709,7 @@ exports.autoTradeContest = async(req, res, next) => {
     // console.log(now)
     const contests = await Contest.find({
       contestEndDate: {
-        $gte: twoMinutesBeforeNow,
+        $gte: twentySecondsBeforeNow,
         $lte: now,
       },
       status: "Live"
@@ -792,7 +793,8 @@ exports.autoTradeContest = async(req, res, next) => {
         {
           $match:
             {
-              contestId: contest._id
+              contestId: contest._id,
+              status: "COMPLETE"
             },
         },
         {
@@ -926,7 +928,7 @@ exports.getTradeByPagination = async(req, res, next) => {
   const userId = req.user._id;
   const contestId = req.params.id;
   const skip = parseInt(req.query.skip) || 0;
-  const limit = parseInt(req.query.limit) || 10; // default limit of 10 trades
+  const limit = parseInt(req.query.limit) || 5; // default limit of 10 trades
   console.log(skip, limit)
   try {
     const lastTrade = await ContestTrade.find({trader: userId, contestId: contestId}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1})
@@ -1261,12 +1263,14 @@ exports.getHistoryRanks = async(req,res,next) => {
     ranks = await Contest.findOne({_id: contestId}).select('leaderboard');
   }
 
-  if(ranks?.leaderboard?.length !== 0){
-    return res.status(200).json({
-      status: 'success',
-      data: ranks.leaderboard
-    });
-  }
+  setTimeout(()=>{
+    if(ranks?.leaderboard?.length !== 0){
+      return res.status(200).json({
+        status: 'success',
+        data: ranks.leaderboard
+      });
+    }
+  }, 5000)
 }
 
 exports.getHistoryMyRank = async(req,res,next) => {
@@ -1291,13 +1295,16 @@ exports.getHistoryMyRank = async(req,res,next) => {
   //   status: 'success',
   //   data: myRank
   // });
-  if (Object.keys(contest.participants[0].myRank).length !== 0) {
-    const myRank = contest.participants[0].myRank
-    return res.status(200).json({
-      status: 'success',
-      data: myRank
-    });
-  }
+  setTimeout(()=>{
+    if (Object.keys(contest.participants[0].myRank).length !== 0) {
+      const myRank = contest.participants[0].myRank
+      return res.status(200).json({
+        status: 'success',
+        data: myRank
+      });
+    }
+  }, 5000)
+
 }
 
 

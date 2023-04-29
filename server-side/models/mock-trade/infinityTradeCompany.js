@@ -1,8 +1,7 @@
-// import mongoose, { Schema } from "mongoose";
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const paperTrade = new mongoose.Schema({
+const infinityTradeCompanySchema = new mongoose.Schema({
     order_id:{
         type: String,
         required: true
@@ -15,10 +14,6 @@ const paperTrade = new mongoose.Schema({
         type: String,
         // required: true
     },
-    // createdBy:{
-    //     type: String,
-    //     required : true
-    // },
     average_price:{
         type: Number,
         // required: true
@@ -35,10 +30,6 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    // order_timestamp:{
-    //     type: String,
-    //     required: true
-    // },
     variety:{
         type: String,
         required: true
@@ -63,28 +54,28 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    // userId:{
-    //     type: String,
-    //     required: true        
-    // },
     brokerage:{
         type: Number,        
     },
     instrumentToken:{
-        type: String,
-        required: true        
+        type: String, 
+        required: true 
     },
-    // tradeBy:{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'user-personal-detail',      
-    // },
+    isRealTrade:{ 
+        type: Boolean,
+        required: true  
+    },
     amount:{
         type: Number,
         // required: true        
     },
     trade_time:{
         type: Date,
-        // required: true        
+        required: true        
+    },
+    isMissed:{
+        type: Boolean,
+        default: false
     },
     trader:{
         type: Schema.Types.ObjectId,
@@ -99,14 +90,13 @@ const paperTrade = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
-    portfolioId:{
+    algoBox:{
         type: Schema.Types.ObjectId,
-        ref: 'user-portfolio',
-        // required : true
+        ref: 'algo-trading', 
     }
 })
 
-const MockTradeTrader = mongoose.model("paper-trade", paperTrade);
-module.exports = MockTradeTrader;
+const infinityTradeCompanyDetails = mongoose.model("infinity-trade-company", infinityTradeCompanySchema);
+module.exports = infinityTradeCompanyDetails;
 
 

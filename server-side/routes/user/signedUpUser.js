@@ -333,7 +333,7 @@ router.patch("/verifyotp", async (req, res)=>{
                 userId: newuser._id,
                 createdOn: new Date(),
                 createdBy:newuser._id
-            })
+        })
         
         console.log("User Wallet Created: ",userWallet)
 
