@@ -221,7 +221,7 @@ export default function Wallet() {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={12}>
           {/* <WatchList/> */}
           {memoizedInstrumentDetails}
@@ -233,9 +233,9 @@ export default function Wallet() {
           {/* <OverallPnl/> */}
           {memoizedOverallPnl}
         </Grid>
-        <Grid item xs={12} md={6} lg={12}>
+        {/* <Grid item xs={12} md={6} lg={12}>
           <Orders/>
-        </Grid>
+        </Grid> */}
       </Grid>
 
     </MDBox>
