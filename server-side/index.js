@@ -179,6 +179,7 @@ app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
 app.use('/api/v1', require("./PlaceOrder/switching"));
+app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
 
 
 require('./db/conn');
@@ -196,12 +197,12 @@ let weekDay = date.getDay();
 
   }
 
-  try{
-    const autotrade = nodeCron.schedule(`*/10 * * * * *`, autoTradeContest);
-    console.log(autotrade)
-  } catch(err){
-    console.log("err from cronjob", err)
-  }
+  // try{
+  //   const autotrade = nodeCron.schedule(`*/10 * * * * *`, autoTradeContest);
+  //   console.log(autotrade)
+  // } catch(err){
+  //   console.log("err from cronjob", err)
+  // }
   // console.log(autotrade)
 
 const PORT = process.env.PORT;

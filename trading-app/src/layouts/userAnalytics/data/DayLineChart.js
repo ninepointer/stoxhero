@@ -17,7 +17,7 @@ const EChartsDemo = (traderType) => {
     if (chartInstance) {
       chartInstance.setOption({
         title: {
-          text: 'Today\'s P&L',
+          text: 'Yesterday\'s P&L',
         },
         tooltip: {
           trigger: 'axis',
