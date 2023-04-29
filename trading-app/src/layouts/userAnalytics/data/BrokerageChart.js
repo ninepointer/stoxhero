@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
+import dayjs from 'dayjs';
 
-const EchartsBarChart = (traderType) => {
+const EchartsBarChart = ({traderType, dateWiseData}) => {
 const chartRef = useRef(null);
 
 useEffect(() => {
@@ -35,7 +36,7 @@ const option = {
     xAxis: [
         {
             type: 'category',
-            data: ['12-Apr', '13-Apr', '14-Apr', '15-Ap', '16-Apr', '17-Apr', '18-Apr', '19-Apr', '20-Apr', '21-Ap', '24-Apr', '25-Apr', '26-Apr'],
+            data:  dateWiseData.map((e)=>dayjs(e.date).format('D MMM')),
             axisTick: {
             alignWithLabel: true
              }
@@ -52,12 +53,12 @@ const option = {
             type: 'bar',
             color:'#fb8c00',
             barWidth: '60%',
-            data: [55, 102, 200, 34, 39, 33, 22, 102, 200, 34, 39, 33, 22]
+            data: dateWiseData.map((e)=>e.brokerage)
         }
     ]
 };
 chartInstance.setOption(option);
-}, []);
+}, [dateWiseData]);
 
 return <div ref={chartRef} style={{ width: '100%', height: '300px' }} />;
 };
