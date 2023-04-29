@@ -32,7 +32,7 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
         },
       })
       console.log("leaderboard", api1Response.data)
-      setTimeout(()=>{setIsLoading(false)},500)
+      // setTimeout(()=>{setIsLoading(false)},500)
       setRankData(api1Response.data.data);
 
       const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${myRankEndPOint}`, {
@@ -51,7 +51,7 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
           setMyRankProps(api2Response.data.data)
           
         }
-        
+        setTimeout(()=>{setIsLoading(false)},500)
       }
 
 
@@ -92,7 +92,7 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
   })
 
   const myProfitPercentage = myRank?.npnl*100/Number(myRank?.investedAmount);
-  console.log("myProfitPercentage", myRank);
+  console.log("myProfitPercentage", myRank, reward, reward[0].currency, myReward);
   // myRank?.npnl = 0;
 
 
@@ -159,7 +159,7 @@ return (
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
                       <MDTypography fontSize={11}  color="light">
-                        {(myReward && myReward?.length) && (myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : `${reward[0].currency} 0`)}
+                        {(myReward && myReward?.length && myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : `${reward[0].currency} 0`)}
                       </MDTypography>
                     </Grid>
 
@@ -200,7 +200,7 @@ return (
                       </Grid>
                       <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
                         <MDTypography fontSize={11} color="light">
-                            {(rewards && rewards?.length) && (rewards[0]?.reward ?  `${rewards[0]?.currency} ${rewards[0]?.reward}` : `${reward[0].currency} 0`)}
+                            {(rewards && rewards?.length && rewards[0]?.reward ?  `${rewards[0]?.currency} ${rewards[0]?.reward}` : `${reward[0].currency} 0`)}
                         </MDTypography>
                       </Grid>
 
