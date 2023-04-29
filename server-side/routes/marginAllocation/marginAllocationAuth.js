@@ -4,39 +4,30 @@ require("../../db/conn");
 const Margin = require("../../models/marginAllocation/marginAllocationSchema");
 const UserDetail = require("../../models/User/userDetailSchema");
 const { default: mongoose } = require("mongoose");
+const Authentication = require("../../authentication/authentication")
 
-router.post("/setmargin", async (req, res)=>{
-    const {traderName, amount, lastModifiedBy, uId, userId, createdBy} = req.body;
+router.post("/setmargin", Authentication, async (req, res)=>{
+    const {amount, userId} = req.body;
 
-    if(!traderName || !amount){
+    if(!userId || !amount){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please fill all the feilds"})
     }
-
-   
-    const margin = new Margin({traderName, amount, lastModifiedBy, uId, userId, createdBy});
+    const margin = new Margin({amount, lastModifiedBy: req.user._id, userId, createdBy: req.user._id});
 
     margin.save().then(()=>{
         
         res.status(201).json({massage : "data enter succesfully"});
     }).catch((err)=> console.log(err, "in adding fund"));
 
-    const userdetail = await UserDetail.findOne({email: userId});
+    const userdetail = await UserDetail.findOne({_id: userId});
     let fund = (userdetail.fund ? userdetail.fund : 0);
     fund = Number(fund) + Number(amount);
    await userdetail.updateOne({fund: fund});
     
 })
 
-router.get("/readApiExchange", (req, res)=>{
-    ApiExchange.find((err, data)=>{
-        if(err){
-            return res.status(500).send(err);
-        }else{
-            return res.status(200).send(data);
-        }
-    })
-})
+
 
 router.get("/getUserMarginDetails/:id", (req, res)=>{
     const {id} = req.params
@@ -50,7 +41,10 @@ router.get("/getUserMarginDetails/:id", (req, res)=>{
 })
 
 router.get("/getUserMarginDetailsAll", (req, res)=>{
-    Margin.find().sort({creditedOn: -1})
+    Margin.find()
+    .populate('userId', 'name email')
+    .populate('createdBy', 'name')
+    .sort({creditedOn: -1})
     .then((data)=>{
         return res.status(200).send(data);
     })
@@ -122,7 +116,7 @@ router.get("/getUserPayInDetails/:id", async(req, res)=>{
 
 router.get("/getTotalFundsCredited", async(req, res)=>{ 
 
-    let pnlDetails = await Margin.aggregate([
+    let totalCredit = await Margin.aggregate([
         {
           $group: {
             _id: null,
@@ -133,9 +127,9 @@ router.get("/getTotalFundsCredited", async(req, res)=>{
         },
       ])
             
-       // //console.log(pnlDetails)
+       // //console.log(totalCredit)
 
-        res.status(201).json(pnlDetails);
+        res.status(201).json(totalCredit);
  
 })
 

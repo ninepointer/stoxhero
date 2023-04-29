@@ -1587,69 +1587,67 @@ router.get("/getTraderPNLAndTotalCreditData", async(req, res)=>{
     {
       $lookup: {
         from: "user-personal-details",
-        localField: "userId",
-        foreignField: "email",
+        localField: "trader",
+        foreignField: "_id",
         as: "result",
       },
     },
-    {
-      $match: {
-      status : "COMPLETE" 
-      }
-    },
-    {
-      $group: {
-        _id: {
-          userId: "$userId",
-          traderName: "$createdBy",
-          funds: {
-            $arrayElemAt: ["$result.fund", 0],
-          },
-        },
-        gpnl: {
-          $sum: {
-            $multiply: ["$amount", -1],
-          },
-        },
-        brokerage: {
-          $sum: {
-            $toDouble: "$brokerage",
-          },
-        },
-      },
-    },
-    {
-      $addFields:
-        {
-          npnl: {
-            $subtract: ["$gpnl", "$brokerage"],
-          },
-          availableMargin : {
-            $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
-          }
-        },
-    },
-    {
-      $project:
-        {
-          _id: 0,
-          userId: "$_id.userId",
-          traderName: "$_id.traderName",
-          totalCredit: "$_id.funds",
-          gpnl: "$gpnl",
-          brokerage: "$brokerage",
-          npnl: "$npnl",
-          availableMargin: "$availableMargin"
-        },
-    },
-    {
-      $sort : {npnl : 1}
-    }
+    // {
+    //   $match: {
+    //   status : "COMPLETE" 
+    //   }
+    // },
+    // {
+    //   $group: {
+    //     _id: {
+    //       userId: "$userId",
+    //       traderName: "$createdBy",
+    //       funds: {
+    //         $arrayElemAt: ["$result.fund", 0],
+    //       },
+    //     },
+    //     gpnl: {
+    //       $sum: {
+    //         $multiply: ["$amount", -1],
+    //       },
+    //     },
+    //     brokerage: {
+    //       $sum: {
+    //         $toDouble: "$brokerage",
+    //       },
+    //     },
+    //   },
+    // },
+    // {
+    //   $addFields:
+    //     {
+    //       npnl: {
+    //         $subtract: ["$gpnl", "$brokerage"],
+    //       },
+    //       availableMargin : {
+    //         $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
+    //       }
+    //     },
+    // },
+    // {
+    //   $project:
+    //     {
+    //       _id: 0,
+    //       userId: "$_id.userId",
+    //       traderName: "$_id.traderName",
+    //       totalCredit: "$_id.funds",
+    //       gpnl: "$gpnl",
+    //       brokerage: "$brokerage",
+    //       npnl: "$npnl",
+    //       availableMargin: "$availableMargin"
+    //     },
+    // },
+    // {
+    //   $sort : {npnl : 1}
+    // }
   ])
           
-              // //console.log(pnlDetails)
-
-      res.status(201).json(pnlDetails);
+  res.status(201).json(pnlDetails);
 
 })
 
