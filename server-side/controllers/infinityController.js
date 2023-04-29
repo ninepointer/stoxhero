@@ -54,7 +54,6 @@ exports.overallPnlTrader = async (req, res, next) => {
     res.status(201).json({message: "pnl received", data: pnlDetails});
 }
 
-
 exports.myTodaysTrade = async (req, res, next) => {
   
   // const id = req.params.id
@@ -102,4 +101,76 @@ exports.myHistoryTrade = async (req, res, next) => {
     console.log(e);
     res.status(500).json({status:'error', message: 'Something went wrong'});
   }
+}
+
+exports.getPnlAndCreditData = async (req, res, next) => {
+  
+  let pnlAndCreditData = await InfinityTrader.aggregate([
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "result",
+      },
+    },
+    {
+      $match: {
+      status : "COMPLETE" 
+      }
+    },
+    {
+      $group: {
+        _id: {
+          trader: "$trader",
+          employeeId: {
+            $arrayElemAt: ["$result.employeeid", 0],
+          },
+          funds: {
+            $arrayElemAt: ["$result.fund", 0],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+      },
+    },
+    {
+      $addFields:
+        {
+          npnl: {
+            $subtract: ["$gpnl", "$brokerage"],
+          },
+          availableMargin : {
+            $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
+          }
+        },
+    },
+    {
+      $project:
+        {
+          _id: 0,
+          // userId: "$_id.userId",
+          employeeId: "$_id.employeeId",
+          totalCredit: "$_id.funds",
+          gpnl: "$gpnl",
+          brokerage: "$brokerage",
+          npnl: "$npnl",
+          availableMargin: "$availableMargin"
+        },
+    },
+    {
+      $sort : {npnl : 1}
+    }
+  ])
+
+  res.status(201).json({message: "data received", data: pnlAndCreditData});
+  
 }

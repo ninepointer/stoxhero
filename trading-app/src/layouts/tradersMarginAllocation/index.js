@@ -29,16 +29,19 @@ function Billing() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [marginDetails, setMarginDetails] = useState([]);
+  const [render, setRender] = useState(true);
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`)
       .then((res)=>{
               console.log(res.data);
               setMarginDetails(res.data);
       }).catch((err)=>{
-          window.alert("Error Fetching Margin Details");
+          // window.alert("Error Fetching Margin Details");
           return new Error(err);
       })
-    },[])
+    },[render])
+
+    console.log("marginDetails main", marginDetails)
   return (
     <DashboardLayout>
       <DashboardNavbar absolute isMini />
@@ -52,22 +55,22 @@ function Billing() {
                 </Grid> */}
                 
                 <Grid item xs={12}>
-                  <AddFunds marginDetails = {marginDetails} setMarginDetails = {setMarginDetails}/>
+                  <AddFunds marginDetails = {marginDetails} render={render} setRender={setRender}/>
                 </Grid>
               </Grid>
             </Grid>
             <Grid item xs={12} lg={5}>
-              <TotalFunds />
+              <TotalFunds marginDetails={marginDetails} render={render}/>
             </Grid>
           </Grid>
         </MDBox>
         <MDBox mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={7}>
-              <BillingInformation marginDetails = {marginDetails} setMarginDetails = {setMarginDetails} />
+              <BillingInformation marginDetails = {marginDetails} setMarginDetails = {setMarginDetails} render={render}/>
             </Grid>
             <Grid item xs={12} md={5}>
-              <Transactions />
+              <Transactions render={render} />
             </Grid>
           </Grid>
         </MDBox>
