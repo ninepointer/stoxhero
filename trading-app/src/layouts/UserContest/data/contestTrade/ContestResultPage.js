@@ -37,11 +37,11 @@ import { CircularProgress } from "@mui/material";
 
 function ContestResultPage () {
     const getDetails = useContext(userContext);
-    const [contest,setContest] = useState();
+    // const [contest,setContest] = useState();
     const [myRank, setMyRankProps] = useState([]);
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
-    // const isFromHistory = location?.state?.isFromHistory
+    const contest = location?.state?.contest
     // const  isDummy  = location?.state?.isDummy;
     // const redirect = useRef(true);
     const nevigate = useNavigate();
@@ -68,7 +68,7 @@ function ContestResultPage () {
       
       axios.get(`${baseUrl}api/v1/contest/${contestId}`)
       .then((res)=>{
-              setContest(res?.data?.data);
+              // setContest(res?.data?.data);
               console.log(res?.data?.data)
               setIsLoading(false)
       }).catch((err)=>{
@@ -133,7 +133,7 @@ function ContestResultPage () {
                           {(myReward?.length && myReward[0]?.reward) && `Congratulations ${getDetails?.userDetails?.employeeid}`}
                         </MDTypography>
                         <MDTypography mt={2} style={{fontWeight: 600, fontSize: "13px"}} color="dark" display="flex" justifyContent="center">
-                          {(myReward?.length && myReward[0]?.reward) && `Your rank is ${rank} and you have won`}
+                          {rank ? (myReward?.length && myReward[0]?.reward) && `Your rank is ${rank} and you have won` : "Please wait while your rank is loading"}
                         </MDTypography>
                         <MDTypography mt={2} style={{fontWeight: 700}} color="dark" display="flex" justifyContent="center">
                           {(myReward?.length && myReward[0]?.reward) && `${myReward[0]?.reward} ${myReward[0]?.currency}`}
@@ -145,7 +145,7 @@ function ContestResultPage () {
                     <img style={{marginTop: '10px', maxWidth: '100%', height: 'auto', borderRadius: '5px', display: 'block'}} src={loose} />
                     <div style={{position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px'}}>
                       <MDTypography mb={3.5} style={{fontWeight: 700, fontSize: "15px"}} color="dark" display="flex" justifyContent="center">
-                        {`Hey ${getDetails?.userDetails?.employeeid}, Your rank is ${rank}`}
+                        {rank ? `Hey ${getDetails?.userDetails?.employeeid}, Your rank is ${rank}` : "Please wait while your rank is loading"}
                       </MDTypography>
                       {/* <MDTypography style={{fontWeight: 600, fontSize: "13px"}} color="dark" display="flex" justifyContent="center">
                         {`Your rank is ${rank}`}
