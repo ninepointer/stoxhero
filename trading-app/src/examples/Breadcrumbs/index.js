@@ -30,7 +30,15 @@ import MDTypography from "../../components/MDTypography";
 function Breadcrumbs({ icon, title, route, light }) {
   
   const routes = route.slice(0, -1);
-  console.log("this is el", route, routes)
+  console.log("this is el", route, routes, title )
+
+  if(title === "infinitytrading"){
+    title = "Infinity Trading"
+  } else if(title === "battleground"){
+    title = "BattleGround"
+  } else if(title === "papertrading"){
+    title = "Paper Trading"
+  }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
 
