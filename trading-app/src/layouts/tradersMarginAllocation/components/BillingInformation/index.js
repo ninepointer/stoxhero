@@ -16,7 +16,7 @@ import Transaction from "../Transaction";
 import TransactionData from './data/transactionData';
 import { margin } from "@mui/system";
 
-function BillingInformation({marginDetails,setMarginDetails}) {
+function BillingInformation({marginDetails}) {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [marginDetails, setMarginDetails] = useState([]);
@@ -39,40 +39,37 @@ function BillingInformation({marginDetails,setMarginDetails}) {
   //       })
   // },[])
 
+  console.log("marginDetails billing")
 
   marginDetails.map((elem)=>{
     let obj = {};
     let amountstring = elem.amount > 0 ? "+₹" + (elem.amount).toLocaleString() : "-₹" + (-(elem.amount)).toLocaleString()
     let color = elem.amount > 0 ? "success" : "error"
 
-    var dateString = elem.createdOn;
-    var dateParts = dateString.split(" ");
+    // Define the input timestamp in UTC format
+    const utcTimestamp = elem.creditedOn ? elem.creditedOn : '2023-04-29T11:33:02.495+00:00';
 
-    var date = dateParts[0].split("-");
-    var time = dateParts[1].split(":");
+    // Create a Date object from the input timestamp
+    const date = new Date(utcTimestamp);
 
-    date = new Date(date[2], parseInt(date[1]) - 1, date[0], time[0], time[1], time[2]);
+    // Convert the UTC date to IST by adding 5 hours and 30 minutes
+    // date.setHours(date.getHours() + 5);
+    // date.setMinutes(date.getMinutes() + 30);
 
-    console.log(date);
-    let day = date.getDate();
-    const dayOfWeek = date.getDay();
-    const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
-    const month = date.getMonth();
-    const monthname = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul','Aug','Sep','Oct','Nov','Dec'][month];
-    const year = date.getFullYear();
-    const hour = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-    const variable = hour > 11 ? 'PM' : 'AM'
-    const datestring = day + ' ' + monthname + " " + " " + year + ", " + weekday + " at " + hour +":" + minutes + ":" + seconds + " " +variable
-    
+    // Format the date and time in IST as a string
+    const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true, timeZone: 'Asia/Kolkata' };
+    const formattedDate = date.toLocaleString('en-US', options);
+
+    // Output the result
+    console.log(formattedDate); // Output: "Fri, Apr 29, 2023, 5:03:02 PM"
+    console.log(elem.userId?.name, elem.userId)
     obj = (
       <Bill
-            name={elem.traderName}
-            company={elem.createdBy}
-            email={elem.userId}
+            name={elem.userId?.name}
+            company={elem.createdBy?.name}
+            email={elem.userId?.email}
             vat={elem.transactionId}
-            creditedOn={datestring}
+            creditedOn={formattedDate}
             amount={amountstring}
             color={color}
             totalCredit=''

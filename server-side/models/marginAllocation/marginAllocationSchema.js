@@ -9,10 +9,6 @@ const marginSchema = new mongoose.Schema({
         type: Number,
         required : true
     },
-    uId:{
-        type: String,
-        // required : true
-    },
     createdOn:{
         type: Date,
         default: new Date()
@@ -41,10 +37,6 @@ const marginSchema = new mongoose.Schema({
     userId:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
-    },
-    traderName:{
-        type: String,
-        //required: true,
     },
     transactionId: {
         type: String

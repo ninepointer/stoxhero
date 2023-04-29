@@ -25,7 +25,7 @@ import { useMaterialUIController } from "../../../../context";
 import { userContext } from "../../../../AuthContext";
 import uniqid from "uniqid"
 
-function AddFunds({marginDetails, setMarginDetails}) {
+function AddFunds({marginDetails, render}) {
 
   const [controller] = useMaterialUIController();
   const getDetails = useContext(userContext);
@@ -49,75 +49,31 @@ function AddFunds({marginDetails, setMarginDetails}) {
   let uId = uniqid();
 
   
-  
+  console.log("marginDetails totalfund")
 
   useEffect(()=>{
-      axios.get(`${baseUrl}api/v1/readuserdetails`)
-      .then((res)=>{
-        let data = res.data;
-        let traderdata = data.filter((elem) => {
-          return elem.designation === "Equity Trader"
-      })
-                setTraders(traderdata);
-      }).catch((err)=>{
-          window.alert("Error Fetching Trader Details");
-          return new Error(err);
-      })
+      // axios.get(`${baseUrl}api/v1/readuserdetails`)
+      // .then((res)=>{
+      //   let data = res.data;
+      //   let traderdata = data.filter((elem) => {
+      //     return elem.designation === "Equity Trader"
+      // })
+      //           setTraders(traderdata);
+      // }).catch((err)=>{
+      //     window.alert("Error Fetching Trader Details");
+      //     return new Error(err);
+      // })
 
       axios.get(`${baseUrl}api/v1/getTotalFundsCredited`)
       .then((res)=>{
         setTotalCredit(res.data);
       }).catch((err)=>{
-          window.alert("Error Fetching Trader Details");
+          // window.alert("Error Fetching Trader Details");
           return new Error(err);
       })
-  },[])
+  },[render])
 
-  
-  async function addFund(){
-    setDetails(details);
-    axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`)
-      .then((res)=>{
-              console.log("Inside Add Funds");
-              setMarginDetails(res.data);
-      }).catch((err)=>{
-          window.alert("Error Fetching Margin Details");
-          return new Error(err);
-      })
-    let userIdArr = traders.filter((elem)=>{
-      return elem.name === details.traderName;
-    })
 
-    console.log(userIdArr, details)
-
-    const { traderName, amount } = details;
-    console.log(traderName,amount);
-    const res = await fetch(`${baseUrl}api/v1/setmargin`, {
-        method: "POST",
-        headers: {
-            "content-type": "application/json"
-        },
-        body: JSON.stringify({
-          traderName, amount, lastModifiedBy, uId, userId: userIdArr[0].email, createdBy 
-        })
-    });
-
-    const data = await res.json();
-    console.log(data);
-    if (data.status === 422 || data.error || !data) {
-        window.alert(data.error);
-        console.log("Invalid Entry");
-    } else {
-        amount > 0 ?
-        window.alert(`₹${amount} credited into ${traderName}'s trading account`)
-        :
-        window.alert(`₹${-amount} withdrawn from ${traderName}'s trading account`)
-        
-        console.log("Entry Succesful");
-    }
-    // reRender ? setReRender(false) : setReRender(true)
-
-  }
 
   let totalAmountCredited = totalCredit[0] ? totalCredit[0]?.totalCredit : 0
   let totalAmountCreditedStrings = totalAmountCredited >= 0 ? "+₹" + Number(totalAmountCredited).toLocaleString() : "-₹" + (-Number(totalAmountCredited)).toLocaleString()
