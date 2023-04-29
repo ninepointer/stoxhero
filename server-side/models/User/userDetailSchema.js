@@ -16,11 +16,13 @@ const userDetailSchema = new mongoose.Schema({
         default: uniqid(),
     },
     createdOn:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
     lastModified:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
     createdBy:{
@@ -67,7 +69,7 @@ const userDetailSchema = new mongoose.Schema({
         // required: true
     },
     dob:{
-        type: String,
+        type: Date,
         // required: true
     },
     gender:{
@@ -107,7 +109,7 @@ const userDetailSchema = new mongoose.Schema({
         // require: true,
     },
     joining_date:{
-        type: String,
+        type: Date,
     },
     purpose_of_joining:{
         type: String,
