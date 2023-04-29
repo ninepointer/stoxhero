@@ -184,7 +184,7 @@ exports.getDateWiseStats = async(req, res)=>{
                             noOfTrade: 1
                         }
                     },
-             { $sort: {date: -1}},
+             { $sort: {date: 1}},
             ])
             
                 // //console.log(pnlDetails)
@@ -295,7 +295,7 @@ exports.getMonthlyPnlData= async(req,res,next) => {
                             noOfTrade: 1
                         }
                     },
-             { $sort: {date: -1}},
+             { $sort: {date: 1}},
             ])
             
                 // //console.log(pnlDetails)
