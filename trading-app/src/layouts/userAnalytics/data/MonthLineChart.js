@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 import { Grid } from '@mui/material';
+import dayjs from 'dayjs';
 
 const EChartsDemo = ({traderType, monthWiseData}) => {
   const chartRef = useRef(null);
@@ -38,7 +39,7 @@ const EChartsDemo = ({traderType, monthWiseData}) => {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: monthWiseData.map((e)=>e.date),
+          data: monthWiseData.map((e)=>dayjs(e.date).format('MMM YYYY')),
         },
         yAxis: {
           type: 'value',
