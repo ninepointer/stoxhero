@@ -32,7 +32,7 @@ import TradingAlgoEditModel from "./TradingAlgoEditModel";
 const TradingAlgo = () => {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const { columns, rows } = TradingAlgoData();
-  const { columns: pColumns, rows: pRows } = projectsTableData();
+//   const { columns: pColumns, rows: pRows } = projectsTableData();
   const [algoData, setAlgoData] = useState([]);
   const [reRender, setReRender] = useState(true);
 
@@ -114,10 +114,10 @@ const TradingAlgo = () => {
     }
 
     async function transactionChange(id, transactionChange){
-        if(transactionChange === "TRUE"){
-            transactionChange = "FALSE"
+        if(transactionChange){
+            transactionChange = false
         } else{
-            transactionChange = "TRUE";
+            transactionChange = true;
         }
         const res = await fetch(`${baseUrl}api/v1/updatetransactionChange/${id}`, {
             method: "PATCH",
@@ -135,7 +135,7 @@ const TradingAlgo = () => {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
         } else {
-            if(transactionChange === "TRUE"){
+            if(transactionChange){
                 window.alert("Transaction Change is Enabled");
             } else{
                 window.alert("Transaction Change is Disabled");
@@ -145,10 +145,10 @@ const TradingAlgo = () => {
     }
 
     async function instrumentChange(id, instrumentChange){
-        if(instrumentChange === "TRUE"){
-            instrumentChange = "FALSE"
+        if(instrumentChange){
+            instrumentChange = false;
         } else{
-            instrumentChange = "TRUE";
+            instrumentChange = true;
         }
         const res = await fetch(`${baseUrl}api/v1/updateinstrumentChange/${id}`, {
             method: "PATCH",
@@ -166,7 +166,7 @@ const TradingAlgo = () => {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
         } else {
-            if(instrumentChange === "TRUE"){
+            if(instrumentChange){
                 window.alert("Instrument Change is Enabled");
             } else{
                 window.alert("Instrument Change is Disabled");
@@ -176,10 +176,10 @@ const TradingAlgo = () => {
     }
 
     async function exchangeChange(id, exchangeChange){
-        if(exchangeChange === "TRUE"){
-            exchangeChange = "FALSE"
+        if(exchangeChange){
+            exchangeChange = false;
         } else{
-            exchangeChange = "TRUE";
+            exchangeChange = true;
         }
         const res = await fetch(`${baseUrl}api/v1/updateexchangeChange/${id}`, {
             method: "PATCH",
@@ -197,7 +197,7 @@ const TradingAlgo = () => {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
         } else {
-            if(exchangeChange === "TRUE"){
+            if(exchangeChange){
                 window.alert("Exchange Change is Enabled");
             } else{
                 window.alert("Exchange Change is Disabled");
@@ -208,10 +208,10 @@ const TradingAlgo = () => {
     }
 
     async function productChange(id, productChange){
-        if(productChange === "TRUE"){
-            productChange = "FALSE"
+        if(productChange){
+            productChange = false;
         } else{
-            productChange = "TRUE";
+            productChange = true;
         }
         const res = await fetch(`${baseUrl}api/v1/updateproductChange/${id}`, {
             method: "PATCH",
@@ -229,7 +229,7 @@ const TradingAlgo = () => {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
         } else {
-            if(productChange === "TRUE"){
+            if(productChange){
                 window.alert("Product Change is Enabled");
             } else{
                 window.alert("Product Change is Disabled");
@@ -253,7 +253,7 @@ const TradingAlgo = () => {
         );
         obj.mapUser = (
             <MDButton variant="" color="black" fontWeight="medium">
-              <MapUser color="" algoName={subelem.algoName}/>
+              <MapUser color="" algoId={subelem._id}/>
             </MDButton>
         );
         obj.lotMultipler = (
@@ -311,70 +311,43 @@ const TradingAlgo = () => {
     })
   return (
     <>
-                <MDBox pt={6} pb={3}>
-                    <Grid container spacing={6}>
-                        <Grid item xs={12} md={12} lg={12}>
-                            <Card>
-                                <MDBox
-                                    mx={2}
-                                    mt={-3}
-                                    py={1}
-                                    px={2}
-                                    variant="gradient"
-                                    bgColor="info"
-                                    borderRadius="lg"
-                                    coloredShadow="info"
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: "space-between",
-                                      }}>
+        <MDBox pt={6} pb={3}>
+            <Grid container spacing={6}>
+                <Grid item xs={12} md={12} lg={12}>
+                    <Card>
+                        <MDBox
+                            mx={2}
+                            mt={-3}
+                            py={1}
+                            px={2}
+                            variant="gradient"
+                            bgColor="info"
+                            borderRadius="lg"
+                            coloredShadow="info"
+                            sx={{
+                                display: 'flex',
+                                justifyContent: "space-between",
+                                }}>
 
-                                    <MDTypography variant="h6" color="white" py={2.5}>
-                                        Active Algo(s)
-                                    </MDTypography>
-                                    <TradingAlgoModel Render={{reRender, setReRender}}/>
-                                </MDBox>
-                                <MDBox pt={3}>
-                                    <DataTable
-                                        table={{ columns, rows }}
-                                        isSorted={false}
-                                        entriesPerPage={false}
-                                        showTotalEntries={false}
-                                        noEndBorder
-                                    />
-                                </MDBox>
-                            </Card>
-                        </Grid>
-                        {/* <Grid item xs={12} md={12} lg={12}>
-                            <Card>
-                                <MDBox
-                                    mx={2}
-                                    mt={-3}
-                                    py={3}
-                                    px={2}
-                                    variant="gradient"
-                                    bgColor="info"
-                                    borderRadius="lg"
-                                    coloredShadow="info"
-                                >
-                                    <MDTypography variant="h6" color="white">
-                                        Inactive Algo(s)
-                                    </MDTypography>
-                                </MDBox>
-                                <MDBox pt={3}>
-                                    <DataTable
-                                        table={{ columns: pColumns, rows: pRows }}
-                                        isSorted={false}
-                                        entriesPerPage={false}
-                                        showTotalEntries={false}
-                                        noEndBorder
-                                    />
-                                </MDBox>
-                            </Card>
-                        </Grid> */}
-                    </Grid> 
-                </MDBox> 
-                </>
+                            <MDTypography variant="h6" color="white" py={2.5}>
+                                Active Algo(s)
+                            </MDTypography>
+                            <TradingAlgoModel Render={{reRender, setReRender}}/>
+                        </MDBox>
+                        <MDBox pt={3}>
+                            <DataTable
+                                table={{ columns, rows }}
+                                isSorted={false}
+                                entriesPerPage={false}
+                                showTotalEntries={false}
+                                noEndBorder
+                            />
+                        </MDBox>
+                    </Card>
+                </Grid>
+            </Grid> 
+        </MDBox> 
+    </>
   )
 }
 

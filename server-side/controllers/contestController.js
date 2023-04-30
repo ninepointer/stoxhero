@@ -279,7 +279,7 @@ exports.getTimeForSync = async(req,res,next) => {
     try{
         let now = new Date();
         let minus5Hours30Minutes = 5.5 * 60 * 60 * 1000;
-        let dateTimeMinus5Hours30Minutes = new Date(now + minus5Hours30Minutes);
+        let dateTimeMinus5Hours30Minutes = new Date(now);
         res.status(200).json({status: 'success', data: dateTimeMinus5Hours30Minutes});
 
     }catch(e){

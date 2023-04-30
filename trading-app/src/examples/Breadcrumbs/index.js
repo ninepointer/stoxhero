@@ -38,6 +38,10 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "BattleGround"
   } else if(title === "papertrading"){
     title = "Paper Trading"
+  } else if(title === "faqs"){
+    title = "FAQ'S"
+  } else if(title === "stoxherotrading"){
+    title = "StoxHero Trading"
   }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';

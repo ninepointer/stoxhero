@@ -12,7 +12,7 @@ router.route('/my').get(Authenticate, myPortfolios)
 router.route('/trading').get(getTradingPortolios)
 router.route('/inactive').get(getInactivePortolios)
 router.route('/:id').get(getPortfolio).patch(Authenticate, editPortfolio)
-router.route('/:id/remainAmount').get(Authenticate, getPortfolioRemainingAmount); 
+router.route('/:portfolioId/:contestId/remainAmount').get(Authenticate, getPortfolioRemainingAmount); 
 
 // router.use('/:id/trades', contestTradeRoutes);
 module.exports = router;

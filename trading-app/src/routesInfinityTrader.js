@@ -10,6 +10,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import { GiNinjaHeroicStance } from 'react-icons/gi';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
@@ -20,22 +21,34 @@ import MyReferrals from "./layouts/referrals"
 import MyPortfolio from './layouts/UserPortfolio'
 import FAQs from "./layouts/FAQs";
 import UserWallet from "./layouts/userWallet";
+// import StoxHeroTrading from "./layouts/StoxHeroTrading"
+import InfinityTrader from "./layouts/InfinityTrading"
+
 
 const routes = [
 
   {
     type: "collapse",
-    name: "Position",
-    key: "position",
+    name: "Paper Trading",
+    key: "papertrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
-    route: "/position",
+    route: "/papertrading",
     component: <UserPosition />,
   },
   {
     type: "collapse",
+    name: "Infinity Trading",
+    key: "infinitytrading",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <GiNinjaHeroicStance/>,
+    route: "/infinitytrading",
+    component: <InfinityTrader />,
+  },
+  {
+    type: "collapse",
     name: "Orders",
-    key: "Orders",
+    key: "orders",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <ReorderIcon/>,
     route: "/orders",
@@ -52,28 +65,28 @@ const routes = [
   {
     type: "collapse",
     name: "Analytics",
-    key: "Analytics",
+    key: "analytics",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <AnalyticsIcon/>,
     route: "/analytics",
     component: <UserReport />,
   },
-  {
-    type: "collapse",
-    name: "Portfolio",
-    key: "portfolio",
-    icon: <BusinessCenterIcon/>,
-    route: "/portfolio",
-    component: <MyPortfolio />,
-  },
-  {
-    type: "collapse",
-    name: "Wallet",
-    key: "Wallet",
-    icon: <AccountBalanceWalletIcon/>,
-    route: "/wallet",
-    component: <UserWallet />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Portfolio",
+  //   key: "portfolio",
+  //   icon: <BusinessCenterIcon/>,
+  //   route: "/portfolio",
+  //   component: <MyPortfolio />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Wallet",
+  //   key: "Wallet",
+  //   icon: <AccountBalanceWalletIcon/>,
+  //   route: "/wallet",
+  //   component: <UserWallet />,
+  // },
   {
     type: "collapse",
     name: "FAQs",

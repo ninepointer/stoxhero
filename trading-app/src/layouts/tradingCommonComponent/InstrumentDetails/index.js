@@ -120,10 +120,15 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
   }, [reRender, socket])
 
 
-
-  // const instrumentDetailArr = useMemo(() => {
     const instrumentDetailArr = [];
     instrumentData.map((elem)=>{
+      // console.log("instrument date", new Date(elem.contractDate))
+      const date = new Date(elem.contractDate);
+      const day = date.getDate(); // returns the day of the month (4 in this case)
+      const month = date.toLocaleString('default', { month: 'long' }); // returns the full month name (May in this case)
+      const formattedDate = `${day}${day % 10 == 1 && day != 11 ? 'st' : day % 10 == 2 && day != 12 ? 'nd' : day % 10 == 3 && day != 13 ? 'rd' : 'th'} ${month}`; // formats the date as "4th May"
+      console.log(formattedDate);
+
       let instrumentDetailObj = {}
       const instrumentcolor = elem.symbol.slice(-2) == "CE" ? "success" : "error"
       let perticularInstrumentMarketData = marketDetails.marketData.filter((subelem)=>{
@@ -151,10 +156,9 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
       );
       instrumentDetailObj.contractDate = (
         <MDTypography variant="caption" color="text" fontWeight="medium">
-          {elem.contractDate}
+          {formattedDate}
         </MDTypography>
       );
-
       instrumentDetailObj.last_price = (
         <MDTypography component="a" href="#" variant="caption" color="dark" fontWeight="medium">
           {"₹"+(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}
@@ -191,11 +195,6 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
       instrumentDetailObj.instrumentToken = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
           {elem.instrumentToken}
-        </MDTypography>
-      );
-      instrumentDetailObj.chart = (
-        <MDTypography component="a" href="https://in.investing.com/indices/s-p-cnx-nifty-chart" target="_blank" variant="caption" color="text" fontWeight="medium">
-          <TrendingUpIcon fontSize="medium"/>
         </MDTypography>
       );
 

@@ -10,14 +10,15 @@ exports.createBatch = async(req, res, next)=>{
 
     const date = new Date();
     const month = date.toLocaleString('default', { month: 'short' }).substring(0, 3);
-    const batchID = month.toUpperCase() + batchStartDate.toString().split("-")[2]+batchStartDate.toString().split("-")[0]
+    splittingDate = batchStartDate.toString().split("T")[0]
+    const batchID = month.toUpperCase() + splittingDate.toString().split("-")[2]+splittingDate.toString().split("-")[0]
     // console.log(month.toUpperCase());
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
     const batch = await Batch.create({batchID, batchName, batchStartDate, batchEndDate, applicationStartDate, applicationEndDate, 
         batchStatus, participantRevenueSharing, batchLimit, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
-    res.status(201).json({message: 'Contest successfully created.', data:batch});    
+    res.status(201).json({message: 'Batch successfully created.', data:batch});    
         
 
 }
@@ -31,6 +32,36 @@ exports.getBatch = async(req, res, next)=>{
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 };
+
+exports.getActiveBatch = async(req, res, next)=>{
+    console.log("inside ActiveContest")
+    try {
+        const batch = await Batch.find({ batchEndDate: { $gte: new Date() }, status: 'Live', applicationEndDate:{$gte: new Date()} }); 
+        res.status(201).json({status: 'success', data: batch, results: batch.length}); 
+        
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }      
+};
+
+exports.appliedBatch = async(req,res,next) => {
+    const userId = req.user._id;
+    // console.log("userId", userId);
+    try{
+        const appliedBatch = await Batch.find({"applicants.userId": userId, batchEndDate: {$gte: new Date()}});
+        // console.log("appliedBatch", appliedBatch);
+        if(!appliedBatch){
+            return res.status(404).json({status:'error', message: 'No batch found'});
+        }
+
+        res.status(200).json({status: 'success', data: appliedBatch, results: appliedBatch.length});
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+}
 
 exports.editBatch = async(req, res, next) => {
     const id = req.params.id;

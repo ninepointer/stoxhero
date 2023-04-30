@@ -29,8 +29,8 @@ function Cover(props) {
 
   // console.log("Inside Sign UP")
 
-  const navigate = useNavigate();
-  const [dateValue,setDateValue] = useState(dayjs('01/24/2000'))
+  // const navigate = useNavigate();
+  // const [dateValue,setDateValue] = useState(dayjs('01/24/2000'))
   const [showEmailOTP, setShowEmailOTP] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(true);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
@@ -370,11 +370,19 @@ function Cover(props) {
                     <TextField
                         // required
                         // disabled={showEmailOTP}
+                        type="text"
                         id="outlined-required"
                         label={formstate.referrerCode?'':"Referrer Code"}
                         fullWidth
                         value={formstate.referrerCode}
-                        onChange={(e)=>{formstate.referrerCode = e.target.value}}
+                        // onChange={(e)=>{console.log(e.target.value) ;formstate.referrerCode = e.target.value}}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          setformstate((prevState) => ({
+                            ...prevState,
+                            referrerCode: newValue
+                          }));
+                        }}
                       />
                   </Grid>
                 

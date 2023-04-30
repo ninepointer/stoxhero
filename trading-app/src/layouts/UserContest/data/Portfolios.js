@@ -92,12 +92,6 @@ const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}
     }, [shouldNavigate]);
 
 
-
-
-
-
-
-
   async function joinContest(){
     console.log("in join")
 

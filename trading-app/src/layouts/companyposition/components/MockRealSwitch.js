@@ -265,7 +265,7 @@ export default function MockRealSwitch({userId, props, algoName}) {
     }
 
     const changeIsRealTrade = async (realTrade)=>{
-        const response = await fetch(`${baseUrl}api/v1/updaterealtradeenable/email/${userId}`, {
+        const response = await fetch(`${baseUrl}api/v1/updateRealTrade/${userId}`, {
             method: "PATCH",
             headers: {
                 Accept: "application/json",

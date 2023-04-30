@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Permission = require("../../models/User/permissionSchema");
+const authentication = require("../../authentication/authentication")
 
-router.post("/permission", (req, res)=>{
-    let {modifiedOn, modifiedBy, userName, userId, isTradeEnable, isRealTradeEnable, algoName} = req.body;
+router.post("/permission", authentication, (req, res)=>{
+    let {userId, isTradeEnable, isRealTradeEnable, algoId} = req.body;
     //console.log(req.body)
     if(!isTradeEnable){
         isTradeEnable = false;
@@ -12,32 +13,32 @@ router.post("/permission", (req, res)=>{
     if(!isRealTradeEnable){
         isRealTradeEnable = false;
     }
-    if(!modifiedOn || !modifiedBy || !userName || !userId  || !algoName){
+    if(!userId  || !algoId){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please fill all the fields..."})
     }
 
-    // Permission.findOne({_id})
-    // .then((dateExist)=>{
-    //     if(dateExist){
-    //         //console.log("data already");
-    //         return res.status(422).json({error : "date already exist..."})
-    //     }
-        const permission = new Permission({modifiedOn, modifiedBy, userName, userId, isTradeEnable, isRealTradeEnable, algoName});
+
+        const permission = new Permission({modifiedOn: new Date(), modifiedBy: req.user._id, userId, isTradeEnable, isRealTradeEnable, algoId});
         permission.save().then(()=>{
             res.status(201).json({massage : "data enter succesfully"});
         }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
     // }).catch(err => {//console.log(err, "fail")});
 })
 
-router.get("/readpermission", (req, res)=>{
-    Permission.find((err, data)=>{
-        if(err){
-            return res.status(500).send(err);
-        }else{
-            return res.status(200).send(data);
-        }
-    }).sort({$natural:-1})
+router.get("/readpermission", async (req, res)=>{
+
+    let permission = await Permission.find()
+    .populate('userId', 'name')
+    .populate('algoId', 'algoName').sort({$natural:-1})
+    // Permission.find((err, data)=>{
+    //     if(err){
+    //         return res.status(500).send(err);
+    //     }else{
+    //         return res.status(200).send(data);
+    //     }
+    // })
+    res.status(200).send(permission)
 })
 
 router.get("/readpermission/:id", (req, res)=>{
@@ -164,21 +165,16 @@ router.delete("/readpermission/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatetradeenable/:id", async (req, res)=>{
-    //console.log(req.params)
+router.patch("/updatetradeenable/:id", authentication, async (req, res)=>{
     const {id} = req.params
-    //console.log("this is body", req.body, id);
     try{ 
-        
-
         const permission = await Permission.findOneAndUpdate({_id : id}, {
             $set:{ 
-                modifiedOn: req.body.modifiedOn,
-                modifiedBy: req.body.modifiedBy,
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
                 isTradeEnable: req.body.isTradeEnable,
             }
         })
-        //console.log("this is role", permission);
         res.send(permission)
         // res.status(201).json({massage : "data edit succesfully"});
     } catch (e){
@@ -186,16 +182,13 @@ router.patch("/updatetradeenable/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updaterealtradeenable/:id", async (req, res)=>{
-    //console.log(req.params)
+router.patch("/updaterealtradeenable/:id", authentication, async (req, res)=>{
     const {id} = req.params
-    //console.log("this is body", req.body, id);
     try{ 
-        
         const permission = await Permission.findOneAndUpdate({_id : id}, {
             $set:{ 
-                modifiedOn: req.body.modifiedOn,
-                modifiedBy: req.body.modifiedBy,
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
                 isRealTradeEnable: req.body.isRealTradeEnable,
             }
         })
@@ -207,16 +200,15 @@ router.patch("/updaterealtradeenable/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updaterealtradeenable/email/:email", async (req, res)=>{
+router.patch("/updateRealTrade/:id", authentication, async (req, res)=>{
     //console.log(req.params)
-    const {email} = req.params
+    const {id} = req.params
     //console.log("this is body", req.body, id);
     try{ 
-        
-        const permission = await Permission.findOneAndUpdate({userId : email}, {
+        const permission = await Permission.findOneAndUpdate({userId : id}, {
             $set:{ 
-                modifiedOn: req.body.modifiedOn,
-                modifiedBy: req.body.modifiedBy,
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
                 isRealTradeEnable: req.body.isRealTradeEnable,
             }
         })

@@ -33,16 +33,17 @@ function ContestDetails () {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const nevigate = useNavigate();
   
+    
     React.useEffect(()=>{
-      
+        console.log("in the handler0")
         axios.get(`${baseUrl}api/v1/contest/${id}`)
         .then((res)=>{
-                setIsLoading(true);
-                setContest(res?.data?.data);
-                console.log(res?.data?.data)
-                // setTimeout((e)=>{
-                //     setIsLoading(false)
-                // },500)
+            setIsLoading(true);
+            setContest(res?.data?.data);
+            console.log("this is response", res?.data?.data)
+            // setTimeout((e)=>{
+            //     setIsLoading(false)
+            // },500)
         }).catch((err)=>{
             return new Error(err);
         })
@@ -60,8 +61,9 @@ function ContestDetails () {
     // const [buttonClicked, setButtonClicked] = useState(false);
     // const [shouldNavigate, setShouldNavigate] = useState(false);
   
-    // const handleButtonClick = async () => {
-    //     console.log("id is", contest?._id)
+    // async function handleButtonClick() {
+    //     console.log("in the handler", contest?._id, id)
+    //     // setButtonClicked(true);
     //     axios.get(`${baseUrl}api/v1/contest/${contest?._id}/syncTime`)
     //     .then((res)=>{
 
@@ -69,7 +71,8 @@ function ContestDetails () {
     //         const currentTime = new Date();
 
     //         if (resTime.getUTCHours() === currentTime.getUTCHours() && resTime.getUTCMinutes() === currentTime.getUTCMinutes()) {
-    //             setButtonClicked(true);
+    //             console.log("in the handler2")
+    //             // setButtonClicked(true);
     //         } else{
     //             openSuccessSB("Failed","Your timestamp is not correct", "FAIL");
     //             return;
@@ -78,27 +81,24 @@ function ContestDetails () {
     //     }).catch((err)=>{
     //         return new Error(err);
     //     })
-    // //   if(!selectedPortfolio){
-    // //     console.log("in join if")
-
-    // //   }
-    // //   await joinContest();
-      
+    //   console.log("in the handler3")
     // };
   
     // useEffect(() => {
     //   if (buttonClicked) {
+    //     console.log("in the handler4")
     //     setShouldNavigate(true);
     //   }
-    // }, [buttonClicked, contest]);
+    // }, [buttonClicked]);
   
     // useEffect(() => {
     //   if (shouldNavigate) {
+    //     console.log("in the handler5")
     //     nevigate(`/battleground/${contest?.contestName}/register`, {
     //       state: {data:contest?._id}
     //     });
     //   }
-    // }, [shouldNavigate, contest]);
+    // }, [shouldNavigate]);
 
 
 
@@ -167,10 +167,7 @@ function ContestDetails () {
       // msgDetail.successSB = false
       setSuccessSB(false);
   
-    }
-  
-    // const closeSuccessSB = () => msgDetail.successSB = false;
-  
+    }  
   
     const renderSuccessSB = (
     <MDSnackbar
@@ -184,8 +181,6 @@ function ContestDetails () {
         bgWhite="info"
     />
     );
-  
-
 
     console.log("Contest Registration Data: ",contest)
   
@@ -288,7 +283,7 @@ function ContestDetails () {
                                   }}
                                   state= {{data:contest?._id}}
 
-                                //   onClick={handleButtonClick}
+                                //   onClick={()=>{handleButtonClick()}}
                             >
                                 Register
                             </MDButton>
