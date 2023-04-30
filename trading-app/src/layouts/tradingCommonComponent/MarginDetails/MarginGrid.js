@@ -59,7 +59,8 @@ const MarginGrid = () => {
   // let runninglotnumber = totalRunningLots;
   let runningPnl = Number(netPnl?.toFixed(0));
   let totalPnl = (marginDetails?.lifetimePnl?.npnl + runningPnl).toFixed(0);
-  let totalPnlString = totalPnl >= 0 ? "+₹" + Number(totalPnl).toLocaleString() : "-₹" + (-Number(totalPnl)).toLocaleString()
+  let totalPnlString = marginDetails?.lifetimePnl?.npnl ? totalPnl >= 0 ? "+₹" + Number(totalPnl).toLocaleString() : "-₹" + (-Number(totalPnl)).toLocaleString() : "+₹0"
+  console.log("checking", runningPnl, totalPnl, marginDetails?.lifetimePnl?.npnl, Boolean(totalPnl))
   // let availableMarginpnl = availableMarginPNL[0] ? Number((availableMarginPNL[0].npnl).toFixed(0)) : 0;
   // let availableMargin = (Number(openingBalance) + runningPnl)
   // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
