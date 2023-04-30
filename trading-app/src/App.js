@@ -12,7 +12,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 // Material Dashboard 2 React components
 import MDBox from "./components/MDBox";
-import MDAvatar from "./components/MDAvatar";
+// import MDAvatar from "./components/MDAvatar";
 
 // Material Dashboard 2 React example components
 import Sidenav from "./examples/Sidenav";
@@ -85,26 +85,25 @@ export default function App() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/loginDetail`, {
-            withCredentials: true,
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Credentials": true
-            },
-        })
-        .then((res)=>{
-          console.log(res.data.role)
-          setDetails.setUserDetail(res.data);
-          setDetailUser((res.data));
-  
-        }).catch((err)=>{
-          console.log("Fail to fetch data of user");
-          noCookie = true;
-          console.log(err);
-          pathname === '/signup' ? navigate("/signup") : navigate("/");
-        })
-                
+    axios.get(`${baseUrl}api/v1/loginDetail`, {
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    })
+    .then((res)=>{
+      console.log(res.data.role)
+      setDetails.setUserDetail(res.data);
+      setDetailUser((res.data));
+
+    }).catch((err)=>{
+      console.log("Fail to fetch data of user");
+      noCookie = true;
+      console.log(err);
+      pathname === '/signup' ? navigate("/signup") : navigate("/");
+    })
   }, [])
 
   // Cache for the rtl
@@ -212,7 +211,12 @@ export default function App() {
           )}
           {layout === "vr" && <Configurator />}
           <Routes>
-          {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") && getRoutes(analyticsRoutes)}  
+          {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
+            ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
+            ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
+            ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
+            ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
+            }
             <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
           </Routes>
         </ThemeProvider>
@@ -233,10 +237,10 @@ export default function App() {
               brand={Logo}
               brandName="StoxHero"
               routes={
-                (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role === adminRole)
-                ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role === userRole) 
+                (detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole)
+                ? routes : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
                 ? userRoutes : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
-                ? routesInfinityTrader : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role === "data") 
+                ? routesInfinityTrader : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
                 ? analyticsRoutes : homeRoutes
               }
               onMouseEnter={handleOnMouseEnter}

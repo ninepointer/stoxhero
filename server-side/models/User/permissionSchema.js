@@ -1,30 +1,28 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const permissionSchema = new mongoose.Schema({
 
     modifiedOn:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
     modifiedBy:{
-        type: String,
-        required : true
-    },
-    userName:{
-        type: String,
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
     },
     userId:{
-        type: String,
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
     },
     isTradeEnable:{
         type: Boolean,
         required: true
     },
-    algoName:{
-        type: String,
-        required: true
+    algoId:{
+        type: Schema.Types.ObjectId,
+        ref: 'algo-trading',
     },
     isRealTradeEnable:{
         type: Boolean,

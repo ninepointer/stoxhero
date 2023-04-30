@@ -7,17 +7,22 @@ async function fetchToken (exchange, symbol){
     let instrumentToken ;
     // console.log("Exchange & Symbol: ",exchange,symbol)
 
-    let accessTokenResp = await axios.get(`${baseUrl}api/v1/readRequestToken`)
-    let apiKeyResp = await axios.get(`${baseUrl}api/v1/readAccountDetails`)
-
-    for(let elem of accessTokenResp.data){
-        for(let subElem of apiKeyResp.data){
-            if(elem.accountId === subElem.accountId && elem.status === "Active" && subElem.status === "Active"){
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+  
+  
+    const apiKey = await Account.find({status: "Active"});
+    const accessToken = await RequestToken.find({status: "Active"});
+    for(let elem of accessToken){
+        for(let subElem of apiKey){
+            if(elem.accountId === subElem.accountId && new Date(elem.generatedOn) > today){
                 getAccessToken = elem.accessToken;
                 getApiKey = subElem.apiKey
             }
         }
-    }
+      }
     const addUrl = 'i=' + exchange + ':' + symbol;
     const url = `https://api.kite.trade/quote?${addUrl}`
     // console.log("URL: ",url)

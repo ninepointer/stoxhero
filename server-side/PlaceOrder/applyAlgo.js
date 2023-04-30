@@ -13,14 +13,21 @@ const ApplyAlgo = async (req, res, next)=>{
 
     // console.log(req.body, "in apply algo")
     // console.log(req.user)
-    const {userId, symbol, instrumentToken, Quantity, buyOrSell} = req.body;
+    // console.log("in if", req.user.isAlgoTrader)
+    if(!req.user.isAlgoTrader){
+        // console.log("in if")
+        return res.status(401).send({message: "Your profile is not authorised."})  
+    }
+    const {symbol, instrumentToken, Quantity, buyOrSell} = req.body;
 
+    let userId = req.user._id;
     let accessTokenDetails = await AccessToken.find({status: "Active"});
     let apiKeyDetails = await ApiKey.find({status: "Active"});
     let tradingAlgoData = await TradingAlgo.find({status: "Active"});
-    let userPermission = await UserPermission.find({userId: userId});
+    let userPermission = await UserPermission.find({userId: userId}).populate('algoId', 'algoName')
     let instrumentMapping = await InstrumentMapping.find({Status: "Active"});
 
+    console.log("userPermission", userPermission)
 
     let companyTrade = {};
 
@@ -38,11 +45,13 @@ const ApplyAlgo = async (req, res, next)=>{
     const userPermissionAlgo = [];
     for (let elem of tradingAlgoArr) {
         for (let subElem of userPermission) {
-            if (elem.algoName === subElem.algoName && subElem.isTradeEnable) {
+            if ((elem._id).toString() === (subElem.algoId._id).toString() && subElem.isTradeEnable) {
                 userPermissionAlgo.push(elem)
             }
         }
     }
+
+    console.log("userPermissionAlgo", userPermissionAlgo, tradingAlgoArr)
 
     function instrumentMappingFunc(){
         let flag = true;
@@ -62,7 +71,7 @@ const ApplyAlgo = async (req, res, next)=>{
 
     async function tradingAlgo() {
         userPermissionAlgo?.map((elem) => {
-            if(elem.transactionChange === "TRUE") {
+            if(elem.transactionChange) {
                 if(buyOrSell === "BUY"){
                     companyTrade.realBuyOrSell = "SELL"
                 }
@@ -70,7 +79,7 @@ const ApplyAlgo = async (req, res, next)=>{
                     companyTrade.realBuyOrSell = "BUY"
                 }
                 
-            }else if(elem.transactionChange === "FALSE"){
+            }else if(!elem.transactionChange){
                 if(buyOrSell === "BUY"){
                     companyTrade.realBuyOrSell = "BUY"
                 }
@@ -81,7 +90,7 @@ const ApplyAlgo = async (req, res, next)=>{
                 return;
             }
 
-            if(elem.instrumentChange === "TRUE"){
+            if(elem.instrumentChange){
                 instrumentMappingFunc();
             } else{
                 companyTrade.realSymbol = symbol;
@@ -99,7 +108,7 @@ const ApplyAlgo = async (req, res, next)=>{
             // console.log("userPermission", userPermission)
     
             userPermission.map((subElem)=>{
-                if(subElem.algoName === elem.algoName){
+                if(subElem.algoId.algoName === elem.algoName){
                     if(subElem.isRealTradeEnable && subElem.isTradeEnable){
                         // sendOrderReq(elem, checkingMultipleAlgoFlag, apiKeyParticular, accessTokenParticular);
                         const { apiKey } = apiKeyParticular[0];
@@ -129,6 +138,8 @@ const ApplyAlgo = async (req, res, next)=>{
         })
 
     }
+
+
 
     if(userPermissionAlgo?.length === 0){
         if(req.user.isAlgoTrader){

@@ -4,7 +4,7 @@ import Select from 'react-select';
 import axios from "axios"
 import uniqid from "uniqid";
 
-export default function UserList({addUser, setAddUser, setPermissionData, algoName, reRender}) {
+export default function UserList({addUser, setAddUser, setPermissionData, algoId, reRender}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [data, setData] = useState([]);
     const [permissionArr, setPermission] = useState([]);
@@ -37,7 +37,7 @@ export default function UserList({addUser, setAddUser, setPermissionData, algoNa
     if(data.length !== 0 && permissionArr.length !== 0){
         for(let i = 0; i < data.length; i++){
             for(let j = 0; j < permissionArr.length; j++){
-                if(data[i] && data[i].email === permissionArr[j].userId && permissionArr[j].algoName === algoName){
+                if(data[i] && data[i]._id === permissionArr[j].userId && permissionArr[j].algoId === algoId){
                     data.splice(i, 1);
                     j = -1;
                 }
@@ -48,7 +48,7 @@ export default function UserList({addUser, setAddUser, setPermissionData, algoNa
     let options = [];
     if(data.length !== 0){
         for(let elem of data){
-            options.push({value: elem.email, label: elem.name, userId: elem.email, userName: elem.name, _id:_id});
+            options.push({value: elem._id, label: elem.name, userId: {_id: elem._id, name: elem.name}, _id:_id});
         }
     }
 

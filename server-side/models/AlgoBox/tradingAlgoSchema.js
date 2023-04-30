@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const tradingAlgoSchema = new mongoose.Schema({
     algoName:{
@@ -6,11 +7,11 @@ const tradingAlgoSchema = new mongoose.Schema({
         required: true
     },
     transactionChange:{
-        type: String,
+        type: Boolean,
         required : true
     },
     instrumentChange:{
-        type: String,
+        type: Boolean,
         required : true
     },
     status:{
@@ -22,27 +23,33 @@ const tradingAlgoSchema = new mongoose.Schema({
         required : true
     },
     createdOn:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
-    lastModified:{
-        type: String,
+    lastModifiedOn:{
+        type: Date,
+        default: new Date(),
         required : true
+    },
+    lastModifiedBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
     },
     createdBy:{
-        type: String,
-        required : true
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
     },
     exchangeChange:{
-        type: String,
+        type: Boolean,
         required : true
     },
     lotMultipler:{
-        type: String,
+        type: Number,
         required : true
     },
     productChange:{
-        type: String,
+        type: Boolean,
         required : true
     },
     tradingAccount:{

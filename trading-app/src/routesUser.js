@@ -62,11 +62,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Infinity Trading",
-    key: "infinitytrading",
+    name: "StoxHero Trading",
+    key: "stoxherotrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <GiNinjaHeroicStance/>,
-    route: "/infinitytrading",
+    route: "/stoxherotrading",
     component: <StoxHeroTrading />,
   },
   // {

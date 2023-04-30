@@ -25,7 +25,7 @@ import MapUsersIcon from '@mui/icons-material/GroupAddSharp';
 // import axios from "axios"
 
 
-const MapUser = ({algoName}) => {
+const MapUser = ({algoId}) => {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const theme = useTheme();
@@ -52,7 +52,7 @@ const MapUser = ({algoName}) => {
   async function realTradeChange(e, userId, realTrade, userName){
 
     let perticularUserWithMappedAlgo = permissionData.filter((elem)=>{
-      return elem.algoName === algoName && elem.userId === userId
+      return elem.algoId?._id === algoId && elem.userId?._id === userId
     })
     console.log(userId, realTrade)
     if(realTrade !== undefined){
@@ -64,13 +64,14 @@ const MapUser = ({algoName}) => {
       algoData.realTrading = realTrade;
     const response = await fetch(`${baseUrl}api/v1/updaterealtradeenable/${perticularUserWithMappedAlgo[0]._id}`, {
       method: "PATCH",
+      credentials: "include",
       headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-          modifiedOn, modifiedBy, isRealTradeEnable: realTrade
+          isRealTradeEnable: realTrade
       })
     });
 
@@ -102,20 +103,22 @@ const MapUser = ({algoName}) => {
   }
 
   async function tradeEnableChange(e, userId, tradeEnable, userName){
-
+    console.log("e, userId, tradeEnable, userName", e, userId, tradeEnable, userName)
     if(tradeEnable !== undefined){
       if(tradeEnable){
         tradeEnable = false;
       } else{
         tradeEnable = true;
       }
+      console.log("permissionData", permissionData)
       let perticularUserWithMappedAlgo = permissionData.filter((elem)=>{
-        return elem.algoName === algoName && elem.userId === userId
+        return elem.algoId?._id === algoId && elem.userId?._id === userId
       })
       algoData.tradingEnable = tradeEnable
       // console.log("in enable", valueForEnableTrade, tradeEnable, e, userId)
       const response = await fetch(`${baseUrl}api/v1/updatetradeenable/${perticularUserWithMappedAlgo[0]._id}`, {
           method: "PATCH",
+          credentials: "include",
           headers: {
               Accept: "application/json",
               "Content-Type": "application/json",
@@ -154,11 +157,11 @@ const MapUser = ({algoName}) => {
   }
 
   let permissionDataUpdated = permissionData.filter((elem)=>{
-      return elem.algoName === algoName;
+      return elem.algoId._id === algoId;
   })
 
   let newData = [];
-  //console.log("addUser", addUser, "permissionDataUpdated", permissionDataUpdated);
+  console.log("addUser", addUser, "permissionDataUpdated", permissionDataUpdated);
   if(addUser.length !== 0 && permissionDataUpdated.length !== 0){
     for(let i = 0; i < addUser.length; i++){
       for(let j = 0; j < permissionDataUpdated.length; j++){
@@ -239,16 +242,17 @@ const MapUser = ({algoName}) => {
   }
 
   async function postReq(newDataUpdated){
-      const {name, tradingEnable, realTrading} = algoData;
+      const {tradingEnable, realTrading} = algoData;
       const {userId} = newDataUpdated[0];
       const response = await fetch(`${baseUrl}api/v1/permission`, {
           method: "POST",
+          credentials: "include",
           headers: {
               "content-type" : "application/json"
           },
           body: JSON.stringify({
-            modifiedOn, modifiedBy, userName:name, userId, 
-            isTradeEnable:tradingEnable, isRealTradeEnable:realTrading, algoName
+            userId, 
+            isTradeEnable:tradingEnable, isRealTradeEnable:realTrading, algoId
           })
       });
 
@@ -268,6 +272,7 @@ const MapUser = ({algoName}) => {
       //console.log("algoData", algoData);
       const response = await fetch(`${baseUrl}api/v1/readpermissionadduser/${id}`, {
           method: "PATCH",
+          credentials: "include",
           headers: {
               Accept: "application/json",
               "Content-Type": "application/json",
@@ -290,12 +295,14 @@ const MapUser = ({algoName}) => {
       }
   }
 
+  console.log("this is name", newData)
+
   newData.map((elem)=>{
 
     let obj = {};
     obj.name = (
         <MDTypography component="a" href="#" variant="caption" fontWeight="medium">
-          {elem.userName}
+          {elem.userId?.name}
         </MDTypography>
     );
 
@@ -303,7 +310,7 @@ const MapUser = ({algoName}) => {
       obj.tradeEnable = (
 
         <MDBox mt={0.5}>
-          <Switch checked={elem.isTradeEnable} onChange={(e) => {tradeEnableChange(e, elem.userId, elem.isTradeEnable, elem.userName)}} />
+          <Switch checked={elem.isTradeEnable} onChange={(e) => {tradeEnableChange(e, elem.userId?._id, elem.isTradeEnable, elem.userId?.name)}} />
         </MDBox>
       ); 
 
@@ -311,7 +318,7 @@ const MapUser = ({algoName}) => {
       obj.tradeEnable = (
 
         <MDBox mt={0.5}>
-          <Switch checked={algoData.tradingEnable} onChange={(e) => {tradeEnableChange(e, elem.userId, elem.isTradeEnable, elem.userName)}} />
+          <Switch checked={algoData.tradingEnable} onChange={(e) => {tradeEnableChange(e, elem.userId?._id, elem.isTradeEnable, elem.userId?.name)}} />
         </MDBox>
       ); 
 
@@ -321,13 +328,13 @@ const MapUser = ({algoName}) => {
       obj.realTrade = (
 
           <MDBox mt={0.5}>
-            <Switch checked={elem.isRealTradeEnable} onChange={(e) => {realTradeChange(e, elem.userId, elem.isRealTradeEnable, elem.userName)}} />
+            <Switch checked={elem.isRealTradeEnable} onChange={(e) => {realTradeChange(e, elem.userId?._id, elem.isRealTradeEnable, elem.userId?.name)}} />
           </MDBox>
       );
     } else{
       obj.realTrade = (
         <MDBox mt={0.5}>
-            <Switch checked={algoData.realTrading} onChange={(e)=>{realTradeChange(e, elem.userId, elem.isRealTradeEnable, elem.userName)}} />
+            <Switch checked={algoData.realTrading} onChange={(e)=>{realTradeChange(e, elem.userId?._id, elem.isRealTradeEnable, elem.userId?.name)}} />
         </MDBox>
       );
 
@@ -368,7 +375,7 @@ const MapUser = ({algoName}) => {
 
 
 
-              <UserList reRender={reRender} algoName={algoName} addUser={addUser} setAddUser={setAddUser} setPermissionData={setPermissionData}/>
+              <UserList reRender={reRender} algoId={algoId} addUser={addUser} setAddUser={setAddUser} setPermissionData={setPermissionData}/>
 
 
 

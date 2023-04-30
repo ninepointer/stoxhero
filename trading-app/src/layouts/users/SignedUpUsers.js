@@ -1,7 +1,7 @@
 import React from 'react'
 import {useState, useEffect} from "react"
 import axios from "axios";
-import { FcApprove } from 'react-icons/fc';
+// import { FcApprove } from 'react-icons/fc';
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -14,18 +14,18 @@ import MDButton from "../../components/MDBox";
 
 
 // Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
+// import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
+// import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
+// import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
-import EditSharpIcon from '@mui/icons-material/EditSharp';
+// import EditSharpIcon from '@mui/icons-material/EditSharp';
 
 
 // Data
 // import authorsTableData from "./data/authorsTableData";
-import projectsTableData from "./data/projectsTableData";
+// import projectsTableData from "./data/projectsTableData";
 import SignedUpUserData from './data/SignedUpUserData';
-import InactiveUserData from './data/InactiveUserData';
+// import InactiveUserData from './data/InactiveUserData';
 import SignedUpUserEditModel from "./SignedUpUserEditModel";
 
 

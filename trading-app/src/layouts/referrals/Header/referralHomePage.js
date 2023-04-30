@@ -92,7 +92,7 @@ function ReferralHomePage() {
 
   const fetchData = async()=>{
     const res = await axios.get(`${baseUrl}api/v1/referrals/leaderboard`, {withCredentials: true});
-    // console.log('referral data',res.data.data);
+    console.log('referral data',res.data.data);
     setReferralRanks(res.data.data);
     const rankRes = await axios.get(`${baseUrl}api/v1/referrals/myrank`, {withCredentials: true});
     if(rankRes.data.status == 'success'){
@@ -150,78 +150,14 @@ function ReferralHomePage() {
 
   My Referral Code to join the StoxHero: ${referralCode}`
 
-//   console.log("Invited Data: ",invitedData)
-  
-  
 
-//   invitedData?.map((elem)=>{
-        
-//     let refData = {}
-
-//     function dateConvert(dateToConvert){
-//     if(dateToConvert){
-//     const date = new Date(dateToConvert);
-//     const formattedDate = date.toLocaleString('en-US', {
-//       day: '2-digit',
-//       month: 'short',
-//       year: 'numeric',
-//       hour: 'numeric',
-//       minute: 'numeric',
-//       hour12: true
-//     });
-//     return formattedDate;
-//     }
-//     else{
-//         return '-';
-//     }
-//     }
-
-//     refData.name = (
-//       <MDButton variant="Contained" color="info" fontWeight="medium">
-//         {elem.name}
-//       </MDButton>
-//     );
-    
-//     refData.email = (
-//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-//         {elem.email ? elem.email : '-'}
-//       </MDTypography>
-//     );
-
-//     refData.mobile = (
-//         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-//           {elem.mobile ? elem.mobile : '-'}
-//         </MDTypography>
-//       );
-    
-//     refData.invitedon = (
-//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-//         {dateConvert(elem.invitedOn)}
-//       </MDTypography>
-//     );
-
-//     refData.joinedon = (
-//         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-//           {dateConvert(elem.joinedOn)}
-//         </MDTypography>
-//       );
-    
-//     refData.status = (
-//       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-//         {elem.status}
-//       </MDTypography>
-//     );
- 
-//     rows.push(refData)
-    
-// })
   let columns = [
     { Header: "Rank", accessor: "rank",align: "center" },
     { Header: "Name", accessor: "name",align: "center" },
     { Header: "Earnings", accessor: "earnings", align: "center"},
   ];
   let rows = [];
-  console.log('checking',referralRanks[0]?.user, getDetails.userDetails.employeeid);
+  console.log('checking',referralRanks, getDetails.userDetails.employeeid);
   referralRanks?.map((elem, index)=>{
     let refData = {}
     if(rank && rank.rank == index+1){

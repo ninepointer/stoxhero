@@ -13,7 +13,7 @@ import { CircularProgress } from "@mui/material";
 
 
 
-function UsedPortfolio({portfolioId}) {
+function UsedPortfolio({portfolioId, contestId}) {
 
     // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [indexData, setIndexData] = useState([]);
@@ -32,7 +32,7 @@ function UsedPortfolio({portfolioId}) {
 
     useEffect(()=>{
     
-        axios.get(`${baseUrl}api/v1/portfolio/${portfolioId}/remainAmount`,{
+        axios.get(`${baseUrl}api/v1/portfolio/${portfolioId}/${contestId}/remainAmount`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",

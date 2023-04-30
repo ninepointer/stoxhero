@@ -107,8 +107,8 @@ function ContestTradeView () {
     },[isDummy])
 
     const memoizedMargin = useMemo(() => {
-      return <Margin portfolioId={portfolioId} />;
-    }, [portfolioId]);
+      return <Margin portfolioId={portfolioId} contestId={contestId}/>;
+    }, [portfolioId, contestId]);
 
     const memoizedTradersRanking = useMemo(() => {
       return <TradersRanking contestId={contestId} reward={contest?.rewards}/>;

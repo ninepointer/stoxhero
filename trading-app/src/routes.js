@@ -67,6 +67,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
 import UserContest from "./layouts/UserContest"
+import Batch from "./layouts/batch";
 
 const routes = [
   {
@@ -183,6 +184,14 @@ const routes = [
     icon: <BusinessIcon/>,
     route: "/traderposition",
     component: <TraderPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Batch",
+    key: "batch",
+    icon: <BusinessIcon/>,
+    route: "/batch",
+    component: < Batch />,
   },
   {
     type: "collapse",

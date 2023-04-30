@@ -24,6 +24,7 @@ const isFromHistory = location?.state?.isFromHistory
 const  isDummy  = location?.state?.isDummy;
 const isFromUpcomming = location?.state?.isFromUpcomming;
 
+console.log("inside useEffect", isFromUpcomming , contestId)
 
 
 

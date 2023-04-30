@@ -26,8 +26,9 @@ const userDetailSchema = new mongoose.Schema({
         required : true
     },
     createdBy:{
-        type: String,
-        required : true
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+        // required : true
     },
     name:{
         type: String,
@@ -314,6 +315,16 @@ userDetailSchema.methods.generateAuthToken = async function(){
         console.log(err, "err in userDetailSchema");
     }
 }
+
+userDetailSchema.pre('save', async function(next){
+    console.log("inside employee", this._id)
+    if(!this.createdBy || this.isNew){
+        this.createdBy = this._id;
+        next();
+    } else {
+        next();
+    }
+});
 
 const userPersonalDetail = mongoose.model("user-personal-detail", userDetailSchema);
 module.exports = userPersonalDetail;

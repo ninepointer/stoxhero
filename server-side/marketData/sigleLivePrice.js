@@ -3,15 +3,16 @@ const Account =  require('../models/Trading Account/accountSchema');
 const RequestToken = require("../models/Trading Account/requestTokenSchema");
 
 async function singleLivePrice (exchange, symbol){
-    // console.log("in sigle-------------------------")
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
     const apiKey = await Account.find({status: "Active"});
     const accessToken = await RequestToken.find({status: "Active"});
     let getApiKey, getAccessToken;
-    let date = new Date();
-    let today = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`;
     for(let elem of accessToken){
         for(let subElem of apiKey){
-            if(elem.accountId === subElem.accountId && elem.generatedOn === today ){
+            if(elem.accountId === subElem.accountId && new Date(elem.generatedOn) > today){
                 getAccessToken = elem.accessToken;
                 getApiKey = subElem.apiKey
             }

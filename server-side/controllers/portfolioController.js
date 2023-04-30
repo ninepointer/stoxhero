@@ -178,14 +178,18 @@ exports.getUserPortfolio = async(req,res,next) => {
 
 exports.getPortfolioRemainingAmount = async(req, res, next) => {
     const userId = req.user._id;
-    const id = req.params.id
+    const portfolioId = req.params.portfolioId;
+    const contestId = req.params.contestId;
     try{
         let pnlDetails = await ContestTrade.aggregate([
             {
               $match: {
                 status: "COMPLETE",
                 trader: userId,
-                portfolioId: new ObjectId(id)
+                portfolioId: new ObjectId(portfolioId),
+                contestId: {
+                  $ne: new ObjectId(contestId)
+                }
               },
             },
             {
