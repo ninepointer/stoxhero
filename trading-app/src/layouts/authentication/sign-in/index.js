@@ -187,6 +187,7 @@ function Basic() {
           if(res.status == 200 || res.status == 201){
               openSuccessSB("otp sent", data.message);
               setOtpGen(true);
+
             }
             else{
               openSuccessSB("error", data.message);
@@ -239,7 +240,10 @@ function Basic() {
             navigate("/analytics");
           } 
           else if(userData.role?.roleName === userRole){
-            navigate("/Position");
+            navigate("/papertrading");
+          }
+          else if(userData.role?.roleName === InfinityTraderRole){
+            navigate("/papertrading");
           }
         }
 
