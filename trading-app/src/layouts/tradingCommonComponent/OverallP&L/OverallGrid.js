@@ -15,8 +15,8 @@ import { GrAnchor } from "react-icons/gr";
 
 // Data
 
-import OverallPL from './Overall P&L';
-import DataTable from '../../../examples/Tables/DataTable';
+// import OverallPL from './Overall P&L';
+// import DataTable from '../../../examples/Tables/DataTable';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import { userContext } from '../../../AuthContext';
@@ -26,6 +26,7 @@ import Buy from "../../tradingCommonComponent/BuyModel";
 import Sell from "../../tradingCommonComponent/SellModel"
 import OverallRow from './OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
+
 // import Button from '@mui/material/Button';
 
 function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
@@ -49,8 +50,10 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
   }
 
   
+  const { updateInfinityNetPnl } = useContext(NetPnlContext);
   const { updateNetPnl } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
+  const getDetails = useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
@@ -110,9 +113,13 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
       totalGrossPnl += updatedValue;
 
       totalTransactionCost += Number(subelem.brokerage);
-      let lotSize = (subelem._id.symbol).includes("BANKNIFTY") ? 25 : 50
-      updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots);
+      let lotSize = (subelem._id.symbol).includes("BANKNIFTY") ? 25 : 50;
 
+      from === "paperTrade" ? 
+      updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
+      :
+      from === "algoTrader" &&
+      updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
       

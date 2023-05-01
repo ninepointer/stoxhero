@@ -33,7 +33,7 @@ export default function Wallet() {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [fundDetail, setFundDetail] = useState({});
   const pnl = useContext(NetPnlContext);
-  const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+  const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
 
 
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
@@ -114,7 +114,7 @@ export default function Wallet() {
     />;
   }, [socket, reRender, handleSetIsGetStartedClicked]);
 
-  let fundChangePer = ((fundDetail?.availableMargin+pnl.netPnl - fundDetail?.totalCredit)*100/fundDetail?.totalCredit);
+  let fundChangePer = ((fundDetail?.availableMargin+pnl.infinityNetPnl - fundDetail?.totalCredit)*100/fundDetail?.totalCredit);
 
   return (
     <>
@@ -134,8 +134,8 @@ export default function Wallet() {
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(fundDetail?.availableMargin+pnl.netPnl) >= 0.00 ? "+₹" + ((fundDetail?.availableMargin+pnl.netPnl).toFixed(0)): "-₹" + ((-(fundDetail?.availableMargin+pnl.netPnl)).toFixed(0))}</MDTypography>
-                    <MDAvatar src={fundDetail?.availableMargin+pnl.netPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
+                    <MDTypography fontSize={10}>{(fundDetail?.availableMargin+pnl.infinityNetPnl) >= 0.00 ? "+₹" + ((fundDetail?.availableMargin+pnl.infinityNetPnl).toFixed(0)): "-₹" + ((-(fundDetail?.availableMargin+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
+                    <MDAvatar src={fundDetail?.availableMargin+pnl.infinityNetPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
                   </MDBox>
                 </Grid>
               
@@ -167,7 +167,7 @@ export default function Wallet() {
                 </Grid>
               
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)): "-₹" + ((-pnl.netPnl).toFixed(2))}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.infinityNetPnl >= 0.00 ? "+₹" + (pnl.infinityNetPnl.toFixed(2)): "-₹" + ((-pnl.infinityNetPnl).toFixed(2))}</MDTypography>
                 </Grid>
               </Grid>
             

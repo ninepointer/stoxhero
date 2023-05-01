@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -23,6 +23,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { apiUrl } from '../../../constants/constants';
+import { userContext } from '../../../AuthContext';
+import { userRole } from '../../../variables';
+import { InfinityTraderRole } from '../../../variables';
 
 
 export default function LabTabs() {
@@ -37,23 +40,32 @@ export default function LabTabs() {
   const [endDate,setEndDate] = React.useState(dayjs(date));
   const [monthWiseData, setMonthWiseData] = useState([]);
   const [dateWiseData, setDateWiseData] = useState([]);
-  
-
-  // let color = (alignment === 'Paper Trading' ? 'linear-gradient(195deg, #49a3f1, #1A73E8)' : 'white')
+  const getDetails = useContext(userContext);
+  const paperTrading = "Paper Trading";
+  const infinityTrading = "Infinity Trading";
+  const stoxheroTrading = "StoxHero Trading"
+  let endpoint ;
+  if(alignment === paperTrading){
+    endpoint = "papertrade";
+  } else if(alignment === infinityTrading){
+    endpoint = "infinity"
+  } else if(alignment === stoxheroTrading){
+    endpoint = "stoxhero"
+  }
 
   const handleChangeView = (event, newAlignment) => {
-    console.log("New Alignment",newAlignment)
+    // console.log("New Alignment",newAlignment)
     setTextColor("info");
     setAlignment(newAlignment);
   };
   const getMonthWiseStats = async() => {
-    const res = await axios.get(`${apiUrl}analytics/papertrade/mymonthlypnl`,{withCredentials:true});
+    const res = await axios.get(`${apiUrl}analytics/${endpoint}/mymonthlypnl`,{withCredentials:true});
     // console.log('res data', res.data.data);
     setMonthWiseData(res.data.data);
   } 
   useEffect(()=>{
     getMonthWiseStats()
-  },[])
+  },[endpoint])
 
   const handleChange = (event, newValue) => {
     setIsLoading(true)
@@ -65,12 +77,12 @@ export default function LabTabs() {
 
   useEffect(()=>{
     handleShowDetails();
-  },[])
+  },[endpoint])
 
   const handleShowDetails = async() => {
     const from = startDate.format('YYYY-MM-DD');
     const to = endDate.format('YYYY-MM-DD');
-    const res = await axios.get(`${apiUrl}analytics/papertrade/mystats?from=${from}&to=${to}`, {withCredentials: true});
+    const res = await axios.get(`${apiUrl}analytics/${endpoint}/mystats?from=${from}&to=${to}`, {withCredentials: true});
     console.log(res.data.data);
     setDateWiseData(prev=>res.data.data);
     
@@ -93,6 +105,7 @@ export default function LabTabs() {
     }
   }
   console.log(totalgpnl, totalnpnl, totalBrokerage, totalOrders, totalTradingDays, totalGreenDays, totalRedDays);
+  console.log("alignment", alignment)
 
   return (
    
@@ -109,12 +122,16 @@ export default function LabTabs() {
       onChange={handleChangeView}
       aria-label="Platform"
       >
-      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value="Paper Trading">Paper Trading</ToggleButton>
-      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value="StoxHero Trading">StoxHero Trading</ToggleButton>
+      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={paperTrading}> {paperTrading}</ToggleButton>
+      { getDetails.userDetails.role.roleName === InfinityTraderRole ?
+      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={infinityTrading}>{infinityTrading}</ToggleButton>
+      :
+      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={stoxheroTrading}>{stoxheroTrading}</ToggleButton>
+      }
       </ToggleButtonGroup>
     </MDBox>
 
-        <PNLMetrics traderType={alignment}/>
+        <PNLMetrics traderType={alignment} endpoint={endpoint}/>
 
         <Grid mt={3} container>
           <Grid item xs={12} md={6} lg={12}>
