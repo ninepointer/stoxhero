@@ -25,12 +25,12 @@ router.post("/signup", async (req, res)=>{
     }
 
     const signedupuser = await SignedUpUser.findOne({ $or: [{ email: email }, { mobile: mobile }] })
-    let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true,lowerCaseAlphabets: false, specialChars: false });
+    // let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true,lowerCaseAlphabets: false, specialChars: false });
     let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
     try{
     if(signedupuser)
     {
-        signedupuser.email_otp = email_otp;
+        // signedupuser.email_otp = email_otp;
         signedupuser.first_name = first_name;
         signedupuser.last_name = last_name;
         signedupuser.mobile = mobile;
@@ -39,84 +39,85 @@ router.post("/signup", async (req, res)=>{
         await signedupuser.save({validateBeforeSave:false})
     }
     else{
+        //removed emailotp
         await SignedUpUser.create({first_name:first_name, last_name:last_name, email:email, 
-            mobile:mobile, email_otp:email_otp, mobile_otp: mobile_otp});
+            mobile:mobile, mobile_otp: mobile_otp});
     }
 
-    res.status(201).json({message : "Mobile and mail OTPs have been sent. Check your email and messages. OTPs expire in 30 minutes.", 
-        status: 201});
-                let subject = "OTP from StoxHero";
-                let message = 
-                `
-                <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>Email OTP</title>
-                        <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            font-size: 16px;
-                            line-height: 1.5;
-                            margin: 0;
-                            padding: 0;
-                        }
+    res.status(201).json({message : "OTP has been sent. Check your messages. OTP expires in 30 minutes.", 
+        status: 'success'});
+                // let subject = "OTP from StoxHero";
+                // let message = 
+                // `
+                // <!DOCTYPE html>
+                //     <html>
+                //     <head>
+                //         <meta charset="UTF-8">
+                //         <title>Email OTP</title>
+                //         <style>
+                //         body {
+                //             font-family: Arial, sans-serif;
+                //             font-size: 16px;
+                //             line-height: 1.5;
+                //             margin: 0;
+                //             padding: 0;
+                //         }
     
-                        .container {
-                            max-width: 600px;
-                            margin: 0 auto;
-                            padding: 20px;
-                            border: 1px solid #ccc;
-                        }
+                //         .container {
+                //             max-width: 600px;
+                //             margin: 0 auto;
+                //             padding: 20px;
+                //             border: 1px solid #ccc;
+                //         }
     
-                        h1 {
-                            font-size: 24px;
-                            margin-bottom: 20px;
-                        }
+                //         h1 {
+                //             font-size: 24px;
+                //             margin-bottom: 20px;
+                //         }
     
-                        p {
-                            margin: 0 0 20px;
-                        }
+                //         p {
+                //             margin: 0 0 20px;
+                //         }
     
-                        .otp-code {
-                            display: inline-block;
-                            background-color: #f5f5f5;
-                            padding: 10px;
-                            font-size: 20px;
-                            font-weight: bold;
-                            border-radius: 5px;
-                            margin-right: 10px;
-                        }
+                //         .otp-code {
+                //             display: inline-block;
+                //             background-color: #f5f5f5;
+                //             padding: 10px;
+                //             font-size: 20px;
+                //             font-weight: bold;
+                //             border-radius: 5px;
+                //             margin-right: 10px;
+                //         }
     
-                        .cta-button {
-                            display: inline-block;
-                            background-color: #007bff;
-                            color: #fff;
-                            padding: 10px 20px;
-                            font-size: 18px;
-                            font-weight: bold;
-                            text-decoration: none;
-                            border-radius: 5px;
-                        }
+                //         .cta-button {
+                //             display: inline-block;
+                //             background-color: #007bff;
+                //             color: #fff;
+                //             padding: 10px 20px;
+                //             font-size: 18px;
+                //             font-weight: bold;
+                //             text-decoration: none;
+                //             border-radius: 5px;
+                //         }
     
-                        .cta-button:hover {
-                            background-color: #0069d9;
-                        }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                        <h1>Email OTP</h1>
-                        <p>Hello ${first_name},</p>
-                        <p>Your OTP code is: <span class="otp-code">${email_otp}</span></p>
-                        <p>Please use this code to verify your email address and complete your registration.</p>
-                        <p>If you did not request this OTP, please ignore this email.</p>
-                        </div>
-                    </body>
-                    </html>
-                `;
+                //         .cta-button:hover {
+                //             background-color: #0069d9;
+                //         }
+                //         </style>
+                //     </head>
+                //     <body>
+                //         <div class="container">
+                //         <h1>Email OTP</h1>
+                //         <p>Hello ${first_name},</p>
+                //         <p>Your OTP code is: <span class="otp-code">${email_otp}</span></p>
+                //         <p>Please use this code to verify your email address and complete your registration.</p>
+                //         <p>If you did not request this OTP, please ignore this email.</p>
+                //         </div>
+                //     </body>
+                //     </html>
+                // `;
 
-                emailService(email,subject,message);
+                // emailService(email,subject,message);
                 // sendSMS([mobile.toString()], `Welcome to StoxHero. Your OTP for signup is ${mobile_otp}`);
                 sendOTP(mobile.toString(), mobile_otp);
 
@@ -128,7 +129,7 @@ router.patch("/verifyotp", async (req, res)=>{
         first_name,
         last_name,
         email,
-        email_otp,
+        // email_otp,
         mobile,
         mobile_otp,
         referrerCode,
@@ -146,10 +147,11 @@ router.patch("/verifyotp", async (req, res)=>{
             message: "User with this email doesn't exist"
         })
     }
-    if(user.email_otp != email_otp || user.mobile_otp != mobile_otp)
+    //removed email otp check
+    if(user.mobile_otp != mobile_otp)
     {   
-        console.log("Inside OTP Matching")
-        return res.status(404).json({
+        return res.status(400).json({
+            status: 'error',
             message: "OTPs don't match, please try again!"
         })
     }
@@ -160,7 +162,7 @@ router.patch("/verifyotp", async (req, res)=>{
         if(dataExist){
             console.log(dataExist)
             console.log("data already exists");
-            return res.status(422).json({message : "You already have an account, please login using your email id."})
+            return res.status(400).json({status: 'error',message : "You already have an account, please login using your email or phone"})
         }
 
         //Check for referrer code
