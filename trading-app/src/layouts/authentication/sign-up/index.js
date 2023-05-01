@@ -109,6 +109,17 @@ function Cover(props) {
       pincode,
     } = formstate;
 
+    if(mobile.length !== 10){
+
+      if(mobile.length === 13 && mobile.startsWith('+91')){
+        
+      } else{
+        return openInfoSB("Mobile number invalid","Please Check Your Number Again")
+      }
+    }
+
+
+
     const res = await fetch(`${baseUrl}api/v1/signup`, {
       
         method: "POST",
