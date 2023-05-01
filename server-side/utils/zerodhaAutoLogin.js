@@ -13,7 +13,7 @@ function sleep(ms) {
 function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) {
   // const token = 
 
-    const {accountId, status, generatedOn, lastModified, createdBy, uId} = otherCredentials;
+    const {accountId, status, createdBy, uId} = otherCredentials;
     (async () => {
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
@@ -48,7 +48,7 @@ function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) 
                   //console.log("accountId already");
                   return resp.status(422).json({error : "account Id already exist..."})
               }
-              const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, generatedOn, lastModified, createdBy, uId});
+              const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, createdBy, uId});
       
               requestTokens.save().then(()=>{
       
