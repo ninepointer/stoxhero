@@ -139,7 +139,8 @@ function Cover(props) {
  
 
     const data = await res.json();
-    if(data.status === 201 || data.status === 200){ 
+    console.log(data, res.status);
+    if(res.status === 201 || res.status === 200){ 
         // window.alert(data.message);
         setShowEmailOTP(true);
         setTimerActive(true);
@@ -166,7 +167,7 @@ function Cover(props) {
         last_name:formstate.last_name,
         mobile:formstate.mobile,
         email:formstate.email, 
-        email_otp:formstate.email_otp,
+        // email_otp:formstate.email_otp,
         mobile_otp: formstate.mobile_otp,
         referrerCode:formstate.referrerCode,
       })
@@ -360,7 +361,7 @@ function Cover(props) {
             {showEmailOTP && showConfirmation && (
             <>
             <MDBox mt={2}>
-              <MDTypography fontSize={15}>This is an invite only trading platfrom, so please enter referrer code and email OTP to continue.</MDTypography>
+              <MDTypography fontSize={15}>Enter the referral code (if you have)</MDTypography>
             </MDBox>
             <MDBox display="flex" justifyContent="space-between">
             
@@ -386,7 +387,7 @@ function Cover(props) {
                       />
                   </Grid>
                 
-                <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
+                {/* <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
                   <MDBox display='block'>
                   <MDTypography fontSize={14} mb={1}>Email OTP</MDTypography>
                   <OtpInput
@@ -405,7 +406,7 @@ function Cover(props) {
                   <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '30%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="info" fullWidth onClick={()=>{resendOTP('email')}}>
                     {timerActive ? `Resend Email OTP in ${resendTimer} seconds` : 'Resend Email OTP'}
                     </MDButton>
-                  </Grid>
+                  </Grid> */}
                   <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
                   <MDBox mt={-2}>
 
