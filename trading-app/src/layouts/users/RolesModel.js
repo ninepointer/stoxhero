@@ -104,6 +104,7 @@ const RolesModel = ({Render}) => {
                 <MenuItem value="Infinity Trader">Infinity Trader</MenuItem>
                 <MenuItem value="Super Admin">Super Admin</MenuItem>
                 <MenuItem value="Moderator">Moderator</MenuItem>
+                <MenuItem value="Data Analyst">Data Analyst</MenuItem>
               </Select>
             </FormControl>
 
