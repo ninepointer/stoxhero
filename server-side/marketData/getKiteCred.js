@@ -8,7 +8,7 @@ exports.getAccess = async (req, res, next) => {
     console.log(today)
     const apiKey = await Account.find({status: "Active"});
     const accessToken = await RequestToken.find({status: "Active"});
-    // console.log("accessToken", accessToken);
+    console.log("accessToken", accessToken);
     console.log("in kite cred")
     let getApiKey, getAccessToken;
     for(let elem of accessToken){

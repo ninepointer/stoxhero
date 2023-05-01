@@ -18,11 +18,13 @@ const requestTokenSchema = new mongoose.Schema({
         required : true
     },
     generatedOn:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
     lastModified:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
     createdBy:{

@@ -11,9 +11,9 @@ const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
 
 
 router.post("/requestToken", (req, res)=>{
-    const {accountId, accessToken, requestToken, status, generatedOn, lastModified, createdBy, uId} = req.body;
+    const {accountId, accessToken, requestToken, status, createdBy, uId} = req.body;
 
-    if(!accountId || !accessToken || !requestToken || !status || !generatedOn || !lastModified || !createdBy || !uId){
+    if(!accountId || !accessToken || !requestToken || !status || !createdBy || !uId){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "plz filled the field..."})
     }
@@ -24,7 +24,7 @@ router.post("/requestToken", (req, res)=>{
             //console.log("accountId already");
             return res.status(422).json({error : "account Id already exist..."})
         }
-        const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, generatedOn, lastModified, createdBy, uId});
+        const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, createdBy, uId});
 
         requestTokens.save().then(()=>{
 
@@ -41,9 +41,9 @@ router.post("/requestToken", (req, res)=>{
 })
 
 router.post("/autologin", (req, res)=>{
-    const {accountId, apiKey, apiSecret, status, generatedOn, lastModified, createdBy, uId} = req.body;
+    const {accountId, apiKey, apiSecret, status, createdBy, uId} = req.body;
 
-    if(!accountId || !apiKey || !apiSecret || !status || !generatedOn || !lastModified || !createdBy || !uId){
+    if(!accountId || !apiKey || !apiSecret || !status || !createdBy || !uId){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please Fill all Fields."})
     }
