@@ -141,8 +141,9 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
       e.preventDefault()
       setOpen(false);
 
-      if(!appLive[0].isAppLive){
-        window.alert("App is not Live right now. Please wait.");
+      if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
+        // window.alert("App is not Live right now. Please wait.");
+        openSuccessSB('error', 'App is not live right now. Please wait.')
         return ;
       }
 
