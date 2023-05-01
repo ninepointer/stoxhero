@@ -4,10 +4,10 @@ import { CircularProgress, Grid, Divider } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
-import MDButton from '../../../components/MDButton'
-import {Link} from 'react-router-dom'
-import niftyicon from '../../../assets/images/nifty50icon.png'
-import bankniftyicon from '../../../assets/images/bankniftyicon.png'
+// import MDButton from '../../../components/MDButton'
+// import {Link} from 'react-router-dom'
+// import niftyicon from '../../../assets/images/nifty50icon.png'
+// import bankniftyicon from '../../../assets/images/bankniftyicon.png'
 import upicon from '../../../assets/images/arrow.png'
 import downicon from '../../../assets/images/down.png'
 import marginicon from '../../../assets/images/marginicon.png'
@@ -22,16 +22,22 @@ import Orders from '../data/orders'
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import { userContext } from '../../../AuthContext';
 import { io } from 'socket.io-client';
-import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndex';
+import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
+import { NetPnlContext } from '../../../PnlContext';
 
 export default function Wallet() {
 
   const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
+  const [fundDetail, setFundDetail] = useState({});
+  const pnl = useContext(NetPnlContext);
+  const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+
 
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   let socket;
   try {
@@ -45,6 +51,20 @@ export default function Wallet() {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", true)
     })
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+      }}
+      ).then((res)=>{
+        setFundDetail(res.data.data);
+      })
+      
   }, []);
 
   const memoizedStockIndex = useMemo(() => {
@@ -94,67 +114,14 @@ export default function Wallet() {
     />;
   }, [socket, reRender, handleSetIsGetStartedClicked]);
 
+  let fundChangePer = ((fundDetail?.availableMargin+pnl.netPnl - fundDetail?.totalCredit)*100/fundDetail?.totalCredit);
 
   return (
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
       <Grid container spacing={3} mb={2}>
         
-        <Grid item xs={12} md={6} lg={3}>
-          <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
-              <Grid container display="flex" justifyContent="space-around">
-
-                <Grid item xs={12} md={6} lg={2.5}>
-                  <MDAvatar src={niftyicon} size="sm"/>
-                </Grid>
-           
-                <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">NIFTY 50</MDTypography>
-                  <MDBox display="flex">
-                    <MDTypography fontSize={10}>+₹44.35</MDTypography>
-                    <MDAvatar src={upicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
-                  </MDBox>
-                </Grid>
-              
-                <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹17813.63</MDTypography>
-                  <MDBox display="flex" justifyContent="right">
-                    <MDTypography fontSize={10} display="flex" justifyContent="right">(+0.25%)</MDTypography>
-                    <MDAvatar src={upicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
-                  </MDBox>   
-                </Grid>
-              </Grid>
-            
-          </MDBox>
-        </Grid>
-
-        <Grid item xs={12} md={6} lg={3}>
-          <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
-              <Grid container display="flex" justifyContent="space-between">
-
-                <Grid item xs={12} md={6} lg={2.5}>
-                  <MDAvatar src={bankniftyicon} size="sm"/>
-                </Grid>
-           
-                <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={13} fontWeight="bold">NIFTY BANK</MDTypography>
-                  <MDBox display="flex">
-                    <MDTypography fontSize={10}>+₹105.40</MDTypography>
-                    <MDAvatar src={upicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
-                  </MDBox>
-                </Grid>
-              
-                <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹42829.90</MDTypography>
-                  <MDBox display="flex" justifyContent="right">
-                    <MDTypography fontSize={10} display="flex" justifyContent="right">(+0.35%)</MDTypography>
-                    <MDAvatar src={upicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
-                  </MDBox>    
-                </Grid>
-              </Grid>
-            
-          </MDBox>
-        </Grid>
+        {memoizedStockIndex}
 
         <Grid item xs={12} md={6} lg={3}>
           <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
@@ -165,22 +132,21 @@ export default function Wallet() {
                 </Grid>
            
                 <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Portfolio</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>-₹200000.00</MDTypography>
-                    <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
+                    <MDTypography fontSize={10}>{(fundDetail?.availableMargin+pnl.netPnl) >= 0.00 ? "+₹" + ((fundDetail?.availableMargin+pnl.netPnl).toFixed(0)): "-₹" + ((-(fundDetail?.availableMargin+pnl.netPnl)).toFixed(0))}</MDTypography>
+                    <MDAvatar src={fundDetail?.availableMargin+pnl.netPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
                   </MDBox>
                 </Grid>
               
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹300000.00</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{fundDetail?.totalCredit}</MDTypography>
                   <MDBox display="flex" justifyContent="right">
-                    <MDTypography fontSize={10} display="flex" justifyContent="right">(-40.00%)</MDTypography>
-                    <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
+                    <MDTypography fontSize={10} display="flex" justifyContent="right">{fundChangePer.toFixed(2)}%</MDTypography>
+                    <MDAvatar src={fundChangePer >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
                   </MDBox>   
                 </Grid>
               </Grid>
-            
           </MDBox>
         </Grid>
 
@@ -201,11 +167,7 @@ export default function Wallet() {
                 </Grid>
               
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">-₹13000.00</MDTypography>
-                  {/* <MDBox display="flex" justifyContent="right"> */}
-                    {/* <MDTypography fontSize={10} display="flex" justifyContent="right"></MDTypography> */}
-                    {/* <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/> */}
-                  {/* </MDBox>    */}
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)): "-₹" + ((-pnl.netPnl).toFixed(2))}</MDTypography>
                 </Grid>
               </Grid>
             
