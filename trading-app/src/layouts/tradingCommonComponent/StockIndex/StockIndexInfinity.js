@@ -99,7 +99,7 @@ function StockIndex({socket}) {
                         </Grid>
                     
                         <Grid item xs={12} md={6} lg={5}>
-                        <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">{e.instrument.props.children}</MDTypography>
+                        <MDTypography fontSize={11} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">{e.instrument.props.children}</MDTypography>
                         <MDBox display="flex">
                             <MDTypography fontSize={10}>{e.valueChange.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.valueChange.props.children).toFixed(2)}</MDTypography>
                             <MDAvatar src={e.valueChange.props.children>=0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
@@ -107,7 +107,7 @@ function StockIndex({socket}) {
                         </Grid>
                     
                         <Grid item xs={12} md={6} lg={4.5}>
-                        <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">{e.ltp.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.ltp.props.children).toFixed(2)}</MDTypography>
+                        <MDTypography fontSize={12} fontWeight="bold" display="flex" justifyContent="right">{e.ltp.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.ltp.props.children).toFixed(2)}</MDTypography>
                         <MDBox display="flex" justifyContent="right">
                             <MDTypography fontSize={10} display="flex" justifyContent="right">({e.percentageChange.props.children>0 ? '+' : ''}{e.percentageChange.props.children}%)</MDTypography>
                             <MDAvatar src={e.valueChange.props.children >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
