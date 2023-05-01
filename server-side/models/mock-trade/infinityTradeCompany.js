@@ -63,11 +63,12 @@ const infinityTradeCompanySchema = new mongoose.Schema({
     },
     isRealTrade:{ 
         type: Boolean,
-        required: true  
+        required: true,
+        default: false
     },
     amount:{
         type: Number,
-        // required: true        
+        // required: true
     },
     trade_time:{
         type: Date,

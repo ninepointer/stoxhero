@@ -38,12 +38,8 @@ const MapUser = ({algoId}) => {
   const getDetails = useContext(userContext);
   let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
   let modifiedBy = getDetails.userDetails.name;
-
-
-  
   const [reRender, setReRender] = useState(true);
   const [permissionData, setPermissionData] = useState([]);
-  
   const [addUser, setAddUser] = useState([]);
 
   console.log("permissionData", permissionData)
@@ -262,6 +258,7 @@ const MapUser = ({algoId}) => {
           window.alert(permissionData.error);
           //console.log("invalid entry");
       }else{
+        reRender ? setReRender(false) : setReRender(true)
           // window.alert("entry succesfull");
           //console.log("entry succesfull");
       }
@@ -290,6 +287,7 @@ const MapUser = ({algoId}) => {
           //console.log("Failed to Edit");
       }else {
           //console.log(permissionData);
+          reRender ? setReRender(false) : setReRender(true)
           window.alert("Edit succesfull");
           //console.log("Edit succesfull");
       }
@@ -373,11 +371,7 @@ const MapUser = ({algoId}) => {
         <DialogContent>
           <DialogContentText sx={{ display: "flex", flexDirection: "column" }}>
 
-
-
               <UserList reRender={reRender} algoId={algoId} addUser={addUser} setAddUser={setAddUser} setPermissionData={setPermissionData}/>
-
-
 
                 <MDBox pt={6} pb={3}>
                     <Grid container spacing={6}>

@@ -10,21 +10,22 @@ const fetchToken = require("../../marketData/generateSingleToken");
 const RequestToken = require("../../models/Trading Account/requestTokenSchema");
 const Account = require("../../models/Trading Account/accountSchema");
 const {subscribeTokens, unSubscribeTokens} = require('../../marketData/kiteTicker');
+const authentication = require("../../authentication/authentication");
 
-router.post("/contestInstrument", async (req, res)=>{
+router.post("/contestInstrument", authentication, async (req, res)=>{
 
     try{
-        let {instrument, exchange, symbol, status, uId, createdOn, lastModified, createdBy, createdByUserId, lotSize, contractDate, maxLot, contest} = req.body;
+        let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, contest} = req.body;
         const {_id, contestName} = contest;
-        console.log("Request Body inside instrument auth: ",req.body);
+        // console.log("Request Body inside instrument auth: ",req.body);
         console.log("Exchange & Symbol: ", exchange,symbol)
         let instrumentToken = await fetchToken(exchange, symbol);
         console.log("instrumentToken", instrumentToken);
-        let firstDateSplit = (contractDate).split(" ");
-        let secondDateSplit = firstDateSplit[0].split("-");
-        contractDate = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]}`
+        // let firstDateSplit = (contractDate).split(" ");
+        // let secondDateSplit = firstDateSplit[0].split("-");
+        // contractDate = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]}`
 
-        if(!instrument || !exchange || !symbol || !status || !uId || !createdOn || !lastModified || !createdBy || !createdByUserId || !lotSize || !instrumentToken){
+        if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken){
             if(!instrumentToken){
                 return res.status(422).json({error : "Please enter a valid Instrument."})
             }
@@ -40,7 +41,7 @@ router.post("/contestInstrument", async (req, res)=>{
                 console.log("data already");
                 return res.status(422).json({error : "date already exist..."})
             }
-            const instruments = new ContestInstrument({instrument, exchange, symbol, status, uId, createdOn, lastModified, createdBy, createdByUserId, lotSize, instrumentToken, contractDate, maxLot, contest: {name: contestName, contestId: _id}});
+            const instruments = new ContestInstrument({instrument, exchange, symbol, status, uId, createdBy: req.user._id, lastModifiedBy: req.user._id, lotSize, instrumentToken, contractDate, maxLot, contest: {name: contestName, contestId: _id}});
             console.log("instruments", instruments)
             instruments.save().then(async()=>{
                  const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
@@ -48,7 +49,7 @@ router.post("/contestInstrument", async (req, res)=>{
                 // client.del(socket.id);
                  await subscribeTokens();
                 res.status(201).json({massage : "data enter succesfully"});
-            }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
+            }).catch((err)=> {console.log(err); res.status(500).json({error:"Failed to enter data"})});
         }).catch(err => {console.log( err,"fail")});
 
     } catch(err) {

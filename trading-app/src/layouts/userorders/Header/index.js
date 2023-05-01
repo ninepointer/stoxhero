@@ -17,6 +17,7 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
+import {InfinityTraderRole} from "../../../variables";
 
 
 
@@ -52,7 +53,8 @@ function Header({ children }) {
   let url1 = 'my/todayorders'
   let url2 = 'my/historyorders'
   let url = (view === 'today' ? url1 : url2)
-  let infinityUrl = infinityView === 'today' ? url1 : url2
+  let infinityUrl = infinityView === 'today' ? url1 : url2;
+ 
 
   useEffect(()=>{
 
@@ -136,32 +138,32 @@ function Header({ children }) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip}&limit=${limitSetting}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           "Access-Control-Allow-Credentials": true
       },
-  })
-  .then((res) => {
-      console.log("orders",res.data)
-      setInfinityData(res.data.data)
-      setInfinityCount(res.data.count)
-      setInfinityFilteredData(res.data.data)
-      setIsLoading(false)
-  }).catch((err) => {
-      console.log(err)
-      return new Error(err);
-  })
-    
+    })
+    .then((res) => {
+        console.log("infinity orders",res.data)
+        setInfinityData(res.data.data)
+        setInfinityCount(res.data.count)
+        setInfinityFilteredData(res.data.data)
+        setIsLoading(false)
+    }).catch((err) => {
+        console.log(err)
+        return new Error(err);
+    })
+      
   }, [getDetails,infinityView,url1,url2])
-  console.log(data);
+    console.log(data);
 
   function infinityBackHandler(){
-    if(InfinitySkip <= 0){
-        return;
-    }
+      if(InfinitySkip <= 0){
+          return;
+      }
     setInfinitySkip(prev => prev-limitSetting);
     setOrders([]);
     axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip-limitSetting}&limit=${limitSetting}`,{
@@ -212,8 +214,6 @@ function Header({ children }) {
     })
   }
 
-
-  
   useEffect(()=>{
     handleClick();
   },[buyFilter,sellFilter,rejectedFilter,completeFilter])
@@ -303,10 +303,10 @@ function Header({ children }) {
     
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
       <Grid container>
-          
+           
           <Grid item xs={12} md={6} lg={12}>
             <MDBox border='1px solid white' bgColor='light' borderRadius={5} mb={2} p={0.5} display='flex' justifyContent='center' alignItems='center'>
-              <MDTypography color="dark" fontSize={15} fontWeight='bold'>Infinity Trading Order(s)</MDTypography>
+              <MDTypography color="dark" fontSize={15} fontWeight='bold'>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "Infinity Trading Order(s)" : "StoxHero Trading Order(s)"}</MDTypography>
             </MDBox>
     
             <MDBox display="flex" justifyContent="space-between" mb={2}>
@@ -334,12 +334,13 @@ function Header({ children }) {
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={tradesicon} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>You do not have any Infinity trading orders!</MDTypography>
+                <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any StoxHero trading orders!"}</MDTypography>
               </MDBox>
             </Grid>
             </>
             :
             
+            getDetails.userDetails.role.roleName === InfinityTraderRole ?
             <>
             
             <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
@@ -410,10 +411,18 @@ function Header({ children }) {
                 <MDButton variant='outlined' size="small" color="light" onClick={infinityNextHandler}>Next</MDButton>
             </MDBox>
             }
+            </>
+            :
+            <>
+            <Grid item xs={12} md={6} lg={12}>
+              <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                <img src={tradesicon} width={50} height={50}/>
+                <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any StoxHero trading orders!"}</MDTypography>
+              </MDBox>
+            </Grid>
             </>}
         </Grid>
-            
-          
+
       </Grid>
       
       <MDBox mt={2}>
