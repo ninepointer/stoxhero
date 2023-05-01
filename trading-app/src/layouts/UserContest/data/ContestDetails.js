@@ -17,6 +17,7 @@ import ContestRules from './ContestRules'
 import InviteFriend from '../../referrals/Header/InviteFriendModel'
 import { userContext } from '../../../AuthContext';
 import MDSnackbar from "../../../components/MDSnackbar";
+import CopyToClipboard from 'react-copy-to-clipboard'
 
 
 function ContestDetails () {
@@ -183,6 +184,27 @@ function ContestDetails () {
     );
 
     console.log("Contest Registration Data: ",contest)
+    const copyText = `                    
+
+  AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR
+
+  Join me at StoxHero - India's First Options Trading and Investment Platform 🤝                            
+
+  👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code
+
+  👉 Join the community of ace traders and learn real-time options trading
+
+  👉 Participate in free options trading contests to sharpen your trading skills
+
+  📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}                          
+
+  Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading
+
+  My Referral Code to join the StoxHero: ${referralCode}`
+    
+    const handleInvite = ()=>{
+        openSuccessSB('Copied', 'Invite code copied. Paste it and invite your friends.', "SUCCESS");
+    }
   
     return (
     <>
@@ -233,7 +255,12 @@ function ContestDetails () {
 
                         <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">
                            <MDBox variant="outlined" fontSize="small" color="light" sx={{border: "1px solid white", borderRadius: "5px"}}>
-                                <InviteFriend invited={invited} setInvited={setInvited} referralCode={referralCode} referralProgramId={activeReferralProgram?._id} />
+                                <CopyToClipboard text = {copyText} onCopy={handleInvite}>
+                                    <MDButton variant="Text">
+                                        Invite Friends        
+                                    </MDButton>
+                                </CopyToClipboard>
+                                {/* <InviteFriend invited={invited} setInvited={setInvited} referralCode={referralCode} referralProgramId={activeReferralProgram?._id} /> */}
                             </MDBox>
                         </Grid>
 
