@@ -319,7 +319,8 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
         {
           $match: {
             trader: userId,
-            trade_time:{$lte: today}
+            trade_time:{$lte: today},
+            status: "COMPLETE"
             // Replace with the actual user ID
           },
           
@@ -404,9 +405,13 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
                 $multiply: ["$amount", -1],
                 }, // Calculate gross PNL as sum of amount for all-time data
             },
+
             brokerageSumLifetime: {
-               $sum:'$brokerage', // Calculate brokerage sum as sum of brokerage for all-time data
+               $sum: '$brokerage', // Calculate brokerage sum as sum of brokerage for all-time data
             },
+            count: {
+              $sum: 1
+            }
           },
         },
         {
@@ -432,6 +437,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
             netPNLLifetime: {
               $subtract: ['$grossPNLLifetime', '$brokerageSumLifetime'], // Calculate net PNL as sum of gross PNL and brokerage sum for lifetime data
             },
+            count: 1
           },
         }
         ]);
@@ -624,9 +630,9 @@ exports.getInfinityTradesDateWiseStats = async(req, res)=>{
                         }
                     },
              { $sort: {date: 1}},
-            ])
+    ])
             
-                // //console.log(pnlDetails)
+                // console.log(pnlDetails)
 
         res.status(200).json({status:'success', data: pnlDetails});
  
@@ -665,6 +671,9 @@ exports.getStoxHeroTradesDateWiseStats = async(req, res)=>{
                         $count: {}
                         // average_price: "$average_price"
                     },
+                    count: {
+                      $sum: 1
+                    }
                     }},{
                         $project:{
                             _id: 0,
@@ -675,13 +684,14 @@ exports.getStoxHeroTradesDateWiseStats = async(req, res)=>{
                                 $subtract:["$gpnl", "$brokerage"]
                             },
                             lots: 1,
-                            noOfTrade: 1
+                            noOfTrade: 1,
+                            count: 1
                         }
                     },
              { $sort: {date: 1}},
             ])
             
-                // //console.log(pnlDetails)
+                console.log(pnlDetails)
 
         res.status(200).json({status:'success', data: pnlDetails});
  

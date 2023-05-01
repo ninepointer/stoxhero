@@ -20,7 +20,7 @@ const dailyPnlDataController = require("../../controllers/dailyPnlDataController
 const traderwiseDailyPnlController = require("../../controllers/traderwiseDailyPnlController")
 const MissedHistoryData = require("../../marketData/getinstrumenttickshistorydata")
 const authoizeTrade = require('../../controllers/authoriseTrade');
-
+const InfinityTrade = require("../../models/mock-trade/infinityTradeCompany")
 
 
 
@@ -1323,17 +1323,26 @@ router.get("/getmocktradecompanydetailsyesterday", async(req, res)=>{
 router.get("/getoverallpnlmocktradecompanytoday", async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    
-    let pnlDetails = await MockTradeDetails.aggregate([
-        {
-          $match: {
-            trade_time: {
-              $regex: todayDate,
-            },
-            status: "COMPLETE",
-            "algoBox.isDefault": true
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);    
+    let pnlDetails = await InfinityTrade.aggregate([
+      {
+        $lookup: {
+          from: 'algo-tradings',
+          localField: 'algoBox',
+          foreignField: '_id',
+          as: 'result'
+        }
+      },
+      {
+        $match: {
+          trade_time: {
+            $gte: today
           },
+          status: "COMPLETE",
+          "result.isDefault": true
         },
+      },
         {
           $group: {
             _id: {
@@ -1366,7 +1375,6 @@ router.get("/getoverallpnlmocktradecompanytoday", async(req, res)=>{
         },
       ])
             
-                // //console.log(pnlDetails)
 
         res.status(201).json(pnlDetails);
  
@@ -1377,15 +1385,41 @@ router.get("/getoverallpnlmocktradecompanytoday", async(req, res)=>{
 router.get("/gettraderwisepnlmocktradecompanytoday", async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    let pnlDetails = await MockTradeDetails.aggregate([
-        { $match: { trade_time : {$gte: `${todayDate} 00:00:00` , $lte: `${todayDate} 23:59:59`}, status: "COMPLETE", "algoBox.isDefault": true} },
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate); 
+    let pnlDetails = await InfinityTrade.aggregate([
+      {
+        $lookup: {
+          from: 'algo-tradings',
+          localField: 'algoBox',
+          foreignField: '_id',
+          as: 'algoBox'
+        }
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $match: {
+          trade_time: {
+            $gte: today
+          },
+          status: "COMPLETE",
+          "algoBox.isDefault": true
+        },
+      },
         
         { $group: { _id: {
-                                "traderId": "$userId",
-                                "traderName": "$createdBy",
-                                "symbol": "$instrumentToken",
-                                "algoId": "$algoBox._id",
-                                "algoName": "$algoBox.algoName"
+                          "traderId": "$trader",
+                          "traderName": "$user.name",
+                          "symbol": "$instrumentToken",
+                          "algoId": "$algoBox._id",
+                          "algoName": "$algoBox.algoName"
                             },
                     amount: {
                         $sum: {$multiply : ["$amount", -1]}
