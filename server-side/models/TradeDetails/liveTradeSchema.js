@@ -9,10 +9,6 @@ const liveTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    uId:{
-        type: String,
-        required : true
-    },
     createdBy:{
         type: String,
         required : true

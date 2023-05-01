@@ -29,9 +29,9 @@ const InstrumentEditModel = ({Render, data, id}) => {
 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
       
-    let date = new Date();
-    let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
-    let lastModified = createdOn;
+    // let date = new Date();
+    // let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+    // let lastModified = createdOn;
   
   
     const handleClickOpen = () => {
@@ -124,12 +124,13 @@ const InstrumentEditModel = ({Render, data, id}) => {
 
         const res = await fetch(`${baseUrl}api/v1/contestInstrument/${id}`, {
             method: "PUT",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                contract_Date ,Instrument, Exchange, Symbole,LotSize, maxLot, Status, lastModified, contest
+                contract_Date ,Instrument, Exchange, Symbole,LotSize, maxLot, Status, contest
             })
         });
         const dataResp = await res.json();

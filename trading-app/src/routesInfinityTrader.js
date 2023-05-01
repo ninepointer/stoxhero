@@ -23,6 +23,7 @@ import FAQs from "./layouts/FAQs";
 import UserWallet from "./layouts/userWallet";
 // import StoxHeroTrading from "./layouts/StoxHeroTrading"
 import InfinityTrader from "./layouts/InfinityTrading"
+import Analytics from "./layouts/userAnalytics/index"
 
 
 const routes = [
@@ -69,7 +70,7 @@ const routes = [
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <AnalyticsIcon/>,
     route: "/analytics",
-    component: <UserReport />,
+    component: <Analytics />,
   },
   // {
   //   type: "collapse",

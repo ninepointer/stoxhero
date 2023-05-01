@@ -22,20 +22,8 @@ const instrumentSchema = new mongoose.Schema({
         type: String,
         required : true
     },
-    createdOn:{
-        type: String,
-        required : true
-    },
-    lastModified:{
-        type: String,
-        required : true
-    },
-    createdBy:{
-        type: String,
-        required : true
-    },
     lotSize:{
-        type: String,
+        type: Number,
         required : true
     },
     instrumentToken:{
@@ -43,23 +31,34 @@ const instrumentSchema = new mongoose.Schema({
         required : true
     },
     contractDate:{
-        type: String,
+        type: Date,
         required : true
     },
     maxLot:{
         type: Number,
         required : true
     },  
-    user_id: {
-        type: String,
-        required : true
-    },
     isAddedWatchlist: {
         type: Boolean,
         required : true,
         default: true
     },
-    createdByUserId:{
+    createdOn:{
+        type: Date,
+        default: new Date(),
+        required : true
+    },
+    lastModifiedOn:{
+        type: Date,
+        default: new Date(),
+        required : true
+    },
+    createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-details',
+        required: true
+    },
+    lastModifiedBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-details',
         required: true,

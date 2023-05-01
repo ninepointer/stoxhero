@@ -31,8 +31,8 @@ export default function LabTabs() {
   const [alignment, setAlignment] = React.useState('Paper Trading');
   const [textColor,setTextColor] = React.useState('info');
   const date = new Date();
-  const lastMonth = new Date();
-  lastMonth.setMonth(date.getMonth() -1);
+  const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  lastMonth.setDate(date.getDate());
   const [startDate,setStartDate] = React.useState(dayjs(lastMonth));
   const [endDate,setEndDate] = React.useState(dayjs(date));
   const [monthWiseData, setMonthWiseData] = useState([]);
