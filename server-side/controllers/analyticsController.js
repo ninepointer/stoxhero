@@ -7,10 +7,9 @@ exports.getTraderOverview = async(req,res,next) => {
     let today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate()-1);
-    const pastMonth = new Date();
-    pastMonth.setMonth(today.getMonth() - 1);
-    const pastYear = new Date();
-    pastYear.setFullYear(today.getFullYear() - 1);
+    const pastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const pastYear = new Date(today.getFullYear(), 0, 1);
+    
 
     let paperTradesOverview = await PaperTrade.aggregate([
         {
