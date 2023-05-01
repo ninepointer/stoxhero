@@ -222,8 +222,8 @@ exports.getPortfolioRemainingAmount = async(req, res, next) => {
             },
         ]);
 
-        console.log(userId, id)
-        const portfolio = await Portfolio.findById(id)  
+        console.log(userId, portfolioId)
+        const portfolio = await Portfolio.findById(portfolioId).select('portfolioValue')
 
         res.status(201).json({pnl: pnlDetails, portfolio: portfolio});
 

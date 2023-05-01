@@ -707,6 +707,7 @@ exports.autoTradeContest = async(req, res, next) => {
 
     const today = new Date().toISOString().slice(0, 10);
     // console.log(now)
+    //---------un comment it
     const contests = await Contest.find({
       contestEndDate: {
         $gte: twentySecondsBeforeNow,
@@ -715,6 +716,12 @@ exports.autoTradeContest = async(req, res, next) => {
       status: "Live"
     }
     );
+    //----------------------
+
+    // const contests = await Contest.find({
+    //   _id: new ObjectId("644f9996ac425f57423ab069")
+    // }
+    // );
 
 
     // console.log(contests)
@@ -867,18 +874,21 @@ exports.autoTradeContest = async(req, res, next) => {
           { new: true }
        );
 
+       console.log("leaderBoardRank", leaderBoardRank+1, contest.rewards[contest.rewards.length -1].rankEnd)
 
-       if(leaderBoardRank <= contest.rewards[contest.rewards.length -1].rankEnd){
+       if(leaderBoardRank+1 <= contest.rewards[contest.rewards.length -1].rankEnd){
         const wallet = await userWallet.findOne({userId: participant.userId});
         for(reward of contest.rewards){
-          if(leaderBoardRank <= reward.rankEnd && leaderBoardRank >= reward.rankStart){
+          if(leaderBoardRank+1 <= reward.rankEnd && leaderBoardRank+1 >= reward.rankStart){
+            console.log("in if", reward.reward, reward)
             wallet.transactions = [...wallet.transactions, {
               title: 'Battle Credit',
               description: `Amount credited for battle ${contest.contestName}`,
-              amout: reward.reward,
+              amount: reward.reward,
               transactionId: uuid.v4(),
               transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
           }];
+          wallet.save();
           }
         }
       }
@@ -985,7 +995,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
       // console.log("in if con")
       const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19",  'WITHSCORES'])
       const formattedLeaderboard = await formatData(leaderBoard)
-
+      console.log("app setting", appSetting[0].leaderBoardTimming)
       // console.log('cached');
       return res.status(200).json({
         status: 'success',
@@ -1028,20 +1038,13 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
             Authorization: auth,
           },
         };
-        // let arr = [];
-  
-        // dummy market data
-        // let marketdata = await DummyMarketData();
-        // setTimeout(DummyMarketData, 10000);
-        
-  
+
         const response = await axios.get(ltpBaseUrl, authOptions);
         for (let instrument in response.data.data) {
             livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
         }
       }
 
-      // console.log("live price", livePrices)
       let ranks;
 
       if(await client.exists(`${id.toString()} allranks`)){
@@ -1261,23 +1264,23 @@ exports.getHistoryMyRank = async(req,res,next) => {
       { _id: contestId, 'participants.userId': userId }, 
       { 'participants.$': 1 }
     );
-  }
-
-  ;
+  };
   // console.log("myrank", myRank);
   // return res.status(200).json({
   //   status: 'success',
   //   data: myRank
   // });
-  setTimeout(()=>{
-    if (contest?.participants?.length !== 0 && Object.keys(contest.participants[0].myRank).length !== 0) {
+  // setTimeout(()=>{
+    if (contest?.participants?.length !== 0 && contest.participants[0]?.myRank?.rank && contest.participants[0]?.myRank?.npnl) {
+      // if (contest?.participants?.length !== 0 && Object.keys(contest.participants[0].myRank).length !== 0) {
       const myRank = contest.participants[0].myRank
+      console.log("sending response", myRank, contest.participants[0].myRank)
       return res.status(200).json({
         status: 'success',
         data: myRank
       });
     }
-  }, 3000)
+  // }, 3000)
 
 }
 

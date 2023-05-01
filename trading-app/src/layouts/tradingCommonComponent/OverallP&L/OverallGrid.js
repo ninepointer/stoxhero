@@ -85,7 +85,6 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
 
       })();
 
-      // reRender ? setRender(false) : setRender(true);
       return () => abortController.abort();
     }, [reRender])
   // }, [marketDetails.marketData, reRender])
@@ -180,9 +179,10 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
           </MDTypography>
         );
       } else{
+        console.log((liveDetail[0]?.last_price, liveDetail[0]?.average_price), liveDetail[0]?.average_price);
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%"}
+            {liveDetail[0]?.average_price ? (((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%" : "0.00%"}
           </MDTypography>
         );
       }

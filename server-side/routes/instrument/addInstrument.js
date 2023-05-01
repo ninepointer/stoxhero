@@ -14,20 +14,20 @@ const ObjectId = require('mongodb').ObjectId;
 
 router.post("/addInstrument",authentication, async (req, res)=>{
 
-    let date = new Date();
-    let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
-    let lastModified = createdOn;
+    // let date = new Date();
+    // let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+    // let lastModified = createdOn;
       
     const {_id, name} = req.user;
 
     try{
         let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken} = req.body;
 
-        let secondDateSplit = contractDate.split("-");
-        contractDate = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]}`
+        // let secondDateSplit = contractDate.split("-");
+        // contractDate = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]}`
 
         console.log(contractDate)
-        if(!instrument || !exchange || !symbol || !status || !uId || !createdOn || !lastModified || !lotSize || !instrumentToken){
+        if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken){
             if(!instrumentToken){
                 return res.status(422).json({error : "Please enter a valid Instrument."})
             }
@@ -61,7 +61,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                 res.status(422).json({message : "Instrument Added"})
                 return;
             }
-            const addingInstruments = new Instrument({instrument, exchange, symbol, status, uId, createdOn, lastModified, createdBy: name, createdByUserId: _id, lotSize, instrumentToken, contractDate, maxLot, user_id: _id});
+            const addingInstruments = new Instrument({instrument, exchange, symbol, status, uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken, contractDate, maxLot});
             //console.log("instruments", instruments)
             addingInstruments.save().then(async()=>{
 

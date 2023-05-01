@@ -13,7 +13,7 @@ import { CircularProgress } from "@mui/material";
 
 
 
-function UsedPortfolio({portfolioId, contestId}) {
+function Margin({portfolioId, contestId}) {
 
     // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [indexData, setIndexData] = useState([]);
@@ -41,16 +41,17 @@ function UsedPortfolio({portfolioId, contestId}) {
         },
         })
         .then((res)=>{
+            console.log("used portfolio", res.data)
             setPortfolioRemainData(res.data);
             setIsLoading(false);
-            console.log("used portfolio", res.data)
+            
         }).catch((err)=>{
             return new Error(err);
         })
     },[])
 
     let runningPnl = Number(contestNetPnl?.toFixed(0));
-    const currentValue = portfolioRemainData?.pnl?.length && ((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage));
+    const currentValue = portfolioRemainData?.pnl?.length ? ((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)) : (portfolioRemainData?.portfolio?.portfolioValue);
     const availableValue = currentValue + contestNetPnl;
     const usedValue =  runningPnl >= 0 ? 0 : runningPnl
 
@@ -112,4 +113,4 @@ function UsedPortfolio({portfolioId, contestId}) {
     )
 }
 
-export default memo(UsedPortfolio);
+export default memo(Margin);

@@ -1,4 +1,6 @@
 const axios = require('axios');
+const Account = require("../models/Trading Account/accountSchema");
+const RequestToken = require("../models/Trading Account/requestTokenSchema");
 
 async function fetchToken (exchange, symbol){
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -23,6 +25,7 @@ async function fetchToken (exchange, symbol){
             }
         }
       }
+    console.log(getAccessToken, getApiKey)
     const addUrl = 'i=' + exchange + ':' + symbol;
     const url = `https://api.kite.trade/quote?${addUrl}`
     // console.log("URL: ",url)

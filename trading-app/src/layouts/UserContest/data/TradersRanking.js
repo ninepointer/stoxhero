@@ -17,9 +17,9 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
   const [isLoading,setIsLoading] = useState(true)
   const getDetails = useContext(userContext)
   const leaderBoardEndPoint = (isFromHistory || isFromResult) ? "historyLeaderboard" : "leaderboard"
-  const myRankEndPOint = (isFromHistory || isFromResult) ? "historyMyrank" : "myrank"
+  const myRankEndPoint = (isFromHistory || isFromResult) ? "historyMyrank" : "myrank"
 
-  console.log(leaderBoardEndPoint, myRankEndPOint)
+  console.log(leaderBoardEndPoint, myRankEndPoint)
   const fetchData = async () => {
     // console.log("runnning every 2 sec")
 
@@ -35,7 +35,7 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
       // setTimeout(()=>{setIsLoading(false)},500)
       setRankData(api1Response.data.data);
 
-      const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${myRankEndPOint}`, {
+      const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${myRankEndPoint}`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -47,11 +47,13 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
       console.log("my rank", api2Response.data)
       if(api2Response.data.status == "success"){
         setMyRank(api2Response.data.data);
-        if(isFromResult){
+        if(isFromResult && Object.keys(api2Response.data.data).length !== 0){
           setMyRankProps(api2Response.data.data)
-          
+          setTimeout(()=>{setIsLoading(false)},500)
+        }else{
+          setTimeout(()=>{setIsLoading(false)},500)
         }
-        setTimeout(()=>{setIsLoading(false)},500)
+        
       }
 
 
@@ -84,7 +86,7 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
       return () => clearInterval(intervalId);
     }
 
-  }, [setting, leaderBoardEndPoint, myRankEndPOint]);
+  }, [setting, leaderBoardEndPoint, myRankEndPoint]);
 
 
   const myReward = reward?.filter((elem)=>{
@@ -92,7 +94,7 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
   })
 
   const myProfitPercentage = myRank?.npnl*100/Number(myRank?.investedAmount);
-  console.log("myProfitPercentage", myRank, reward, reward[0].currency, myReward);
+  // console.log("myProfitPercentage", myRank, reward, reward[0].currency, myReward);
   // myRank?.npnl = 0;
 
 
@@ -127,13 +129,13 @@ return (
                     <Grid item xs={12} md={12} lg={2.7} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>UserId</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
+                    <Grid item xs={12} md={12} lg={2.7} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Net P&L</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
+                    <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Profit(%)</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
+                    <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
                       <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Reward</MDTypography>
                     </Grid>
 
@@ -142,23 +144,23 @@ return (
                 <Grid container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
                     
                     <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={11} color="light">{myRank?.rank ? myRank?.rank : "-"}</MDTypography>
+                      <MDTypography fontSize={10} color="light">{myRank?.rank ? myRank?.rank : "-"}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={12} lg={2.7} display="flex" justifyContent="center">
-                      <MDTypography fontSize={11} color="light">{getDetails?.userDetails?.employeeid}</MDTypography>
+                      <MDTypography fontSize={10} color="light">{getDetails?.userDetails?.employeeid}</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={11} color={myRank?.npnl >= 0 ? "success" : "error"}>
+                    <Grid item xs={12} md={12} lg={2.7} display="flex" justifyContent="center">
+                      <MDTypography fontSize={10} color={myRank?.npnl >= 0 ? "success" : "error"}>
                           {myRank?.npnl ? (myRank?.npnl >= 0.00 ? "+₹" + (myRank?.npnl?.toFixed(2)): "-₹" + ((-myRank?.npnl).toFixed(2))) : "+₹" +0.00}
                       </MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={11} color={myRank?.npnl >= 0 ? "success" : "error"}>
+                    <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
+                      <MDTypography fontSize={10} color={myRank?.npnl >= 0 ? "success" : "error"}>
                           {myProfitPercentage ? (myProfitPercentage >= 0.00 ? "+" + (myProfitPercentage?.toFixed(2))+"%": "-" + ((-myProfitPercentage).toFixed(2))+"%") : "+0.00%"}
                       </MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
-                      <MDTypography fontSize={11}  color="light">
+                    <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
+                      <MDTypography fontSize={10}  color="light">
                         {(myReward && myReward?.length && myReward[0]?.reward ? `${myReward[0]?.currency} ${myReward[0]?.reward}` : `${reward[0].currency} 0`)}
                       </MDTypography>
                     </Grid>
@@ -183,23 +185,23 @@ return (
                     <Grid key={elem.name} container  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>
   
                       <Grid item xs={12} md={12} lg={2.4} display="flex" justifyContent="center">
-                        <MDTypography fontSize={11} color="light">{index+1}</MDTypography>
+                        <MDTypography fontSize={10} color="light">{index+1}</MDTypography>
                       </Grid>
                       <Grid item xs={12} md={12} lg={2.7} display="flex" justifyContent="center">
-                        <MDTypography fontSize={11} color="light">{elem?.name}</MDTypography>
+                        <MDTypography fontSize={10} color="light">{elem?.name}</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={11} color={elem.npnl >= 0 ? "success" : "error"}>
+                      <Grid item xs={12} md={12} lg={2.7} display="flex" justifyContent="center">
+                        <MDTypography fontSize={10} color={elem.npnl >= 0 ? "success" : "error"}>
                             {elem.npnl >= 0.00 ? "+₹" + (elem.npnl?.toFixed(2)): "-₹" + ((-elem.npnl).toFixed(2))}
                         </MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={11} color={elem.npnl >= 0 ? "success" : "error"}>
+                      <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
+                        <MDTypography fontSize={10} color={elem.npnl >= 0 ? "success" : "error"}>
                             {profitPercentage >= 0.00 ?  "+"+(profitPercentage?.toFixed(2))+"%":  "-"+((-profitPercentage).toFixed(2))+"%"}
                         </MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={12} lg={2.3} display="flex" justifyContent="center">
-                        <MDTypography fontSize={11} color="light">
+                      <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
+                        <MDTypography fontSize={10} color="light">
                             {(rewards && rewards?.length && rewards[0]?.reward ?  `${rewards[0]?.currency} ${rewards[0]?.reward}` : `${reward[0].currency} 0`)}
                         </MDTypography>
                       </Grid>

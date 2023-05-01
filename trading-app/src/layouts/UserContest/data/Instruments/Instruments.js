@@ -85,6 +85,18 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
         // setTimeout(()=>{setIsLoading(false)},500)
 
     }, [])
+
+    function getDaySuffix(day) {
+        if (day >= 11 && day <= 13) {
+          return 'th';
+        }
+        switch (day % 10) {
+          case 1: return 'st';
+          case 2: return 'nd';
+          case 3: return 'rd';
+          default: return 'th';
+        }
+    }
     
     console.log("instrument", contestId, portfolioId, marketDetails.contestMarketData)
 
@@ -141,11 +153,17 @@ return (
             let perticularInstrumentMarketData = marketDetails.contestMarketData.filter((subelem)=>{
             return elem.instrumentToken === subelem.instrument_token
             })
+            const date = new Date(elem.contractDate);
+            const options = { day: 'numeric', month: 'short' };
+            const formattedDate = date.toLocaleDateString('en-US', options);
+            const day = formattedDate.split(' ')[1];
+            const month = formattedDate.split(' ')[0];
+            // console.log();
             return(
             <Grid container mt={1} p={1} style={{border:'1px solid white',borderRadius:4}} alignItems="center">
         
                 <Grid item xs={12} md={12} lg={2.5} display="flex" justifyContent="center">
-                    <MDTypography fontSize={13} color="light" style={{fontWeight:500, fontSize: "10px"}}>{elem.contractDate}</MDTypography>
+                    <MDTypography fontSize={13} color="light" style={{fontWeight:500, fontSize: "10px"}}>{`${day}${getDaySuffix(day)} ${month}`}</MDTypography>
                 </Grid>
     
                 <Grid item xs={12} md={12} lg={3} display="flex" justifyContent="center">

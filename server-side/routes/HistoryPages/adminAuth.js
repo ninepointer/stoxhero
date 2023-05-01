@@ -6,6 +6,8 @@ const RetreiveOrder = require("../../models/TradeDetails/retreiveOrder");
 const LiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const MockCompany = require("../../models/mock-trade/mockTradeCompanySchema");
 const MockUser = require("../../models/mock-trade/mockTradeUserSchema");
+// const MockCompany = require("../../models/mock-trade/mockTradeCompanySchema");
+const InfinityTraderCompany = require("../../models/mock-trade/infinityTradeCompany");
 const InfinityTrader = require("../../models/mock-trade/infinityTrader");
 
 const RetreiveTrade = require("../../models/TradeDetails/retireivingTrade")
@@ -35,14 +37,12 @@ router.post("/autotrade/:id", async (req, res) => {
 });
 
 router.get("/copyCollection", async (req, res) => {
-  // InfinityTrader
-  // MockUser
-  const mock = await MockUser.find();
+  const mock = await MockCompany.find();
   
-  mock.forEach(async function(doc) {
+  for (const doc of mock) {
     doc._id = new ObjectId();
-    await InfinityTrader.insertMany([doc]);
-  });
+    await InfinityTraderCompany.insertMany([doc]);
+  }
 });
 
 router.get("/updateRole", async (req, res) => {
