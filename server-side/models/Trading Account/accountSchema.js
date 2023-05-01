@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+
 const accountSchema = new mongoose.Schema({
     brokerName:{
         type: String,
@@ -30,15 +31,18 @@ const accountSchema = new mongoose.Schema({
         required : true
     },
     createdOn:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
     lastModified:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
     createdBy:{
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user-personal-details',
         required : true
     }
 })
