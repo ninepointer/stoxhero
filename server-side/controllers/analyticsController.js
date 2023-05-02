@@ -319,7 +319,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
         {
           $match: {
             trader: userId,
-            trade_time:{$lte: today},
+            // trade_time:{$lte: today},
             status: "COMPLETE"
             // Replace with the actual user ID
           },
@@ -440,7 +440,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
             count: 1
           },
         }
-        ]);
+    ]);
         // console.log(infinityTradesOverview);
 
     res.status(200).json({status:'success', data: infinityTradesOverview});    
@@ -461,7 +461,8 @@ exports.getStoxHeroTradesOverview = async(req,res,next) => {
         {
           $match: {
             trader: userId,
-            trade_time:{$lte: today}
+            // trade_time:{$lte: today},
+            status: "COMPLETE"
             // Replace with the actual user ID
           },
           
@@ -576,7 +577,7 @@ exports.getStoxHeroTradesOverview = async(req,res,next) => {
             },
           },
         }
-        ]);
+    ]);
         // console.log(infinityTradesOverview);
 
     res.status(200).json({status:'success', data: stoxHeroTradesOverview});    

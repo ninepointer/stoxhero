@@ -181,6 +181,7 @@ const getTicksForUserPosition = async (socket) => {
 
     try{
       let userId = await client.get(socket.id)
+      // await client.del(userId)
       let instruments = await client.SMEMBERS(userId)
       // console.log(userId, instruments)
       let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements

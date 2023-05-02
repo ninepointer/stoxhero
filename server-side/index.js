@@ -20,7 +20,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
 const {autoTradeContest} = require('./controllers/contestTradeController');
-const {getDummyTicks} = require('./marketData/kiteTicker');
+// const {DummyMarketData} = require('./marketData/dummyMarketData');
 // import * as ioredis from 'ioredis';
 
 // const redis = require('redis');
@@ -90,6 +90,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
         await getTicksForUserPosition(socket);
+        // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
 

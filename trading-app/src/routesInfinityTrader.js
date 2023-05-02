@@ -81,9 +81,9 @@ const routes = [
   //   component: <MyPortfolio />,
   // },
   {
-    type: "collapse",
-    name: "Wallet",
-    key: "Wallet",
+    // type: "collapse",
+    // name: "Wallet",
+    // key: "Wallet",
     icon: <AccountBalanceWalletIcon/>,
     route: "/wallet",
     component: <UserWallet />,

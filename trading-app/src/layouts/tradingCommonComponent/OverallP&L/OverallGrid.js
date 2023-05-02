@@ -103,7 +103,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
     tradeData.map((subelem, index)=>{
       let obj = {};
       let liveDetail = marketDetails.marketData.filter((elem)=>{
-        console.log("elem", elem, subelem)
+        // console.log("elem", elem, subelem)
         return subelem._id.instrumentToken == elem.instrument_token;
       })
       totalRunningLots += Number(subelem.lots)

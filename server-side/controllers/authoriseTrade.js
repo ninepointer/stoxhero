@@ -217,6 +217,7 @@ exports.fundCheck = async(req, res, next) => {
             } 
             else{
                 console.log("if user have enough funds")
+                console.log("caseStudy 7: fund check")
                 return next();
             }
         }     

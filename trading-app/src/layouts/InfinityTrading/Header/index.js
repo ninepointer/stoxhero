@@ -27,8 +27,8 @@ import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 
-export default function Wallet() {
-
+export default function InfinityTrading() {
+  console.log("rendering in userPosition: header")
   const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -104,7 +104,7 @@ export default function Wallet() {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
     />;
-  }, [socket, reRender, isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [socket, reRender, isGetStartedClicked, handleSetIsGetStartedClicked, memoizedSetReRender]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -128,7 +128,7 @@ export default function Wallet() {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
     />;
-  }, [socket, reRender, handleSetIsGetStartedClicked]);
+  }, [socket, reRender, handleSetIsGetStartedClicked, memoizedSetReRender]);
 
   let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
   let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
