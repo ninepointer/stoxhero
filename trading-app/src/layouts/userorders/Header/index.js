@@ -268,7 +268,7 @@ function Header({ children }) {
     const options = { 
       timeZone: 'Asia/Kolkata',
       year: 'numeric', 
-      month: 'long', 
+      month: 'short', 
       day: 'numeric', 
       hour: 'numeric', 
       minute: 'numeric',

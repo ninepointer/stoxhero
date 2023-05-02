@@ -500,7 +500,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <Grid item xs={12} md={6} xl={3}>
             <TextField
                 required
-                disabled={true}
+                disabled={!editablePD}
                 id="outlined-required"
                 label="Email"
                 defaultValue={formStatePD.email}
