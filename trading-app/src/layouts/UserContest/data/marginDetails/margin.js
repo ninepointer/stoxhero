@@ -51,8 +51,9 @@ function Margin({portfolioId, contestId}) {
     },[])
 
     let runningPnl = Number(contestNetPnl?.toFixed(0));
-    const currentValue = portfolioRemainData?.pnl?.length ? ((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)) : (portfolioRemainData?.portfolio?.portfolioValue);
-    const availableValue = currentValue + contestNetPnl;
+    const currentValue = (portfolioRemainData?.portfolio?.portfolioValue) //portfolioRemainData?.pnl?.length ? ((portfolioRemainData?.portfolio?.portfolioValue) + (portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)) : (portfolioRemainData?.portfolio?.portfolioValue);
+    const contestPnl = (portfolioRemainData?.pnl?.length) ? ((portfolioRemainData?.pnl[0]?.amount - portfolioRemainData?.pnl[0]?.brokerage)) : 0;
+    const availableValue = currentValue + contestNetPnl + contestPnl;
     const usedValue =  runningPnl >= 0 ? 0 : runningPnl
 
 
