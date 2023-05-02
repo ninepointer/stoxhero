@@ -137,7 +137,7 @@ export default function InfinityTrading() {
   console.log("fundDetail", fundDetail)
   return (
     <>
-    <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
+    <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >
       <Grid container spacing={3} mb={2}>
         
         {memoizedStockIndex}

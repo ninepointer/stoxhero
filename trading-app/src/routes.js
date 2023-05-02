@@ -40,6 +40,8 @@ import ContestTradePage from './layouts/UserContest/ContestTrade'
 import Carousel from './layouts/carousel'
 import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
 
@@ -70,6 +72,8 @@ import UserContest from "./layouts/UserContest"
 import Batch from "./layouts/batch";
 import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
+import UserAnalytics from "./layouts/userAnalytics"
+
 
 
 const routes = [
@@ -353,10 +357,19 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Position",
-    key: "position",
+    name: "Analytics",
+    key: "analytics",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <AnalyticsIcon/>,
+    route: "/analytics",
+    component: <UserAnalytics />,
+  },
+  {
+    type: "collapse",
+    name: "Paper Trade",
+    key: "papertrade",
     icon: <BusinessIcon/>,
-    route: "/position",
+    route: "/papertrade",
     component: <UserPosition />,
   },
   {

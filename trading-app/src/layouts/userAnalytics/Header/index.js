@@ -29,9 +29,13 @@ import { InfinityTraderRole } from '../../../variables';
 
 
 export default function LabTabs() {
+  const paperTrading = "Paper Trading";
+  const infinityTrading = "Infinity Trading";
+  const stoxheroTrading = "StoxHero Trading"
+  const getDetails = useContext(userContext);
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
-  const [alignment, setAlignment] = React.useState('Paper Trading');
+  const [alignment, setAlignment] = React.useState(getDetails.userDetails.role.roleName === InfinityTraderRole ? infinityTrading : paperTrading);
   const [textColor,setTextColor] = React.useState('info');
   const date = new Date();
   const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -40,10 +44,8 @@ export default function LabTabs() {
   const [endDate,setEndDate] = React.useState(dayjs(date));
   const [monthWiseData, setMonthWiseData] = useState([]);
   const [dateWiseData, setDateWiseData] = useState([]);
-  const getDetails = useContext(userContext);
-  const paperTrading = "Paper Trading";
-  const infinityTrading = "Infinity Trading";
-  const stoxheroTrading = "StoxHero Trading"
+
+
   let endpoint ;
   if(alignment === paperTrading){
     endpoint = "papertrade";

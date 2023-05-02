@@ -33,7 +33,7 @@ function FAQs() {
 
   return (
     <>
-    <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
+    <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10}>
         <MDBox>
             <MDTypography mt={2} fontSize={25} fontWeight="bold" color="light" align="center">Have questions about StoxHero?</MDTypography>
             <MDTypography fontSize={20} fontWeight="normal" color="light" align="center">Find your answers in the Frequently Asked Questions (FAQs)</MDTypography>
@@ -450,7 +450,7 @@ function FAQs() {
 
         </Grid>
         <MDBox>
-            <MDTypography mt={2} fontSize={20} mb={8} color="light" fontWeight="bold" align="center">For any additional queries, drop us an email @ team@stoxhero.com</MDTypography>
+            <MDTypography mt={2} fontSize={20} mb={2} color="light" fontWeight="bold" align="center">For any additional queries, drop us an email @ team@stoxhero.com</MDTypography>
         </MDBox>
     </MDBox>
     </>
