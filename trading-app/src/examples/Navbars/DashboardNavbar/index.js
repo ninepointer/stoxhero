@@ -16,6 +16,7 @@ import Icon from "@mui/material/Icon";
 import IconEmail from "@mui/material/Icon";
 import purse from "../../../assets/images/purse.png"
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import accountIcon from '../../../assets/images/default-profile.png';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -175,7 +176,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
               {renderMenu()}
               <Link to="/profile">
                 <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <img src={getDetails.userDetails?.profilePhoto?.url} width={30} height={30} style={{borderRadius:'50%'}}/>
+                  <img src={getDetails.userDetails?.profilePhoto?.url?getDetails.userDetails?.profilePhoto?.url:accountIcon} width={30} height={30} style={{borderRadius:'50%'}}/>
                 </IconButton>
               </Link>
               
