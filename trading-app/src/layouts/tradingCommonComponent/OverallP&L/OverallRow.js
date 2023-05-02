@@ -1,4 +1,63 @@
 
+// import {memo} from 'react';
+// // import colors from '../../../assets/theme/base/colors';
+// import Grid from '@mui/material/Grid'
+// import MDTypography from '../../../components/MDTypography';
+
+
+
+// function OverallRow({last_price, change, grossPnl, avgPrice, product, symbol, quantity, netPnl}) {
+
+//     // let styleTD = {
+//     //     textAlign: "center",
+//     //     fontSize: ".75rem",
+//     //     fontColor: "#7b809a",
+//     //     color: "#7b809a",
+//     //     fontWeight: "600" , color: "#7b809a"
+//     //   }
+
+//   return (
+//     <>
+          
+//           <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center"  style={{borderBottom:'1px solid #f8f9fa'}}>
+//             <MDTypography style={{textAlign: "center", fontSize: ".75rem", fontWeight: "600"}}  color={`${quantity ==0 ? 'secondary' : product === 'NRML' ? 'info' : product === 'MIS' ? 'warning' : 'error'}`}>{product}</MDTypography>
+//           </Grid>
+
+//           <Grid item xs={12} md={12} lg={2} display="flex" justifyContent="center">
+//             <MDTypography color = {`${quantity ===0 ? 'secondary' : symbol?.includes('CE') ? "success" : "error"}`} style={{ textAlign: "center", fontSize: ".75rem", fontWeight: "600"}}>{symbol}</MDTypography>
+//           </Grid>
+
+//           <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
+//             <MDTypography  style={{textAlign: "center", fontSize: ".75rem", fontWeight: "600"}} color={`${quantity ==0 ? 'secondary' : quantity > 0 ? "success" : "error"}`}>{quantity}</MDTypography>
+//           </Grid>
+
+//           <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
+//             <MDTypography color={`${quantity ==0 ? 'secondary' : (change?.includes('+')) ? "success" : "error"}`} style={{textAlign: "center", fontSize: ".75rem", fontWeight: "600"}}>{avgPrice}</MDTypography>
+//           </Grid>
+
+//           <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
+//             <MDTypography color={`${quantity ==0 ? 'secondary' : change?.includes('+') > 0 ? "success" : "error"}`} style={{textAlign: "center", fontSize: ".75rem", fontWeight: "600"}}>{last_price}</MDTypography>
+//           </Grid>
+
+//           <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
+//           <MDTypography color={`${quantity ==0 ? 'secondary' : grossPnl?.includes('+') > 0 ? "success" : "error"}`} style={{textAlign: "center", fontSize: ".75rem", fontWeight: "600"}}>{grossPnl}</MDTypography>
+//           </Grid>
+
+//           <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
+//           <MDTypography color={`${quantity ==0 ? 'secondary' : netPnl?.includes('+') > 0 ? "success" : "error"}`} style={{textAlign: "center", fontSize: ".75rem", fontWeight: "600"}}>{netPnl}</MDTypography>
+//           </Grid>
+
+//           <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
+//             <MDTypography color={`${quantity ==0 ? 'secondary' : (change?.includes('+')) ? "success" : "error"}`} style={{textAlign: "center", fontSize: ".75rem", fontWeight: "600"}}>{change}</MDTypography>
+//           </Grid>
+
+//     </>
+//   );
+// }
+
+// export default memo(OverallRow);
+
+
 import {memo} from 'react';
 import colors from '../../../assets/theme/base/colors';
 
@@ -7,7 +66,7 @@ function OverallRow({last_price, change, grossPnl, avgPrice, product, symbol, qu
 
     let styleTD = {
         textAlign: "center",
-        fontSize: ".75rem",
+        fontSize: ".65rem",
         fontColor: "grey",
         color: "#7b809a",
         fontWeight: "600"
@@ -28,4 +87,3 @@ function OverallRow({last_price, change, grossPnl, avgPrice, product, symbol, qu
 }
 
 export default memo(OverallRow);
-

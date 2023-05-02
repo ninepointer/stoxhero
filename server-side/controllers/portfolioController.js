@@ -187,9 +187,7 @@ exports.getPortfolioRemainingAmount = async(req, res, next) => {
                 status: "COMPLETE",
                 trader: userId,
                 portfolioId: new ObjectId(portfolioId),
-                contestId: {
-                  $ne: new ObjectId(contestId)
-                }
+                contestId: new ObjectId(contestId)
               },
             },
             {
