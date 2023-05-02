@@ -250,39 +250,45 @@ function ReferralHomePage() {
                         <MDBox bgColor="light"  p={2} style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.6)' }}>
                             <Grid container>
                                 <Grid item xs={12} md={12} mt={2} lg={12} marginTop={0.5} display="flex" textAlign="center" justifyContent="center">
-                                    <MDTypography fontSize={15}>Get {activeReferralProgram?.currency} {activeReferralProgram?.rewardPerReferral} for every referral in your StoxHero wallet</MDTypography>
+                                    <MDTypography fontSize={13}>Get {activeReferralProgram?.currency} {activeReferralProgram?.rewardPerReferral} for every referral in your StoxHero wallet</MDTypography>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={12} mt={1.5}>
-                                    <MDBox fontSize={15} display="flex" justifyContent="center">
-                                        <img style={{ maxWidth: '100%', height: 'auto' }} src={ReferralProgramImage}/>
+                                    <MDBox fontSize={13} display="flex" justifyContent="center">
+                                        <img style={{ maxWidth: '100%', height: '120px' }} src={ReferralProgramImage}/>
                                     </MDBox>
                                 </Grid>
                                 <Grid item xs={12} md={12} lg={12} mt={1.5}>
                                     
                                     <MDBox display="flex" alignItems="center">
                                         <SendIcon fontSize="small" style={{ borderRadius: '50%',padding:3, border: '1px solid black' }}/>
-                                        <MDTypography ml={0.5} fontSize={15}>Invite Your Friends</MDTypography>
+                                        <MDTypography ml={0.5} fontSize={13}>Invite Your Friends</MDTypography>
                                     </MDBox>
                                     
                                 </Grid>
 
                                 <Grid item xs={12} md={12} lg={12} mt={1.5}>
-                                    <MDBox display="flex" alignItems="center">
+                                    <MDBox display="flex" alignItems="start">
                                         <AccountBalanceWalletIcon fontSize="small" style={{ borderRadius: '50%',padding:3, border: '1px solid black' }}/>
-                                        <MDTypography ml={0.5} fontSize={15}>Your friend gets 5 Lakhs HeroX</MDTypography>
+                                        <MDTypography ml={0.5} fontSize={13}>Your friend gets 10 Lakhs Virtual Currency for Paper Trading(Virtual Trading)</MDTypography>
+                                    </MDBox>
+                                </Grid>
+                                <Grid item xs={12} md={12} lg={12} mt={1.5}>
+                                    <MDBox display="flex" alignItems="start">
+                                        <AccountBalanceWalletIcon fontSize="small" style={{ borderRadius: '50%',padding:3, border: '1px solid black' }}/>
+                                        <MDTypography ml={0.5} fontSize={13}>Your friend gets two portfolios worth 10 Lakhs each to participate in daily free contests.</MDTypography>
                                     </MDBox>
                                 </Grid>
 
                                 <Grid item xs={12} md={12} lg={12} mt={1.5}>
                                     <MDBox display="flex" alignItems="center">
                                         <CurrencyRupeeIcon fontSize="small" style={{ borderRadius: '50%',padding:3, border: '1px solid black' }}/>
-                                        <MDTypography ml={0.5} fontSize={15}>You get {activeReferralProgram?.currency} {activeReferralProgram?.rewardPerReferral} for each referral</MDTypography>
+                                        <MDTypography ml={0.5} fontSize={13}>You get {activeReferralProgram?.currency} {activeReferralProgram?.rewardPerReferral} for each referral</MDTypography>
                                     </MDBox>
                                 </Grid>
 
                                 <Grid item xs={12} md={12} lg={12} mt={2} display="flex" justifyContent="start" style={{cursor:'pointer'}}>
                                         <Link to ='/terms'>
-                                            <MDTypography fontSize={16}>
+                                            <MDTypography fontSize={14}>
                                                 Terms & Conditions
                                             </MDTypography>
                                         </Link>
