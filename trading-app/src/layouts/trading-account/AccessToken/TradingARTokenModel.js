@@ -54,6 +54,7 @@ const TradingARTokenModel = ({Render}) => {
 
       const res = await fetch(`${baseUrl}api/v1/requestToken`, {
           method: "POST",
+          credentials: "include",
           headers: {
               "content-type": "application/json"
           },

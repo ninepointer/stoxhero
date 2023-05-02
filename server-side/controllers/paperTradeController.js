@@ -171,6 +171,8 @@ exports.marginDetail = async (req, res, next) => {
           }
         },
     ])
+
+    console.log("pnlDetails", pnlDetails)
     res.status(200).json({status: 'success', data: {totalCredit: portfoliosFund[0], lifetimePnl: pnlDetails[0]}});
   } catch (e) {
     console.log(e);

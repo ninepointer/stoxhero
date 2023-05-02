@@ -32,7 +32,6 @@ const contestInstrumentSchema = new mongoose.Schema({
     },
     contractDate:{
         type: Date,
-        default: new Date(),
         required : true
     },
     maxLot:{

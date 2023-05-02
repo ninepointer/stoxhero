@@ -30,21 +30,21 @@ const routes = [
 
   {
     type: "collapse",
-    name: "Paper Trading",
-    key: "papertrading",
-    // icon: <Icon fontSize="small">person</Icon>,
-    icon: <MilitaryTechIcon/>,
-    route: "/papertrading",
-    component: <UserPosition />,
-  },
-  {
-    type: "collapse",
     name: "Infinity Trading",
     key: "infinitytrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <GiNinjaHeroicStance/>,
     route: "/infinitytrading",
     component: <InfinityTrader />,
+  },
+  {
+    type: "collapse",
+    name: "Paper Trading",
+    key: "papertrading",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <MilitaryTechIcon/>,
+    route: "/papertrading",
+    component: <UserPosition />,
   },
   {
     type: "collapse",
@@ -80,14 +80,14 @@ const routes = [
   //   route: "/portfolio",
   //   component: <MyPortfolio />,
   // },
-  // {
-  //   type: "collapse",
-  //   name: "Wallet",
-  //   key: "Wallet",
-  //   icon: <AccountBalanceWalletIcon/>,
-  //   route: "/wallet",
-  //   component: <UserWallet />,
-  // },
+  {
+    type: "collapse",
+    name: "Wallet",
+    key: "Wallet",
+    icon: <AccountBalanceWalletIcon/>,
+    route: "/wallet",
+    component: <UserWallet />,
+  },
   {
     type: "collapse",
     name: "FAQs",

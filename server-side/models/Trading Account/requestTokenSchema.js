@@ -30,7 +30,7 @@ const requestTokenSchema = new mongoose.Schema({
     createdBy:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user-personal-details',
-        required : true
+        // required : true
     },
     uId:{
         type: String,

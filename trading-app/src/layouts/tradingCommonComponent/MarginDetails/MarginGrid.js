@@ -58,8 +58,8 @@ const MarginGrid = () => {
   // console.log(lifetimenetpnl)
   // let runninglotnumber = totalRunningLots;
   let runningPnl = Number(netPnl?.toFixed(0));
-  let totalPnl = (marginDetails?.lifetimePnl?.npnl + runningPnl).toFixed(0);
-  let totalPnlString = marginDetails?.lifetimePnl?.npnl ? totalPnl >= 0 ? "+₹" + Number(totalPnl).toLocaleString() : "-₹" + (-Number(totalPnl)).toLocaleString() : "+₹0"
+  let totalPnl = marginDetails?.lifetimePnl?.npnl ? (marginDetails?.lifetimePnl?.npnl + runningPnl).toFixed(0) : runningPnl
+  // let totalPnlString = marginDetails?.lifetimePnl?.npnl ? totalPnl >= 0 ? "+₹" + Number(totalPnl).toLocaleString() : "-₹" + (-Number(totalPnl)).toLocaleString() : "+₹0"
   console.log("checking", runningPnl, totalPnl, marginDetails?.lifetimePnl?.npnl, Boolean(totalPnl))
   // let availableMarginpnl = availableMarginPNL[0] ? Number((availableMarginPNL[0].npnl).toFixed(0)) : 0;
   // let availableMargin = (Number(openingBalance) + runningPnl)
@@ -70,11 +70,14 @@ const MarginGrid = () => {
   let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin).toLocaleString() : "-₹" + (-Number(usedMargin)).toLocaleString()
   // let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
   // let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount).toLocaleString() : "-₹" + (-Number(payInAmount)).toLocaleString()
-  
+  let availableMargin = totalCredit + Number(totalPnl);
+  console.log("availableMargin", totalCredit , Number(totalPnl))
+  let availableMarginString = availableMargin >= 0 ? "+₹" + Number(availableMargin).toLocaleString() : "-₹" + (-Number(availableMargin)).toLocaleString()
+
   
   // console.log("runningPnl", runningPnl, openingBalance)
 
-    // const { columns, rows } = authorsTableData();
+    // const { columns, rows } = authorsTableData();  md={8} xl={3}
     
     return (
     <>
@@ -84,39 +87,39 @@ const MarginGrid = () => {
             <Grid item xs={16} lg={12}>
               <Grid container spacing={3}>
 
-                <Grid item xs={16}  >
+                <Grid item xs={16} >
                   <DefaultInfoCard
                     title="PortFolio Details"
                     description="Below is a summary of the total funds and their intended uses"
-                    value={`Total Credit: ${totalCreditString} | Total Used: ${totalPnlString}`}
+                    value={`Total Credit: ${totalCreditString} | Available Margin: ${availableMarginString}  | Used Margin Today: ${usedMarginString}`}
                   />
                 </Grid>
-                {/* <Grid item xs={16} md={8} xl={2.4}>
+                {/* <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     title="available margin"
                     description="Funds that you can used to trade today"
-                    value={availableMarginpnlstring}
+                    // value={availableMarginpnlstring}
                   />
-                </Grid> */}
-                {/* <Grid item xs={16} md={8} xl={2.4}>
+                </Grid>
+                <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     title="used margin"
                     description="Net funds utilized for your executed trades"
                     value={usedMarginString}
                   />
-                </Grid>
-                <Grid item xs={16} md={8} xl={2.4}>
+                </Grid> */}
+                {/* <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     title="Payin"
                     description="Funds added in your trading account today"
-                    value={openingBalanceString}
+                    // value={openingBalanceString}
                   />
-                </Grid>
-                <Grid item xs={16} md={8} xl={2.4}>
+                </Grid> */}
+                {/* <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     title="opening balance"
                     description="Cash available at the beginning of the day"
-                    value={openingBalanceString}
+                    // value={openingBalanceString}
                   />
                 </Grid> */}
               </Grid>

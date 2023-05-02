@@ -154,7 +154,7 @@ function Basic() {
               navigate("/papertrading");
             }
             else if(userData.role?.roleName === InfinityTraderRole){
-              navigate("/papertrading");
+              navigate("/infinitytrading");
             }
             
         }
@@ -243,7 +243,7 @@ function Basic() {
             navigate("/papertrading");
           }
           else if(userData.role?.roleName === InfinityTraderRole){
-            navigate("/papertrading");
+            navigate("/infinitytrading");
           }
         }
 

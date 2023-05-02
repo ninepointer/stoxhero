@@ -74,6 +74,7 @@ const AutoLogin = ({data}) => {
 
       const res = await fetch(`${baseUrl}api/v1/autologin`, {
           method: "POST",
+          credentials: "include",
           headers: {
               "content-type": "application/json"
           },

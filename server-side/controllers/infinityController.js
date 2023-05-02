@@ -245,3 +245,80 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
 
   res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
 }
+
+exports.openingBalance = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  let myPnlAndCreditData = await InfinityTrader.aggregate([
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "result",
+      },
+    },
+    {
+      $match: {
+      status : "COMPLETE",
+      trader: req.user._id,
+      trade_time: {$lt:today}
+      }
+    },
+    {
+      $group: {
+        _id: {
+          // trader: "$trader",
+          // employeeId: {
+          //   $arrayElemAt: ["$result.employeeid", 0],
+          // },
+          funds: {
+            $arrayElemAt: ["$result.fund", 0],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+      },
+    },
+    {
+      $addFields:
+        {
+          npnl: {
+            $subtract: ["$gpnl", "$brokerage"],
+          },
+          availableMargin : {
+            $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
+          }
+        },
+    },
+    {
+      $project:
+        {
+          _id: 0,
+          // userId: "$_id.userId",
+          // employeeId: "$_id.employeeId",
+          totalCredit: "$_id.funds",
+          gpnl: "$gpnl",
+          brokerage: "$brokerage",
+          npnl: "$npnl",
+          availableMargin: "$availableMargin"
+        },
+    },
+    {
+      $sort : {npnl : 1}
+    }
+  ])
+
+  res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
+}
