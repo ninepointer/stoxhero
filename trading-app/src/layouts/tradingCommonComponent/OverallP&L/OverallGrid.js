@@ -388,8 +388,8 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
   console.log("rendering in userPosition: overallPnl")
   let styleTD = {
     textAlign: "center",
-    fontSize: "11px",
-    fontWeight: "900",
+    fontSize: "9px",
+    fontWeight: "800",
     color: "#7b809a",
     opacity: 0.7,
     // padding: "50px"
@@ -593,13 +593,13 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
           <table style={{ borderCollapse: "collapse", width: "100%", borderSpacing: "10px 5px"}}>
             <thead>
               <tr style={{borderBottom: "1px solid #D3D3D3"}}>
-                <td style={{...styleTD, paddingLeft: "20px"}} >PRODUCT</td>
-                <td style={styleTD} >INSTRUMENT</td>
+                {/* <td style={{...styleTD, paddingLeft: "20px"}} >PRODUCT</td> */}
+                <td style={{...styleTD, paddingLeft: "5px"}} >INSTRUMENT</td>
                 <td style={styleTD}>QUANTITY</td>
                 <td style={styleTD} >AVG. PRICE</td>
                 <td style={styleTD} >LTP</td>
                 <td style={styleTD} >GROSS P&L</td>
-                <td style={styleTD} >NET P&L</td>
+                {/* <td style={styleTD} >NET P&L</td> */}
                 <td style={styleTD} >CHANGE(%)</td>
                 <td style={styleTD} >EXIT</td>
                 <td style={styleTD} >BUY</td>
@@ -614,7 +614,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
               <tr
               style={{borderBottom: "1px solid #D3D3D3"}}  key={elem.symbol.props.children}
               >
-                  <OverallRow 
+                  <OverallRow
                     quantity={elem?.Quantity?.props?.children}
                     symbol={elem?.symbol?.props?.children}
                     product={elem?.Product?.props?.children}
@@ -625,13 +625,13 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
                     change={elem?.change?.props?.children}
                   />
                   <Tooltip title="Exit Your Position" placement="top">
-                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem?.exit}</td>
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.exit}</td>
                   </Tooltip>
                   <Tooltip title="Buy" placement="top">
-                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem?.buy}</td>
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.buy}</td>
                   </Tooltip>
                   <Tooltip title="Sell" placement="top">
-                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3, paddingRight: "20px"}} >{elem?.sell}</td>
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.sell}</td>
                   </Tooltip>
       
               </tr>

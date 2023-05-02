@@ -296,7 +296,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     <div>
       {/* sx={{margin: "5px"}} */}
 
-      <MDButton size="small" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} color="info" onClick={handleClickOpen} disabled={isFromHistory}>
+      <MDButton size="small" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} color="warning" onClick={handleClickOpen} disabled={isFromHistory}>
         E
       </MDButton>
       <div>

@@ -72,8 +72,8 @@ import UserContest from "./layouts/UserContest"
 import Batch from "./layouts/batch";
 import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
-import UserAnalytics from "./layouts/userAnalytics"
-
+import UserAnalytics from "./layouts/userAnalytics";
+import UserWallet from "./layouts/userWallet"
 
 
 const routes = [
@@ -453,6 +453,14 @@ const routes = [
     icon: <AccountBoxIcon/>,
     route: "/profile",
     component: <Profile />,
+  },
+  {
+    // type: "collapse",
+    // name: "Wallet",
+    key: "wallet",
+    // icon: <AccountBalanceWalletIcon/>,
+    route: "/wallet",
+    component: <UserWallet />,
   },
 
 ];
