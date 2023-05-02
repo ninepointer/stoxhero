@@ -10,7 +10,7 @@ const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany"
 
 exports.mockTrade = async (req, res) => {
     console.log("in mock trade")
-
+    console.log("caseStudy 8: mocktrade")
     let stoxheroTrader ;
     const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
     const MockTradeDetails = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
@@ -118,6 +118,7 @@ exports.mockTrade = async (req, res) => {
             });
     
             // console.log("mockTradeDetails comapny", mockTradeDetails);
+            console.log("caseStudy 10: company mock")
             mockTradeDetails.save().then(()=>{
                 
             }).catch(err => {console.log(err, "fail")});
@@ -140,7 +141,9 @@ exports.mockTrade = async (req, res) => {
             });
     
             // console.log("mockTradeDetails", algoTrader);
+            console.log("caseStudy 11: algo mock")
             algoTrader.save().then(()=>{
+                console.log("caseStudy 12: algo mock")
                 console.log("sending response");
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {

@@ -8,12 +8,12 @@ const puppeteer = require("puppeteer");
 const KiteConnect = require('kiteconnect').KiteConnect;
 // const totp = require("totp-generator");
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
+const authentication = require("../../authentication/authentication")
 
-
-router.post("/requestToken", (req, res)=>{
+router.post("/requestToken", authentication, (req, res)=>{
     const {accountId, accessToken, requestToken, status, createdBy, uId} = req.body;
 
-    if(!accountId || !accessToken || !requestToken || !status || !createdBy || !uId){
+    if(!accountId || !accessToken || !requestToken || !status || !uId){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "plz filled the field..."})
     }
@@ -24,7 +24,7 @@ router.post("/requestToken", (req, res)=>{
             //console.log("accountId already");
             return res.status(422).json({error : "account Id already exist..."})
         }
-        const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, createdBy, uId});
+        const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, createdBy: req.user._id, uId});
 
         requestTokens.save().then(()=>{
 
@@ -40,10 +40,10 @@ router.post("/requestToken", (req, res)=>{
     
 })
 
-router.post("/autologin", (req, res)=>{
-    const {accountId, apiKey, apiSecret, status, createdBy, uId} = req.body;
-
-    if(!accountId || !apiKey || !apiSecret || !status || !createdBy || !uId){
+router.post("/autologin", authentication, (req, res)=>{
+    const {accountId, apiKey, apiSecret, status, uId} = req.body;
+    req.body.createdBy = req.user._id;
+    if(!accountId || !apiKey || !apiSecret || !status || !uId){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please Fill all Fields."})
     }
