@@ -209,50 +209,50 @@ export default function LabTabs() {
                     {/* <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center"> */}
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={14} fontWeight="bold">Gross:&nbsp;</MDTypography>
-                      <MDTypography fontSize={14} fontWeight="bold" color="success">₹{totalgpnl?.toFixed(2)}</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold">Gross:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" color={totalgpnl>0?"success":"error"}>{totalgpnl >=0 ?`₹${totalgpnl?.toFixed(2)}`:`-₹${-1* totalgpnl?.toFixed(2)}`}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={14} fontWeight="bold">Net:&nbsp;</MDTypography>
-                      <MDTypography fontSize={14} fontWeight="bold" color="success">₹{totalnpnl?.toFixed(2)}</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold">Net:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" color={totalgpnl>0?"success":"error"}>{totalnpnl >=0 ?`₹${totalnpnl?.toFixed(2)}`:`-₹${-1*totalnpnl?.toFixed(2)}`}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={14} fontWeight="bold">Brokerage:&nbsp;</MDTypography>
-                      <MDTypography fontSize={14} fontWeight="bold" color="info">₹{totalBrokerage.toFixed(2)}</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold">Brokerage:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" color="info">{totalBrokerage >=0 ?`₹${totalBrokerage?.toFixed(2)}`:`-₹${Math.abs(totalBrokerage?.toFixed(2))}`}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={14} fontWeight="bold">Orders:&nbsp;</MDTypography>
-                      <MDTypography fontSize={14} fontWeight="bold" color="#344767">{totalOrders }</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold">Orders:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" color="#344767">{totalOrders }</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={14} fontWeight="bold">Trading Days:&nbsp;</MDTypography>
-                      <MDTypography fontSize={14} fontWeight="bold" color="#344767">{totalTradingDays}</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold">Trading Days:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" color="#344767">{totalTradingDays}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={14} fontWeight="bold">Green Days:&nbsp;</MDTypography>
-                      <MDTypography fontSize={14} fontWeight="bold" color="success">{totalGreenDays}</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold">Green Days:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" color="success">{totalGreenDays}</MDTypography>
                       </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                      <MDTypography fontSize={14} fontWeight="bold">Red Days:&nbsp;</MDTypography>
-                      <MDTypography fontSize={14} fontWeight="bold" color="error">{totalRedDays}</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold">Red Days:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" color="error">{totalRedDays}</MDTypography>
                       </MDBox>
                     </Grid>
                     {/* </MDBox> */}
