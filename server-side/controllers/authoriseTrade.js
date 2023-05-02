@@ -180,8 +180,8 @@ exports.fundCheck = async(req, res, next) => {
             console.log("user wants square off")
             return next();
         } else{
-            console.log("in else")
-            if(userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0){
+            console.log("in else", Boolean(!userFunds))
+            if(!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin)) < 0){
                 let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
                     TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, realTrade,
                         realBuyOrSell, realQuantity, apiKey, accessToken, userId, checkingMultipleAlgoFlag, 
@@ -215,10 +215,9 @@ exports.fundCheck = async(req, res, next) => {
                 //console.log("sending response from authorise trade");
                 return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
             } 
-            
-            
             else{
                 console.log("if user have enough funds")
+                console.log("caseStudy 7: fund check")
                 return next();
             }
         }     

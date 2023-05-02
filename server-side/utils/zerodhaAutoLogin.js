@@ -48,7 +48,7 @@ function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) 
                   //console.log("accountId already");
                   return resp.status(422).json({error : "account Id already exist..."})
               }
-              const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, createdBy, uId});
+              const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, uId});//TODO : createdBy add
       
               requestTokens.save().then(()=>{
       
@@ -59,7 +59,7 @@ function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) 
                   });
                   
                   resp.status(201).json({massage : "data enter succesfully"});
-              }).catch((err)=> resp.status(500).json({error:"Failed to enter data"}));
+              }).catch((err)=> {console.log(err); resp.status(500).json({error:"Failed to enter data"})});
           }).catch(err => {console.log("fail in accesstoken auth")});
       
         //   return [requestToken, accessToken]

@@ -9,7 +9,7 @@ const authentication = require("../authentication/authentication")
 
 
 router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
-
+    console.log("caseStudy 4: placing")
     if(req.body.apiKey && req.body.accessToken){
         LiveTradeFunc.liveTrade(req.body, res);
     } else{

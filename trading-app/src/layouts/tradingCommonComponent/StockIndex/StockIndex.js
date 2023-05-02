@@ -11,7 +11,7 @@ import { NetPnlContext } from "../../../PnlContext";
 
 
 function StockIndex({socket}) {
-
+    console.log("rendering stock index")
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [indexData, setIndexData] = useState([]);
     const [indexLiveData, setIndexLiveData] = useState([]);

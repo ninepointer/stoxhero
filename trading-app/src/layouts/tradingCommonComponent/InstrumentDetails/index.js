@@ -27,10 +27,6 @@ import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
 
-
-
-
-
 function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
   const marketDetails = useContext(marketDataContext)
   console.log("socket print", socket)
@@ -61,9 +57,9 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
     }).catch((err) => {
         return new Error(err);
     })
-    socket.on('check', (data)=>{
-      console.log("data from socket in instrument in parent", data)
-    })
+    // socket.on('check', (data)=>{
+    //   console.log("data from socket in instrument in parent", data)
+    // })
 
     // socket.on("tick", (data) => {
     socket.on("tick-room", (data) => {
@@ -77,11 +73,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
         });
         return Array.from(instrumentMap.values());
       });
-
     })
-
-
-
   }, [])
 
   console.log("rendering in userPosition: instruemntGrid")
@@ -92,7 +84,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
       .then((res) => {
         setisAppLive(res.data[0].isAppLive);
       });
-  }, [reRender]);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -117,7 +109,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
     }).catch((err) => {
         return new Error(err);
     })
-  }, [reRender, socket])
+  }, [reRender])
 
 
     const instrumentDetailArr = [];
