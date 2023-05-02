@@ -123,7 +123,8 @@ exports.marginDetail = async (req, res, next) => {
       {
         $group: {
           _id: {
-             $sum: "$portfolioValue"
+             valueSum : {$sum: "$portfolioValue"},
+             name: "$portfolioName"
           }
         }
       },

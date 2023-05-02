@@ -132,7 +132,7 @@ console.log("checkmargin", infinityNetPnl, yesterdayData, fundDetail)
     return (<>
   
       <MDBox mt={0.5}>
-        <MDBox mb={3}>
+        <MDBox mb={0}>
           <Grid container spacing={3}>
             <Grid item xs={16} lg={12}>
               <Grid container spacing={3}>

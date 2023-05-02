@@ -48,7 +48,8 @@ const MarginGrid = () => {
   }, []);
 
   console.log("marginDetails", marginDetails)
-  let totalCredit = marginDetails?.totalCredit?.totalFund;
+  let totalCredit = marginDetails?.totalCredit?.totalFund?.valueSum;
+  let portfolioName = marginDetails?.totalCredit?.totalFund?.name
   // marginDetails?.map((elem)=>{
   //   totalCredit =+ totalCredit + elem.amount
   // })
@@ -89,7 +90,7 @@ const MarginGrid = () => {
 
                 <Grid item xs={16} >
                   <DefaultInfoCard
-                    title="PortFolio Details"
+                    title={`Portfolio Details(${portfolioName})`}
                     description="Below is a summary of the total funds and their intended uses"
                     value={`Total Credit: ${totalCreditString} | Available Margin: ${availableMarginString}  | Used Margin Today: ${usedMarginString}`}
                   />
