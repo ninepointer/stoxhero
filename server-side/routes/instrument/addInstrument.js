@@ -26,7 +26,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
         // let secondDateSplit = contractDate.split("-");
         // contractDate = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]}`
 
-        console.log(contractDate)
+        console.log("contractDate", contractDate, new Date(contractDate))
         if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken){
             if(!instrumentToken){
                 return res.status(422).json({error : "Please enter a valid Instrument."})

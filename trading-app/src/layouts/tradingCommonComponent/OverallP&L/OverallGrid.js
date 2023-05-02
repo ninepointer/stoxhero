@@ -249,7 +249,6 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
                 <td style={styleTD} >EXIT</td>
                 <td style={styleTD} >BUY</td>
                 <td style={{...styleTD, paddingRight: "20px"}} >SELL</td>
-                
               </tr>
             </thead>
             <tbody>

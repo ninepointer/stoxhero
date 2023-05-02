@@ -25,6 +25,7 @@ import { io } from 'socket.io-client';
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
+import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 
 export default function Wallet() {
 
@@ -32,6 +33,7 @@ export default function Wallet() {
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [fundDetail, setFundDetail] = useState({});
+  const [yesterdayData, setyesterdayData] = useState({});
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
 
@@ -63,6 +65,20 @@ export default function Wallet() {
       }}
       ).then((res)=>{
         setFundDetail(res.data.data);
+      })
+      
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+      }}
+      ).then((res)=>{
+        setyesterdayData(res.data.data);
       })
       
   }, []);
@@ -114,8 +130,11 @@ export default function Wallet() {
     />;
   }, [socket, reRender, handleSetIsGetStartedClicked]);
 
-  let fundChangePer = ((fundDetail?.availableMargin+pnl.infinityNetPnl - fundDetail?.totalCredit)*100/fundDetail?.totalCredit);
+  let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
+  let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
+  let fundChangePer = openingBalance ? ((openingBalance+pnl.infinityNetPnl - openingBalance)*100/openingBalance) : 0;
 
+  console.log("fundDetail", fundDetail)
   return (
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
@@ -134,13 +153,13 @@ export default function Wallet() {
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(fundDetail?.availableMargin+pnl.infinityNetPnl) >= 0.00 ? "+₹" + ((fundDetail?.availableMargin+pnl.infinityNetPnl).toFixed(0)): "-₹" + ((-(fundDetail?.availableMargin+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
-                    <MDAvatar src={fundDetail?.availableMargin+pnl.infinityNetPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
+                    <MDTypography fontSize={10}>{(openingBalance+pnl.infinityNetPnl) >= 0.00 ? "+₹" + ((openingBalance+pnl.infinityNetPnl).toFixed(0)): "-₹" + ((-(openingBalance+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
+                    <MDAvatar src={openingBalance+pnl.infinityNetPnl - openingBalance+pnl.infinityNetPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
                   </MDBox>
                 </Grid>
               
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{fundDetail?.totalCredit}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{openingBalance?.toFixed(0)}</MDTypography>
                   <MDBox display="flex" justifyContent="right">
                     <MDTypography fontSize={10} display="flex" justifyContent="right">{fundChangePer.toFixed(2)}%</MDTypography>
                     <MDAvatar src={fundChangePer >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
@@ -195,9 +214,9 @@ export default function Wallet() {
           {/* <OverallPnl/> */}
           {memoizedOverallPnl}
         </Grid>
-        {/* <Grid item xs={12} md={6} lg={12}>
-          <Orders/>
-        </Grid> */}
+        <Grid item xs={12} md={6} lg={12}>
+          <InfinityMargin />
+        </Grid>
       </Grid>
 
     </MDBox>

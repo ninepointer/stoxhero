@@ -68,6 +68,9 @@ import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
 import UserContest from "./layouts/UserContest"
 import Batch from "./layouts/batch";
+import { GiNinjaHeroicStance } from 'react-icons/gi';
+import InfinityTrader from "./layouts/InfinityTrading"
+
 
 const routes = [
   {
@@ -355,6 +358,15 @@ const routes = [
     icon: <BusinessIcon/>,
     route: "/position",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Infinity Trading",
+    key: "infinitytrading",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <GiNinjaHeroicStance/>,
+    route: "/infinitytrading",
+    component: <InfinityTrader />,
   },
   {
     type: "collapse",
