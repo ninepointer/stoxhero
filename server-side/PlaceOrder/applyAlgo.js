@@ -10,7 +10,7 @@ const authoizeTrade = require('../controllers/authoriseTrade');
 
 
 const ApplyAlgo = async (req, res, next)=>{
-
+    console.log("caseStudy 5: applyalgo")
     // console.log(req.body, "in apply algo")
     // console.log(req.user)
     // console.log("in if", req.user.isAlgoTrader)
@@ -149,6 +149,7 @@ const ApplyAlgo = async (req, res, next)=>{
         }
     }
     await tradingAlgo();
+    console.log("caseStudy 6: end apply aplgo")
 
     next();
 

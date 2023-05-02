@@ -69,8 +69,6 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     validity: "",
   })
 
-
-
   const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity));
 
   function quantityChange(e) {

@@ -133,6 +133,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   }, [getDetails])
 
   async function buyFunction(e, uId) {
+    console.log("caseStudy 1: buy")
       e.preventDefault()
       setOpen(false);
 
@@ -163,7 +164,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   }
 
   async function placeOrder() {
-
+    console.log("caseStudy 2: place")
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
@@ -196,6 +197,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
         openSuccessSB('error', dataResp.error)
         ////console.log("Failed to Trade");
     } else {
+      console.log("caseStudy 3: place resp")
         if(dataResp.message === "COMPLETE"){
             // console.log(dataResp);
             openSuccessSB('complete', {symbol, Quantity})

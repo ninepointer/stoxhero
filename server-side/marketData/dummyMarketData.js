@@ -126,7 +126,7 @@ const DummyMarketData = (socket) => {
           {
                         tradable: true,
                         mode: 'quote',
-                        instrument_token: 13832706,
+                        instrument_token: 14744066,
                         last_price: parseInt((Math.random() * 100) + 100),
                         last_traded_quantity: 50,
                         average_traded_price: 485.86,
@@ -139,7 +139,33 @@ const DummyMarketData = (socket) => {
                       {
                         tradable: true,
                         mode: 'quote',
-                        instrument_token: 13829378,
+                        instrument_token: 15023106,
+                        last_price: parseInt((Math.random() * 100) + 100),
+                        last_traded_quantity: 50,
+                        average_traded_price: 213.8,
+                        volume_traded: 12516700,
+                        total_buy_quantity: 164000,
+                        total_sell_quantity: 28600,
+                        ohlc: { open: 204.55, high: 274.8, low: 167.95, close: 197.05 },
+                        change: -12.991626490738403
+                      },
+                      {
+                        tradable: true,
+                        mode: 'quote',
+                        instrument_token: 15023362,
+                        last_price: parseInt((Math.random() * 100) + 100),
+                        last_traded_quantity: 50,
+                        average_traded_price: 485.86,
+                        volume_traded: 391950,
+                        total_buy_quantity: 52000,
+                        total_sell_quantity: 6350,
+                        ohlc: { open: 494.9, high: 532.8, low: 427.1, close: 512.8 },
+                        change: 2.9933697347893964
+                      },
+                      {
+                        tradable: true,
+                        mode: 'quote',
+                        instrument_token: 14744322,
                         last_price: parseInt((Math.random() * 100) + 100),
                         last_traded_quantity: 50,
                         average_traded_price: 213.8,
@@ -152,7 +178,7 @@ const DummyMarketData = (socket) => {
           // ...
         ];
         let userId = await client.get(socket.id);
-        io.to(userId).emit('contest-ticks', filteredTicks);
+        io.to(userId).emit('tick-room', filteredTicks);
         console.log('sending');
         resolve(filteredTicks);
       } catch (err) {

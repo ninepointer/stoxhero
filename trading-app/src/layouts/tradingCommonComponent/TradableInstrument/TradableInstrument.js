@@ -101,7 +101,7 @@ function TradableInstrument({socket, reRender, setReRender, isGetStartedClicked,
       sendSearchReq('NIFTY');
       setIsGetStartedClicked(false)
     }
-  })
+  },[])
 
 
   useEffect(()=>{
