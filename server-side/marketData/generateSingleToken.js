@@ -19,7 +19,7 @@ async function fetchToken (exchange, symbol){
     const accessToken = await RequestToken.find({status: "Active"});
     for(let elem of accessToken){
         for(let subElem of apiKey){
-            if(elem.accountId === subElem.accountId && new Date(elem.generatedOn) > today){
+            if(elem.accountId === subElem.accountId ){
                 getAccessToken = elem.accessToken;
                 getApiKey = subElem.apiKey
             }

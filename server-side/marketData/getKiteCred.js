@@ -14,7 +14,7 @@ exports.getAccess = async (req, res, next) => {
     for(let elem of accessToken){
         for(let subElem of apiKey){
          //  console.log("inside 2");
-            if(elem.accountId === subElem.accountId && new Date(elem.generatedOn) > today){
+            if(elem.accountId === subElem.accountId ){
                 getAccessToken = elem.accessToken;
                 getApiKey = subElem.apiKey
             }

@@ -21,7 +21,7 @@ router.get("/getliveprice", async (req, res)=>{
   let getApiKey, getAccessToken;
   for(let elem of accessToken){
       for(let subElem of apiKey){
-          if(elem.accountId === subElem.accountId && new Date(elem.generatedOn) > today){
+          if(elem.accountId === subElem.accountId ){
               getAccessToken = elem.accessToken;
               getApiKey = subElem.apiKey
           }
