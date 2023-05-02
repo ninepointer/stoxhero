@@ -249,13 +249,13 @@ router.patch("/verifyotp", async (req, res)=>{
         console.log("portfolio arr", portfolioArr);
         try{
         let obj = {
-            first_name, last_name, designation: 'Equity Trader', email, 
+            first_name, last_name, designation: 'Trader', email, 
             mobile,
             // role: 'user', 
             
             name: first_name + ' ' + last_name.substring(0,1), 
              password: 'np' + last_name + '@123', status: 'Active', 
-            employeeid: userId,fund: 1000000, creationProcess: 'Auto SignUp',
+            employeeid: userId, creationProcess: 'Auto SignUp',
             joining_date:user.last_modifiedOn,myReferralCode:(await myReferralCode).toString(), referrerCode:referrerCode,
             // referredBy: referredBy,
             portfolio: portfolioArr,
