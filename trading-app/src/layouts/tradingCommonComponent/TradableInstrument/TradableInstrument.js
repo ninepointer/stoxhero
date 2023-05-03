@@ -305,6 +305,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
         { state.instrumentsData?.length > 0 &&
           (state.instrumentsData.map((elem, index)=>{
             elem.sellState = false;
+            elem.buyState = false;
             let perticularInstrumentData = state.userInstrumentData.filter((subElem)=>{
               return subElem.instrumentToken === elem.instrument_token
             })
