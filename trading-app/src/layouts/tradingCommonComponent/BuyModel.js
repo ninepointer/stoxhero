@@ -304,8 +304,6 @@ const BuyModel = ({ exchange, symbol, instrumentToken, symbolName, lotSize, maxL
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // //console.log("Title, Content, Time: ",title,content,time)
-
 
   const renderSuccessSB = (
     <MDSnackbar
