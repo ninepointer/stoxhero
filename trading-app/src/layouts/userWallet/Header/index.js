@@ -77,14 +77,15 @@ export default function Wallet() {
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
       <Grid container xs={12} md={6} lg={12}>
-        
+
         <Grid item xs={12} md={12} lg={6} mb={1}>
           <MDBox mb={2}>
             <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Transactions</MDTypography>
           </MDBox>
-           
+
           {myWallet?.transactions?.length > 0 ? 
             myWallet?.transactions?.map((elem) => {
+              console.log("elem", elem)
               return (
                 <MDBox mb={1} style={{border:'1px solid white', borderRadius:5,padding:4}}>
                   <Grid container xs={12} md={6} lg={12} spacing={1} display="flex" justifyContent="center" alignItems="center" alignContent="center">
@@ -114,7 +115,7 @@ export default function Wallet() {
                 <MDTypography mt={3} color="light" display="flex" justifyContent="center">No Transactions Yet!</MDTypography>
                 <MDTypography mt={3} color="light" display="flex" justifyContent="center" fontSize={15}>Participate in Battles and invite your friends to the app to earn cash & bonus.</MDTypography>
                 <MDBox mt={3} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
-                  <Link to ='/battleground'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:15,marginLeft:100,marginRight:100}}>Check Upcoming Battles</MDButton></Link>
+                  <Link to ='/battlestreet'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:15,marginLeft:100,marginRight:100}}>Check Upcoming Battles</MDButton></Link>
                   <Link to ='/Referrals'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:30,marginLeft:100,marginRight:100}}>Invite A Friend</MDButton></Link>
                 </MDBox>
               </Grid>

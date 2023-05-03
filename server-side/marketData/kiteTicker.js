@@ -194,7 +194,6 @@ const getTicksForUserPosition = async (socket) => {
       if(filteredTicks.length > 0){
         io.to(`${userId}`).emit('tick-room', filteredTicks);
       }
-      // console.log("performance", performance.now()-now, socket.id);
 
       filteredTicks = null;
       ticks = null;

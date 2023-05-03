@@ -100,7 +100,19 @@ const ContestCard = () => {
       return finalFormattedDate
     }
       
-    
+    let rewardPool = [];
+    contestData?.map((elem)=>{
+      elem?.rewards?.map((e)=>{
+          rewardPool.push(e)
+      })
+    })
+    console.log("Reward Pool:",rewardPool)
+    const totalRewardAmount = rewardPool?.reduce((total, rewardStructure) => {
+      const { rankStart, rankEnd, reward } = rewardStructure;
+      const rankCount = rankEnd - rankStart + 1;
+      return total + (reward * rankCount);
+    }, 0);
+
 
     return (
       <>
@@ -130,7 +142,7 @@ const ContestCard = () => {
             <MDButton variant="contained" color="light" size="small" 
             component={Link} 
             to={{
-              pathname: `/battleground/${e?.contestName}`,
+              pathname: `/battlestreet/${e?.contestName}`,
             }}
             state= {{entry: e?.participants?.length, minEntry: e?.minParticipants, contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy, fromMyContest: true}}
             >
@@ -149,7 +161,7 @@ const ContestCard = () => {
                     </Grid>
                       
                       <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="center">
-                          <Typography fontSize={13} style={{color:"black",fontWeight:700}}>Reward: {e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0).toLocaleString()}</Typography>
+                          <Typography fontSize={13} style={{color:"black",fontWeight:700}}>Reward: {e?.entryFee?.currency} {totalRewardAmount.toLocaleString()}</Typography>
                       </Grid>
 
                       <Grid item xs={12} md={6} lg={12} mb={1} style={{color:"black",fontSize:10}} display="flex" justifyContent="center" alignItems="center" alignContent="center">

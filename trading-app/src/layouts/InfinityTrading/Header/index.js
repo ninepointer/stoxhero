@@ -28,7 +28,7 @@ import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 
 export default function InfinityTrading() {
-  console.log("rendering in userPosition: header")
+  //console.log("rendering in userPosition: header")
   const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -134,7 +134,7 @@ export default function InfinityTrading() {
   let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.infinityNetPnl - openingBalance)*100/openingBalance) : 0;
 
-  console.log("fundDetail", fundDetail)
+  //console.log("fundDetail", fundDetail)
   return (
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >

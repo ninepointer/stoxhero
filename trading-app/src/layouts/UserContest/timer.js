@@ -45,13 +45,13 @@ const CountdownTimer = ({ targetDate,text, contestId, portfolioId, isDummy, cont
 
   if(timeRemaining.total <= 0 && !isDummy && flag.current && redirect){
     console.log("timer running 2nd")
-    navigate(`/battleground/result`, {
+    navigate(`/battlestreet/result`, {
       state: {contestId: contestId, portfolioId: portfolioId, contest: contest}
     });
   } else if(timeRemaining.total <= 0 && isDummy && redirect){
     flag.current = (false)
     //console.log("timer running 1st")
-    navigate(`/battleground/${contestName}`, {
+    navigate(`/battlestreet/${contestName}`, {
       state: {contestId: contestId, portfolioId: portfolioId, isDummy: false, redirect: true}
     });
   }

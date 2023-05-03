@@ -39,8 +39,8 @@ import MDSnackbar from "../../../components/MDSnackbar";
 function ContestTradeView () {
     const [contest,setContest] = useState({});
     const location = useLocation();
-    const  contestId  = location?.state?.contestId;
-    const  portfolioId  = location?.state?.portfolioId;
+    const contestId = location?.state?.contestId;
+    const portfolioId = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
     const minEntry = location?.state?.minEntry
     const entry = location?.state?.entry
@@ -155,7 +155,7 @@ function ContestTradeView () {
         },
       })
       .then((res)=>{
-        navigate("/battleground")
+        navigate("/battlestreet")
         openSuccessSB("Warning","You exited from this contest", "FAIL")
 
               // setContest(res?.data?.data);
@@ -228,7 +228,7 @@ function ContestTradeView () {
             <Grid item xs={12} md={6} lg={6.5} mb={2}>
                 <MDBox color="light" >
                   <MDBox display="flex" alignItems="center" mb={1} justifyContent="space-between">
-                    <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{navigate('/battleground')}}>< FastRewindIcon/></Button>
+                    <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{navigate('/battlestreet')}}>< FastRewindIcon/></Button>
                     <MDTypography mt={1.5} color="light"  style={{fontWeight:700, filter: isDummy && 'blur(2px)'}}>
                         {contest?.contestName}
                     </MDTypography>
@@ -339,7 +339,7 @@ function ContestTradeView () {
           <MDTypography mt={2} style={{fontWeight: 600, fontSize: "13px"}} color="light">
             But dont worry you can participate in other battles          
           </MDTypography>
-          <MDButton mt={2} onClick={()=>{navigate("/battleground")}} color="light">
+          <MDButton mt={2} onClick={()=>{navigate("/battlestreet")}} color="light">
             Join other battles
           </MDButton>
         </div>

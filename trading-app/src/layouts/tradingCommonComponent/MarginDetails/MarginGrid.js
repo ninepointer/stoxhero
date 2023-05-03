@@ -13,8 +13,8 @@ import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
 
 const MarginGrid = () => {
-
-  console.log("rendering in userPosition: marginGrid")
+  console.log("rendering : papermargin")
+  //console.log("rendering in userPosition: marginGrid")
   const { netPnl, totalRunningLots } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [marginDetails, setMarginDetails] = useState([]);
@@ -38,7 +38,7 @@ const MarginGrid = () => {
       },
     })
     .then((res) => {
-        //console.log("live price data", res)
+        ////console.log("live price data", res)
         // setUserInstrumentData(res.data);
         // setDetails.setMarketData(data);
         setMarginDetails(res.data.data)
@@ -47,7 +47,7 @@ const MarginGrid = () => {
     })
   }, []);
 
-  console.log("marginDetails", marginDetails)
+  //console.log("marginDetails", marginDetails)
   let totalCredit = marginDetails?.totalCredit?.totalFund?.valueSum;
   let portfolioName = marginDetails?.totalCredit?.totalFund?.name
   // marginDetails?.map((elem)=>{
@@ -56,12 +56,12 @@ const MarginGrid = () => {
 
   let totalCreditString = totalCredit >= 0 ? "+₹" + totalCredit.toLocaleString() : "-₹" + ((-totalCredit).toLocaleString())
   // let lifetimenetpnl = lifetimePNL[0] ? Number((lifetimePNL[0]?.npnl).toFixed(0)) : 0;
-  // console.log(lifetimenetpnl)
+  // //console.log(lifetimenetpnl)
   // let runninglotnumber = totalRunningLots;
   let runningPnl = Number(netPnl?.toFixed(0));
   let totalPnl = marginDetails?.lifetimePnl?.npnl ? (marginDetails?.lifetimePnl?.npnl + runningPnl).toFixed(0) : runningPnl
   // let totalPnlString = marginDetails?.lifetimePnl?.npnl ? totalPnl >= 0 ? "+₹" + Number(totalPnl).toLocaleString() : "-₹" + (-Number(totalPnl)).toLocaleString() : "+₹0"
-  console.log("checking", runningPnl, totalPnl, marginDetails?.lifetimePnl?.npnl, Boolean(totalPnl))
+  //console.log("checking", runningPnl, totalPnl, marginDetails?.lifetimePnl?.npnl, Boolean(totalPnl))
   // let availableMarginpnl = availableMarginPNL[0] ? Number((availableMarginPNL[0].npnl).toFixed(0)) : 0;
   // let availableMargin = (Number(openingBalance) + runningPnl)
   // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
@@ -72,11 +72,11 @@ const MarginGrid = () => {
   // let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
   // let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount).toLocaleString() : "-₹" + (-Number(payInAmount)).toLocaleString()
   let availableMargin = totalCredit + Number(totalPnl);
-  console.log("availableMargin", totalCredit , Number(totalPnl))
+  //console.log("availableMargin", totalCredit , Number(totalPnl))
   let availableMarginString = availableMargin >= 0 ? "+₹" + Number(availableMargin).toLocaleString() : "-₹" + (-Number(availableMargin)).toLocaleString()
 
   
-  // console.log("runningPnl", runningPnl, openingBalance)
+  // //console.log("runningPnl", runningPnl, openingBalance)
 
     // const { columns, rows } = authorsTableData();  md={8} xl={3}
     

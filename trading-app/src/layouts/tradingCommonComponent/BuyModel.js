@@ -28,23 +28,23 @@ import { Box, Typography } from '@mui/material';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry, from}) => {
-
-  console.log("rendering in userPosition: buyModel", from)
+const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromSearchInstrument, expiry, from, setBuyState}) => {
+  console.log("rendering : buy")
+  //console.log("rendering in userPosition: buyModel", from)
 
   // const marketDetails = useContext(marketDataContext)
 
-  // console.log("data from props", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot)
+  // //console.log("data from props", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   // const { reRender, setReRender } = Render;
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
   let date = new Date();
-  let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+  // let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
   let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;
-  let tradeBy = getDetails.userDetails.name;
+  // let tradeBy = getDetails.userDetails.name;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
   const [messageObj, setMessageObj] = useState({
@@ -61,7 +61,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
 
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -108,19 +108,22 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   };
 
   const handleClickOpen = async () => {
-    if(fromUserPos){
+    if(fromSearchInstrument){
       addInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(true);
   }; 
 
   const handleClose = async (e) => {
-    if(fromUserPos){
-      removeInstrument()
+    if(fromSearchInstrument){
+      removeInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(false);
+    setBuyState(false);
   };
 
   useEffect(() => {
@@ -130,12 +133,13 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
     }).catch((err) => {
         return new Error(err);
     })
-  }, [getDetails])
+  }, [])
 
   async function buyFunction(e, uId) {
-    console.log("caseStudy 1: buy")
+    //console.log("caseStudy 1: buy")
       e.preventDefault()
       setOpen(false);
+      setBuyState(false);
 
 
       if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
@@ -164,7 +168,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   }
 
   async function placeOrder() {
-    console.log("caseStudy 2: place")
+    //console.log("caseStudy 2: place")
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
@@ -190,24 +194,24 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
         })
     });
     const dataResp = await res.json();
-    //console.log("dataResp", dataResp)
+    ////console.log("dataResp", dataResp)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        //console.log(dataResp.error)
+        ////console.log(dataResp.error)
         // window.alert(dataResp.error);
         openSuccessSB('error', dataResp.error)
-        ////console.log("Failed to Trade");
+        //////console.log("Failed to Trade");
     } else {
-      console.log("caseStudy 3: place resp")
+      //console.log("caseStudy 3: place resp")
         if(dataResp.message === "COMPLETE"){
-            // console.log(dataResp);
+            // //console.log(dataResp);
             openSuccessSB('complete', {symbol, Quantity})
             // window.alert("Trade Succesfull Completed");
         } else if(dataResp.message === "REJECTED"){
-            // console.log(dataResp);
+            // //console.log(dataResp);
             openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
             // window.alert("Trade is Rejected due to Insufficient Fund");
         } else if(dataResp.message === "AMO REQ RECEIVED"){
-            // console.log(dataResp);
+            // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
             // window.alert("AMO Request Recieved");
         } else{
@@ -239,7 +243,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
         window.alert(data.error);
     }else{
       // openSuccessSB();
-      console.log(data.message)
+      //console.log(data.message)
     }
   }
 
@@ -257,7 +261,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
     });
 
     const permissionData = await response.json();
-    console.log("remove", permissionData)
+    //console.log("remove", permissionData)
     if (permissionData.status === 422 || permissionData.error || !permissionData) {
         window.alert(permissionData.error);
     }else {
@@ -266,7 +270,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value,content) => {
-    // console.log("Value: ",value)
+    // //console.log("Value: ",value)
     if(value === "complete"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
@@ -303,8 +307,6 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
-
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -324,15 +326,10 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
   return (
     <div>
-      {/* {!fromUserPos ? 
-      <MDButton size="small" variant="contained" color="info" onClick={handleClickOpen} sx={{margin: "5px"}} sx={{margin: "5px"}}>
-        B
-      </MDButton>
-      :  */}
+
       <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={handleClickOpen} >
         B
       </MDButton>
-      {/* } */}
       <div>
         <Dialog
           fullScreen={fullScreen}
@@ -373,7 +370,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
                     {/* <MenuItem value="100">100</MenuItem>
                     <MenuItem value="150">150</MenuItem> */}
                     {optionData.map((elem)=>{
-                      // console.log("optionData", elem)
+                      // //console.log("optionData", elem)
                         return(
                             <MenuItem value={elem.props.value}>
                             {elem.props.children}

@@ -32,7 +32,7 @@
 // // import Button from '@mui/material/Button';
 
 // function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
-//   console.log("rendering in userPosition: overallPnl")
+//   //console.log("rendering in userPosition: overallPnl")
 //   let styleTD = {
 //     textAlign: "center",
 //     fontSize: "11px",
@@ -100,12 +100,12 @@
 //     //       socket.close();
 //     //   }
 //     // }, [])
-//     console.log("tradeData", tradeData)
+//     //console.log("tradeData", tradeData)
 
 //     tradeData.map((subelem, index)=>{
 //       let obj = {};
 //       let liveDetail = marketDetails.marketData.filter((elem)=>{
-//         // console.log("elem", elem, subelem)
+//         // //console.log("elem", elem, subelem)
 //         return subelem._id.instrumentToken == elem.instrument_token;
 //       })
 //       totalRunningLots += Number(subelem.lots)
@@ -188,7 +188,7 @@
 //           </MDTypography>
 //         );
 //       } else{
-//         console.log((liveDetail[0]?.last_price, liveDetail[0]?.average_price), liveDetail[0]?.average_price);
+//         //console.log((liveDetail[0]?.last_price, liveDetail[0]?.average_price), liveDetail[0]?.average_price);
 //         obj.change = (
 //           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
 //             {liveDetail[0]?.average_price ? (((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%" : "0.00%"}
@@ -384,8 +384,9 @@ import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 // import Button from '@mui/material/Button';
 
-function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
-  console.log("rendering in userPosition: overallPnl")
+function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
+  //console.log("rendering in userPosition: overallPnl")
+  console.log("rendering : overallgrid")
   let styleTD = {
     textAlign: "center",
     fontSize: "9px",
@@ -408,7 +409,11 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
   const { updateInfinityNetPnl } = useContext(NetPnlContext);
   const { updateNetPnl } = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
-  const getDetails = useContext(userContext);
+  const [exitState, setExitState] = useState(false);
+  const [buyState, setBuyState] = useState(false);
+  const [sellState, setSellState] = useState(false);
+
+  // const getDetails = useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
@@ -453,12 +458,12 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
     //       socket.close();
     //   }
     // }, [])
-    console.log("tradeData", tradeData)
+    //console.log("tradeData", tradeData)
 
     tradeData.map((subelem, index)=>{
       let obj = {};
       let liveDetail = marketDetails.marketData.filter((elem)=>{
-        // console.log("elem", elem, subelem)
+        // //console.log("elem", elem, subelem)
         return subelem._id.instrumentToken == elem.instrument_token;
       })
       totalRunningLots += Number(subelem.lots)
@@ -477,7 +482,6 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
       updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
-      
       const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
       const quantitycolor = subelem.lots >= 0 ? "success" : "error"
       const gpnlcolor = updatedValue >= 0 ? "success" : "error"
@@ -541,7 +545,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
           </MDTypography>
         );
       } else{
-        console.log((liveDetail[0]?.last_price, liveDetail[0]?.average_price), liveDetail[0]?.average_price);
+        //console.log((liveDetail[0]?.last_price, liveDetail[0]?.average_price), liveDetail[0]?.average_price);
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
             {liveDetail[0]?.average_price ? (((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%" : "0.00%"}
@@ -549,14 +553,26 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
         );
       }
       obj.exit = (
-        < ExitPosition from={from} reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
+        < ExitPosition from={from} reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
       );
       obj.buy = (
-        <Buy from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
+        <Buy from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
       );
       
       obj.sell = (
-        <Sell from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
+        <Sell from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
+      );
+
+      obj.sellState = (
+        false
+      );
+
+      obj.buyState = (
+        false
+      );
+
+      obj.exitState = (
+        false
       );
 
       if(subelem.lots != 0){
@@ -569,6 +585,28 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
 
     })
 
+    const handleBuyClick = (index) => {
+      setBuyState(true)
+      const newRows = [...rows];
+      newRows[index].sellState = true;
+      rows = (newRows);
+    };
+
+    const handleExitClick = (index) => {
+      setExitState(true)
+      const newRows = [...rows];
+      newRows[index].sellState = true;
+      rows = (newRows);
+    };
+
+    const handleSellClick = (index) => {
+      setSellState(true)
+      const newRows = [...rows];
+      newRows[index].sellState = true;
+      rows = (newRows);
+    };
+
+    // console.log("rows", rows)
 
   return (
     <Card>
@@ -608,7 +646,7 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
             </thead>
             <tbody>
 
-              {rows.map((elem)=>{
+              {rows.map((elem, index)=>{
                 return(
                   <>
               <tr
@@ -625,36 +663,44 @@ function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, fr
                     change={elem?.change?.props?.children}
                   />
                   <Tooltip title="Exit Your Position" placement="top">
+                    { elem.exitState ?
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >
+                      <MDButton size="small" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} color="warning" onClick={()=>{handleExitClick(index)}}>
+                        E
+                      </MDButton>
+                    </td>
+                    :
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.exit}</td>
+                    }
                   </Tooltip>
                   <Tooltip title="Buy" placement="top">
-                    <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.buy}</td>
+                    {!elem.buyState ?
+                      <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.buy}</td>
+                      :
+                      <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >
+                      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
+                        B
+                      </MDButton>
+                      </td>
+                    }
                   </Tooltip>
                   <Tooltip title="Sell" placement="top">
-                    <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.sell}</td>
+                    {!elem.sellState ?
+                      <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.sell}</td>
+                      :
+                      <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >
+                      <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
+                        S
+                      </MDButton>
+                      </td>
+                    }
                   </Tooltip>
-      
               </tr>
               </>
 
                 )
               })} 
-              {/* <tr
-              style={{borderBottom: "1px solid #D3D3D3", padding: "10x",}}
-              display='flex'
-              >
-                  <td  ></td>
-                  <td  ></td>
-                  <td style={{ padding: "8px 10px"}} ><div style={styleBottomRow}>Running Lots: {totalRunningLots}</div></td>
-                  <td style={{ padding: "8px 10px"}}><div style={styleBottomRow} >Brokerage: {"₹"+(totalTransactionCost).toFixed(2)}</div></td>
-                  <td style={{ padding: "8px 10px"}} ><div style={{...styleBottomRow, color: `${totalGrossPnl > 0 ? 'green' : 'red'}`}}>Gross P&L: {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)): "-₹" + ((-totalGrossPnl).toFixed(2))}</div></td>
-                  <td style={{ padding: "8px 10px"}} ><div style={{...styleBottomRow, color: `${(totalGrossPnl-totalTransactionCost) > 0 ? 'green' : 'red'}`}}>Net P&L: {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}</div></td>
-                  <td  ></td>
-                  <td  ></td>
-                  <td  ></td>
-                  <td  ></td>
 
-              </tr> */}
             </tbody>
           </table>
           <Grid container display='flex'  mt={1} p={1} style={{border:'1px solid white',borderRadius:4}}>

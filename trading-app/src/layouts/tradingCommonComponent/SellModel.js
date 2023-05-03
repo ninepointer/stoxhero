@@ -23,26 +23,31 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import MDBox from '../../components/MDBox';
+// import MDBox from '../../components/MDBox';
 import { Box, Typography } from '@mui/material';
-import { marketDataContext } from "../../MarketDataContext";
+// import { marketDataContext } from "../../MarketDataContext";
+// import { marketDataContext } from "../../MarketDataContext";
 
 
-const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry, from}) => {
-  // console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry, from)
+const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, reRender, setReRender, fromSearchInstrument, expiry, from, setSellState}) => {
+  // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromSearchInstrument, expiry, from)
 
   // const marketDetails = useContext(marketDataContext)
-
+  console.log("rendering : sell")
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   // const { reRender, setReRender } = Render;
+  // const marketDetails = useContext(marketDataContext);
+  // let ltp = marketDetails.marketData.filter((subElem)=>{
+  //   return subElem.instrument_token === instrumentToken
+  // })
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
   let date = new Date();
-  let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+  // let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
   let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;
-  let tradeBy = getDetails.userDetails.name;
+  // let tradeBy = getDetails.userDetails.name;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
   const [messageObj, setMessageObj] = useState({
@@ -62,7 +67,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
 
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(sellState);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -106,19 +111,22 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
   };
 
   const handleClickOpen = async () => {
-    if(fromUserPos){
+    if(fromSearchInstrument){
       addInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(true);
   }; 
 
   const handleClose = async (e) => {
-    if(fromUserPos){
-      removeInstrument()
+    if(fromSearchInstrument){
+      removeInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(false);
+    setSellState(false);
   };
 
 
@@ -134,12 +142,13 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
         return new Error(err);
     })
 
-  }, [getDetails])
+  }, [])
 
 
   async function sellFunction(e, uId) {
       e.preventDefault()
       setOpen(false);
+      setSellState(false);
 
       if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
         // window.alert("App is not Live right now. Please wait.");
@@ -198,23 +207,23 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
         })
     });
     const dataResp = await res.json();
-    //console.log("dataResp", dataResp)
+    ////console.log("dataResp", dataResp)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        //console.log(dataResp.error)
+        ////console.log(dataResp.error)
         // window.alert(dataResp.error);
         openSuccessSB('error', dataResp.error)
-        ////console.log("Failed to Trade");
+        //////console.log("Failed to Trade");
       } else {
         if(dataResp.message === "COMPLETE"){
-            // console.log(dataResp);
+            // //console.log(dataResp);
             openSuccessSB('complete', {symbol, Quantity})
             // window.alert("Trade Succesfull Completed");
         } else if(dataResp.message === "REJECTED"){
-            // console.log(dataResp);
+            // //console.log(dataResp);
             openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
             // window.alert("Trade is Rejected due to Insufficient Fund");
         } else if(dataResp.message === "AMO REQ RECEIVED"){
-            // console.log(dataResp);
+            // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
             // window.alert("AMO Request Recieved");
         } else{
@@ -245,7 +254,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
         window.alert(data.error);
     }else{
       // openSuccessSB();
-      console.log(data.message)
+      //console.log(data.message)
     }
   }
 
@@ -263,7 +272,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
     });
 
     const permissionData = await response.json();
-    console.log("remove", permissionData)
+    //console.log("remove", permissionData)
     if (permissionData.status === 422 || permissionData.error || !permissionData) {
         window.alert(permissionData.error);
     }else {
@@ -273,7 +282,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value,content) => {
-    // console.log("Value: ",value)
+    // //console.log("Value: ",value)
     if(value === "complete"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
@@ -310,7 +319,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
+  // //console.log("Title, Content, Time: ",title,content,time)
 
 
   const renderSuccessSB = (
@@ -333,7 +342,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
   return (
     <div>
-      {/* {fromUserPos ? 
+      {/* {fromSearchInstrument ? 
       <MDBox color="light" onClick={handleClickOpen}>
         S
       </MDBox>

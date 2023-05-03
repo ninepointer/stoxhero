@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, memo } from 'react'
 import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -21,9 +21,10 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 
-function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken }) {
-  console.log("rendering in userPosition/overall: exitPosition", quantity)
+function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
+  //console.log("rendering in userPosition/overall: exitPosition", quantity)
   // const { render, setReRender } = Render
+  console.log("rendering : exit")
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -33,13 +34,13 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getDetails = React.useContext(userContext);
-  let uId = uniqid();
+  // let uId = uniqid();
   let date = new Date();
-  let createdBy = getDetails.userDetails.name;
+  // let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-  const [tradeData, setTradeData] = useState([]);
+  // const [tradeData, setTradeData] = useState([]);
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
@@ -47,7 +48,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     content: ''
   })
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(exitState);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -103,6 +104,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
 
   const handleClose = (e) => {
     setOpen(false);
+    setExitState(false);
   };
 
 
@@ -116,40 +118,38 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
         return new Error(err);
       })
 
-    axios.get(`${baseUrl}api/v1/${"readInstrumentDetails"}`)
-      .then((res) => {
-        let dataArr = (res.data)
-        setTradeData(dataArr)
-      }).catch((err) => {
-        return new Error(err);
-      })
+    // axios.get(`${baseUrl}api/v1/${"readInstrumentDetails"}`)
+    //   .then((res) => {
+    //     let dataArr = (res.data)
+    //     setTradeData(dataArr)
+    //   }).catch((err) => {
+    //     return new Error(err);
+    //   })
 
-    setTradeData([...tradeData])
+    // setTradeData([...tradeData])
 
   }, [])
 
-  let lotSize = tradeData[0]?.lotSize;
-  let maxLot = tradeData[0]?.maxLot;
+  let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
+  // tradeData[0]?.lotSize;
+  let maxLot = lotSize*36;
   let finalLot = maxLot / lotSize;
   let optionData = [];
   for (let i = 1; i <= finalLot; i++) {
     optionData.push(<MenuItem value={i * lotSize}>{i * lotSize}</MenuItem>)
   }
 
-
+console.log("lotSize", lotSize, maxLot)
 
   async function exitPosition(e, uId) {
     e.preventDefault()
     setOpen(false);
-
-    //console.log("tradeData", tradeData)
+    setExitState(false);
 
     if (!appLive[0].isAppLive) {
       openSuccessSB('error', "App is not Live right now. Please wait.")
-      // window.alert("App is not Live right now. Please wait.");
       return;
     }
-
 
     exitPositionFormDetails.buyOrSell = "BUY";
 
@@ -172,8 +172,6 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     exitPositionFormDetails.Quantity = filledQuantity;
 
     setexitPositionFormDetails(exitPositionFormDetails)
-
-    console.log("exitPositionFormDetails", exitPositionFormDetails)
 
     placeOrder();
 
@@ -209,23 +207,23 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
       })
     });
     const dataResp = await res.json();
-    //console.log("dataResp", dataResp)
+    ////console.log("dataResp", dataResp)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-      //console.log(dataResp.error)
+      ////console.log(dataResp.error)
       // window.alert(dataResp.error);
       openSuccessSB('error', dataResp.error)
-      ////console.log("Failed to Trade");
+      //////console.log("Failed to Trade");
     } else {
       if (dataResp.message === "COMPLETE") {
-        // console.log(dataResp);
+        // //console.log(dataResp);
         openSuccessSB('complete', { symbol, Quantity })
         // window.alert("Trade Succesfull Completed");
       } else if (dataResp.message === "REJECTED") {
-        // console.log(dataResp);
+        // //console.log(dataResp);
         openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
         // window.alert("Trade is Rejected due to Insufficient Fund");
       } else if (dataResp.message === "AMO REQ RECEIVED") {
-        // console.log(dataResp);
+        // //console.log(dataResp);
         openSuccessSB('amo', "AMO Request Recieved")
         // window.alert("AMO Request Recieved");
       } else {
@@ -238,7 +236,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value, content) => {
-    // console.log("Value: ",value)
+    // //console.log("Value: ",value)
     if (value === "complete") {
       messageObj.color = 'success'
       messageObj.icon = 'check'
@@ -275,7 +273,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
+  // //console.log("Title, Content, Time: ",title,content,time)
 
 
   const renderSuccessSB = (
@@ -348,7 +346,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
                     {/* <MenuItem value="100">100</MenuItem>
                     <MenuItem value="150">150</MenuItem> */}
                     {optionData.map((elem) => {
-                      // //console.log("optionData", elem, filledQuantity)
+                      // ////console.log("optionData", elem, filledQuantity)
                       return (
                         <MenuItem value={elem.props.value}>
                           {elem.props.children}
@@ -409,4 +407,4 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
   );
 
 }
-export default ExitPosition;
+export default memo(ExitPosition);

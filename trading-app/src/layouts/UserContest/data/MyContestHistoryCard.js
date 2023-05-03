@@ -111,7 +111,7 @@ const MyContestHistoryCard = () => {
             <MDButton variant="contained" color="dark" size="small" 
             component={Link} 
             to={{
-              pathname: `/battleground/history/${e.contestName}`,
+              pathname: `/battlestreet/history/${e.contestName}`,
             }}
             state= {{contestId: e?._id, portfolioId: participatedUser[0].portfolioId, isFromHistory: true}}
 
