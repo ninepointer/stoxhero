@@ -28,7 +28,7 @@ import { Box, Typography } from '@mui/material';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../MarketDataContext";
 
-const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
+const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
 
   console.log("rendering in userPosition: buyModel")
 
@@ -107,6 +107,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
   const handleClose = async (e) => {
     setOpen(false);
+    setBuyState(false);
   };
 
 
@@ -122,7 +123,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
   async function buyFunction(e) {
       e.preventDefault()
       setOpen(false);
-
+      setBuyState(false);
 
       if(!appLive[0]?.isAppLive){
         window.alert("App is not Live right now. Please wait.");

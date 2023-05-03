@@ -360,7 +360,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
                       <Tooltip title="Buy" placement="top">
 
                         {!elem.buyState ?
-                          <BuyModel buyState={buyState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
+                          <BuyModel setBuyState={setBuyState} buyState={buyState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
                           :
                           <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
@@ -371,7 +371,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
 
                     <Grid>
                         {!elem.sellState ?
-                          <SellModel sellState={sellState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
+                          <SellModel setSellState={setSellState} sellState={sellState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
                           :
                           <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S

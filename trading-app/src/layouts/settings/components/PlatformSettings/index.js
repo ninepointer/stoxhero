@@ -1,9 +1,9 @@
 // @mui material components
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
-import Icon from "@mui/material/Icon";
-import Tooltip from "@mui/material/Tooltip";
-import MDAlert from "../../../../components/MDAlert";
+// import Icon from "@mui/material/Icon";
+// import Tooltip from "@mui/material/Tooltip";
+// import MDAlert from "../../../../components/MDAlert";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import dayjs from 'dayjs';
 import TextField from '@mui/material/TextField';
@@ -17,11 +17,11 @@ import { MdModeEditOutline } from 'react-icons/md';
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
-import MDButton from "../../../../components/MDButton";
+// import MDButton from "../../../../components/MDButton";
 
 import React, {useState, useEffect, useContext} from 'react'
 
-import Grid from "@mui/material/Grid";
+// import Grid from "@mui/material/Grid";
 import { useMaterialUIController } from "../../../../context";
 
 // Material Dashboard 2 React components
@@ -45,7 +45,7 @@ function PlatformSettings() {
   const [LeaderBoardTimming, setLeaderBoardTimming] = useState();
   let date = new Date();
   let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
-
+  console.log("AppStartTime", AppStartTime, AppEndTime);
   const getDetails = useContext(userContext)
   let modifiedBy = getDetails.userDetails._id;
 
@@ -69,9 +69,9 @@ function PlatformSettings() {
   function setAppLiveValueFun(appLiveValue){
     if(appLiveValue){
       appLiveValue = false
-  } else{
-    appLiveValue = true
-  }
+    } else{
+      appLiveValue = true
+    }
   }
 
 
@@ -79,6 +79,7 @@ function PlatformSettings() {
     console.log("Value in setSettingsValue function: ",value)
       const res = await fetch(`${baseUrl}api/v1/applive/${id}`, {
           method: "PATCH",
+          credentials: "include",
           headers: {
               "Accept": "application/json",
               "content-type": "application/json"
@@ -108,7 +109,7 @@ function PlatformSettings() {
 
   async function saveSetting(){
     setEditable(false);
-    const res = await fetch(`${baseUrl}api/v1/applive/${ settingData[0]?._id}`, {
+    const res = await fetch(`${baseUrl}api/v1/settings/${ settingData[0]?._id}`, {
       method: "PATCH",
       credentials:"include",
       headers: {
@@ -200,7 +201,7 @@ function PlatformSettings() {
               value={AppStartTime}
               disabled={!editable}
               onChange={(e) => {setAppStartTime(e)}}
-              onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppStartTime: e})}}
+              // onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppStartTime: e})}}
               renderInput={(params) => <TextField {...params} />}
             />
 
@@ -216,8 +217,9 @@ function PlatformSettings() {
               label="Trading End Time"
               value={AppEndTime}
               disabled={!editable}
-              onChange={(e) => {setAppEndTime(e)}}
-              onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppEndTime: e})}}
+              // onChange={(e) => {setAppEndTime(e)}}
+              onChange={(e) => {setAppStartTime(e)}}
+              // onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppEndTime: e})}}
               renderInput={(params) => <TextField {...params} />}
             />
             

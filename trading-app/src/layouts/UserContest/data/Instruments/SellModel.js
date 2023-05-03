@@ -23,12 +23,12 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import MDBox from '../../../../components/MDBox';
+// import MDBox from '../../../../components/MDBox';
 import { Box, Typography } from '@mui/material';
-import { marketDataContext } from "../../../../MarketDataContext";
+// import { marketDataContext } from "../../../../MarketDataContext";
 
 
-const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
+const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
   console.log("rendering in userPosition: sellModel")
 
   // const marketDetails = useContext(marketDataContext)
@@ -39,10 +39,10 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
   let date = new Date();
-  let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+  // let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
   let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;
-  let tradeBy = getDetails.userDetails.name;
+  // let tradeBy = getDetails.userDetails.name;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear()-2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000+ Math.random() * 900000000)}`
   const [messageObj, setMessageObj] = useState({
@@ -111,6 +111,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
   const handleClose = async (e) => {
     setOpen(false);
+    setSellState(false);
   };
 
 
@@ -132,6 +133,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxL
   async function sellFunction(e, uId) {
       e.preventDefault()
       setOpen(false);
+      setSellState(false);
 
       if(!appLive[0].isAppLive){
         window.alert("App is not Live right now. Please wait.");
