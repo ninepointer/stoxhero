@@ -102,11 +102,11 @@ function ContestDetails () {
     // }, [shouldNavigate]);
 
     let rewardPool = [];
-    contest?.map((elem)=>{
-      elem?.rewards?.map((e)=>{
+    // contest?.map((elem)=>{
+        contest?.rewards?.map((e)=>{
           rewardPool.push(e)
       })
-    })
+    // })
     console.log("Reward Pool:",rewardPool)
     const totalRewardAmount = rewardPool?.reduce((total, rewardStructure) => {
       const { rankStart, rankEnd, reward } = rewardStructure;

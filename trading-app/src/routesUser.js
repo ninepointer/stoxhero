@@ -13,7 +13,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { GiNinjaHeroicStance } from 'react-icons/gi';
+// import { GiNinjaHeroicStance } from 'react-icons/gi';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
