@@ -40,7 +40,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
   let userId = getDetails.userDetails.email;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-  const [tradeData, setTradeData] = useState([]);
+  // const [tradeData, setTradeData] = useState([]);
   const [messageObj, setMessageObj] = useState({
     color: '',
     icon: '',
@@ -118,27 +118,28 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
         return new Error(err);
       })
 
-    axios.get(`${baseUrl}api/v1/${"readInstrumentDetails"}`)
-      .then((res) => {
-        let dataArr = (res.data)
-        setTradeData(dataArr)
-      }).catch((err) => {
-        return new Error(err);
-      })
+    // axios.get(`${baseUrl}api/v1/${"readInstrumentDetails"}`)
+    //   .then((res) => {
+    //     let dataArr = (res.data)
+    //     setTradeData(dataArr)
+    //   }).catch((err) => {
+    //     return new Error(err);
+    //   })
 
-    setTradeData([...tradeData])
+    // setTradeData([...tradeData])
 
   }, [])
 
-  let lotSize = tradeData[0]?.lotSize;
-  let maxLot = tradeData[0]?.maxLot;
+  let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
+  // tradeData[0]?.lotSize;
+  let maxLot = lotSize*36;
   let finalLot = maxLot / lotSize;
   let optionData = [];
   for (let i = 1; i <= finalLot; i++) {
     optionData.push(<MenuItem value={i * lotSize}>{i * lotSize}</MenuItem>)
   }
 
-
+console.log("lotSize", lotSize, maxLot)
 
   async function exitPosition(e, uId) {
     e.preventDefault()
