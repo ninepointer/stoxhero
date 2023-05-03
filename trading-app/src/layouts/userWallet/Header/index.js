@@ -112,7 +112,7 @@ export default function Wallet() {
                 <MDTypography mt={3} color="light" display="flex" justifyContent="center">No Transactions Yet!</MDTypography>
                 <MDTypography mt={3} color="light" display="flex" justifyContent="center" fontSize={15}>Participate in Battles and invite your friends to the app to earn cash & bonus.</MDTypography>
                 <MDBox mt={3} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
-                  <Link to ='/battleground'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:15,marginLeft:100,marginRight:100}}>Check Upcoming Battles</MDButton></Link>
+                  <Link to ='/battlestreet'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:15,marginLeft:100,marginRight:100}}>Check Upcoming Battles</MDButton></Link>
                   <Link to ='/Referrals'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:30,marginLeft:100,marginRight:100}}>Invite A Friend</MDButton></Link>
                 </MDBox>
               </Grid>

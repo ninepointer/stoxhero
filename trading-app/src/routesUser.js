@@ -91,7 +91,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "/battleground/:name",
+    route: "/battlestreet/:name",
     component: <ContestPage />,
   },
   {
@@ -99,7 +99,7 @@ const routes = [
     // name: "Arena", ContestTradePage
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/:name/register",
+    route: "battlestreet/:name/register",
     component: <ContestRegisterPage />,
   },
   {
@@ -107,7 +107,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/:name/trade",
+    route: "battlestreet/:name/trade",
     component: <ContestTradePage />,
   },
   {
@@ -115,7 +115,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/result",
+    route: "battlestreet/result",
     component: <ResultPage />,
   },
   {
@@ -123,7 +123,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/history",
+    route: "battlestreet/history",
     component: <ContestHistory />,
   },
   {
@@ -131,7 +131,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/history/:name",
+    route: "battlestreet/history/:name",
     component: <ContestHistoryCard />,
   },
   // {

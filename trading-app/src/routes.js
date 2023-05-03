@@ -401,7 +401,7 @@ const routes = [
   {
     type: "collapse",
     name: "Battle Ground",
-    key: "battleground",
+    key: "battlestreet",
     icon: <StadiumIcon/>,
     route: "/battlestreet",
     component: <UserContest />,
@@ -411,7 +411,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "/battleground/:name",
+    route: "/battlestreet/:name",
     component: <ContestPage />,
   },
   {
@@ -419,7 +419,7 @@ const routes = [
     // name: "Arena", ContestTradePage
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/:name/register",
+    route: "battlestreet/:name/register",
     component: <ContestRegisterPage />,
   },
   {
@@ -427,7 +427,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/:name/trade",
+    route: "battlestreet/:name/trade",
     component: <ContestTradePage />,
   },
   {

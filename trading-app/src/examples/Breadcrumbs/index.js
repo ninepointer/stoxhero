@@ -34,7 +34,7 @@ function Breadcrumbs({ icon, title, route, light }) {
 
   if(title === "infinitytrading"){
     title = "Infinity Trading"
-  } else if(title === "battleground"){
+  } else if(title === "battlestreet"){
     title = "BattleGround"
   } else if(title === "papertrading"){
     title = "Paper Trading"
