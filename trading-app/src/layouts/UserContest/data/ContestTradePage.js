@@ -39,8 +39,8 @@ import MDSnackbar from "../../../components/MDSnackbar";
 function ContestTradeView () {
     const [contest,setContest] = useState({});
     const location = useLocation();
-    const  contestId  = location?.state?.contestId;
-    const  portfolioId  = location?.state?.portfolioId;
+    const contestId = location?.state?.contestId;
+    const portfolioId = location?.state?.portfolioId;
     const isFromHistory = location?.state?.isFromHistory
     const minEntry = location?.state?.minEntry
     const entry = location?.state?.entry

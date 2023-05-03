@@ -107,8 +107,6 @@ return (
           <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
           <MDTypography fontSize={13} color="light" style={{fontWeight:700, fontSize: "10px"}}>Exit</MDTypography>
           </Grid>
-
-
       </Grid>
 
 
@@ -169,9 +167,9 @@ return (
           </MDTypography>
         </Grid>
 
-        <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
-            < ExitPosition isFromHistory={isFromHistory} Render={{render, setReRender}} contestId={contestId} portfolioId={portfolioId} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
-        </Grid>
+          <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
+              < ExitPosition isFromHistory={isFromHistory} Render={{render, setReRender}} contestId={contestId} portfolioId={portfolioId} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
+          </Grid>
         </Grid>
 
       )})
