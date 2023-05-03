@@ -80,7 +80,7 @@ function ContestHistoryTradeView () {
             <Grid item xs={12} md={6} lg={6.5} mb={2}>
                 <MDBox color="light" >
                   <MDBox display="flex" alignItems= "center" gap={"130px"} mb={1} >
-                    <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{nevigate('/battleground/history')}}>< FastRewindIcon/></Button>
+                    <Button mb={2} color="light" style={{border: "1px solid white", borderRadius: "7px"}} onClick={()=>{nevigate('/battlestreet/history')}}>< FastRewindIcon/></Button>
                     <MDTypography mt={1.5} color="light"  style={{fontWeight:700, filter: isDummy && 'blur(2px)'}}>
                         {contest?.contestName}
                     </MDTypography>

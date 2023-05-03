@@ -95,13 +95,24 @@ function ContestDetails () {
     // useEffect(() => {
     //   if (shouldNavigate) {
     //     console.log("in the handler5")
-    //     nevigate(`/battleground/${contest?.contestName}/register`, {
+    //     nevigate(`/battlestreet/${contest?.contestName}/register`, {
     //       state: {data:contest?._id}
     //     });
     //   }
     // }, [shouldNavigate]);
 
-
+    let rewardPool = [];
+    contest?.map((elem)=>{
+      elem?.rewards?.map((e)=>{
+          rewardPool.push(e)
+      })
+    })
+    console.log("Reward Pool:",rewardPool)
+    const totalRewardAmount = rewardPool?.reduce((total, rewardStructure) => {
+      const { rankStart, rankEnd, reward } = rewardStructure;
+      const rankCount = rankEnd - rankStart + 1;
+      return total + (reward * rankCount);
+    }, 0);
 
 
     function timeChange(timeString){
@@ -245,7 +256,7 @@ function ContestDetails () {
 
                         <Grid item xs={12} md={6} lg={12} display="flex" justifyContent="center">
                            <MDTypography color="light" fontSize={15}>
-                            {contest?.entryFee?.currency} {contest?.rewards?.reduce((total, reward) => total + reward?.reward, 0)}
+                            {contest?.entryFee?.currency} {totalRewardAmount.toLocaleString()}
                            </MDTypography>
                         </Grid>
 
@@ -306,7 +317,7 @@ function ContestDetails () {
                                 size="small" 
                                 component={Link} 
                                 to={{
-                                    pathname: `/battleground/${contest?.contestName}/register`,
+                                    pathname: `/battlestreet/${contest?.contestName}/register`,
                                   }}
                                   state= {{data:contest?._id}}
 
@@ -321,7 +332,7 @@ function ContestDetails () {
                                 size="small" 
                                 component={Link} 
                                 to={{
-                                    pathname: `/battleground`,
+                                    pathname: `/battlestreet`,
                                   }}
                                 //   state= {{data:contest?._id}}
                             >

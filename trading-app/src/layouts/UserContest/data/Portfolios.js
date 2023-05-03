@@ -85,7 +85,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}
   
     useEffect(() => {
       if (shouldNavigate) {
-        nevigate(`/battleground/${contestName}`, {
+        nevigate(`/battlestreet/${contestName}`, {
           state: {entry: entry, minEntry: minEntry, contestId: objectId, portfolioId: selectedPortfolio, isDummy: isDummy}
         });
       }
@@ -259,7 +259,7 @@ const ContestPortfolioCard = ({contestId, endDate, contestName, entry, minEntry}
                 <MDButton variant="outlined" size="small" color="light" 
                   component={Link} 
                   to={{
-                      pathname: `/battleground`,
+                      pathname: `/battlestreet`,
                     }}
                 >
                     Back

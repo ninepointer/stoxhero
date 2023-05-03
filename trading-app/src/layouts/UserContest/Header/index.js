@@ -29,7 +29,7 @@ function LabTabs() {
   };
 
   function history(){
-    navigate("/battleground/history");
+    navigate("/battlestreet/history");
   }
 
   return (
@@ -67,7 +67,7 @@ function LabTabs() {
     //       </MDBox>
     //       : 
 
-    //       navigate("/battleground/history")
+    //       navigate("/battlestreet/history")
     //       }
     //     </TabPanel> */}
     //   </TabContext>

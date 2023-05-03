@@ -83,7 +83,7 @@ const ContestCard = () => {
 
       // console.log("Contest Data: ",contestData)
 
-      function dateConvert(dateConvert){
+    function dateConvert(dateConvert){
         const dateString = dateConvert;
         const date = new Date(dateString);
         const options = { 
@@ -155,7 +155,7 @@ const ContestCard = () => {
               <MDButton variant="contained" color="light" size="small" 
               component={Link} 
               to={{
-                pathname: `/battleground/${e.contestName}`,
+                pathname: `/battlestreet/${e.contestName}`,
               }}
               state= {{data:e._id, isDummy: true, isFromUpcomming: true}}
               >
