@@ -68,7 +68,6 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
 import UserContest from "./layouts/UserContest"
-import LandingPage from './layouts/landingPage'
 
 const routes = [
   {
@@ -341,28 +340,20 @@ const routes = [
   //   route: "/notifications",
   //   component: <Notifications />,
   // },
+  // {
+  //   type: "collapse",
+  //   name: "Position",
+  //   key: "position",
+  //   icon: <BusinessIcon/>,
+  //   route: "/position",
+  //   component: <UserPosition />,
+  // },
   {
     type: "collapse",
-    name: "User DashBoard",
-    key: "home",
-    icon: <HomeIcon/>,
-    route: "/home",
-    component: <Home />,
-  },
-  {
-    type: "collapse",
-    name: "Position",
-    key: "position",
-    icon: <BusinessIcon/>,
-    route: "/position",
-    component: <UserPosition />,
-  },
-  {
-    type: "collapse",
-    name: "Battle Ground",
-    key: "battleground",
+    name: "Battle Street",
+    key: "battlestreet",
     icon: <StadiumIcon/>,
-    route: "/battleground",
+    route: "/battlestreet",
     component: <UserContest />,
   },
   {

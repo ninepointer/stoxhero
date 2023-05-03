@@ -14,7 +14,6 @@ import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { GiNinjaHeroicStance } from 'react-icons/gi';
-import LandingPage from './layouts/landingPage'
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
@@ -81,10 +80,10 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Battle Ground",
-    key: "battleground",
+    name: "Battle Street",
+    key: "battlestreet",
     icon: <StadiumIcon/>,
-    route: "/battleground",
+    route: "/battlestreet",
     component: <UserContest />,
   },
   {
