@@ -1,11 +1,11 @@
 import React from "react";
 import axios from "axios";
-import { useEffect, useState, useContext } from "react";
-import { userContext } from "../../AuthContext";
+import { useEffect, useState } from "react";
+// import { userContext } from "../../AuthContext";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
-import Divider from "@mui/material/Divider";
+// import Divider from "@mui/material/Divider";
 
 // @mui icons
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -14,15 +14,15 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
-import MDTypography from "../../components/MDTypography";
+// import MDTypography from "../../components/MDTypography";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import ProfileInfoCard from "../../examples/Cards/InfoCards/ProfileInfoCard";
-import ProfilesList from "../../examples/Lists/ProfilesList";
-import DefaultProjectCard from "../../examples/Cards/ProjectCards/DefaultProjectCard";
+// import ProfilesList from "../../examples/Lists/ProfilesList";
+// import DefaultProjectCard from "../../examples/Cards/ProjectCards/DefaultProjectCard";
 
 // Overview page components
 import Header from "./components/Header";
