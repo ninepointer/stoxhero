@@ -80,10 +80,10 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Battle Ground",
-    key: "battleground",
+    name: "Battle Street",
+    key: "battlestreet",
     icon: <StadiumIcon/>,
-    route: "/battleground",
+    route: "/battlestreet",
     component: <UserContest />,
   },
   {

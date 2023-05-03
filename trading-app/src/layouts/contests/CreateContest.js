@@ -449,21 +449,6 @@ console.log("Rule Name: ",contestData?.contestRule?.ruleName)
               />
           </Grid>
 
-          {/* <Grid item xs={12} md={6} xl={3}>
-            <TextField
-                disabled={((isSubmitted || id) && (!editing || saving))}
-                id="outlined-required"
-                label="Contest Margin *"
-                defaultValue={oldObjectId ? contestData?.entryFee?.amount :formState?.entryFee?.amount}
-                fullWidth
-                type="number"
-                onChange={(e) => {setFormState(prevState => ({
-                  ...prevState,
-                  contestMargin: e.target.value
-                }))}}
-                />
-            </Grid> */}
-
           <Grid item xs={12} md={6} xl={3}>
               <FormControl sx={{width: "100%" }}>
                 <InputLabel id="demo-simple-select-autowidth-label">Currency *</InputLabel>
@@ -591,7 +576,7 @@ console.log("Rule Name: ",contestData?.contestRule?.ruleName)
 
           </Grid>
                 
-          <Grid item xs={12} md={3} xl={6} mb={-3}>
+          <Grid item xs={12} md={3} xl={3} mb={-3}>
                 <FormControl sx={{ minHeight:10, minWidth:245 }}>
                   <InputLabel id="demo-multiple-name-label">Contest Rule</InputLabel>
                   <Select
@@ -618,7 +603,7 @@ console.log("Rule Name: ",contestData?.contestRule?.ruleName)
           </Grid>
 
 
-          <Grid item display="flex" justifyContent="flex-end" alignContent="center" xs={12} md={6} xl={6}>
+          <Grid item display="flex" justifyContent="flex-end" alignContent="center" xs={12} md={6} xl={9}>
                 {!isSubmitted && !isObjectNew && (
                 <>
                 <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}} disabled={creating} onClick={(e)=>{onSubmit(e,formState)}}>
