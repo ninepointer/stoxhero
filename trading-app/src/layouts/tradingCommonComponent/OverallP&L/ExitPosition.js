@@ -21,7 +21,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 
-function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken, setExitState }) {
+function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
   //console.log("rendering in userPosition/overall: exitPosition", quantity)
   // const { render, setReRender } = Render
   console.log("rendering : exit")
@@ -34,9 +34,9 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getDetails = React.useContext(userContext);
-  let uId = uniqid();
+  // let uId = uniqid();
   let date = new Date();
-  let createdBy = getDetails.userDetails.name;
+  // let createdBy = getDetails.userDetails.name;
   let userId = getDetails.userDetails.email;
   let trader = getDetails.userDetails._id;
   let dummyOrderId = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
@@ -48,7 +48,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     content: ''
   })
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(exitState);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -143,15 +143,12 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
   async function exitPosition(e, uId) {
     e.preventDefault()
     setOpen(false);
-
-    ////console.log("tradeData", tradeData)
+    setExitState(false);
 
     if (!appLive[0].isAppLive) {
       openSuccessSB('error', "App is not Live right now. Please wait.")
-      // window.alert("App is not Live right now. Please wait.");
       return;
     }
-
 
     exitPositionFormDetails.buyOrSell = "BUY";
 
@@ -174,8 +171,6 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     exitPositionFormDetails.Quantity = filledQuantity;
 
     setexitPositionFormDetails(exitPositionFormDetails)
-
-    //console.log("exitPositionFormDetails", exitPositionFormDetails)
 
     placeOrder();
 
