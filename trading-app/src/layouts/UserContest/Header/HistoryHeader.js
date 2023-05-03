@@ -31,9 +31,9 @@ function LabTabs() {
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Upcoming Battles" value="2" onClick={()=>{navigate('/battleground')}}/>
-            <Tab label="My Battles" value="3" onClick={()=>{navigate('/battleground')}}/>
-            <Tab label="History" value="3" onClick={()=>{navigate('/battleground/history')}}/>
+            <Tab label="Upcoming Battles" value="2" onClick={()=>{navigate('/battlestreet')}}/>
+            <Tab label="My Battles" value="3" onClick={()=>{navigate('/battlestreet')}}/>
+            <Tab label="History" value="3" onClick={()=>{navigate('/battlestreet/history')}}/>
           </TabList>
         </Box>
         <TabPanel value="2">

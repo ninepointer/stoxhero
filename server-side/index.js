@@ -20,6 +20,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
 const {autoTradeContest} = require('./controllers/contestTradeController');
+const {appLive, appOffline} = require('./controllers/appSetting');
 // const {DummyMarketData} = require('./marketData/dummyMarketData');
 // import * as ioredis from 'ioredis';
 
@@ -199,11 +200,16 @@ let weekDay = date.getDay();
   }
 
   try{
-    // const autotrade = nodeCron.schedule(`*/10 * * * * *`, autoTradeContest);
     const autotrade = nodeCron.schedule(`*/10 * 3-10 * * *`, autoTradeContest);
-    // console.log(autotrade)
   } catch(err){
-    // console.log("err from cronjob", err)
+    console.log("err from cronjob", err)
+  }
+
+  try{
+    const onlineApp = nodeCron.schedule('45 3 * * *', appLive);
+    const offlineApp = nodeCron.schedule(`* 10 * * *`, appOffline);
+  } catch(err){
+    console.log("err from cronjob", err)
   }
   // console.log(autotrade)
 

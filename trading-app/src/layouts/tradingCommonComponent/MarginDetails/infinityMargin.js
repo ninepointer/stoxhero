@@ -9,8 +9,8 @@ import MarginDetails from './MarginDetails';
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 
 const InfinityMarginGrid = () => {
-
-  console.log("rendering in userPosition: marginGrid")
+  console.log("rendering : infinitymargin")
+  //console.log("rendering in userPosition: marginGrid")
   const { infinityNetPnl, totalRunningLots } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 //   const [marginDetails, setMarginDetails] = useState([]);
@@ -59,11 +59,11 @@ const InfinityMarginGrid = () => {
 //           signal: signal,
 //         });
 //         if (!signal.aborted) {
-//           console.log("Data 4: ",data4)
+//           //console.log("Data 4: ",data4)
 //           setPayIn(data4);
 //         }
 //       } catch (err) {
-//         console.log(err);
+//         //console.log(err);
 //       }
 //     })();
 
@@ -109,7 +109,7 @@ const InfinityMarginGrid = () => {
   let lifetimenetpnl = fundDetail?.npnl ? Number((fundDetail?.npnl)?.toFixed(0)) : 0;
   let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
 
-  console.log(lifetimenetpnl)
+  //console.log(lifetimenetpnl)
   let runninglotnumber = totalRunningLots;
   let runningPnl = Number(infinityNetPnl?.toFixed(0));
   let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
@@ -124,7 +124,7 @@ let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin)?.toLocaleSt
 //   let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
 //   let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount)?.toLocaleString() : "-₹" + (-Number(payInAmount))?.toLocaleString()
   
-console.log("checkmargin", infinityNetPnl, yesterdayData, fundDetail)
+//console.log("checkmargin", infinityNetPnl, yesterdayData, fundDetail)
   
 
     // const { columns, rows } = authorsTableData();

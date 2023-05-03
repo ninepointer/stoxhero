@@ -153,7 +153,7 @@ const MapUser = ({algoId}) => {
   }
 
   let permissionDataUpdated = permissionData.filter((elem)=>{
-      return elem.algoId._id === algoId;
+      return elem.algoId?._id === algoId;
   })
 
   let newData = [];

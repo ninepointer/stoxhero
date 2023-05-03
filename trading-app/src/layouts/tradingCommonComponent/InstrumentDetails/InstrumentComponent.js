@@ -4,6 +4,8 @@ import {memo} from 'react';
 
 function InstrumentComponent({last_price, change, contractDate, symbol, instrument}) {
 
+  console.log("rendering : InstrumentComponent")
+
     let styleTD = {
         textAlign: "center",
         fontSize: ".75rem",

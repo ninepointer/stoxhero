@@ -33,14 +33,22 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
       })
       console.log("leaderboard", api1Response.data)
       // setTimeout(()=>{setIsLoading(false)},500)
+      // setRankData(prevRanks => {
+      //   const ranksMap = new Map(prevRanks.map(rank => [rank.name, rank]));
+      //   (api1Response.data.data).forEach(rank => {
+      //     ranksMap.set(rank.name, rank);
+      //   });
+      //   return Array.from(ranksMap.values());
+      // });
+
       setRankData(prevRanks => {
         const ranksMap = new Map(prevRanks.map(rank => [rank.name, rank]));
-        (api1Response.data.data).forEach(rank => {
+        api1Response.data.data.forEach(rank => {
           ranksMap.set(rank.name, rank);
         });
-        return Array.from(ranksMap.values());
+        const sortedRanks = Array.from(ranksMap.values()).sort((a, b) => b.npnl - a.npnl);
+        return sortedRanks;
       });
-      // setRankData(api1Response.data.data);
 
       const api2Response = await axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/${myRankEndPoint}`, {
         withCredentials: true,
@@ -61,10 +69,9 @@ function TradersRanking({isFromResult, contest, contestId, isFromHistory, reward
           setTimeout(()=>{setIsLoading(false)},500)
         }
         
+      } else if(!isFromResult){
+        setTimeout(()=>{setIsLoading(false)},500)
       }
-
-
-      
   };
 
   async function fetchSettingData(){

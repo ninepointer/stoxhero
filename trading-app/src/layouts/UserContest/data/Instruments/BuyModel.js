@@ -1,10 +1,10 @@
 import React, { useContext, useState } from "react";
 import { useEffect, memo } from 'react';
 import axios from "axios"
-import uniqid from "uniqid"
+// import uniqid from "uniqid"
 import { userContext } from "../../../../AuthContext";
 
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -24,11 +24,11 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { Box, Typography } from '@mui/material';
-import MDBox from '../../../../components/MDBox';
-import { borderBottom } from '@mui/system';
-import { marketDataContext } from "../../../../MarketDataContext";
+// import MDBox from '../../../../components/MDBox';
+// import { borderBottom } from '@mui/system';
+// import { marketDataContext } from "../../../../MarketDataContext";
 
-const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
+const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
 
   console.log("rendering in userPosition: buyModel")
 
@@ -107,6 +107,7 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
 
   const handleClose = async (e) => {
     setOpen(false);
+    setBuyState(false);
   };
 
 
@@ -119,15 +120,21 @@ const BuyModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, maxLo
     })
   }, [])
 
-  async function buyFunction(e, uId) {
+  async function buyFunction(e) {
       e.preventDefault()
       setOpen(false);
-
+      setBuyState(false);
 
       if(!appLive[0]?.isAppLive){
         window.alert("App is not Live right now. Please wait.");
         return;
       }
+
+      // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
+      //   // window.alert("App is not Live right now. Please wait.");
+      //   openSuccessSB('error', 'App is not live right now. Please wait.')
+      //   return;
+      // }
 
 
       buyFormDetails.buyOrSell = "BUY";

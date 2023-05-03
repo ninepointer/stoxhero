@@ -11,7 +11,8 @@ import { NetPnlContext } from "../../../PnlContext";
 
 
 function StockIndex({socket}) {
-    console.log("rendering stock index")
+    console.log("rendering : stock index")
+    //console.log("rendering stock index")
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [indexData, setIndexData] = useState([]);
     const [indexLiveData, setIndexLiveData] = useState([]);
@@ -29,7 +30,7 @@ function StockIndex({socket}) {
     }, [])
 
     useEffect(()=>{
-        socket.on("index-tick", (data) => {
+        socket?.on("index-tick", (data) => {
             setIndexLiveData(prevInstruments => {
               const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
               data.forEach(instrument => {
@@ -89,7 +90,7 @@ function StockIndex({socket}) {
         justifyContent: 'center',
     }));
 
-console.log("finalArr", finalArr)
+//console.log("finalArr", finalArr)
   return (
     <MDBox mb={0} mt={0}>
         <Grid container spacing={3}>
@@ -109,7 +110,7 @@ console.log("finalArr", finalArr)
                 >
                 {finalArr.map((e) => {
                     return (
-                        <Item key={e.elevation.props.children} elevation={e.elevation.props.children}>           
+                        <Item key={e.instrument.props.children} elevation={e.elevation.props.children}>           
                         <MDBox m={0.5} fontWeight={700}>{e.instrument.props.children}</MDBox>
                         <MDBox m={0.5} fontWeight={700} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>{e.ltp.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.ltp.props.children).toFixed(2)}</MDBox>
                         <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} color={e.valueChange.props.children >= 0 ? "success" : "error"}>{e.valueChange.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.valueChange.props.children).toFixed(2)}</MDBox>

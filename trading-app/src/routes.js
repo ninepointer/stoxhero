@@ -27,6 +27,7 @@ import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
 import AnalyticsRoutes from './analyticsRoutes'
 import SignUp from './layouts/authentication/sign-up'
+import SignIn from './layouts/authentication/sign-in'
 import ResetPassword from './layouts/authentication/reset-password/cover'
 import Response from './layouts/authentication/sign-up/responseSubmit'
 import MyReferrals from "./layouts/referrals"
@@ -93,6 +94,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/signup",
     component: <SignUp />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "login",
+    // icon: <DashboardIcon/>,
+    route: "/login",
+    component: <SignIn />,
   },
   
   {
@@ -347,6 +356,14 @@ const routes = [
   //   route: "/notifications",
   //   component: <Notifications />,
   // },
+  // {
+  //   type: "collapse",
+  //   name: "Position",
+  //   key: "position",
+  //   icon: <BusinessIcon/>,
+  //   route: "/position",
+  //   component: <UserPosition />,
+  // },
   {
     type: "collapse",
     name: "User DashBoard",
@@ -384,9 +401,9 @@ const routes = [
   {
     type: "collapse",
     name: "Battle Ground",
-    key: "battleground",
+    key: "battlestreet",
     icon: <StadiumIcon/>,
-    route: "/battleground",
+    route: "/battlestreet",
     component: <UserContest />,
   },
   {
@@ -394,7 +411,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "/battleground/:name",
+    route: "/battlestreet/:name",
     component: <ContestPage />,
   },
   {
@@ -402,7 +419,7 @@ const routes = [
     // name: "Arena", ContestTradePage
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/:name/register",
+    route: "battlestreet/:name/register",
     component: <ContestRegisterPage />,
   },
   {
@@ -410,7 +427,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "battleground/:name/trade",
+    route: "battlestreet/:name/trade",
     component: <ContestTradePage />,
   },
   {
