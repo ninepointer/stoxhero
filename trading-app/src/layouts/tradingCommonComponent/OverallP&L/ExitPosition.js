@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, memo } from 'react'
 import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -21,9 +21,10 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 
-function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken }) {
-  console.log("rendering in userPosition/overall: exitPosition", quantity)
+function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken, setExitState }) {
+  //console.log("rendering in userPosition/overall: exitPosition", quantity)
   // const { render, setReRender } = Render
+  console.log("rendering : exit")
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -103,6 +104,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
 
   const handleClose = (e) => {
     setOpen(false);
+    setExitState(false);
   };
 
 
@@ -142,7 +144,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     e.preventDefault()
     setOpen(false);
 
-    //console.log("tradeData", tradeData)
+    ////console.log("tradeData", tradeData)
 
     if (!appLive[0].isAppLive) {
       openSuccessSB('error', "App is not Live right now. Please wait.")
@@ -173,7 +175,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
 
     setexitPositionFormDetails(exitPositionFormDetails)
 
-    console.log("exitPositionFormDetails", exitPositionFormDetails)
+    //console.log("exitPositionFormDetails", exitPositionFormDetails)
 
     placeOrder();
 
@@ -209,23 +211,23 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
       })
     });
     const dataResp = await res.json();
-    //console.log("dataResp", dataResp)
+    ////console.log("dataResp", dataResp)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-      //console.log(dataResp.error)
+      ////console.log(dataResp.error)
       // window.alert(dataResp.error);
       openSuccessSB('error', dataResp.error)
-      ////console.log("Failed to Trade");
+      //////console.log("Failed to Trade");
     } else {
       if (dataResp.message === "COMPLETE") {
-        // console.log(dataResp);
+        // //console.log(dataResp);
         openSuccessSB('complete', { symbol, Quantity })
         // window.alert("Trade Succesfull Completed");
       } else if (dataResp.message === "REJECTED") {
-        // console.log(dataResp);
+        // //console.log(dataResp);
         openSuccessSB('reject', "Trade is Rejected due to Insufficient Fund")
         // window.alert("Trade is Rejected due to Insufficient Fund");
       } else if (dataResp.message === "AMO REQ RECEIVED") {
-        // console.log(dataResp);
+        // //console.log(dataResp);
         openSuccessSB('amo', "AMO Request Recieved")
         // window.alert("AMO Request Recieved");
       } else {
@@ -238,7 +240,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (value, content) => {
-    // console.log("Value: ",value)
+    // //console.log("Value: ",value)
     if (value === "complete") {
       messageObj.color = 'success'
       messageObj.icon = 'check'
@@ -275,7 +277,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
+  // //console.log("Title, Content, Time: ",title,content,time)
 
 
   const renderSuccessSB = (
@@ -348,7 +350,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
                     {/* <MenuItem value="100">100</MenuItem>
                     <MenuItem value="150">150</MenuItem> */}
                     {optionData.map((elem) => {
-                      // //console.log("optionData", elem, filledQuantity)
+                      // ////console.log("optionData", elem, filledQuantity)
                       return (
                         <MenuItem value={elem.props.value}>
                           {elem.props.children}
@@ -409,4 +411,4 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
   );
 
 }
-export default ExitPosition;
+export default memo(ExitPosition);

@@ -76,14 +76,15 @@ export default function Wallet() {
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
       <Grid container xs={12} md={6} lg={12}>
-        
+
         <Grid item xs={12} md={12} lg={6} mb={1}>
           <MDBox mb={2}>
             <MDTypography color="light" fontSize={15} display="flex" justifyContent="center">Transactions</MDTypography>
           </MDBox>
-           
+
           {myWallet?.transactions?.length > 0 ? 
             myWallet?.transactions?.map((elem) => {
+              console.log("elem", elem)
               return (
                 <MDBox mb={1} style={{border:'1px solid white', borderRadius:5,padding:4}}>
                   <Grid container xs={12} md={6} lg={12} spacing={1} display="flex" justifyContent="center" alignItems="center" alignContent="center">

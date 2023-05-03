@@ -64,6 +64,7 @@ import colors from '../../../assets/theme/base/colors';
 
 function OverallRow({last_price, change, grossPnl, avgPrice, product, symbol, quantity, netPnl}) {
 
+  console.log("rendering : overall row")
     let styleTD = {
         textAlign: "center",
         fontSize: ".65rem",

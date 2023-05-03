@@ -18,11 +18,12 @@ import { userContext } from "../../AuthContext";
 
 
 function UserPosition() {
-
+  console.log("rendering: UserPosition");
   const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+
 
   let socket;
   try {
@@ -30,6 +31,7 @@ function UserPosition() {
   } catch (err) {
     throw new Error(err);
   }
+
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -52,14 +54,14 @@ function UserPosition() {
 
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
-      socket={socket}
+      
       reRender={reRender}
       setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={'paperTrade'}
     />;
-  }, [socket, reRender, isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [ reRender, isGetStartedClicked, handleSetIsGetStartedClicked, memoizedSetReRender]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <InstrumentDetails
@@ -75,7 +77,7 @@ function UserPosition() {
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallGrid
-      socket={socket}
+      
       reRender={reRender}
       setReRender={memoizedSetReRender}
       // setReRender={}
@@ -83,7 +85,7 @@ function UserPosition() {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"paperTrade"}
     />;
-  }, [socket, reRender, handleSetIsGetStartedClicked]);
+  }, [ reRender, handleSetIsGetStartedClicked, memoizedSetReRender]);
 
 
 
