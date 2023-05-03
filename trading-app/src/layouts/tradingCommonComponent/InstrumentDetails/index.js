@@ -173,11 +173,11 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/> 
+      <BuyModel buyState={buyState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel sellState={sellState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (
@@ -192,8 +192,30 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
       </MDTypography>
     );
 
+    instrumentDetailObj.sellState = (
+      false
+    );
+
+    instrumentDetailObj.buyState = (
+      false
+    );
+
     instrumentDetailArr.push(instrumentDetailObj)
   })
+
+  const handleBuyClick = (index) => {
+    setBuyState(true)
+    const newRows = [...instrumentDetailArr];
+    newRows[index].sellState = true;
+    instrumentDetailArr = (newRows);
+  };
+
+  const handleSellClick = (index) => {
+    setSellState(true)
+    const newRows = [...instrumentDetailArr];
+    newRows[index].sellState = true;
+    instrumentDetailArr = (newRows);
+  };
 
   async function removeInstrument(instrumentToken, instrument){
     setInstrumentName(instrument)
@@ -290,7 +312,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
             </thead>
             <tbody>
 
-              {instrumentDetailArr.map((elem)=>{
+              {instrumentDetailArr.map((elem, index)=>{
                 return(
               <tr
               style={{borderBottom: "1px solid #D3D3D3"}} key={elem.instrumentToken.props.children}
@@ -309,22 +331,22 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
                   </Tooltip> */}
 
                   <Tooltip title="Buy" placement="top">
-                    {buyState ?
+                    {!elem.buyState ?
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem.buy}</td>
                     :
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >
-                      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setBuyState(true)}} >
+                      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                         B
                       </MDButton>
                     </td>
                     }
                   </Tooltip>
                   <Tooltip title="Sell" placement="top">
-                    {sellState ?
+                    {!elem.sellState ?
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem.sell}</td>
                     :
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >
-                      <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setSellState(true)}} >
+                      <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                         S
                       </MDButton>
                       </td>

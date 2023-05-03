@@ -482,7 +482,6 @@ function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
       updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
-      
       const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
       const quantitycolor = subelem.lots >= 0 ? "success" : "error"
       const gpnlcolor = updatedValue >= 0 ? "success" : "error"
@@ -554,14 +553,26 @@ function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
         );
       }
       obj.exit = (
-        < ExitPosition from={from} reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState}/>
+        < ExitPosition from={from} reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
       );
       obj.buy = (
-        <Buy from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/>
+        <Buy from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
       );
       
       obj.sell = (
-        <Sell from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+        <Sell from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
+      );
+
+      obj.sellState = (
+        false
+      );
+
+      obj.buyState = (
+        false
+      );
+
+      obj.exitState = (
+        false
       );
 
       if(subelem.lots != 0){
@@ -574,6 +585,28 @@ function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
 
     })
 
+    const handleBuyClick = (index) => {
+      setBuyState(true)
+      const newRows = [...rows];
+      newRows[index].sellState = true;
+      rows = (newRows);
+    };
+
+    const handleExitClick = (index) => {
+      setExitState(true)
+      const newRows = [...rows];
+      newRows[index].sellState = true;
+      rows = (newRows);
+    };
+
+    const handleSellClick = (index) => {
+      setSellState(true)
+      const newRows = [...rows];
+      newRows[index].sellState = true;
+      rows = (newRows);
+    };
+
+    // console.log("rows", rows)
 
   return (
     <Card>
@@ -613,7 +646,7 @@ function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
             </thead>
             <tbody>
 
-              {rows.map((elem)=>{
+              {rows.map((elem, index)=>{
                 return(
                   <>
               <tr
@@ -630,39 +663,38 @@ function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
                     change={elem?.change?.props?.children}
                   />
                   <Tooltip title="Exit Your Position" placement="top">
-                    { !exitState ?
+                    { elem.exitState ?
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >
-                  <MDButton size="small" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} color="warning" onClick={()=>{setExitState(true)}}>
-                    E
-                  </MDButton>
-                  </td>
-                  :
+                      <MDButton size="small" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} color="warning" onClick={()=>{handleExitClick(index)}}>
+                        E
+                      </MDButton>
+                    </td>
+                    :
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.exit}</td>
                     }
-                    </Tooltip>
+                  </Tooltip>
                   <Tooltip title="Buy" placement="top">
-                    {buyState ?
+                    {!elem.buyState ?
                       <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.buy}</td>
                       :
                       <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >
-                      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setBuyState(true)}} >
+                      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                         B
                       </MDButton>
                       </td>
                     }
                   </Tooltip>
                   <Tooltip title="Sell" placement="top">
-                    {sellState ?
+                    {!elem.sellState ?
                       <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >{elem?.sell}</td>
                       :
                       <td style={{textAlign: "center", marginRight:0.5,minWidth:1.5,minHeight:2}} >
-                      <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setSellState(true)}} >
+                      <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                         S
                       </MDButton>
                       </td>
                     }
                   </Tooltip>
-      
               </tr>
               </>
 

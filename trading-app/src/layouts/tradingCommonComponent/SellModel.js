@@ -29,8 +29,8 @@ import { Box, Typography } from '@mui/material';
 // import { marketDataContext } from "../../MarketDataContext";
 
 
-const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, reRender, setReRender, fromUserPos, expiry, from, setSellState}) => {
-  // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry, from)
+const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, reRender, setReRender, fromSearchInstrument, expiry, from, setSellState}) => {
+  // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromSearchInstrument, expiry, from)
 
   // const marketDetails = useContext(marketDataContext)
   console.log("rendering : sell")
@@ -67,7 +67,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, ltp,
 
 
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(sellState);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -111,18 +111,20 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, ltp,
   };
 
   const handleClickOpen = async () => {
-    if(fromUserPos){
+    if(fromSearchInstrument){
       addInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(true);
   }; 
 
   const handleClose = async (e) => {
-    if(fromUserPos){
-      removeInstrument()
+    if(fromSearchInstrument){
+      removeInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(false);
     setSellState(false);
   };
@@ -146,6 +148,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, ltp,
   async function sellFunction(e, uId) {
       e.preventDefault()
       setOpen(false);
+      setSellState(false);
 
       if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
         // window.alert("App is not Live right now. Please wait.");
@@ -339,7 +342,7 @@ const SellModel = ({exchange, symbol, instrumentToken, symbolName, lotSize, ltp,
 
   return (
     <div>
-      {/* {fromUserPos ? 
+      {/* {fromSearchInstrument ? 
       <MDBox color="light" onClick={handleClickOpen}>
         S
       </MDBox>

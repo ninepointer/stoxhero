@@ -28,7 +28,7 @@ import { Box, Typography } from '@mui/material';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({ exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromUserPos, expiry, from, setBuyState}) => {
+const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromSearchInstrument, expiry, from, setBuyState}) => {
   console.log("rendering : buy")
   //console.log("rendering in userPosition: buyModel", from)
 
@@ -61,7 +61,7 @@ const BuyModel = ({ exchange, symbol, instrumentToken, symbolName, lotSize, maxL
 
 
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -108,18 +108,20 @@ const BuyModel = ({ exchange, symbol, instrumentToken, symbolName, lotSize, maxL
   };
 
   const handleClickOpen = async () => {
-    if(fromUserPos){
+    if(fromSearchInstrument){
       addInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(true);
   }; 
 
   const handleClose = async (e) => {
-    if(fromUserPos){
-      removeInstrument()
+    if(fromSearchInstrument){
+      removeInstrument();
+      reRender ? setReRender(false) : setReRender(true);
     }
-    reRender ? setReRender(false) : setReRender(true);
+    
     setOpen(false);
     setBuyState(false);
   };
@@ -137,6 +139,7 @@ const BuyModel = ({ exchange, symbol, instrumentToken, symbolName, lotSize, maxL
     //console.log("caseStudy 1: buy")
       e.preventDefault()
       setOpen(false);
+      setBuyState(false);
 
 
       if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
