@@ -29,9 +29,10 @@ React.useEffect(()=>{
 
 },[addRewardObject,oldObjectId])
 
+let prizepool = 0;
 contestData?.rewards.map((elem)=>{
   let contestReward = {}
-
+  prizepool += (elem.rankEnd - elem.rankStart + 1)*elem.reward
   contestReward.rankStart = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem.rankStart}
@@ -45,6 +46,16 @@ contestData?.rewards.map((elem)=>{
   contestReward.reward = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem.reward}
+    </MDTypography>
+  );
+  contestReward.winners = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem.rankEnd - elem.rankStart + 1}
+    </MDTypography>
+  );
+  contestReward.amount = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {(elem.rankEnd - elem.rankStart + 1)*elem.reward}
     </MDTypography>
   );
   contestReward.currency = (
@@ -76,7 +87,7 @@ contestData?.rewards.map((elem)=>{
       <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Ranks added to the contest will show up here!
+            Ranks and Rewards added to the contest will show up here!
           </MDTypography>
         </MDBox>
       </MDBox>
@@ -85,10 +96,11 @@ contestData?.rewards.map((elem)=>{
           table={{ columns, rows }}
           showTotalEntries={false}
           isSorted={false}
-          noEndBorder
+          // noEndBorder
           entriesPerPage={false}
         />
       </MDBox>
+      <MDBox><MDTypography sx={{marginRight:2}} align='right' fontSize={15} fontWeight='bold'>Total Prize Pool: {prizepool}</MDTypography></MDBox>
     </Card>
   
 

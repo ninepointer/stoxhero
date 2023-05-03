@@ -51,7 +51,7 @@ import { userContext } from "./AuthContext";
 import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
-import LandingPage from './layouts/landingPage'
+// import ResetPassword from './layouts/authentication/reset-password'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
@@ -183,6 +183,8 @@ export default function App() {
       <SettingsIcon/>
     </MDBox>
   );
+
+  console.log(layout)
   return direction === "rtl" ? (
     
       <CacheProvider value={rtlCache}>
@@ -211,11 +213,11 @@ export default function App() {
               {configsButton}
             </>
           )}
-          {layout === "vr" && <Configurator />}
+          {/* {layout === "vr" && <Configurator />}
           <Routes>
           {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") && getRoutes(analyticsRoutes)}  
             <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
-          </Routes>
+          </Routes> */}
         </ThemeProvider>
       </CacheProvider>
     
@@ -261,11 +263,17 @@ export default function App() {
 
           {!cookieValue  ?  
 
+          pathname == "/login" ?
+          <Route path="/login" element={<SignIn />} />
+          :
           pathname == "/signup" ?
           <Route path="/signup" element={<SignUp />} />
           :
+          pathname == "/resetpassword" ?
+          <Route path="/resetpassword" element={<SignIn />} />
+          :
+          // <Route path="/" element={<SignIn />} />
           <Route path="/" element={<SignIn />} />
-          // <Route path="/" element={<LandingPage />} />
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate to="/papertrading" />} />

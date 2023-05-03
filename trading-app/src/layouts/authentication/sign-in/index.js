@@ -239,7 +239,7 @@ function Basic() {
             navigate("/analytics");
           } 
           else if(userData.role?.roleName === userRole){
-            navigate("/Position");
+            navigate("/papertrading");
           }
         }
 
