@@ -6,6 +6,8 @@ export default function ContestRewards() {
           { Header: "Rank Start", accessor: "rankStart", align: "center" },
           { Header: "Rank End", accessor: "rankEnd", align: "center" },
           { Header: "Reward", accessor: "reward", align: "center" },
+          { Header: "# of Winners", accessor: "winners", align: "center" },
+          { Header: "Total Amount", accessor: "amount", align: "center" },
           { Header: "Currency", accessor: "currency", align: "center" },
           { Header: "Edit", accessor: "edit", align: "center" },
           { Header: "Delete", accessor: "delete", align: "center" },

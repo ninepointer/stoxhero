@@ -25,12 +25,25 @@ const ContestCard = ({createContestForm,setCreateContestForm,isObjectNew,setIsOb
   
       axios.get(`${baseUrl}api/v1/contest/active`)
       .then((res)=>{
-                setContestData(res.data.data);
+                setContestData(res?.data?.data);
                 console.log(res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })
   },[createContestForm])
+
+  let rewardPool = [];
+  contestData?.map((elem)=>{
+    elem?.rewards?.map((e)=>{
+        rewardPool.push(e)
+    })
+  })
+  console.log("Reward Pool:",rewardPool)
+  const totalRewardAmount = rewardPool?.reduce((total, rewardStructure) => {
+    const { rankStart, rankEnd, reward } = rewardStructure;
+    const rankCount = rankEnd - rankStart + 1;
+    return total + (reward * rankCount);
+  }, 0);
 
       // console.log("Contest Data: ",contestData)
 
@@ -67,7 +80,6 @@ const ContestCard = ({createContestForm,setCreateContestForm,isObjectNew,setIsOb
 
       return finalFormattedDate
     }
-      
     
 
     return (
@@ -76,7 +88,7 @@ const ContestCard = ({createContestForm,setCreateContestForm,isObjectNew,setIsOb
       !contestDetailsForm ?
       <>
       {contestData?.map((e)=>(
-
+       
       <Grid item xs={12} md={6} lg={4}>
       <button style={{border: 'none',width:"100%", cursor:"pointer"}} onClick={()=>{setObjectId(e._id);setContestDetailsForm(true);setIsObjectNew(true)}}>
           <Paper 
@@ -106,7 +118,7 @@ const ContestCard = ({createContestForm,setCreateContestForm,isObjectNew,setIsOb
               </MDBox>
               <MDBox display="flex" justifyContent="center" flexDirection="column">
               <MDTypography paddingTop={1.5} display="flex" fontSize={14} marginLeft="65px" color="white">{e?.contestName}</MDTypography>
-              <MDTypography display="flex" fontSize={12} marginLeft="65px" color="white">Contest Starts: {dateConvert(e?.contestStartDate)}</MDTypography>
+              <MDTypography display="flex" fontSize={12} marginLeft="65px" color="white">Battle Starts: {dateConvert(e?.contestStartDate)}</MDTypography>
               </MDBox>
               <Grid container>
                 <Grid item xs={12} md={12} lg={12}>
@@ -114,13 +126,13 @@ const ContestCard = ({createContestForm,setCreateContestForm,isObjectNew,setIsOb
                 </Grid>
                 <Grid item xs={12} md={12} lg={12}>
                   <MDTypography color="white" display="flex" fontSize={14} justifyContent="center" alignContent="center">
-                    {e?.entryFee?.currency} {e?.rewards?.reduce((total, reward) => total + reward?.reward, 0)}
+                    {e?.entryFee?.currency} {totalRewardAmount}
                   </MDTypography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12}>
                   <MDTypography color="black" display="flex" fontSize={10} justifyContent="center" alignContent="center">
                       <span style={{borderRadius:6, backgroundColor: "white", padding: "0 8px" }}>
-                        Start in <Timer targetDate={e.contestStartDate} text="Contest Started" />
+                        Start in <Timer targetDate={e.contestStartDate} text="Battle Started" />
                       </span>
                   </MDTypography>
                 </Grid>

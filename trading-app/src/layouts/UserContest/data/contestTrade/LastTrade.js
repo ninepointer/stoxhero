@@ -14,7 +14,6 @@ function LastTrade({contestId, Render}){
     const [orders, setOrders] = useState([]);
     const [isLoading,setIsLoading] = useState(true)
     let [skip, setSkip] = useState(0);
-    // let skip = 0;
     const limitSetting = 5;
     const [count, setCount] = useState(0);
     const {render, setReRender} = Render;
@@ -60,13 +59,10 @@ function LastTrade({contestId, Render}){
     }, [render])
 
     function backHandler(){
-        // console.log("in trade back", skip, limitSetting)
         if(skip <= 0){
             return;
         }
         setSkip(prev => prev-limitSetting);
-        // skip = skip - limitSetting
-        // setLimit(prev => prev-limitSetting);
         setOrders([]);
         axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/tradesByPagination?skip=${skip-limitSetting}&limit=${limitSetting}`,{
             withCredentials: true,
@@ -90,10 +86,7 @@ function LastTrade({contestId, Render}){
         if(skip+limitSetting >= count){
             return;
         }
-        // console.log("in trade  next", skip, limitSetting)
-        // skip = skip + limitSetting
         setSkip(prev => prev+limitSetting);
-        // setLimit(prev => prev+limitSetting);
         setOrders([]);
         axios.get(`${baseUrl}api/v1/contest/${contestId}/trades/tradesByPagination?skip=${skip+limitSetting}&limit=${limitSetting}`,{
             withCredentials: true,

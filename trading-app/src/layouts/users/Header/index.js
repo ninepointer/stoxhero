@@ -57,9 +57,9 @@ function UserHeader({ children }) {
 
   return (
    
-    <MDBox position="relative" mb={5}>
+    <MDBox position="relative" mt={10} mb={5}>
 
-      <MDBox
+      {/* <MDBox
         display="flex"
         alignItems="center"
         position="relative"
@@ -75,7 +75,7 @@ function UserHeader({ children }) {
           backgroundPosition: "50%",
           overflow: "hidden",
         }}
-      />
+      /> */}
       <Card
         sx={{
           position: "relative",
