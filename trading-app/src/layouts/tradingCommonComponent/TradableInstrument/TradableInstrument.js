@@ -265,8 +265,19 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
     />
   );
 
-
- 
+  const handleSellClick = (index) => {
+    setSellState(true)
+    const newRows = [...state.instrumentsData];
+    newRows[index].sellState = true;
+    state.instrumentsData = (newRows);
+  };
+  const handleBuyClick = (index) => {
+    setBuyState(true)
+    const newRows = [...state.instrumentsData];
+    newRows[index].sellState = true;
+    state.instrumentsData = (newRows);
+  };
+ //handleBuyClick
 
   return (
     <MDBox sx={{backgroundColor:"white", display:"flex", borderRadius:2, marginBottom:2}}>
@@ -292,7 +303,8 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
           />
         <MDBox>
         { state.instrumentsData?.length > 0 &&
-          (state.instrumentsData.map((elem)=>{
+          (state.instrumentsData.map((elem, index)=>{
+            elem.sellState = false;
             let perticularInstrumentData = state.userInstrumentData.filter((subElem)=>{
               return subElem.instrumentToken === elem.instrument_token
             })
@@ -346,10 +358,10 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
                     <Grid  >
                       <Tooltip title="Buy" placement="top">
 
-                        {buyState ?
-                          <BuyModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromUserPos={true} expiry={elem.expiry} />
+                        {!elem.buyState ?
+                          <BuyModel buyState={buyState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
                           :
-                          <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setBuyState(true)}} >
+                          <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
                           </MDButton>
                         }
@@ -357,10 +369,10 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
                     </Grid>
 
                     <Grid>
-                        {sellState ?
-                          <SellModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromUserPos={true} expiry={elem.expiry}/>
+                        {!elem.sellState ?
+                          <SellModel sellState={sellState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
                           :
-                          <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setSellState(true)}} >
+                          <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S
                           </MDButton>
                         }
