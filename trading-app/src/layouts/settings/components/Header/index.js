@@ -13,7 +13,7 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Icon from "@mui/material/Icon";
-import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
+// import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -24,7 +24,7 @@ import breakpoints from "../../../../assets/theme/base/breakpoints";
 
 // Images
 import backgroundImage from "../../../../assets/images/trading.jpg";
-import TraderSetting from "../../TraderSetting";
+// import TraderSetting from "../../TraderSetting";
 
 function Header({ children, setShowSetting, showSetting }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");

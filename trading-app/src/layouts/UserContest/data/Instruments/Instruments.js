@@ -13,6 +13,7 @@ import  { marketDataContext } from '../../../../MarketDataContext';
 import BuyModel from "./BuyModel";
 import SellModel from "./SellModel";
 import { CircularProgress } from "@mui/material";
+import MDButton from "../../../../components/MDButton";
 
 
 
@@ -25,6 +26,9 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
     const [isLoading,setIsLoading] = useState(true)
     const {render, setReRender} = Render;
     const marketDetails = useContext(marketDataContext)
+    const [buyState, setBuyState] = useState(false);
+    const [sellState, setSellState] = useState(false);
+  
 
 
     useEffect(()=>{
@@ -97,8 +101,20 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
           default: return 'th';
         }
     }
-    
-    console.log("instrument", contestId, portfolioId, marketDetails.contestMarketData)
+
+    const handleSellClick = (index) => {
+        setSellState(true)
+        const newRows = [...instrumentData];
+        newRows[index].sellState = true;
+        instrumentData = (newRows);
+      };
+      const handleBuyClick = (index) => {
+        setBuyState(true)
+        const newRows = [...instrumentData];
+        newRows[index].sellState = true;
+        instrumentData = (newRows);
+      };
+    // console.log("instrument", contestId, portfolioId, marketDetails.contestMarketData)
 
 return (
     <>
@@ -149,11 +165,11 @@ return (
 
         </Grid>
 
-        {instrumentData.map((elem)=>{
+        {instrumentData.map((elem, index)=>{
             elem.sellState = false;
             elem.buyState = false;
             let perticularInstrumentMarketData = marketDetails.contestMarketData.filter((subelem)=>{
-            return elem.instrumentToken === subelem.instrument_token
+                return elem.instrumentToken === subelem.instrument_token
             })
             const date = new Date(elem.contractDate);
             const options = { day: 'numeric', month: 'short' };
@@ -192,41 +208,61 @@ return (
 
     
                 <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
-                {/* <MDButton variant="contained" color="info" style={{fontSize:12,minWidth:"80%",padding:'none',cursor:"pointer"}}>B</MDButton> */}
+                {!elem.buyState ?
                     <BuyModel 
-                        render={render} 
-                        setReRender={setReRender} 
-                        symbol={elem.symbol} 
-                        exchange={elem.exchange} 
-                        instrumentToken={elem.instrumentToken} 
-                        symbolName={elem.instrument} 
-                        lotSize={elem.lotSize} 
-                        maxLot={elem.maxLot} 
-                        ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} 
-                        contestId={contestId} 
-                        portfolioId={portfolioId}
-                        isFromHistory={isFromHistory}
+                    setBuyState={setBuyState}
+                    buyState={buyState}
+                    render={render} 
+                    setReRender={setReRender} 
+                    symbol={elem.symbol} 
+                    exchange={elem.exchange} 
+                    instrumentToken={elem.instrumentToken} 
+                    symbolName={elem.instrument} 
+                    lotSize={elem.lotSize} 
+                    maxLot={elem.maxLot} 
+                    ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} 
+                    contestId={contestId} 
+                    portfolioId={portfolioId}
+                    isFromHistory={isFromHistory}
                     />
+                    :
+                    <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
+                    B
+                    </MDButton>
+                }
+
+
                 </Grid>
 
                 <Grid item xs={12} md={12} lg={0.5} display="flex" justifyContent="center">
                 </Grid>
 
                 <Grid item xs={12} md={12} lg={1} display="flex" justifyContent="center">
+                {!elem.sellState ?
                     <SellModel 
-                        render={render} 
-                        setReRender={setReRender} 
-                        symbol={elem.symbol} 
-                        exchange={elem.exchange} 
-                        instrumentToken={elem.instrumentToken} 
-                        symbolName={elem.instrument} 
-                        lotSize={elem.lotSize} 
-                        maxLot={elem.maxLot} 
-                        ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} 
-                        contestId={contestId} 
-                        portfolioId={portfolioId}
-                        isFromHistory={isFromHistory}
+                    setSellState={setSellState}
+                    sellState={sellState}
+                    render={render} 
+                    setReRender={setReRender} 
+                    symbol={elem.symbol} 
+                    exchange={elem.exchange} 
+                    instrumentToken={elem.instrumentToken} 
+                    symbolName={elem.instrument} 
+                    lotSize={elem.lotSize} 
+                    maxLot={elem.maxLot} 
+                    ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} 
+                    contestId={contestId} 
+                    portfolioId={portfolioId}
+                    isFromHistory={isFromHistory}
                     />
+                    :
+                    <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
+                    S
+                    </MDButton>
+                }
+                    
+                    
+
                 </Grid>
     
             </Grid>
