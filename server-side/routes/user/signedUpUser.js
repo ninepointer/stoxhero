@@ -196,6 +196,9 @@ router.patch("/verifyotp", async (req, res)=>{
             // })
             referredBy = referrerCodeMatch._id;
         }
+        user.status = 'OTP Verified'
+            user.last_modifiedOn = new Date()
+            await user.save();
         //--------
             async function generateUniqueReferralCode() {
             const length = 8; // change this to modify the length of the referral code
@@ -302,6 +305,7 @@ router.patch("/verifyotp", async (req, res)=>{
                     description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
                     amount: referralProgramme.rewardPerReferral,
                     transactionId: uuid.v4(),
+                    transactionDate: new Date(),
                     transactionType: referralProgramme.currency == 'INR'?'Cash':'Bonus' 
                 }];
                 await wallet.save({validateBeforeSave:false});

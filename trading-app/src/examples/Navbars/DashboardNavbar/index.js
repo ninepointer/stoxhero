@@ -42,6 +42,7 @@ import {
   setMiniSidenav,
   setOpenConfigurator,
 } from "../../../context";
+import { Tooltip } from "@mui/material";
 
 function DashboardNavbar({ absolute, light, isMini }) {
   const getDetails = useContext(userContext);
@@ -136,9 +137,11 @@ function DashboardNavbar({ absolute, light, isMini }) {
             <MDBox color={light ? "white" : "inherit"}>
             
               <Link to="/wallet">
+                <Tooltip title='Wallet' placement='top'>
                 <IconButton sx={navbarIconButton} size="small" disableRipple>
                   <AccountBalanceWalletIcon color="dark"/>
                 </IconButton>
+                </Tooltip>
               </Link>
               <IconButton
                 size="small"
@@ -161,18 +164,20 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon sx={iconsStyle}>settings</Icon>
               </IconButton> */}
-              <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={handleOpenMenu}
-              >
-                <Icon sx={iconsStyle}>notifications</Icon>
-              </IconButton>
+              <Tooltip title='Notifications' placement="top">  
+                <IconButton
+                  size="small"
+                  disableRipple
+                  color="inherit"
+                  sx={navbarIconButton}
+                  aria-controls="notification-menu"
+                  aria-haspopup="true"
+                  variant="contained"
+                  onClick={handleOpenMenu}
+                >
+                  <Icon sx={iconsStyle}>notifications</Icon>
+                </IconButton>
+              </Tooltip>
               {renderMenu()}
               <Link to="/profile">
                 <IconButton sx={navbarIconButton} size="small" disableRipple>

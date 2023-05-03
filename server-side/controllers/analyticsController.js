@@ -17,7 +17,8 @@ exports.getPaperTradesOverview = async(req,res,next) => {
         {
           $match: {
             trader: userId,
-            trade_time:{$lte: today}
+            trade_time:{$lte: today},
+            status: 'COMPLETE'
             // Replace with the actual user ID
           },
           
