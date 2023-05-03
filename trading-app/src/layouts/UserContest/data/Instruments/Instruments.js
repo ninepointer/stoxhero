@@ -150,6 +150,8 @@ return (
         </Grid>
 
         {instrumentData.map((elem)=>{
+            elem.sellState = false;
+            elem.buyState = false;
             let perticularInstrumentMarketData = marketDetails.contestMarketData.filter((subelem)=>{
             return elem.instrumentToken === subelem.instrument_token
             })
