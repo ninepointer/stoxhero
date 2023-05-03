@@ -6,6 +6,7 @@ import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
 import MDButton from '../../../components/MDButton'
 import {Link} from 'react-router-dom'
+import moment from 'moment-timezone';
 
 
 import wallet from '../../../assets/images/wallet.png'
@@ -91,7 +92,9 @@ export default function Wallet() {
                       <MDAvatar src={battle} name={name} size="sm" />
                       <MDBox display="flex" flexDirection="column">
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={15} fontWeight="bold">{elem?.title}</MDTypography>
-                        <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={10} fontWeight="bold">{elem?.transactionDate}</MDTypography>
+                        <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={10} fontWeight="bold">
+                          {moment(elem?.transactionDate).tz('Asia/Kolkata').format('DD:MM:YYYY HH:mm')}
+                        </MDTypography>
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={10} fontWeight="bold">{elem?.description}</MDTypography>
                       </MDBox>
                     </Grid>
