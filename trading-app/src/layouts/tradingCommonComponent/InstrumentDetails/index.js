@@ -29,8 +29,10 @@ import { marketDataContext } from "../../../MarketDataContext";
 
 function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
   const marketDetails = useContext(marketDataContext)
-  console.log("socket print", socket)
-
+  const [buyState, setBuyState] = useState(false);
+  const [sellState, setSellState] = useState(false);
+  //console.log("socket print", socket)
+  console.log("rendering : InstrumentDetails")
   let styleTD = {
     textAlign: "center",
     fontSize: "11px",
@@ -50,7 +52,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
 
   useEffect(()=>{
 
-    // console.log("in socket useeffect")
+    // //console.log("in socket useeffect")
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
       marketDetails.setMarketData(res.data);
@@ -58,14 +60,14 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
         return new Error(err);
     })
     // socket.on('check', (data)=>{
-    //   console.log("data from socket in instrument in parent", data)
+    //   //console.log("data from socket in instrument in parent", data)
     // })
 
     // socket.on("tick", (data) => {
-    socket.on("tick-room", (data) => {
+    socket?.on("tick-room", (data) => {
 
-      console.log('data from socket in instrument in parent', data);
-      // console.log("marketdata", data)
+      //console.log('data from socket in instrument in parent', data);
+      // //console.log("marketdata", data)
       marketDetails.setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -76,7 +78,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
     })
   }, [])
 
-  console.log("rendering in userPosition: instruemntGrid")
+  //console.log("rendering in userPosition: instruemntGrid")
 
 
   useEffect(() => {
@@ -112,91 +114,86 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
   }, [reRender])
 
 
-    const instrumentDetailArr = [];
-    instrumentData.map((elem)=>{
-      // console.log("instrument date", new Date(elem.contractDate))
-      const date = new Date(elem.contractDate);
-      const day = date.getDate(); // returns the day of the month (4 in this case)
-      const month = date.toLocaleString('default', { month: 'long' }); // returns the full month name (May in this case)
-      const formattedDate = `${day}${day % 10 == 1 && day != 11 ? 'st' : day % 10 == 2 && day != 12 ? 'nd' : day % 10 == 3 && day != 13 ? 'rd' : 'th'} ${month}`; // formats the date as "4th May"
-      console.log(formattedDate);
+  const instrumentDetailArr = [];
+  instrumentData.map((elem)=>{
+    // //console.log("instrument date", new Date(elem.contractDate))
+    const date = new Date(elem.contractDate);
+    const day = date.getDate(); // returns the day of the month (4 in this case)
+    const month = date.toLocaleString('default', { month: 'long' }); // returns the full month name (May in this case)
+    const formattedDate = `${day}${day % 10 == 1 && day != 11 ? 'st' : day % 10 == 2 && day != 12 ? 'nd' : day % 10 == 3 && day != 13 ? 'rd' : 'th'} ${month}`; // formats the date as "4th May"
+    //console.log(formattedDate);
 
-      let instrumentDetailObj = {}
-      const instrumentcolor = elem.symbol.slice(-2) == "CE" ? "success" : "error"
-      let perticularInstrumentMarketData = marketDetails.marketData.filter((subelem)=>{
-        return elem.instrumentToken === subelem.instrument_token
-      })
-      
-      const percentagechangecolor = perticularInstrumentMarketData[0]?.change >= 0 ? "success" : "error"
-      const percentagechangecolor1 = (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "success" : "error"
-
-
-      instrumentDetailObj.instrument = (
-        <MDTypography variant="caption" color={instrumentcolor} fontWeight="medium">
-          {elem.instrument}
-        </MDTypography>
-      );
-      instrumentDetailObj.symbol = (
-        <MDTypography variant="caption" color={instrumentcolor} fontWeight="medium">
-          {elem.symbol}
-        </MDTypography>
-      );
-      instrumentDetailObj.quantity = (
-        <MDTypography variant="caption" color="text" fontWeight="medium">
-          {elem.Quantity}
-        </MDTypography>
-      );
-      instrumentDetailObj.contractDate = (
-        <MDTypography variant="caption" color="text" fontWeight="medium">
-          {formattedDate}
-        </MDTypography>
-      );
-      instrumentDetailObj.last_price = (
-        <MDTypography component="a" href="#" variant="caption" color="dark" fontWeight="medium">
-          {"₹"+(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}
-        </MDTypography>
-      );
-      if(perticularInstrumentMarketData[0]?.change !== undefined){
-        instrumentDetailObj.change = (
-          <MDTypography component="a" href="#" variant="caption" color={percentagechangecolor} fontWeight="medium">
-            {perticularInstrumentMarketData[0]?.change >= 0 ? "+" + ((perticularInstrumentMarketData[0]?.change)?.toFixed(2))+"%" : ((perticularInstrumentMarketData[0]?.change)?.toFixed(2))+"%"}
-          </MDTypography>
-        );
-      } else{
-        instrumentDetailObj.change = (
-          <MDTypography component="a" href="#" variant="caption" color={percentagechangecolor1} fontWeight="medium">
-            {(((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "+" + (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100)?.toFixed(2)+"%" : (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100)?.toFixed(2)+"%"}
-          </MDTypography>
-        );
-      }
-
-      instrumentDetailObj.buy = (
-        <BuyModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}/> 
-      );
-      
-      instrumentDetailObj.sell = (
-        <SellModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}/>
-      );
-
-      instrumentDetailObj.remove = (
-        <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3, height: "30px"}} color="secondary" onClick={()=>{removeInstrument(elem.instrumentToken, elem.instrument)}}>
-          <RemoveCircleOutlineIcon  />
-        </MDButton>
-      );
-
-      instrumentDetailObj.instrumentToken = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.instrumentToken}
-        </MDTypography>
-      );
-
-      instrumentDetailArr.push(instrumentDetailObj)
+    let instrumentDetailObj = {}
+    const instrumentcolor = elem.symbol.slice(-2) == "CE" ? "success" : "error"
+    let perticularInstrumentMarketData = marketDetails.marketData.filter((subelem)=>{
+      return elem.instrumentToken === subelem.instrument_token
     })
+    
+    const percentagechangecolor = perticularInstrumentMarketData[0]?.change >= 0 ? "success" : "error"
+    const percentagechangecolor1 = (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "success" : "error"
 
-  //   console.log("arr in memo")
-  //   return arr;
-  // }, [reRender, socket, marketDetails.marketData]);
 
+    instrumentDetailObj.instrument = (
+      <MDTypography variant="caption" color={instrumentcolor} fontWeight="medium">
+        {elem.instrument}
+      </MDTypography>
+    );
+    instrumentDetailObj.symbol = (
+      <MDTypography variant="caption" color={instrumentcolor} fontWeight="medium">
+        {elem.symbol}
+      </MDTypography>
+    );
+    instrumentDetailObj.quantity = (
+      <MDTypography variant="caption" color="text" fontWeight="medium">
+        {elem.Quantity}
+      </MDTypography>
+    );
+    instrumentDetailObj.contractDate = (
+      <MDTypography variant="caption" color="text" fontWeight="medium">
+        {formattedDate}
+      </MDTypography>
+    );
+    instrumentDetailObj.last_price = (
+      <MDTypography component="a" href="#" variant="caption" color="dark" fontWeight="medium">
+        {"₹"+(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)}
+      </MDTypography>
+    );
+    if(perticularInstrumentMarketData[0]?.change !== undefined){
+      instrumentDetailObj.change = (
+        <MDTypography component="a" href="#" variant="caption" color={percentagechangecolor} fontWeight="medium">
+          {perticularInstrumentMarketData[0]?.change >= 0 ? "+" + ((perticularInstrumentMarketData[0]?.change)?.toFixed(2))+"%" : ((perticularInstrumentMarketData[0]?.change)?.toFixed(2))+"%"}
+        </MDTypography>
+      );
+    } else{
+      instrumentDetailObj.change = (
+        <MDTypography component="a" href="#" variant="caption" color={percentagechangecolor1} fontWeight="medium">
+          {(((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "+" + (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100)?.toFixed(2)+"%" : (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100)?.toFixed(2)+"%"}
+        </MDTypography>
+      );
+    }
+
+    instrumentDetailObj.buy = (
+      <BuyModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/> 
+    );
+    
+    instrumentDetailObj.sell = (
+      <SellModel from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+    );
+
+    instrumentDetailObj.remove = (
+      <MDButton size="small" sx={{marginRight:0.5,minWidth:2,minHeight:3, height: "30px"}} color="secondary" onClick={()=>{removeInstrument(elem.instrumentToken, elem.instrument)}}>
+        <RemoveCircleOutlineIcon  />
+      </MDButton>
+    );
+
+    instrumentDetailObj.instrumentToken = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem.instrumentToken}
+      </MDTypography>
+    );
+
+    instrumentDetailArr.push(instrumentDetailObj)
+  })
 
   async function removeInstrument(instrumentToken, instrument){
     setInstrumentName(instrument)
@@ -213,10 +210,10 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
     });
 
     const permissionData = await response.json();
-    console.log("remove", permissionData)
+    //console.log("remove", permissionData)
     if (permissionData.status === 422 || permissionData.error || !permissionData) {
         window.alert(permissionData.error);
-        //console.log("Failed to Edit");
+        ////console.log("Failed to Edit");
     }else {
         let instrumentTokenArr = [];
         instrumentTokenArr.push(instrumentToken)
@@ -306,12 +303,34 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
                     change={elem.change.props.children}
                   />
                   {/* <td style={styleTD} >{elem.chart.props.children}</td> */}
-                  <Tooltip title="Buy" placement="top">
-                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem.buy}</td>
+                  {/* <Tooltip title="Buy" placement="top">
                   </Tooltip>
                   <Tooltip title="Sell" placement="top">
-                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem.sell}</td>
+                  </Tooltip> */}
+
+                  <Tooltip title="Buy" placement="top">
+                    {buyState ?
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem.buy}</td>
+                    :
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >
+                      <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setBuyState(true)}} >
+                        B
+                      </MDButton>
+                    </td>
+                    }
                   </Tooltip>
+                  <Tooltip title="Sell" placement="top">
+                    {sellState ?
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem.sell}</td>
+                    :
+                    <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >
+                      <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{setSellState(true)}} >
+                        S
+                      </MDButton>
+                      </td>
+                    }
+                  </Tooltip>
+
                   <Tooltip title="Remove Instrument" placement="top">
                     <td style={{textAlign: "center", marginRight:0.5,minWidth:2,minHeight:3}} >{elem.remove}</td>
                   </Tooltip>

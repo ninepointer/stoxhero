@@ -17,7 +17,7 @@ import bankniftyicon from '../../../assets/images/bankniftyicon.png'
 // import bankniftyicon from '../../../assets/images/bankniftyicon.png'
 
 function StockIndex({socket}) {
-
+    console.log("rendering : infinity stockindex")
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [indexData, setIndexData] = useState([]);
     const [indexLiveData, setIndexLiveData] = useState([]);
@@ -85,7 +85,7 @@ function StockIndex({socket}) {
     })
 
 
-// console.log("finalArr", finalArr)
+// //console.log("finalArr", finalArr)
   return (
     <>
         {finalArr.map((e)=>{

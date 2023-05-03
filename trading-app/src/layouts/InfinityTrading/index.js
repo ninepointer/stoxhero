@@ -6,7 +6,7 @@ import Footer from "../../examples/Footer";
 import Header from "./Header";
 
 function Tables() {
-  console.log("rendering in userPosition: main")
+  console.log("rendering in userPosition: infinity")
   return (
     <>
     <DashboardLayout>
