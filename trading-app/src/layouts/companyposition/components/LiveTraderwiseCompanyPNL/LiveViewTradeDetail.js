@@ -98,7 +98,7 @@ let totalRunningLots = 0;
     })
 
 
-  }, [marketData])
+  }, [])
 
 
   useEffect(() => {

@@ -12,25 +12,24 @@ const DailyPNLData = require("../models/InstrumentHistoricalData/DailyPnlDataSch
 const TraderDailyPnlData = require("../models/InstrumentHistoricalData/TraderDailyPnlDataSchema");
 const dbBackup = require("../Backup/mongoDbBackUp")
 const RetreiveOrder = require("../controllers/retreiveOrder")
-const MockTradeDetails = require("../models/mock-trade/mockTradeCompanySchema");
-
-
-
-
-
+const MockTradeDetails = require("../models/mock-trade/infinityTradeCompany");
 
 
 const getInstrumentTicksHistoryData = async () => {
   getKiteCred.getAccess().then(async (data)=>{
+    console.log("in ticks")
     let date = new Date();
-    let matchingDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    // todayDate = todayDate + "T00:00:00.000Z";
+    todayDate = todayDate + "T00:00:00.000Z";
+    const matchingDate = new Date(todayDate);
+
     let instrumentDetail = await MockTradeDetails.aggregate([
       {
         $match: {
-          trade_time: {
-            $regex: matchingDate,
-          },
+                trade_time:{
+                    $gte: matchingDate
+                },
           status: "COMPLETE",
         },
       },
@@ -45,6 +44,8 @@ const getInstrumentTicksHistoryData = async () => {
       },
       
     ])
+
+    console.log("instrumentDetail", instrumentDetail)
     // let matchingDate;
     for(let i = 0; i < instrumentDetail.length; i++){
       let {instrumentToken, symbol} = instrumentDetail[i]._id;
@@ -54,13 +55,15 @@ const getInstrumentTicksHistoryData = async () => {
       // matchingDate = `${tempData[2]}-${tempData[1]}-${tempData[0]}`
 
       const historyData = await HistoryData.find({instrumentToken: instrumentToken, timestamp: {$regex:matchingDate}})
+      console.log("above if")
       if(historyData.length === 0){
+        console.log("in if")
         const api_key = data.getApiKey;
         const access_token = data.getAccessToken;
         let auth = 'token' + api_key + ':' + access_token;
 
         
-        const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/minute?from=${matchingDate}+09:15:00&to=${matchingDate}+15:30:00`;
+        const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
         
     
         let authOptions = {
@@ -74,6 +77,7 @@ const getInstrumentTicksHistoryData = async () => {
         try{
           const response = await axios.get(url, authOptions);
           const instrumentticks = (response.data).data;
+          console.log(instrumentticks)
           let len = instrumentticks.candles.length;
           let instrumentticksdata;
           for(let j = len-1; j >= 0; j--){
@@ -84,17 +88,19 @@ const getInstrumentTicksHistoryData = async () => {
             let createdOn = `${String(runtime.getDate()).padStart(2, '0')}-${String(runtime.getMonth() + 1).padStart(2, '0')}-${(runtime.getFullYear())}`;
                 
             const instrumentticks_data = (new InstrumentTicksDataSchema({timestamp, symbol, instrumentToken, open, high, low, close, volume, createdOn }))
-
+            console.log("above instrumentticks_data")
             instrumentticks_data.save()
             .then(()=>{
-              console.log("saving", symbol, open)
+              console.log("saving", symbol, open, instrumentticks_data)
             }).catch((err)=> {
+              console.log(err)
                   mailSender("Fail to enter data")
               // res.status(500).json({error:"Failed to enter data"});
             })
           }
 
         } catch (err){
+          console.log(err)
             return new Error(err);
         }
     
