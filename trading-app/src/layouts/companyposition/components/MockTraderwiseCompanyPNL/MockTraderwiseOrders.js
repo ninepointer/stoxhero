@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react"
+import {useState, useEffect, memo} from "react"
 import axios from "axios";
 
 // Material Dashboard 2 React components
@@ -42,10 +42,10 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 const [orderData, setOrderData] = useState([]);
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/getusermocktrades/${userId}`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/userMockTrade/${userId}`)
     .then((res) => {
         if(open){
-          setOrderData(res.data);
+          setOrderData(res.data.data);
         }
         
     }).catch((err) => {
@@ -63,7 +63,7 @@ const [orderData, setOrderData] = useState([]);
 
     obj.trader = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {(elem.createdBy)}
+        {(elem.trader.name)}
       </MDTypography>
     );
 
@@ -158,4 +158,4 @@ return (
 );
 
 }
-export default TraderMockOrders;
+export default memo(TraderMockOrders);

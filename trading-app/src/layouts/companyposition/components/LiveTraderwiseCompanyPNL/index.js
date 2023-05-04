@@ -99,7 +99,7 @@ function LiveTraderwiseCompantPNL(props) {
     }).catch((err)=>{
         return new Error(err);
     })
-  }, [marketData])
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -126,7 +126,7 @@ function LiveTraderwiseCompantPNL(props) {
   }).catch((err) => {
     return new Error(err);
   })
-  }, [marketData])
+  }, [])
 
 if(allTrade.length !== 0)
 {
@@ -258,12 +258,12 @@ if(allTrade.length !== 0)
            {((subelem.totalPnl)-(subelem.brokerage)) > 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
          </MDTypography>
        );
-       obj.view = (
-        <LiveViewTradeDetail socket={props.socket} userId={subelem.userId}/>
-      );
-      obj.orders = (
-        <LiveTraderwiseOrders userId={subelem.userId}/>
-      );
+      //  obj.view = (
+      //   <LiveViewTradeDetail socket={props.socket} userId={subelem.userId}/>
+      // );
+      // obj.orders = (
+      //   <LiveTraderwiseOrders userId={subelem.userId}/>
+      // );
    
        rows.push(obj);
      })

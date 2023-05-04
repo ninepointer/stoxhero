@@ -1,7 +1,7 @@
 
 import React from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { io } from "socket.io-client";
 // @mui material components
 import { Chart } from 'chart.js/auto';
@@ -21,7 +21,7 @@ import Footer from "../../examples/Footer";
 // Data
 
 import MismatchDetails from "./components/MismatchDetails";
-import InstrumentDetails from "./components/InstrumentDetails";
+// import InstrumentDetails from "./components/InstrumentDetails";
 import MockOverallCompanyPNL from "./components/MockOverallCompanyPNL";
 import LiveOverallCompanyPNL from "./components/LiveOverallCompanyPNL";
 import MockTraderwiseCompanyPNL from "./components/MockTraderwiseCompanyPNL";
@@ -71,6 +71,31 @@ function CompanyPosition() {
       );
     };
 
+    const handlehandleSwitchChange = useCallback((value) => {
+      handleSwitchChange(value);
+    }, []);
+
+    const memoizedMismatch = useMemo(() => {
+      return <MismatchDetails socket={socket}/>
+    }, [socket]);
+
+    const memoizedOverallPnl = useMemo(() => {
+      return <MockOverallCompanyPNL socket={socket} />
+    }, [socket]);
+
+    const memoizedMockTraderwiseCompanyPNL = useMemo(() => {
+      return <MockTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handlehandleSwitchChange} socket={socket} />
+    }, [socket, userPermission, handlehandleSwitchChange]);
+
+    const memoizedLiveOverallCompanyPNL = useMemo(() => {
+      return <LiveOverallCompanyPNL socket={socket} />
+    }, [socket]);
+
+    const memoizedLiveTraderwiseCompanyPNL = useMemo(() => {
+      return <LiveTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handlehandleSwitchChange} socket={socket} />
+    }, [socket, userPermission, handlehandleSwitchChange]);
+
+
 
   return (
     <DashboardLayout>
@@ -79,7 +104,8 @@ function CompanyPosition() {
       <MDBox mt={1}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={12} lg={12}>
-              <MismatchDetails socket={socket}/>
+              {/* <MismatchDetails socket={socket}/> */}
+              {memoizedMismatch}
             </Grid>
           </Grid>
         </MDBox>
@@ -93,7 +119,8 @@ function CompanyPosition() {
         <MDBox mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={12} lg={12}>
-              <MockOverallCompanyPNL socket={socket} />
+              {/* <MockOverallCompanyPNL socket={socket} /> */}
+              {memoizedOverallPnl}
             </Grid>
           </Grid>
         </MDBox>
@@ -101,7 +128,8 @@ function CompanyPosition() {
         <MDBox mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={12} lg={12}>
-              <MockTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} />
+              {/* <MockTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} /> */}
+              {memoizedMockTraderwiseCompanyPNL}
             </Grid>
           </Grid>
         </MDBox>
@@ -109,7 +137,8 @@ function CompanyPosition() {
         <MDBox mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={12} lg={12}>
-              <LiveOverallCompanyPNL socket={socket} />
+              {/* <LiveOverallCompanyPNL socket={socket} /> */}
+              {memoizedLiveOverallCompanyPNL}
             </Grid>
           </Grid>
         </MDBox>
@@ -117,7 +146,8 @@ function CompanyPosition() {
         <MDBox mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={12} lg={12}>
-              <LiveTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} />
+              {/* <LiveTraderwiseCompanyPNL users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} /> */}
+              {memoizedLiveTraderwiseCompanyPNL}
             </Grid>
           </Grid>
         </MDBox>

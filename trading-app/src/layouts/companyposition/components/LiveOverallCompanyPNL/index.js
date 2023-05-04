@@ -106,7 +106,7 @@ function LiveOverallCompantPNL({socket}) {
         return new Error(err);
       })
 
-  }, [marketData])
+  }, [])
 
 
   useEffect(() => {
