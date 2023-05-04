@@ -23,21 +23,22 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
+import { renderContext } from "../../../../renderContext";
 // import MDBox from '../../../../components/MDBox';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../MarketDataContext";
 
-const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
+const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
 
   console.log("rendering in userPosition: buyModel")
-
+  const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
 
   // console.log("data from props", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  // const { reRender, setReRender } = Render;
+  // const { reRender, setRender } = Render;
   const getDetails = React.useContext(userContext);
   let date = new Date();
   let trader = getDetails.userDetails._id;
@@ -199,7 +200,7 @@ const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, l
           openSuccessSB('else', dataResp.message)
           // window.alert(dataResp.message);
         }
-        render ? setReRender(false) : setReRender(true)
+        render ? setRender(false) : setRender(true)
     }
   }
 

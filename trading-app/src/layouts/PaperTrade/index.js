@@ -19,7 +19,7 @@ import { userContext } from "../../AuthContext";
 
 function UserPosition() {
   console.log("rendering: UserPosition");
-  const [reRender, setReRender] = useState(true);
+  // const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
@@ -48,44 +48,44 @@ function UserPosition() {
     setIsGetStartedClicked(value);
   }, []);
 
-  const memoizedSetReRender = useCallback((value) => {
-    setReRender(value);
-  }, []);
+  // const memoizedSetReRender = useCallback((value) => {
+  //   setReRender(value);
+  // }, []);
 
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
       
-      reRender={reRender}
-      setReRender={memoizedSetReRender}
+      // reRender={reRender}
+      // setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={'paperTrade'}
     />;
-  }, [ reRender, isGetStartedClicked, handleSetIsGetStartedClicked, memoizedSetReRender]);
+  }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <InstrumentDetails
       socket={socket}
-      reRender={reRender}
-      setReRender={setReRender}
+      // reRender={reRender}
+      // setReRender={setReRender}
       // setReRender={}
       // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"paperTrade"}
     />;
-  }, [socket, reRender, handleSetIsGetStartedClicked]);
+  }, [socket, handleSetIsGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallGrid
       
-      reRender={reRender}
-      setReRender={memoizedSetReRender}
+      // reRender={reRender}
+      // setReRender={memoizedSetReRender}
       // setReRender={}
       // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"paperTrade"}
     />;
-  }, [ reRender, handleSetIsGetStartedClicked, memoizedSetReRender]);
+  }, [ handleSetIsGetStartedClicked]);
 
 
 

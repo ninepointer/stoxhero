@@ -25,17 +25,19 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 // import MDBox from '../../../../components/MDBox';
 import { Box, Typography } from '@mui/material';
+import { renderContext } from "../../../../renderContext";
 // import { marketDataContext } from "../../../../MarketDataContext";
 
 
-const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setReRender, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
+const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromUserPos, expiry, contestId, portfolioId, isFromHistory}) => {
   console.log("rendering in userPosition: sellModel")
+  const {render, setRender} = useContext(renderContext);
 
   // const marketDetails = useContext(marketDataContext)
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  // const { reRender, setReRender } = Render;
+  // const { reRender, setRender } = Render;
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
   let date = new Date();
@@ -157,7 +159,7 @@ const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName,
       placeOrder();
 
       let id = setTimeout(()=>{
-        render ? setReRender(false) : setReRender(true)
+        render ? setRender(false) : setRender(true)
       }, 1800);
       
   }

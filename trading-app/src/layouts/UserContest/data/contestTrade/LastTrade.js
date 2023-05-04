@@ -5,6 +5,7 @@ import MDButton from '../../../../components/MDButton'
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import MDBox from '../../../../components/MDBox';
+import { renderContext } from '../../../../renderContext';
 
 
 
@@ -16,7 +17,9 @@ function LastTrade({contestId, Render}){
     let [skip, setSkip] = useState(0);
     const limitSetting = 5;
     const [count, setCount] = useState(0);
-    const {render, setReRender} = Render;
+    // const {render, setRender} = Render;
+    const {render} = useContext(renderContext);
+
 
     useEffect(()=>{
         console.log("in trade useeffect", skip, limitSetting)

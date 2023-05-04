@@ -26,9 +26,11 @@ import SellModel from "../SellModel";
 import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
+import { renderContext } from "../../../renderContext";
 
-function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
+function InstrumentDetails({socket , setIsGetStartedClicked, from}) {
   const marketDetails = useContext(marketDataContext)
+  const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
   //console.log("socket print", socket)
@@ -43,7 +45,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  // const { reRender, setReRender } = Render;
+  // const { render, setRender } = Render;
   const [isAppLive, setisAppLive] = useState('');
   const [successSB, setSuccessSB] = useState(false);
   const [instrumentName, setInstrumentName] = useState("");
@@ -111,7 +113,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
     }).catch((err) => {
         return new Error(err);
     })
-  }, [reRender])
+  }, [render])
 
 
   const instrumentDetailArr = [];
@@ -173,11 +175,11 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel buyState={buyState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
+      <BuyModel buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel sellState={sellState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (
@@ -242,7 +244,7 @@ function InstrumentDetails({socket, reRender, setReRender , setIsGetStartedClick
         socket.emit("unSubscribeToken", instrumentTokenArr);
         openSuccessSB();
     }
-    reRender ? setReRender(false) : setReRender(true);
+    render ? setRender(false) : setRender(true);
   }
 
 
