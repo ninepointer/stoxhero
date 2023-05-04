@@ -116,20 +116,6 @@ const ContestCard = () => {
 
       return finalFormattedDate
     }
-    
-    let rewardPool = [];
-    contestData?.map((elem)=>{
-      elem?.rewards?.map((e)=>{
-          rewardPool.push(e)
-      })
-    })
-    console.log("Reward Pool:",rewardPool)
-    const totalRewardAmount = rewardPool?.reduce((total, rewardStructure) => {
-      const { rankStart, rankEnd, reward } = rewardStructure;
-      const rankCount = rankEnd - rankStart + 1;
-      return total + (reward * rankCount);
-    }, 0);
-    
 
     return (
       <>
@@ -146,6 +132,19 @@ const ContestCard = () => {
         
         <Grid container spacing={2}>
         {contestData?.map((e)=>{
+
+        // let rewardPool = [];
+        // contestData?.map((elem)=>{
+        //   elem?.rewards?.map((e)=>{
+        //       rewardPool.push(e)
+        //   })
+        // })
+        // console.log("Reward Pool:",rewardPool)
+        const totalRewardAmount = e?.rewards?.reduce((total, rewardStructure) => {
+          const { rankStart, rankEnd, reward } = rewardStructure;
+          const rankCount = rankEnd - rankStart + 1;
+          return total + (reward * rankCount);
+        }, 0);
 
           return <>
           

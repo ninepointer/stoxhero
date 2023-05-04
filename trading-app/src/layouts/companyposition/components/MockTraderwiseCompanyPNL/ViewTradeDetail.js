@@ -1,7 +1,7 @@
-import {useState, useEffect} from "react"
+import {useState, useEffect, memo} from "react"
 import axios from "axios";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
+// import Menu from "@mui/material/Menu";
+// import MenuItem from "@mui/material/MenuItem";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 // Material Dashboard 2 React components
@@ -28,9 +28,9 @@ function ViewTradeDetail({userId, socket}) {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [menu, setMenu] = useState(null);
+  // const [menu, setMenu] = useState(null);
 
-  const closeMenu = () => setMenu(null);
+  // const closeMenu = () => setMenu(null);
 
 
   const handleClickOpen = () => {
@@ -42,7 +42,6 @@ function ViewTradeDetail({userId, socket}) {
   const handleClose = (e) => {
     setOpen(false);
   };
-
 
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -57,7 +56,6 @@ function ViewTradeDetail({userId, socket}) {
 
 
     useEffect(()=>{
-
       axios.get(`${baseUrl}api/v1/getliveprice`)
       .then((res) => {
           //console.log("live price data", res)
@@ -81,11 +79,10 @@ function ViewTradeDetail({userId, socket}) {
     }, [])
 
     useEffect(()=>{
-
-      axios.get(`${baseUrl}api/v1/getoverallpnlmocktradeparticularusertodaycompanyside/${userId}`)
+      axios.get(`${baseUrl}api/v1/infinityTrade/pnlCompnaySide/${userId}`)
       .then((res) => {
-          setTradeData(res.data);
-          res.data.map((elem)=>{
+          setTradeData(res.data.data);
+          res.data.data.map((elem)=>{
             marketData.map((subElem)=>{
                 if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
                     liveDetailsArr.push(subElem)
@@ -100,16 +97,15 @@ function ViewTradeDetail({userId, socket}) {
       }).catch((err) => {
           return new Error(err);
       })
-
-
-    }, [marketData])
-
+    }, [])
 
     useEffect(() => {
       return () => {
           socket.close();
       }
     }, [])
+
+    console.log("tradedata", tradeData)
 
     tradeData.map((elem)=>{
         totalTransactionCost += Number(elem.brokerage);
@@ -274,4 +270,4 @@ return (
 );
 
 }
-export default ViewTradeDetail;
+export default memo(ViewTradeDetail);

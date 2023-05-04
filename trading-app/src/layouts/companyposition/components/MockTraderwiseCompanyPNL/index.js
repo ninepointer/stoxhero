@@ -24,7 +24,7 @@ function MockTraderwiseCompantPNL(props) {
   const { columns, rows } = data();
   const [menu, setMenu] = useState(null);
 
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
+  // const openMenu = ({ currentTarget }) => setMenu(currentTarget);
   const closeMenu = () => setMenu(null);
 
   const renderMenu = (
@@ -54,6 +54,7 @@ function MockTraderwiseCompantPNL(props) {
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
+  const [trackEvent, setTrackEvent] = useState({});
 
   let [latestLive, setLatestLive] = useState({
     tradeTime: "",
@@ -63,6 +64,15 @@ function MockTraderwiseCompantPNL(props) {
     tradeQuantity: "",
     tradeStatus: ""
   })
+
+  useEffect(()=>{
+    props.socket.on('updatePnl', (data)=>{
+      // console.log("in the pnl event", data)
+      setTimeout(()=>{
+        setTrackEvent(data);
+      })
+    })
+  }, [])
 
   useEffect(()=>{
 
@@ -88,8 +98,6 @@ function MockTraderwiseCompantPNL(props) {
     })
   }, [])
 
-  
-
   useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/gettraderwisepnlmocktradecompanytoday`)
@@ -99,7 +107,7 @@ function MockTraderwiseCompantPNL(props) {
         return new Error(err);
     })
 
-  }, [marketData]) 
+  }, [trackEvent]) 
 
   useEffect(() => {
     return () => {
@@ -108,8 +116,6 @@ function MockTraderwiseCompantPNL(props) {
     }
   }, [])
 
-
-  
 
   useEffect(()=>{
           // Get Lastest Trade timestamp
@@ -127,7 +133,7 @@ function MockTraderwiseCompantPNL(props) {
           }).catch((err) => {
             return new Error(err);
           })
-  }, [marketData])
+  }, [trackEvent])
 
   let mapForParticularUser = new Map();
     //console.log("Length of All Trade Array:",allTrade.length);
@@ -193,9 +199,7 @@ let totalTrades = 0;
 let totalLotsUsed = 0;
 let totalTraders = 0;
 
-function viewTraderFullReport(){
-  
-}
+
 
 console.log("re rendering index mock")
 
