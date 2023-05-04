@@ -14,17 +14,19 @@ import BuyModel from "./BuyModel";
 import SellModel from "./SellModel";
 import { CircularProgress } from "@mui/material";
 import MDButton from "../../../../components/MDButton";
+import { renderContext } from '../../../../renderContext';
 
 
 
 function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}){
 
-// let Details = useContext(marketDetails.contestMarketDataContext)
+// let Details = useContext(marketDetails.contestMarketDataContext);
+    const {render, setRender} = useContext(renderContext);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [instrumentData, setInstrumentData] = useState([]);
     // const [marketDetails.contestMarketData, marketDetails.setContestMarketData] = useState([]);
     const [isLoading,setIsLoading] = useState(true)
-    const {render, setReRender} = Render;
+    // const {render, setRender} = Render;
     const marketDetails = useContext(marketDataContext)
     const [buyState, setBuyState] = useState(false);
     const [sellState, setSellState] = useState(false);
@@ -85,7 +87,7 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
         }).catch((err) => {
             return new Error(err);
         })
-        render ? setReRender(false) : setReRender(true)
+        render ? setRender(false) : setRender(true)
         // setTimeout(()=>{setIsLoading(false)},500)
 
     }, [])
@@ -213,7 +215,7 @@ return (
                     setBuyState={setBuyState}
                     buyState={buyState}
                     render={render} 
-                    setReRender={setReRender} 
+                    setRender={setRender} 
                     symbol={elem.symbol} 
                     exchange={elem.exchange} 
                     instrumentToken={elem.instrumentToken} 
@@ -243,7 +245,7 @@ return (
                     setSellState={setSellState}
                     sellState={sellState}
                     render={render} 
-                    setReRender={setReRender} 
+                    setRender={setRender} 
                     symbol={elem.symbol} 
                     exchange={elem.exchange} 
                     instrumentToken={elem.instrumentToken} 

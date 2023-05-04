@@ -14,6 +14,7 @@ const ApplyAlgo = async (req, res, next)=>{
     // console.log(req.body, "in apply algo")
     // console.log(req.user)
     // console.log("in if", req.user.isAlgoTrader)
+
     if(!req.user.isAlgoTrader){
         // console.log("in if")
         return res.status(401).send({message: "Your profile is not authorised."})  

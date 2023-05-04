@@ -30,6 +30,7 @@ import SellModel from "../SellModel";
 import { marketDataContext } from "../../../MarketDataContext";
 // import MDSnackbar from "../../../../components/MDSnackbar";
 import uniqid from "uniqid"
+import { renderContext } from "../../../renderContext";
 
 
 const initialState = {
@@ -74,10 +75,11 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGetStartedClicked, from}) {
+function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}) {
 
   console.log("rendering : tradable instrument")
   //console.log("rendering in userPosition: TradableInstrument", from)
+  const {render, setRender} = useContext(renderContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let textRef = useRef(null);
   const PAGE_SIZE = 20;
@@ -124,7 +126,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
     }).catch((err) => {
         return new Error(err);
     })
-  }, [reRender])
+  }, [render])
 
 
   function sendSearchReq(e) {
@@ -241,7 +243,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
       }
       
     }
-    reRender ? setReRender(false) : setReRender(true);
+    render ? setRender(false) : setRender(true);
   }
 
 
@@ -360,7 +362,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
                       <Tooltip title="Buy" placement="top">
 
                         {!elem.buyState ?
-                          <BuyModel setBuyState={setBuyState} buyState={buyState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
+                          <BuyModel setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
                           :
                           <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
@@ -371,7 +373,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
 
                     <Grid>
                         {!elem.sellState ?
-                          <SellModel setSellState={setSellState} sellState={sellState} from={from} reRender={reRender} setReRender={setReRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
+                          <SellModel setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
                           :
                           <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S
@@ -400,7 +402,7 @@ function TradableInstrument({reRender, setReRender, isGetStartedClicked, setIsGe
           }))
         }
         </MDBox>
-      {/* <TradableInstrument instrumentsData={instrumentsData} reRender={reRender} setReRender={setReRender} uId={uId} /> */}
+      {/* <TradableInstrument instrumentsData={instrumentsData} render={render} setRender={setRender} uId={uId} /> */}
       </MDBox>
     </MDBox>
 )

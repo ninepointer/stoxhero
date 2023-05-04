@@ -1,9 +1,9 @@
-import React, { useEffect, useState, memo } from 'react'
-import axios from "axios";
+import React, { useContext, useState, memo } from 'react'
+// import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import uniqid from "uniqid"
+// import uniqid from "uniqid"
 import MDSnackbar from '../../../components/MDSnackbar';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -20,10 +20,13 @@ import { Box } from '@mui/material';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
+import { renderContext } from '../../../renderContext';
 
-function ExitPosition({from, isFromHistory, reRender, setReRender, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
+function ExitPosition({from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
   //console.log("rendering in userPosition/overall: exitPosition", quantity)
-  // const { render, setReRender } = Render
+  // const { render, setRender } = Render
+  const {render, setRender} = useContext(renderContext);
+
   console.log("rendering : exit")
   let checkBuyOrSell;
   if (quantity > 0) {
@@ -53,7 +56,7 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [regularSwitch, setRegularSwitch] = React.useState(true);
-  const [appLive, setAppLive] = useState([]);
+  // const [appLive, setAppLive] = useState([]);
 
   const [exitPositionFormDetails, setexitPositionFormDetails] = React.useState({
     exchange: "",
@@ -109,16 +112,16 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
 
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    axios.get(`${baseUrl}api/v1/readsetting`)
-      .then((res) => {
-        setAppLive(res.data);
-      }).catch((err) => {
-        return new Error(err);
-      })
+  //   axios.get(`${baseUrl}api/v1/readsetting`)
+  //     .then((res) => {
+  //       setAppLive(res.data);
+  //     }).catch((err) => {
+  //       return new Error(err);
+  //     })
 
-  }, [])
+  // }, [])
 
   let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
   // tradeData[0]?.lotSize;
@@ -136,10 +139,10 @@ console.log("lotSize", lotSize, maxLot)
     setOpen(false);
     setExitState(false);
 
-    if (!appLive[0].isAppLive) {
-      openSuccessSB('error', "App is not Live right now. Please wait.")
-      return;
-    }
+    // if (!appLive[0].isAppLive) {
+    //   openSuccessSB('error', "App is not Live right now. Please wait.")
+    //   return;
+    // }
 
     exitPositionFormDetails.buyOrSell = "BUY";
 
@@ -220,7 +223,7 @@ console.log("lotSize", lotSize, maxLot)
         openSuccessSB('else', dataResp.message)
         // window.alert(dataResp.message);
       }
-      reRender ? setReRender(false) : setReRender(true)
+      render ? setRender(false) : setRender(true)
     }
   }
 

@@ -31,7 +31,7 @@
 
 // // import Button from '@mui/material/Button';
 
-// function OverallGrid({socket, reRender, setReRender , setIsGetStartedClicked, from}) {
+// function OverallGrid({socket, render, setRender , setIsGetStartedClicked, from}) {
 //   //console.log("rendering in userPosition: overallPnl")
 //   let styleTD = {
 //     textAlign: "center",
@@ -91,8 +91,8 @@
 //       })();
 
 //       return () => abortController.abort();
-//     }, [reRender])
-//   // }, [marketDetails.marketData, reRender])
+//     }, [render])
+//   // }, [marketDetails.marketData, render])
 
 //     // useEffect(() => {
 //     //   return () => {
@@ -196,14 +196,14 @@
 //         );
 //       }
 //       obj.exit = (
-//         < ExitPosition from={from} reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
+//         < ExitPosition from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
 //       );
 //       obj.buy = (
-//         <Buy from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
+//         <Buy from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
 //       );
       
 //       obj.sell = (
-//         <Sell from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
+//         <Sell from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)}/>
 //       );
 
 //       if(subelem.lots != 0){
@@ -382,10 +382,13 @@ import Sell from "../../tradingCommonComponent/SellModel"
 import OverallRow from './OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
+import { renderContext } from '../../../renderContext';
 // import Button from '@mui/material/Button';
 
-function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
+function OverallGrid({ setIsGetStartedClicked, from}) {
   //console.log("rendering in userPosition: overallPnl")
+  const {render, setRender} = useContext(renderContext);
+
   console.log("rendering : overallgrid")
   let styleTD = {
     textAlign: "center",
@@ -449,8 +452,8 @@ function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
       })();
 
       return () => abortController.abort();
-    }, [reRender])
-  // }, [marketDetails.marketData, reRender])
+    }, [render])
+  // }, [marketDetails.marketData, render])
 
     // useEffect(() => {
     //   return () => {
@@ -553,14 +556,14 @@ function OverallGrid({ reRender, setReRender , setIsGetStartedClicked, from}) {
         );
       }
       obj.exit = (
-        < ExitPosition from={from} reRender={reRender} setReRender={setReRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
+        < ExitPosition from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
       );
       obj.buy = (
-        <Buy from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
+        <Buy from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
       );
       
       obj.sell = (
-        <Sell from={from} reRender={reRender} setReRender={setReRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
+        <Sell from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
       );
 
       obj.sellState = (

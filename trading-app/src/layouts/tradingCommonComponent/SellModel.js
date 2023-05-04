@@ -25,18 +25,19 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 // import MDBox from '../../components/MDBox';
 import { Box, Typography } from '@mui/material';
+import { renderContext } from "../../renderContext";
 // import { marketDataContext } from "../../MarketDataContext";
 // import { marketDataContext } from "../../MarketDataContext";
 
 
-const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, reRender, setReRender, fromSearchInstrument, expiry, from, setSellState}) => {
-  // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromSearchInstrument, expiry, from)
-
+const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
+  // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
+  const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
   console.log("rendering : sell")
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  // const { reRender, setReRender } = Render;
+  // const { render, setRender } = Render;
   // const marketDetails = useContext(marketDataContext);
   // let ltp = marketDetails.marketData.filter((subElem)=>{
   //   return subElem.instrument_token === instrumentToken
@@ -113,7 +114,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
   const handleClickOpen = async () => {
     if(fromSearchInstrument){
       addInstrument();
-      reRender ? setReRender(false) : setReRender(true);
+      render ? setRender(false) : setRender(true);
     }
     
     setOpen(true);
@@ -122,7 +123,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
   const handleClose = async (e) => {
     if(fromSearchInstrument){
       removeInstrument();
-      reRender ? setReRender(false) : setReRender(true);
+      render ? setRender(false) : setRender(true);
     }
     
     setOpen(false);
@@ -131,18 +132,18 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
 
 
 
-  const [appLive, setAppLive] = useState([]);
+  // const [appLive, setAppLive] = useState([]);
 
 
-  useEffect(() => {
-    axios.get(`${baseUrl}api/v1/readsetting`)
-    .then((res) => {
-        setAppLive(res.data);
-    }).catch((err) => {
-        return new Error(err);
-    })
+  // useEffect(() => {
+  //   axios.get(`${baseUrl}api/v1/readsetting`)
+  //   .then((res) => {
+  //       setAppLive(res.data);
+  //   }).catch((err) => {
+  //       return new Error(err);
+  //   })
 
-  }, [])
+  // }, [])
 
 
   async function sellFunction(e, uId) {
@@ -150,11 +151,11 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
       setOpen(false);
       setSellState(false);
 
-      if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
-        // window.alert("App is not Live right now. Please wait.");
-        openSuccessSB('error', 'App is not live right now. Please wait.')
-        return ;
-      }
+      // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
+      //   // window.alert("App is not Live right now. Please wait.");
+      //   openSuccessSB('error', 'App is not live right now. Please wait.')
+      //   return ;
+      // }
 
       sellFormDetails.buyOrSell = "SELL";
   
@@ -173,7 +174,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
       placeOrder();
 
       // let id = setTimeout(()=>{
-      //     reRender ? setReRender(false) : setReRender(true)
+      //     render ? setRender(false) : setRender(true)
       // }, 1000);
       
   }
@@ -231,7 +232,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
           // window.alert(dataResp.message);
         }
     }
-    reRender ? setReRender(false) : setReRender(true)
+    render ? setRender(false) : setRender(true)
   }
 
   async function addInstrument(){

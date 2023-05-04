@@ -49,7 +49,7 @@ function ContestTradeView () {
     const navigate = useNavigate();
     const [isLoading,setIsLoading] = useState(true)
 
-    const [render, setReRender] = useState(true);
+    // const [render, setReRender] = useState(true);
     let style = {
       textAlign: "center", 
       fontSize: ".75rem", 
@@ -117,9 +117,9 @@ function ContestTradeView () {
     const memoizedLastTrade = useMemo(() => {
       return <LastTrade
         contestId={contestId}
-        Render={{render, setReRender}}
+        // Render={{render, setReRender}}
       />;
-    }, [render, contestId]);
+    }, [contestId]);
   
     const memoizedInstrumentDetails = useMemo(() => {
       return <InstrumentsData
@@ -127,10 +127,10 @@ function ContestTradeView () {
         contestId={contestId}
         portfolioId={portfolioId}
         isFromHistory={isFromHistory}
-        Render={{render, setReRender}}
+        // Render={{render, setReRender}}
         
       />;
-    }, [socket, render, contestId, portfolioId, isFromHistory]);
+    }, [socket, contestId, portfolioId, isFromHistory]);
   
     const memoizedOverallPnl = useMemo(() => {
       return <MYPNLData
@@ -138,9 +138,9 @@ function ContestTradeView () {
         contestId={contestId}
         portfolioId={portfolioId}
         isFromHistory={isFromHistory}
-        Render={{render, setReRender}}
+        // Render={{render, setReRender}}
       />;
-    }, [socket, render, contestId, portfolioId, isFromHistory]);
+    }, [socket, contestId, portfolioId, isFromHistory]);
 
 
     // console.log("contest", contest, Boolean(contest))

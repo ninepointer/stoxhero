@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import axios from "axios";
 import { userContext } from '../../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -20,10 +20,13 @@ import { Box } from '@mui/material';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
+import { renderContext } from '../../../../renderContext';
 
-function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, symbol, quantity, exchange, instrumentToken }) {
+function ExitPosition({ isFromHistory, portfolioId, contestId, product, symbol, quantity, exchange, instrumentToken }) {
   console.log("rendering in userPosition/overall: exitPosition", quantity)
-  const { render, setReRender } = Render
+  // const { render, setRender } = Render
+  const {render, setRender} = useContext(renderContext);
+
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -238,7 +241,7 @@ function ExitPosition({ isFromHistory, Render, portfolioId, contestId, product, 
         openSuccessSB('else', dataResp.message)
         // window.alert(dataResp.message);
       }
-      render ? setReRender(false) : setReRender(true)
+      render ? setRender(false) : setRender(true)
     }
   }
 

@@ -7,16 +7,18 @@ import { CircularProgress } from "@mui/material";
 import  { marketDataContext } from '../../../../MarketDataContext';
 import { NetPnlContext } from '../../../../PnlContext';
 import ExitPosition from './ExitPosition';
+import { renderContext } from '../../../../renderContext';
 
 
 function MYPNLData({contestId, portfolioId, socket, Render, isFromHistory}){
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [marketDetails.contestMarketData, setMarketData] = useState([]);
-  const marketDetails = useContext(marketDataContext)
+  const marketDetails = useContext(marketDataContext);
+  const {render, setRender} = useContext(renderContext);
   const { updateContestNetPnl } = useContext(NetPnlContext);
   const [tradeData, setTradeData] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
-  const {render, setReRender} = Render
+  // const {render, setRender} = Render
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -168,7 +170,7 @@ return (
         </Grid>
 
           <Grid item xs={12} md={12} lg={1.6} display="flex" justifyContent="center">
-              < ExitPosition isFromHistory={isFromHistory} Render={{render, setReRender}} contestId={contestId} portfolioId={portfolioId} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
+              < ExitPosition isFromHistory={isFromHistory} Render={{render, setRender}} contestId={contestId} portfolioId={portfolioId} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange}/>
           </Grid>
         </Grid>
 

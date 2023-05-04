@@ -24,20 +24,15 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { Box, Typography } from '@mui/material';
+import { renderContext } from "../../renderContext";
 // import MDBox from '../../../../../components/MDBox';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, reRender, setReRender, fromSearchInstrument, expiry, from, setBuyState}) => {
+const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
   console.log("rendering : buy")
-  //console.log("rendering in userPosition: buyModel", from)
-
-  // const marketDetails = useContext(marketDataContext)
-
-  // //console.log("data from props", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-  // const { reRender, setReRender } = Render;
+  const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
   let date = new Date();
@@ -66,7 +61,7 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [regularSwitch, setRegularSwitch] = React.useState(true);
-  const [appLive, setAppLive] = useState([]);
+  // const [appLive, setAppLive] = useState([]);
 
   const [buyFormDetails, setBuyFormDetails] = React.useState({
     exchange: "",
@@ -110,7 +105,7 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
   const handleClickOpen = async () => {
     if(fromSearchInstrument){
       addInstrument();
-      reRender ? setReRender(false) : setReRender(true);
+      render ? setRender(false) : setRender(true);
     }
     
     setOpen(true);
@@ -119,21 +114,21 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
   const handleClose = async (e) => {
     if(fromSearchInstrument){
       removeInstrument();
-      reRender ? setReRender(false) : setReRender(true);
+      render ? setRender(false) : setRender(true);
     }
     
     setOpen(false);
     setBuyState(false);
   };
 
-  useEffect(() => {
-    axios.get(`${baseUrl}api/v1/readsetting`)
-    .then((res) => {
-        setAppLive(res.data);
-    }).catch((err) => {
-        return new Error(err);
-    })
-  }, [])
+  // useEffect(() => {
+  //   axios.get(`${baseUrl}api/v1/readsetting`)
+  //   .then((res) => {
+  //       setAppLive(res.data);
+  //   }).catch((err) => {
+  //       return new Error(err);
+  //   })
+  // }, [])
 
   async function buyFunction(e, uId) {
     //console.log("caseStudy 1: buy")
@@ -142,11 +137,11 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
       setBuyState(false);
 
 
-      if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
-        // window.alert("App is not Live right now. Please wait.");
-        openSuccessSB('error', 'App is not live right now. Please wait.')
-        return;
-      }
+      // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
+      //   // window.alert("App is not Live right now. Please wait.");
+      //   openSuccessSB('error', 'App is not live right now. Please wait.')
+      //   return;
+      // }
 
 
       buyFormDetails.buyOrSell = "BUY";
@@ -220,7 +215,7 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
         }
     }
     setBuyFormDetails({});
-    reRender ? setReRender(false) : setReRender(true)
+    render ? setRender(false) : setRender(true)
   }
 
   async function addInstrument(){
