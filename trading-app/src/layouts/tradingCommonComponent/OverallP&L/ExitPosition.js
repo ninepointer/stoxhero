@@ -118,16 +118,6 @@ function ExitPosition({from, isFromHistory, reRender, setReRender, product, symb
         return new Error(err);
       })
 
-    // axios.get(`${baseUrl}api/v1/${"readInstrumentDetails"}`)
-    //   .then((res) => {
-    //     let dataArr = (res.data)
-    //     setTradeData(dataArr)
-    //   }).catch((err) => {
-    //     return new Error(err);
-    //   })
-
-    // setTradeData([...tradeData])
-
   }, [])
 
   let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;

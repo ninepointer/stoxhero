@@ -43,7 +43,7 @@ function MarginSettings() {
       //window.alert("Server Down");
       return new Error(err);
   })
-  },[reRender])
+  },[])
 
 
 
