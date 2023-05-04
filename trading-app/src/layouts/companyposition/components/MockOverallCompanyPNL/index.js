@@ -1,5 +1,5 @@
 //
-import {useState, useEffect} from "react"
+import {useState, useEffect, useContext} from "react"
 import axios from "axios"
 // @mui material components
 import Card from "@mui/material/Card";
@@ -18,18 +18,22 @@ import DataTable from "../../../../examples/Tables/DataTable";
 
 // Data
 import data from "./data";
+// import { renderContext } from "../../../../renderContext";
+import { io } from "socket.io-client";
 
 function MockOverallCompantPNL({socket}) {
   const { columns, rows } = data();
   const [menu, setMenu] = useState(null);
 
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
+  // const openMenu = ({ currentTarget }) => setMenu(currentTarget);
   const closeMenu = () => setMenu(null);
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
+  // const {render} = useContext(renderContext);
+  const [trackEvent, setTrackEvent] = useState({});
 
   let [latestLive, setLatestLive] = useState({
     tradeTime: "",
@@ -48,6 +52,14 @@ function MockOverallCompantPNL({socket}) {
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
 
+    useEffect(()=>{
+      socket.on('updatePnl', (data)=>{
+        // console.log("in the pnl event", data)
+        setTimeout(()=>{
+          setTrackEvent(data);
+        })
+      })
+    }, [])
 
     useEffect(()=>{
       axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -57,10 +69,6 @@ function MockOverallCompantPNL({socket}) {
           // setDetails.setMarketData(data);
       }).catch((err) => {
           return new Error(err);
-      })
-
-      socket.on('check', (data)=>{
-        console.log("checking", data)
       })
 
       socket.on('tick', (data) => {
@@ -112,7 +120,7 @@ function MockOverallCompantPNL({socket}) {
         return new Error(err);
       })
 
-    }, [marketData])
+    }, [trackEvent])
 
 
     useEffect(() => {

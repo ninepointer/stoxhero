@@ -15,7 +15,7 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
     // console.log("settings", setting, req.user?.role?.roleName )
     if(!setting[0].isAppLive && req.user?.role?.roleName != 'Admin'){
         return res.status(401).send({message: "App is not Live right now. Please wait."}) 
-      }
+    }
     if(req.body.apiKey && req.body.accessToken){
         LiveTradeFunc.liveTrade(req.body, res);
     } else{

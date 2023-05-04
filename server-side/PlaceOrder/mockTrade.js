@@ -6,17 +6,16 @@ const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
-
+const io = require('../marketData/socketio');
 
 exports.mockTrade = async (req, res) => {
-    console.log("in mock trade")
     console.log("caseStudy 8: mocktrade")
     let stoxheroTrader ;
     const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
     const MockTradeDetails = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
-        validity, variety, createdBy, userId, uId, algoBoxId, order_id, instrumentToken,  
+        validity, variety, algoBoxId, order_id, instrumentToken,  
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
 
@@ -121,6 +120,7 @@ exports.mockTrade = async (req, res) => {
             console.log("caseStudy 10: company mock")
             mockTradeDetails.save().then(()=>{
                 
+                io.emit("updatePnl", mockTradeDetails)
             }).catch(err => {console.log(err, "fail")});
             
         }).catch(err => {console.log(err, "fail")});

@@ -76,7 +76,7 @@ function MismatchDetails({socket}) {
     }).catch((err) => {
         return new Error(err);
     })
-  }, [marketData])
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -211,7 +211,7 @@ function MismatchDetails({socket}) {
 
   }
 
-  const closeMenu = () => setMenu(null);
+  // const closeMenu = () => setMenu(null);
 
 
   return (
