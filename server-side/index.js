@@ -207,7 +207,7 @@ let weekDay = date.getDay();
 
   try{
     const onlineApp = nodeCron.schedule('45 3 * * *', appLive);
-    const offlineApp = nodeCron.schedule(`* 10 * * *`, appOffline);
+    // const offlineApp = nodeCron.schedule(`* 10 * * *`, appOffline);
   } catch(err){
     console.log("err from cronjob", err)
   }
