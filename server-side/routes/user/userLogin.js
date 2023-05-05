@@ -11,7 +11,7 @@ router.post("/login", async (req, res)=>{
     const {userId, pass} = req.body;
 
     if(!userId || !pass){
-        return res.status(422).json({error : "please fill all the field..."})
+        return res.status(422).json({status: 'error', message : "Please provide login credentials"});
     }
 
     //TODO --> hashing password and comparing
@@ -31,7 +31,7 @@ router.post("/login", async (req, res)=>{
     
      //REMINDER ---> HAVE TO FIX ACCORDING ABOVE COMMENTED CODE.
         if(!userLogin ){
-            return res.status(422).json({error : "invalid details"})
+            return res.status(422).json({status: 'error', message : "Invalid credentials"});
         }else{
         
         const token = await userLogin.generateAuthToken();
@@ -42,7 +42,7 @@ router.post("/login", async (req, res)=>{
             httpOnly: true
         });
         // res.json(token);
-        res.status(201).json({massage : "user login succesfully"});
+        res.status(201).json({status:'success', message : "user logged in succesfully", token: token});
     }
 }
 })
