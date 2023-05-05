@@ -25,12 +25,22 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { Box, Typography } from '@mui/material';
 import { renderContext } from "../../renderContext";
+import {Howl} from "howler";
+import sound from "../../assets/sound/tradeSound.mp3"
+
+
 // import MDBox from '../../../../../components/MDBox';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
 const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
   console.log("rendering : buy")
+  const tradeSound = new Howl({
+    src : [sound],
+    html5 : true
+  })
+  
+
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
@@ -197,6 +207,7 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
         //////console.log("Failed to Trade");
     } else {
       //console.log("caseStudy 3: place resp")
+      tradeSound.play();
         if(dataResp.message === "COMPLETE"){
             // //console.log(dataResp);
             openSuccessSB('complete', {symbol, Quantity})

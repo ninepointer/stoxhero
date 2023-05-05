@@ -7,6 +7,14 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
+const client = require('../marketData/redisClient');
+const {Howl} = require('howler');
+// import {Howl} from "howler";
+
+// const tradeSound = new Howl({
+//     src : ["http://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/start.ogg"],
+//     // html5 : true
+// })
 
 exports.mockTrade = async (req, res) => {
     console.log("caseStudy 8: mocktrade")
@@ -143,9 +151,49 @@ exports.mockTrade = async (req, res) => {
     
             // console.log("mockTradeDetails", algoTrader);
             console.log("caseStudy 11: algo mock")
-            algoTrader.save().then(()=>{
+            algoTrader.save().then(async ()=>{
                 console.log("caseStudy 12: algo mock")
                 console.log("sending response");
+                if(await client.exists(`${req.user._id.toString()} overallpnl`)){
+                    //console.log("in the if condition")
+                    let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
+                    pnl = JSON.parse(pnl);
+                    //console.log("before pnl", pnl)
+                    const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader.instrumentToken && element._id.product === algoTrader.Product ));
+          
+                    // if instrument is same then just updating value
+                    if (matchingElement) {
+                      // Update the values of the matching element with the values of the first document
+                      matchingElement.amount += (algoTrader.amount * -1);
+                      matchingElement.brokerage += Number(algoTrader.brokerage);
+                      matchingElement.lastaverageprice = algoTrader.average_price;
+                      matchingElement.lots += Number(algoTrader.Quantity);
+                      //console.log("matchingElement", matchingElement)
+          
+                    } else {
+                      // Create a new element if instrument is not matching
+                      pnl.push({
+                        _id: {
+                          symbol: algoTrader.symbol,
+                          product: algoTrader.Product,
+                          instrumentToken: algoTrader.instrumentToken,
+                          exchange: algoTrader.exchange,
+                        },
+                        amount: (algoTrader.amount * -1),
+                        brokerage: Number(algoTrader.brokerage),
+                        lots: Number(algoTrader.Quantity),
+                        lastaverageprice: algoTrader.average_price,
+                      });
+          
+                    }
+                    
+                    await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))
+                    //console.log("pnl", pnl)
+          
+                  }
+
+                //   console.log("tradeSound", tradeSound)
+                //   tradeSound.play();
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
                 console.log("in err", err)
@@ -174,8 +222,45 @@ exports.mockTrade = async (req, res) => {
             });
     
             //console.log("mockTradeDetails", paperTrade);
-            paperTrade.save().then(()=>{
+            paperTrade.save().then(async ()=>{
                 console.log("sending response");
+                if(await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
+                    //console.log("in the if condition")
+                    let pnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
+                    pnl = JSON.parse(pnl);
+                    //console.log("before pnl", pnl)
+                    const matchingElement = pnl.find((element) => (element._id.instrumentToken === paperTrade.instrumentToken && element._id.product === paperTrade.Product ));
+          
+                    // if instrument is same then just updating value
+                    if (matchingElement) {
+                      // Update the values of the matching element with the values of the first document
+                      matchingElement.amount += (paperTrade.amount * -1);
+                      matchingElement.brokerage += Number(paperTrade.brokerage);
+                      matchingElement.lastaverageprice = paperTrade.average_price;
+                      matchingElement.lots += Number(paperTrade.Quantity);
+                      //console.log("matchingElement", matchingElement)
+          
+                    } else {
+                      // Create a new element if instrument is not matching
+                      pnl.push({
+                        _id: {
+                          symbol: paperTrade.symbol,
+                          product: paperTrade.Product,
+                          instrumentToken: paperTrade.instrumentToken,
+                          exchange: paperTrade.exchange,
+                        },
+                        amount: (paperTrade.amount * -1),
+                        brokerage: Number(paperTrade.brokerage),
+                        lots: Number(paperTrade.Quantity),
+                        lastaverageprice: paperTrade.average_price,
+                      });
+                    }
+                    
+                    await client.set(`${req.user._id.toString()}: overallpnlPaperTrade`, JSON.stringify(pnl))
+                    
+                }
+                // console.log("tradeSound", tradeSound)
+                // tradeSound.play();
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
                 console.log("in err", err)

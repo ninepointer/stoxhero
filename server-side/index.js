@@ -46,13 +46,13 @@ app.use(hpp());
 const path = require('path');
 const {DummyMarketData} = require('./marketData/dummyMarketData');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
-
+client.connect().then(()=>{})
 console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
   // redis connection
-  await client.connect();
+  
 
 
   io.on("connection", (socket) => {
