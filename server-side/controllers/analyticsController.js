@@ -2,6 +2,7 @@ const PaperTrade = require('../models/mock-trade/paperTrade');
 const InfinityTrade = require('../models/mock-trade/infinityTrader');
 const TraderDailyPnlData = require('../models/InstrumentHistoricalData/TraderDailyPnlDataSchema');
 const StoxHeroTrade = require('../models/mock-trade/stoxheroTrader');
+const { ObjectId } = require('mongodb');
 
 exports.getPaperTradesOverview = async(req,res,next) => {
 
@@ -209,7 +210,7 @@ exports.getPaperTradesDailyPnlData = async(req,res,next) => {
     const pipeline = [
         {$match: {
           trade_time : {$gte : yesterday, $lte : today},
-          trader: id,
+          trader: new ObjectId(id),
         }
         },
         {
@@ -261,7 +262,7 @@ exports.getPaperTradesMonthlyPnlData= async(req,res,next) => {
     pastYear.setFullYear(today.getFullYear()-1);
     console.log(pastYear,today);
     let pnlDetails = await PaperTrade.aggregate([
-        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: id, status: "COMPLETE"} },
+        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
             "date": {$substr: [ "$trade_time", 0, 7 ]},
@@ -310,16 +311,21 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
 
     let userId = req.params.id;
     let today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate()-1);
+    // const yesterday = new Date();
+    // yesterday.setDate(today.getDate()-1);
     const pastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const pastYear = new Date(today.getFullYear(), 0, 1);
-    
 
+    let date = new Date();
+    let getYesterdaydate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    getYesterdaydate = getYesterdaydate + "T00:00:00.000Z";
+    const yesterday = new Date(getYesterdaydate);
+    
+  console.log("in overview", yesterday, userId)
     let infinityTradesOverview = await InfinityTrade.aggregate([
         {
           $match: {
-            trader: userId,
+            trader: new ObjectId(userId),
             // trade_time:{$lte: today},
             status: "COMPLETE"
             // Replace with the actual user ID
@@ -442,7 +448,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
           },
         }
     ]);
-        // console.log(infinityTradesOverview);
+        console.log(infinityTradesOverview);
 
     res.status(200).json({status:'success', data: infinityTradesOverview});    
 
@@ -461,7 +467,7 @@ exports.getStoxHeroTradesOverview = async(req,res,next) => {
     let stoxHeroTradesOverview = await StoxHeroTrade.aggregate([
         {
           $match: {
-            trader: userId,
+            trader: new ObjectId(userId),
             // trade_time:{$lte: today},
             status: "COMPLETE"
             // Replace with the actual user ID
@@ -595,7 +601,7 @@ exports.getInfinityTradesDateWiseStats = async(req, res)=>{
     toDate.setHours(23, 59, 59, 999);
     
     let pnlDetails = await InfinityTrade.aggregate([
-        { $match: { trade_time: {$gte : fromDate, $lte : toDate}, trader: id, status: "COMPLETE"} },
+        { $match: { trade_time: {$gte : fromDate, $lte : toDate}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
             "date": {$substr: [ "$trade_time", 0, 10 ]},
@@ -706,7 +712,7 @@ exports.getInfinityTradesMonthlyPnlData= async(req,res,next) => {
     pastYear.setFullYear(today.getFullYear()-1);
     console.log(pastYear,today);
     let pnlDetails = await InfinityTrade.aggregate([
-        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: id, status: "COMPLETE"} },
+        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
             "date": {$substr: [ "$trade_time", 0, 7 ]},
@@ -758,7 +764,7 @@ exports.getStoxHeroTradesMonthlyPnlData= async(req,res,next) => {
     pastYear.setFullYear(today.getFullYear()-1);
     console.log(pastYear,today);
     let pnlDetails = await StoxHeroTrade.aggregate([
-        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: id, status: "COMPLETE"} },
+        { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
             "date": {$substr: [ "$trade_time", 0, 7 ]},

@@ -21,12 +21,17 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import { renderContext } from '../../../renderContext';
+import {Howl} from "howler";
+import sound from "../../../assets/sound/tradeSound.mp3"
 
 function ExitPosition({from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
   //console.log("rendering in userPosition/overall: exitPosition", quantity)
   // const { render, setRender } = Render
   const {render, setRender} = useContext(renderContext);
-
+  const tradeSound = new Howl({
+    src : [sound],
+    html5 : true
+  })
   console.log("rendering : exit")
   let checkBuyOrSell;
   if (quantity > 0) {
@@ -207,6 +212,7 @@ console.log("lotSize", lotSize, maxLot)
       openSuccessSB('error', dataResp.error)
       //////console.log("Failed to Trade");
     } else {
+      tradeSound.play();
       if (dataResp.message === "COMPLETE") {
         // //console.log(dataResp);
         openSuccessSB('complete', { symbol, Quantity })
