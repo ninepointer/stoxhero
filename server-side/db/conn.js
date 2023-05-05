@@ -19,6 +19,7 @@ const DB = process.env.DATABASE;
 }).then(()=>{
     console.log("connection secure");
 }).catch((err)=>{
+    console.log(err);
     console.log("no connection");
 })
 
