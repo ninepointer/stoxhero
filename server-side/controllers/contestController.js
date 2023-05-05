@@ -26,9 +26,7 @@ exports.createContest = async(req, res, next)=>{
         stockType, contestOn, contestRule, rewards, entryFee, instruments, maxParticipants, 
         minParticipants, createdBy: req.user._id, lastModifiedBy: req.user._id,status, contestMargin});
     
-    res.status(201).json({message: 'Contest successfully created.', data:contest});    
-        
-
+    res.status(201).json({message: 'Contest successfully created.', data:contest});
 }
 
 exports.getContests = async(req, res, next)=>{
@@ -41,13 +39,12 @@ exports.getContests = async(req, res, next)=>{
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
-        
 };
 
 exports.getActiveContests = async(req, res, next)=>{
     console.log("inside ActiveContest")
     try {
-        const contests = await Contest.find({ contestEndDate: { $gte: new Date() }, status: 'Live', entryClosingDate:{$gte: new Date()} }).populate('contestRule','ruleName'); 
+        const contests = await Contest.find({ contestEndDate: { $gte: new Date() }, status: {$ne: 'Cancelled'}, entryClosingDate:{$gte: new Date()} }).populate('contestRule','ruleName'); 
     
         res.status(201).json({status: 'success', data: contests, results: contests.length}); 
         
@@ -206,7 +203,7 @@ exports.getContest = async (req,res,next) => {
     try {
         const contest = await Contest.findOne({
           _id: id,
-          status: "Live"
+          status: {$ne: "Cancelled"}
         })
         .populate('contestRule', { ruleName: 1, contestRules: 1 })
         .populate('participants.userId', 'first_name')
