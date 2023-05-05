@@ -42,6 +42,7 @@ import Carousel from './layouts/carousel'
 import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import UserSignupDashboard from './layouts/userSignupDashboard'
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
@@ -348,6 +349,14 @@ const routes = [
     route: "/users",
     component: <Users />,
   },
+  {
+    type: "collapse",
+    name: "New Users Analytics",
+    key: "signupanalytics",
+    icon: <PersonIcon/>,
+    route: "/signupanalytics",
+    component: <UserSignupDashboard />,
+  },
   // {
   //   type: "collapse",
   //   name: "Notifications",
@@ -364,23 +373,14 @@ const routes = [
   //   route: "/position",
   //   component: <UserPosition />,
   // },
-  {
-    type: "collapse",
-    name: "User DashBoard",
-    key: "home",
-    icon: <HomeIcon/>,
-    route: "/home",
-    component: <Home />,
-  },
-  {
-    type: "collapse",
-    name: "Analytics",
-    key: "analytics",
-    // icon: <Icon fontSize="small">person</Icon>,
-    icon: <AnalyticsIcon/>,
-    route: "/analytics",
-    component: <UserAnalytics />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "User DashBoard",
+  //   key: "home",
+  //   icon: <HomeIcon/>,
+  //   route: "/home",
+  //   component: <Home />,
+  // },
   {
     type: "collapse",
     name: "Paper Trade",
@@ -449,11 +449,12 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Report",
-    key: "userreport",
-    icon: <DashboardIcon/>,
-    route: "/userreport",
-    component: <UserReport />,
+    name: "Analytics",
+    key: "analytics",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <AnalyticsIcon/>,
+    route: "/analytics",
+    component: <UserAnalytics />,
   },
   {
     type: "collapse",

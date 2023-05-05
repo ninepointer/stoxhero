@@ -609,6 +609,74 @@ router.get('/earnings', Authenticate, async (req,res, next)=>{
   }
 });
 
+router.get("/newusertoday", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  console.log(today)
+  const newuser = UserDetail.find({joining_date:{$gte: today}}).populate('referredBy','first_name last_name')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/newuseryesterday", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  date.setDate(date.getDate() - 1);
+  let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+  const yesterday = new Date(yesterdayDate);
+  console.log(today,yesterday)
+  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}}).populate('referredBy','first_name last_name')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/newuserthismonth", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
+  monthStartDate = monthStartDate + "T00:00:00.000Z";
+  const monthStart = new Date(monthStartDate);
+  console.log(monthStart)
+  const newuser = UserDetail.find({joining_date:{$gte: monthStart}}).populate('referredBy','first_name last_name')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/allusers", (req, res)=>{
+
+  const newuser = UserDetail.find().populate('referredBy','first_name last_name')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      console.log("Error:",err)
+      return res.status(422).json({error : err})
+  })
+});
+
 module.exports = router;
 
 
