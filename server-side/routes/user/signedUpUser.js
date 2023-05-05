@@ -21,7 +21,7 @@ router.post("/signup", async (req, res)=>{
     console.log(req.body)
     console.log(!first_name || !last_name || !email || !mobile)
     if( !first_name || !last_name || !email || !mobile){
-        return res.status(422).json({error : "Plz fill all the details to proceed"})
+        return res.status(400).json({status:'error', message : "Please fill all fields to proceed."})
     }
 
     const signedupuser = await SignedUpUser.findOne({ $or: [{ email: email }, { mobile: mobile }] })
@@ -135,15 +135,12 @@ router.patch("/verifyotp", async (req, res)=>{
         referrerCode,
         } = req.body
 
-    console.log("OTP Verification")
-    console.log("Request Body in OTP Verification: ",req.body)
 
     const user = await SignedUpUser.findOne({email: email})
-    console.log("Signed Up User: ",user)
     if(!user)
     {   
-        console.log("Inside email check")
         return res.status(404).json({
+            status:'error',
             message: "User with this email doesn't exist"
         })
     }
@@ -160,8 +157,6 @@ router.patch("/verifyotp", async (req, res)=>{
         User.findOne({ $or: [{ email: email }, { mobile: mobile }] })
         .then( async (dataExist)=>{
         if(dataExist){
-            console.log(dataExist)
-            console.log("data already exists");
             return res.status(400).json({status: 'error',message : "You already have an account, please login using your email or phone"})
         }
 
@@ -174,20 +169,18 @@ router.patch("/verifyotp", async (req, res)=>{
 
         //------
         let referredBy;
-        console.log('this is referrer code', referrerCode);
         if(referrerCode){
             const referrerCodeMatch = await User.findOne({myReferralCode: referrerCode});
     
 
             if(!referrerCodeMatch){
-                return res.status(404).json({message : "No such referrer code. Please enter a valid referrer code"});
+                return res.status(404).json({status: 'error', message : "No such referrer code. Please enter a valid referrer code"});
             }
 
             // const referralProgramme = await Referral.find({status: "Active"});
     
 
 
-            console.log("OTP & Referral Code Verified")
             user.status = 'OTP Verified'
             user.last_modifiedOn = new Date()
             await user.save();
@@ -225,22 +218,18 @@ router.patch("/verifyotp", async (req, res)=>{
         
         const myReferralCode = generateUniqueReferralCode();
         const count = await User.countDocuments();
-        console.log("Count of Documents: ",count)
         const userId = email.split('@')[0]
         const userIds = await User.find({employeeid:userId})
         console.log("User Ids: ",userIds)
         if(userIds.length > 0)
         {
-             console.log("Inside User Id check for multiple users with same email initial")
              userId = userId.toString()+(userIds.length+1).toString()
-             console.log(userId)
         }
         
         let referral = await Referral.findOne({status: "Active"});
 
         // free portfolio adding in user collection
         const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
-        console.log("active portfolio", activeFreePortfolios);
         let portfolioArr = [];
         for (const portfolio of activeFreePortfolios) {
             let obj = {};
@@ -249,7 +238,6 @@ router.patch("/verifyotp", async (req, res)=>{
             portfolioArr.push(obj);
         }
 
-        console.log("portfolio arr", portfolioArr);
         try{
         let obj = {
             first_name, last_name, designation: 'Trader', email, 
@@ -341,12 +329,9 @@ router.patch("/verifyotp", async (req, res)=>{
                 createdBy:newuser._id
         })
         
-        console.log("User Wallet Created: ",userWallet)
-
-        console.log("referralProgramme", referralProgramme);
         // console.log("referralProgramme", referralProgramme);
 
-        if(!newuser) return res.status(400).json({message: 'Something went wrong'});
+        if(!newuser) return res.status(400).json({status: 'error', message: 'Something went wrong'});
 
         res.status(201).json({status: "Success", data:newuser, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
@@ -451,6 +436,7 @@ router.patch("/resendotp", async (req, res)=>{
     if(!user)
     {
         return res.status(404).json({
+            status:'error',
             message: "User with this email doesnt exist"
         })
     }
@@ -536,6 +522,7 @@ router.patch("/resendotp", async (req, res)=>{
     }    
     await user.save();
     res.status(200).json({
+            status:'success',
             message: "OTP Resent. Please check again."
     });
 });
