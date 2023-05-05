@@ -38,10 +38,10 @@ const TableTwo = () => {
    
     useEffect(()=>{
         //console.log(`${baseUrl}api/v1/traderwisecompanypnlreport/${firstDate}/${secondDate}`)
-        axios.get(`${baseUrl}api/v1/traderwisecompanypnlreport/${firstDate}/${secondDate}`)
+        axios.get(`${baseUrl}api/v1/infinityTrade/traderwisecompanypnlreport/${firstDate}/${secondDate}`)
         .then((res)=>{
           //console.log(res.data)
-          setTraderPNLData(res.data);
+          setTraderPNLData(res.data.data);
         }).catch((err)=>{
             //window.alert("Server Down");
             return new Error(err);
@@ -71,6 +71,7 @@ const TableTwo = () => {
     
     let tradername = [];
     let tradernpnl = [];
+    console.log("traderpnldata", traderpnldata)
     traderpnldata?.map((elem)=>{
     let tpnl = {}
     tradername.push(elem._id);
