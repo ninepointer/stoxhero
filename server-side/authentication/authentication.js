@@ -7,13 +7,13 @@ const Authenticate = async (req, res, next)=>{
 
         
         const token = req.cookies.jwtoken;
-        console.log("token fetching", performace.now()-now)
+        // console.log("token fetching", performace.now()-now)
         if(!token) console.log('token nahi hai');
         if(token) console.log('token hai')
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
-        console.log("verify", performace.now()-now)
+        // console.log("verify", performace.now()-now)
         const user = await User.findOne({_id: verifyToken._id}).populate('role', 'roleName');
-        console.log("user", performace.now()-now)
+        // console.log("user", performace.now()-now)
         if(!user){ throw new Error("User not found")}
 
         req.token = token;
