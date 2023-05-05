@@ -42,7 +42,7 @@ exports.mockTrade = async (req, res) => {
     try{
         // console.log("above data")
         let liveData = await singleLivePrice(exchange, symbol)
-        // console.log("live data", liveData)
+        console.log("live data", liveData)
         for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){
                 newTimeStamp = elem.timestamp;
@@ -55,6 +55,7 @@ exports.mockTrade = async (req, res) => {
         trade_time = new Date(newTimeStamp);
 
     } catch(err){
+        console.log(err)
         return new Error(err);
     }
 

@@ -237,7 +237,7 @@ function ContestTradeView () {
                     </MDTypography>
                   </MDBox>
 
-                  {isDummy && !isFromHistory ?
+                  {isDummy && !isFromHistory && contest?.status == "Live" ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                         <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
                           Battle Starts in:
@@ -259,7 +259,7 @@ function ContestTradeView () {
                         </div>
                       </Grid>
                       :
-                      !isFromHistory &&
+                      !isFromHistory && contest?.status == "Live" ?
                       <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
                       <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
                         Battle Ends in:
@@ -281,10 +281,33 @@ function ContestTradeView () {
                       </div>
                       </Grid>
 
+                      :
+
+                      <Grid item mb={1} mt={2} style={{color:"white",fontSize:20}} display="flex" justifyContent="center" alignItems="center" alignContent="center">
+                      <span style={{fontSize: ".90rem", fontWeight: "600", textAlign: "center", marginRight: "8px"}}>
+                        Battle is not Live yet
+                      </span> 
+                      {/* <div style={style} >
+                        <AvTimerIcon/>
+                        <Timer 
+                          targetDate={contest?.contestEndDate} 
+                          text="Battle Ends"
+                          contestId={contestId}
+                          portfolioId={portfolioId}
+                          isDummy={isDummy}
+                          contestName={contest?.contestName}
+                          redirect={redirect.current}
+                          minEntry={minEntry}
+                          entry={entry}
+                          contest={contest}
+                        />
+                      </div> */}
+                      </Grid>
+
 
                   }
                     
-                    {!isDummy ?
+                    {!isDummy && contest?.status == "Live" ?
                     <>
                     {memoizedMargin}
                     {memoizedInstrumentDetails}
