@@ -14,14 +14,14 @@ const [batchData, setBatchData] = useState([]);
 
 useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/batchwisepnl`)
-        .then((res)=>{
-          let data = res.data;
+    axios.get(`${baseUrl}api/v1/infinityTrade/batchwisepnl`)
+    .then((res)=>{
+      let data = res.data.data;
 
-        setBatchData(data);
-        }).catch((err)=>{
-            return new Error(err);
-        })
+    setBatchData(data);
+    }).catch((err)=>{
+        return new Error(err);
+    })
   },[])
 
 

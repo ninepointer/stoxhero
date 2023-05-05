@@ -40,10 +40,10 @@ const TableOne = () => {
 
     useEffect(()=>{
         //console.log(`${baseUrl}api/v1/companypnlreport/${firstDate}/${secondDate}`)
-        axios.get(`${baseUrl}api/v1/companypnlreport/${firstDate}/${secondDate}`)
+        axios.get(`${baseUrl}api/v1/infinityTrade/companypnlreport/${firstDate}/${secondDate}`)
         .then((res)=>{
           //console.log(res.data)
-          setCompanyPNLData(res.data);
+          setCompanyPNLData(res.data.data);
         }).catch((err)=>{
             //window.alert("Server Down");
             return new Error(err);

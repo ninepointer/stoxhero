@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.28b8e8b2.css",
-    "main.js": "/static/js/main.1969ecb8.js",
+    "main.js": "/static/js/main.5ba4737c.js",
     "static/js/498.e7cb86be.chunk.js": "/static/js/498.e7cb86be.chunk.js",
     "static/js/703.e5427e5c.chunk.js": "/static/js/703.e5427e5c.chunk.js",
     "static/js/513.d328f764.chunk.js": "/static/js/513.d328f764.chunk.js",
@@ -21,6 +21,7 @@
     "static/media/friday.png": "/static/media/friday.98b8bf74c2b1610d1914.png",
     "static/media/monday.png": "/static/media/monday.27f095576eba1b65b3c1.png",
     "static/media/referral.png": "/static/media/referral.852ef40a0cf7d4b0f0a1.png",
+    "static/media/tradeSound.mp3": "/static/media/tradeSound.23db360dfcb5bea3067a.mp3",
     "static/media/home-decor-4.jpeg": "/static/media/home-decor-4.5b448fd339a14695f6aa.jpeg",
     "static/media/rule.png": "/static/media/rule.de53acfc1a7069f9e714.png",
     "static/media/purse.png": "/static/media/purse.3bdcf4948b4673ae0853.png",
@@ -74,13 +75,13 @@
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
     "main.28b8e8b2.css.map": "/static/css/main.28b8e8b2.css.map",
-    "main.1969ecb8.js.map": "/static/js/main.1969ecb8.js.map",
+    "main.5ba4737c.js.map": "/static/js/main.5ba4737c.js.map",
     "498.e7cb86be.chunk.js.map": "/static/js/498.e7cb86be.chunk.js.map",
     "703.e5427e5c.chunk.js.map": "/static/js/703.e5427e5c.chunk.js.map",
     "513.d328f764.chunk.js.map": "/static/js/513.d328f764.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.28b8e8b2.css",
-    "static/js/main.1969ecb8.js"
+    "static/js/main.5ba4737c.js"
   ]
 }

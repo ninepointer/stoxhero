@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User/userDetailSchema");
+const client = require("../marketData/redisClient");
 
 const Authenticate = async (req, res, next)=>{
     let token;
@@ -15,11 +16,25 @@ const Authenticate = async (req, res, next)=>{
         if(req.cookies.jwtoken) token = req.cookies.jwtoken;
     }
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
-        const user = await User.findOne({_id: verifyToken._id}).populate('role', 'roleName');
-        if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
 
-        req.token = token;
-        req.user = user;
+
+        try{
+            if(await client.exists(`${verifyToken._id.toString()}authenticatedUser`)){
+                let user = await client.get(`${verifyToken._id.toString()}authenticatedUser`)
+                user = JSON.parse(user);
+                // await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 10);
+                req.user = user;
+            }
+            else{
+                const user = await User.findOne({_id: verifyToken._id}).populate('role', 'roleName');
+                if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
+                await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
+                await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 30);
+                req.user = user;
+            }
+          }catch(e){
+            console.log("redis error", e);
+          }
 
     } catch(err){
         return res.status(401).send({status: "error", message: "Unauthenthicated"});
