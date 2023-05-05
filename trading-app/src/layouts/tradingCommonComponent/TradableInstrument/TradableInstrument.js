@@ -120,7 +120,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
     })
     .then((res) => {
         ////console.log("live price data", res)
-        dispatch({ type: 'setUserInstrumentData', payload: (res.data) });
+        dispatch({ type: 'setUserInstrumentData', payload: (res.data.data) });
         // setUserInstrumentData(res.data);
         // setDetails.setMarketData(data);
     }).catch((err) => {

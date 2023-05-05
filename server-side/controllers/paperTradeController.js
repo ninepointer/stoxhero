@@ -1,5 +1,6 @@
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
+const client = require('../marketData/redisClient');
 
 exports.overallPnl = async (req, res, next) => {
     
@@ -8,50 +9,72 @@ exports.overallPnl = async (req, res, next) => {
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
-    console.log(userId, today)
-    let pnlDetails = await PaperTrade.aggregate([
-        {
-            $match: {
-                trade_time:{
-                    $gte: today
+
+    try{
+
+      if(await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
+        let pnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
+        pnl = JSON.parse(pnl);
+        // console.log("pnl redis", pnl)
+        
+        res.status(201).json({message: "pnl received", data: pnl});
+
+      } else{
+
+        let pnlDetails = await PaperTrade.aggregate([
+          {
+              $match: {
+                  trade_time:{
+                      $gte: today
+                  },
+                  status: "COMPLETE",
+                  trader: userId
+              },
+          },
+          {
+            $group: {
+              _id: {
+                symbol: "$symbol",
+                product: "$Product",
+                instrumentToken: "$instrumentToken",
+                exchange: "$exchange"
+              },
+              amount: {
+                $sum: {$multiply : ["$amount",-1]},
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
                 },
-                status: "COMPLETE",
-                trader: userId
-            },
-        },
-        {
-          $group: {
-            _id: {
-              symbol: "$symbol",
-              product: "$Product",
-              instrumentToken: "$instrumentToken",
-              exchange: "$exchange"
-            },
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
+              },
+              lots: {
+                $sum: {
+                  $toInt: "$Quantity",
+                },
+              },
+              lastaverageprice: {
+                $last: "$average_price",
               },
             },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
-              },
-            },
-            lastaverageprice: {
-              $last: "$average_price",
+          },
+          {
+            $sort: {
+              _id: -1,
             },
           },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-    ])
-    res.status(201).json({message: "pnl received", data: pnlDetails});
+        ])
+        // console.log("pnlDetails in else", pnlDetails)
+        await client.set(`${req.user._id.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlDetails))
+        // console.log("pnlDetails", pnlDetails)
+        res.status(201).json({message: "pnl received", data: pnlDetails});
+      }
+
+    }catch(e){
+        console.log(e);
+        return res.status(500).json({status:'success', message: 'something went wrong.'})
+    }
+
+
 }
 
 exports.myTodaysTrade = async (req, res, next) => {

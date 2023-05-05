@@ -310,12 +310,17 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
 
     let userId = req.params.id;
     let today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate()-1);
+    // const yesterday = new Date();
+    // yesterday.setDate(today.getDate()-1);
     const pastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const pastYear = new Date(today.getFullYear(), 0, 1);
-    
 
+    let date = new Date();
+    let getYesterdaydate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    getYesterdaydate = getYesterdaydate + "T00:00:00.000Z";
+    const yesterday = new Date(getYesterdaydate);
+    
+  console.log("in overview", yesterday, userId)
     let infinityTradesOverview = await InfinityTrade.aggregate([
         {
           $match: {
@@ -442,7 +447,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
           },
         }
     ]);
-        // console.log(infinityTradesOverview);
+        console.log(infinityTradesOverview);
 
     res.status(200).json({status:'success', data: infinityTradesOverview});    
 

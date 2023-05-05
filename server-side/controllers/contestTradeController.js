@@ -1,5 +1,5 @@
 const ContestTrade = require('../models/Contest/ContestTrade');
-const util = require('util');
+// const util = require('util');
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
 const axios = require('axios')
 const uuid = require('uuid');
@@ -13,15 +13,15 @@ const DummyMarketData = require('../marketData/dummyMarketData');
 const singleLivePrice = require('../marketData/sigleLivePrice');
 const {getFilteredTicks} = require('../marketData/dummyMarketData');
 
-const Portfolio = require("../models/userPortfolio/UserPortfolio");
-const axiosCookieJarSupport = require('axios-cookiejar-support').default;
-const tough = require('tough-cookie');
+// const Portfolio = require("../models/userPortfolio/UserPortfolio");
+// const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+// const tough = require('tough-cookie');
 const userWallet = require('../models/UserWallet/userWalletSchema');
 const User = require("../models/User/userDetailSchema");
 const AppSetting = require('../models/settings/setting')
 
 // Create a new CookieJar to store cookies
-const cookieJar = new tough.CookieJar();
+// const cookieJar = new tough.CookieJar();
 
 
 exports.newTrade = async (req, res, next) => {
@@ -174,7 +174,7 @@ exports.newTrade = async (req, res, next) => {
             await client.set(`${trader.toString()} ${contestId.toString()} pnl`, JSON.stringify(pnl))
             //console.log("pnl", pnl)
   
-          } 
+          }
           //appending documents in leaderboard
           if(await client.exists(`${contestId.toString()} allranks`)){
             let ranks = await client.get(`${contestId.toString()} allranks`)
