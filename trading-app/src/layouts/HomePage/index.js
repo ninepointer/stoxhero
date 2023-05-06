@@ -7,21 +7,26 @@ import { ThemeProvider } from 'styled-components';
 import About from './pages/About';
 import Navbar from './components/Navbars/Navbar';
 import Footer from './components/Footers/Footer';
+import Careers from './pages/Career';
+import { Box } from '@mui/material';
 
 const App = () => {
+  console.log(theme)
+  console.log(theme.background)
+  console.log(theme.background.default)
   return (
-    <div>
+    <Box sx={{bgColor:theme.background.default}}>
       <ThemeProvider theme={theme}>
-
         <Navbar/>
       <Routes>
-        <Route path="/" element={<Home/>}/>
+        <Route path="/home" element={<Home/>}/>
         <Route path="/swap" element={<Swap/>}/>
         <Route path="/about" element={<About/>}/>
+        <Route path="/careers" element={<Careers/>}/>
       </Routes>
       <Footer/>
       </ThemeProvider>
-    </div>
+    </Box>
   )
 }
 
