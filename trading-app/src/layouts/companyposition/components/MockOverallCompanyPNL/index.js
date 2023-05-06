@@ -72,7 +72,7 @@ function MockOverallCompantPNL({socket}) {
       })
 
       socket.on('tick', (data) => {
-        console.log("data from socket in instrument in parent", data);
+        console.log("data from socket in instrument in parent in  mock", data);
         setMarketData(prevInstruments => {
           const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
           data.forEach(instrument => {
@@ -81,22 +81,22 @@ function MockOverallCompantPNL({socket}) {
           return Array.from(instrumentMap.values());
         });
       })
-    }, [socket])
+    }, [])
 
     useEffect(()=>{
 
       axios.get(`${baseUrl}api/v1/getoverallpnlmocktradecompanytoday`)
       .then((res) => {
           setTradeData(res.data);
-          res.data.map((elem)=>{
-            marketData.map((subElem)=>{
-                if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-                    liveDetailsArr.push(subElem)
-                }
-            })
-          })
+        //   res.data.map((elem)=>{
+        //     marketData.map((subElem)=>{
+        //         if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
+        //             liveDetailsArr.push(subElem)
+        //         }
+        //     })
+        //   })
 
-        setLiveDetail(liveDetailsArr);
+        // setLiveDetail(liveDetailsArr);
 
                  
 
@@ -137,14 +137,18 @@ function MockOverallCompantPNL({socket}) {
       let obj = {};
       totalRunningLots += Number(subelem.lots)
 
-      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[index]?.last_price);
+      let liveDetail = marketData.filter((elem)=>{
+          return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+      })
+      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
       totalGrossPnl += updatedValue;
 
       const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
       const quantitycolor = subelem.lots >= 0 ? "success" : "error"
       const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-      const pchangecolor = (liveDetail[index]?.change) >= 0 ? "success" : "error"
+      const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
       const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+
 
       obj.Product = (
         <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
@@ -170,16 +174,16 @@ function MockOverallCompantPNL({socket}) {
         </MDTypography>
       );
 
-      if((liveDetail[index]?.last_price)){
+      if((liveDetail[0]?.last_price)){
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {"₹"+(liveDetail[index]?.last_price).toFixed(2)}
+            {"₹"+(liveDetail[0]?.last_price).toFixed(2)}
           </MDTypography>
         );
       } else{
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="dark" fontWeight="medium">
-            {"₹"+(liveDetail[index]?.last_price)}
+            {"₹"+(liveDetail[0]?.last_price)}
           </MDTypography>
         );
       }
@@ -190,16 +194,16 @@ function MockOverallCompantPNL({socket}) {
         </MDTypography>
       );
 
-      if((liveDetail[index]?.change)){
+      if((liveDetail[0]?.change)){
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(liveDetail[index]?.change).toFixed(2)+"%"}
+            {(liveDetail[0]?.change).toFixed(2)+"%"}
           </MDTypography>
         );
       } else{
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(((liveDetail[index]?.last_price-liveDetail[index]?.average_price)/liveDetail[index]?.average_price)*100).toFixed(2)+"%"}
+            {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%"}
           </MDTypography>
         );
       }
@@ -243,7 +247,6 @@ function MockOverallCompantPNL({socket}) {
       </MDTypography>
     );
   
-  
     obj.grossPnl = (
       <MDTypography component="a" variant="caption" color={totalGrossPnlcolor} backgroundColor="#e0e1e5" borderRadius="5px" padding="5px" fontWeight="medium">
        Gross P&L : {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)): "-₹" + ((-totalGrossPnl).toFixed(2))}
@@ -258,7 +261,7 @@ function MockOverallCompantPNL({socket}) {
   
     rows.push(obj);
   
-
+    console.log("data from socket in instrument in parent in  mock market", marketData, liveDetailsArr)
 
   const renderMenu = (
     <Menu

@@ -76,6 +76,7 @@ import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
+import HomePage from './layouts/HomePage'
 
 
 const routes = [
@@ -152,6 +153,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/arena/:name",
     component: <ContestPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "homepage",
+    component: <HomePage />,
   },
   {
     // type: "collapse",

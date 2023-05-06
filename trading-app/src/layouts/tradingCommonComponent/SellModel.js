@@ -24,24 +24,24 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 // import MDBox from '../../components/MDBox';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
-// import { marketDataContext } from "../../MarketDataContext";
-// import { marketDataContext } from "../../MarketDataContext";
+import {Howl} from "howler";
+import sound from "../../assets/sound/tradeSound.mp3"
 
 
 const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
   // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
-  console.log("rendering : sell")
+  console.log("rendering : sell");
+  const tradeSound = new Howl({
+    src : [sound],
+    html5 : true
+  })
+  
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  // const { render, setRender } = Render;
-  // const marketDetails = useContext(marketDataContext);
-  // let ltp = marketDetails.marketData.filter((subElem)=>{
-  //   return subElem.instrument_token === instrumentToken
-  // })
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
   let date = new Date();
@@ -215,6 +215,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
         openSuccessSB('error', dataResp.error)
         //////console.log("Failed to Trade");
       } else {
+        tradeSound.play();
         if(dataResp.message === "COMPLETE"){
             // //console.log(dataResp);
             openSuccessSB('complete', {symbol, Quantity})

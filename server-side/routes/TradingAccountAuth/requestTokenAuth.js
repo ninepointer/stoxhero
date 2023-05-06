@@ -8,7 +8,8 @@ const puppeteer = require("puppeteer");
 const KiteConnect = require('kiteconnect').KiteConnect;
 // const totp = require("totp-generator");
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
-const authentication = require("../../authentication/authentication")
+const authentication = require("../../authentication/authentication");
+const client = require("../../marketData/redisClient");
 
 router.post("/requestToken", authentication, (req, res)=>{
     const {accountId, accessToken, requestToken, status, createdBy, uId} = req.body;
@@ -26,8 +27,9 @@ router.post("/requestToken", authentication, (req, res)=>{
         }
         const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, createdBy: req.user._id, uId});
 
-        requestTokens.save().then(()=>{
+        requestTokens.save().then(async ()=>{
 
+            await client.del(`kiteCredToday`);
             disconnectTicker();
             getKiteCred.getAccess().then((data) => {
                 //console.log(data);
