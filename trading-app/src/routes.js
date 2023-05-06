@@ -80,6 +80,7 @@ import About from './layouts/HomePage/pages/About'
 import Careers from './layouts/HomePage/pages/Career'
 import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
+import CareerForm from './layouts/HomePage/pages/CareerForm'
 
 
 
@@ -189,6 +190,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "careers",
     component: <Careers />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "apply",
+    component: <CareerForm />,
   },
   {
     // type: "collapse",
