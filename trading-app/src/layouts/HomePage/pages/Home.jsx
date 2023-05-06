@@ -1,4 +1,5 @@
 import React from 'react'
+import theme from '../utils/theme/index';
 import Navbar from '../components/Navbars/Navbar'
 import Footer from '../components/Footers/Footer'
 import Section1 from '../containers/Section1'
@@ -13,19 +14,22 @@ import Section9 from '../containers/Section9'
 import Section10 from '../containers/Section10'
 import Section11 from '../containers/Section11'
 import { Box } from '@mui/material'
+import { ThemeProvider } from 'styled-components';
 
 const Home = () => {
+  console.log(theme)
+  console.log(theme.background)
   return (
     <div>
 
       {/* Navbar */}
-
+      <ThemeProvider theme={theme}>
       <Navbar/>
 
       {/* Section */}
       <Section1/>
       <Section2/>
-      <Box sx={{ bgcolor: "background.default", position: "relative" }}>
+      <Box sx={{ bgcolor: theme.palette.background.default, position: "relative" }}>
       
       <Section4/>
       {/* <Section5/>
@@ -39,6 +43,7 @@ const Home = () => {
       {/* Footer */}
       <Footer/>
       </Box>
+      </ThemeProvider>
 
     </div>
   )

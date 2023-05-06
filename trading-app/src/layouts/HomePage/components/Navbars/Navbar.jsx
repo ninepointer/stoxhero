@@ -37,7 +37,7 @@ const Navbar = () => {
 
   const theme = useTheme();
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
+  const isMobile = useMediaQuery(theme?.breakpoints?.down("lg"))
 
   const[open,setOpen] = useState(false);
 
@@ -61,7 +61,7 @@ const Navbar = () => {
   return (
     <AppBar elevation={0} sx={{ height: NAVBAR_HIEGHT, bgcolor: scrollPosition > 10 ? "rgba(7,7,16,.7)" : "transparent", backdropFilter: scrollPosition > 10 && "blur(60px)", }}>
 
-      <Container sx={{ [theme.breakpoints.down("lg")]: { maxWidth: "1300!important" } }}>
+      <Container sx={{ [theme?.breakpoints?.down("lg")]: { maxWidth: "1300!important" } }}>
         <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap" >
           {/* Logo */}
 

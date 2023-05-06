@@ -7,9 +7,6 @@ import ServiceCard from '../components/Cards/ServiceCard'
 const About = () => {
     return (
         <Box>
-
-            
-
             <Container sx={{border:"2px solid red",height:"1200"}} >
                 <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center" sx={{mt:{xs:10,md:15}}}>
                     <Grid item xs={12} md={6}  >
