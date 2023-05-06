@@ -39,7 +39,7 @@ import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
 import Carousel from './layouts/carousel'
-import Home from './layouts/UserHome'
+// import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
@@ -76,6 +76,12 @@ import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
+import About from './layouts/HomePage/pages/About'
+import Careers from './layouts/HomePage/pages/Career'
+import Home from './layouts/HomePage/pages/Home'
+import JD from './layouts/HomePage/pages/JobDescription'
+import CareerForm from './layouts/HomePage/pages/CareerForm'
+
 
 
 const routes = [
@@ -152,6 +158,46 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/arena/:name",
     component: <ContestPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "about",
+    component: <About />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "jobdescription",
+    component: <JD />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "home",
+    component: <Home />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "careers",
+    component: <Careers />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "apply",
+    component: <CareerForm />,
   },
   {
     // type: "collapse",
