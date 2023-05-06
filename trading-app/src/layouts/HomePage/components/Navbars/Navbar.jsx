@@ -13,7 +13,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 
 
-const NAVBAR_HIEGHT = 72;
+const NAVBAR_HIEGHT = 65;
 const LinkButton = ({ children, ...props }) => (
   <Stack
     direction="row"
@@ -59,13 +59,13 @@ const Navbar = () => {
 
 
   return (
-    <AppBar elevation={0} sx={{ height: NAVBAR_HIEGHT, bgcolor: scrollPosition > 10 ? "rgba(7,7,16,.7)" : "transparent", backdropFilter: scrollPosition > 10 && "blur(60px)", }}>
+    <AppBar elevation={0} sx={{ height: NAVBAR_HIEGHT, bgcolor: scrollPosition > 10 ? "rgba(7,7,16,.7)" : "transparent", backdropFilter: scrollPosition > 10 && "blur(60px)" }}>
 
       <Container sx={{ [theme?.breakpoints?.down("lg")]: { maxWidth: "1300!important" } }}>
-        <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap" >
+        <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap" alignContent='center' >
           {/* Logo */}
 
-          <img src={logo} style={{ objectFit: "contain", height: "100%", marginTop: "9px" }} />
+          <img src={logo} style={{ objectFit: "contain", height: "100%", marginTop: "8px" }} />
 
 
           {!isMobile && (<Stack
@@ -82,12 +82,7 @@ const Navbar = () => {
             </LinkButton>
 
             <LinkButton>
-              <Typography variant="body2">Developers</Typography>
-              <KeyboardArrowDownIcon fontSize="small" />
-            </LinkButton>
-
-            <LinkButton>
-              <Typography variant="body2">Governance</Typography>
+              <Typography variant="body2">Careers</Typography>
               <KeyboardArrowDownIcon fontSize="small" />
             </LinkButton>
 
@@ -109,7 +104,7 @@ const Navbar = () => {
             alignItems="center"
             justifyContent="flex-start"
             spacing={4}
-            sx={{ flex: 1, background:"rgb(3,2,22)",width:"100%",height:"100vh" }}
+            sx={{ flex: 1, background:"rgb(3,2,22)",width:"100%",height:"100vh"}}
             flexWrap="wrap"
             position="absolute"
             top="0"
@@ -124,12 +119,7 @@ const Navbar = () => {
             </LinkButton>
 
             <LinkButton>
-              <Typography variant="body2">Developers</Typography>
-              <KeyboardArrowDownIcon fontSize="small" />
-            </LinkButton>
-
-            <LinkButton>
-              <Typography variant="body2">Governance</Typography>
+              <Typography variant="body2">Careers</Typography>
               <KeyboardArrowDownIcon fontSize="small" />
             </LinkButton>
 
@@ -158,7 +148,7 @@ const Navbar = () => {
               <Typography variant="body2">EN</Typography>
             </LinkButton>
 
-            <LaunchButton sx={{ borderRadius: 3 }} />
+            <LaunchButton sx={{ borderRadius: 3, color:'light' }} />
           </Stack>)
           }
 

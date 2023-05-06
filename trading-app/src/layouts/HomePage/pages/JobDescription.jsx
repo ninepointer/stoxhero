@@ -14,15 +14,11 @@ const App = () => {
   return (
     <div>
       <ThemeProvider theme={theme}>
-
         <Navbar/>
-      {/* <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/swap" element={<Swap/>}/>
-        <Route path="/about" element={<About/>}/>
-      </Routes> */}
-      <Internship/>
-      <Footer/>
+        <Box sx={{bgcolor:theme.palette.background.default}}>
+          <Internship/>
+        </Box>
+        <Footer/>
       </ThemeProvider>
     </div>
   )

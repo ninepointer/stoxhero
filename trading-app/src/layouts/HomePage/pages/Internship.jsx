@@ -14,17 +14,17 @@ import jobs from "../../../assets/images/jobs.png"
 
 const Internship = () => {
     return (
-        <Box p={5} m={10} sx={{bgColor:'theme.palette.background.default'}}>
+        <Box p={5}>
             <Grid container spacing={2}>
             
             <Grid item xs={12} md={6} lg={4}>
               <MDBox style={{borderRadius:4}}>
               <Tooltip title="Click me!">
-              <MDButton variant="contained" color="dark" size="small" style={{minWidth:'100%'}}
+              <MDButton variant="contained" color="light" size="small" style={{minWidth:'100%'}}
               component={Link} 
-            //   to={{
-            //     pathname: `/battlestreet/${e.contestName}`,
-            //   }}
+              to={{
+                pathname: `/jobdescription`,
+              }}
             //   state= {{data:e._id, isDummy: true, isFromUpcomming: true}}
               >
                   
@@ -33,9 +33,9 @@ const Internship = () => {
                         <Grid item xs={12} md={6} lg={12} mb={1} display="flex" alignContent="center" alignItems="center">
                             <MDAvatar src={jobs} size="xl" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
-                            <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"white"}}>Derivaties Trader (Intern)</MDTypography>
+                            <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Derivaties Trader (Intern)</MDTypography>
                             {/* <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"white"}}></MDTypography> */}
-                            <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{color:"white"}}>Apply Now</MDTypography>
+                            <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{color:"black"}}>Apply Now</MDTypography>
                             </MDBox>
                         </Grid>  
                     {/* </Grid> */}
@@ -50,7 +50,7 @@ const Internship = () => {
             <Grid item xs={12} md={6} lg={4}>
               <MDBox style={{borderRadius:4}}>
               <Tooltip title="Click me!">
-              <MDButton variant="contained" color="dark" size="small" style={{minWidth:'100%'}} 
+              <MDButton variant="contained" color="light" size="small" style={{minWidth:'100%'}} 
               component={Link} 
             //   to={{
             //     pathname: `/battlestreet/${e.contestName}`,
@@ -63,9 +63,9 @@ const Internship = () => {
                         <Grid item xs={12} md={6} lg={12} mb={1} display="flex" alignContent="center" alignItems="center">
                             <MDAvatar src={jobs} size="xl" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
-                            <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"white"}}>Marketing/Sales (Intern)</MDTypography>
+                            <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Marketing/Sales (Intern)</MDTypography>
                             {/* <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"white"}}>Index:</MDTypography> */}
-                            <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{color:"white"}}>Apply Now</MDTypography>
+                            <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{color:"black"}}>Apply Now</MDTypography>
                             </MDBox>
                         </Grid>  
                     {/* </Grid> */}
@@ -80,7 +80,7 @@ const Internship = () => {
             <Grid item xs={12} md={6} lg={4}>
               <MDBox style={{borderRadius:4}}>
               <Tooltip title="Click me!">
-              <MDButton variant="contained" color="dark" size="small" style={{minWidth:'100%'}} 
+              <MDButton variant="contained" color="light" size="small" style={{minWidth:'100%'}} 
               component={Link} 
             //   to={{
             //     pathname: `/battlestreet/${e.contestName}`,
@@ -93,9 +93,9 @@ const Internship = () => {
                         <Grid item xs={12} md={6} lg={12} mb={1} display="flex" alignContent="center" alignItems="center">
                             <MDAvatar src={jobs} size="xl" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
-                            <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"white"}}>Campus Ambassador</MDTypography>
+                            <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Campus Ambassador</MDTypography>
                             {/* <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="left" style={{color:"white"}}>Index:</MDTypography> */}
-                            <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{color:"white"}}>Apply Now</MDTypography>
+                            <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{color:"black"}}>Apply Now</MDTypography>
                             </MDBox>
                         </Grid>  
                     {/* </Grid> */}
