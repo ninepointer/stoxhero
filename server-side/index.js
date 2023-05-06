@@ -21,11 +21,7 @@ const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
 const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
-// const {DummyMarketData} = require('./marketData/dummyMarketData');
-// import * as ioredis from 'ioredis';
-
-// const redis = require('redis');
-// client = redis.createClient();
+const {deletePnlKey} = require("./controllers/deletePnlKey");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
