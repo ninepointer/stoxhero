@@ -13,12 +13,13 @@ import Internship from './Internship';
 const App = () => {
   return (
     <div>
-      <ThemeProvider theme={theme}>
-
-      <Navbar/>
-        <Internship/>
-      <Footer/>
-      </ThemeProvider>
+    <ThemeProvider theme={theme}>
+    <Navbar/>
+    <Box sx={{bgcolor:theme.palette.background.default, marginTop:'65px'}}>
+      <Internship/>
+    </Box>
+    <Footer/>
+    </ThemeProvider>
     </div>
   )
 }
