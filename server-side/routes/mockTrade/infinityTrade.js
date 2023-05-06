@@ -7,8 +7,8 @@ const {overallPnlTrader,myTodaysTrade,myHistoryTrade,
 const Authenticate = require('../../authentication/authentication');
 
 
-router.route('/pnl').get(Authenticate, overallPnlTrader)
-router.route('/batchwisepnl').get( batchWisePnl)
+router.route('/pnl').get(Authenticate, overallPnlTrader);
+router.route('/batchwisepnl').get( batchWisePnl);
 router.route('/my/todayorders').get(Authenticate, myTodaysTrade)
 router.route('/my/historyorders').get(Authenticate, myHistoryTrade)
 router.route('/pnlandCreditData').get(getPnlAndCreditData)
