@@ -18,7 +18,7 @@ import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/
 // import WatchList from '../data/WatchList';
 // import BuySell from '../data/BuySell'
 // import MyPosition from '../data/MyPosition'
-import Orders from '../data/orders'
+// import Orders from '../data/orders'
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import { userContext } from '../../../AuthContext';
 import { io } from 'socket.io-client';
@@ -29,10 +29,10 @@ import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityM
 
 export default function InfinityTrading() {
   //console.log("rendering in userPosition: header")
-  const [reRender, setReRender] = useState(true);
+  // const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
-  const [fundDetail, setFundDetail] = useState({});
+  // const [fundDetail, setFundDetail] = useState({});
   const [yesterdayData, setyesterdayData] = useState({});
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
@@ -55,19 +55,19 @@ export default function InfinityTrading() {
     })
   }, []);
 
-  useEffect(() => {
-    axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      }}
-      ).then((res)=>{
-        setFundDetail(res.data.data);
-      })
+  // useEffect(() => {
+  //   axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{
+  //     withCredentials: true,
+  //     headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //         "Access-Control-Allow-Credentials": true
+  //     }}
+  //     ).then((res)=>{
+  //       setFundDetail(res.data.data);
+  //     })
       
-  }, []);
+  // }, []);
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
@@ -91,44 +91,44 @@ export default function InfinityTrading() {
     setIsGetStartedClicked(value);
   }, []);
 
-  const memoizedSetReRender = useCallback((value) => {
-    setReRender(value);
-  }, []);
+  // const memoizedSetReRender = useCallback((value) => {
+  //   setReRender(value);
+  // }, []);
 
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
-      socket={socket}
-      reRender={reRender}
-      setReRender={memoizedSetReRender}
+      // socket={socket}
+      // reRender={reRender}
+      // setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
     />;
-  }, [socket, reRender, isGetStartedClicked, handleSetIsGetStartedClicked, memoizedSetReRender]);
+  }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
       socket={socket}
-      reRender={reRender}
-      setReRender={setReRender}
+      // reRender={reRender}
+      // setReRender={setReRender}
       // setReRender={}
       // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
     />;
-  }, [socket, reRender, handleSetIsGetStartedClicked]);
+  }, [socket, handleSetIsGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
-      socket={socket}
-      reRender={reRender}
-      setReRender={memoizedSetReRender}
+      // socket={socket}
+      // reRender={reRender}
+      // setReRender={memoizedSetReRender}
       // setReRender={}
       // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
     />;
-  }, [socket, reRender, handleSetIsGetStartedClicked, memoizedSetReRender]);
+  }, [handleSetIsGetStartedClicked]);
 
   let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
   let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;

@@ -4,14 +4,15 @@ const AccessAndRequestToken = require("../models/Trading Account/requestTokenSch
 const {disconnectTicker, createNewTicker}  = require('../marketData/kiteTicker');
 const getKiteCred = require('../marketData/getKiteCred');
 const totp = require("totp-generator");
+const client = require("../marketData/redisClient");
+
 
 function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 
-function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) {
-  // const token = 
+async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) {
 
     const {accountId, status, createdBy, uId} = otherCredentials;
     (async () => {
@@ -50,8 +51,9 @@ function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) 
               }
               const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, uId});//TODO : createdBy add
       
-              requestTokens.save().then(()=>{
-      
+              requestTokens.save().then(async ()=>{
+                
+                  await client.del(`kiteCredToday`);
                   disconnectTicker();
                   getKiteCred.getAccess().then((data) => {
                       //console.log(data);

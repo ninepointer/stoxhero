@@ -109,7 +109,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from}) {
       },
     })
     .then((res) => {
-        setInstrumentData(res.data)
+        setInstrumentData(res.data.data)
     }).catch((err) => {
         return new Error(err);
     })

@@ -41,10 +41,10 @@ const TableThree = () => {
   
     useEffect(()=>{
         //console.log(`${baseUrl}api/v1/tradermatrixpnlreport/${firstDate}/${secondDate}`)
-        axios.get(`${baseUrl}api/v1/tradermatrixpnlreport/${firstDate}/${secondDate}`)
+        axios.get(`${baseUrl}api/v1/infinityTrade/tradermatrixpnlreport/${firstDate}/${secondDate}`)
         .then((res)=>{
           //console.log(res.data)
-          setTraderPNLData(res.data);
+          setTraderPNLData(res?.data?.data);
         }).catch((err)=>{
             //window.alert("Server Down");
             return new Error(err);
