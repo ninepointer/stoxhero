@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
 import { Grid, TextField } from '@mui/material'
@@ -7,8 +7,128 @@ import { ThemeProvider } from 'styled-components';
 import Navbar from '../components/Navbars/Navbar';
 import Footer from '../components/Footers/Footer';
 import MDTypography from '../../../components/MDTypography';
+import MDSnackbar from "../../../components/MDSnackbar";
+import axios from "axios";
 
 const CareerForm = () => {
+
+  const [detail, setDetails] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    rollNo: "",
+    dob: "",
+    collageName: "",
+    tradingExp: "",
+    applyingFor: "",
+    source: "",
+
+  })
+  const [file, setFile] = useState(null);
+  // const [uploadedData, setUploadedData] = useState([]);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files);
+  };
+
+  const handleUpload = async () => {
+    setDetails(detail);
+    // console.log(detail);
+
+    if(!detail.firstName || !detail.lastName || !detail.email || !detail.mobile || !detail.rollNo || !detail.dob || !detail.collageName || !detail.tradingExp || !detail.applyingFor || !detail.source){
+      openSuccessSB("Alert", "Please fill all fields", "FAIL")
+      return;
+    }
+
+    if (!file) {
+      openSuccessSB("Alert", "Please select your resume", "FAIL")
+      return;
+    }
+
+    if(file.length > 1){
+      openSuccessSB("Fail", "Please upload single file", "FAIL")
+      return;
+    }
+  
+    try {
+      const formData = new FormData();
+      for (let i = 0; i < file.length; i++) {
+        formData.append("files", file[i]);
+      }
+      formData.append('firstName', detail.firstName);
+      formData.append('lastName', detail.lastName);
+      formData.append('email', detail.email);
+      formData.append('mobile', detail.mobile);
+      formData.append('rollNo', detail.rollNo);
+      formData.append('dob', detail.dob);
+      formData.append('collageName', detail.collageName);
+      formData.append('tradingExp', detail.tradingExp);
+      formData.append('applyingFor', detail.applyingFor);
+      formData.append('source', detail.source);
+
+      console.log(formData, file, file.name)
+      const { data } = await axios.post(`${baseUrl}api/v1/career/userDetail`, formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+      });
+  
+      console.log("if file uploaded before", data);
+      openSuccessSB("Success", data.message, "SUCCESS")
+      // alert("File upload successfully");
+      // console.log("if file uploaded", data);
+      setFile(null)
+    } catch (error) {
+      console.log(error, file);
+      // alert('File upload failed');
+      openSuccessSB("Error", "Unexpected error", "FAIL")
+    }
+  };
+
+  const [successSB, setSuccessSB] = useState(false);
+  const [msgDetail, setMsgDetail] = useState({
+    title: "",
+    content: "",
+    // successSB: false,
+    color: "",
+    icon: ""
+  })
+  const openSuccessSB = (title,content, message) => {
+    msgDetail.title = title;
+    msgDetail.content = content;
+    if(message == "SUCCESS"){
+      msgDetail.color = 'success';
+      msgDetail.icon = 'check'
+    } else {
+      msgDetail.color = 'error';
+      msgDetail.icon = 'warning'
+    }
+    console.log(msgDetail)
+    setMsgDetail(msgDetail)
+    setSuccessSB(true);
+  }
+
+  const closeSuccessSB = () =>{
+    setSuccessSB(false);
+  }
+
+
+  const renderSuccessSB = (
+  <MDSnackbar
+      color={msgDetail.color}
+      icon={msgDetail.icon}
+      title={msgDetail.title}
+      content={msgDetail.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+  />
+  );
+
   return (
     <div>
         <ThemeProvider theme={theme}>
@@ -28,7 +148,7 @@ const CareerForm = () => {
                         label="First Name"
                         type="text"
                         fullWidth
-                        // onChange={(e)=>{formstate.email = e.target.value}}
+                        onChange={(e)=>{detail.firstName = e.target.value}}
                       />
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
@@ -39,7 +159,7 @@ const CareerForm = () => {
                         label="Last Name"
                         type="text"
                         fullWidth
-                        // onChange={(e)=>{formstate.email = e.target.value}}
+                        onChange={(e)=>{detail.lastName = e.target.value}}
                       />
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
@@ -50,7 +170,7 @@ const CareerForm = () => {
                         label="Email"
                         type="email"
                         fullWidth
-                        // onChange={(e)=>{formstate.email = e.target.value}}
+                        onChange={(e)=>{detail.email = e.target.value}}
                       />
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
@@ -61,7 +181,7 @@ const CareerForm = () => {
                         label="Mobile"
                         type="text"
                         fullWidth
-                        // onChange={(e)=>{formstate.email = e.target.value}}
+                        onChange={(e)=>{detail.mobile = e.target.value}}
                       />
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
@@ -72,7 +192,40 @@ const CareerForm = () => {
                         label="Roll No."
                         type="text"
                         fullWidth
-                        // onChange={(e)=>{formstate.email = e.target.value}}
+                        onChange={(e)=>{detail.rollNo = e.target.value}}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={3}>
+                    <TextField
+                        required
+                        // disabled={showEmailOTP}
+                        id="outlined-required"
+                        label="Collage Name"
+                        type="text"
+                        fullWidth
+                        onChange={(e)=>{detail.collageName = e.target.value}}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={3}>
+                    <TextField
+                        required
+                        // disabled={showEmailOTP}
+                        id="outlined-required"
+                        label="Date of Birth"
+                        type="date"
+                        fullWidth
+                        onChange={(e)=>{detail.dob = e.target.value}}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={3}>
+                    <TextField
+                        required
+                        // disabled={showEmailOTP}
+                        id="outlined-required"
+                        label="Trading Exp."
+                        type="text"
+                        fullWidth
+                        onChange={(e)=>{detail.tradingExp = e.target.value}}
                       />
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
@@ -83,19 +236,42 @@ const CareerForm = () => {
                         label="Applying For"
                         type="text"
                         fullWidth
-                        // onChange={(e)=>{formstate.email = e.target.value}}
+                        onChange={(e)=>{detail.applyingFor = e.target.value}}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={3}>
+                    <TextField
+                        required
+                        // disabled={showEmailOTP}
+                        id="outlined-required"
+                        label="From where you hear about us ?"
+                        type="text"
+                        fullWidth
+                        onChange={(e)=>{detail.source = e.target.value}}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={3}>
+                    <TextField
+                        required
+                        // disabled={showEmailOTP}
+                        id="outlined-required"
+                        label="Resume"
+                        type="file"
+                        fullWidth
+                        onChange={handleFileChange}
                       />
                     </Grid>
                 </Grid>
             </MDBox>
 
             <MDBox mb={1} display="flex" justifyContent="space-around">
-              <MDButton variant="gradient" color="info">
+              <MDButton onClick={handleUpload} variant="gradient" color="info">
                 Submit
               </MDButton>
             </MDBox>
 
         </MDBox>
+        {renderSuccessSB}
         <Footer/>
         </ThemeProvider>
     </div>

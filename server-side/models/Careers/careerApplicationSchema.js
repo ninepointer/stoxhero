@@ -52,4 +52,4 @@ const CareerApplication = new mongoose.Schema({
 });
 
 const CareerApplicationSchema = mongoose.model('career-application', CareerApplication);
-module.exports = CareerApplication;
+module.exports = CareerApplicationSchema;

@@ -37,7 +37,7 @@ const Career = new mongoose.Schema({
     },
     createdOn: {
         type: Date,
-        default: Date.now()
+        default: new Date()
     },
     createdBy:{
         type: Schema.Types.ObjectId,
@@ -45,7 +45,7 @@ const Career = new mongoose.Schema({
     },
     lastModifiedOn: {
         type: Date,
-        default: Date.now()
+        default: new Date()
     },
     lastModifiedBy:{
         type: Schema.Types.ObjectId,
@@ -54,4 +54,4 @@ const Career = new mongoose.Schema({
 });
 
 const CareerSchema = mongoose.model('career', Career);
-module.exports = Career;
+module.exports = CareerSchema;
