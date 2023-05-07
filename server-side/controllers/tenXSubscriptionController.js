@@ -31,7 +31,7 @@ exports.editTanx = async(req, res, next) => {
     const tenx = await TenXSubscription.findById(id);
 
     const filteredBody = filterObj(req.body, "plan_name", "actual_price", "discounted_price", "validity", "validityPeriod", 
-        "status");
+        "status", "profitCap", "portfolio");
     if(req.body.features)filteredBody.features=[...tenx.features,
         {orderNo:req.body.features.orderNo,
             description:req.body.features.description,}]
@@ -75,13 +75,13 @@ exports.removeFeature = async(req, res, next) => {
         },
         { new: true } // return the updated document
       );
-    res.status(200).json({message: 'Successfully edited tenx.', data: updatedDoc});
+    res.status(200).json({message: 'Successfully deleted tenx.', data: updatedDoc});
 }
 
 exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
         const tenXSubs = await TenXSubscription.find({status: "Active"})
-        .populate('portfolio', 'portfolioName')
+        .populate('portfolio', 'portfolioName portfolioValue')
         
         res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
     }catch(e){
@@ -95,7 +95,8 @@ exports.getTenXSubscription = async(req, res, next)=>{
     
     const id = req.params.id ? req.params.id : '';
     try{
-    const tenXSubscription = await TenXSubscription.findById(id) 
+    const tenXSubscription = await TenXSubscription.findById(id)
+    .populate('portfolio', 'portfolioName portfolioValue');
 
     res.status(201).json({message: "TenXSubscription Retrived",data: tenXSubscription});    
     }
