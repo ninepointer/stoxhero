@@ -43,7 +43,18 @@ exports.editTanx = async(req, res, next) => {
     res.status(200).json({message: 'Successfully edited tenx.', data: updated});
 }
 
-
+exports.getActiveTenXSubs = async(req, res, next)=>{
+    try{
+        const tenXSubs = await TenXSubscription.find({status: "Active"})
+        .populate('portfolio', 'portfolioName')
+        
+        res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+        
+};
 
 
 
