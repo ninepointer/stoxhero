@@ -59,3 +59,18 @@ exports.createCareer = async(req, res, next)=>{
     
     res.status(201).json({message: 'Career post successfully created.', data:career});
 }
+
+exports.getCareers = async(req, res, next)=>{
+    // console.log(req.body)
+    // const{
+    //     jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+    //     status } = req.body;
+    // if(await Career.findOne({jobTitle, status: "Active" })) return res.status(400).json({message:'This job post already exists.'});
+
+    // const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+    //     status, createdBy: req.user._id, lastModifiedBy: req.user._id});
+
+    const career = await Career.find({status: "Live"}).select('jobTitle jobDescription rolesAndResponsibilities jobType jobLocation')
+    
+    res.status(201).json({message: 'success', data:career});
+}
