@@ -11,6 +11,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import { IoMdAddCircle } from 'react-icons/io';
 
 export default function SubscriptionList() {
 const location = useLocation();
@@ -20,39 +21,138 @@ const [isLoading,setIsLoading] = useState(id ? true : false)
 const [saving,setSaving] = useState(false)
 const [editing,setEditing] = useState(false)
 const [isSubmitted,setIsSubmitted] = useState(false);
-const [creating,setCreating] = useState(false)
+const [creating,setCreating] = useState(false);
+const [newObjectId, setNewObjectId] = useState("");
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
     plan_name:'',
     actual_price:'',
     discounted_price:'',
-    features:'',
+    features: {
+        orderNo: "",
+        description: ""
+    },
     validity:'',
     validityPeriod:'',
     status:''
 });
 
 
-async function onSubmit(e,formState){
-    e.preventDefault();
-    console.log(formState);
-}
+  async function onSubmit(e,formState){
+    e.preventDefault()
+    console.log(formState)
+    if(!formState.plan_name || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
+    
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        return openErrorSB("Missing Field","Please fill all the mandatory fields")
+    }
+    setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+    const {plan_name, actual_price, discounted_price, validity, validityPeriod, status } = formState;
+    const res = await fetch(`${baseUrl}api/v1/tenX/create`, {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+            plan_name, actual_price, discounted_price, validity, validityPeriod, status
+        })
+    });
+    
+    
+    const data = await res.json();
+    if (data.status === 422 || data.error || !data) {
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+    } else {
+        setNewObjectId(data?.data._id)
+        openSuccessSB("Slab Created",data.message)
+        setIsSubmitted(true)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+      }
+  }
 
+
+  async function onAddReward(e,childFormState,setChildFormState){
+    e.preventDefault()
+    setSaving(true)
+    if(!childFormState?.orderNo || !childFormState?.description){
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        return openErrorSB("Missing Field","Please fill all the mandatory fields")
+    }
+    const {orderNo, description} = childFormState;
+  
+    const res = await fetch(`${baseUrl}api/v1/tenX/${newObjectId}`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+            features:{orderNo, description}
+        })
+    });
+    const data = await res.json();
+    // console.log(data);
+    if (data.status === 422 || data.error || !data) {
+        openErrorSB("Error","data.error")
+    } else {
+        openSuccessSB("New Reward Added","New Reward line item has been added in the contest")
+        setTimeout(()=>{setSaving(false);setEditing(false)},500)
+        setChildFormState(prevState => ({
+            ...prevState,
+            rewards: {}
+        }))
+    }
+  }
+
+  async function onEdit(e,formState){
+    e.preventDefault();
+    setSaving(true)
+    console.log(formState)
+    if(!formState.plan_name || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
+  
+      setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+      return openErrorSB("Missing Field","Please fill all the mandatory fields")
+  
+  }
+    const {plan_name, actual_price, discounted_price, validity, validityType, status } = formState;
+  
+    const res = await fetch(`${baseUrl}api/v1/portfolio`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+            plan_name, actual_price, discounted_price, validity, validityType, status
+        })
+      });
+  
+    const data = await res.json();
+    console.log(data);
+    if (data.status === 422 || data.error || !data) {
+        openErrorSB("Error","data.error")
+    } else {
+        openSuccessSB("Contest Edited",data.message)
+        setTimeout(()=>{setSaving(false);setEditing(false)},500)
+        console.log("entry succesfull");
+    }
+  }
 
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
-    
+
     const [successSB, setSuccessSB] = useState(false);
     const openSuccessSB = (title,content) => {
-    setTitle(title)
-    setContent(content)
-    setSuccessSB(true);
-  }
+        setTitle(title)
+        setContent(content)
+        setSuccessSB(true);
+    }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
-
-
   const renderSuccessSB = (
     <MDSnackbar
       color="success"
@@ -183,7 +283,7 @@ return (
                     label="Validity Period"
                     sx={{ minHeight:43 }}
                     >
-                    <MenuItem value="day">Day(s)</MenuItem>
+                    <MenuItem value="days">Day(s)</MenuItem>
                     <MenuItem value="month">Month(s)</MenuItem>
                     <MenuItem value="year">Year(s)</MenuItem>
                     </Select>
@@ -206,9 +306,9 @@ return (
                     label="Status"
                     sx={{ minHeight:43 }}
                     >
-                    <MenuItem value="Live">Active</MenuItem>
-                    <MenuItem value="Draft">Inactive</MenuItem>
-                    <MenuItem value="Rejected">Draft</MenuItem>
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                    <MenuItem value="Draft">Draft</MenuItem>
                     </Select>
                 </FormControl>
             </Grid>
@@ -270,6 +370,54 @@ return (
                         </>
                         )}
                 </Grid>
+
+                {(isSubmitted || id) && !editing && 
+                <Grid item xs={12} md={6} xl={12}>
+                    
+                    <Grid container spacing={1}>
+
+                    <Grid item xs={12} md={6} xl={12} mt={-3} mb={-1}>
+                    <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
+                        Add Features
+                    </MDTypography>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={1.35} xl={2.7}>
+                        <TextField
+                            id="outlined-required"
+                            label='Order No. *'
+                            fullWidth
+                            type="number"
+                            // value={formState?.features?.orderNo}
+                            onChange={(e) => {setFormState(prevState => ({
+                                ...prevState,
+                                orderNo: e.target.value
+                            }))}}
+                        />
+                    </Grid>
+        
+                    <Grid item xs={12} md={1.35} xl={2.7}>
+                        <TextField
+                            id="outlined-required"
+                            label='Description *'
+                            fullWidth
+                            type="text"
+                            // value={formState?.features?.description}
+                            onChange={(e) => {setFormState(prevState => ({
+                                ...prevState,
+                                description: e.target.value
+                            }))}}
+                        />
+                    </Grid>
+            
+                    <Grid item xs={12} md={0.6} xl={1.2} mt={-0.7}>
+                        <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddReward(e,formState,setFormState)}}/>
+                    </Grid>
+    
+                    </Grid>
+    
+                </Grid>}
+
             </Grid>
 
             {renderSuccessSB}
