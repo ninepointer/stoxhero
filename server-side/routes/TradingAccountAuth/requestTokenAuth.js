@@ -10,8 +10,10 @@ const KiteConnect = require('kiteconnect').KiteConnect;
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
 const authentication = require("../../authentication/authentication");
 const client = require("../../marketData/redisClient");
+const {deletePnlKey} = require("../../controllers/deletePnlKey");
 
 router.post("/requestToken", authentication, (req, res)=>{
+
     const {accountId, accessToken, requestToken, status, createdBy, uId} = req.body;
 
     if(!accountId || !accessToken || !requestToken || !status || !uId){
@@ -42,7 +44,9 @@ router.post("/requestToken", authentication, (req, res)=>{
     
 })
 
-router.post("/autologin", authentication, (req, res)=>{
+router.post("/autologin", authentication, async (req, res)=>{
+    await client.del(`kiteCredToday`);
+    // await deletePnlKey();
     const {accountId, apiKey, apiSecret, status, uId} = req.body;
     req.body.createdBy = req.user._id;
     if(!accountId || !apiKey || !apiSecret || !status || !uId){

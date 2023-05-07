@@ -16,7 +16,6 @@ exports.mockTrade = async (req, res) => {
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T23:59:59.999Z";
     const today = new Date(todayDate);
-
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
     // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);

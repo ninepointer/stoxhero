@@ -52,18 +52,19 @@ exports.tradableInstrument = async (req,res,next) => {
             unzip
             .pipe(csv())
             .on('data', async (row) => {
-                // Insert the row into the MongoDB collection
-                // console.log("getting row before if", row)
-                // Insert the row into the MongoDB collection
-                if((row.name == "NIFTY" || row.name == "BANKNIFTY") && row.segment == "NFO-OPT"){
+
+                const existingInstrument = await TradableInstrument.findOne({ tradingsymbol: row.tradingsymbol, status: "Active" });
+                if (!existingInstrument) {
+                  if((row.name == "NIFTY" || row.name == "BANKNIFTY") && row.segment == "NFO-OPT"){
                     console.log("getting row", row);
                     if(row.name === "NIFTY"){
-                        row.name = row.name+"50"
+                      row.name = row.name+"50"
                     }
                     row.lastModifiedBy = userId;
                     row.createdBy = userId;
-                    
+                
                     await TradableInstrument.create(row);
+                  }
                 }
             })
             .on('end', () => {

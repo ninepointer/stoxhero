@@ -59,9 +59,3 @@ exports.createCareer = async(req, res, next)=>{
     
     res.status(201).json({message: 'Career post successfully created.', data:career});
 }
-
-
-
-
-
-
