@@ -250,8 +250,9 @@ function Index() {
                 label="Portfolio Type"
                 sx={{ minHeight:43 }}
                 >
-                <MenuItem value="Contest">Contest</MenuItem>
-                <MenuItem value="Trading">Trading</MenuItem>
+                <MenuItem value="Battle">Battle</MenuItem>
+                <MenuItem value="Trading">Virtual Trading</MenuItem>
+                <MenuItem value="TenX Trading">TenX Trading</MenuItem>
                 </Select>
               </FormControl>
           </Grid>

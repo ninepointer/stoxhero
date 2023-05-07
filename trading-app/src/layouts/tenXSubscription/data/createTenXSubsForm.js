@@ -12,11 +12,24 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { IoMdAddCircle } from 'react-icons/io';
+import OutlinedInput from '@mui/material/OutlinedInput';
 
-export default function SubscriptionList() {
+const ITEM_HEIGHT = 30;
+const ITEM_PADDING_TOP = 10;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+export default function SubscriptionList(oldObjectId, setOldObjectId) {
 const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
+const [portfolios,setPortfolios] = useState([]);
 const [isLoading,setIsLoading] = useState(id ? true : false)
 const [saving,setSaving] = useState(false)
 const [editing,setEditing] = useState(false)
@@ -33,11 +46,32 @@ const [formState,setFormState] = useState({
         orderNo: "",
         description: ""
     },
+    profitCap:'',
     validity:'',
     validityPeriod:'',
     status:''
 });
 
+React.useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/portfolio/tenx`)
+    .then((res)=>{
+      console.log(res?.data?.data)
+      setPortfolios(res?.data?.data);
+    }).catch((err)=>{
+        return new Error(err)
+    })
+})
+
+const handleChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    // setRuleName(value)
+    setFormState(prevState => ({
+      ...prevState,
+      portfolio: value
+    }))
+  };
 
   async function onSubmit(e,formState){
     e.preventDefault()
@@ -250,6 +284,47 @@ return (
                     }))}}
                 />
             </Grid>
+
+            <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    id="outlined-required"
+                    label='Profit Cap *'
+                    type='number'
+                    fullWidth
+                    // defaultValue={portfolioData?.portfolioName}
+                    value={formState?.profitCap}
+                    onChange={(e) => {setFormState(prevState => ({
+                        ...prevState,
+                        profitCap: e.target.value
+                    }))}}
+                />
+            </Grid>
+
+            <Grid item xs={12} md={3} xl={3} mb={-3}>
+                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                  <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
+                  <Select
+                    labelId="demo-multiple-name-label"
+                    id="demo-multiple-name"
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    defaultValue={oldObjectId ? portfolios?.portfolioName : ''}
+                    onChange={handleChange}
+                    input={<OutlinedInput label="Portfolio" />}
+                    sx={{minHeight:45}}
+                    MenuProps={MenuProps}
+                  >
+                    {portfolios?.map((portfolio) => (
+                      <MenuItem
+                        key={portfolio?.portfolioName}
+                        value={portfolio?._id}
+                      >
+                        {portfolio.portfolioName}
+                      </MenuItem>
+                    ))}
+                  </Select>
+            </FormControl>
+          </Grid>
 
             <Grid item xs={12} md={6} xl={3}>
                 <TextField
