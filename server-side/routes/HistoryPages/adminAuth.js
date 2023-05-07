@@ -28,8 +28,14 @@ const TradableInstrumentSchema = require("../../models/Instruments/tradableInstr
 const authentication = require("../../authentication/authentication");
 const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
-const {takeAutoTrade} = require("../../controllers/contestTradeController")
+const {takeAutoTrade} = require("../../controllers/contestTradeController");
+const {deletePnlKey} = require("../../controllers/deletePnlKey");
 
+
+
+router.get("/deletePnlKey", async (req, res) => {
+  await deletePnlKey()
+});
 
 router.post("/autotrade/:id", async (req, res) => {
   const id = req.params.id

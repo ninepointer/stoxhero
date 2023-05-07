@@ -424,10 +424,6 @@ exports.openingBalance = async (req, res, next) => {
 }
 
 exports.batchWisePnl = async (req, res, next) => {
-  // let date = new Date();
-  // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  // todayDate = todayDate + "T00:00:00.000Z";
-  // const today = new Date(todayDate);
 
   let batchwisepnl = await InfinityTrader.aggregate([
     {
@@ -557,7 +553,6 @@ exports.batchWisePnl = async (req, res, next) => {
         },
     },
   ])
-  // res.status(201).json(batchwisepnl);
 
   res.status(201).json({message: "data received", data: batchwisepnl});
 }
@@ -824,40 +819,7 @@ exports.traderwiseReport = async (req, res, next) => {
           { $sort :
               { gpnl: -1 }
           }
-        ]
-
-        let pnlDetails = await MockTradeDetails.aggregate([
-          {
-            $lookup: {
-              from: "user-personal-details",
-              localField: "trader",
-              foreignField: "_id",
-              as: "user",
-            },
-          },
-          { $match: { trade_time: {$gte : new Date(firstDate), $lte : new Date(secondDate)}, createdBy: name, status: "COMPLETE"} },
-          
-          { $group: { _id: {
-                               "date": {$substr: [ "$trade_time", 0, 10 ]},
-                                  "buyOrSell": "$buyOrSell",
-                                  "trader" : "$createdBy"
-                              },
-                      amount: {
-                          $sum: "$amount"
-                      },
-                      brokerage: {
-                          $sum: {$toDouble : "$brokerage"}
-                      },
-                      lots: {
-                          $sum: {$toInt : "$Quantity"}
-                      },
-                      noOfTrade: {
-                          $count: {}
-                          // average_price: "$average_price"
-                      },
-                      }},
-               { $sort: {_id: -1}},
-              ])
+      ]
 
   let x = await InfinityTraderCompany.aggregate(pipeline)
 
