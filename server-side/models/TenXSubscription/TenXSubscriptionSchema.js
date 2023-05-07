@@ -18,6 +18,14 @@ const TenXSubscription = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    profitCap:{
+        type: Number,
+        required: true,
+    },
+    portfolio:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-portfolio' 
+    },
     validityPeriod: {
         type: String,
         required: true,
