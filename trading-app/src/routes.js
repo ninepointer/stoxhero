@@ -83,6 +83,8 @@ import Careers from './layouts/HomePage/pages/Career'
 import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
+import TenXSubscription from './layouts/tenXSubscription'
+import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
 
 
 
@@ -184,6 +186,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "home",
     component: <Home />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "TenX Subscription Details",
+    component: <TenXSubscriptionForm />,
   },
   {
     // type: "collapse",
@@ -315,6 +325,15 @@ const routes = [
     icon: <DashboardIcon/>,
     route: "/referralProgramme",
     component: <Referral />,
+  },
+
+  {
+    type: "collapse",
+    name: "TenX Subscriptions",
+    key: "TenX Subscriptions",
+    icon: <DashboardIcon/>,
+    route: "/TenX Subscriptions",
+    component: <TenXSubscription />,
   },
   
   {
