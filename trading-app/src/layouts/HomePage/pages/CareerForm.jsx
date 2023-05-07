@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
-import { Grid, TextField } from '@mui/material'
+import { Grid, Input, TextField } from '@mui/material'
 import theme from '../utils/theme/index';
 import { ThemeProvider } from 'styled-components';
 import Navbar from '../components/Navbars/Navbar';
@@ -9,6 +9,14 @@ import Footer from '../components/Footers/Footer';
 import MDTypography from '../../../components/MDTypography';
 import MDSnackbar from "../../../components/MDSnackbar";
 import axios from "axios";
+import {useLocation} from 'react-router-dom';
+import FormControl from '@mui/material/FormControl';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
+
+
+
 
 const CareerForm = () => {
 
@@ -25,6 +33,9 @@ const CareerForm = () => {
     source: "",
 
   })
+  const location = useLocation();
+  const career = location?.state?.data;
+
   const [file, setFile] = useState(null);
   // const [uploadedData, setUploadedData] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -67,6 +78,7 @@ const CareerForm = () => {
       formData.append('tradingExp', detail.tradingExp);
       formData.append('applyingFor', detail.applyingFor);
       formData.append('source', detail.source);
+      formData.append('career', career._id);
 
       console.log(formData, file, file.name)
       const { data } = await axios.post(`${baseUrl}api/v1/career/userDetail`, formData, {
@@ -217,17 +229,26 @@ const CareerForm = () => {
                         onChange={(e)=>{detail.dob = e.target.value}}
                       />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
-                    <TextField
-                        required
-                        // disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="Trading Exp."
-                        type="text"
-                        fullWidth
+
+                    <Grid item xs={12} md={6} xl={3}>
+                      <FormControl sx={{width: "100%" }}>
+                        <InputLabel id="demo-simple-select-autowidth-label">Trading Exp *</InputLabel>
+                        <Select
+                        labelId="demo-simple-select-autowidth-label"
+                        id="demo-simple-select-autowidth"
+                        // value={formState?.jobType}
+                        // value={oldObjectId ? contestData?.status : formState?.status}
+                        // disabled={((isSubmitted || id) && (!editing || saving))}
                         onChange={(e)=>{detail.tradingExp = e.target.value}}
-                      />
-                    </Grid>
+                        label="Trading Exp."
+                        sx={{ minHeight:43 }}
+                        >
+                        <MenuItem value="Yes">Yes</MenuItem>
+                        <MenuItem value="No">No</MenuItem>
+                        </Select>
+                      </FormControl>
+                  </Grid>
+
                     <Grid item xs={12} md={6} lg={3}>
                     <TextField
                         required
@@ -251,7 +272,7 @@ const CareerForm = () => {
                       />
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
-                    <TextField
+                    <Input
                         required
                         // disabled={showEmailOTP}
                         id="outlined-required"

@@ -640,85 +640,86 @@ console.log("Rule Name: ",contestData?.contestRule?.ruleName)
                 )}
           </Grid>
 
-          {(isSubmitted || isObjectNew) && !editing && <Grid item xs={12} md={6} xl={12}>
+          {(isSubmitted || isObjectNew) && !editing && 
+              <Grid item xs={12} md={6} xl={12}>
                 
                 <Grid container spacing={1}>
 
-                <Grid item xs={12} md={6} xl={12} mt={-3} mb={-1}>
-                <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                  Fill in the rank detail and click add
-                </MDTypography>
-                </Grid>
-                
-                <Grid item xs={12} md={1.35} xl={2.7}>
-                    <TextField
-                        id="outlined-required"
-                        label='Rank Start *'
-                        fullWidth
-                        type="number"
-                        value={formState?.rewards?.rankStart}
-                        onChange={(e) => {setFormState(prevState => ({
-                            ...prevState,
-                            rankStart: e.target.value
-                        }))}}
-                    />
-                </Grid>
-    
-                <Grid item xs={12} md={1.35} xl={2.7}>
-                    <TextField
-                        id="outlined-required"
-                        label='Rank End *'
-                        fullWidth
-                        type="number"
-                        value={formState?.rewards?.rankEnd}
-                        onChange={(e) => {setFormState(prevState => ({
-                            ...prevState,
-                            rankEnd: e.target.value
-                        }))}}
-                    />
-                </Grid>
+                  <Grid item xs={12} md={6} xl={12} mt={-3} mb={-1}>
+                  <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
+                    Fill in the rank detail and click add
+                  </MDTypography>
+                  </Grid>
+                  
+                  <Grid item xs={12} md={1.35} xl={2.7}>
+                      <TextField
+                          id="outlined-required"
+                          label='Rank Start *'
+                          fullWidth
+                          type="number"
+                          value={formState?.rewards?.rankStart}
+                          onChange={(e) => {setFormState(prevState => ({
+                              ...prevState,
+                              rankStart: e.target.value
+                          }))}}
+                      />
+                  </Grid>
+      
+                  <Grid item xs={12} md={1.35} xl={2.7}>
+                      <TextField
+                          id="outlined-required"
+                          label='Rank End *'
+                          fullWidth
+                          type="number"
+                          value={formState?.rewards?.rankEnd}
+                          onChange={(e) => {setFormState(prevState => ({
+                              ...prevState,
+                              rankEnd: e.target.value
+                          }))}}
+                      />
+                  </Grid>
 
-                <Grid item xs={12} md={1.35} xl={2.7}>
-                    <TextField
-                        id="outlined-required"
-                        label='Reward *'
-                        fullWidth
-                        type="number"
-                        value={formState?.rewards?.reward}
-                        onChange={(e) => {setFormState(prevState => ({
-                            ...prevState,
-                            reward: e.target.value
-                        }))}}
-                    />
-                </Grid>
+                  <Grid item xs={12} md={1.35} xl={2.7}>
+                      <TextField
+                          id="outlined-required"
+                          label='Reward *'
+                          fullWidth
+                          type="number"
+                          value={formState?.rewards?.reward}
+                          onChange={(e) => {setFormState(prevState => ({
+                              ...prevState,
+                              reward: e.target.value
+                          }))}}
+                      />
+                  </Grid>
 
-                <Grid item xs={12} md={1.35} xl={2.7}>
-                  <FormControl sx={{width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Currency *</InputLabel>
-                    <Select
-                    labelId="demo-simple-select-autowidth-label"
-                    id="demo-simple-select-autowidth"
-                    value={formState?.currency}
-                    onChange={(e) => {setFormState(prevState => ({
-                      ...prevState,
-                      currency: e.target.value
-                    }))}}
-                    label="Currency"
-                    sx={{ minHeight:43 }}
-                    >
-                    <MenuItem value="INR">INR</MenuItem>
-                    <MenuItem value="CREDOS">CREDOS</MenuItem>
-                    </Select>
-                  </FormControl>
-              </Grid>
-    
-                <Grid item xs={12} md={0.6} xl={1.2} mt={-0.7}>
-                    <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddReward(e,formState,setFormState)}}/>
+                  <Grid item xs={12} md={1.35} xl={2.7}>
+                    <FormControl sx={{width: "100%" }}>
+                      <InputLabel id="demo-simple-select-autowidth-label">Currency *</InputLabel>
+                      <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      value={formState?.currency}
+                      onChange={(e) => {setFormState(prevState => ({
+                        ...prevState,
+                        currency: e.target.value
+                      }))}}
+                      label="Currency"
+                      sx={{ minHeight:43 }}
+                      >
+                      <MenuItem value="INR">INR</MenuItem>
+                      <MenuItem value="CREDOS">CREDOS</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+        
+                  <Grid item xs={12} md={0.6} xl={1.2} mt={-0.7}>
+                      <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddReward(e,formState,setFormState)}}/>
+                  </Grid>
+  
                 </Grid>
-    
-                </Grid>
-    
-                </Grid>}
+  
+              </Grid>}
 
           {(isSubmitted || oldObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>

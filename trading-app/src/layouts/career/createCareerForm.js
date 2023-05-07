@@ -15,32 +15,9 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
-// import dayjs from 'dayjs';
-// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-// import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
-// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-// import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-// import OutlinedInput from '@mui/material/OutlinedInput';
-
-// const ITEM_HEIGHT = 30;
-// const ITEM_PADDING_TOP = 10;
-// const MenuProps = {
-//   PaperProps: {
-//     style: {
-//       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-//       maxWidth: "100%",
-//     },
-//   },
-// };
-
 
 function Index() {
 
-    // const { register, handleSubmit, formState: { errors }, watch } = useForm();
-    // let [photo,setPhoto] = useState(DefaultCarouselImage)
-    // const [objectName, setObjectName] = React.useState([]);
-    // const [objects,setObjects] = React.useState([]);
     const location = useLocation();
     const  id  = location?.state?.data;
     const [isSubmitted,setIsSubmitted] = useState(false);
@@ -59,38 +36,7 @@ function Index() {
         status:''
     });
 
-    console.log("id is", location)
 
-    // const handleChange = (event) => {
-    //     console.log(event)
-    //     const {
-    //       target: { value },
-    //     } = event;
-    //     setObjectName(value)
-    //     console.log("Value set as: ",value)
-    //     console.log(objects);
-    //     setFormState(prevState => ({
-    //       ...prevState,
-    //       objectId: value
-    //     }))
-    //   };
-    
-    // const handleChangeObjectType = (name) => {
-    // if(name === 'Referral'){
-    //     //set only active Referrals
-    //     setObjects([{_id: '1234345',name:'Referral 1'},{_id: '23421', name:'Referral 2'},{_id: '5456', name:'Referral 3'}])
-    //     // handleChange();
-
-    // }
-    // if(name === 'Contest'){
-    //     //set only active Contests
-    //     setObjects([{_id: '1234345',name:'Contest 1'},{_id: '23421', name:'Contest 2'},{_id: '5456', name:'Contest 3'}])
-    // }
-    // if(name === 'Campaign'){
-    //     //set only active Campaigns
-    //     setObjects([{_id: '1234345',name:'Campaign 1'},{_id: '23421', name:'Campaign 2'},{_id: '5456', name:'Campaign 3'}])
-    // }
-    // }
 
     async function onSubmit(e,formState){
       e.preventDefault()
