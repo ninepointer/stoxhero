@@ -44,6 +44,7 @@ const [formState,setFormState] = useState({
     features:'',
     validity:'',
     validityPeriod:'',
+    portfolio: '',
     status:''
 });
 

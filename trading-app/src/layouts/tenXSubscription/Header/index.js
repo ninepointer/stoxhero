@@ -10,20 +10,28 @@ import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 
+//data
+import ActiveTenXSubscriptions from '../data/activeTenXSubscriptions';
+
 export default function SubscriptionList() {
 
   return (
    
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
-        <MDButton 
-            variant="contained" 
-            color="success" 
-            fontSize="small"
-            component={Link}
-            to='/TenX Subscription Details'
-            >
-                Create TenX Subscription
-        </MDButton>
+        <MDBox mb={2} display="flex" justifyContent="flex-end">
+          <MDButton 
+              variant="contained" 
+              color="success" 
+              fontSize="small"
+              component={Link}
+              to='/TenX Subscription Details'
+              >
+                  Create TenX Subscription
+          </MDButton>
+        </MDBox>
+        <MDBox>
+          <ActiveTenXSubscriptions/>
+        </MDBox>
     </MDBox>
   );
 }
