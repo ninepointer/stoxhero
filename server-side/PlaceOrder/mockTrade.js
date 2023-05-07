@@ -9,14 +9,18 @@ const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany"
 const io = require('../marketData/socketio');
 const client = require('../marketData/redisClient');
 const {Howl} = require('howler');
-// import {Howl} from "howler";
 
-// const tradeSound = new Howl({
-//     src : ["http://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/start.ogg"],
-//     // html5 : true
-// })
 
 exports.mockTrade = async (req, res) => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T23:59:59.999Z";
+    const today = new Date(todayDate);
+
+    const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+
+    // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
+
     console.log("caseStudy 8: mocktrade")
     let stoxheroTrader ;
     const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
@@ -190,10 +194,9 @@ exports.mockTrade = async (req, res) => {
                     await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))
                     //console.log("pnl", pnl)
           
-                  }
+                }
 
-                //   console.log("tradeSound", tradeSound)
-                //   tradeSound.play();
+                await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
                 console.log("in err", err)
@@ -259,8 +262,8 @@ exports.mockTrade = async (req, res) => {
                     await client.set(`${req.user._id.toString()}: overallpnlPaperTrade`, JSON.stringify(pnl))
                     
                 }
-                // console.log("tradeSound", tradeSound)
-                // tradeSound.play();
+
+                await client.expire(`${req.user._id.toString()}: overallpnlPaperTrade`, secondsRemaining);
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
                 console.log("in err", err)
