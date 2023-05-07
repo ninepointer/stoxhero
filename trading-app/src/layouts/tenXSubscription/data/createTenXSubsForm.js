@@ -26,10 +26,11 @@ const MenuProps = {
   },
 };
 
-export default function SubscriptionList(oldObjectId, setOldObjectId) {
+export default function TenXSubsDetails(oldObjectId, setOldObjectId) {
 const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
+const [tenXSubs,setTenXSubs] = useState([]);
 const [portfolios,setPortfolios] = useState([]);
 const [isLoading,setIsLoading] = useState(id ? true : false)
 const [saving,setSaving] = useState(false)
@@ -63,7 +64,21 @@ React.useEffect(()=>{
     }).catch((err)=>{
         return new Error(err)
     })
+
+    axios.get(`${baseUrl}api/v1/tenX/${id}`)
+    .then((res)=>{
+      console.log(res?.data?.data)
+      setTenXSubs(res?.data?.data);
+      setTimeout(()=>{
+        setIsLoading(false)
+      },500)
+    //   setIsLoading(false).setTimeout(30000);
+    }).catch((err)=>{
+        return new Error(err)
+    })    
 },[])
+
+console.log(tenXSubs?.features)
 
 const handleChange = (event) => {
     const {
@@ -234,7 +249,7 @@ return (
     )
     :
     ( 
-        <MDBox pl={2} pr={2} mt={4}>
+        <MDBox pl={2} pr={2} mt={4} mb={5}>
             <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
                 Fill Subscription Details
@@ -242,7 +257,7 @@ return (
             </MDBox>
 
             <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-            <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+            <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
             <Grid item xs={12} md={6} xl={3}>
                 <TextField
                     disabled={((isSubmitted || id) && (!editing || saving))}
@@ -250,7 +265,7 @@ return (
                     label='Plan Name *'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.jobTitle}
+                    value={formState?.plan_name || tenXSubs?.plan_name}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         plan_name: e.target.value
@@ -266,7 +281,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.actual_price}
+                    value={formState?.actual_price || tenXSubs?.actual_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         actual_price: e.target.value
@@ -282,7 +297,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.discounted_price}
+                    value={formState?.discounted_price || tenXSubs?.discounted_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         discounted_price: e.target.value
@@ -298,7 +313,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.profitCap}
+                    value={formState?.profitCap || tenXSubs?.profitCap}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         profitCap: e.target.value
@@ -313,7 +328,8 @@ return (
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
                     disabled={((isSubmitted || id) && (!editing || saving))}
-                    defaultValue={oldObjectId ? portfolios?.portfolioName : ''}
+                    defaultValue={id ? portfolios?.portfolioName : ''}
+                    value={tenXSubs?.portfolio?.portfolioName}
                     onChange={handleChange}
                     input={<OutlinedInput label="Portfolio" />}
                     sx={{minHeight:45}}
@@ -339,7 +355,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.validity}
+                    value={formState?.validity || tenXSubs?.validity}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         validity: e.target.value
@@ -353,9 +369,9 @@ return (
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    value={formState?.validityPeriod}
+                    value={formState?.validityPeriod || tenXSubs?.validityPeriod}
                     // value={oldObjectId ? contestData?.status : formState?.status}
-                    // disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         validityPeriod: e.target.value
@@ -376,9 +392,9 @@ return (
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    value={formState?.status}
+                    value={formState?.status || tenXSubs?.status}
                     // value={oldObjectId ? contestData?.status : formState?.status}
-                    // disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         status: e.target.value

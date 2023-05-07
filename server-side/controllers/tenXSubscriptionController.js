@@ -46,7 +46,7 @@ exports.editTanx = async(req, res, next) => {
 exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
         const tenXSubs = await TenXSubscription.find({status: "Active"})
-        .populate('portfolio', 'portfolioName')
+        .populate('portfolio', 'portfolioName portfolioValue')
         
         res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
     }catch(e){
@@ -54,6 +54,17 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
         
+};
+
+exports.getTenXSubs = async(req, res, next)=>{
+    
+    const id = req.params.id ? req.params.id : '';
+    try{
+    const tenXSubs = await TenXSubscription.findById(id) 
+
+    res.status(201).json({message: "Portfolio Retrived",data: tenXSubs});    
+    }
+    catch{(err)=>{res.status(401).json({message: "New Portfolio", error:err}); }}  
 };
 
 
