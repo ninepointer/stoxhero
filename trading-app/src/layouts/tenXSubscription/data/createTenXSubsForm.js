@@ -49,6 +49,7 @@ const [formState,setFormState] = useState({
     profitCap:'',
     validity:'',
     validityPeriod:'',
+    portfolio: '',
     status:''
 });
 
