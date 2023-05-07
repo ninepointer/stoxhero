@@ -1,12 +1,19 @@
 const Account =  require('../models/Trading Account/accountSchema');
 const RequestToken = require("../models/Trading Account/requestTokenSchema");
 const client = require("../marketData/redisClient")
-exports.getAccess = async (req, res, next) => {
+exports.getAccess = async () => {
     // await client.connect();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
+
+    // let date = new Date();
+    let todayDate2 = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate2 = todayDate2 + "T23:59:59.999Z";
+    const today2 = new Date(todayDate2);
+    const secondsRemaining = Math.round((today2.getTime() - date.getTime()) / 1000);
+
     console.log(today)
 
     if(await client.exists(`kiteCredToday`)){
@@ -33,7 +40,8 @@ exports.getAccess = async (req, res, next) => {
             }
 
         try{
-            await client.set(`kiteCredToday`, JSON.stringify({getApiKey, getAccessToken}))
+            await client.set(`kiteCredToday`, JSON.stringify({getApiKey, getAccessToken}));
+            await client.expire(`kiteCredToday`, secondsRemaining);
         }catch(e){
             console.log(e);
         }
