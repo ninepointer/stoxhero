@@ -173,6 +173,7 @@ app.use('/api/v1/userwallet', require("./routes/userWallet/userWalletRoutes"));
 app.use('/api/v1/carousels', require("./routes/carousel/carouselRoutes"));
 app.use('/api/v1/paperTrade', require("./routes/mockTrade/paperTrade"));
 app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
+app.use('/api/v1/career', require("./routes/career/careerRoute"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
