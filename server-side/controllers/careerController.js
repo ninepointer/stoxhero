@@ -7,7 +7,7 @@ const s3 = new aws.S3();
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
-  const { firstName, lastName, email, mobile, rollNo, dob, collageName, tradingExp, applyingFor, source } = req.body;
+  const { firstName, lastName, email, mobile, rollNo, dob, collageName, tradingExp, applyingFor, source, career } = req.body;
 //   console.log(req.body)
   const uploadedFiles = req.files
   const fileUploadPromises = uploadedFiles.map(async (file) => {
@@ -37,13 +37,14 @@ try {
     applyingFor: applyingFor,
     source: source,
     resume: uploadedData[0].url,
-});
-console.log(data)
-  res.status(201).json({message: "Details Submitted", data: uploadedData});
-} catch (error) {
-  console.error(error);
-  res.status(500).send({status: "error", message: "Error uploading files."});
-}
+    career: career
+    });
+    console.log(data)
+    res.status(201).json({message: "Details Submitted", data: uploadedData});
+    } catch (error) {
+    console.error(error);
+    res.status(500).send({status: "error", message: "Error uploading files."});
+    }
 
 });
 
@@ -61,16 +62,6 @@ exports.createCareer = async(req, res, next)=>{
 }
 
 exports.getCareers = async(req, res, next)=>{
-    // console.log(req.body)
-    // const{
-    //     jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
-    //     status } = req.body;
-    // if(await Career.findOne({jobTitle, status: "Active" })) return res.status(400).json({message:'This job post already exists.'});
-
-    // const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
-    //     status, createdBy: req.user._id, lastModifiedBy: req.user._id});
-
     const career = await Career.find({status: "Live"}).select('jobTitle jobDescription rolesAndResponsibilities jobType jobLocation')
-    
     res.status(201).json({message: 'success', data:career});
 }
