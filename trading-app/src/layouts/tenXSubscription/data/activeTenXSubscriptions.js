@@ -22,12 +22,15 @@ export default function ActiveTenXSubscriptions() {
   return (
     <MDBox>
        <Grid container spacing={2}>
-            {
-            <Grid item xs={12} md={6} lg={4}>
-                <MDBox bgColor='light'>
-                    <MDTypography>Hello</MDTypography>
-                </MDBox>
-            </Grid>
+            {tenX?.map(()=>{
+                
+                <Grid item xs={12} md={6} lg={4}>
+                    <MDBox bgColor='light'>
+                        <MDTypography>Hello</MDTypography>
+                    </MDBox>
+                </Grid>
+
+            })
             }
        </Grid>
     </MDBox>
