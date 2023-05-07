@@ -18,7 +18,10 @@ export default function SubscriptionList() {
   return (
    
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
-        <MDBox mb={2} display="flex" justifyContent="flex-end">
+        <MDBox mb={2} display="flex" justifyContent="space-between" alignItems='center' alignContent='center'>
+          <MDBox>
+            <MDTypography color='light' fontWeight='bold'>Active Subscription(s)</MDTypography>
+          </MDBox>
           <MDButton 
               variant="contained" 
               color="success" 

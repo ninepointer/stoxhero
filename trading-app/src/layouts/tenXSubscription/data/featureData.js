@@ -7,7 +7,7 @@ import Card from "@mui/material/Card";
 
 
 export default function FeatureData({updatedDocument}) {
-    // console.log("updatedDocument", updatedDocument)
+    console.log("updatedDocument", updatedDocument)
     let columns = [
         { Header: "Order No.", accessor: "orderNo", align: "center" },
         { Header: "Description", accessor: "description", align: "center" },
