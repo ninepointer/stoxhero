@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
-import { Grid, TextField } from '@mui/material'
+import { Grid, Input, TextField } from '@mui/material'
 import theme from '../utils/theme/index';
 import { ThemeProvider } from 'styled-components';
 import Navbar from '../components/Navbars/Navbar';
@@ -272,7 +272,7 @@ const CareerForm = () => {
                       />
                     </Grid>
                     <Grid item xs={12} md={6} lg={3}>
-                    <TextField
+                    <Input
                         required
                         // disabled={showEmailOTP}
                         id="outlined-required"
