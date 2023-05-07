@@ -4,20 +4,11 @@ import MDTypography from '../../../components/MDTypography'
 import MDButton from '../../../components/MDButton'
 import { Divider, Grid } from '@mui/material'
 import axios from "axios";
+import {Link} from 'react-router-dom'
 
 export default function ActiveTenXSubscriptions() {
     const [tenX,setTenX] = useState([])
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-    // React.useEffect(()=>{
-    //     axios.get(`${baseUrl}api/v1/tenX/active`)
-    //     .then((res)=>{
-    //       console.log(res?.data?.data)
-    //       setTenX(res?.data?.data);
-    //     }).catch((err)=>{
-    //         return new Error(err)
-    //     })
-    // })
 
     async function getTenXActiveSubs (){
         const res = await fetch(`${baseUrl}api/v1/tenX/active`, {
@@ -40,7 +31,6 @@ export default function ActiveTenXSubscriptions() {
         .then();
       },[])
     
-
   return (
     <MDBox>
        <Grid container spacing={3}>
@@ -59,13 +49,25 @@ export default function ActiveTenXSubscriptions() {
                                 <MDTypography fontSize={15} fontWeight='bold'>Actual Price : ₹{elem?.actual_price}</MDTypography>
                             </Grid>
                             <Grid item xs={12} md={12} lg={12} mt={1} mb={1} display="flex" justifyContent="center">
-                                <MDTypography style={{border:'1px solid #1A73E8', backgroundColor:'#1A73E8', color:'white'}}  p={1} borderRadius={5} fontSize={15} fontWeight='bold'>Offer Price : ₹{elem?.discounted_price}</MDTypography>
+                                <MDTypography style={{border:'1px solid #1A73E8', backgroundColor:'#1A73E8', color:'white'}}  p={1} borderRadius={2} fontSize={15} fontWeight='bold'>Offer Price : {elem?.discounted_price != 0 ? elem?.discounted_price : 'FREE'}</MDTypography>
                             </Grid>
                             <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
-                                <MDTypography fontSize={15} fontWeight='bold'>Validity : {elem?.validity} TRADING {elem?.validityPeriod?.toUpperCase()}</MDTypography>
+                                <MDTypography fontSize={13} fontWeight='bold'>Validity : {elem?.validity} TRADING {elem?.validityPeriod?.toUpperCase()}</MDTypography>
                             </Grid>
                             <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center">
-                                <MDTypography fontSize={15} fontWeight='bold'>Trading Margin : ₹{elem?.portfolio?.portfolioValue}</MDTypography>
+                                <MDTypography fontSize={13} fontWeight='bold'>Trading Margin : ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={12} mt={2} mb={2} display="flex" justifyContent="center">
+                                <MDButton 
+                                    variant='outlined' 
+                                    color='info' 
+                                    size='small'
+                                    component={Link}
+                                    to='/TenX Subscription Details'
+                                    state= {{data:elem._id}}
+                                >
+                                    View Details
+                                </MDButton>
                             </Grid>
                         </Grid>
 

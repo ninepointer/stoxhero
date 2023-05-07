@@ -26,10 +26,11 @@ const MenuProps = {
   },
 };
 
-export default function SubscriptionList(oldObjectId, setOldObjectId) {
+export default function TenXSubsDetails() {
 const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
+const [tenXSubs,setTenXSubs] = useState([]);
 const [portfolios,setPortfolios] = useState([]);
 const [isLoading,setIsLoading] = useState(id ? true : false)
 const [saving,setSaving] = useState(false)
@@ -40,6 +41,7 @@ const [newObjectId, setNewObjectId] = useState("");
 const [updatedDocument, setUpdatedDocument] = useState([]);
 const [tenXData,setTenXData] = useState([])
 
+console.log("location", location, id)
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
@@ -65,6 +67,18 @@ React.useEffect(()=>{
     }).catch((err)=>{
         return new Error(err)
     })
+
+    axios.get(`${baseUrl}api/v1/tenX/${id}`)
+    .then((res)=>{
+      console.log(res?.data?.data)
+      setTenXSubs(res?.data?.data);
+      setTimeout(()=>{
+        setIsLoading(false)
+      },500)
+    //   setIsLoading(false).setTimeout(30000);
+    }).catch((err)=>{
+        return new Error(err)
+    })    
 },[])
 
 React.useEffect(()=>{
@@ -72,6 +86,7 @@ React.useEffect(()=>{
     axios.get(`${baseUrl}api/v1/tenX/${id}`)
     .then((res)=>{
         setTenXData(res.data.data);
+        setUpdatedDocument(res.data.data)
         console.log("tenX data is", res.data)
         setFormState({
             plan_name: res.data.data?.plan_name || '',
@@ -81,7 +96,7 @@ React.useEffect(()=>{
             profitCap: res.data.data?.profitCap || '',
             validity: res.data.data?.validity || '',
             validityPeriod: res.data.data?.validityPeriod || '',
-            portfolio: res.data.data?.portfolio || '',
+            portfolio: res.data.data?.portfolio?.portfolioName || '',
             // lastModifiedOn: res.data[0]?.lastModifiedOn || '',
             // createdBy: res.data[0]?.createdBy || getDetails.userDetails._id,
             // lastModifiedBy: res.data[0]?.lastModifiedBy || getDetails.userDetails._id,
@@ -116,14 +131,14 @@ async function onEdit(e,formState){
         body: JSON.stringify({
             plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap 
         })
-        });
+    });
 
     const data = await res.json();
     console.log(data);
     if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error","data.error")
+        openErrorSB("Error",data.error)
     } else {
-        openSuccessSB("Portfolio Edited",data.displayName + " | " + data.instrumentSymbol + " | " + data.exchange + " | " + data.status)
+        openSuccessSB("Slab Edited", "Edited Successfully")
         setTimeout(()=>{setSaving(false);setEditing(false)},500)
         console.log("entry succesfull");
     }
@@ -184,7 +199,7 @@ async function onEdit(e,formState){
     }
     const {orderNo, description} = childFormState;
   
-    const res = await fetch(`${baseUrl}api/v1/tenX/${newObjectId}`, {
+    const res = await fetch(`${baseUrl}api/v1/tenX/${id ? id : newObjectId}`, {
         method: "PATCH",
         credentials:"include",
         headers: {
@@ -198,10 +213,10 @@ async function onEdit(e,formState){
     const data = await res.json();
     console.log(data);
     if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error","data.error")
+        openErrorSB("Error",data.error)
     } else {
         setUpdatedDocument(data?.data);
-        openSuccessSB("New Reward Added","New Reward line item has been added in the contest")
+        openSuccessSB("Feature added","New Feature line item has been added in the TenX")
         setTimeout(()=>{setSaving(false);setEditing(false)},500)
         setChildFormState(prevState => ({
             ...prevState,
@@ -253,7 +268,7 @@ async function onEdit(e,formState){
       bgWhite
     />
   );
-return (
+    return (
     <>
     {isLoading ? (
         <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -262,7 +277,7 @@ return (
     )
     :
     ( 
-        <MDBox pl={2} pr={2} mt={4}>
+        <MDBox pl={2} pr={2} mt={4} mb={5}>
             <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
                 Fill Subscription Details
@@ -270,7 +285,7 @@ return (
             </MDBox>
 
             <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-            <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+            <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
             <Grid item xs={12} md={6} xl={3}>
                 <TextField
                     disabled={((isSubmitted || id) && (!editing || saving))}
@@ -278,7 +293,7 @@ return (
                     label='Plan Name *'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.jobTitle}
+                    value={formState?.plan_name || tenXSubs?.plan_name}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         plan_name: e.target.value
@@ -294,7 +309,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.actual_price}
+                    value={formState?.actual_price || tenXSubs?.actual_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         actual_price: e.target.value
@@ -310,7 +325,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.discounted_price}
+                    value={formState?.discounted_price || tenXSubs?.discounted_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         discounted_price: e.target.value
@@ -326,7 +341,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.profitCap}
+                    value={formState?.profitCap || tenXSubs?.profitCap}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         profitCap: e.target.value
@@ -341,7 +356,8 @@ return (
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
                     disabled={((isSubmitted || id) && (!editing || saving))}
-                    defaultValue={oldObjectId ? portfolios?.portfolioName : ''}
+                    // defaultValue={id ? portfolios?.portfolio : ''}
+                    // value={tenXSubs?.portfolio?.portfolioName || formState?.portfolio}
                     onChange={handleChange}
                     input={<OutlinedInput label="Portfolio" />}
                     sx={{minHeight:45}}
@@ -367,7 +383,7 @@ return (
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.validity}
+                    value={formState?.validity || tenXSubs?.validity}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         validity: e.target.value
@@ -381,9 +397,9 @@ return (
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    value={formState?.validityPeriod}
+                    value={formState?.validityPeriod || tenXSubs?.validityPeriod}
                     // value={oldObjectId ? contestData?.status : formState?.status}
-                    // disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         validityPeriod: e.target.value
@@ -404,9 +420,9 @@ return (
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    value={formState?.status}
+                    value={formState?.status || tenXSubs?.status}
                     // value={oldObjectId ? contestData?.status : formState?.status}
-                    // disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         status: e.target.value
@@ -528,7 +544,7 @@ return (
 
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
-                        <FeatureData updatedDocument={updatedDocument}/>
+                        <FeatureData updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
                     </MDBox>
                 </Grid>}
 

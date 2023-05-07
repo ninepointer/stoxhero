@@ -1,13 +1,19 @@
 import * as React from 'react';
+import {useState} from 'react';
 import DataTable from "../../../examples/Tables/DataTable";
 import MDButton from "../../../components/MDButton"
 import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
+import EditFeature from './editFeature';
+import MDSnackbar from "../../../components/MDSnackbar";
 
 
-export default function FeatureData({updatedDocument}) {
-    // console.log("updatedDocument", updatedDocument)
+
+export default function FeatureData({updatedDocument, setUpdatedDocument}) {
+    console.log("updatedDocument", updatedDocument)
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+
     let columns = [
         { Header: "Order No.", accessor: "orderNo", align: "center" },
         { Header: "Description", accessor: "description", align: "center" },
@@ -15,33 +21,105 @@ export default function FeatureData({updatedDocument}) {
         { Header: "Delete", accessor: "delete", align: "center" },
       ]
 
-    let rows = []
+    let rows = [];
 
-updatedDocument?.features?.map((elem)=>{
-  let featureObj = {}
-  featureObj.orderNo = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem.orderNo}
-    </MDTypography>
-  );
-  featureObj.description = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem.description}
-    </MDTypography>
-  );
-  featureObj.edit = (
-    <MDButton component="a" variant="caption" color="text" fontWeight="medium">
-      Edit
-    </MDButton>
-  );
-  featureObj.delete = (
-    <MDButton component="a" variant="caption" color="text" fontWeight="medium">
-      Delete
-    </MDButton>
+    async function deleteFeature(id){
+      const res = await fetch(`${baseUrl}api/v1/tenX/removefeature/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+            "Accept": "application/json",
+            "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          
+        })
+    });
+    const dataResp = await res.json();
+    //console.log(dataResp);
+    if (dataResp.status === 422 || dataResp.error || !dataResp) {
+        // window.alert(dataResp.error);
+        openErrorSB("Error", "Unexpected error")
+
+    } else {
+        //console.log(dataResp);
+        setUpdatedDocument(dataResp?.data)
+        openSuccessSB("Success", "Feature deleted successfully")
+        // window.alert("delete succesfull");
+        //console.log("Edit succesfull");
+    }
+    }
+
+    updatedDocument?.features?.map((elem)=>{
+      let featureObj = {}
+      featureObj.orderNo = (
+        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+          {elem.orderNo}
+        </MDTypography>
+      );
+      featureObj.description = (
+        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+          {elem.description}
+        </MDTypography>
+      );
+      featureObj.edit = (
+        <MDButton component="a" variant="caption" color="text" fontWeight="medium">
+          {/* Edit */}
+          <EditFeature data={elem} setUpdatedDocument={setUpdatedDocument}/>
+        </MDButton>
+      );
+      featureObj.delete = (
+        <MDButton component="a" variant="caption" color="text" fontWeight="medium" onClick={()=>{deleteFeature(elem._id)}}>
+          Delete
+        </MDButton>
+      );
+
+      rows.push(featureObj)
+    })
+
+    const [title,setTitle] = useState('')
+    const [content,setContent] = useState('')
+
+    const [successSB, setSuccessSB] = useState(false);
+    const openSuccessSB = (title,content) => {
+        setTitle(title)
+        setContent(content)
+        setSuccessSB(true);
+    }
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
   );
 
-  rows.push(featureObj)
-})
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title,content) => {
+    setTitle(title)
+    setContent(content)
+    setErrorSB(true);
+  }
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
 
   return (
     <Card>
@@ -61,6 +139,8 @@ updatedDocument?.features?.map((elem)=>{
           entriesPerPage={false}
         />
       </MDBox>
+      {renderSuccessSB}
+      {renderErrorSB}
     </Card>
   
 
