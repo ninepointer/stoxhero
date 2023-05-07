@@ -34,6 +34,8 @@ import MyReferrals from "./layouts/referrals"
 import Portfolio from './layouts/portfolio'
 import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
+import CareerList from './layouts/career'
+import CareerDetails from './layouts/career/careerDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
@@ -279,6 +281,22 @@ const routes = [
     icon: <HomeIcon/>,
     route: "/carousel",
     component: <Carousel />,
+  },
+  {
+    type: "collapse",
+    name: "Careers",
+    key: "Career List",
+    icon: <HomeIcon/>,
+    route: "/Career List",
+    component: <CareerList />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "careerDetails",
+    // icon: <DashboardIcon/>,
+    route: "/Career Details",
+    component: <CareerDetails />,
   },
 
   {
