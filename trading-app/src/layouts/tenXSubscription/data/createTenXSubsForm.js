@@ -38,6 +38,8 @@ const [isSubmitted,setIsSubmitted] = useState(false);
 const [creating,setCreating] = useState(false);
 const [newObjectId, setNewObjectId] = useState("");
 const [updatedDocument, setUpdatedDocument] = useState([]);
+const [tenXData,setTenXData] = useState([])
+
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
@@ -65,7 +67,69 @@ React.useEffect(()=>{
     })
 },[])
 
-const handleChange = (event) => {
+React.useEffect(()=>{
+
+    axios.get(`${baseUrl}api/v1/tenX/${id}`)
+    .then((res)=>{
+        setTenXData(res.data.data);
+        console.log("tenX data is", res.data)
+        setFormState({
+            plan_name: res.data.data?.plan_name || '',
+            actual_price: res.data.data?.actual_price || '',
+            discounted_price: res.data.data?.discounted_price || '',
+            status: res.data.data?.status || '',
+            profitCap: res.data.data?.profitCap || '',
+            validity: res.data.data?.validity || '',
+            validityPeriod: res.data.data?.validityPeriod || '',
+            portfolio: res.data.data?.portfolio || '',
+            // lastModifiedOn: res.data[0]?.lastModifiedOn || '',
+            // createdBy: res.data[0]?.createdBy || getDetails.userDetails._id,
+            // lastModifiedBy: res.data[0]?.lastModifiedBy || getDetails.userDetails._id,
+            // lastModifiedOn: new Date()
+          });
+            setTimeout(()=>{setIsLoading(false)},500) 
+        // setIsLoading(false)
+    }).catch((err)=>{
+        //window.alert("Server Down");
+        return new Error(err);
+    })
+
+},[])
+
+async function onEdit(e,formState){
+    e.preventDefault()
+    setSaving(true)
+    console.log(formState)
+    if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
+        setTimeout(()=>{setSaving(false);setEditing(true)},500)
+        return openErrorSB("Missing Field","Please fill all the mandatory fields")
+    }
+    const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
+
+    const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap 
+        })
+        });
+
+    const data = await res.json();
+    console.log(data);
+    if (data.status === 422 || data.error || !data) {
+        openErrorSB("Error","data.error")
+    } else {
+        openSuccessSB("Portfolio Edited",data.displayName + " | " + data.instrumentSymbol + " | " + data.exchange + " | " + data.status)
+        setTimeout(()=>{setSaving(false);setEditing(false)},500)
+        console.log("entry succesfull");
+    }
+}
+
+  const handleChange = (event) => {
     const {
       target: { value },
     } = event;
@@ -111,7 +175,6 @@ const handleChange = (event) => {
       }
   }
 
-
   async function onAddFeature(e,childFormState,setChildFormState){
     e.preventDefault()
     setSaving(true)
@@ -144,41 +207,6 @@ const handleChange = (event) => {
             ...prevState,
             rewards: {}
         }))
-    }
-  }
-
-  async function onEdit(e,formState){
-    e.preventDefault();
-    setSaving(true)
-    console.log(formState)
-    if(!formState.plan_name || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
-  
-      setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-      return openErrorSB("Missing Field","Please fill all the mandatory fields")
-  
-  }
-    const {plan_name, actual_price, discounted_price, validity, validityType, status } = formState;
-  
-    const res = await fetch(`${baseUrl}api/v1/portfolio`, {
-        method: "PATCH",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, validityType, status
-        })
-      });
-  
-    const data = await res.json();
-    console.log(data);
-    if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error","data.error")
-    } else {
-        openSuccessSB("Contest Edited",data.message)
-        setTimeout(()=>{setSaving(false);setEditing(false)},500)
-        console.log("entry succesfull");
     }
   }
 
@@ -434,7 +462,7 @@ return (
                             size="small" 
                             sx={{mr:1, ml:2}} 
                             disabled={saving} 
-                            // onClick={(e)=>{onEdit(e,formState)}}
+                            onClick={(e)=>{onEdit(e,formState)}}
                             >
                             {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
                         </MDButton>
@@ -443,7 +471,7 @@ return (
                             color="error" 
                             size="small" 
                             disabled={saving} 
-                            // onClick={()=>{setEditing(false)}}
+                            onClick={()=>{setEditing(false)}}
                             >
                             Cancel
                         </MDButton>

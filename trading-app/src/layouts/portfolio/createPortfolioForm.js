@@ -84,7 +84,8 @@ function Index() {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                portfolioName, portfolioValue, portfolioType, status, portfolioAccount            })
+                portfolioName, portfolioValue, portfolioType, status, portfolioAccount 
+               })
             });
 
         const data = await res.json();
