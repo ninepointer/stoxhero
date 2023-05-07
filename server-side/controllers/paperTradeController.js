@@ -10,6 +10,12 @@ exports.overallPnl = async (req, res, next) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
+    let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+    const tempDate = new Date(tempTodayDate);
+    const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
     try{
 
       if(await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
@@ -65,7 +71,8 @@ exports.overallPnl = async (req, res, next) => {
         ])
         // console.log("pnlDetails in else", pnlDetails)
         await client.set(`${req.user._id.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlDetails))
-        // console.log("pnlDetails", pnlDetails)
+        await client.expire(`${req.user._id.toString()}: overallpnlPaperTrade`, secondsRemaining);
+
         res.status(201).json({message: "pnl received", data: pnlDetails});
       }
 
