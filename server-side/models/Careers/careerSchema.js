@@ -33,7 +33,7 @@ const Career = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['Active','Inactive']
+        enum: ['Live','Draft', 'Rejected']
     },
     createdOn: {
         type: Date,
