@@ -43,7 +43,17 @@ exports.editFeature = async(req, res, next) => {
     res.status(200).json({message: 'Successfully edited tenx.'});
 }
 
-
+exports.getActiveTenXSubs = async(req, res, next)=>{
+    try{
+        const tenXSubs = await TenXSubscription.find({status: "Active"})
+        
+        res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+        
+};
 
 
 
