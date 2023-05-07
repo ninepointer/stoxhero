@@ -13,6 +13,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import FeatureData from './featureData';
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -36,6 +37,7 @@ const [editing,setEditing] = useState(false)
 const [isSubmitted,setIsSubmitted] = useState(false);
 const [creating,setCreating] = useState(false);
 const [newObjectId, setNewObjectId] = useState("");
+const [updatedDocument, setUpdatedDocument] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
@@ -61,7 +63,7 @@ React.useEffect(()=>{
     }).catch((err)=>{
         return new Error(err)
     })
-})
+},[])
 
 const handleChange = (event) => {
     const {
@@ -77,13 +79,13 @@ const handleChange = (event) => {
   async function onSubmit(e,formState){
     e.preventDefault()
     console.log(formState)
-    if(!formState.plan_name || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
+    if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
     
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
     setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    const {plan_name, actual_price, discounted_price, validity, validityPeriod, status } = formState;
+    const {plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
     const res = await fetch(`${baseUrl}api/v1/tenX/create`, {
         method: "POST",
         credentials:"include",
@@ -92,7 +94,8 @@ const handleChange = (event) => {
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, validityPeriod, status
+            plan_name, actual_price, discounted_price, validity, 
+            validityPeriod, status, portfolio, profitCap
         })
     });
     
@@ -109,7 +112,7 @@ const handleChange = (event) => {
   }
 
 
-  async function onAddReward(e,childFormState,setChildFormState){
+  async function onAddFeature(e,childFormState,setChildFormState){
     e.preventDefault()
     setSaving(true)
     if(!childFormState?.orderNo || !childFormState?.description){
@@ -130,10 +133,11 @@ const handleChange = (event) => {
         })
     });
     const data = await res.json();
-    // console.log(data);
+    console.log(data);
     if (data.status === 422 || data.error || !data) {
         openErrorSB("Error","data.error")
     } else {
+        setUpdatedDocument(data?.data);
         openSuccessSB("New Reward Added","New Reward line item has been added in the contest")
         setTimeout(()=>{setSaving(false);setEditing(false)},500)
         setChildFormState(prevState => ({
@@ -487,11 +491,17 @@ return (
                     </Grid>
             
                     <Grid item xs={12} md={0.6} xl={1.2} mt={-0.7}>
-                        <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddReward(e,formState,setFormState)}}/>
+                        <IoMdAddCircle cursor="pointer" onClick={(e)=>{onAddFeature(e,formState,setFormState)}}/>
                     </Grid>
     
                     </Grid>
     
+                </Grid>}
+
+                {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <FeatureData updatedDocument={updatedDocument}/>
+                    </MDBox>
                 </Grid>}
 
             </Grid>

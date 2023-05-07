@@ -15,16 +15,16 @@ exports.createTenXSubscription = async(req, res, next)=>{
     console.log(req.body)
     const{
         plan_name, actual_price, discounted_price, features, validity, validityPeriod,
-        status } = req.body;
+        status, portfolio, profitCap } = req.body;
     if(await TenXSubscription.findOne({plan_name, status: "Active" })) return res.status(400).json({message:'This subscription already exists.'});
 
     const tenXSubs = await TenXSubscription.create({plan_name, actual_price, discounted_price, features, validity, validityPeriod,
-        status, createdBy: req.user._id, lastModifiedBy: req.user._id});
+        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap});
     
     res.status(201).json({message: 'TenX Subscription successfully created.', data:tenXSubs});
 }
 
-exports.editFeature = async(req, res, next) => {
+exports.editTanx = async(req, res, next) => {
     const id = req.params.id;
 
     console.log("id is ,", id)
@@ -38,9 +38,9 @@ exports.editFeature = async(req, res, next) => {
     filteredBody.lastModifiedBy = req.user._id;    
 
     console.log(filteredBody)
-    await TenXSubscription.findByIdAndUpdate(id, filteredBody);
+    const updated = await TenXSubscription.findByIdAndUpdate(id, filteredBody, { new: true });
 
-    res.status(200).json({message: 'Successfully edited tenx.'});
+    res.status(200).json({message: 'Successfully edited tenx.', data: updated});
 }
 
 
