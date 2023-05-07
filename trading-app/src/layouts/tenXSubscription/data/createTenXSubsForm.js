@@ -48,7 +48,7 @@ const [formState,setFormState] = useState({
 });
 
 React.useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/portfolio`)
+    axios.get(`${baseUrl}api/v1/portfolio/tenx`)
     .then((res)=>{
       console.log(res?.data?.data)
       setPortfolios(res?.data?.data);
