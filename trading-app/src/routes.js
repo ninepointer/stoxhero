@@ -44,6 +44,7 @@ import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 
+
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
 
@@ -80,6 +81,8 @@ import About from './layouts/HomePage/pages/About'
 import Careers from './layouts/HomePage/pages/Career'
 import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
+import Contact from "./layouts/HomePage/pages/Contact";
+import FAQs from "../src/layouts/FAQs/faqs";
 
 
 
@@ -166,6 +169,7 @@ const routes = [
     route: "about",
     component: <About />,
   },
+  
   {
     // type: "collapse",
     // name: "Arena",
@@ -189,6 +193,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "careers",
     component: <Careers />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "contact",
+    component: <Contact />,
   },
   {
     // type: "collapse",

@@ -56,6 +56,7 @@ import ResetPassword from './layouts/authentication/reset-password/cover';
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
+import  Home from "../src/layouts/HomePage/pages/Home";
 
 export default function App() {
   const cookieValue = Cookies.get("jwt");
@@ -285,6 +286,10 @@ export default function App() {
           <Route path="/" element={<Navigate to={pathname} />} />
           }
           <Route path='/resetpassword' element={<ResetPassword/>}/>
+          
+
+          
+          
         </Routes>
       </ThemeProvider>
     

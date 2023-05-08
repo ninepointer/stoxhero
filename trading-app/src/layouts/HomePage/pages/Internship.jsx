@@ -15,9 +15,9 @@ import jobs from "../../../assets/images/jobs.png"
 const Internship = () => {
     return (
         <Box p={5}>
-            <Grid container spacing={2}>
+            <Grid container flexDirection="column"  spacing={4}>
             
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={20} lg={15}>
               <MDBox style={{borderRadius:4}}>
               <Tooltip title="Click me!">
               <MDButton variant="contained" color="light" size="small" style={{minWidth:'100%'}}
@@ -30,7 +30,7 @@ const Internship = () => {
                   
                   {/* <Grid container spacing={3}> */}
                     {/* <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center"> */}
-                        <Grid item xs={12} md={6} lg={12} mb={1} display="flex" alignContent="center" alignItems="center">
+                        <Grid item  xs={12} md={20} lg={12} mb={1} display="flex" alignContent="center" alignItems="center">
                             <MDAvatar src={jobs} size="xl" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                             <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Derivaties Trader (Intern)</MDTypography>
@@ -47,7 +47,7 @@ const Internship = () => {
               </MDBox>
             </Grid>
 
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={20} lg={15}>
               <MDBox style={{borderRadius:4}}>
               <Tooltip title="Click me!">
               <MDButton variant="contained" color="light" size="small" style={{minWidth:'100%'}} 
@@ -77,7 +77,7 @@ const Internship = () => {
               </MDBox>
             </Grid>
 
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={20} lg={15}>
               <MDBox style={{borderRadius:4}}>
               <Tooltip title="Click me!">
               <MDButton variant="contained" color="light" size="small" style={{minWidth:'100%'}} 
@@ -90,7 +90,7 @@ const Internship = () => {
                   
                   {/* <Grid container spacing={3}> */}
                     {/* <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center"> */}
-                        <Grid item xs={12} md={6} lg={12} mb={1} display="flex" alignContent="center" alignItems="center">
+                        <Grid item xs={12} md={6} lg={20} mb={1} display="flex" alignContent="center" alignItems="center">
                             <MDAvatar src={jobs} size="xl" display="flex" justifyContent="left"/>
                             <MDBox ml={2} display="flex" flexDirection="column">
                             <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{color:"black"}}>Campus Ambassador</MDTypography>

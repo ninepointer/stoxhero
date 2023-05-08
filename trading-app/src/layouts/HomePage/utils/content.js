@@ -74,12 +74,11 @@ import Staker from "../assets/images/section11/staker.svg";
 import Bitpay from "../assets/images/section11/bitPay.svg";
 
 // Footer
-import BookIcon from "@mui/icons-material/Book";
-import RedditIcon from "@mui/icons-material/Reddit";
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import TwitterIcon from "@mui/icons-material/Twitter";
-import ChatIcon from "@mui/icons-material/Chat";
-import TelegramIcon from "@mui/icons-material/Telegram";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import FacebookIcon from '@mui/icons-material/Facebook';
+
 
 // Navbar
 import Logo from "../assets/images/Logo.png";
@@ -96,10 +95,10 @@ export const section1Content = {
 
 export const section2Content = {
   items: [
-    { counter: 345, subtitle: "Liquidity sources" },
-    { counter: 345, before: "$", after: "B+", subtitle: "Total volume" },
-    { counter: 4.4, after: "M+", subtitle: "Total wallets", decimals: true },
-    { counter: 28.7, after: "M+", subtitle: "Total Trades", decimals: true },
+    { counter: 0, subtitle: "Leaderboards" },
+    { counter: 0, before: "", after: "", subtitle: "Total volume" },
+    { counter: 0, after: "", subtitle: "Total wallets", decimals: false },
+    { counter: 0, after: "", subtitle: "Total Trades", decimals: false },
   ],
 };
 
@@ -363,16 +362,16 @@ export const footerContent = {
     ],
   },
   subscribe: {
-    title: "Subscribe to 1inch newsletter",
-    subtitle: "Get the latest news and updates",
+    title: "Contact Stoxhero now ",
+    subtitle: "Get To know more about us",
   },
   socials: [
-    { icon: BookIcon },
-    { icon: RedditIcon },
+    { icon: LinkedInIcon },
+    { icon: InstagramIcon },
     { icon: TwitterIcon },
-    { icon: ChatIcon },
-    { icon: TelegramIcon },
-    { icon: GitHubIcon },
+    { icon: FacebookIcon },
+    
+    
   ],
   copyright: {
     left: "© 2023 1inch, All Rights Reserved.",

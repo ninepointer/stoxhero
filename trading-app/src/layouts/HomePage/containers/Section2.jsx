@@ -16,28 +16,30 @@ const CustomCounter = ({
   <Stack spacing={{ xs: 1, md: 2 }} alignItems="center">
     <CountUp prefix={before} suffix={after} end={counter} decimals={decimals}>
       {({ countUpRef }) => (
-        <Title variant={{ xs: "h4", md: "h2" }} sx={{ fontWeight: 400 }}>
-          <span ref={countUpRef} />
+        <Title variant={{ xs: "h4", md: "h2" }} style={{color:"white"}} sx={{ fontWeight: 400 }}>
+          <span sx={{color:"red"}} ref={countUpRef} />
         </Title>
       )}
     </CountUp>
 
-    <Typography variant="body2" color="text.secondary">
+    <Typography variant="body2" color="gray">
       {subtitle}
     </Typography>
   </Stack>
 );
 
 const Section2 = () => {
+
   return (
-    <Container sx={{ mt: -5 }}>
+    <Container sx={{ mt: 0 }}>
      <Box
+     bgcolor={'#06070A'}
         sx={(theme) => ({
           position: "relative",
           py: 5,
-          bgcolor: theme.palette.background.default,
+          
           borderRadius: "50px",
-          [theme?.breakpoints?.up("sm")]: {
+          [theme.breakpoints.up("sm")]: {
             "&::before": {
               content: '""',
               position: "absolute",
@@ -56,7 +58,7 @@ const Section2 = () => {
         <Grid container spacing={3} justifyContent="space-between">
           {items.map(item=>(
             <Grid item xs={6} md={3} key={item.subtitle}>
-              <CustomCounter {...item} />
+              <CustomCounter  {...item} />
             </Grid>
             
           ))}
