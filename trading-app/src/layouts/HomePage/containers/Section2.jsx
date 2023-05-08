@@ -35,9 +35,9 @@ const Section2 = () => {
         sx={(theme) => ({
           position: "relative",
           py: 5,
-          bgcolor: "background.default",
+          bgcolor: theme.palette.background.default,
           borderRadius: "50px",
-          [theme.breakpoints.up("sm")]: {
+          [theme?.breakpoints?.up("sm")]: {
             "&::before": {
               content: '""',
               position: "absolute",

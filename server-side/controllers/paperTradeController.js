@@ -1,6 +1,7 @@
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const client = require('../marketData/redisClient');
+const { ObjectId } = require("mongodb");
 
 exports.overallPnl = async (req, res, next) => {
     
@@ -9,6 +10,12 @@ exports.overallPnl = async (req, res, next) => {
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
+
+    let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+    const tempDate = new Date(tempTodayDate);
+    const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
 
     try{
 
@@ -28,7 +35,7 @@ exports.overallPnl = async (req, res, next) => {
                       $gte: today
                   },
                   status: "COMPLETE",
-                  trader: userId
+                  trader: new ObjectId(userId)
               },
           },
           {
@@ -65,7 +72,8 @@ exports.overallPnl = async (req, res, next) => {
         ])
         // console.log("pnlDetails in else", pnlDetails)
         await client.set(`${req.user._id.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlDetails))
-        // console.log("pnlDetails", pnlDetails)
+        await client.expire(`${req.user._id.toString()}: overallpnlPaperTrade`, secondsRemaining);
+
         res.status(201).json({message: "pnl received", data: pnlDetails});
       }
 
@@ -139,7 +147,7 @@ exports.marginDetail = async (req, res, next) => {
       {
         $match: {
           status: "Active",
-          "users.userId": req.user._id,
+          "users.userId": new ObjectId(req.user._id),
           portfolioType: "Trading"
         },
       },
@@ -166,7 +174,7 @@ exports.marginDetail = async (req, res, next) => {
                     $lt: today
                 },
                 status: "COMPLETE",
-                trader: req.user._id
+                trader: new ObjectId(req.user._id)
             },
         },
         {
