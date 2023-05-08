@@ -8,7 +8,7 @@ import MDSnackbar from "../../../components/MDSnackbar";
 // @mui material components
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-import { InputAdornment } from '@mui/material';
+import { InputAdornment, TextField } from '@mui/material';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -151,7 +151,7 @@ function Basic() {
               navigate("/analytics");
             } 
             else if(userData.role?.roleName === userRole){
-              navigate("/papertrading");
+              navigate("/virtualtrading");
             }
             else if(userData.role?.roleName === InfinityTraderRole){
               navigate("/infinitytrading");
@@ -232,17 +232,14 @@ function Basic() {
             setInvalidDetail(`OTP incorrect`);
         }else{
           await userDetail();
-
-          if(userData.role?.roleName === adminRole){
+          console.log(userData)
+          if(userData?.role?.roleName === adminRole){
             navigate("/companyposition");
           }
-          else if(userData.role?.roleName === "data"){
-            navigate("/analytics");
-          } 
-          else if(userData.role?.roleName === userRole){
-            navigate("/papertrading");
+          else if(userData?.role?.roleName === userRole){
+            navigate("/virtualtrading");
           }
-          else if(userData.role?.roleName === InfinityTraderRole){
+          else if(userData?.role?.roleName === InfinityTraderRole){
             navigate("/infinitytrading");
           }
         }
@@ -395,7 +392,7 @@ function Basic() {
         </MDButton>}
         {otpGen && <><Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
                   <MDBox mt={1}>
-                  <OtpInput
+                  {/* <OtpInput
                     value={mobileOtp}
                     onChange={(e)=>{setMobileOtp(e)}}
                     // onChange={(e)=>{console.log(e)}}
@@ -403,6 +400,15 @@ function Basic() {
                     renderSeparator={<span>-</span>}
                     renderInput={(props) => <input {...props} />}
                     inputStyle={{width:40, height:50}}
+                  /> */}
+                  <TextField
+                    value={mobileOtp}
+                    onChange={(e)=>{setMobileOtp(e.target.value)}}
+                    // onChange={(e)=>{console.log(e)}}
+                    // numInputs={6}
+                    // renderSeparator={<span>-</span>}
+                    // renderInput={(props) => <input {...props} />}
+                    // inputStyle={{width:40, height:50}}
                   />
                   </MDBox>
                   </Grid>

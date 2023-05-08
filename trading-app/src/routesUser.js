@@ -12,6 +12,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 
@@ -37,7 +38,7 @@ import ContestHistory from "./layouts/UserContest/ContestHistory";
 import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
 import FAQs from "./layouts/FAQs";
 import UserWallet from "./layouts/userWallet"
-import StoxHeroTrading from "./layouts/StoxHeroTrading"
+import TenXTrading from "./layouts/tenXTrading"
 import UserAnalytics from "./layouts/userAnalytics"
 // import logo from "../src/assets/images/logo1.jpeg"
 
@@ -53,12 +54,21 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Paper Trading",
-    key: "papertrading",
+    name: "Virtual Trading",
+    key: "virtualtrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
-    route: "/papertrading",
+    route: "/virtualtrading",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "TenX Trading",
+    key: "tenxtrading",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <CurrencyRupeeIcon/>,
+    route: "/tenxtrading",
+    component: <TenXTrading />,
   },
   // {
   //   type: "collapse",
@@ -78,14 +88,14 @@ const routes = [
   //   route: "/contest",
   //   component: <Contest />,
   // },
-  {
-    type: "collapse",
-    name: "Battle Street",
-    key: "battlestreet",
-    icon: <StadiumIcon/>,
-    route: "/battlestreet",
-    component: <UserContest />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Battle Street",
+  //   key: "battlestreet",
+  //   icon: <StadiumIcon/>,
+  //   route: "/battlestreet",
+  //   component: <UserContest />,
+  // },
   {
     // type: "collapse",
     // name: "Arena",

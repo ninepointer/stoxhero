@@ -29,9 +29,9 @@ import { InfinityTraderRole } from '../../../variables';
 
 
 export default function LabTabs() {
-  const paperTrading = "Paper Trading";
+  const paperTrading = "Virtual Trading";
   const infinityTrading = "Infinity Trading";
-  const stoxheroTrading = "StoxHero Trading"
+  const stoxheroTrading = "TenX Trading"
   const getDetails = useContext(userContext);
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);

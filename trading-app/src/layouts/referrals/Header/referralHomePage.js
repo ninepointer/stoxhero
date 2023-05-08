@@ -53,27 +53,10 @@ function ReferralHomePage() {
 
   
   useEffect(()=>{
-  
-    // axios.get(`${baseUrl}api/v1/leadsinvited/${id}`)
-    // .then((res)=>{
-    //    console.log(res)
-    //    setInvitedData(res?.data?.data);
-    //    setInvitedCount(res?.data?.count);
-    // }).catch((err)=>{
-    //     return new Error(err);
-    // })
-
-    // axios.get(`${baseUrl}api/v1/leadsjoined/${id}`)
-    // .then((res)=>{
-    //    setJoinedData(res?.data?.data);
-    //    setJoinedCount(res?.data?.count);
-    // }).catch((err)=>{
-    //     return new Error(err);
-    // })
 
     axios.get(`${baseUrl}api/v1/referrals/active`)
     .then((res)=>{
-       console.log('ye hai ref', res?.data?.data[0])
+    //    console.log('ye hai ref', res?.data?.data[0])
        setActiveReferralProgram(res?.data?.data[0]);
     }).catch((err)=>{
         return new Error(err);
@@ -82,17 +65,25 @@ function ReferralHomePage() {
 
   const getEarnings = async()=>{
     const res = await axios.get(`${baseUrl}api/v1/earnings`, {withCredentials: true});
-    console.log('earnings data',res.data.data);
+    // console.log('earnings data',res.data.data);
     setEarnings(res.data.data.earnings);
     setJoinedCount(res.data.data.joined);
   }
+
+  const getMyReferrals = async()=>{
+    const res = await axios.get(`${baseUrl}api/v1//myreferrals/${id}`, {withCredentials: true});
+    // console.log('my referral data',res.data.data);
+    setJoinedData(res.data.data);
+  }
+
   useEffect(()=>{
     getEarnings();
+    getMyReferrals();
   }, []);
 
   const fetchData = async()=>{
     const res = await axios.get(`${baseUrl}api/v1/referrals/leaderboard`, {withCredentials: true});
-    console.log('referral data',res.data.data);
+    // console.log('referral data',res.data.data);
     setReferralRanks(res.data.data);
     const rankRes = await axios.get(`${baseUrl}api/v1/referrals/myrank`, {withCredentials: true});
     if(rankRes.data.status == 'success'){
@@ -136,13 +127,13 @@ function ReferralHomePage() {
 
   AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR
 
-  Join me at StoxHero - India's First Options Trading and Investment Platform 🤝                            
+  Join me at StoxHero - Options Trading and Investment Platform 🤝                            
 
   👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code
 
   👉 Join the community of ace traders and learn real-time options trading
 
-  👉 Participate in free options trading contests to sharpen your trading skills
+  👉 Participate in TenX Trading and earn 10% real cash on the profit you will make on the platform
 
   📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}                          
 
@@ -150,30 +141,89 @@ function ReferralHomePage() {
 
   My Referral Code to join the StoxHero: ${referralCode}`
 
+  let referralColumns = [
+        { Header: "#", accessor: "serialno",align: "center" },
+        { Header: "Full Name", accessor: "fullName",align: "center" },
+        // { Header: "Mobile No.", accessor: "mobile", align: "center"},
+        { Header: "Date of Joining", accessor: "doj", align: "center"},
+        { Header: "# of Referrals", accessor: "referrals", align: "center"},
+        { Header: "Earnings", accessor: "earnings", align: "center"},
+  ];
+
+  let referralRows = [];
+
+  joinedData?.map((elem,index)=>{
+    let joinedRowData = {}
+
+    joinedRowData.serialno = (
+        <MDTypography variant="Contained" color = 'dark' fontWeight="small">
+            {index+1}
+        </MDTypography>
+    );
+    joinedRowData.fullName = (
+        <MDTypography variant="Contained" color = 'dark' fontWeight="small">
+            {elem?.first_name} {elem?.last_name}
+        </MDTypography>
+    );
+    // joinedRowData.mobile = (
+    //     <MDTypography variant="Contained" color = 'dark' fontWeight="small">
+    //         {elem?.mobile}
+    //     </MDTypography>
+    // );
+    joinedRowData.doj = (
+        <MDTypography variant="Contained" color = 'dark' fontWeight="small">
+            {new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
+        </MDTypography>
+    );
+    joinedRowData.referrals = (
+        <MDTypography variant="Contained" color = 'dark' fontWeight="small">
+            {elem?.referrals?.length}
+        </MDTypography>
+    );
+    joinedRowData.earnings = (
+        <MDTypography variant="Contained" color = 'dark' fontWeight="small">
+            ₹{elem?.referrals.reduce((acc, referral) => { return acc + referral?.referralEarning;}, 0)}
+        </MDTypography>
+    );
+
+    referralRows.push(joinedRowData);
+  })
 
   let columns = [
     { Header: "Rank", accessor: "rank",align: "center" },
+    { Header: "UserID", accessor: "user",align: "center" },
     { Header: "Name", accessor: "name",align: "center" },
+    { Header: "# of Referrals", accessor: "referralCount",align: "center" },
     { Header: "Earnings", accessor: "earnings", align: "center"},
   ];
   let rows = [];
-  console.log('checking',referralRanks, getDetails.userDetails.employeeid);
+//   console.log('checking',referralRanks, getDetails.userDetails.employeeid);
   referralRanks?.map((elem, index)=>{
     let refData = {}
     if(rank && rank.rank == index+1){
         refData.rank =(
-            <MDTypography variant="Contained" fontWeight="medium">
+            <MDTypography variant="Contained" color = 'info' fontWeight="medium">
               {index+1}
             </MDTypography>
         );
+        refData.user = (
+            <MDTypography variant="Contained" color = 'info' fontWeight="medium">
+              {elem.user} (you)
+            </MDTypography>
+          );
         refData.name = (
             <MDTypography variant="Contained" color = 'info' fontWeight="medium">
-              {elem.user}(you)
+                {elem.first_name} {elem.last_name}
+            </MDTypography>
+          );
+        refData.referralCount = (
+            <MDTypography variant="Contained" color = 'info' fontWeight="medium">
+                {elem.referralCount}
             </MDTypography>
           );
         refData.earnings = (
             <MDTypography variant="Contained" color='info' fontWeight="medium">
-              {elem.earnings}
+              ₹{elem.earnings}
             </MDTypography>
           );
           if(index == 0 && referralRanks[0]?.user != getDetails.userDetails.employeeid){
@@ -182,14 +232,24 @@ function ReferralHomePage() {
                   {index+1}
                 </MDTypography>
             );
-            refData.name = (
+            refData.user = (
                 <MDTypography variant="Contained" fontWeight="medium">
                   {elem.user}
                 </MDTypography>
               );
+            refData.name = (
+                <MDTypography variant="Contained" fontWeight="medium">
+                    {elem.first_name} {elem.last_name}
+                </MDTypography>
+              );
+            refData.referralCount = (
+                <MDTypography variant="Contained" fontWeight="medium">
+                    {elem.referralCount}
+                </MDTypography>
+                );
             refData.earnings = (
                 <MDTypography variant="Contained" fontWeight="medium">
-                  {elem.earnings}
+                  ₹{elem.earnings}
                 </MDTypography>
               );
           }
@@ -199,14 +259,24 @@ function ReferralHomePage() {
               {index+1}
             </MDTypography>
         );
-        refData.name = (
+        refData.user = (
             <MDTypography variant="Contained" fontWeight="medium">
               {elem.user}
             </MDTypography>
           );
+        refData.name = (
+            <MDTypography variant="Contained" fontWeight="medium">
+                {elem.first_name} {elem.last_name}
+            </MDTypography>
+          );
+        refData.referralCount = (
+            <MDTypography variant="Contained" fontWeight="medium">
+                {elem.referralCount}
+            </MDTypography>
+            );
         refData.earnings = (
             <MDTypography variant="Contained" fontWeight="medium">
-              {elem.earnings}
+              ₹{elem.earnings}
             </MDTypography>
           );
     }
@@ -470,6 +540,41 @@ function ReferralHomePage() {
                             <MDBox pt={2}>
                                 <DataTable
                                     table={{ columns, rows }}
+                                    isSorted={false}
+                                    entriesPerPage={false}
+                                    showTotalEntries={false}
+                                    noEndBorder
+                                />
+                            </MDBox>
+                        </Card>
+                    </Grid>
+                </Grid>
+            </MDBox>
+
+            <MDBox pt={6} pb={3}>
+                <Grid container spacing={6}>
+                    <Grid item xs={12} md={12} lg={12}>
+                        <Card>
+                            <MDBox
+                                mx={2}
+                                mt={-3}
+                                py={1}
+                                px={2}
+                                variant="gradient"
+                                bgColor="dark"
+                                borderRadius="lg"
+                                coloredShadow="dark"
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: "space-between",
+                                }}>
+                                <MDTypography variant="h6" color="white" py={1}>
+                                    Your friends who joined the platform
+                                </MDTypography>
+                            </MDBox>
+                            <MDBox pt={2}>
+                                <DataTable
+                                    table={{ columns : referralColumns, rows : referralRows }}
                                     isSorted={false}
                                     entriesPerPage={false}
                                     showTotalEntries={false}

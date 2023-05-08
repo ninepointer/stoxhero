@@ -149,30 +149,37 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
             },
             {
               $group: {
-                _id: "$employeeid",
+                _id: {employeeid : "$employeeid", first_name: "$first_name", last_name: "$last_name"},
                 totalReferralEarning: {
                   $sum: "$referrals.referralEarning"
-                }
+                },
+                totalReferralCount: {
+                  $count : {}
+                },
               }
             },
             {
                 $project:{
                   _id: 0,
                   user: '$_id',
-                  totalReferralEarning: 1                  
+                  totalReferralEarning: 1,
+                  totalReferralCount: 1,                 
                 }
               }
           ]);
           
         for (item of leaderboard){
+            const { employeeid, first_name, last_name } = item.user;
+            const score = item.totalReferralEarning;
+            const member = `${employeeid}:${first_name}:${last_name}:${item.totalReferralCount}`;
             await client.ZADD(`referralLeaderboard`, {
-                score: item.totalReferralEarning,
-                value: item.user
+                score: score,
+                value: member
               });
         }
-        await client.expire(`referralLeaderboard`,100);
+        await client.expire(`referralLeaderboard`,60);
         const userReferralRanks = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
-        // console.log(userReferralRanks);
+        // console.log("User Referral Ranks",userReferralRanks);
         const transformedData = transformData(userReferralRanks);
 
         return res.status(200).json({
@@ -184,10 +191,14 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
     }
     function transformData(inputArray) {
         const outputArray = [];
+        // console.log("Input Array",inputArray)
         for (let i = 0; i < inputArray.length; i += 2) {
-          const user = inputArray[i];
+          const user = inputArray[i].split(":")[0];
+          const first_name = inputArray[i].split(":")[1];
+          const last_name = inputArray[i].split(":")[2];
+          const referralCount = inputArray[i].split(":")[3];
           const earnings = parseInt(inputArray[i + 1]);
-          const obj = { user, earnings };
+          const obj = { user,first_name, last_name, referralCount, earnings };
           outputArray.push(obj);
         }
         return outputArray;
@@ -198,13 +209,14 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
 
 exports.getMyLeaderBoardRank = async(req,res,next) => {
     // const {id} = req.params;
-    console.log(req.user.name)
+    // console.log("My Leaderboard User: ",req.user)
+    const referralCount = req?.user?.referrals?.length
     try{
       if(await client.exists(`referralLeaderboard`)){
-        const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard`, req.user.employeeid);
-        const leaderBoardScore = await client.ZSCORE(`referralLeaderboard`, req.user.employeeid);
+        const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
+        const leaderBoardScore = await client.ZSCORE(`referralLeaderboard`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
     
-        console.log(leaderBoardRank, leaderBoardScore)
+        // console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
         return res.status(200).json({
           status: 'success',
           data: {rank: leaderBoardRank+1, earnings: leaderBoardScore}
