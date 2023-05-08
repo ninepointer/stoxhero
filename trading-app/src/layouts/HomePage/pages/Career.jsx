@@ -9,6 +9,7 @@ import About from './About';
 import Navbar from '../components/Navbars/Navbar';
 import Footer from '../components/Footers/Footer';
 import Internship from './Internship';
+import JobDescription from './JobDescription';
 
 const App = () => {
   return (
@@ -18,9 +19,11 @@ const App = () => {
 
     <Navbar/>
       </div>
-    <Box sx={{bgcolor:"#06070A",height:"100vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
+    <Box sx={{bgcolor:"white",height:"100vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
       <Internship/>
+      
     </Box>
+
     <Footer/>
     </ThemeProvider>
     </div>
