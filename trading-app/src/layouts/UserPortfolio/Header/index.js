@@ -27,13 +27,13 @@ export default function LabTabs() {
           
           <Grid container >
               <Grid item xs={12} md={6} lg={12} mb={2}>
-                <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>Trading Porfolio(s)</MDTypography>
-                <MyPortfolio type="Trading"/>
+                <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>Virtual Trading Porfolio(s)</MDTypography>
+                <MyPortfolio type="Virtual Trading"/>
               </Grid>
         
               <Grid item xs={12} md={6} lg={12}>
-                <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>Battle Porfolio(s)</MDTypography>
-                <MyPortfolio type="Battle"/>
+                <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>TenX Trading Porfolio(s)</MDTypography>
+                <MyPortfolio type="TenX Trading"/>
               </Grid>
           </Grid>
 
