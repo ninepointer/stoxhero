@@ -422,7 +422,7 @@ function Cover(props) {
                   <MDBox mt={-2}>
 
                   <MDTypography fontSize={14} mb={1}>Mobile OTP</MDTypography>
-                  <OtpInput
+                  {/* <OtpInput
                     value={formstate.mobile_otp}
                     onChange={(e)=>{setformstate(prevState => ({...prevState, mobile_otp: e}))}}
                     // onChange={(e)=>{console.log(e)}}
@@ -430,6 +430,14 @@ function Cover(props) {
                     renderSeparator={<span>-</span>}
                     renderInput={(props) => <input {...props} />}
                     inputStyle={{width:40, height:40}}
+                  /> */}
+                  <TextField
+                    value={formstate.mobile_otp}
+                    onChange={(e)=>{setformstate(prevState => ({...prevState, mobile_otp: e.target.value}))}}                    // onChange={(e)=>{console.log(e)}}
+                    // numInputs={6}
+                    // renderSeparator={<span>-</span>}
+                    // renderInput={(props) => <input {...props} />}
+                    // inputStyle={{width:40, height:50}}
                   />
                   </MDBox>
                   </Grid>

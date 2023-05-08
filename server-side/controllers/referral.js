@@ -132,6 +132,7 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
     
     //If the leaderboard exisits in redis
     if(await client.exists(`referralLeaderboard`)){
+      console.log("in if of referral")
         const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
         const transformedData = transformData(leaderBoard);
 
@@ -142,6 +143,7 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
           });  
   
     }else{
+      console.log("in else of referral")
         //If the leaderboard doesn't exist in redis
         const leaderboard = await User.aggregate([
             {
@@ -166,8 +168,8 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
                   totalReferralCount: 1,                 
                 }
               }
-          ]);
-          
+        ]);
+          console.log("leaderboard", leaderboard)
         for (item of leaderboard){
             const { employeeid, first_name, last_name } = item.user;
             const score = item.totalReferralEarning;
@@ -234,5 +236,3 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
     }
   
   }
-
-

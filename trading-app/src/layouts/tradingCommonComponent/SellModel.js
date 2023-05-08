@@ -388,7 +388,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
                   id="demo-simple-select-standard"
                   label="Quantity"
                   onChange={(e) => { { sellFormDetails.Quantity = (e.target.value) } }}
-                  sx={{ margin: 1, padding: 1, }}
+                  sx={{ margin: 1, padding: 0.5, }}
                 >
                     {optionData.map((elem)=>{
                         return(

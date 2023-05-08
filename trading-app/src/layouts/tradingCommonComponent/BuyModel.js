@@ -371,7 +371,7 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
                     id="demo-simple-select-standard"
                     label="Quantity"
                     onChange={(e) => { { buyFormDetails.Quantity = (e.target.value) } }}
-                    sx={{ margin: 1, padding: 1, }}
+                    sx={{ margin: 1, padding: 0.5, }}
                   >
                     {/* <MenuItem value="100">100</MenuItem>
                     <MenuItem value="150">150</MenuItem> */}
