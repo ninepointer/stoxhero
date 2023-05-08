@@ -5,6 +5,7 @@ import MDButton from '../../../components/MDButton'
 import { Divider, Grid } from '@mui/material'
 import axios from "axios";
 import {Link} from 'react-router-dom'
+import subscription from '../../../assets/images/subscription.png'
 
 export default function ActiveTenXSubscriptions() {
     const [tenX,setTenX] = useState([])
@@ -33,6 +34,7 @@ export default function ActiveTenXSubscriptions() {
     
   return (
     <MDBox>
+       {tenX?.length > 0 ?
        <Grid container spacing={3}>
             {tenX?.map((elem)=>{
                 return(
@@ -77,6 +79,18 @@ export default function ActiveTenXSubscriptions() {
             })
             }
        </Grid>
+       :
+        <MDBox style={{border:'1px solid white', borderRadius:5, minHeight:'20vh'}} mt={2}>
+            <Grid container>
+            <Grid item xs={12} md={6} lg={12}>
+                <MDBox style={{minHeight:"20vh"}} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                <img src={subscription} width={50} height={50}/>
+                <MDTypography color="light" fontSize={15}>No Active Subscription(s)!</MDTypography>
+                </MDBox>
+            </Grid>
+            </Grid>
+        </MDBox>
+        }
     </MDBox>
   )
 }
