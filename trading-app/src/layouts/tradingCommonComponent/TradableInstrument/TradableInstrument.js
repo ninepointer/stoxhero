@@ -12,7 +12,7 @@ import Grid from "@mui/material/Grid";
 // import MDButton from "../";
 import MDButton from "../../../components/MDButton";
 import MDSnackbar from "../../../components/MDSnackbar";
-import { userContext } from "../../../AuthContext";
+// import { userContext } from "../../../AuthContext";
 import { Tooltip } from '@mui/material';
 
 
@@ -289,7 +289,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
           // label="Click here to search any symbol and add them in your watchlist to start trading" 
           variant="outlined" 
           type="text"
-          placeholder="Click here to search any symbol and add them in your watchlist to start trading"
+          placeholder="Type here to search any symbol and add them in your watchlist to start trading"
           value={state.text}
           inputRef={textRef}
           InputProps={{
