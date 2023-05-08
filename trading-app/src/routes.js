@@ -34,12 +34,14 @@ import MyReferrals from "./layouts/referrals"
 import Portfolio from './layouts/portfolio'
 import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
+import CareerList from './layouts/career'
+import CareerDetails from './layouts/career/careerDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
 import Carousel from './layouts/carousel'
-import Home from './layouts/UserHome'
+// import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
@@ -76,7 +78,14 @@ import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
-import HomePage from './layouts/HomePage'
+import About from './layouts/HomePage/pages/About'
+import Careers from './layouts/HomePage/pages/Career'
+import Home from './layouts/HomePage/pages/Home'
+import JD from './layouts/HomePage/pages/JobDescription'
+import CareerForm from './layouts/HomePage/pages/CareerForm'
+import TenXSubscription from './layouts/tenXSubscription'
+import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
+
 
 
 const routes = [
@@ -159,8 +168,48 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "homepage",
-    component: <HomePage />,
+    route: "about",
+    component: <About />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "jobdescription",
+    component: <JD />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "home",
+    component: <Home />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "TenX Subscription Details",
+    component: <TenXSubscriptionForm />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "careers",
+    component: <Careers />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "apply",
+    component: <CareerForm />,
   },
   {
     // type: "collapse",
@@ -243,6 +292,22 @@ const routes = [
     route: "/carousel",
     component: <Carousel />,
   },
+  {
+    type: "collapse",
+    name: "Careers",
+    key: "Career List",
+    icon: <HomeIcon/>,
+    route: "/Career List",
+    component: <CareerList />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "careerDetails",
+    // icon: <DashboardIcon/>,
+    route: "/Career Details",
+    component: <CareerDetails />,
+  },
 
   {
     type: "collapse",
@@ -260,6 +325,15 @@ const routes = [
     icon: <DashboardIcon/>,
     route: "/referralProgramme",
     component: <Referral />,
+  },
+
+  {
+    type: "collapse",
+    name: "TenX Subscriptions",
+    key: "TenX Subscriptions",
+    icon: <DashboardIcon/>,
+    route: "/TenX Subscriptions",
+    component: <TenXSubscription />,
   },
   
   {

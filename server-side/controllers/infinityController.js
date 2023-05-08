@@ -12,6 +12,12 @@ exports.overallPnlTrader = async (req, res, next) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
+    let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+    const tempDate = new Date(tempTodayDate);
+    const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
     try{
 
       if(await client.exists(`${req.user._id.toString()} overallpnl`)){
@@ -30,7 +36,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                       $gte: today
                   },
                   status: "COMPLETE",
-                  trader: userId
+                  trader: new ObjectId(userId)
               },
           },
           {
@@ -67,6 +73,8 @@ exports.overallPnlTrader = async (req, res, next) => {
         ])
         // console.log("pnlDetails in else", pnlDetails)
         await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnlDetails))
+        await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
+
         // console.log("pnlDetails", pnlDetails)
         res.status(201).json({message: "pnl received", data: pnlDetails});
       }
@@ -142,10 +150,10 @@ exports.myTodaysTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await InfinityTrader.countDocuments({trader: userId, trade_time: {$gte:today}})
+  const count = await InfinityTrader.countDocuments({trader: new ObjectId(userId), trade_time: {$gte:today}})
   // console.log("Under my today orders",userId, today)
   try {
-    const myTodaysTrade = await InfinityTrader.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+    const myTodaysTrade = await InfinityTrader.find({trader: new ObjectId(userId), trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
@@ -167,7 +175,7 @@ exports.myAllTodaysTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   console.log("Under my today orders",userId, today)
   try {
-    const myTodaysTrade = await InfinityTrader.find({trader: userId, trade_time: {$gte:today}})
+    const myTodaysTrade = await InfinityTrader.find({trader: new ObjectId(userId), trade_time: {$gte:today}})
       .populate('trader', 'name')
       .select('symbol buyOrSell Product Quantity amount status average_price trade_time order_id brokerage trader')
       .sort({_id: -1})
@@ -191,7 +199,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const count = await InfinityTrader.countDocuments({trader: userId, trade_time: {$lt:today}})
   console.log("Under history orders",skip, limit)
   try {
-    const myHistoryTrade = await InfinityTrader.find({trader: userId, trade_time: {$lt:today}}, {'symbol buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+    const myHistoryTrade = await InfinityTrader.find({trader: new ObjectId(userId), trade_time: {$lt:today}}, {'symbol':1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
@@ -288,7 +296,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
     {
       $match: {
       status : "COMPLETE",
-      trader: req.user._id
+      trader: new ObjectId(req.user._id)
       }
     },
     {
@@ -351,7 +359,7 @@ exports.openingBalance = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-
+  console.log(req.user._id)
   let myPnlAndCreditData = await InfinityTrader.aggregate([
     {
       $lookup: {
@@ -364,7 +372,7 @@ exports.openingBalance = async (req, res, next) => {
     {
       $match: {
       status : "COMPLETE",
-      trader: req.user._id,
+      trader: new ObjectId(req.user._id),
       trade_time: {$lt:today}
       }
     },
@@ -419,6 +427,8 @@ exports.openingBalance = async (req, res, next) => {
       $sort : {npnl : 1}
     }
   ])
+
+  console.log("myPnlAndCreditData", myPnlAndCreditData)
 
   res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
 }
@@ -709,7 +719,7 @@ exports.traderPnlTWise = async (req, res, next) => {
       }
       ]
 
-  let x = await InfinityTraderCompany.aggregate(pipeline)
+  let x = await InfinityTrader.aggregate(pipeline)
 
       // res.status(201).json(x);
 
@@ -780,50 +790,47 @@ exports.traderwiseReport = async (req, res, next) => {
   endDate = endDate + "T23:59:59.000Z";
 
 
-      let pipeline = [ 
-    
-        {
-          $lookup: {
-            from: "user-personal-details",
-            localField: "trader",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        {
-        $match: {
-          trade_time : {$gte : new Date(startDate), $lte : new Date(endDate)},
-          status : "COMPLETE" 
-        }
-            // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
-        },
-        { $group :
-                { _id: { createdBy : "$user.name", trade_time : {$substr : ["$trade_time",0,10]}},
+  let pipeline = [ 
 
-                gpnl: {
-                  $sum: {$multiply : ["$amount",-1]}
-                },
-                brokerage : {
-                  $sum: {$toDouble : "$brokerage"}
-                },
-                trades : {
-                  $count : {}
-                },
-              }
-          },
-          { $addFields: 
-              {
-                  npnl: {$subtract : ["$gpnl" , "$brokerage"]}
-              }
-              },
-          { $sort :
-              { gpnl: -1 }
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+    $match: {
+      trade_time : {$gte : new Date(startDate), $lte : new Date(endDate)},
+      status : "COMPLETE" 
+    }
+        // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    { $group :
+            { _id: { createdBy : "$user.name", trade_time : {$substr : ["$trade_time",0,10]}},
+
+            gpnl: {
+              $sum: {$multiply : ["$amount",-1]}
+            },
+            brokerage : {
+              $sum: {$toDouble : "$brokerage"}
+            },
+            trades : {
+              $count : {}
+            },
           }
-      ]
+      },
+      { $addFields: 
+          {
+              npnl: {$subtract : ["$gpnl" , "$brokerage"]}
+          }
+          },
+      { $sort :
+          { gpnl: -1 }
+      }
+  ]
 
   let x = await InfinityTraderCompany.aggregate(pipeline)
-
-      // res.status(201).json(x);
-
   res.status(201).json({message: "data received", data: x});
 }
