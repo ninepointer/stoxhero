@@ -32,7 +32,7 @@ import { userRole } from '../../../variables';
 import { InfinityTraderRole } from '../../../variables';
 
 function Basic() {
-  const [rememberMe, setRememberMe] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
   const [userId, setEmail] = useState(false);
   const [pass, setPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -53,7 +53,7 @@ function Basic() {
   const setDetails = useContext(userContext);
   console.log(setDetails.userDetails);
 
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
+  // const handleSetRememberMe = () => setRememberMe(!rememberMe);
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handlePasswordChange = (e) => setPassword(e.target.value);
 
@@ -64,7 +64,7 @@ function Basic() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     const navigate = useNavigate();
-    let userData ;
+    
 
     useEffect(() => {
       let countdownTimer = null;
@@ -100,12 +100,13 @@ function Basic() {
           });
                    
           setDetails.setUserDetail(res.data);
-          userData = res.data;
+          
           //console.log("this is data of particular user", res.data);
   
           if(!res.status === 200){
               throw new Error(res.error);
           }
+          return res.data;
       } catch(err){
           //console.log("Fail to fetch data of user");
           //console.log(err);
@@ -142,7 +143,7 @@ function Basic() {
         }else{
 
             // this function is extracting data of user who is logged in
-            await userDetail();
+            let userData = await userDetail();
 
             if(userData.role?.roleName === adminRole){
               navigate("/companyposition");
@@ -199,6 +200,7 @@ function Basic() {
     async function handleMobileChange(e){
       setMobile(e.target.value);
     }
+
     async function signUpButton(e){
       e.preventDefault();
       navigate("/signup");
@@ -231,7 +233,7 @@ function Basic() {
             // window.alert(data.error);
             setInvalidDetail(`OTP incorrect`);
         }else{
-          await userDetail();
+          let userData = await userDetail();
           console.log(userData)
           if(userData?.role?.roleName === adminRole){
             navigate("/companyposition");
@@ -251,27 +253,27 @@ function Basic() {
       // console.log("Active timer set to true")
       setResendTimer(30);
     
-    const res = await fetch(`${baseUrl}api/v1/resendmobileotp`, {
-      
-      method: "POST",
-      // credentials:"include",
-      headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": false
-      },
-      body: JSON.stringify({
-        mobile:mobile,
+      const res = await fetch(`${baseUrl}api/v1/resendmobileotp`, {
+        
+        method: "POST",
+        // credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": false
+        },
+        body: JSON.stringify({
+          mobile:mobile,
+        })
       })
-    })
-    const data = await res.json();
-    console.log(data.status);
-    if(data.status === 200 || data.status === 201){ 
-        // openSuccessSB("OTP Sent",data.message);
-    }else{
+      const data = await res.json();
+      console.log(data.status);
+      if(data.status === 200 || data.status === 201){ 
+          // openSuccessSB("OTP Sent",data.message);
+      }else{
 
-      openSuccessSB('resent otp', data.message)
-        // openInfoSB("Something went wrong",data.mesaage);
-    }
+        openSuccessSB('resent otp', data.message)
+          // openInfoSB("Something went wrong",data.mesaage);
+      }
     }
 
 
@@ -303,8 +305,6 @@ function Basic() {
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
-
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -319,9 +319,6 @@ function Basic() {
       sx={{ borderLeft: `10px solid ${"blue"}`, borderRadius: "15px"}}
     />
   );
-
-
-
 
   return ( 
     <BasicLayout image={bgImage}>
@@ -392,15 +389,6 @@ function Basic() {
         </MDButton>}
         {otpGen && <><Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
                   <MDBox mt={1}>
-                  {/* <OtpInput
-                    value={mobileOtp}
-                    onChange={(e)=>{setMobileOtp(e)}}
-                    // onChange={(e)=>{console.log(e)}}
-                    numInputs={6}
-                    renderSeparator={<span>-</span>}
-                    renderInput={(props) => <input {...props} />}
-                    inputStyle={{width:40, height:50}}
-                  /> */}
                   <TextField
                     value={mobileOtp}
                     onChange={(e)=>{setMobileOtp(e.target.value)}}
@@ -410,12 +398,22 @@ function Basic() {
                     // renderInput={(props) => <input {...props} />}
                     // inputStyle={{width:40, height:50}}
                   />
+
+                  {/* <OtpInput
+                    value={mobileOtp}
+                    onChange={(e)=>{setMobileOtp(e)}}
+                    // onChange={(e)=>{console.log(e)}}
+                    numInputs={6}
+                    renderSeparator={<span>-</span>}
+                    renderInput={(props) => <input {...props} />}
+                    inputStyle={{width:40, height:50}}
+                  /> */}
                   </MDBox>
                   </Grid>
                   <Grid item xs={12} md={6} xl={12} mt={1} display="flex" justifyContent="flex-start">
                   <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '40%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="info" fullWidth onClick={()=>{resendOTP('mobile')}}>
                     {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
-                    </MDButton>
+                  </MDButton>
                   </Grid>
                   <MDBox mt={2.5} mb={1} display="flex" justifyContent="space-around">
                     <MDButton variant="gradient" color="info" fullWidth onClick={otpConfirmation}>

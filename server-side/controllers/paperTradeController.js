@@ -148,7 +148,7 @@ exports.marginDetail = async (req, res, next) => {
         $match: {
           status: "Active",
           "users.userId": new ObjectId(req.user._id),
-          portfolioType: "Trading"
+          portfolioType: "Virtual Trading"
         },
       },
       {
@@ -204,7 +204,7 @@ exports.marginDetail = async (req, res, next) => {
         },
     ])
 
-    console.log("pnlDetails", pnlDetails)
+    console.log("pnlDetails", pnlDetails, portfoliosFund)
     res.status(200).json({status: 'success', data: {totalCredit: portfoliosFund[0], lifetimePnl: pnlDetails[0]}});
   } catch (e) {
     console.log(e);

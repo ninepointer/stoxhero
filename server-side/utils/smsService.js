@@ -21,7 +21,11 @@ function sendSMS(numbers, message){
 }
 
 async function sendOTP(number, OTP){
-    const res = await axios.get(`https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.SMS_AUTH}&variables_values=${OTP}&route=otp&numbers=${number}`);
+    try{
+        const res = await axios.get(`https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.SMS_AUTH}&variables_values=${OTP}&route=otp&numbers=${number}`);
+    } catch(err){
+        console.log(err);
+    }
 }
 
 module.exports = {sendSMS, sendOTP};
