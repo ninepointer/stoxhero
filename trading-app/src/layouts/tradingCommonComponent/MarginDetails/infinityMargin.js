@@ -124,7 +124,7 @@ let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin)?.toLocaleSt
 //   let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
 //   let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount)?.toLocaleString() : "-₹" + (-Number(payInAmount))?.toLocaleString()
   
-//console.log("checkmargin", infinityNetPnl, yesterdayData, fundDetail)
+console.log("checkmargin", infinityNetPnl, yesterdayData, fundDetail)
   
 
     // const { columns, rows } = authorsTableData();
