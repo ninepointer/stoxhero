@@ -97,7 +97,7 @@ const Contact = () => {
 
                         </Grid>
                             {
-                                sucess && (<Grid sx={{background:"red",color:"blue",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully</Grid>)
+                                sucess && (<Grid sx={{background:"green",color:"white",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully!</Grid>)
                             }
 
                     </form>
