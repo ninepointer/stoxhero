@@ -39,11 +39,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Paper Trading",
-    key: "papertrading",
+    name: "Virtual Trading",
+    key: "virtualtrading",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
-    route: "/papertrading",
+    route: "/virtualtrading",
     component: <UserPosition />,
   },
   {

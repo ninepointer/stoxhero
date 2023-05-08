@@ -206,10 +206,110 @@ export default function LabTabs() {
                     <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : '-'}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={13}>{(elem?.joining_date).slice(0,10)}</MDTypography>
+                    <MDTypography color="light" fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color='light' fontSize={13}>{(elem?.joining_date).slice(11, 19)}</MDTypography>
+                  <MDTypography color='light' fontSize={13}>{(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                </Grid>
+            </Grid>
+            )
+            })}
+
+    <MDBox bgColor='light' mt={2} borderRadius={5}>
+        <MDTypography color="dark" fontWeight='bold' align='center' fontSize={13}>New User (Yesterday)</MDTypography>
+    </MDBox>
+    <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+        <Grid item xs={12} md={2} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Full Name</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Email Id</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Mobile No.</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Time</MDTypography>
+        </Grid>
+    </Grid>
+
+    {yesterday?.map((elem)=>{
+           
+            return (
+            <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+                <Grid item xs={12} md={2} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.first_name} {elem?.last_name}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{elem?.email}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{elem?.mobile}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : '-'}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color='light' fontSize={13}>{(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                </Grid>
+            </Grid>
+            )
+            })}
+
+    <MDBox bgColor='light' mt={2} borderRadius={5}>
+        <MDTypography color="dark" fontWeight='bold' align='center' fontSize={13}>New User (This Month)</MDTypography>
+    </MDBox>
+    <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+        <Grid item xs={12} md={2} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Full Name</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Email Id</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Mobile No.</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
+        </Grid>
+        <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Time</MDTypography>
+        </Grid>
+    </Grid>
+
+    {thisMonth?.map((elem)=>{
+           
+            return (
+            <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+                <Grid item xs={12} md={2} lg={2.5} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.first_name} {elem?.last_name}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="left" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{elem?.email}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{elem?.mobile}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : '-'}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                    <MDTypography color="light" fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color='light' fontSize={13}>{(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
             )

@@ -91,6 +91,32 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
         
 };
 
+exports.getInactiveTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find({status: "Inactive"})
+      .populate('portfolio', 'portfolioName portfolioValue')
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
+
+exports.getDraftTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find({status: "Draft"})
+      .populate('portfolio', 'portfolioName portfolioValue')
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
+
 exports.getTenXSubscription = async(req, res, next)=>{
     
     const id = req.params.id ? req.params.id : '';

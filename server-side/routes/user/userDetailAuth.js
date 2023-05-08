@@ -576,9 +576,9 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
 router.get("/myreferrals/:id", (req, res)=>{
   //console.log(req.params)
   const {id} = req.params
-  const referrals = UserDetail.find({referredBy : id})
+  const referrals = UserDetail.find({referredBy : id}).sort({joining_date:-1})
   .then((data)=>{
-      console.log(data)
+      // console.log(data)
       return res.status(200).json({data : data, count: data.length});
   })
   .catch((err)=>{

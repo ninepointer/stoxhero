@@ -12,7 +12,7 @@ export default function ActiveTenXSubscriptions() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     async function getTenXActiveSubs (){
-        const res = await fetch(`${baseUrl}api/v1/tenX/active`, {
+        const res = await fetch(`${baseUrl}api/v1/tenX/inactive`, {
           method: "GET",
           credentials:"include",
           headers: {
@@ -85,7 +85,7 @@ export default function ActiveTenXSubscriptions() {
             <Grid item xs={12} md={6} lg={12}>
                 <MDBox style={{minHeight:"20vh"}} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={subscription} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>No Active Subscription(s)!</MDTypography>
+                <MDTypography color="light" fontSize={15}>No Inactive Subscription(s)!</MDTypography>
                 </MDBox>
             </Grid>
             </Grid>

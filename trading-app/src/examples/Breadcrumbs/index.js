@@ -36,8 +36,8 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Infinity Trading"
   } else if(title === "battlestreet"){
     title = "BattleGround"
-  } else if(title === "papertrading"){
-    title = "Paper Trading"
+  } else if(title === "virtualtrading"){
+    title = "Virtual Trading"
   } else if(title === "faqs"){
     title = "FAQ'S"
   } else if(title === "stoxherotrading"){
