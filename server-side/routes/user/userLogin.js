@@ -14,15 +14,6 @@ router.post("/login", async (req, res)=>{
         return res.status(422).json({status: 'error', message : "Please provide login credentials"});
     }
 
-    //TODO --> hashing password and comparing
-    // if(pass !== "DMT"){
-    //     return res.status(422).json({error : "invalid details"})
-    // }
-
-    // if(pass !== process.env.PASSWORD){
-    //     return res.status(422).json({error : "invalid details"})
-    // }
-
     const userLogin = await UserDetail.findOne({email : userId})
     //console.log(userLogin);
     if(!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))){

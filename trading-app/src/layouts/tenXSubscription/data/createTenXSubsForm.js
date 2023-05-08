@@ -55,7 +55,10 @@ const [formState,setFormState] = useState({
     profitCap:'',
     validity:'',
     validityPeriod:'',
-    portfolio: '',
+    portfolio: {
+        id: "",
+        name: ""
+    },
     status:''
 });
 
@@ -129,7 +132,7 @@ async function onEdit(e,formState){
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap 
+            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap 
         })
     });
 
@@ -149,10 +152,16 @@ async function onEdit(e,formState){
       target: { value },
     } = event;
     // setRuleName(value)
+    let portfolioId = portfolios?.filter((elem)=>{
+        return elem.portfolioName === value;
+    })
+
+    // console.log("portfolioId", portfolioId)
     setFormState(prevState => ({
       ...prevState,
-      portfolio: value
+      portfolio: {id: portfolioId[0]?._id, name: portfolioId[0]?.portfolioName}
     }))
+    console.log("portfolioId", portfolioId, formState)
   };
 
   async function onSubmit(e,formState){
@@ -174,7 +183,7 @@ async function onEdit(e,formState){
         },
         body: JSON.stringify({
             plan_name, actual_price, discounted_price, validity, 
-            validityPeriod, status, portfolio, profitCap
+            validityPeriod, status, portfolio: portfolio.id, profitCap
         })
     });
     
@@ -357,7 +366,7 @@ async function onEdit(e,formState){
                     id="demo-multiple-name"
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
-                    // value={tenXSubs?.portfolio?.portfolioName || formState?.portfolio}
+                    value={formState?.portfolio?.name || tenXSubs?.portfolio?.portfolioName}
                     onChange={handleChange}
                     input={<OutlinedInput label="Portfolio" />}
                     sx={{minHeight:45}}
@@ -366,14 +375,14 @@ async function onEdit(e,formState){
                     {portfolios?.map((portfolio) => (
                       <MenuItem
                         key={portfolio?.portfolioName}
-                        value={portfolio?._id}
+                        value={portfolio?.portfolioName}
                       >
                         {portfolio.portfolioName}
                       </MenuItem>
                     ))}
                   </Select>
             </FormControl>
-          </Grid>
+            </Grid>
 
             <Grid item xs={12} md={6} xl={3}>
                 <TextField

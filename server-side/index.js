@@ -192,9 +192,10 @@ let weekDay = date.getDay();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
+        const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
+        const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
         // const autotrade = nodeCron.schedule(`45-59/1 3-9 * * ${weekDay}`, autoTradeWrapper);
     }
-
   }
 
   try{
@@ -203,13 +204,6 @@ let weekDay = date.getDay();
     console.log("err from cronjob", err)
   }
 
-  try{
-    const onlineApp = nodeCron.schedule('45 3 * * *', appLive);
-    // const offlineApp = nodeCron.schedule(`* 10 * * *`, appOffline);
-  } catch(err){
-    console.log("err from cronjob", err)
-  }
-  // console.log(autotrade)
 
 const PORT = process.env.PORT;
 
