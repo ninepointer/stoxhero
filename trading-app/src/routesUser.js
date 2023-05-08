@@ -12,6 +12,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 
@@ -65,7 +66,7 @@ const routes = [
     name: "TenX Trading",
     key: "tenxtrading",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <MilitaryTechIcon/>,
+    icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
   },

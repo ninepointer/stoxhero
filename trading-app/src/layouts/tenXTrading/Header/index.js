@@ -14,8 +14,8 @@ export default function LabTabs() {
           
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"80vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
-                <img src={tradesicon} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>Keep watching this space to learn and earn with StoxHero!</MDTypography>
+                <img src={tradesicon} width={100} height={100}/>
+                <MDTypography color="light" style={{alignContent:'center', alignItems:'center'}} fontSize={20}>Keep watching this space to learn and earn with StoxHero!</MDTypography>
               </MDBox>
             </Grid>
 
