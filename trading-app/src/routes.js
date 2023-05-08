@@ -46,6 +46,7 @@ import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 
+
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
 
@@ -85,6 +86,8 @@ import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
 import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
+import Contact from "./layouts/HomePage/pages/Contact";
+
 
 
 
@@ -171,6 +174,7 @@ const routes = [
     route: "about",
     component: <About />,
   },
+  
   {
     // type: "collapse",
     // name: "Arena",
@@ -210,6 +214,10 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "apply",
     component: <CareerForm />,
+  },
+  {
+    route: "contact",
+    component: <Contact />,
   },
   {
     // type: "collapse",

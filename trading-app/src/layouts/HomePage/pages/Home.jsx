@@ -29,7 +29,7 @@ const Home = () => {
       {/* Section */}
       <Section1/>
       <Section2/>
-      <Box sx={{ bgcolor: theme.palette.background.default, position: "relative" }}>
+      <Box sx={{ height:"1000px", bgcolor:"#06070A", position: "relative" }}>
       
       <Section4/>
       {/* <Section5/>

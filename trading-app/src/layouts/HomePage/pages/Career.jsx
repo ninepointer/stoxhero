@@ -12,10 +12,13 @@ import Internship from './Internship';
 
 const App = () => {
   return (
-    <div>
+    <div style={{background:"#06070A",}}>
     <ThemeProvider theme={theme}>
+      <div style={{background:"#06070A",}}>
+
     <Navbar/>
-    <Box sx={{bgcolor:theme.palette.background.default, marginTop:'65px'}}>
+      </div>
+    <Box sx={{bgcolor:"#06070A",height:"100vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
       <Internship/>
     </Box>
     <Footer/>

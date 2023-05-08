@@ -9,13 +9,14 @@ import Navbar from './components/Navbars/Navbar';
 import Footer from './components/Footers/Footer';
 import Careers from './pages/Career';
 import { Box } from '@mui/material';
+import Contact from './pages/Contact';
 
 const App = () => {
   console.log(theme)
   console.log(theme.background)
   console.log(theme.background.default)
   return (
-    <Box sx={{bgColor:theme.background.default}}>
+    <div  style={{height:"100%"}}>
       <ThemeProvider theme={theme}>
         <Navbar/>
       <Routes>
@@ -23,10 +24,11 @@ const App = () => {
         <Route path="/swap" element={<Swap/>}/>
         <Route path="/about" element={<About/>}/>
         <Route path="/careers" element={<Careers/>}/>
+        <Route path="/contact" element={<Contact/>} />
       </Routes>
       <Footer/>
       </ThemeProvider>
-    </Box>
+    </div>
   )
 }
 
