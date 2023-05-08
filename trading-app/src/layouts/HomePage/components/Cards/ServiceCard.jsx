@@ -25,21 +25,21 @@ const ServiceCard = ({ title, subtitle, image }) => {
         },
       }}
     >
-      <Stack sx={{ height: "100%" }} spacing={1}>
+      <Stack sx={{ height: "100%" }} justifyContent="flex-start" spacing={1}>
 
       <img
           src={image}
           style={{
-            height: "280px",
-            width: "100%",
+            height: "70px",
+            width: "15%",
             objectFit: "contain",
             flex: 1,
           }}
         />
 
-        <Title variant={{ xs: "h5", sm: "h4" }}>{title}</Title>
+        <Title style={{color:"#fff"}} variant={{ xs: "h5", sm: "h4" }}>{title}</Title>
 
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="rgba(255, 255, 255, 0.6)">
           {subtitle}
         </Typography>
 
