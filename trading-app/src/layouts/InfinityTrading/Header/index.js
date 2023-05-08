@@ -70,6 +70,7 @@ export default function InfinityTrading() {
   // }, []);
 
   useEffect(() => {
+    console.log("fund details in useeffect")
     axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
       withCredentials: true,
       headers: {
@@ -78,6 +79,7 @@ export default function InfinityTrading() {
           "Access-Control-Allow-Credentials": true
       }}
       ).then((res)=>{
+        console.log("fund details", res.data.data)
         setyesterdayData(res.data.data);
       })
       
@@ -112,11 +114,11 @@ export default function InfinityTrading() {
       // reRender={reRender}
       // setReRender={setReRender}
       // setReRender={}
-      // isGetStartedClicked={isGetStartedClicked}
+      isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
     />;
-  }, [socket, handleSetIsGetStartedClicked]);
+  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
@@ -124,17 +126,17 @@ export default function InfinityTrading() {
       // reRender={reRender}
       // setReRender={memoizedSetReRender}
       // setReRender={}
-      // isGetStartedClicked={isGetStartedClicked}
+      isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
     />;
-  }, [handleSetIsGetStartedClicked]);
+  }, [handleSetIsGetStartedClicked, isGetStartedClicked]);
 
   let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
   let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.infinityNetPnl - openingBalance)*100/openingBalance) : 0;
 
-  //console.log("fundDetail", fundDetail)
+  console.log("fundDetail", fundChangePer, openingBalance)
   return (
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >

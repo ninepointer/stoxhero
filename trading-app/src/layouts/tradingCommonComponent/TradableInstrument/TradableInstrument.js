@@ -106,7 +106,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
       sendSearchReq('NIFTY');
       setIsGetStartedClicked(false)
     }
-  },[])
+  },[isGetStartedClicked])
 
 
   useEffect(()=>{
