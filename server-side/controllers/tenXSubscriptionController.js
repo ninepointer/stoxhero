@@ -31,7 +31,7 @@ exports.editTanx = async(req, res, next) => {
     const tenx = await TenXSubscription.findById(id);
 
     const filteredBody = filterObj(req.body, "plan_name", "actual_price", "discounted_price", "validity", "validityPeriod", 
-        "status");
+        "status", "profitCap", "portfolio");
     if(req.body.features)filteredBody.features=[...tenx.features,
         {orderNo:req.body.features.orderNo,
             description:req.body.features.description,}]
@@ -41,6 +41,41 @@ exports.editTanx = async(req, res, next) => {
     const updated = await TenXSubscription.findByIdAndUpdate(id, filteredBody, { new: true });
 
     res.status(200).json({message: 'Successfully edited tenx.', data: updated});
+}
+
+exports.editFeature = async(req, res, next) => {
+    const id = req.params.id;
+    const {orderNo, description} = req.body;
+
+    console.log("id is ,", id)
+    const updated = await TenXSubscription.findOneAndUpdate(
+        { "features._id": id }, // filter to match the feature object with the given _id
+        {
+          $set: {
+            "features.$.orderNo": orderNo, // set the new orderNo value
+            "features.$.description": description, // set the new description value
+            lastModifiedBy: req.user._id // set the lastModifiedBy value to the current user's _id
+          }
+        },
+        { new: true } // return the updated document
+      );
+    res.status(200).json({message: 'Successfully edited tenx.', data: updated});
+}
+
+exports.removeFeature = async(req, res, next) => {
+    const id = req.params.id;
+    // const {orderNo, description} = req.body;
+
+    console.log("id is ,", id)
+    const updatedDoc = await TenXSubscription.findOneAndUpdate(
+        { "features._id": id }, // filter to match the feature object with the given _id
+        {
+          $pull: { features: { _id: id } }, // remove the feature object with the given _id
+          lastModifiedBy: req.user._id // set the lastModifiedBy value to the current user's _id
+        },
+        { new: true } // return the updated document
+      );
+    res.status(200).json({message: 'Successfully deleted tenx.', data: updatedDoc});
 }
 
 exports.getActiveTenXSubs = async(req, res, next)=>{
@@ -56,15 +91,42 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
         
 };
 
-exports.getTenXSubs = async(req, res, next)=>{
+exports.getInactiveTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find({status: "Inactive"})
+      .populate('portfolio', 'portfolioName portfolioValue')
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
+
+exports.getDraftTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find({status: "Draft"})
+      .populate('portfolio', 'portfolioName portfolioValue')
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
+
+exports.getTenXSubscription = async(req, res, next)=>{
     
     const id = req.params.id ? req.params.id : '';
     try{
-    const tenXSubs = await TenXSubscription.findById(id) 
+    const tenXSubscription = await TenXSubscription.findById(id)
+    .populate('portfolio', 'portfolioName portfolioValue');
 
-    res.status(201).json({message: "Portfolio Retrived",data: tenXSubs});    
+    res.status(201).json({message: "TenXSubscription Retrived",data: tenXSubscription});    
     }
-    catch{(err)=>{res.status(401).json({message: "New Portfolio", error:err}); }}  
+    catch{(err)=>{res.status(401).json({message: "New TenXSubscription", error:err}); }}  
 };
 
 

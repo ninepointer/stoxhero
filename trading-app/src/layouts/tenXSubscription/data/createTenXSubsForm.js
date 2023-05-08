@@ -26,7 +26,7 @@ const MenuProps = {
   },
 };
 
-export default function TenXSubsDetails(oldObjectId, setOldObjectId) {
+export default function TenXSubsDetails() {
 const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
@@ -39,6 +39,9 @@ const [isSubmitted,setIsSubmitted] = useState(false);
 const [creating,setCreating] = useState(false);
 const [newObjectId, setNewObjectId] = useState("");
 const [updatedDocument, setUpdatedDocument] = useState([]);
+const [tenXData,setTenXData] = useState([])
+
+console.log("location", location, id)
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
@@ -78,9 +81,70 @@ React.useEffect(()=>{
     })    
 },[])
 
-console.log(tenXSubs?.features)
+React.useEffect(()=>{
 
-const handleChange = (event) => {
+    axios.get(`${baseUrl}api/v1/tenX/${id}`)
+    .then((res)=>{
+        setTenXData(res.data.data);
+        setUpdatedDocument(res.data.data)
+        console.log("tenX data is", res.data)
+        setFormState({
+            plan_name: res.data.data?.plan_name || '',
+            actual_price: res.data.data?.actual_price || '',
+            discounted_price: res.data.data?.discounted_price || '',
+            status: res.data.data?.status || '',
+            profitCap: res.data.data?.profitCap || '',
+            validity: res.data.data?.validity || '',
+            validityPeriod: res.data.data?.validityPeriod || '',
+            portfolio: res.data.data?.portfolio?.portfolioName || '',
+            // lastModifiedOn: res.data[0]?.lastModifiedOn || '',
+            // createdBy: res.data[0]?.createdBy || getDetails.userDetails._id,
+            // lastModifiedBy: res.data[0]?.lastModifiedBy || getDetails.userDetails._id,
+            // lastModifiedOn: new Date()
+          });
+            setTimeout(()=>{setIsLoading(false)},500) 
+        // setIsLoading(false)
+    }).catch((err)=>{
+        //window.alert("Server Down");
+        return new Error(err);
+    })
+
+},[])
+
+async function onEdit(e,formState){
+    e.preventDefault()
+    setSaving(true)
+    console.log(formState)
+    if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
+        setTimeout(()=>{setSaving(false);setEditing(true)},500)
+        return openErrorSB("Missing Field","Please fill all the mandatory fields")
+    }
+    const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
+
+    const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap 
+        })
+    });
+
+    const data = await res.json();
+    console.log(data);
+    if (data.status === 422 || data.error || !data) {
+        openErrorSB("Error",data.error)
+    } else {
+        openSuccessSB("Slab Edited", "Edited Successfully")
+        setTimeout(()=>{setSaving(false);setEditing(false)},500)
+        console.log("entry succesfull");
+    }
+}
+
+  const handleChange = (event) => {
     const {
       target: { value },
     } = event;
@@ -126,7 +190,6 @@ const handleChange = (event) => {
       }
   }
 
-
   async function onAddFeature(e,childFormState,setChildFormState){
     e.preventDefault()
     setSaving(true)
@@ -136,7 +199,7 @@ const handleChange = (event) => {
     }
     const {orderNo, description} = childFormState;
   
-    const res = await fetch(`${baseUrl}api/v1/tenX/${newObjectId}`, {
+    const res = await fetch(`${baseUrl}api/v1/tenX/${id ? id : newObjectId}`, {
         method: "PATCH",
         credentials:"include",
         headers: {
@@ -150,50 +213,15 @@ const handleChange = (event) => {
     const data = await res.json();
     console.log(data);
     if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error","data.error")
+        openErrorSB("Error",data.error)
     } else {
         setUpdatedDocument(data?.data);
-        openSuccessSB("New Reward Added","New Reward line item has been added in the contest")
+        openSuccessSB("Feature added","New Feature line item has been added in the TenX")
         setTimeout(()=>{setSaving(false);setEditing(false)},500)
         setChildFormState(prevState => ({
             ...prevState,
             rewards: {}
         }))
-    }
-  }
-
-  async function onEdit(e,formState){
-    e.preventDefault();
-    setSaving(true)
-    console.log(formState)
-    if(!formState.plan_name || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
-  
-      setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-      return openErrorSB("Missing Field","Please fill all the mandatory fields")
-  
-  }
-    const {plan_name, actual_price, discounted_price, validity, validityType, status } = formState;
-  
-    const res = await fetch(`${baseUrl}api/v1/portfolio`, {
-        method: "PATCH",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, validityType, status
-        })
-      });
-  
-    const data = await res.json();
-    console.log(data);
-    if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error","data.error")
-    } else {
-        openSuccessSB("Contest Edited",data.message)
-        setTimeout(()=>{setSaving(false);setEditing(false)},500)
-        console.log("entry succesfull");
     }
   }
 
@@ -240,7 +268,7 @@ const handleChange = (event) => {
       bgWhite
     />
   );
-return (
+    return (
     <>
     {isLoading ? (
         <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -328,8 +356,8 @@ return (
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
                     disabled={((isSubmitted || id) && (!editing || saving))}
-                    defaultValue={id ? portfolios?.portfolioName : ''}
-                    value={tenXSubs?.portfolio?.portfolioName}
+                    // defaultValue={id ? portfolios?.portfolio : ''}
+                    // value={tenXSubs?.portfolio?.portfolioName || formState?.portfolio}
                     onChange={handleChange}
                     input={<OutlinedInput label="Portfolio" />}
                     sx={{minHeight:45}}
@@ -450,7 +478,7 @@ return (
                             size="small" 
                             sx={{mr:1, ml:2}} 
                             disabled={saving} 
-                            // onClick={(e)=>{onEdit(e,formState)}}
+                            onClick={(e)=>{onEdit(e,formState)}}
                             >
                             {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
                         </MDButton>
@@ -459,7 +487,7 @@ return (
                             color="error" 
                             size="small" 
                             disabled={saving} 
-                            // onClick={()=>{setEditing(false)}}
+                            onClick={()=>{setEditing(false)}}
                             >
                             Cancel
                         </MDButton>
@@ -516,7 +544,7 @@ return (
 
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
-                        <FeatureData updatedDocument={updatedDocument}/>
+                        <FeatureData updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
                     </MDBox>
                 </Grid>}
 
