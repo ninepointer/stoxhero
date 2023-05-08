@@ -306,7 +306,7 @@ function Header({ children }) {
            
           <Grid item xs={12} md={6} lg={12}>
             <MDBox border='1px solid white' bgColor='light' borderRadius={5} mb={2} p={0.5} display='flex' justifyContent='center' alignItems='center'>
-              <MDTypography color="dark" fontSize={15} fontWeight='bold'>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "Infinity Trading Order(s)" : "StoxHero Trading Order(s)"}</MDTypography>
+              <MDTypography color="dark" fontSize={15} fontWeight='bold'>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "Infinity Trading Order(s)" : "TenX Trading Order(s)"}</MDTypography>
             </MDBox>
     
             <MDBox display="flex" justifyContent="space-between" mb={2}>
@@ -334,7 +334,7 @@ function Header({ children }) {
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={tradesicon} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any StoxHero trading orders!"}</MDTypography>
+                <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any TenX trading orders!"}</MDTypography>
               </MDBox>
             </Grid>
             </>
@@ -417,7 +417,7 @@ function Header({ children }) {
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={tradesicon} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any StoxHero trading orders!"}</MDTypography>
+                <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any TenX trading orders!"}</MDTypography>
               </MDBox>
             </Grid>
             </>}
