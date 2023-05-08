@@ -10,15 +10,15 @@ const Section4 = () => {
   const [tabValue, setTabValue] = useState(0);
 
   return (
-    <Container sx={{ mt: { xs: 15, md: 20, lg: 25 }, height:"1200" }} >
+    <Container sx={{ mt: { xs: 15, md: 20, lg: 13 }, height:"500" }} >
       {/* TOP */}
       <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center">
         {/* Left */}
         <Grid item xs={12} md={6}>
           <Stack spacing={2} sx={{ maxWidth: 480 }}>
-            <Title variant={{ xs: "h3", md: "h2" }}>{top.title}</Title>
+            <Title variant={{ xs: "h3", md: "h2" }} style={{color:"white"}}>{top.title}</Title>
 
-            <Typography variant="body2" color="text.secondary" sx={{ pb: 2 }}>
+            <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" sx={{ pb: 2 }}>
               {top.subtitle}
             </Typography>
 
@@ -55,13 +55,14 @@ const Section4 = () => {
         {/* Right */}
         <Grid item xs={12} md={6}>
           <Stack spacing={2} sx={{ maxWidth: 480 }}>
-            <Title variant={{ xs: "h3", md: "h2" }}>{bottom.title}</Title>
+            <Title style={{color:"white"}} variant={{ xs: "h3", md: "h2" }}>{bottom.title}</Title>
 
             <Tabs
               value={tabValue}
               onChange={(e, v) => setTabValue(v)}
               variant="scrollable"
               scrollButtons="auto"
+              
             >
               {bottom.TABS.map(({ name }) => (
                 <Tab
@@ -69,7 +70,7 @@ const Section4 = () => {
                   key={name}
                   sx={{
                     minWidth: 60,
-                    "&.Mui-selected": { color: "text.primary" },
+                    "&.Mui-selected": { color: "rgba(255, 255, 255, 0.6)" },
                   }}
                 />
               ))}
@@ -77,7 +78,7 @@ const Section4 = () => {
 
             <Typography
               variant="body2"
-              color="text.secondary"
+              color="rgba(255, 255, 255, 0.6)"
               sx={{ pb: 2, minHeight: 70 }}
             >
               {bottom.TABS[tabValue].subtitle}

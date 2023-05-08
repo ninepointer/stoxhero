@@ -8,8 +8,8 @@ const OutlinedButton = ({ sx = {}, arrow, children, fit, ...props }) => {
       variant="outlined"
       sx={{
         borderRadius: 2,
-        color: "text.primary",
-        borderColor: "text.primary",
+        color: "#FFF",
+        borderColor: "#fff",
         width: fit ? "fit-content" : "100%",
         ...sx,
       }}

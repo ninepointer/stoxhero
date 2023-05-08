@@ -11,7 +11,9 @@ import {NetPnlProvider} from './PnlContext';
 import MarketDataContext from './MarketDataContext';
 import RenderContext from "./renderContext";
 
+
 ReactDOM.render(
+  
   <AuthContext>
     <NetPnlProvider>
       <MarketDataContext>
