@@ -20,6 +20,8 @@ const Internship = () => {
       axios.get(`${baseUrl}api/v1/career`)
       .then((res)=>{
         setCareer(res.data?.data);
+        
+        
       })
     }, [])
 
@@ -30,7 +32,7 @@ const Internship = () => {
             
               {career.map((elem)=>{
                   return(
-                    <Grid key={elem._id} item xs={12} md={6} lg={4}>
+                    <Grid key={elem._id} item xs={16} md={15} lg={20}>
                       <MDBox style={{borderRadius:4}}>
                         <Tooltip title="Click me!">
                           <MDButton variant="contained" color="light" size="small" style={{minWidth:'100%'}}
