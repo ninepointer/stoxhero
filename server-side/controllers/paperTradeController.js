@@ -1,6 +1,7 @@
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const client = require('../marketData/redisClient');
+const { ObjectId } = require("mongodb");
 
 exports.overallPnl = async (req, res, next) => {
     
@@ -34,7 +35,7 @@ exports.overallPnl = async (req, res, next) => {
                       $gte: today
                   },
                   status: "COMPLETE",
-                  trader: userId
+                  trader: new ObjectId(userId)
               },
           },
           {
@@ -146,7 +147,7 @@ exports.marginDetail = async (req, res, next) => {
       {
         $match: {
           status: "Active",
-          "users.userId": req.user._id,
+          "users.userId": new ObjectId(req.user._id),
           portfolioType: "Trading"
         },
       },
@@ -173,7 +174,7 @@ exports.marginDetail = async (req, res, next) => {
                     $lt: today
                 },
                 status: "COMPLETE",
-                trader: req.user._id
+                trader: new ObjectId(req.user._id)
             },
         },
         {

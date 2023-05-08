@@ -46,8 +46,9 @@ const MarginGrid = () => {
         return new Error(err);
     })
   }, []);
+  
 
-  //console.log("marginDetails", marginDetails)
+  console.log("marginDetails", marginDetails)
   let totalCredit = marginDetails?.totalCredit?.totalFund?.valueSum;
   let portfolioName = marginDetails?.totalCredit?.totalFund?.name
   // marginDetails?.map((elem)=>{
