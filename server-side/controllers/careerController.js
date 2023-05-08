@@ -4,6 +4,16 @@ const Career = require("../models/Careers/careerSchema");
 
 const s3 = new aws.S3();
 
+const filterObj = (obj, ...allowedFields) => {
+    const newObj = {};
+    Object.keys(obj).forEach((el) => {
+      if (allowedFields.includes(el) && obj[el] !== null && obj[el] !== undefined && obj[el] !== '') {
+        newObj[el] = obj[el];
+      }
+    });
+    return newObj;
+};
+
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
@@ -59,6 +69,24 @@ exports.createCareer = async(req, res, next)=>{
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
     res.status(201).json({message: 'Career post successfully created.', data:career});
+}
+
+exports.editCareer = async(req, res, next) => {
+    const id = req.params.id;
+
+    console.log("id is ,", id)
+    const tenx = await Career.findById(id);
+
+    const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "jobLocation", "status");
+    if(req.body.rolesAndResponsibilities)filteredBody.rolesAndResponsibilities=[...tenx.rolesAndResponsibilities,
+        {orderNo:req.body.rolesAndResponsibilities.orderNo,
+            description:req.body.rolesAndResponsibilities.description,}]
+    filteredBody.lastModifiedBy = req.user._id;    
+
+    console.log(filteredBody)
+    const updated = await Career.findByIdAndUpdate(id, filteredBody, { new: true });
+
+    res.status(200).json({message: 'Successfully edited tenx.', data: updated});
 }
 
 exports.getCareers = async(req, res, next)=>{

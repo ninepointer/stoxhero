@@ -11,6 +11,7 @@ import {Link} from 'react-router-dom'
 import ContestPortfolioCard from '../data/contestPortfolioCard'
 import TradingPortfolioCard from '../data/tradingPortfolioCard'
 import InactivePortfolioCard from '../data/inactivePortfolioCard'
+import TenXPortfolioCard from '../data/tenXPortfolioCard';
 
 //data
 // import UpcomingContest from '../data/UserContestCard'
@@ -43,9 +44,10 @@ export default function LabTabs() {
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Contest Portfolios" value="1" />
+            <Tab label="Battle Portfolios" value="1" />
             <Tab label="Trading Portfolios" value="2" />
-            <Tab label="Inactive Portfolios" value="3" />
+            <Tab label="TenX Portfolios" value="3" />
+            <Tab label="Inactive Portfolios" value="4" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -67,6 +69,15 @@ export default function LabTabs() {
           }
         </TabPanel>
         <TabPanel value="3">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <TenXPortfolioCard/>
+          }
+        </TabPanel>
+        <TabPanel value="4">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
