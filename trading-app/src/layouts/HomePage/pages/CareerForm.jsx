@@ -145,13 +145,13 @@ const CareerForm = () => {
     <div>
         <ThemeProvider theme={theme}>
         <Navbar/>
-        <MDBox>
+        <MDBox sx={{height:"1000px"}} bgColor="black" >
 
             <MDBox mt={'65px'} p={4}>
                 <MDBox display='flex' justifyContent='center'>
-                    <MDTypography>Please fill your details!</MDTypography>
+                    <MDTypography color="white">Please fill your details!</MDTypography>
                 </MDBox>
-                <Grid container spacing={2} mt={1} xs={12} md={12} lg={9} display='flex' justifyContent='center'>
+                <Grid sx={{background:"#fff",borderRadius:"10px",height:{lg:"500px",md:"700px",sx:"750px"}}} container spacing={2} mt={1} xs={12} md={12} lg={20} display='flex' alignContent="center" justifyContent='center'>
                     <Grid item xs={12} md={6} lg={3}>
                     <TextField
                         required
@@ -292,8 +292,11 @@ const CareerForm = () => {
             </MDBox>
 
         </MDBox>
-        {renderSuccessSB}
+        <MDBox bgColor="black" sx={{marginTop:-2}}>
+
         <Footer/>
+        </MDBox>
+        {renderSuccessSB}
         </ThemeProvider>
     </div>
   )
