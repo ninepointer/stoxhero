@@ -27,9 +27,10 @@ exports.fundCheck = async(req, res, next) => {
 
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity} = req.body;
-    let stoxheroTrader;
-    const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
-    const MockTradeDetails = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
+    // let stoxheroTrader;
+    console.log(req.user._id);
+    // const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
+    // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
     getKiteCred.getAccess().then(async (data)=>{
 
@@ -58,11 +59,12 @@ exports.fundCheck = async(req, res, next) => {
         }]
         let userFunds;
         try{
-            if(req.user.isAlgoTrader && stoxheroTrader){
-            } else{
-                const user = await UserDetail.findOne({_id: req.user._id});
-                userFunds = user.fund;
-            }
+            // if(req.user.isAlgoTrader && stoxheroTrader){
+            // } else{
+
+            // }
+            const user = await UserDetail.findOne({_id: new ObjectId(req.user._id)});
+            userFunds = user.fund;
 
         }catch(e){
             console.log("errro fetching user", e);
@@ -70,7 +72,7 @@ exports.fundCheck = async(req, res, next) => {
 
         let runningLots;
         try{
-            runningLots = await AlgoTrader.aggregate([
+            runningLots = await InfinityTrader.aggregate([
                 {
                 $match:
                     {
@@ -78,7 +80,7 @@ exports.fundCheck = async(req, res, next) => {
                             $gte: today
                         },
                         status: "COMPLETE",
-                        trader: userId,
+                        trader: new ObjectId(userId),
                         symbol: symbol
                     }
                 },
@@ -130,7 +132,7 @@ exports.fundCheck = async(req, res, next) => {
         firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
         console.log(firstDayOfMonthDate, lastDayOfMonthDate)
-        let pnlDetails = await AlgoTrader.aggregate([
+        let pnlDetails = await InfinityTrader.aggregate([
             {
             $match:
                 {
@@ -138,7 +140,7 @@ exports.fundCheck = async(req, res, next) => {
                         $gte: (firstDayOfMonthDate),
                         $lte: (lastDayOfMonthDate)
                         },
-                    trader: userId,
+                    trader: new ObjectId(userId),
                     status: "COMPLETE",
                 },
             },
@@ -190,7 +192,7 @@ exports.fundCheck = async(req, res, next) => {
                 try{
                     if(req.user.isAlgoTrader){
                         
-                        const mockTradeCompany = new MockTradeDetails({
+                        const mockTradeCompany = new InfinityTradeCompany({
                             status:"REJECTED", status_message: "insufficient fund", average_price: null, Quantity: realQuantity, 
                             Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol, 
                             placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, 
@@ -199,7 +201,7 @@ exports.fundCheck = async(req, res, next) => {
                         });
                         await mockTradeCompany.save();
                     }
-                    const algoTrader = new AlgoTrader({
+                    const algoTrader = new InfinityTrader({
                         status:"REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: req.body.order_id, instrumentToken, brokerage: null, 

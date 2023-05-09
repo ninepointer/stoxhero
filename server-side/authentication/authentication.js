@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User/userDetailSchema");
 const client = require("../marketData/redisClient");
+const { ObjectId } = require("bson");
 
 const Authenticate = async (req, res, next)=>{
     let token;
@@ -23,6 +24,7 @@ const Authenticate = async (req, res, next)=>{
                 let user = await client.get(`${verifyToken._id.toString()}authenticatedUser`)
                 user = JSON.parse(user);
                 // await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 10);
+                user._id = new ObjectId(user._id)
                 req.user = user;
             }
             else{

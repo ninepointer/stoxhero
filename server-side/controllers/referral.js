@@ -131,9 +131,9 @@ exports.editReferralWithId = async(req, res, next) => {
 exports.getReferralLeaderboard = async(req,res,next) =>{
     
     //If the leaderboard exisits in redis
-    if(await client.exists(`referralLeaderboard`)){
+    if(await client.exists(`referralLeaderboard:${process.env.PROD}`)){
       console.log("in if of referral")
-        const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderboard:${process.env.PROD}`, "0", "19",  'WITHSCORES']);
         const transformedData = transformData(leaderBoard);
 
         return res.status(200).json({
@@ -174,13 +174,13 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
             const { employeeid, first_name, last_name } = item.user;
             const score = item.totalReferralEarning;
             const member = `${employeeid}:${first_name}:${last_name}:${item.totalReferralCount}`;
-            await client.ZADD(`referralLeaderboard`, {
+            await client.ZADD(`referralLeaderboard:${process.env.PROD}`, {
                 score: score,
                 value: member
               });
         }
-        await client.expire(`referralLeaderboard`,60);
-        const userReferralRanks = await client.sendCommand(['ZREVRANGE', `referralLeaderboard`, "0", "19",  'WITHSCORES']);
+        await client.expire(`referralLeaderboard:${process.env.PROD}`,60);
+        const userReferralRanks = await client.sendCommand(['ZREVRANGE', `referralLeaderboard:${process.env.PROD}`, "0", "19",  'WITHSCORES']);
         // console.log("User Referral Ranks",userReferralRanks);
         const transformedData = transformData(userReferralRanks);
 
@@ -214,9 +214,9 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
     // console.log("My Leaderboard User: ",req.user)
     const referralCount = req?.user?.referrals?.length
     try{
-      if(await client.exists(`referralLeaderboard`)){
-        const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
-        const leaderBoardScore = await client.ZSCORE(`referralLeaderboard`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
+      if(await client.exists(`referralLeaderboard:${process.env.PROD}`)){
+        const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
+        const leaderBoardScore = await client.ZSCORE(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
     
         // console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
         return res.status(200).json({
