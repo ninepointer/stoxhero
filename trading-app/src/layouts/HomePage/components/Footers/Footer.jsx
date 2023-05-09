@@ -52,7 +52,7 @@ const LinkSection = ({ title, links }) => (
 const Footer = () => {
   return (
     <Box>
-      <Divider sx={{ mb: 0 }} />
+      {/* <Divider sx={{ mb: 0 }} /> */}
 
       <Container>
         <Grid container spacing={8} flexWrap="wrap-reverse">
@@ -115,19 +115,19 @@ const Footer = () => {
                 ))} */}
 
                 <IconButton>
-                <a href="https://www.linkedin.com/company/stoxhero"><LinkedInIcon color="white"/></a>
+                <a href="https://www.linkedin.com/company/stoxhero" target="_blank" ><LinkedInIcon color="white"/></a>
                 </IconButton>
 
                 <IconButton>
-                <a href="https://instagram.com/stoxhero_official?igshid=NTc4MTlwNjQ2YQ=="><InstagramIcon color="white"/></a>
+                <a href="https://instagram.com/stoxhero_official?igshid=NTc4MTlwNjQ2YQ==" target="_blank" ><InstagramIcon color="white"/></a>
                 </IconButton>
 
                 <IconButton>
-                 <TwitterIcon color="white"/>
+                 <a href="https://twitter.com/" target="_blank"><TwitterIcon color="white"/></a>
                  </IconButton>
 
                 <IconButton>
-                <a href="https://m.facebook.com/people/STOCK-HERO/100071091021180/"><FacebookIcon color="white"/></a>
+                <a href="https://m.facebook.com/people/STOCK-HERO/100071091021180/" target="_blank"><FacebookIcon color="white"/></a>
                 </IconButton>
 
 

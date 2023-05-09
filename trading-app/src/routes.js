@@ -45,6 +45,7 @@ import Carousel from './layouts/carousel'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
+import CareerDetailsForm from './layouts/career/createCareerForm'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -167,12 +168,12 @@ const routes = [
     component: <ContestPage />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
     route: "about",
     component: <About />,
+  },
+  {
+    route: "/Career Details",
+    component: <CareerDetails />,
   },
   
   {
@@ -307,14 +308,6 @@ const routes = [
     icon: <HomeIcon/>,
     route: "/Career List",
     component: <CareerList />,
-  },
-  {
-    // type: "collapse",
-    // name: "Company Dashboard",
-    key: "careerDetails",
-    // icon: <DashboardIcon/>,
-    route: "/Career Details",
-    component: <CareerDetails />,
   },
 
   {

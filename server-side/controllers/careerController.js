@@ -90,6 +90,23 @@ exports.editCareer = async(req, res, next) => {
 }
 
 exports.getCareers = async(req, res, next)=>{
-    const career = await Career.find({status: "Live"}).select('jobTitle jobDescription rolesAndResponsibilities jobType jobLocation')
+    const career = await Career.find({status: "Live"}).select('jobTitle jobDescription rolesAndResponsibilities jobType jobLocation status')
     res.status(201).json({message: 'success', data:career});
+}
+
+exports.getCareer = async (req,res,next) => {
+  console.log("inside getCareer")
+  const {id} = req.params;
+  try {
+      const career = await Career.findOne({
+        _id: id,
+      })
+      if (!career) {
+        return res.status(200).json({ status: 'success', message: 'Career not found.', data: {} });
+      }
+        return res.status(200).json({ status: 'success', message: 'Successful', data: career });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ status: 'error', message: 'Something went wrong' });
+    }
 }

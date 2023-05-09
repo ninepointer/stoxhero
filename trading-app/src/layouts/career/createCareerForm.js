@@ -1,5 +1,5 @@
 // import * as React from 'react';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 // import { useForm } from "react-hook-form";
 // import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -22,6 +22,7 @@ function Index() {
 
     const location = useLocation();
     const  id  = location?.state?.data;
+    console.log(id)
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -43,6 +44,13 @@ function Index() {
         jobLocation:'',
         status:''
     });
+
+    useEffect(()=>{
+        setTimeout(()=>{
+            setUpdatedDocument(id)
+            setIsLoading(false);
+        },500)
+    })
 
 
 
@@ -197,7 +205,7 @@ function Index() {
                 label='Job Title *'
                 fullWidth
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.jobTitle}
+                value={formState?.jobTitle || id?.jobTitle}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobTitle: e.target.value
@@ -211,9 +219,9 @@ function Index() {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
-                value={formState?.jobType}
+                value={formState?.jobType || id?.jobType}
                 // value={oldObjectId ? contestData?.status : formState?.status}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
+                disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobType: e.target.value
@@ -233,9 +241,9 @@ function Index() {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
-                value={formState?.jobLocation}
+                value={formState?.jobLocation || id?.jobLocation}
                 // value={oldObjectId ? contestData?.status : formState?.status}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
+                disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobLocation: e.target.value
@@ -255,9 +263,9 @@ function Index() {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
-                value={formState?.status}
+                value={formState?.status || id?.status}
                 // value={oldObjectId ? contestData?.status : formState?.status}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
+                disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     status: e.target.value
@@ -280,7 +288,7 @@ function Index() {
                 fullWidth
                 multiline
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.jobDescription}
+                value={formState?.jobDescription || id?.jobDescription}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobDescription: e.target.value
@@ -316,7 +324,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                         Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/portfolio") : setIsSubmitted(false)}}>
+                    <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/Career List") : setIsSubmitted(false)}}>
                         Back
                     </MDButton>
                     </>
@@ -395,7 +403,7 @@ function Index() {
 
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
-                        <RolesAndResponsibilities updatedDocument={updatedDocument}/>
+                        <RolesAndResponsibilities updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
                     </MDBox>
                 </Grid>}
 
