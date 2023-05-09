@@ -174,13 +174,13 @@ function DataTable({
       ) : null}
       <Table {...getTableProps()}>
         <MDBox component="thead">
-          {headerGroups.map((headerGroup) => (
+          {headerGroups.map((headerGroup,index) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 <DataTableHeadCell
                   {...column.getHeaderProps(isSorted && column.getSortByToggleProps())}
                   width={column.width ? column.width : "auto"}
-                  align={column.align ? column.align : "left"}
+                  align={index === 0 ? 'center' : column.align ? column.align : "left"}
                   sorted={setSortedValue(column)}
                 >
                   {column.render("Header")}
@@ -190,7 +190,7 @@ function DataTable({
           ))}
         </MDBox>
         <TableBody {...getTableBodyProps()}>
-          {page.map((row, key) => {
+          {page.map((row, key, index) => {
             prepareRow(row);
             return (
               <TableRow {...row.getRowProps()}>

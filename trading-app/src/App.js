@@ -51,12 +51,15 @@ import { userContext } from "./AuthContext";
 import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
+import Careers from './layouts/HomePage/pages/Career'
+import JobDescription from './layouts/HomePage/pages/JobDescription'
+import JobApply from './layouts/HomePage/pages/CareerForm'
+import Home from "../src/layouts/HomePage/pages/Home";
 // import ResetPassword from './layouts/authentication/reset-password'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
-import  Home from "../src/layouts/HomePage/pages/Home";
 
 export default function App() {
   const cookieValue = Cookies.get("jwt");
@@ -104,7 +107,12 @@ export default function App() {
       console.log("Fail to fetch data of user");
       noCookie = true;
       console.log(err);
-      pathname === '/signup' ? navigate("/signup") : navigate("/");
+      pathname === '/signup' ? navigate("/signup") 
+                 : '/careers' ? navigate("/careers") 
+                 : '/jobdescription' ? navigate("/jobdescription") 
+                 : '/apply' ? navigate("/apply")
+                 : '/home' ? navigate("home")
+                 : navigate("/");
     })
   }, [])
 
@@ -260,9 +268,8 @@ export default function App() {
         {/* {layout === "analytics" && <Configurator />} */}
         <Routes>
         {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
-        ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
-        ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-        ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
+        ? getRoutes(routes) : (detailUser?.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
+        ? getRoutes(routesInfinityTrader) : (detailUser?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }
 
@@ -277,19 +284,20 @@ export default function App() {
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<SignIn />} />
           :
-          // <Route path="/" element={<SignIn />} />
           <Route path="/" element={<SignIn />} />
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate to="/virtualtrading" />} />
           :
+          // <Route path="/" element={<Navigate to={pathname} />} />
           <Route path="/" element={<Navigate to={pathname} />} />
           }
           <Route path='/resetpassword' element={<ResetPassword/>}/>
-          
-
-          
-          
+          <Route path='/careers' element={<Careers/>}/>
+          <Route path='/jobdescription' element={<JobDescription/>}/>
+          <Route path='/apply' element={<JobApply/>}/>
+          <Route path='/home' element={<Home/>}/>
+            
         </Routes>
       </ThemeProvider>
     

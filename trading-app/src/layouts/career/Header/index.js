@@ -8,6 +8,7 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
+import ActiveCareers from '../data/activeCareer';
 
 //data
 
@@ -24,8 +25,8 @@ export default function LabTabs() {
   };
 
   return (
-    <Box sx={{ width: '100%', typography: 'body1' }}>
-    <Box mb={1} display="flex" justifyContent="right">
+    <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
+    <MDBox mb={1} display="flex" justifyContent="right">
     <MDButton 
     variant="contained" 
     color="success" 
@@ -35,23 +36,24 @@ export default function LabTabs() {
     >
         Create Career
     </MDButton>
-    </Box>
+    </MDBox>
       <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
+        <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Active Careers" value="1" />
             <Tab label="Draft Careers" value="2" />
             <Tab label="Inactive Careers" value="3" />
           </TabList>
-        </Box>
+        </MDBox>
         <TabPanel value="1">
           {isLoading ? 
+          
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
           </MDBox>
           : 
-        //   <ContestPortfolioCard/>
-        <></>
+          <ActiveCareers/>
+   
           }
           </TabPanel>
         <TabPanel value="2">
@@ -75,6 +77,6 @@ export default function LabTabs() {
           }
         </TabPanel>
       </TabContext>
-    </Box>
+    </MDBox>
   );
 }
