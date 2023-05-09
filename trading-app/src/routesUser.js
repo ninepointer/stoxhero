@@ -19,7 +19,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
-import UserPosition from "./layouts/PaperTrade";
+import UserPosition from "./layouts/PaperTrade/index";
 // import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
 import UserContest from "./layouts/UserContest"

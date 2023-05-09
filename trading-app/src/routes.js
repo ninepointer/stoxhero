@@ -168,7 +168,7 @@ const routes = [
     component: <ContestPage />,
   },
   {
-    route: "about",
+    route: "/about",
     component: <About />,
   },
   {
@@ -181,7 +181,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "jobdescription",
+    route: "/jobdescription",
     component: <JD />,
   },
   {
@@ -189,7 +189,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "home",
+    route: "/home",
     component: <Home />,
   },
   {
@@ -205,7 +205,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "careers",
+    route: "/careers",
     component: <Careers />,
   },
   {
@@ -213,11 +213,11 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "apply",
+    route: "/apply",
     component: <CareerForm />,
   },
   {
-    route: "contact",
+    route: "/contact",
     component: <Contact />,
   },
   {
@@ -225,7 +225,7 @@ const routes = [
     // name: "Arena", ContestTradePage
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "arena/:name/register",
+    route: "/arena/:name/register",
     component: <ContestRegisterPage />,
   },
   {
@@ -233,7 +233,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena", DummyPage
     // icon: <BusinessIcon/>,
-    route: "arena/contest/trade",
+    route: "/arena/contest/trade",
     component: <ContestTradePage />,
   },
   // {

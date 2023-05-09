@@ -59,23 +59,23 @@ const CareerForm = () => {
       return;
     }
 
-    if (!file) {
-      openSuccessSB("Alert", "Please select your resume", "FAIL")
-      setSaving(false)
-      return;
-    }
+    // if (!file) {
+    //   openSuccessSB("Alert", "Please select your resume", "FAIL")
+    //   setSaving(false)
+    //   return;
+    // }
 
-    if(file.length > 1){
-      openSuccessSB("Fail", "Please upload single file", "FAIL")
-      setSaving(false)
-      return;
-    }
+    // if(file.length > 1){
+    //   openSuccessSB("Fail", "Please upload single file", "FAIL")
+    //   setSaving(false)
+    //   return;
+    // }
   
     try {
       const formData = new FormData();
-      for (let i = 0; i < file.length; i++) {
-        formData.append("files", file[i]);
-      }
+      // for (let i = 0; i < file.length; i++) {
+      //   formData.append("files", file[i]);
+      // }
       formData.append('firstName', detail.firstName);
       formData.append('lastName', detail.lastName);
       formData.append('email', detail.email);
@@ -88,7 +88,7 @@ const CareerForm = () => {
       formData.append('source', detail.source);
       formData.append('career', career._id);
 
-      console.log(formData, file, file.name)
+      // console.log(formData, file, file.name)
       const { data } = await axios.post(`${baseUrl}api/v1/career/userDetail`, formData, {
         withCredentials: true,
         headers: {
@@ -104,7 +104,7 @@ const CareerForm = () => {
       setSubmitted(true);
       setSaving(false);
     } catch (error) {
-      console.log(error, file);
+      console.log(error);
       // alert('File upload failed');
       openSuccessSB("Error", "Unexpected error", "FAIL")
     }
@@ -293,7 +293,7 @@ const CareerForm = () => {
                       </FormControl>
                     </Grid>
 
-                    <Grid item xs={12} md={6} lg={6}>
+                    {/* <Grid item xs={12} md={6} lg={6}>
                     <Input
                         required
                         // disabled={showEmailOTP}
@@ -303,7 +303,7 @@ const CareerForm = () => {
                         fullWidth
                         onChange={handleFileChange}
                       />
-                    </Grid>
+                    </Grid> */}
 
                     <Grid item xs={12} md={6} lg={12}>
                     <MDBox mb={1} display="flex" justifyContent="space-around">
