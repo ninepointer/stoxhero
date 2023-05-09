@@ -140,7 +140,7 @@ export default function InfinityTrading({socket}) {
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(openingBalance+pnl.infinityNetPnl) >= 0.00 ? "+₹" + ((openingBalance+pnl.infinityNetPnl).toFixed(0)): "-₹" + ((-(openingBalance+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
+                    <MDTypography fontSize={10}>{(openingBalance+pnl.infinityNetPnl) >= 0.00 ? "₹" + ((openingBalance+pnl.infinityNetPnl).toFixed(0)): "₹" + ((-(openingBalance+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
                     <MDAvatar src={openingBalance+pnl.infinityNetPnl - openingBalance+pnl.infinityNetPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
                   </MDBox>
                 </Grid>
@@ -165,7 +165,7 @@ export default function InfinityTrading({socket}) {
                 </Grid>
            
                 <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">NET P&L</MDTypography>
+                  <MDTypography fontSize={11} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">NET P&L</MDTypography>
                   <MDBox display="flex">
                     <MDTypography fontSize={10}>Today</MDTypography>
                     {/* <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/> */}
