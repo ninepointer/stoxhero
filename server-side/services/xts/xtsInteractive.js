@@ -13,9 +13,6 @@ exports.xtsInteractive = async ()=>{
   console.log(logIn);
 
   return logIn;
-  // let balance = await xtsInteractive.getBalance();
-
-  // console.log(balance);
 }
 
 
