@@ -17,10 +17,10 @@ export default function AllActiveAccessTokens() {
 
   return {
     columns: [
-      { Header: "Edit", accessor: "edit", align: "center" },
+      // { Header: "Edit", accessor: "edit", align: "center" },
       { Header: "Account ID", accessor: "accountid", align: "center" },
       { Header: "Access Token", accessor: "accesstoken", align: "center" },
-      { Header: "Request Token", accessor: "requesttoken", align: "center" },
+      // { Header: "Request Token", accessor: "requesttoken", align: "center" },
       { Header: "Status", accessor: "status", align: "center" },
       { Header: "Generated On", accessor: "generatedon", align: "center" },
      

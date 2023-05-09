@@ -227,7 +227,7 @@ router.patch("/verifyotp", async (req, res)=>{
         console.log("User Ids: ",userIds)
         if(userIds.length > 0)
         {
-             userId = userId.toString()+(userIds.length+1).toString()
+            userId = userId.toString()+(userIds.length+1).toString()
         }
         
         let referral = await Referral.findOne({status: "Active"});
@@ -260,8 +260,14 @@ router.patch("/verifyotp", async (req, res)=>{
             obj.referredBy = referredBy;
         }
         const newuser = await User.create(obj);
+        const token = await newuser.generateAuthToken();
 
+        res.cookie("jwtoken", token, {
+            expires: new Date(Date.now() + 25892000000),
+            httpOnly: true
+        });
         
+        console.log("token", token);
         const idOfUser = newuser._id;
         
         for (const portfolio of activeFreePortfolios) {
@@ -322,10 +328,8 @@ router.patch("/verifyotp", async (req, res)=>{
                 fund:1000000,
                 creditedOn: new Date(),
                 creditedBy:newuser._id 
-            })
+        })
         
-        // console.log("Margin Allcoation Data: ",marginAllocation)
-
         let userWallet = await UserWallet.create(
             {
                 userId: newuser._id,
@@ -333,11 +337,10 @@ router.patch("/verifyotp", async (req, res)=>{
                 createdBy:newuser._id
         })
         
-        // console.log("referralProgramme", referralProgramme);
 
         if(!newuser) return res.status(400).json({status: 'error', message: 'Something went wrong'});
 
-        res.status(201).json({status: "Success", data:newuser, message:"Welcome! Your account is created, please check your email for your userid and password details."});
+        res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
             let subject = "Account Created - StoxHero";
             let message = 

@@ -16,10 +16,9 @@ import FormControl from '@mui/material/FormControl';
 import {useState} from "react";
 // import { userContext } from '../../../AuthContext';
 // import uniqid from "uniqid"
-import {zerodhaAccountType} from "../../../constants/constants";
+import {xtsAccountType} from "../../../constants/constants";
 
-
-const TradingARTokenModel = ({Render}) => {
+const XTSTokenModel = ({Render}) => {
   const {reRender, setReRender} = Render
   const [open, setOpen] = React.useState(false);
   const theme = useTheme();
@@ -34,25 +33,20 @@ const TradingARTokenModel = ({Render}) => {
   };
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  // const getDetails = useContext(userContext);
-  // let uId = uniqid();
-  // let date = new Date();
-  // let generatedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
-  // let lastModified = generatedOn;
-  // let createdBy = getDetails.userDetails.name
 
   const [formstate, setformstate] = useState({
       AccountID: "",
       AccesToken: "",
-      RequestToken: "",
-      Status: ""
+      // RequestToken: "",
+      Status: "",
+      
   });
 
   async function formbtn() {
       setformstate(formstate);
       setOpen(false);
 
-      const { AccountID, AccesToken, RequestToken, Status } = formstate;
+      const { AccountID, AccesToken, Status } = formstate;
 
       const res = await fetch(`${baseUrl}api/v1/requestToken`, {
           method: "POST",
@@ -61,7 +55,7 @@ const TradingARTokenModel = ({Render}) => {
               "content-type": "application/json"
           },
           body: JSON.stringify({
-              accountId: AccountID, accessToken: AccesToken, requestToken: RequestToken, status: Status, accountType: zerodhaAccountType
+              accountId: AccountID, accessToken: AccesToken, status: Status, accountType: xtsAccountType
           })
       });
 
@@ -80,7 +74,7 @@ const TradingARTokenModel = ({Render}) => {
   return (
     <div>
       <MDButton variant="outlined" onClick={handleClickOpen}>
-        Generate Access & Request Token
+        Generate XTS Token
       </MDButton>
       <Dialog
         fullScreen={fullScreen}
@@ -100,10 +94,6 @@ const TradingARTokenModel = ({Render}) => {
             <TextField
               id="outlined-basic" label="Access Token" variant="standard"
               sx={{ margin: 1, padding: 1, width: "300px" }} onChange={(e)=>{ formstate.AccesToken = e.target.value}}/>
-
-            <TextField
-              id="outlined-basic" label="Request Token" variant="standard"
-              sx={{ margin: 1, padding: 1, width: "300px" }} onChange={(e)=>{ formstate.RequestToken = e.target.value}}/>
 
             <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="demo-simple-select-standard-label">Status</InputLabel>
@@ -133,4 +123,4 @@ const TradingARTokenModel = ({Render}) => {
   );
 }
 
-export default TradingARTokenModel
+export default XTSTokenModel

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 
 const requestTokenSchema = new mongoose.Schema({
     accountId:{
@@ -11,7 +12,7 @@ const requestTokenSchema = new mongoose.Schema({
     },
     requestToken:{
         type: String,
-        required : true
+        // required : true
     },
     status:{
         type: String,
@@ -22,19 +23,24 @@ const requestTokenSchema = new mongoose.Schema({
         default: new Date(),
         required : true
     },
-    lastModified:{
+    lastModifiedOn:{
         type: Date,
         default: new Date(),
         required : true
+    },
+    lastModifiedBy:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user-personal-details',
     },
     createdBy:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user-personal-details',
         // required : true
     },
-    uId:{
+    accountType:{
         type: String,
-        required: true
+        required : true,
+        enum : [zerodhaAccountType, xtsAccountType]
     }
 })
 
