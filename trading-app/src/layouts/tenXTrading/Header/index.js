@@ -119,7 +119,7 @@ const CardData = [
 const card = (props)=> (
   <React.Fragment>
     <CardContent justifyContent="center" >
-      <MDBox sx={{background:" rgba(94, 110, 191)",boxShadow:"33px 32px 0px -18px rgba(46,81,184,1)",borderRadius:"15px"}}>
+      <MDBox sx={{background:" rgba(94, 110, 191)",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"15px"}}>
         
         <Grid container spacing={1} display="flex" justifyContent='center' alignItems='center' alignContent='center'>
         <Grid item xs={2} md={2} lg={2}>
@@ -168,9 +168,12 @@ const card = (props)=> (
        <span> {props.plan4}</span>
        
       </MDTypography>
+      <MDBox sx={{display:"flex",justifyContent:"center"}}>
+
+      <button style={{width:"150px"}}>Purchase</button>
+      </MDBox>
     </CardContent>
     
-      {/* <button style={{background:"black",color:"white",borderRadius:"13px"}}>Purchase</button> */}
    
   </React.Fragment>
 
@@ -203,7 +206,7 @@ export default function LabTabs() {
            CardData.map((elem,index)=>(
             <Grid item key={elem.id} xs={12} md={6} lg={4}>
             
-            <Card style={{background:"black"}} variant="outlined">
+            <Card style={{background:"rgba(145, 201, 154)"}} variant="outlined">
   {card({
     plan: elem.plan,
     price: elem.price,
