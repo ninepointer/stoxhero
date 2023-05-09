@@ -15,53 +15,157 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Subs from '../../../assets/images/subs.png';
 
-const card = (
+
+const CardData = [
+  {
+    id:1,
+    plan:"Basic",
+    price:"45₹",
+    upto:"/22 trading days",
+    discount:"",
+    discountPrice:"",
+    validity:"till next 22 days of purchase",
+    validityPeriods:"22 days",
+    plan1:"unlimited acess to the desired tokens for the contest",
+    plan2:"unlimited acess to the desired tokens for the contest",
+    plan3:"unlimited acess to the desired tokens for the contest",
+    plan4:"unlimited acess to the desired tokens for the contest"
+
+  },
+
+  {
+    id:1,
+    plan:"Basic",
+    price:"45₹",
+    upto:"/22 trading days",
+    discount:"",
+    discountPrice:"",
+    validity:"till next 22 days of purchase",
+    validityPeriods:"22 days",
+    plan1:"unlimited acess to the desired tokens for the contest",
+    plan2:"unlimited acess to the desired tokens for the contest",
+    plan3:"unlimited acess to the desired tokens for the contest",
+    plan4:"unlimited acess to the desired tokens for the contest"
+
+  },
+
+  {
+    id:1,
+    plan:"Basic",
+    price:"45₹",
+    upto:"/22 trading days",
+    discount:"",
+    discountPrice:"",
+    validity:"till next 22 days of purchase",
+    validityPeriods:"22 days",
+    plan1:"unlimited acess to the desired tokens for the contest",
+    plan2:"unlimited acess to the desired tokens for the contest",
+    plan3:"unlimited acess to the desired tokens for the contest",
+    plan4:"unlimited acess to the desired tokens for the contest"
+
+  },
+
+  {
+    id:1,
+    plan:"Basic",
+    price:"45₹",
+    upto:"/22 trading days",
+    discount:"",
+    discountPrice:"",
+    validity:"till next 22 days of purchase",
+    validityPeriods:"22 days",
+    plan1:"unlimited acess to the desired tokens for the contest",
+    plan2:"unlimited acess to the desired tokens for the contest",
+    plan3:"unlimited acess to the desired tokens for the contest",
+    plan4:"unlimited acess to the desired tokens for the contest"
+
+  },
+
+  {
+    id:1,
+    plan:"Basic",
+    price:"45₹",
+    upto:"/22 trading days",
+    discount:"",
+    discountPrice:"",
+    validity:"till next 22 days of purchase",
+    validityPeriods:"22 days",
+    plan1:"unlimited acess to the desired tokens for the contest",
+    plan2:"unlimited acess to the desired tokens for the contest",
+    plan3:"unlimited acess to the desired tokens for the contest",
+    plan4:"unlimited acess to the desired tokens for the contest"
+
+  },
+
+  {
+    id:1,
+    plan:"Basic",
+    price:"45₹",
+    upto:"/22 trading days",
+    discount:"",
+    discountPrice:"",
+    validity:"till next 22 days of purchase",
+    validityPeriods:"22 days",
+    plan1:"unlimited acess to the desired tokens for the contest",
+    plan2:"unlimited acess to the desired tokens for the contest",
+    plan3:"unlimited acess to the desired tokens for the contest",
+    plan4:"unlimited acess to the desired tokens for the contest"
+
+  },
+  
+
+]
+
+const card = (props)=> (
   <React.Fragment>
     <CardContent justifyContent="center" >
-      <MDBox>
-      <Grid container spacing={1} display="flex" justifyContent='flex-start' alignItems='center' alignContent='center'>
+      <MDBox sx={{background:" rgba(236, 165, 242)",boxShadow: "0px 14px 13px 0px rgba(219,70,219,0.62)",borderRadius:"15px"}}>
+        
+        <Grid container spacing={1} display="flex" justifyContent='center' alignItems='center' alignContent='center'>
         <Grid item xs={2} md={2} lg={2}>
-        <MDAvatar src={Subs} height={50} size="small" display="flex" justifyContent="left"/>
+        <MDAvatar src={Subs} height={50} size="small" display="flex" justifyContent="center"/>
         </Grid>
-        <Grid item xs={10} md={10} lg={10} display="flex" justifyContent='flex-start' alignItems='left'>
-        <MDTypography fontSize={20} fontWeight='bold'>Basic</MDTypography>
+        <Grid item xs={10} md={10} lg={10} display="flex" justifyContent='left' alignItems='left'>
+        <MDTypography fontSize={20} fontWeight='bold'>{props.plan}</MDTypography>
         </Grid>
-      </Grid>
-      </MDBox>
+        </Grid>
+        
+      
       <MDBox display='flex' justifyContent='center'>
       <MDTypography sx={{ fontSize: 34 }} color="text.secondary" gutterBottom>
-        ₹45
+        {props.price}
       </MDTypography>
-      <MDTypography style={{fontSize:"13px", lineHeight:5}}>/22 trading days</MDTypography>
+      <MDTypography style={{fontSize:"13px", lineHeight:5}}>{props.upto}</MDTypography>
       </MDBox>
       <MDTypography sx={{ mb: 1.5 }} color="red">
-        Discount 
-        <span> -25%</span>
+        {props.discount} 
+        <span> {props.discountPrice}</span>
       </MDTypography>
+      </MDBox>
       <MDTypography variant="body2">
-       validity
+       {props.validity}
       </MDTypography>
       <MDTypography gutterBottom variant="body2">
-       validity periods
+       {props.validityPeriods}
       </MDTypography>
       <MDTypography  variant="body2">
        <CheckIcon sx={{color:"green"}}/>
-       <span> plan1</span>
+       <span> {props.plan1}</span>
        
       </MDTypography>
       <MDTypography  variant="body2">
        <CheckIcon sx={{color:"green"}}/>
-       <span> plan2</span>
+       <span> {props.plan2}</span>
        
       </MDTypography>
       <MDTypography  variant="body2">
        <CheckIcon sx={{color:"green"}}/>
-       <span> plan3</span>
+       <span> {props.plan3}</span>
        
       </MDTypography>
       <MDTypography  variant="body2">
         <CloseIcon  sx={{color:"red"}}/>
-       <span> plan4</span>
+       <span> {props.plan4}</span>
        
       </MDTypography>
     </CardContent>
@@ -94,8 +198,32 @@ export default function LabTabs() {
 {/* <Box sx={{ minWidth: 275,display:"flex", flexWrap:"wrap",justifyContent:"center",alignItems:"center" }}> */}
         
     <Grid container spacing={3} >
+         {
 
-          <Grid item  xs={12} md={6} lg={4}>
+           CardData.map((elem,index)=>(
+            <Grid item key={elem.id} xs={12} md={6} lg={4}>
+            
+            <Card style={{background:"rgba(169, 209, 148)"}} variant="outlined">
+  {card({
+    plan: elem.plan,
+    price: elem.price,
+    upto: elem.upto,
+    discount: elem.discount,
+    discountPrice: elem.discountPrice,
+    validity: elem.validity,
+    validityPeriods: elem.validityPeriods,
+    plan1: elem.plan1,
+    plan2: elem.plan2,
+    plan3: elem.plan3,
+    plan4: elem.plan4
+  })}
+</Card>
+          </Grid>
+
+          ))
+         }
+
+          {/* <Grid item  xs={12} md={6} lg={4}>
           <Card variant="outlined">{card}</Card>
           </Grid>
 
@@ -113,11 +241,7 @@ export default function LabTabs() {
 
           <Grid item  xs={12} md={6} lg={4}>
           <Card variant="outlined">{card}</Card>
-          </Grid>
-
-          <Grid item  xs={12} md={6} lg={4}>
-          <Card variant="outlined">{card}</Card>
-          </Grid>
+          </Grid> */}
 
           
           
@@ -135,3 +259,83 @@ export default function LabTabs() {
     </MDBox>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const card = (
+//   <React.Fragment>
+//     <CardContent justifyContent="center" >
+//       <MDBox>
+//       <Grid container spacing={1} display="flex" justifyContent='flex-start' alignItems='center' alignContent='center'>
+//         <Grid item xs={2} md={2} lg={2}>
+//         <MDAvatar src={Subs} height={50} size="small" display="flex" justifyContent="left"/>
+//         </Grid>
+//         <Grid item xs={10} md={10} lg={10} display="flex" justifyContent='flex-start' alignItems='left'>
+//         <MDTypography fontSize={20} fontWeight='bold'>Basic</MDTypography>
+//         </Grid>
+//       </Grid>
+//       </MDBox>
+//       <MDBox display='flex' justifyContent='center'>
+//       <MDTypography sx={{ fontSize: 34 }} color="text.secondary" gutterBottom>
+//         ₹45
+//       </MDTypography>
+//       <MDTypography style={{fontSize:"13px", lineHeight:5}}>/22 trading days</MDTypography>
+//       </MDBox>
+//       <MDTypography sx={{ mb: 1.5 }} color="red">
+//         Discount 
+//         <span> -25%</span>
+//       </MDTypography>
+//       <MDTypography variant="body2">
+//        validity
+//       </MDTypography>
+//       <MDTypography gutterBottom variant="body2">
+//        validity periods
+//       </MDTypography>
+//       <MDTypography  variant="body2">
+//        <CheckIcon sx={{color:"green"}}/>
+//        <span> plan1</span>
+       
+//       </MDTypography>
+//       <MDTypography  variant="body2">
+//        <CheckIcon sx={{color:"green"}}/>
+//        <span> plan2</span>
+       
+//       </MDTypography>
+//       <MDTypography  variant="body2">
+//        <CheckIcon sx={{color:"green"}}/>
+//        <span> plan3</span>
+       
+//       </MDTypography>
+//       <MDTypography  variant="body2">
+//         <CloseIcon  sx={{color:"red"}}/>
+//        <span> plan4</span>
+       
+//       </MDTypography>
+//     </CardContent>
+    
+//       {/* <button style={{background:"black",color:"white",borderRadius:"13px"}}>Purchase</button> */}
+   
+//   </React.Fragment>
+
+// );
