@@ -14,6 +14,11 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
 
@@ -154,7 +159,7 @@ const CareerForm = () => {
 
             {(!submitted) ? <MDBox mt={'65px'} p={4} display="flex" justifyContent='center' alignItems='center' flexDirection='column'>
                 <MDBox display='flex' justifyContent='center'>
-                    <MDTypography color="black">Please fill your details!</MDTypography>
+                    <MDTypography color="black">Please fill your details to apply for {career?.jobTitle}!</MDTypography>
                 </MDBox>
                 <Grid container spacing={2} mt={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center'>
                     <Grid item xs={12} md={6} lg={6}>
@@ -217,7 +222,7 @@ const CareerForm = () => {
                       />
                     </Grid>
 
-                    <Grid item xs={12} md={6} lg={6}>
+                    {/* <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         // disabled={showEmailOTP}
@@ -227,6 +232,22 @@ const CareerForm = () => {
                         fullWidth
                         onChange={(e)=>{detail.dob = e.target.value}}
                       />
+                    </Grid> */}
+
+                    <Grid item xs={12} md={6} xl={6} mt={-1}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                          <DatePicker
+                            label="Date of Birth"
+                            // onChange={(e) => {setFormStatePD(prevState => ({
+                            //   ...prevState,
+                            //   joining_date: dayjs(e)
+                            // }))}}
+                            onChange={(e)=>{detail.dob = dayjs(e)}}
+                            sx={{ width: '100%' }}
+                          />
+                        </DemoContainer>
+                      </LocalizationProvider>
                     </Grid>
 
                     <Grid item xs={12} md={6} xl={6}>
@@ -247,18 +268,6 @@ const CareerForm = () => {
                         </Select>
                       </FormControl>
                     </Grid>
-
-                    {/* <Grid item xs={12} md={6} lg={6}>
-                    <TextField
-                        required
-                        disabled
-                        id="outlined-required"
-                        label="Applying For"
-                        type="text"
-                        fullWidth
-                        value={career?.applyingFor}
-                      />
-                    </Grid> */}
 
                     <Grid item xs={12} md={6} xl={6}>
                       <FormControl sx={{width: "100%" }}>
@@ -283,18 +292,6 @@ const CareerForm = () => {
                         </Select>
                       </FormControl>
                     </Grid>
-
-                    {/* <Grid item xs={12} md={6} lg={6}>
-                    <TextField
-                        required
-                        // disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="From where you hear about us ?"
-                        type="text"
-                        fullWidth
-                        onChange={(e)=>{detail.source = e.target.value}}
-                      />
-                    </Grid> */}
 
                     <Grid item xs={12} md={6} lg={6}>
                     <Input
@@ -322,7 +319,7 @@ const CareerForm = () => {
             <MDBox minHeight='50vH' marginTop="65px" display="flex" justifyContent='center' alignItems='center' alignContent='center'>
               <Grid container>
                 <Grid item p={2} m={2} xs={12} md={12} lg={12} display="flex" justifyContent='center' alignItems='center' alignContent='center' style={{textAlign: 'center'}}>
-                  <MDTypography>Your application was submitted successfully, our team will get back to you soon!</MDTypography>
+                  <MDTypography>Your application has been submitted successfully, our team will get back to you soon!</MDTypography>
                 </Grid>
               </Grid>
             </MDBox>
