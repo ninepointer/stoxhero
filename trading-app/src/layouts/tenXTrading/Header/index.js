@@ -119,7 +119,7 @@ const CardData = [
 const card = (props)=> (
   <React.Fragment>
     <CardContent justifyContent="center" >
-      <MDBox sx={{background:" rgba(236, 165, 242)",boxShadow: "0px 14px 13px 0px rgba(219,70,219,0.62)",borderRadius:"15px"}}>
+      <MDBox sx={{background:" rgba(94, 110, 191)",boxShadow:"33px 32px 0px -18px rgba(46,81,184,1)",borderRadius:"15px"}}>
         
         <Grid container spacing={1} display="flex" justifyContent='center' alignItems='center' alignContent='center'>
         <Grid item xs={2} md={2} lg={2}>
@@ -203,7 +203,7 @@ export default function LabTabs() {
            CardData.map((elem,index)=>(
             <Grid item key={elem.id} xs={12} md={6} lg={4}>
             
-            <Card style={{background:"rgba(169, 209, 148)"}} variant="outlined">
+            <Card style={{background:"black"}} variant="outlined">
   {card({
     plan: elem.plan,
     price: elem.price,

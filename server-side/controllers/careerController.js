@@ -17,7 +17,7 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
-  const { firstName, lastName, email, mobile, rollNo, dob, collageName, tradingExp, applyingFor, source, career } = req.body;
+  const { firstName, lastName, email, mobile, dob, collegeName, tradingExp, source, career } = req.body;
 //   console.log(req.body)
   const uploadedFiles = req.files
   const fileUploadPromises = uploadedFiles.map(async (file) => {
@@ -40,17 +40,15 @@ try {
     last_name: lastName,
     email: email,
     mobileNo: mobile,
-    rollNo: rollNo,
     dob: dob,
-    collegeName: collageName,
+    collegeName: collegeName,
     tradingExp: tradingExp,
-    applyingFor: applyingFor,
     source: source,
     resume: uploadedData[0].url,
     career: career
     });
     console.log(data)
-    res.status(201).json({message: "Details Submitted", data: uploadedData});
+    res.status(201).json({message: "Your job application has been submitted successfully!", data: uploadedData});
     } catch (error) {
     console.error(error);
     res.status(500).send({status: "error", message: "Error uploading files."});
