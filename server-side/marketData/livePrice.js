@@ -31,8 +31,8 @@ router.get("/getliveprice", async (req, res)=>{
   //   }
 
 
-  if(await client.exists(`kiteCredToday`)){
-    let credentials = await client.get(`kiteCredToday`)
+  if(await client.exists(`kiteCredToday:${process.env.PROD}`)){
+    let credentials = await client.get(`kiteCredToday:${process.env.PROD}`)
     credentials = JSON.parse(credentials);
     getAccessToken = credentials.getAccessToken;
     getApiKey = credentials.getApiKey
@@ -54,7 +54,7 @@ router.get("/getliveprice", async (req, res)=>{
         }
 
     try{
-        await client.set(`kiteCredToday`, JSON.stringify({getApiKey, getAccessToken}))
+        await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey, getAccessToken}))
     }catch(e){
         console.log(e);
     }
