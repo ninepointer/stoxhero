@@ -16,8 +16,8 @@ exports.getAccess = async () => {
 
     console.log(today)
 
-    if(await client.exists(`kiteCredToday`)){
-        let credentials = await client.get(`kiteCredToday`)
+    if(await client.exists(`kiteCredToday:${process.env.PROD}`)){
+        let credentials = await client.get(`kiteCredToday:${process.env.PROD}`)
         credentials = JSON.parse(credentials);
         const {getApiKey, getAccessToken} = credentials;
         // console.log("cred", credentials)
@@ -40,8 +40,8 @@ exports.getAccess = async () => {
             }
 
         try{
-            await client.set(`kiteCredToday`, JSON.stringify({getApiKey, getAccessToken}));
-            await client.expire(`kiteCredToday`, secondsRemaining);
+            await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey, getAccessToken}));
+            await client.expire(`kiteCredToday:${process.env.PROD}`, secondsRemaining);
         }catch(e){
             console.log(e);
         }

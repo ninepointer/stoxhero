@@ -25,18 +25,22 @@ router.post("/signup", async (req, res)=>{
     }
 
     const signedupuser = await SignedUpUser.findOne({ $or: [{ email: email }, { mobile: mobile }] })
+    console.log(signedupuser)
     // let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true,lowerCaseAlphabets: false, specialChars: false });
     let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
     try{
     if(signedupuser)
     {
         // signedupuser.email_otp = email_otp;
-        signedupuser.first_name = first_name;
-        signedupuser.last_name = last_name;
-        signedupuser.mobile = mobile;
-        signedupuser.email = email;
-        signedupuser.mobile_otp = mobile_otp;
-        await signedupuser.save({validateBeforeSave:false})
+        // signedupuser.first_name = first_name;
+        // signedupuser.last_name = last_name;
+        // signedupuser.mobile = mobile;
+        // signedupuser.email = email;
+        // signedupuser.mobile_otp = mobile_otp;
+        // await signedupuser.save({validateBeforeSave:false})
+        return res.status(406).json({message : "Your account is already exist. Please signin", 
+        status: 'error'});
+
     }
     else{
         //removed emailotp
