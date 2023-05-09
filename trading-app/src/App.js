@@ -55,6 +55,7 @@ import Careers from './layouts/HomePage/pages/Career'
 import JobDescription from './layouts/HomePage/pages/JobDescription'
 import JobApply from './layouts/HomePage/pages/CareerForm'
 import Home from "../src/layouts/HomePage/pages/Home";
+import About from "../src/layouts/HomePage/pages/About";
 // import ResetPassword from './layouts/authentication/reset-password'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import { adminRole } from "./variables";
@@ -107,14 +108,11 @@ export default function App() {
       console.log("Fail to fetch data of user");
       noCookie = true;
       console.log(err);
-      pathname === '/signup' ? navigate("/signup") 
-                 : '/careers' ? navigate("/careers") 
-                 : '/jobdescription' ? navigate("/jobdescription") 
-                 : '/apply' ? navigate("/apply")
-                 : '/home' ? navigate("home")
-                 : navigate("/");
+      console.log("Inside API: ",pathname)
+      pathname === '/login' ? navigate("/login") : navigate(pathname);
     })
   }, [])
+
 
   // Cache for the rtl
   useMemo(() => {
@@ -192,7 +190,8 @@ export default function App() {
     </MDBox>
   );
 
-  console.log(layout)
+  console.log("Path Name: ",pathname)
+
   return direction === "rtl" ? (
     
       <CacheProvider value={rtlCache}>
@@ -268,8 +267,9 @@ export default function App() {
         {/* {layout === "analytics" && <Configurator />} */}
         <Routes>
         {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
-        ? getRoutes(routes) : (detailUser?.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
-        ? getRoutes(routesInfinityTrader) : (detailUser?.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
+        ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
+        ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
+        ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }
 
@@ -297,6 +297,8 @@ export default function App() {
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
           <Route path='/home' element={<Home/>}/>
+          <Route path='/login' element={<SignIn/>}/>
+          <Route path='/about' element={<About/>}/>
             
         </Routes>
       </ThemeProvider>

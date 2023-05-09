@@ -61,7 +61,7 @@ const Internship = () => {
                             {`${elem?.jobTitle} (${elem?.jobType})`}
                           </MDTypography>
                           <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
-                            Click Here to Aplly!
+                            Click Here to Apply!
                           </MDTypography>
                         </MDBox>
                       </Grid>
