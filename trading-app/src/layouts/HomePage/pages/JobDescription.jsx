@@ -24,8 +24,8 @@ const App = () => {
     <div>
       <ThemeProvider theme={theme}>
         <Navbar/>
-        <Box p={5} sx={{bgcolor:theme.palette.background.default, marginTop:'65px'}}>
-          <Grid container>
+        <Box p={5} sx={{bgcolor:theme.palette.background.default,height:"1000px", marginTop:'65px'}}>
+          <Grid container height="500px" >
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               <MDTypography fontSize={20} color="light" style={{align:'center'}}>JOB DESCRIPTION</MDTypography>
             </Grid>
@@ -51,6 +51,7 @@ const App = () => {
               <MDButton 
                 variant='outlined' 
                 color='warning'
+                sx={{width:"200px",height:"50px"}}
                 component={Link} 
                 to={{
                   pathname: `/apply`,
@@ -61,8 +62,8 @@ const App = () => {
               </MDButton>
             </Grid>
           </Grid>
-        </Box>
         <Footer/>
+        </Box>
       </ThemeProvider>
     </div>
   )
