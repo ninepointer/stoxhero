@@ -31,6 +31,20 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const client = require("../../marketData/redisClient")
+let XtsMarketDataAPI = require('xts-marketdata-api').XtsMarketDataAPI;
+let xtsMarketDataAPI = new XtsMarketDataAPI(
+  'http://14.142.188.188:23000/apimarketdata'
+);
+
+
+router.get("/getData", async (req, res) => {
+  let response = await xtsMarketDataAPI.searchInstrument({
+    searchString: 'REL',
+    source: "WEBAPI",
+  });
+
+  res.send(response);
+});
 
 
 router.get("/deletePnlKey", async (req, res) => {
