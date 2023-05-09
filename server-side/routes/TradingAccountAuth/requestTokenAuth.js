@@ -47,6 +47,7 @@ router.post("/requestToken", authentication, (req, res)=>{
 router.post("/autologin", authentication, async (req, res)=>{
     await client.del(`kiteCredToday`);
     // await deletePnlKey();
+    await client.del(`referralLeaderboard`,60);
     const {accountId, apiKey, apiSecret, status, uId} = req.body;
     req.body.createdBy = req.user._id;
     if(!accountId || !apiKey || !apiSecret || !status || !uId){
