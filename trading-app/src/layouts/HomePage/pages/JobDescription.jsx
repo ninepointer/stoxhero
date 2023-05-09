@@ -51,7 +51,7 @@ const App = () => {
               <MDButton 
                 variant='outlined' 
                 color='warning'
-                sx={{width:"200px",height:"50px"}}
+                sx={{width:"200px",height:"50px",zIndex:"1"}}
                 component={Link} 
                 to={{
                   pathname: `/apply`,
@@ -62,9 +62,12 @@ const App = () => {
               </MDButton>
             </Grid>
           </Grid>
-        <Footer/>
         </Box>
       </ThemeProvider>
+
+        
+        <Footer/>
+        
     </div>
   )
 }
