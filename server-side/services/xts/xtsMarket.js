@@ -1,7 +1,7 @@
 let XtsMarketDataAPI = require('xts-marketdata-api').XtsMarketDataAPI;
 
 let xtsMarketDataAPI = new XtsMarketDataAPI(
-    'https://developers.symphonyfintech.in/marketdata'
+    'http://14.142.188.188:23000/apimarketdata'
 );
 
 let loginRequest = {
