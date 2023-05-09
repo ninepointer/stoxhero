@@ -19,7 +19,7 @@ import Subs from '../../../assets/images/subs.png';
 const CardData = [
   {
     id:1,
-    plan:"Basic",
+    plan:"Begineer",
     price:"45₹",
     upto:"/22 trading days",
     discount:"",
@@ -35,7 +35,23 @@ const CardData = [
 
   {
     id:1,
-    plan:"Basic",
+    plan:"Intermediate",
+    price:"45₹",
+    upto:"/22 trading days",
+    discount:"Discount",
+    discountPrice:"25%",
+    validity:"till next 22 days of purchase",
+    validityPeriods:"22 days",
+    plan1:"unlimited acess to the desired tokens for the contest",
+    plan2:"unlimited acess to the desired tokens for the contest",
+    plan3:"unlimited acess to the desired tokens for the contest",
+    plan4:"unlimited acess to the desired tokens for the contest"
+
+  },
+
+  {
+    id:1,
+    plan:"Pro",
     price:"45₹",
     upto:"/22 trading days",
     discount:"",
@@ -51,7 +67,7 @@ const CardData = [
 
   {
     id:1,
-    plan:"Basic",
+    plan:"Silver",
     price:"45₹",
     upto:"/22 trading days",
     discount:"",
@@ -67,7 +83,7 @@ const CardData = [
 
   {
     id:1,
-    plan:"Basic",
+    plan:"Gold",
     price:"45₹",
     upto:"/22 trading days",
     discount:"",
@@ -83,23 +99,7 @@ const CardData = [
 
   {
     id:1,
-    plan:"Basic",
-    price:"45₹",
-    upto:"/22 trading days",
-    discount:"",
-    discountPrice:"",
-    validity:"till next 22 days of purchase",
-    validityPeriods:"22 days",
-    plan1:"unlimited acess to the desired tokens for the contest",
-    plan2:"unlimited acess to the desired tokens for the contest",
-    plan3:"unlimited acess to the desired tokens for the contest",
-    plan4:"unlimited acess to the desired tokens for the contest"
-
-  },
-
-  {
-    id:1,
-    plan:"Basic",
+    plan:"Platinum",
     price:"45₹",
     upto:"/22 trading days",
     discount:"",
@@ -126,7 +126,7 @@ const card = (props)=> (
         <MDAvatar src={Subs} height={50} size="small" display="flex" justifyContent="center"/>
         </Grid>
         <Grid item xs={10} md={10} lg={10} display="flex" justifyContent='left' alignItems='left'>
-        <MDTypography fontSize={20} fontWeight='bold'>{props.plan}</MDTypography>
+        <MDTypography fontSize={20} sx={{color:"#fff"}} fontWeight='bold'>{props.plan}</MDTypography>
         </Grid>
         </Grid>
         
@@ -148,7 +148,7 @@ const card = (props)=> (
       <MDTypography gutterBottom variant="body2">
        {props.validityPeriods}
       </MDTypography>
-      <MDTypography  variant="body2">
+      <MDTypography gutterBottom variant="body2">
        <CheckIcon sx={{color:"green"}}/>
        <span> {props.plan1}</span>
        
@@ -170,7 +170,8 @@ const card = (props)=> (
       </MDTypography>
       <MDBox sx={{display:"flex",justifyContent:"center"}}>
 
-      <button style={{width:"150px"}}>Purchase</button>
+      <button style={{width:"150px",height:"50px",borderRadius:"15px",background:"rgba(63, 186, 82)",boxShadow:"14px 29px 19px -21px  rgba(5,5,4,1)",}}>Purchase</button>
+      
       </MDBox>
     </CardContent>
     
