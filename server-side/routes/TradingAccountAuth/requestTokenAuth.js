@@ -31,7 +31,7 @@ router.post("/requestToken", authentication, (req, res)=>{
 
         requestTokens.save().then(async ()=>{
 
-            await client.del(`kiteCredToday`);
+            await client.del(`kiteCredToday:${process.env.PROD}`);
             disconnectTicker();
             getKiteCred.getAccess().then((data) => {
                 //console.log(data);
@@ -45,9 +45,9 @@ router.post("/requestToken", authentication, (req, res)=>{
 })
 
 router.post("/autologin", authentication, async (req, res)=>{
-    await client.del(`kiteCredToday`);
+    await client.del(`kiteCredToday:${process.env.PROD}`);
     // await deletePnlKey();
-    await client.del(`referralLeaderboard`,60);
+    await client.del(`referralLeaderboard:${process.env.PROD}`);
     const {accountId, apiKey, apiSecret, status, uId} = req.body;
     req.body.createdBy = req.user._id;
     if(!accountId || !apiKey || !apiSecret || !status || !uId){

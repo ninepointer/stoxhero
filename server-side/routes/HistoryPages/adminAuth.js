@@ -34,7 +34,7 @@ const client = require("../../marketData/redisClient")
 
 
 router.get("/deletePnlKey", async (req, res) => {
-  await client.del(`kiteCredToday`);
+  await client.del(`kiteCredToday:${process.env.PROD}`);
   await deletePnlKey()
 });
 
