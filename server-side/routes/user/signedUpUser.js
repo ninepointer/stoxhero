@@ -5,8 +5,8 @@ const router = express.Router();
 require("../../db/conn");
 const SignedUpUser = require("../../models/User/signedUpUser");
 const User = require("../../models/User/userDetailSchema");
-const userPersonalDetail = require("../../models/User/userDetailSchema");
-const signedUpUser = require("../../models/User/signedUpUser");
+// const userPersonalDetail = require("../../models/User/userDetailSchema");
+// const signedUpUser = require("../../models/User/signedUpUser");
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const Referral = require("../../models/campaigns/referralProgram");
 const Lead = require("../../models/leads/leads");
@@ -38,7 +38,7 @@ router.post("/signup", async (req, res)=>{
         // signedupuser.email = email;
         // signedupuser.mobile_otp = mobile_otp;
         // await signedupuser.save({validateBeforeSave:false})
-        return res.status(406).json({message : "Your account is already exist. Please signin", 
+        return res.status(406).json({message : "Your account is already exist. Please login with mobile or email", 
         status: 'error'});
 
     }
@@ -227,7 +227,7 @@ router.patch("/verifyotp", async (req, res)=>{
         console.log("User Ids: ",userIds)
         if(userIds.length > 0)
         {
-             userId = userId.toString()+(userIds.length+1).toString()
+            userId = userId.toString()+(userIds.length+1).toString()
         }
         
         let referral = await Referral.findOne({status: "Active"});
@@ -260,8 +260,14 @@ router.patch("/verifyotp", async (req, res)=>{
             obj.referredBy = referredBy;
         }
         const newuser = await User.create(obj);
+        const token = await newuser.generateAuthToken();
 
+        res.cookie("jwtoken", token, {
+            expires: new Date(Date.now() + 25892000000),
+            httpOnly: true
+        });
         
+        console.log("token", token);
         const idOfUser = newuser._id;
         
         for (const portfolio of activeFreePortfolios) {
@@ -310,7 +316,7 @@ router.patch("/verifyotp", async (req, res)=>{
         await lead.save({validateBeforeSave:false});
         }
 
-        let marginAllocation = await MarginAllocation.create(
+        await MarginAllocation.create(
             {
                 amount:1000000,
                 createdOn:new Date(),
@@ -322,22 +328,19 @@ router.patch("/verifyotp", async (req, res)=>{
                 fund:1000000,
                 creditedOn: new Date(),
                 creditedBy:newuser._id 
-            })
+        })
         
-        // console.log("Margin Allcoation Data: ",marginAllocation)
-
-        let userWallet = await UserWallet.create(
+        await UserWallet.create(
             {
                 userId: newuser._id,
                 createdOn: new Date(),
                 createdBy:newuser._id
         })
         
-        // console.log("referralProgramme", referralProgramme);
 
         if(!newuser) return res.status(400).json({status: 'error', message: 'Something went wrong'});
 
-        res.status(201).json({status: "Success", data:newuser, message:"Welcome! Your account is created, please check your email for your userid and password details."});
+        res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
             let subject = "Account Created - StoxHero";
             let message = 
