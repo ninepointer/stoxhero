@@ -122,7 +122,7 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
       totalGrossPnl += updatedValue;
 
       totalTransactionCost += Number(subelem.brokerage);
-      let lotSize = (subelem._id.symbol).includes("BANKNIFTY") ? 25 : 50;
+      let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
 
       from === "paperTrade" ? 
       updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
@@ -131,7 +131,7 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
       updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
-      const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+      const instrumentcolor = subelem._id.symbol?.slice(-2) == "CE" ? "success" : "error"
       const quantitycolor = subelem.lots >= 0 ? "success" : "error"
       const gpnlcolor = updatedValue >= 0 ? "success" : "error"
       const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
@@ -157,14 +157,14 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
 
       obj.avgPrice = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {"₹"+subelem.lastaverageprice.toFixed(2)}
+          {"₹"+subelem.lastaverageprice?.toFixed(2)}
         </MDTypography>
       );
 
       if((liveDetail[0]?.last_price)){
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {"₹"+(liveDetail[0]?.last_price).toFixed(2)}
+            {"₹"+(liveDetail[0]?.last_price)?.toFixed(2)}
           </MDTypography>
         );
       } else{
@@ -177,27 +177,27 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
 
       obj.grossPnl = (
         <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-          {updatedValue >= 0.00 ? "+₹" + (updatedValue.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2))}
+          {updatedValue >= 0.00 ? "+₹" + (updatedValue?.toFixed(2)): "-₹" + ((-updatedValue)?.toFixed(2))}
         </MDTypography>
       );
 
       obj.netPnl = (
         <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-          {netupdatedValue >= 0.00 ? "+₹" + (netupdatedValue.toFixed(2)): "-₹" + ((-netupdatedValue).toFixed(2))}
+          {netupdatedValue >= 0.00 ? "+₹" + (netupdatedValue?.toFixed(2)): "-₹" + ((-netupdatedValue)?.toFixed(2))}
         </MDTypography>
       );
 
       if((liveDetail[0]?.change)){
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(liveDetail[0]?.change).toFixed(2)+"%"}
+            {(liveDetail[0]?.change)?.toFixed(2)+"%"}
           </MDTypography>
         );
       } else{
         //console.log((liveDetail[0]?.last_price, liveDetail[0]?.average_price), liveDetail[0]?.average_price);
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {liveDetail[0]?.average_price ? (((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%" : "0.00%"}
+            {liveDetail[0]?.average_price ? (((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100)?.toFixed(2)+"%" : "0.00%"}
           </MDTypography>
         );
       }
@@ -205,11 +205,11 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
         < ExitPosition from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
       );
       obj.buy = (
-        <Buy from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
+        <Buy from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
       );
       
       obj.sell = (
-        <Sell from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol).slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
+        <Sell from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
       );
 
       obj.sellState = (
