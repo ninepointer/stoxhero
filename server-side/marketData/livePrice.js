@@ -16,50 +16,50 @@ router.get("/getliveprice", async (req, res)=>{
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  let getApiKey, getAccessToken;
-
-  // const apiKey = await Account.find({status: "Active"});
-  // const accessToken = await RequestToken.find({status: "Active"});
   // let getApiKey, getAccessToken;
-  // for(let elem of accessToken){
-  //     for(let subElem of apiKey){
-  //         if(elem.accountId === subElem.accountId ){
-  //             getAccessToken = elem.accessToken;
-  //             getApiKey = subElem.apiKey
-  //         }
-  //     }
-  //   }
 
-
-  if(await client.exists(`kiteCredToday:${process.env.PROD}`)){
-    let credentials = await client.get(`kiteCredToday:${process.env.PROD}`)
-    credentials = JSON.parse(credentials);
-    getAccessToken = credentials.getAccessToken;
-    getApiKey = credentials.getApiKey
-} else{
-
-    const apiKey = await Account.find({status: "Active"});
-    const accessToken = await RequestToken.find({status: "Active"});
-    // console.log("accessToken", accessToken);
-    console.log("in kite cred")
-
-    for(let elem of accessToken){
-        for(let subElem of apiKey){
-            //  console.log("inside 2");
-            if(elem.accountId === subElem.accountId ){
-                getAccessToken = elem.accessToken;
-                getApiKey = subElem.apiKey
-            }
-        }
-        }
-
-    try{
-        await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey, getAccessToken}))
-    }catch(e){
-        console.log(e);
+  const apiKey = await Account.find({status: "Active"});
+  const accessToken = await RequestToken.find({status: "Active"});
+  let getApiKey, getAccessToken;
+  for(let elem of accessToken){
+      for(let subElem of apiKey){
+          if(elem.accountId === subElem.accountId ){
+              getAccessToken = elem.accessToken;
+              getApiKey = subElem.apiKey
+          }
+      }
     }
+
+
+//   if(await client.exists(`kiteCredToday:${process.env.PROD}`)){
+//     let credentials = await client.get(`kiteCredToday:${process.env.PROD}`)
+//     credentials = JSON.parse(credentials);
+//     getAccessToken = credentials.getAccessToken;
+//     getApiKey = credentials.getApiKey
+// } else{
+
+//     const apiKey = await Account.find({status: "Active"});
+//     const accessToken = await RequestToken.find({status: "Active"});
+//     // console.log("accessToken", accessToken);
+//     console.log("in kite cred")
+
+//     for(let elem of accessToken){
+//         for(let subElem of apiKey){
+//             //  console.log("inside 2");
+//             if(elem.accountId === subElem.accountId ){
+//                 getAccessToken = elem.accessToken;
+//                 getApiKey = subElem.apiKey
+//             }
+//         }
+//         }
+
+//     try{
+//         await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey, getAccessToken}))
+//     }catch(e){
+//         console.log(e);
+//     }
     
-}
+// }
 
 
 
