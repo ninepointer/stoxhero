@@ -33,7 +33,7 @@ const CareerForm = () => {
     mobile: "",
     dob: "",
     collegeName: "",
-    tradingExp: "",
+    priorTradingExperience: "",
     source: "",
 
   })
@@ -53,7 +53,7 @@ const CareerForm = () => {
     setSaving(true)
     console.log(detail);
 
-    if(!detail.firstName || !detail.lastName || !detail.email || !detail.mobile || !detail.dob || !detail.collegeName || !detail.tradingExp || !detail.source){
+    if(!detail.firstName || !detail.lastName || !detail.email || !detail.mobile || !detail.dob || !detail.collegeName || !detail.priorTradingExperience || !detail.source){
       openSuccessSB("Alert", "Please fill all fields", "FAIL")
       setSaving(false)
       return;
@@ -83,7 +83,7 @@ const CareerForm = () => {
       // formData.append('rollNo', detail.rollNo);
       formData.append('dob', detail.dob);
       formData.append('collegeName', detail.collegeName);
-      formData.append('tradingExp', detail.tradingExp);
+      formData.append('priorTradingExperience', detail.priorTradingExperience);
       // formData.append('applyingFor', career.jobTitle);
       formData.append('source', detail.source);
       formData.append('career', career._id);
@@ -259,7 +259,7 @@ const CareerForm = () => {
                         // value={formState?.jobType}
                         // value={oldObjectId ? contestData?.status : formState?.status}
                         // disabled={((isSubmitted || id) && (!editing || saving))}
-                        onChange={(e)=>{detail.tradingExp = e.target.value}}
+                        onChange={(e)=>{detail.priorTradingExperience = e.target.value}}
                         label="Trading Exp."
                         sx={{ minHeight:43 }}
                         >

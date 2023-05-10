@@ -16,6 +16,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
 import RolesAndResponsibilities from './data/roleAndRespData';
+import CareerApplication from "./data/applicants";
 import { IoMdAddCircle } from 'react-icons/io';
 
 function Index() {
@@ -23,6 +24,7 @@ function Index() {
     const location = useLocation();
     const  id  = location?.state?.data;
     console.log(id)
+    const [applicationCount, setApplicationCount] = useState(0);
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -47,7 +49,7 @@ function Index() {
 
     useEffect(()=>{
         setTimeout(()=>{
-            setUpdatedDocument(id)
+            id && setUpdatedDocument(id)
             setIsLoading(false);
         },500)
     })
@@ -79,13 +81,14 @@ function Index() {
       
       
       const data = await res.json();
-      // console.log(data);
-      if (data.status === 422 || data.error || !data) {
+      console.log(data);
+      if (data.status === 400 || data.info) {
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-          // console.log("invalid entry");
+          openErrorSB("Career not created",data?.info)
       } else {
-          openSuccessSB("Career Created",data.message)
-          setNewObjectId(data.data._id)
+          openSuccessSB("Career Created",data?.message)
+          setNewObjectId(data?.data?._id)
+          console.log("New Object Id: ",data?.data?._id,newObjectId)
           setIsSubmitted(true)
           // console.log("setting linked contest rule to: ",data.data.contestRule)
           // setLinkedContestRule(data?.data?.contestRule)
@@ -97,6 +100,7 @@ function Index() {
 
     async function onAddFeature(e,childFormState,setChildFormState){
       e.preventDefault()
+      console.log(newObjectId)
       setSaving(true)
       if(!childFormState?.orderNo || !childFormState?.description){
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
@@ -324,7 +328,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                         Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/Career List") : setIsSubmitted(false)}}>
+                    <MDButton variant="contained" color="info" size="small" onClick={()=>{navigate('/Career List')}}>
                         Back
                     </MDButton>
                     </>
@@ -346,7 +350,7 @@ function Index() {
                         color="error" 
                         size="small" 
                         disabled={saving} 
-                        // onClick={()=>{setEditing(false)}}
+                        onClick={()=>{setEditing(false)}}
                         >
                         Cancel
                     </MDButton>
@@ -404,6 +408,12 @@ function Index() {
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
                         <RolesAndResponsibilities updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
+                    </MDBox>
+                </Grid>}
+
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <CareerApplication career={newObjectId ? newObjectId : id?._id} applicationCount={applicationCount} setApplicationCount={setApplicationCount}/>
                     </MDBox>
                 </Grid>}
 
