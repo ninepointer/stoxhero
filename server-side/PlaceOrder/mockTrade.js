@@ -27,8 +27,10 @@ exports.mockTrade = async (req, res) => {
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, algoBoxId, order_id, instrumentToken,  
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, 
+        trader, isAlgoTrader, paperTrade, portfolioId } = req.body 
 
+        console.log("in mock port", portfolioId)
 
       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
@@ -218,7 +220,7 @@ exports.mockTrade = async (req, res) => {
             const paperTrade = new PaperTrade({
                 status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                order_id, instrumentToken, brokerage: brokerageUser, 
+                order_id, instrumentToken, brokerage: brokerageUser, portfolioId,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
