@@ -15,6 +15,7 @@ import about2 from '../assets/images/About/about2.png'
 import about3 from '../assets/images/About/about3.webp'
 import about4 from '../assets/images/About/about4.png'
 import about5 from '../assets/images/About/about5.webp'
+import logo from '../assets/images/Logo.png';
 
 
 const About = () => {
@@ -31,12 +32,8 @@ const About = () => {
             {/* <Navbar/> */}
 
 
-            <Box  bgcolor="#06070A" sx={{ mt: -15 }} >
-
-
-
-
-
+            <Box  bgcolor="#06070A"  >
+                <a  href="/home"><img src={logo} style={{marginTop:"15px",marginLeft:"75px"}} /></a>
                 <Container sx={{ height: "1200" }} >
                     <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center" sx={{ mt: { xs: 10, md: 15 } }}>
                         <Grid item xs={12} md={6}  >

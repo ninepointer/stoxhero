@@ -119,7 +119,7 @@ const CardData = [
 const card = (props)=> (
   <React.Fragment>
     <CardContent justifyContent="center" >
-      <MDBox sx={{background:" rgba(94, 110, 191)",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"15px"}}>
+      <MDBox sx={{background:"linear-gradient(195deg, #49a3f1, #1A73E8)",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"15px"}}>
         
         <Grid container spacing={1} display="flex" justifyContent='center' alignItems='center' alignContent='center'>
         <Grid item xs={2} md={2} lg={2}>
@@ -131,16 +131,27 @@ const card = (props)=> (
         </Grid>
         
       
+     
+     <MDBox borderTop="1px solid lighgray">
+
       <MDBox display='flex' justifyContent='center'>
-      <MDTypography sx={{ fontSize: 34 }} color="text.secondary" gutterBottom>
+      <MDTypography sx={{ fontSize: 34 }} color="gold" gutterBottom>
         {props.price}
       </MDTypography>
       <MDTypography style={{fontSize:"13px", lineHeight:5}}>{props.upto}</MDTypography>
       </MDBox>
+
+
+      <MDBox display="flex" justifyContent="center" color="navy" >
       <MDTypography sx={{ mb: 1.5 }} color="red">
         {props.discount} 
         <span> {props.discountPrice}</span>
       </MDTypography>
+      </MDBox>
+     </MDBox>
+
+
+
       </MDBox>
       <MDTypography variant="body2">
        {props.validity}
@@ -170,7 +181,7 @@ const card = (props)=> (
       </MDTypography>
       <MDBox sx={{display:"flex",justifyContent:"center"}}>
 
-      <button style={{width:"150px",height:"50px",borderRadius:"15px",background:"rgba(63, 186, 82)",boxShadow:"14px 29px 19px -21px  rgba(5,5,4,1)",}}>Purchase</button>
+      <button style={{width:"150px",height:"50px",borderRadius:"15px",background:"#000",boxShadow:"14px 29px 19px -21px  rgba(5,5,4,1)",color:"#fff",}}>Purchase</button>
       
       </MDBox>
     </CardContent>
@@ -207,7 +218,7 @@ export default function LabTabs() {
            CardData.map((elem,index)=>(
             <Grid item key={elem.id} xs={12} md={6} lg={4}>
             
-            <Card style={{background:"rgba(145, 201, 154)"}} variant="outlined">
+            <Card style={{background:"#fff"}} variant="outlined">
   {card({
     plan: elem.plan,
     price: elem.price,
