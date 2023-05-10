@@ -38,71 +38,132 @@ app.use(helmet());
 app.use(xssClean());
 app.use(hpp());
 
+const {data, tickerConnect} = require("./services/xts/xtsMarket");
+
+data().then(()=>{})
+
+
+
+
+
 // issue fix --> if enviournment variable path is not work
 const path = require('path');
-const {DummyMarketData} = require('./marketData/dummyMarketData');
+// const {DummyMarketData} = require('./marketData/dummyMarketData');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 client.connect().then(()=>{})
-console.log("index.js")
+
+io.on("connection", (socket) => {
+  console.log(socket.id, "socket id")
+  socket.on('userId', async (data)=>{
+    socket.join(`${data}`)
+    console.log("in index.js ", socket.id, data)
+    // await tickerConnect();
+    await client.set(socket.id, data);
+  })
+
+  socket.emit('check', false)
+
+
+  socket.on('disconnect', ()=>{
+    console.log("disconnecting socket")
+    // client.del(socket.id);
+  })
+
+  socket.on('hi', async (data) => {
+    // getKiteCred.getAccess().then(async (data)=>{
+    console.log("in hii event");
+      await getTicks(socket);
+      // await getDummyTicks(socket);
+      // await DummyMarketData(socket);
+      await onError();
+      await onOrderUpdate();
+
+    // });
+  });
+  socket.on('company-ticks', async (data) => {
+    console.log("in company-ticks event")
+      await getTicksForCompanySide(socket);
+      await onError();
+      // await onOrderUpdate();
+  });
+  socket.on('user-ticks', async (data) => {
+    console.log("in user-ticks event")
+      await getTicksForUserPosition(socket);
+      // await DummyMarketData(socket);
+      await onError();
+      await onOrderUpdate();
+
+  });
+  socket.on('contest', async (data) => {
+    console.log("in contest event")
+      await getTicksForContest(socket);
+      await onError();
+
+  });
+  subscribeTokens();
+
+});
+
+
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
-  // redis connection
+//   // redis connection
   
 
 
-  io.on("connection", (socket) => {
-    console.log(socket.id, "socket id")
-    socket.on('userId', async (data)=>{
-      socket.join(`${data}`)
-      console.log("in index.js ", socket.id, data)
-      await client.set(socket.id, data);
-    })
+//   io.on("connection", (socket) => {
+//     console.log(socket.id, "socket id")
+//     socket.on('userId', async (data)=>{
+//       socket.join(`${data}`)
+//       console.log("in index.js ", socket.id, data)
+//       await client.set(socket.id, data);
+//     })
 
-    socket.emit('check', false)
+//     socket.emit('check', false)
 
 
-    socket.on('disconnect', ()=>{
-      console.log("disconnecting socket")
-      // client.del(socket.id);
-    })
+//     socket.on('disconnect', ()=>{
+//       console.log("disconnecting socket")
+//       // client.del(socket.id);
+//     })
 
-    socket.on('hi', async (data) => {
-      // getKiteCred.getAccess().then(async (data)=>{
-      console.log("in hii event");
-        await getTicks(socket);
-        // await getDummyTicks(socket);
-        // await DummyMarketData(socket);
-        await onError();
-        await onOrderUpdate();
+//     socket.on('hi', async (data) => {
+//       // getKiteCred.getAccess().then(async (data)=>{
+//       console.log("in hii event");
+//         await getTicks(socket);
+//         // await getDummyTicks(socket);
+//         // await DummyMarketData(socket);
+//         await onError();
+//         await onOrderUpdate();
 
-      // });
-    });
-    socket.on('company-ticks', async (data) => {
-      console.log("in company-ticks event")
-        await getTicksForCompanySide(socket);
-        await onError();
-        // await onOrderUpdate();
-    });
-    socket.on('user-ticks', async (data) => {
-      console.log("in user-ticks event")
-        await getTicksForUserPosition(socket);
-        // await DummyMarketData(socket);
-        await onError();
-        await onOrderUpdate();
+//       // });
+//     });
+//     socket.on('company-ticks', async (data) => {
+//       console.log("in company-ticks event")
+//         await getTicksForCompanySide(socket);
+//         await onError();
+//         // await onOrderUpdate();
+//     });
+//     socket.on('user-ticks', async (data) => {
+//       console.log("in user-ticks event")
+//         await getTicksForUserPosition(socket);
+//         // await DummyMarketData(socket);
+//         await onError();
+//         await onOrderUpdate();
 
-    });
-    socket.on('contest', async (data) => {
-      console.log("in contest event")
-        await getTicksForContest(socket);
-        await onError();
+//     });
+//     socket.on('contest', async (data) => {
+//       console.log("in contest event")
+//         await getTicksForContest(socket);
+//         await onError();
 
-    });
-    subscribeTokens();
+//     });
+//     subscribeTokens();
 
-  });
+//   });
 
-  io.on('disconnection', () => {disconnectTicker()});
+//   io.on('disconnection', () => {disconnectTicker()});
 
 
 });

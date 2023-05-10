@@ -31,24 +31,22 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const client = require("../../marketData/redisClient")
-let XtsMarketDataAPI = require('xts-marketdata-api').XtsMarketDataAPI;
-let xtsMarketDataAPI = new XtsMarketDataAPI(
-  'http://14.142.188.188:23000/apimarketdata'
-);
+const {getInstrument} = require("../../services/xts/xtsMarket");
+const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
+
+
 
 
 router.get("/getData", async (req, res) => {
-  let response = await xtsMarketDataAPI.searchInstrument({
-    searchString: 'REL',
-    source: "WEBAPI",
-  });
+  const xtsMarketDataAPI = await getInstrument();
+  // console.log(xtsMarketDataAPI)
+  res.send(xtsMarketDataAPI)
 
-  res.send(response);
 });
 
 
 router.get("/deletePnlKey", async (req, res) => {
-  await client.del(`kiteCredToday:${process.env.PROD}`);
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
   await deletePnlKey()
 });
 
@@ -250,8 +248,14 @@ router.get("/referralCode", async (req, res) => {
 });
 
 router.get("/tradableInstrument", authentication, async (req, res, next)=>{
-  await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
-  await TradableInstrument.tradableInstrument(req,res,next);
+  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
+  // await TradableInstrument.tradableInstrument(req,res,next);
+})
+
+router.get("/xtsTradable", async (req, res, next)=>{
+  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
+  // await TradableInstrument.tradableInstrument(req,res,next);
+  await XTSTradableInstrument.tradableInstrument(req,res,next);
 })
 
 router.get("/updateName", async (req, res)=>{
@@ -290,15 +294,12 @@ router.get("/cronjob", async (req, res)=>{
 })
 
 router.get("/dbbackup", async (req, res)=>{
+  const sourceUri = "mongodb+srv://team:stoxherodev@stoxhero0.duntdzc.mongodb.net/?retryWrites=true&w=majority"
+  const targetUri = "mongodb+srv://staging-database:staging1234@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority"
+
+
   // const sourceUri = "mongodb+srv://vvv201214:5VPljkBBPd4Kg9bJ@cluster0.j7ieec6.mongodb.net/admin-data?retryWrites=true&w=majority"
-  // const sourceUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
   // const targetUri = "mongodb+srv://anshuman:ninepointerdev@cluster1.iwqmp4g.mongodb.net/?retryWrites=true&w=majority";
-
-  // const targetUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
-
-  const sourceUri = "mongodb+srv://vvv201214:5VPljkBBPd4Kg9bJ@cluster0.j7ieec6.mongodb.net/admin-data?retryWrites=true&w=majority"
-  // const sourceUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
-  const targetUri = "mongodb+srv://anshuman:ninepointerdev@cluster1.iwqmp4g.mongodb.net/?retryWrites=true&w=majority";
 
   await dbBackup.backupDatabase(sourceUri, targetUri, res);
 
