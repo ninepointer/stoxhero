@@ -24,7 +24,9 @@ exports.backupDatabase = async(sourceUri, targetUri, res) => {
           
           if (!isCollectionExistsInTarget) {
             console.log(`Backing up collection ${collectionName}`);
-            const documents = await sourceDb.collection(collectionName).find({}).toArray();
+            if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories"){
+              console.log("in if", collectionName)
+              const documents = await sourceDb.collection(collectionName).find({}).toArray();
     
             if (documents.length > 0) {
               const bulkOps = documents.map((document) => {
@@ -38,6 +40,7 @@ exports.backupDatabase = async(sourceUri, targetUri, res) => {
               });
     
               await targetDb.collection(collectionName).bulkWrite(bulkOps);
+            }
             } else {
               console.log(`Collection ${collectionName} is empty, skipping backup`);
             }
