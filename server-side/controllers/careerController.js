@@ -17,7 +17,7 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
-  const { firstName, lastName, email, mobile, dob, collegeName, tradingExp, source, career } = req.body;
+  const { firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career } = req.body;
 //   console.log(req.body)
   // const uploadedFiles = req.files
   // const fileUploadPromises = uploadedFiles.map(async (file) => {
@@ -42,7 +42,7 @@ try {
     mobileNo: mobile,
     dob: dob,
     collegeName: collegeName,
-    tradingExp: tradingExp,
+    priorTradingExperience: priorTradingExperience,
     source: source,
     // resume: uploadedData[0].url,
     career: career
@@ -61,11 +61,11 @@ exports.createCareer = async(req, res, next)=>{
     const{
         jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
         status } = req.body;
-    if(await Career.findOne({jobTitle, status: "Active" })) return res.status(400).json({message:'This job post already exists.'});
+    if(await Career.findOne({jobTitle, status: "Live" })) return res.status(400).json({info:'This job post is already live.'});
 
     const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
-    
+    console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});
 }
 
@@ -107,4 +107,10 @@ exports.getCareer = async (req,res,next) => {
       console.log(e);
       res.status(500).json({ status: 'error', message: 'Something went wrong' });
     }
+}
+
+exports.getCareerApplicantions = async(req, res, next)=>{
+  const {id} = req.params;
+  const careerApplications = await CareerApplication.find({career: id}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source')
+  res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }
