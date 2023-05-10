@@ -18,13 +18,13 @@ import Subs from '../../../assets/images/subs.png';
 
 const CardData = [
   {
-    id:1,
+    id:0,
     plan:"Begineer",
-    price:"45₹",
+    price:"₹45",
     upto:"/22 trading days",
     discount:"",
     discountPrice:"",
-    validity:"till next 22 days of purchase",
+    validity:"Valid till next 22 days of purchase",
     validityPeriods:"22 days",
     plan1:"unlimited acess to the desired tokens for the contest",
     plan2:"unlimited acess to the desired tokens for the contest",
@@ -36,11 +36,11 @@ const CardData = [
   {
     id:1,
     plan:"Intermediate",
-    price:"45₹",
+    price:"₹49",
     upto:"/22 trading days",
     discount:"Discount",
     discountPrice:"25%",
-    validity:"till next 22 days of purchase",
+    validity:"Valid till next 22 days of purchase",
     validityPeriods:"22 days",
     plan1:"unlimited acess to the desired tokens for the contest",
     plan2:"unlimited acess to the desired tokens for the contest",
@@ -50,13 +50,13 @@ const CardData = [
   },
 
   {
-    id:1,
+    id:2,
     plan:"Pro",
-    price:"45₹",
+    price:"₹249",
     upto:"/22 trading days",
     discount:"",
     discountPrice:"",
-    validity:"till next 22 days of purchase",
+    validity:"Valid till next 22 days of purchase",
     validityPeriods:"22 days",
     plan1:"unlimited acess to the desired tokens for the contest",
     plan2:"unlimited acess to the desired tokens for the contest",
@@ -66,13 +66,13 @@ const CardData = [
   },
 
   {
-    id:1,
+    id:3,
     plan:"Silver",
-    price:"45₹",
+    price:"₹490",
     upto:"/22 trading days",
     discount:"",
     discountPrice:"",
-    validity:"till next 22 days of purchase",
+    validity:"Valid till next 22 days of purchase",
     validityPeriods:"22 days",
     plan1:"unlimited acess to the desired tokens for the contest",
     plan2:"unlimited acess to the desired tokens for the contest",
@@ -82,13 +82,13 @@ const CardData = [
   },
 
   {
-    id:1,
+    id:4,
     plan:"Gold",
-    price:"45₹",
+    price:"₹990",
     upto:"/22 trading days",
     discount:"",
     discountPrice:"",
-    validity:"till next 22 days of purchase",
+    validity:"Valid till next 22 days of purchase",
     validityPeriods:"22 days",
     plan1:"unlimited acess to the desired tokens for the contest",
     plan2:"unlimited acess to the desired tokens for the contest",
@@ -98,13 +98,13 @@ const CardData = [
   },
 
   {
-    id:1,
+    id:5,
     plan:"Platinum",
-    price:"45₹",
+    price:"₹1990",
     upto:"/22 trading days",
     discount:"",
     discountPrice:"",
-    validity:"till next 22 days of purchase",
+    validity:"Valid till next 22 days of purchase",
     validityPeriods:"22 days",
     plan1:"unlimited acess to the desired tokens for the contest",
     plan2:"unlimited acess to the desired tokens for the contest",
@@ -118,31 +118,51 @@ const CardData = [
 
 const card = (props)=> (
   <React.Fragment>
-    <CardContent justifyContent="center" >
-      <MDBox sx={{background:"linear-gradient(195deg, #49a3f1, #1A73E8)",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"15px"}}>
+    <CardContent sx={{height:"600px"}} justifyContent="center" >
+      <MDBox sx={{background:"linear-gradient(195deg, #49a3f1, #1A73E8)",height:"160px",marginTop:"21px",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"15px"}}>
         
-        <Grid container spacing={1} display="flex" justifyContent='center' alignItems='center' alignContent='center'>
+       
+
+        {/* <Grid sx={{border:"1px solid red"}} container spacing={1} display="flex" justifyContent='center' alignItems='center'>
         <Grid item xs={2} md={2} lg={2}>
         <MDAvatar src={Subs} height={50} size="small" display="flex" justifyContent="center"/>
         </Grid>
         <Grid item xs={10} md={10} lg={10} display="flex" justifyContent='left' alignItems='left'>
-        <MDTypography fontSize={20} sx={{color:"#fff"}} fontWeight='bold'>{props.plan}</MDTypography>
+        <MDTypography fontFamily=" ui-rounded" fontSize={20} sx={{color:"#fff"}} fontWeight='bold'>{props.plan}</MDTypography>
         </Grid>
-        </Grid>
-        
-      
-     
-     <MDBox borderTop="1px solid lighgray">
+        </Grid> */}
+
+
+
+        {/* blue box new Logo and Plan NAme  which is aligned in the center of the blue card please dont uncomment above code */}
+
+            <Grid  container spacing={1} justifyContent="center" alignItems="center">
+  <Grid item xs={12}>
+    <Box display="flex" justifyContent="center" alignItems="center">
+      <MDAvatar src={Subs} height={50} size="small" />
+      <MDTypography fontFamily="ui-rounded" fontSize={20} sx={{ color: "#fff", marginLeft: "10px" }} fontWeight="bold">
+        {props.plan}
+      </MDTypography>
+    </Box>
+  </Grid>
+            </Grid>
+
+            {/* The Logo and Plan NAme ends HEre */}
+
+
+       {/* Blue box Price content which is also aligned in the centre */}
 
       <MDBox display='flex' justifyContent='center'>
-      <MDTypography sx={{ fontSize: 34 }} color="gold" gutterBottom>
+      <MDTypography fontFamily=" ui-rounded" sx={{ fontSize: 34, color:"#fff" }} color="gold" gutterBottom>
         {props.price}
       </MDTypography>
-      <MDTypography style={{fontSize:"13px", lineHeight:5}}>{props.upto}</MDTypography>
+      <MDTypography fontFamily=" ui-rounded" style={{fontSize:"13px", lineHeight:5, color:"#fff"}}>{props.upto}</MDTypography>
       </MDBox>
 
+      {/* BLue box Price content ends here */}
 
-      <MDBox display="flex" justifyContent="center" color="navy" >
+
+      <MDBox display="flex" fontFamily=" ui-rounded" justifyContent="center" color="black" >
       <MDTypography sx={{ mb: 1.5 }} color="red">
         {props.discount} 
         <span> {props.discountPrice}</span>
@@ -152,36 +172,53 @@ const card = (props)=> (
 
 
 
-      </MDBox>
-      <MDTypography variant="body2">
+      
+
+      <MDBox display="flex" sx={{margin:"10px 10px"}} justifyContent="center" flexDirection="column" alignItems="center">
+
+      <MDTypography fontWeigh="800" fontFamily="system-ui" color="black" variant="body1">
        {props.validity}
       </MDTypography>
-      <MDTypography gutterBottom variant="body2">
-       {props.validityPeriods}
+      <MDTypography sx={{color:"purple"}} gutterBottom variant="body2">
+      * Validity - {props.validityPeriods} *
       </MDTypography>
-      <MDTypography gutterBottom variant="body2">
-       <CheckIcon sx={{color:"green"}}/>
+      </MDBox>
+
+      <MDBox  borderTop="1px dotted blue"  justifyContent="center">
+        
+        <MDBox display="flex" justifyContent="center">
+
+        <MDTypography fontFamily="Leyton" fontWeight="bold" sx={{color:"rgb(45, 80, 150)", margin:"10px 10px"}} >Benifits</MDTypography>
+        </MDBox>
+
+        <MDTypography fontFamily="Lucida Sans" variant="body2" color="black" >
+       <CheckIcon sx={{color:"green",verticalAlign: "text-top"}}/>
        <span> {props.plan1}</span>
        
       </MDTypography>
-      <MDTypography  variant="body2">
-       <CheckIcon sx={{color:"green"}}/>
+      <MDTypography fontFamily="Lucida Sans" variant="body2" color="black" >
+       <CheckIcon sx={{color:"green",verticalAlign: "text-top"}}/>
        <span> {props.plan2}</span>
        
       </MDTypography>
-      <MDTypography  variant="body2">
-       <CheckIcon sx={{color:"green"}}/>
-       <span> {props.plan3}</span>
-       
-      </MDTypography>
-      <MDTypography  variant="body2">
-        <CloseIcon  sx={{color:"red"}}/>
-       <span> {props.plan4}</span>
-       
-      </MDTypography>
-      <MDBox sx={{display:"flex",justifyContent:"center"}}>
 
-      <button style={{width:"150px",height:"50px",borderRadius:"15px",background:"#000",boxShadow:"14px 29px 19px -21px  rgba(5,5,4,1)",color:"#fff",}}>Purchase</button>
+      <MDTypography fontFamily="Lucida Sans" variant="body2" color="black"  >
+       <CheckIcon sx={{color:"green",verticalAlign: "text-top"}}/>
+       <span> {props.plan3}</span>
+       </MDTypography>
+      
+
+       <MDTypography fontFamily="Lucida Sans" variant="body2" color="black">
+       <CheckIcon sx={{ color: "green", verticalAlign: "text-top" }} />
+       <span> {props.plan4}</span>
+       </MDTypography>
+      
+
+      </MDBox>
+       
+      <MDBox sx={{display:"flex",justifyContent:"center", margin:"10px 0px"}}>
+
+      <Button sx={{color:"#fff", "&:hover":  {width: '180px'}}} style={{width:"150px",height:"50px",borderRadius:"15px",background:"#000",boxShadow:"14px 29px 20px -21px  rgba(5,5,4,1)",}}>Purchase</Button>
       
       </MDBox>
     </CardContent>
