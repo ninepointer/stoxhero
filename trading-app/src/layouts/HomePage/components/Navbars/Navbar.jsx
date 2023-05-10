@@ -25,7 +25,7 @@ const LinkButton = ({ children, ...props }) => (
     sx={{
       cursor: "pointer",
       color: theme.palette.text.secondary,
-      "&:hover": { color: 'black'},
+      "&:hover": { color: '#fff'},
     }}
     {...props}
   >

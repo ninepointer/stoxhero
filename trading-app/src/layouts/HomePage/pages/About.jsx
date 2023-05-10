@@ -1,4 +1,5 @@
-import { Box, Container, Grid, Stack, ThemeProvider } from '@mui/material'
+import { Box, Container, Grid, Stack } from '@mui/material'
+import { ThemeProvider } from 'styled-components';
 import Title from '../components/Title/index'
 import React from 'react'
 import ServiceCard from '../components/Cards/ServiceCard'
@@ -29,14 +30,16 @@ const About = () => {
 
 
 
-            {/* <Navbar/> */}
 
 
-            <Box  bgcolor="#06070A"  >
-                <a  href="/home"><img src={logo} style={{marginTop:"15px",marginLeft:"75px"}} /></a>
-                <Container sx={{ height: "1200" }} >
-                    <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center" sx={{ mt: { xs: 10, md: 15 } }}>
-                        <Grid item xs={12} md={6}  >
+            <Navbar />
+            <Box bgcolor="#06070A" sx={{mt:{xs:-10,lg:-15}}} >
+                
+                
+
+                <Container >
+                    <Grid container spacing={10} flexWrap="wrap-reverse" justifyContent="center" alignItems="center" sx={{ mt: { xs: 10, md: 15, } }}>
+                        <Grid item xs={12} md={6} sx={{mt:10}}  >
                             <Stack spacing={2} sx={{ maxWidth: 480 }}>
                                 <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1 }} style={{ color: "white" }} >StoxHero</Title>
                                 <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >Welcome to StoxHero.com, the ultimate trading-gamification platform designed to empower GenZ users interested in pursuing a career in the exciting world of trading. Our platform provides a unique blend of gamification and real-time trading, offering a comprehensive training experience for retail traders.</Title>
@@ -44,7 +47,7 @@ const About = () => {
                             </Stack>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={6} sx={{mt:10}} >
                             <img src={about1} style={{ width: "100%", objectFit: "contain" }} />
                         </Grid>
                     </Grid>
