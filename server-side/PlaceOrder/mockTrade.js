@@ -111,99 +111,135 @@ exports.mockTrade = async (req, res) => {
     
     console.log(paperTrade, isAlgoTrader);
     if(!paperTrade && isAlgoTrader){
-        MockTradeDetails.findOne({order_id : order_id})
-        .then((dateExist)=>{
-            if(dateExist && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
-                console.log("data already in mock company", checkingMultipleAlgoFlag);
-                return res.status(422).json({error : "date already exist..."})
+
+
+        try{
+
+            const mockCompany = await MockTradeDetails.findOne({order_id : order_id});
+            const mockInfintyTrader = await AlgoTrader.findOne({order_id : order_id});
+            if((mockCompany || mockInfintyTrader) && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
+                return res.status(422).json({message : "data already exist", error: "Fail to trade"})
             }
     
-            const mockTradeDetails = new MockTradeDetails({
+            const session = await mongoose.startSession();
+            session.startTransaction();
+    
+            const companyDoc = {
                 status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
                 Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
                 symbol: realSymbol, placed_by: "ninepointer", algoBox:algoBoxId, order_id, 
                 instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
                 trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
                 trade_time:trade_time,
-                
-            });
-    
-            // console.log("mockTradeDetails comapny", mockTradeDetails);
-            console.log("caseStudy 10: company mock")
-            mockTradeDetails.save().then(()=>{
-                
-                io.emit("updatePnl", mockTradeDetails)
-            }).catch(err => {console.log(err, "fail")});
-            
-        }).catch(err => {console.log(err, "fail")});
-    
-        AlgoTrader.findOne({order_id : order_id})
-        .then((dateExist)=>{
-            if(dateExist){
-                //console.log("data already");
-                return res.status(422).json({error : "date already exist..."})
             }
     
-            const algoTrader = new AlgoTrader({
+            const traderDoc = {
                 status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                 isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
-                
-            });
+            }
     
-            // console.log("mockTradeDetails", algoTrader);
-            console.log("caseStudy 11: algo mock")
-            algoTrader.save().then(async ()=>{
-                console.log("caseStudy 12: algo mock")
-                console.log("sending response");
-                if(await client.exists(`${req.user._id.toString()} overallpnl`)){
-                    //console.log("in the if condition")
-                    let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
-                    pnl = JSON.parse(pnl);
-                    //console.log("before pnl", pnl)
-                    const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader.instrumentToken && element._id.product === algoTrader.Product ));
-          
-                    // if instrument is same then just updating value
-                    if (matchingElement) {
-                      // Update the values of the matching element with the values of the first document
-                      matchingElement.amount += (algoTrader.amount * -1);
-                      matchingElement.brokerage += Number(algoTrader.brokerage);
-                      matchingElement.lastaverageprice = algoTrader.average_price;
-                      matchingElement.lots += Number(algoTrader.Quantity);
-                      //console.log("matchingElement", matchingElement)
-          
-                    } else {
-                      // Create a new element if instrument is not matching
-                      pnl.push({
-                        _id: {
-                          symbol: algoTrader.symbol,
-                          product: algoTrader.Product,
-                          instrumentToken: algoTrader.instrumentToken,
-                          exchange: algoTrader.exchange,
-                        },
-                        amount: (algoTrader.amount * -1),
-                        brokerage: Number(algoTrader.brokerage),
-                        lots: Number(algoTrader.Quantity),
-                        lastaverageprice: algoTrader.average_price,
-                      });
-          
-                    }
-                    
-                    await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))
-                    //console.log("pnl", pnl)
-          
-                }
+            const mockTradeDetails = await MockTradeDetails.create([companyDoc], { session });
+            const algoTrader = await AlgoTrader.create([traderDoc], { session });
 
-                await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
-                res.status(201).json({status: 'Complete', message: 'COMPLETE'});
-            }).catch((err)=> {
-                console.log("in err", err)
-                // res.status(500).json({error:"Failed to enter data"})
-            });
+            if(await client.exists(`${req.user._id.toString()} overallpnl`)){
+                let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
+                pnl = JSON.parse(pnl);
+                const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader.instrumentToken && element._id.product === algoTrader.Product ));
+                // if instrument is same then just updating value
+                if (matchingElement) {
+                  // Update the values of the matching element with the values of the first document
+                  matchingElement.amount += (algoTrader.amount * -1);
+                  matchingElement.brokerage += Number(algoTrader.brokerage);
+                  matchingElement.lastaverageprice = algoTrader.average_price;
+                  matchingElement.lots += Number(algoTrader.Quantity);
+      
+                } else {
+                  // Create a new element if instrument is not matching
+                  pnl.push({
+                    _id: {
+                      symbol: algoTrader.symbol,
+                      product: algoTrader.Product,
+                      instrumentToken: algoTrader.instrumentToken,
+                      exchange: algoTrader.exchange,
+                    },
+                    amount: (algoTrader.amount * -1),
+                    brokerage: Number(algoTrader.brokerage),
+                    lots: Number(algoTrader.Quantity),
+                    lastaverageprice: algoTrader.average_price,
+                  });
+                }
+                await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
+            }
+            // Commit the transaction
+            await session.commitTransaction();
+    
+
+        } catch(err){
+            await session.abortTransaction();
+            console.error('Transaction failed, documents not saved:', err);
+        } finally {
+        // End the session
+            session.endSession();
+        }
+        // MockTradeDetails.findOne({order_id : order_id})
+        // .then((dateExist)=>{
+        //     if(dateExist && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
+        //         console.log("data already in mock company", checkingMultipleAlgoFlag);
+        //         return res.status(422).json({error : "date already exist..."})
+        //     }
+    
+        //     const mockTradeDetails = new MockTradeDetails({
+        //         status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
+        //         Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
+        //         symbol: realSymbol, placed_by: "ninepointer", algoBox:algoBoxId, order_id, 
+        //         instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
+        //         trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
+        //         trade_time:trade_time,
+                
+        //     });
+    
+        //     // console.log("mockTradeDetails comapny", mockTradeDetails);
+        //     console.log("caseStudy 10: company mock")
+        //     mockTradeDetails.save().then(()=>{
+                
+        //         io.emit("updatePnl", mockTradeDetails)
+        //     }).catch(err => {console.log(err, "fail")});
+            
+        // }).catch(err => {console.log(err, "fail")});
+    
+        // AlgoTrader.findOne({order_id : order_id})
+        // .then((dateExist)=>{
+        //     if(dateExist){
+        //         //console.log("data already");
+        //         return res.status(422).json({error : "date already exist..."})
+        //     }
+    
+        //     const algoTrader = new AlgoTrader({
+        //         status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+        //         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+        //         isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
+        //         createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+                
+        //     });
+    
+        //     // console.log("mockTradeDetails", algoTrader);
+        //     console.log("caseStudy 11: algo mock")
+        //     algoTrader.save().then(async ()=>{
+        //         console.log("caseStudy 12: algo mock")
+        //         console.log("sending response");
+
+
+        //         await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
+        //         res.status(201).json({status: 'Complete', message: 'COMPLETE'});
+        //     }).catch((err)=> {
+        //         console.log("in err", err)
+        //         // res.status(500).json({error:"Failed to enter data"})
+        //     });
             
     
-        }).catch(err => {console.log("fail", err)});    
+        // }).catch(err => {console.log("fail", err)});    
     }
     
     if(paperTrade){

@@ -13,7 +13,7 @@ const createNewXTSTicker = (token) => {
         userID: process.env.XTS_USERID,
         publishFormat: 'JSON',
         broadcastMode: 'Full',
-        token: token
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiJDSzY4XzliNTg0YzU4MTczM2NkYzY3NzMwNTgiLCJwdWJsaWNLZXkiOiI5YjU4NGM1ODE3MzNjZGM2NzczMDU4IiwiaWF0IjoxNjgzNjkzNTcyLCJleHAiOjE2ODM3Nzk5NzJ9.CmpKi5GX9NHtW7C6Z1NHJoa7yTasUpF899-qV_Us3lc"
       };
     xtsMarketDataWS.init(socketInitRequest);
 }
@@ -25,10 +25,7 @@ const disconnectXTSTicker = () => {
 }
 
 const searchInstrumentByString = async (searchString)=>{
-    let response = await xtsMarketDataAPI.searchInstrument({
-        searchString: searchString,
-        source: "WEBAPI",
-    });
+ 
 }
 
 
