@@ -25,8 +25,7 @@ import {Howl} from "howler";
 import sound from "../../../assets/sound/tradeSound.mp3"
 
 function ExitPosition({from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
-  //console.log("rendering in userPosition/overall: exitPosition", quantity)
-  // const { render, setRender } = Render
+  const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
     src : [sound],
@@ -106,6 +105,7 @@ function ExitPosition({from, isFromHistory, product, symbol, quantity, exchange,
       openSuccessSB('error', "You do not have any open position for this symbol.")
       return;
     }
+    setButtonClicked(false);
     setOpen(true);
 
   };
@@ -113,20 +113,10 @@ function ExitPosition({from, isFromHistory, product, symbol, quantity, exchange,
   const handleClose = (e) => {
     setOpen(false);
     setExitState(false);
+    setButtonClicked(false);
   };
 
 
-
-  // useEffect(() => {
-
-  //   axios.get(`${baseUrl}api/v1/readsetting`)
-  //     .then((res) => {
-  //       setAppLive(res.data);
-  //     }).catch((err) => {
-  //       return new Error(err);
-  //     })
-
-  // }, [])
 
   let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
   // tradeData[0]?.lotSize;
@@ -140,14 +130,15 @@ function ExitPosition({from, isFromHistory, product, symbol, quantity, exchange,
 console.log("lotSize", lotSize, maxLot)
 
   async function exitPosition(e, uId) {
+    if(buttonClicked){
+      // setButtonClicked(false);
+      return;
+    }
+    setButtonClicked(true);
+
     e.preventDefault()
     setOpen(false);
     setExitState(false);
-
-    // if (!appLive[0].isAppLive) {
-    //   openSuccessSB('error', "App is not Live right now. Please wait.")
-    //   return;
-    // }
 
     exitPositionFormDetails.buyOrSell = "BUY";
 
