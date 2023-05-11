@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.39dfa471.css",
-    "main.js": "/static/js/main.78efdd84.js",
+    "main.js": "/static/js/main.9334d57d.js",
     "static/js/498.e7cb86be.chunk.js": "/static/js/498.e7cb86be.chunk.js",
     "static/js/703.e5427e5c.chunk.js": "/static/js/703.e5427e5c.chunk.js",
     "static/js/513.9968d6e1.chunk.js": "/static/js/513.9968d6e1.chunk.js",
@@ -67,6 +67,7 @@
     "static/media/team-3.jpg": "/static/media/team-3.0ef0be95e6850814c79e.jpg",
     "static/media/ivana-square.jpg": "/static/media/ivana-square.f7bc23b269d1d2509c82.jpg",
     "static/media/kal-visuals-square.jpg": "/static/media/kal-visuals-square.3210e28a48ff572ae88b.jpg",
+    "static/media/subs.png": "/static/media/subs.042d7b97607deb5d8cee.png",
     "static/media/bankniftyicon.png": "/static/media/bankniftyicon.a8c8a18201820f2cb969.png",
     "static/media/todaysignup.png": "/static/media/todaysignup.5c5e0f0af00ee39b5c0b.png",
     "static/media/jobs.png": "/static/media/jobs.bc0567f7e5cab66309ed.png",
@@ -122,13 +123,13 @@
     "static/media/mew.svg": "/static/media/mew.abd579786274219a78079f023ed7b335.svg",
     "index.html": "/index.html",
     "main.39dfa471.css.map": "/static/css/main.39dfa471.css.map",
-    "main.78efdd84.js.map": "/static/js/main.78efdd84.js.map",
+    "main.9334d57d.js.map": "/static/js/main.9334d57d.js.map",
     "498.e7cb86be.chunk.js.map": "/static/js/498.e7cb86be.chunk.js.map",
     "703.e5427e5c.chunk.js.map": "/static/js/703.e5427e5c.chunk.js.map",
     "513.9968d6e1.chunk.js.map": "/static/js/513.9968d6e1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.39dfa471.css",
-    "static/js/main.78efdd84.js"
+    "static/js/main.9334d57d.js"
   ]
 }

@@ -301,6 +301,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             isOpposite = true;
         }
 
+
         console.log(runningLots, userFunds)
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             return next();
@@ -367,7 +368,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
         let userNetPnl = pnlDetails[0]?.npnl;
 
         
-        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Trading"});
+        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         let addPortfolioFund = 0;
         let flag = false;
         for(let i = 0; i < myPortfolios.length; i++){
@@ -385,10 +386,11 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                 }
             }
         }
+
         // 20 15
         // 10 15 -->2nd 50
         // 0  15
-        
+        console.log("portfolio", req.body.portfolioId)
         console.log( userFunds , userNetPnl , zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
 
