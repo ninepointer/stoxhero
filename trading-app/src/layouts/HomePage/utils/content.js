@@ -159,37 +159,33 @@ export const section5Content = {
 };
 
 export const section6Content = {
-  title: "1inch products",
+  title: "Why Choose Stoxhero?",
   ITEMS: [
     {
-      title: "Aggregation Protocol",
+      title: "Learn",
       subtitle:
-        "Liquidity aggregation from multiple DEXes to ensure the best swap rates.",
-      image: Sec6Image1,
+        " Enhance skills, expand knowledge, and unlock your trading potential.",
+      image: "https://www.pngall.com/wp-content/uploads/8/Forex-Trading-PNG-Image.png",
     },
     {
-      title: "Limit Order Protocol",
+      title: "Earn",
       subtitle:
-        "The most innovative and flexible limit order functionality in DeFi.",
-      image: Sec6Image2,
+        "Profitable learning with trading tools and risk-free trading with money making opportunities.",
+      image: "https://3xincome.online/website/images/forex.png",
     },
     {
-      title: "Liquidity Protocol",
+      title: "Trade",
       subtitle:
-        "A next-generation AMM that offers capital efficiency to liquidity providers.",
-      image: Sec6Image3,
+        "User-friendly interface with real-time data, analysis & execution for all traders, from beginners to experienced.",
+      image: "https://www.avatrade.co.za/wp-content/uploads/2022/10/what-is-liquidity.png",
     },
     {
-      title: "1inch Earn",
+      title: "Grow",
       subtitle:
-        "A derivative-based product offering liquidity providers attractive APYs.",
-      image: Sec6Image4,
+        "Transparent, secure, and reliable platform for Intraday Trading. Trusted by traders, for traders.",
+      image: "https://www.pngall.com/wp-content/uploads/8/Trading-PNG.png",
     },
-    {
-      title: "1inch RabbitHole",
-      subtitle: "A feature that protects MetaMask users from sandwich attacks.",
-      image: Sec6Image5,
-    },
+    
   ],
 };
 

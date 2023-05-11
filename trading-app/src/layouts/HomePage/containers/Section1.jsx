@@ -42,15 +42,15 @@ const Section1 = () => {
       {/* Main Background */}
 
       <Box sx={{position:"fixed",zIndex:-10, top:0,left:0,right:0 }}>
-        <img src="https://e0.pxfuel.com/wallpapers/428/686/desktop-wallpaper-purple-artistic-landscape-digital-art-sunset-artist-and-background.jpg" style={{width:"100%"}} />
+        <img src="https://wallpapercave.com/wp/wp2116604.jpg" style={{width:"100%"}} />
       </Box>
 
 
       {/* Background Elements */}
       
-      <Box ref={ref} sx={{position:'absolute' ,width:'100%', zIndex:-1, top:0, left:0, right:0}}>
+      <Box ref={ref} sx={{position:'absolute', zIndex:-1, top:0, left:0, right:0}}>
 
-        <img src="https://e0.pxfuel.com/wallpapers/428/686/desktop-wallpaper-purple-artistic-landscape-digital-art-sunset-artist-and-background.jpg" style={{width:"100%", opacity:0}} />
+        <img src="https://wallpapercave.com/wp/wp2116604.jpg" style={{width:"100%", opacity:0}} />
         
 
          {/* Star image */}
