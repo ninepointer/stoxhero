@@ -3,7 +3,8 @@ const zlib = require('zlib');
 const csv = require('csv-parser');
 const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema")
 const getKiteCred = require('../../marketData/getKiteCred'); 
-
+const {xtsAccountType, zerodhaAccountType} = require("../../constant");
+//TODO toggle between 
 
 exports.search = async (searchString, res, req) => {
 
@@ -33,6 +34,9 @@ try {
       },
       { 
         status: 'Active'
+      },
+      { 
+        accountType: xtsAccountType
       },
       { 
         expiry: {

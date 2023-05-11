@@ -40,6 +40,7 @@ DataTableBodyCell.propTypes = {
   children: PropTypes.node.isRequired,
   noBorder: PropTypes.bool,
   align: PropTypes.oneOf(["left", "right", "center"]),
+  headerAlign: PropTypes.oneOf(["left", "right", "center"])
 };
 
 export default DataTableBodyCell;

@@ -8,7 +8,8 @@ const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany"
 const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
 const client = require('../marketData/redisClient');
-const {Howl} = require('howler');
+const mongoose = require('mongoose');
+const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice");
 
 
 exports.mockTrade = async (req, res) => {
@@ -27,8 +28,12 @@ exports.mockTrade = async (req, res) => {
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, algoBoxId, order_id, instrumentToken,  
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, 
+        trader, isAlgoTrader, paperTrade, exchangeSegment } = req.body 
 
+        if(exchange === "NFO"){
+            exchangeSegment = 2;
+        }
 
       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
@@ -52,7 +57,8 @@ exports.mockTrade = async (req, res) => {
     let trade_time = "";
     try{
         // console.log("above data")
-        let liveData = await singleLivePrice(exchange, symbol)
+        // let liveData = await singleLivePrice(exchange, symbol) TODO toggle
+        let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
         console.log("live data", liveData)
         for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){
@@ -97,22 +103,27 @@ exports.mockTrade = async (req, res) => {
     let brokerageUser;
     let brokerageCompany;
 
+    console.log(Number(realQuantity), originalLastPriceCompany)
     if(realBuyOrSell === "BUY"){
-        brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany);
+        brokerageCompany = 10
+        // buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany); // TODO 
     } else{
-        brokerageCompany = sellBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany);
+        brokerageCompany = 10
+        // sellBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany);
     }
 
     if(buyOrSell === "BUY"){
-        brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+        brokerageUser = 10
+        // buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
     } else{
-        brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+        brokerageUser = 10
+        // sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
     }
     
     console.log(paperTrade, isAlgoTrader);
     if(!paperTrade && isAlgoTrader){
 
-
+        const session = await mongoose.startSession();
         try{
 
             const mockCompany = await MockTradeDetails.findOne({order_id : order_id});
@@ -121,7 +132,7 @@ exports.mockTrade = async (req, res) => {
                 return res.status(422).json({message : "data already exist", error: "Fail to trade"})
             }
     
-            const session = await mongoose.startSession();
+            
             session.startTransaction();
     
             const companyDoc = {
@@ -142,39 +153,40 @@ exports.mockTrade = async (req, res) => {
     
             const mockTradeDetails = await MockTradeDetails.create([companyDoc], { session });
             const algoTrader = await AlgoTrader.create([traderDoc], { session });
-
+            console.log(algoTrader, mockTradeDetails)
             if(await client.exists(`${req.user._id.toString()} overallpnl`)){
                 let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
                 pnl = JSON.parse(pnl);
-                const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader.instrumentToken && element._id.product === algoTrader.Product ));
+                console.log("redis pnl", pnl)
+                const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product ));
                 // if instrument is same then just updating value
                 if (matchingElement) {
                   // Update the values of the matching element with the values of the first document
-                  matchingElement.amount += (algoTrader.amount * -1);
-                  matchingElement.brokerage += Number(algoTrader.brokerage);
-                  matchingElement.lastaverageprice = algoTrader.average_price;
-                  matchingElement.lots += Number(algoTrader.Quantity);
+                  matchingElement.amount += (algoTrader[0].amount * -1);
+                  matchingElement.brokerage += Number(algoTrader[0].brokerage);
+                  matchingElement.lastaverageprice = algoTrader[0].average_price;
+                  matchingElement.lots += Number(algoTrader[0].Quantity);
       
                 } else {
                   // Create a new element if instrument is not matching
                   pnl.push({
                     _id: {
-                      symbol: algoTrader.symbol,
-                      product: algoTrader.Product,
-                      instrumentToken: algoTrader.instrumentToken,
-                      exchange: algoTrader.exchange,
+                      symbol: algoTrader[0].symbol,
+                      product: algoTrader[0].Product,
+                      instrumentToken: algoTrader[0].instrumentToken,
+                      exchange: algoTrader[0].exchange,
                     },
-                    amount: (algoTrader.amount * -1),
-                    brokerage: Number(algoTrader.brokerage),
-                    lots: Number(algoTrader.Quantity),
-                    lastaverageprice: algoTrader.average_price,
+                    amount: (algoTrader[0].amount * -1),
+                    brokerage: Number(algoTrader[0].brokerage),
+                    lots: Number(algoTrader[0].Quantity),
+                    lastaverageprice: algoTrader[0].average_price,
                   });
                 }
                 await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
             }
             // Commit the transaction
             await session.commitTransaction();
-    
+            res.status(201).json({status: 'Complete', message: 'COMPLETE'});
 
         } catch(err){
             await session.abortTransaction();

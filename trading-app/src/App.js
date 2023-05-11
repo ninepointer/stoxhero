@@ -51,12 +51,16 @@ import { userContext } from "./AuthContext";
 import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
+import Careers from './layouts/HomePage/pages/Career'
+import JobDescription from './layouts/HomePage/pages/JobDescription'
+import JobApply from './layouts/HomePage/pages/CareerForm'
+import Home from "../src/layouts/HomePage/pages/Home";
+import About from "../src/layouts/HomePage/pages/About";
 // import ResetPassword from './layouts/authentication/reset-password'
 import ResetPassword from './layouts/authentication/reset-password/cover';
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
-import  Home from "../src/layouts/HomePage/pages/Home";
 
 export default function App() {
   const cookieValue = Cookies.get("jwt");
@@ -104,9 +108,11 @@ export default function App() {
       console.log("Fail to fetch data of user");
       noCookie = true;
       console.log(err);
-      pathname === '/signup' ? navigate("/signup") : navigate("/");
+      console.log("Inside API: ",pathname)
+      pathname === '/login' ? navigate("/login") : navigate(pathname);
     })
   }, [])
+
 
   // Cache for the rtl
   useMemo(() => {
@@ -184,7 +190,8 @@ export default function App() {
     </MDBox>
   );
 
-  console.log(layout)
+  console.log("Path Name: ",pathname)
+
   return direction === "rtl" ? (
     
       <CacheProvider value={rtlCache}>
@@ -277,19 +284,22 @@ export default function App() {
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<SignIn />} />
           :
-          // <Route path="/" element={<SignIn />} />
           <Route path="/" element={<SignIn />} />
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate to="/virtualtrading" />} />
           :
+          // <Route path="/" element={<Navigate to={pathname} />} />
           <Route path="/" element={<Navigate to={pathname} />} />
           }
           <Route path='/resetpassword' element={<ResetPassword/>}/>
-          
-
-          
-          
+          <Route path='/careers' element={<Careers/>}/>
+          <Route path='/jobdescription' element={<JobDescription/>}/>
+          <Route path='/apply' element={<JobApply/>}/>
+          <Route path='/home' element={<Home/>}/>
+          <Route path='/login' element={<SignIn/>}/>
+          <Route path='/about' element={<About/>}/>
+            
         </Routes>
       </ThemeProvider>
     

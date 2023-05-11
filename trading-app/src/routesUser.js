@@ -19,7 +19,7 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
-import UserPosition from "./layouts/PaperTrade";
+import UserPosition from "./layouts/PaperTrade/index";
 // import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
 import UserContest from "./layouts/UserContest"
@@ -40,6 +40,12 @@ import FAQs from "./layouts/FAQs";
 import UserWallet from "./layouts/userWallet"
 import TenXTrading from "./layouts/tenXTrading"
 import UserAnalytics from "./layouts/userAnalytics"
+import About from './layouts/HomePage/pages/About'
+import Careers from './layouts/HomePage/pages/Career'
+import Home from './layouts/HomePage/pages/Home'
+import JD from './layouts/HomePage/pages/JobDescription'
+import CareerForm from './layouts/HomePage/pages/CareerForm'
+import Contact from "./layouts/HomePage/pages/Contact";
 // import logo from "../src/assets/images/logo1.jpeg"
 
 const routes = [
@@ -52,6 +58,51 @@ const routes = [
   //   route: "/Dashboard",
   //   component: <Home />,
   // },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "about",
+    component: <About />,
+  },
+  
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "jobdescription",
+    component: <JD />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "home",
+    component: <Home />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "careers",
+    component: <Careers />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "apply",
+    component: <CareerForm />,
+  },
+  {
+    route: "contact",
+    component: <Contact />,
+  },
   {
     type: "collapse",
     name: "Virtual Trading",

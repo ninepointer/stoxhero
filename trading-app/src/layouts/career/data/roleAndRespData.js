@@ -6,11 +6,11 @@ import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 
 
-export default function RolesAndResponsibilities({updatedDocument}) {
+export default function RolesAndResponsibilities({updatedDocument,setUpdatedDocument}) {
     console.log("updatedDocument", updatedDocument)
     let columns = [
         { Header: "Order No.", accessor: "orderNo", align: "center" },
-        { Header: "Description", accessor: "description", align: "center" },
+        { Header: "Description", accessor: "description", align: "left" },
         { Header: "Edit", accessor: "edit", align: "center" },
         { Header: "Delete", accessor: "delete", align: "center" },
       ]
@@ -45,7 +45,7 @@ updatedDocument?.rolesAndResponsibilities?.map((elem)=>{
 
   return (
     <Card>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center">
+      <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
             Feature added!

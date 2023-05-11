@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const {xtsAccountType, zerodhaAccountType} = require("../../constant");
+
 
 const instrumentSchema = new mongoose.Schema({
     instrument:{
@@ -42,6 +44,15 @@ const instrumentSchema = new mongoose.Schema({
         type: Boolean,
         required : true,
         default: true
+    },
+    accountType:{
+        type: String,
+        required : true,
+        enum : [zerodhaAccountType, xtsAccountType]
+    },
+    exchangeSegment:{
+        type: Number,
+        // required : true
     },
     createdOn:{
         type: Date,
