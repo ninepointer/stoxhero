@@ -11,16 +11,17 @@ const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
 const client = require("../../marketData/redisClient");
 const ObjectId = require('mongodb').ObjectId;
+const {subscribeSingleXTSToken, unSubscribeXTSToken} = require("../../services/xts/xtsMarket")
 
 router.post("/addInstrument",authentication, async (req, res)=>{
       
     const {_id} = req.user;
 
     try{
-        let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken} = req.body;
+        let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment} = req.body;
 
-        console.log("contractDate", contractDate, new Date(contractDate))
-        if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken){
+        console.log("contractDate", exchangeSegment, Number(exchangeSegment))
+        if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken || !accountType){
             if(!instrumentToken){
                 return res.status(422).json({error : "Please enter a valid Instrument."})
             }
@@ -59,6 +60,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                             instrumentToken: dataExist.instrumentToken ,
                             contractDate: dataExist.contractDate ,
                             maxLot: dataExist.maxLot ,
+                            accountType: dataExist.accountType
                           }))                
                     }
     
@@ -68,7 +70,9 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                 res.status(422).json({message : "Instrument Added"})
                 return;
             }
-            const addingInstruments = new Instrument({instrument, exchange, symbol, status, uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken, contractDate, maxLot});
+            const addingInstruments = new Instrument({instrument, exchange, symbol, status, 
+                uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken, 
+                contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment)});
             //console.log("instruments", instruments)
             addingInstruments.save().then(async()=>{
 
@@ -90,13 +94,16 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                         instrumentToken: addingInstruments.instrumentToken ,
                         contractDate: addingInstruments.contractDate ,
                         maxLot: addingInstruments.maxLot ,
+                        accountType: addingInstruments.accountType
                       }))
                 }
 
                 } catch(err){
                     console.log(err)
                 }
-                 await subscribeSingleToken(instrumentToken);
+                
+                 await subscribeSingleToken(instrumentToken);//TODO toggle
+                 await subscribeSingleXTSToken(instrumentToken, Number(exchangeSegment))
                  let getInstruments = await User.findOne({_id : _id});
                  getInstruments.watchlistInstruments.push(addingInstruments._id)
                  const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
@@ -171,7 +178,8 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
                 lotSize: removeFromWatchlist.lotSize ,
                 instrumentToken: removeFromWatchlist.instrumentToken ,
                 contractDate: removeFromWatchlist.contractDate ,
-                maxLot: removeFromWatchlist.maxLot ,
+                maxLot: removeFromWatchlist.maxLot,
+                accountType: removeFromWatchlist.accountType
               }))
 
               console.log("redisClient", removeInstrument)

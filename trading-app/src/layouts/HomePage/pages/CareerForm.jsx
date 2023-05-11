@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
 import { Grid, Input, TextField } from '@mui/material'
@@ -14,28 +14,32 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
 
 
 const CareerForm = () => {
-
+  const [submitted,setSubmitted] = useState(false)
+  const [saving,setSaving] = useState(false)
   const [detail, setDetails] = useState({
     firstName: "",
     lastName: "",
     email: "",
     mobile: "",
-    rollNo: "",
     dob: "",
-    collageName: "",
-    tradingExp: "",
-    applyingFor: "",
+    collegeName: "",
+    priorTradingExperience: "",
     source: "",
 
   })
   const location = useLocation();
   const career = location?.state?.data;
-
+  console.log("Career: ",career)
   const [file, setFile] = useState(null);
   // const [uploadedData, setUploadedData] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -46,41 +50,45 @@ const CareerForm = () => {
 
   const handleUpload = async () => {
     setDetails(detail);
-    // console.log(detail);
+    setSaving(true)
+    console.log(detail);
 
-    if(!detail.firstName || !detail.lastName || !detail.email || !detail.mobile || !detail.rollNo || !detail.dob || !detail.collageName || !detail.tradingExp || !detail.applyingFor || !detail.source){
+    if(!detail.firstName || !detail.lastName || !detail.email || !detail.mobile || !detail.dob || !detail.collegeName || !detail.priorTradingExperience || !detail.source){
       openSuccessSB("Alert", "Please fill all fields", "FAIL")
+      setSaving(false)
       return;
     }
 
-    if (!file) {
-      openSuccessSB("Alert", "Please select your resume", "FAIL")
-      return;
-    }
+    // if (!file) {
+    //   openSuccessSB("Alert", "Please select your resume", "FAIL")
+    //   setSaving(false)
+    //   return;
+    // }
 
-    if(file.length > 1){
-      openSuccessSB("Fail", "Please upload single file", "FAIL")
-      return;
-    }
+    // if(file.length > 1){
+    //   openSuccessSB("Fail", "Please upload single file", "FAIL")
+    //   setSaving(false)
+    //   return;
+    // }
   
     try {
       const formData = new FormData();
-      for (let i = 0; i < file.length; i++) {
-        formData.append("files", file[i]);
-      }
+      // for (let i = 0; i < file.length; i++) {
+      //   formData.append("files", file[i]);
+      // }
       formData.append('firstName', detail.firstName);
       formData.append('lastName', detail.lastName);
       formData.append('email', detail.email);
       formData.append('mobile', detail.mobile);
-      formData.append('rollNo', detail.rollNo);
+      // formData.append('rollNo', detail.rollNo);
       formData.append('dob', detail.dob);
-      formData.append('collageName', detail.collageName);
-      formData.append('tradingExp', detail.tradingExp);
-      formData.append('applyingFor', detail.applyingFor);
+      formData.append('collegeName', detail.collegeName);
+      formData.append('priorTradingExperience', detail.priorTradingExperience);
+      // formData.append('applyingFor', career.jobTitle);
       formData.append('source', detail.source);
       formData.append('career', career._id);
 
-      console.log(formData, file, file.name)
+      // console.log(formData, file, file.name)
       const { data } = await axios.post(`${baseUrl}api/v1/career/userDetail`, formData, {
         withCredentials: true,
         headers: {
@@ -93,8 +101,10 @@ const CareerForm = () => {
       // alert("File upload successfully");
       // console.log("if file uploaded", data);
       setFile(null)
+      setSubmitted(true);
+      setSaving(false);
     } catch (error) {
-      console.log(error, file);
+      console.log(error);
       // alert('File upload failed');
       openSuccessSB("Error", "Unexpected error", "FAIL")
     }
@@ -145,14 +155,14 @@ const CareerForm = () => {
     <div>
         <ThemeProvider theme={theme}>
         <Navbar/>
-        <MDBox>
+        <MDBox sx={{height:"auto"}} bgColor="light">
 
-            <MDBox mt={'65px'} p={4}>
+            {(!submitted) ? <MDBox mt={'65px'} p={4} display="flex" justifyContent='center' alignItems='center' flexDirection='column'>
                 <MDBox display='flex' justifyContent='center'>
-                    <MDTypography>Please fill your details!</MDTypography>
+                    <MDTypography color="black">Please fill your details to apply for {career?.jobTitle}!</MDTypography>
                 </MDBox>
-                <Grid container spacing={2} mt={1} xs={12} md={12} lg={9} display='flex' justifyContent='center'>
-                    <Grid item xs={12} md={6} lg={3}>
+                <Grid container spacing={2} mt={1} xs={12} md={12} lg={6} display='flex' justifyContent='center' alignItems='center'>
+                    <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         // disabled={showEmailOTP}
@@ -163,7 +173,8 @@ const CareerForm = () => {
                         onChange={(e)=>{detail.firstName = e.target.value}}
                       />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
+
+                    <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         // disabled={showEmailOTP}
@@ -174,7 +185,8 @@ const CareerForm = () => {
                         onChange={(e)=>{detail.lastName = e.target.value}}
                       />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
+
+                    <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         // disabled={showEmailOTP}
@@ -185,7 +197,8 @@ const CareerForm = () => {
                         onChange={(e)=>{detail.email = e.target.value}}
                       />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
+
+                    <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         // disabled={showEmailOTP}
@@ -196,29 +209,20 @@ const CareerForm = () => {
                         onChange={(e)=>{detail.mobile = e.target.value}}
                       />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
+
+                    <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         // disabled={showEmailOTP}
                         id="outlined-required"
-                        label="Roll No."
+                        label="College Name"
                         type="text"
                         fullWidth
-                        onChange={(e)=>{detail.rollNo = e.target.value}}
+                        onChange={(e)=>{detail.collegeName = e.target.value}}
                       />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
-                    <TextField
-                        required
-                        // disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="Collage Name"
-                        type="text"
-                        fullWidth
-                        onChange={(e)=>{detail.collageName = e.target.value}}
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
+
+                    {/* <Grid item xs={12} md={6} lg={6}>
                     <TextField
                         required
                         // disabled={showEmailOTP}
@@ -228,9 +232,25 @@ const CareerForm = () => {
                         fullWidth
                         onChange={(e)=>{detail.dob = e.target.value}}
                       />
+                    </Grid> */}
+
+                    <Grid item xs={12} md={6} xl={6} mt={-1}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                          <DatePicker
+                            label="Date of Birth"
+                            // onChange={(e) => {setFormStatePD(prevState => ({
+                            //   ...prevState,
+                            //   joining_date: dayjs(e)
+                            // }))}}
+                            onChange={(e)=>{detail.dob = dayjs(e)}}
+                            sx={{ width: '100%' }}
+                          />
+                        </DemoContainer>
+                      </LocalizationProvider>
                     </Grid>
 
-                    <Grid item xs={12} md={6} xl={3}>
+                    <Grid item xs={12} md={6} xl={6}>
                       <FormControl sx={{width: "100%" }}>
                         <InputLabel id="demo-simple-select-autowidth-label">Trading Exp *</InputLabel>
                         <Select
@@ -239,7 +259,7 @@ const CareerForm = () => {
                         // value={formState?.jobType}
                         // value={oldObjectId ? contestData?.status : formState?.status}
                         // disabled={((isSubmitted || id) && (!editing || saving))}
-                        onChange={(e)=>{detail.tradingExp = e.target.value}}
+                        onChange={(e)=>{detail.priorTradingExperience = e.target.value}}
                         label="Trading Exp."
                         sx={{ minHeight:43 }}
                         >
@@ -247,31 +267,33 @@ const CareerForm = () => {
                         <MenuItem value="No">No</MenuItem>
                         </Select>
                       </FormControl>
-                  </Grid>
+                    </Grid>
 
-                    <Grid item xs={12} md={6} lg={3}>
-                    <TextField
-                        required
-                        // disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="Applying For"
-                        type="text"
-                        fullWidth
-                        onChange={(e)=>{detail.applyingFor = e.target.value}}
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
-                    <TextField
-                        required
-                        // disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="From where you hear about us ?"
-                        type="text"
-                        fullWidth
+                    <Grid item xs={12} md={6} xl={6}>
+                      <FormControl sx={{width: "100%" }}>
+                        <InputLabel id="demo-simple-select-autowidth-label">From where you hear about us ? *</InputLabel>
+                        <Select
+                        labelId="demo-simple-select-autowidth-label"
+                        id="demo-simple-select-autowidth"
+                        // value={formState?.jobType}
+                        // value={oldObjectId ? contestData?.status : formState?.status}
+                        // disabled={((isSubmitted || id) && (!editing || saving))}
                         onChange={(e)=>{detail.source = e.target.value}}
-                      />
+                        label="From where you hear about us ?"
+                        sx={{ minHeight:43 }}
+                        >
+                        <MenuItem value="LinkedIn">LinkedIn</MenuItem>
+                        <MenuItem value="Friend">Friend</MenuItem>
+                        <MenuItem value="Facebook">Facebook</MenuItem>
+                        <MenuItem value="Instagram">Instagram</MenuItem>
+                        <MenuItem value="Twitter">Twitter</MenuItem>
+                        <MenuItem value="Google">Google</MenuItem>
+                        <MenuItem value="Others">Others</MenuItem>
+                        </Select>
+                      </FormControl>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={3}>
+
+                    {/* <Grid item xs={12} md={6} lg={6}>
                     <Input
                         required
                         // disabled={showEmailOTP}
@@ -281,19 +303,34 @@ const CareerForm = () => {
                         fullWidth
                         onChange={handleFileChange}
                       />
+                    </Grid> */}
+
+                    <Grid item xs={12} md={6} lg={12}>
+                    <MDBox mb={1} display="flex" justifyContent="space-around">
+                      <MDButton onClick={handleUpload} variant="gradient" color="info">
+                        Submit
+                      </MDButton>
+                    </MDBox>
                     </Grid>
                 </Grid>
+                
             </MDBox>
-
-            <MDBox mb={1} display="flex" justifyContent="space-around">
-              <MDButton onClick={handleUpload} variant="gradient" color="info">
-                Submit
-              </MDButton>
+            :
+            <MDBox minHeight='50vH' marginTop="65px" display="flex" justifyContent='center' alignItems='center' alignContent='center'>
+              <Grid container>
+                <Grid item p={2} m={2} xs={12} md={12} lg={12} display="flex" justifyContent='center' alignItems='center' alignContent='center' style={{textAlign: 'center'}}>
+                  <MDTypography>Your application has been submitted successfully, our team will get back to you soon!</MDTypography>
+                </Grid>
+              </Grid>
             </MDBox>
+            }
 
         </MDBox>
-        {renderSuccessSB}
+        <MDBox bgColor="black" sx={{marginTop:-2}}>
+
         <Footer/>
+        </MDBox>
+        {renderSuccessSB}
         </ThemeProvider>
     </div>
   )

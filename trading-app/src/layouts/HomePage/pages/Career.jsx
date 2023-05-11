@@ -19,9 +19,8 @@ const App = () => {
 
     <Navbar/>
       </div>
-    <Box sx={{bgcolor:"white",height:"100vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
+    <Box mt="56px" sx={{bgcolor:"white",minHeight:"60vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
       <Internship/>
-      
     </Box>
 
     <Footer/>

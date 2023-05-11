@@ -68,7 +68,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from}) {
     // socket.on("tick", (data) => {
     socket?.on("tick-room", (data) => {
 
-      //console.log('data from socket in instrument in parent', data);
+      console.log('data from socket in instrument in parent', data);
       // //console.log("marketdata", data)
       marketDetails.setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));

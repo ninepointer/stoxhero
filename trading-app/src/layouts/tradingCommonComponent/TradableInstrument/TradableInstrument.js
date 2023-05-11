@@ -181,15 +181,13 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
 
   async function subscribeInstrument(instrumentData, addOrRemove){
 
-    const {instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry} = instrumentData
-
+    const {instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry, accountType, segment} = instrumentData
+    console.log("instrumentData", instrumentData, segment)
     // socket.emit("subscribeToken", instrument_token);
     dispatch({ type: 'setInstrumentName', payload: `${strike} ${instrument_type}` });
-    // instrumentName = `${strike} ${instrument_type}`
     if(addOrRemove === "Add"){
       dispatch({ type: 'setAddOrRemoveCheckTrue', payload: true });
-      // setAddOrRemoveCheck(true);
-      //console.log(instrumentData)
+
       const res = await fetch(`${baseUrl}api/v1/addInstrument`, {
         method: "POST",
         credentials:"include",
@@ -198,7 +196,11 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          instrument: `${strike} ${instrument_type}`, exchange, status: "Active", symbol: tradingsymbol, lotSize: lot_size, instrumentToken: instrument_token, uId: uniqid(), contractDate: expiry, maxLot: lot_size*36
+          instrument: name, exchange, status: "Active", 
+          symbol: tradingsymbol, lotSize: lot_size, 
+          instrumentToken: instrument_token, uId: uniqid(), 
+          contractDate: expiry, maxLot: lot_size*36, 
+          accountType, exchangeSegment: segment
         })
       });
     
@@ -207,10 +209,6 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
       if(data.status === 422 || data.error || !data){
           window.alert(data.error);
       }else{
-        // let instrumentTokenArr = [];
-        // instrumentTokenArr.push(instrument_token)
-        // socket.emit("subscribeToken", instrumentTokenArr);
-        //console.log("instrument_token data from socket", instrument_token)
         openSuccessSB();
         //console.log(data.message)
       }

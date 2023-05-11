@@ -43,7 +43,7 @@ const MyPortfolioCard = ({type}) => {
       console.log(api1Response.data.data);
       console.log(api2Response.data);
       setMyPortfolio(api1Response.data.data)
-      setPortfolioPnl(api2Response.data)
+      setPortfolioPnl(api2Response.data.data)
     
     })
     .catch((error) => {

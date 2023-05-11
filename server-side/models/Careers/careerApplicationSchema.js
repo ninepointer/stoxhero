@@ -18,10 +18,6 @@ const CareerApplication = new mongoose.Schema({
         type: String,
         required: true,
     },
-    rollNo: {
-        type: String,
-        required: true,
-    },
     dob:{
         type: Date,
         required: true,

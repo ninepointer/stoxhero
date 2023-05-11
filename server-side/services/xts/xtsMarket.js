@@ -1,11 +1,15 @@
 let XtsMarketDataAPI = require('xts-marketdata-api').XtsMarketDataAPI;
 let XtsMarketDataWS = require('xts-marketdata-api').WS;
 const socketIoClient = require("socket.io-client");
-
+const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema");
+const {xtsAccountType} = require("../../constant");
+const fetchXTSToken = require("./xtsHelper/fetchXTSToken");
+const client = require("../../marketData/redisClient");
+const io = require('../../marketData/socketio');
+const {save} = require("./xtsHelper/saveXtsCred")
 
 let xtsMarketDataWS ;
 let xtsMarketDataAPI ;
-let socket;
 const data = async ()=>{
     xtsMarketDataAPI = new XtsMarketDataAPI(
         'http://14.142.188.188:23000/apimarketdata'
@@ -21,230 +25,190 @@ const data = async ()=>{
     };
     
     (async ()=>{
-        console.log(loginRequest)
-        let logIn = await xtsMarketDataAPI.logIn(loginRequest);
-        console.log(logIn)
-        let socketInitRequest = {
-            userID: process.env.XTS_USERID,
-            publishFormat: 'JSON',
-            broadcastMode: 'Full',
-            token: logIn.result.token
-          };
-        xtsMarketDataWS.init(socketInitRequest);
+      console.log(loginRequest)
+      let logIn = await xtsMarketDataAPI.logIn(loginRequest);
+      console.log(logIn)
+      let socketInitRequest = {
+          userID: process.env.XTS_USERID,
+          publishFormat: 'JSON',
+          broadcastMode: 'Full',
+          token: logIn.result.token
+        };
+      xtsMarketDataWS.init(socketInitRequest);
 
+      xtsMarketDataWS.onConnect((connectData) => {
+        console.log("socket connection", connectData);
+      });
 
-          let response3 = await xtsMarketDataAPI.subscription({
-            instruments: [
-              {
-                exchangeSegment: 1,
-                exchangeInstrumentID: 26001,
-              },
-              {
-                exchangeSegment: 1,
-                exchangeInstrumentID: 26000,
-              },
-            ],
-            xtsMessageCode: 1512,
-          });
+      xtsMarketDataWS.onJoined((joinedData) => {
+        console.log("joinedData", joinedData);
+      });
 
-          console.log(response3)
-
-   xtsMarketDataWS.onConnect((connectData) => {
-      console.log("socket connection", connectData);
-    });
-      //"marketDepthEvent" event listener
-  xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
-    console.log("1", marketDepthData);
-  });
-
-  //"openInterestEvent" event listener
-  xtsMarketDataWS.onOpenInterestEvent((openInterestData) => {
-    console.log("2",openInterestData);
-  });
-
-    // xtsMarketDataWS.on("1512-json-full",function(data){
-    //     console.log("data is "+data);
-    // });
-
-//   "indexDataEvent" event listener
-  xtsMarketDataWS.onIndexDataEvent((indexData) => {
-    console.log("index data", indexData);
-  });
-
-  //"marketDepth100Event" event listener
-  xtsMarketDataWS.onMarketDepth100Event((marketDepth100Data) => {
-    console.log("3",marketDepth100Data);
-  });
-
-//   "instrumentPropertyChangeEvent" event listener
-//   xtsMarketDataWS.onInstrumentPropertyChangeEvent((propertyChangeData) => {
-//     console.log("4", propertyChangeData);
-//   });
-
-  //"candleDataEvent" event listener
-  xtsMarketDataWS.onCandleDataEvent((candleData) => {
-    console.log("candle data", candleData);
-  });
-
-  xtsMarketDataWS.onJoined((joinedData) => {
-    console.log("joinedData", joinedData);
-  });
-
-  //"error" event listener
-  console.log("check type of", typeof(xtsMarketDataWS.onLTPEvent))
-  xtsMarketDataWS.onLTPEvent((errorData) => {
-    // console.log("errorData", errorData);
-  });
-
-  //"logout" event listener
-  xtsMarketDataWS.onLogout((logoutData) => {
-    console.log(logoutData);
-  });
-
-
-
-
-
-
-
-        // console.log( process.env.XTS_USERID,logIn.result.token )
-        //  socket = socketIoClient("http://14.142.188.188:23000", {
-        //     path: '/apimarketdata/socket.io',
-        //     query: {
-        //         token: logIn.result.token,
-        //         userID: process.env.XTS_USERID,
-        //         publishFormat: "JSON",
-        //         broadcastMode: "Full"
-        //     }
-        // });
-        // socket.on('connect', function () {
-        //     console.log("socket connected successfully")
-        // });
-        // socket.on("1501-json-full",function(data){
-        //     console.log("data is "+data);
-        // }); 
-        // console.log("socket", socket)
-
-        // let response3 = await xtsMarketDataAPI.subscription({
-        //     instruments: [
-        //       {
-        //         exchangeSegment: 1,
-        //         exchangeInstrumentID: 3749,
-        //       },
-        //     ],
-        //     xtsMessageCode: 1512,
-        //   });
-
-        //   console.log(response3)
+      await save(logIn.result.userID, logIn.result.token)
     
-    })();
+  })();
+}
 
-
+const onDisconnect = async()=>{
+  xtsMarketDataWS.onDisconnect((disconnect) => {
+    console.log("xts socket disconnected", disconnect);
+  });
 }
 
 const getInstrument = async()=>{
     let response = await xtsMarketDataAPI.searchInstrument({
-        searchString: 'REL',
+        searchString: 'NIF',
         source: "WEBAPI",
       });
     
     return (response);
 }
 
-const tickerConnect = async()=>{
-       socket.on("1501-json-full",function(data){
-        console.log("data is "+data);
-       }); 
+const subscribeInstrument = async()=>{
+  const token = await fetchXTSToken();
+  let response3 = await xtsMarketDataAPI.subscription({
+    instruments: token,
+    xtsMessageCode: 1512,
+  });
+  console.log(response3);
+}
 
-       socket.on("1502-json-full",function(data){
-        console.log("data is "+data);
-       });
+const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
+  console.log(exchangeSegment)
+  let response3 = await xtsMarketDataAPI.subscription({
+    instruments: [
+      {
+        exchangeSegment: exchangeSegment,
+        exchangeInstrumentID: instrumentToken,
+      }
+    ],
+    xtsMessageCode: 1512,
+  });
+  console.log(response3)
+}
 
-       socket.on("1505-json-full",function(data){
-        console.log("data is "+data);
-       });
+const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
+  let response = await xtsMarketDataAPI.unSubscription({
+    instruments: [
+      {
+        exchangeSegment: exchangeSegment,
+        exchangeInstrumentID: instrumentToken,
+      },
+    ],
+    xtsMessageCode: 1502,
+  });
+}
 
-       socket.on("1512-json-full",function(data){
-        console.log("data is "+data);
-       });
-    console.log("inside ticker cn=onnected")
-//     xtsMarketDataWS.onConnect((connectData) => {
-//       console.log("socket connection", connectData);
-//     });
-//       //"marketDepthEvent" event listener
-//   xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
-//     console.log("1", marketDepthData);
-//   });
+const getXTSTicksForUserPosition = async (socket) => {
 
-//   //"openInterestEvent" event listener
-//   xtsMarketDataWS.onOpenInterestEvent((openInterestData) => {
-//     console.log("2",openInterestData);
-//   });
+  let indecies = await client.get("index")
+  if(!indecies){
+    indecies = await StockIndex.find({status: "Active"});
+    await client.set("index", JSON.stringify(indecies));
+  } else{
+    indecies = JSON.parse(indecies);  
+  }
 
-    // xtsMarketDataWS.on("1512-json-full",function(data){
-    //     console.log("data is "+data);
-    // });
+  xtsMarketDataWS.onCandleDataEvent((candleData) => {
+    console.log("candle data", candleData);
+  });
 
-  //"indexDataEvent" event listener
-//   xtsMarketDataWS.onIndexDataEvent((indexData) => {
-//     console.log("index data", indexData);
-//   });
+  xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
+    let intervalId;
+    if(intervalId){
+      clearTimeout(intervalId);
+    }
+    ticksObj = JSON.parse(ticksObj);
+    ticksObj.last_price = ticksObj.LastTradedPrice;
+    ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+ 
+    let ticks = [];
+    ticks.push(ticksObj);
+    // console.log(ticks)
+    let indexObj = {};
+    let now = performance.now();
+    // populate hash table with indexObj from indecies
+    for (let i = 0; i < indecies?.length; i++) {
+      indexObj[indecies[i]?.instrumentToken] = true;
+    }
+    // filter ticks using hash table lookups
+    let indexData = ticks.filter(function(item) {
+      return indexObj[item.ExchangeInstrumentID];
+    });
 
-//   //"marketDepth100Event" event listener
-//   xtsMarketDataWS.onMarketDepth100Event((marketDepth100Data) => {
-//     console.log("3",marketDepth100Data);
-//   });
 
-  //"instrumentPropertyChangeEvent" event listener
-//   xtsMarketDataWS.onInstrumentPropertyChangeEvent((propertyChangeData) => {
-//     console.log("4", propertyChangeData);
-//   });
+    try{
+      let userId = await client.get(socket.id)
+      // await client.del(userId)
+      let instruments = await client.SMEMBERS(userId)
+      // console.log(userId, instruments)
+      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
+      // console.log(instrumentTokenArr)
+      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.ExchangeInstrumentID).toString()));
+      if (indexData && indexData.length > 0) {
+        socket.emit('index-tick', indexData);
+      }
+      
+      // console.log("filteredTicks", filteredTicks);
+      // setTimeout(()=>{
+        filteredTicks = [...filteredTicks, ...filteredTicks];        
+        
+        if (filteredTicks.length > 0) {
+          io.to(`${userId}`).emit('tick-room', filteredTicks);
+        }
+      // }, 1000)
 
-//   //"candleDataEvent" event listener
-//   xtsMarketDataWS.onCandleDataEvent((candleData) => {
-//     console.log("candle data", candleData);
-//   });
 
-//   xtsMarketDataWS.onJoined((joinedData) => {
-//     console.log("joinedData", joinedData);
-//   });
 
-//   //"error" event listener
-//   xtsMarketDataWS.onError((errorData) => {
-//     console.log("errorData", errorData);
-//   });
+      filteredTicks = null;
+      ticks = null;
+      indexData = null;
+      instrumentTokenArr = null;
+      instruments = null;
 
-  // //"logout" event listener
-//   xtsMarketDataWS.onLogout((logoutData) => {
-//     console.log(logoutData);
-//   });
+    } catch (err){
+      console.log(err)
+    }
+  });
+}
+
+const tradableInstrument = async(req, res)=>{
+  let response = await xtsMarketDataAPI.searchInstrument({
+    searchString: 'NIF',
+    source: "WEBAPI",
+  });
+
+  res.send(response)
+  console.log(response.result);
+  let response4 = response.result;
+  for(let i = 0; i < response4.length; i++){
+    if(response4[i].UnderlyingIndexName && response4[i].ContractExpiration && response4[i].StrikePrice){
+      const docs = {
+        instrument_token: response4[i].ExchangeInstrumentID,
+        exchange_token: response4[i].ExchangeInstrumentID,
+        tradingsymbol: response4[i].CompanyName,
+        name: response4[i].UnderlyingIndexName,
+        expiry: response4[i].ContractExpiration,
+        strike: response4[i].StrikePrice,
+        tick_size: response4[i].TickSize,
+        lot_size: response4[i].LotSize,
+        instrument_type: response4[i].InstrumentType,
+        segment: response4[i].ExchangeSegment,
+        exchange: "NFO",
+        accountType: xtsAccountType,
+        lastModifiedBy: req.user._id,
+        createdBy: req.user._id,
+        
+      }
+      console.log("docs", docs)
+      const tradableInstrument = await TradableInstrument.create(docs);
+      console.log(tradableInstrument)
+    }
+  }
 
 }
 
-module.exports = {data, getInstrument, tickerConnect};
-  
 
-
-    // let response = await xtsMarketDataAPI.clientConfig();
-
-    // let response = await xtsMarketDataAPI.searchInstrument({
-    //     searchString: 'REL',
-    //     source: "WEBAPI",
-    // });
-
-    // console.log(response);
-
-    // let response1 = await xtsMarketDataAPI.subscription({
-    //     instruments: [
-    //       {
-    //         exchangeSegment: xtsMarketDataAPI.exchangeSegments.NSECM,
-    //         exchangeInstrumentID: 22,
-    //       },
-    //       {
-    //         exchangeSegment: xtsMarketDataAPI.exchangeSegments.NSECM,
-    //         exchangeInstrumentID: 11536,
-    //       },
-    //     ],
-    //     xtsMessageCode: 1502,
-    // });
-    // console.log( response1);
+module.exports = {data, getInstrument, onDisconnect, 
+  tradableInstrument, subscribeInstrument, getXTSTicksForUserPosition,
+  unSubscribeXTSToken, subscribeSingleXTSToken };

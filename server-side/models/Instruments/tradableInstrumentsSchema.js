@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const {xtsAccountType, zerodhaAccountType} = require("../../constant");
+
 
 const tradableInstrumentSchema = new mongoose.Schema({
     instrument_token:{
@@ -20,7 +22,7 @@ const tradableInstrumentSchema = new mongoose.Schema({
     },
     last_price:{
         type: Number,
-        required : true
+        // required : true
     },
     expiry:{
         type: String,
@@ -49,6 +51,11 @@ const tradableInstrumentSchema = new mongoose.Schema({
     exchange:{
         type: String,
         required : true
+    },
+    accountType:{
+        type: String,
+        required : true,
+        enum : [zerodhaAccountType, xtsAccountType]
     },
     lastModifiedBy:{
         type:Schema.Types.ObjectId,
@@ -79,3 +86,5 @@ const tradableInstrumentSchema = new mongoose.Schema({
 
 const tradableInstrumentDetail = mongoose.model("tradable-instrument", tradableInstrumentSchema);
 module.exports = tradableInstrumentDetail;
+
+

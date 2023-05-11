@@ -22,6 +22,7 @@ const client = require("./marketData/redisClient");
 const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {deletePnlKey} = require("./controllers/deletePnlKey");
+const {subscribeInstrument, getXTSTicksForUserPosition} = require("./services/xts/xtsMarket")
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -52,119 +53,64 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 client.connect().then(()=>{})
 
-io.on("connection", (socket) => {
-  console.log(socket.id, "socket id")
-  socket.on('userId', async (data)=>{
-    socket.join(`${data}`)
-    console.log("in index.js ", socket.id, data)
-    // await tickerConnect();
-    await client.set(socket.id, data);
-  })
 
-  socket.emit('check', false)
-
-
-  socket.on('disconnect', ()=>{
-    console.log("disconnecting socket")
-    // client.del(socket.id);
-  })
-
-  socket.on('hi', async (data) => {
-    // getKiteCred.getAccess().then(async (data)=>{
-    console.log("in hii event");
-      await getTicks(socket);
-      // await getDummyTicks(socket);
-      // await DummyMarketData(socket);
-      await onError();
-      await onOrderUpdate();
-
-    // });
-  });
-  socket.on('company-ticks', async (data) => {
-    console.log("in company-ticks event")
-      await getTicksForCompanySide(socket);
-      await onError();
-      // await onOrderUpdate();
-  });
-  socket.on('user-ticks', async (data) => {
-    console.log("in user-ticks event")
-      await getTicksForUserPosition(socket);
-      // await DummyMarketData(socket);
-      await onError();
-      await onOrderUpdate();
-
-  });
-  socket.on('contest', async (data) => {
-    console.log("in contest event")
-      await getTicksForContest(socket);
-      await onError();
-
-  });
-  subscribeTokens();
-
-});
 
 
 getKiteCred.getAccess().then(async (data)=>{
-  // console.log(data)
+  console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
-//   // redis connection
+  io.on("connection", async (socket) => {
+    console.log(socket.id, "socket id")
+    socket.on('userId', async (data)=>{
+      socket.join(`${data}`)
+      console.log("in index.js ", socket.id, data)
+      // await tickerConnect();
+      await client.set(socket.id, data);
+    })
   
-
-
-//   io.on("connection", (socket) => {
-//     console.log(socket.id, "socket id")
-//     socket.on('userId', async (data)=>{
-//       socket.join(`${data}`)
-//       console.log("in index.js ", socket.id, data)
-//       await client.set(socket.id, data);
-//     })
-
-//     socket.emit('check', false)
-
-
-//     socket.on('disconnect', ()=>{
-//       console.log("disconnecting socket")
-//       // client.del(socket.id);
-//     })
-
-//     socket.on('hi', async (data) => {
-//       // getKiteCred.getAccess().then(async (data)=>{
-//       console.log("in hii event");
-//         await getTicks(socket);
-//         // await getDummyTicks(socket);
-//         // await DummyMarketData(socket);
-//         await onError();
-//         await onOrderUpdate();
-
-//       // });
-//     });
-//     socket.on('company-ticks', async (data) => {
-//       console.log("in company-ticks event")
-//         await getTicksForCompanySide(socket);
-//         await onError();
-//         // await onOrderUpdate();
-//     });
-//     socket.on('user-ticks', async (data) => {
-//       console.log("in user-ticks event")
-//         await getTicksForUserPosition(socket);
-//         // await DummyMarketData(socket);
-//         await onError();
-//         await onOrderUpdate();
-
-//     });
-//     socket.on('contest', async (data) => {
-//       console.log("in contest event")
-//         await getTicksForContest(socket);
-//         await onError();
-
-//     });
-//     subscribeTokens();
-
-//   });
-
-//   io.on('disconnection', () => {disconnectTicker()});
-
+    socket.emit('check', false)
+  
+  
+    socket.on('disconnect', ()=>{
+      console.log("disconnecting socket")
+      // client.del(socket.id);
+    })
+  
+    socket.on('hi', async (data) => {
+      // getKiteCred.getAccess().then(async (data)=>{
+      console.log("in hii event");
+        await getTicks(socket);
+        // await getDummyTicks(socket);
+        // await DummyMarketData(socket);
+        await onError();
+        await onOrderUpdate();
+  
+      // });
+    });
+    socket.on('company-ticks', async (data) => {
+      console.log("in company-ticks event")
+        await getTicksForCompanySide(socket);
+        await onError();
+        // await onOrderUpdate();
+    });
+    socket.on('user-ticks', async (data) => {
+      console.log("in user-ticks event")
+        // await getTicksForUserPosition(socket);
+        await getXTSTicksForUserPosition(socket);
+        // await DummyMarketData(socket);
+        await onError();
+        await onOrderUpdate();
+  
+    });
+    socket.on('contest', async (data) => {
+      console.log("in contest event")
+        await getTicksForContest(socket);
+        await onError();
+  
+    });
+    // await subscribeTokens(); TODO toggle
+    await subscribeInstrument();
+  });
 
 });
 
@@ -193,7 +139,8 @@ app.use('/api/v1', require("./routes/user/signedUpUser"))
 app.use('/api/v1', require("./routes/expense/categoryAuth"))
 app.use('/api/v1', require("./routes/setting/settingAuth"))
 app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
-app.use('/api/v1', require("./marketData/livePrice"));
+// app.use('/api/v1', require("./marketData/livePrice")); TODO toggle
+app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
 app.use('/api/v1', require("./marketData/Margin"));
 app.use('/api/v1', require("./routes/user/userLogin"));
 app.use('/api/v1', require('./routes/TradeData/getUserTrade'));

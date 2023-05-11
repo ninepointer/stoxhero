@@ -24,14 +24,14 @@ const App = () => {
     <div>
       <ThemeProvider theme={theme}>
         <Navbar/>
-        <Box p={5} sx={{bgcolor:theme.palette.background.default, marginTop:'65px'}}>
-          <Grid container>
+        <Box p={5} sx={{bgcolor:theme.palette.background.default,height:{lg:'auto',md:'auto',xs:"800px"}, marginTop:'65px'}}>
+          <Grid container height="500px" >
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               <MDTypography fontSize={20} color="light" style={{align:'center'}}>JOB DESCRIPTION</MDTypography>
             </Grid>
             <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               <MDTypography fontSize={18} color="light" style={{align:'center'}}>
-                Responsibilities for a Derivatives Trader
+                Responsibilities
               </MDTypography>
             </Grid>
             
@@ -46,11 +46,12 @@ const App = () => {
               )
             })}
 
-            <Grid item mt={2} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+            <Grid item mt={2} mb={2} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               
               <MDButton 
                 variant='outlined' 
                 color='warning'
+                sx={{width:"200px",height:"50px",zIndex:"1"}}
                 component={Link} 
                 to={{
                   pathname: `/apply`,
@@ -62,8 +63,11 @@ const App = () => {
             </Grid>
           </Grid>
         </Box>
-        <Footer/>
       </ThemeProvider>
+
+        
+        <Footer/>
+        
     </div>
   )
 }

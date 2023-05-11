@@ -5,8 +5,8 @@ const router = express.Router();
 require("../../db/conn");
 const SignedUpUser = require("../../models/User/signedUpUser");
 const User = require("../../models/User/userDetailSchema");
-const userPersonalDetail = require("../../models/User/userDetailSchema");
-const signedUpUser = require("../../models/User/signedUpUser");
+// const userPersonalDetail = require("../../models/User/userDetailSchema");
+// const signedUpUser = require("../../models/User/signedUpUser");
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const Referral = require("../../models/campaigns/referralProgram");
 const Lead = require("../../models/leads/leads");
@@ -38,7 +38,7 @@ router.post("/signup", async (req, res)=>{
         // signedupuser.email = email;
         // signedupuser.mobile_otp = mobile_otp;
         // await signedupuser.save({validateBeforeSave:false})
-        return res.status(406).json({message : "Your account is already exist. Please signin", 
+        return res.status(406).json({message : "Your account is already exist. Please login with mobile or email", 
         status: 'error'});
 
     }
@@ -316,7 +316,7 @@ router.patch("/verifyotp", async (req, res)=>{
         await lead.save({validateBeforeSave:false});
         }
 
-        let marginAllocation = await MarginAllocation.create(
+        await MarginAllocation.create(
             {
                 amount:1000000,
                 createdOn:new Date(),
@@ -330,7 +330,7 @@ router.patch("/verifyotp", async (req, res)=>{
                 creditedBy:newuser._id 
         })
         
-        let userWallet = await UserWallet.create(
+        await UserWallet.create(
             {
                 userId: newuser._id,
                 createdOn: new Date(),

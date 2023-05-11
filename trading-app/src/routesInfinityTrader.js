@@ -11,6 +11,7 @@ import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { GiNinjaHeroicStance } from 'react-icons/gi';
+import Funds from "./layouts/funds";
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
@@ -72,14 +73,14 @@ const routes = [
     route: "/analytics",
     component: <Analytics />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Portfolio",
-  //   key: "portfolio",
-  //   icon: <BusinessCenterIcon/>,
-  //   route: "/portfolio",
-  //   component: <MyPortfolio />,
-  // },
+  {
+    type: "collapse",
+    name: "Portfolio",
+    key: "portfolio",
+    icon: <BusinessCenterIcon/>,
+    route: "/portfolio",
+    component: <MyPortfolio />,
+  },
   {
     // type: "collapse",
     // name: "Wallet",
@@ -98,11 +99,11 @@ const routes = [
     component: <FAQs />,
   },
   {
-    type: "collapse",
-    name: "Profile",
-    key: "profile",
+    // type: "collapse",
+    // name: "Profile",
+    // key: "profile",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <PersonPinIcon/>,
+    // icon: <PersonPinIcon/>,
     route: "/profile",
     component: <Profile />,
   },
@@ -114,6 +115,14 @@ const routes = [
     icon: <PersonPinIcon/>,
     route: "/terms",
     component: <Tnc />,
+  },
+    {
+    type: "collapse",
+    name: "Funds",
+    key: "funds",
+    icon: <BusinessCenterIcon/>,
+    route: "/funds",
+    component: <Funds/>,
   },
 
 ];
