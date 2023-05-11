@@ -22,7 +22,12 @@ const client = require("./marketData/redisClient");
 const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {deletePnlKey} = require("./controllers/deletePnlKey");
-const {subscribeInstrument, getXTSTicksForUserPosition} = require("./services/xts/xtsMarket")
+const {subscribeInstrument, getXTSTicksForUserPosition, onDisconnect} = require("./services/xts/xtsMarket")
+
+
+const path = require('path');
+// const {DummyMarketData} = require('./marketData/dummyMarketData');
+require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -42,15 +47,6 @@ app.use(hpp());
 const {data, tickerConnect} = require("./services/xts/xtsMarket");
 
 data().then(()=>{})
-
-
-
-
-
-// issue fix --> if enviournment variable path is not work
-const path = require('path');
-// const {DummyMarketData} = require('./marketData/dummyMarketData');
-require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 client.connect().then(()=>{})
 
 
@@ -96,7 +92,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
         // await getTicksForUserPosition(socket);
-        await getXTSTicksForUserPosition(socket);
+        await getXTSTicksForUserPosition(socket); //TODO toggle
         // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
@@ -111,6 +107,9 @@ getKiteCred.getAccess().then(async (data)=>{
     // await subscribeTokens(); TODO toggle
     await subscribeInstrument();
   });
+
+  // io.on('disconnection', () => {disconnectTicker()}); TODO toggle
+  io.on('disconnection', () => {onDisconnect()});
 
 });
 
