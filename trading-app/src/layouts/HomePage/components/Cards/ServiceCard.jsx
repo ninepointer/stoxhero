@@ -25,29 +25,26 @@ const ServiceCard = ({ title, subtitle, image }) => {
         },
       }}
     >
-      <Stack sx={{ height: "100%" }} justifyContent="flex-start" spacing={1}>
+      <Stack sx={{ height: "100%" }}  spacing={1}>
 
+        
       <img
           src={image}
           style={{
-            height: "70px",
-            width: "15%",
+            height: "75px",
+            width: "25%",
             objectFit: "contain",
-            flex: 1,
+            flex: 1, 
+            marginRight:{xs:"40px"}
+            
           }}
         />
 
-        <Title style={{color:"#fff"}} variant={{ xs: "h5", sm: "h4" }}>{title}</Title>
+        <br/>
+        <Title style={{color:"#fff",marginLeft:"18px"}} variant={{ xs: "h5", sm: "h4" }}>{title}</Title>
 
-        <Typography variant="body2" color="rgba(255, 255, 255, 0.6)">
-          {subtitle}
-        </Typography>
+        <Typography style={{marginLeft:"18px"}} variant="body2"  color="rgba(255, 255, 255, 0.6)">{subtitle}</Typography>
 
-        
-
-        {/* <OutlinedButton arrow fit>
-          Learn more
-        </OutlinedButton> */}
       </Stack>
     </Box>
   );

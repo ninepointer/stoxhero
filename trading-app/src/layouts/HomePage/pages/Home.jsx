@@ -29,12 +29,12 @@ const Home = () => {
       {/* Section */}
       <Section1/>
       <Section2/>
-      <Box sx={{ height:"1000px", bgcolor:"#06070A", position: "relative" }}>
+      <Box sx={{ height:{sx:"4000px"}, bgcolor:"#06070A", position: "relative" }}>
       
       <Section4/>
-      {/* <Section5/>
       <Section6/>
       <Section7/>
+      {/* <Section5/>
       <Section8/>
       <Section9/>
       <Section10/>

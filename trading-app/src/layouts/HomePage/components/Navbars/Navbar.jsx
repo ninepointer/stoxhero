@@ -103,7 +103,7 @@ const Navbar = () => {
 
             <a href="/about">
             <LinkButton spacing={0.5}>
-              <Typography variant="body2">About us</Typography>
+              <Typography variant="body2">About Us</Typography>
               
             </LinkButton>
             </a>
