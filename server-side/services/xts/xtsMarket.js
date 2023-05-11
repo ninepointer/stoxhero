@@ -12,20 +12,20 @@ let xtsMarketDataWS ;
 let xtsMarketDataAPI ;
 const data = async ()=>{
     xtsMarketDataAPI = new XtsMarketDataAPI(
-        'http://14.142.188.188:23000/apimarketdata'
+      process.env.MARKETDATA_URL
     );
 
     xtsMarketDataWS = new XtsMarketDataWS(
-        'http://14.142.188.188:23000/apimarketdata'
+      process.env.MARKETDATA_URL
     );
     console.log("xtsMarketDataAPI", xtsMarketDataAPI)
     let loginRequest = {
-        secretKey: 'Awjq826##5',
-        appKey: '9b584c581733cdc6773058',
+        secretKey: process.env.MARKETDATA_SECRET_KEY,
+        appKey: process.env.MARKETDATA_APP_KEY,
     };
     
     (async ()=>{
-      console.log(loginRequest)
+      console.log(loginRequest, process.env.MARKETDATA_URL)
       let logIn = await xtsMarketDataAPI.logIn(loginRequest);
       console.log(logIn)
       let socketInitRequest = {
@@ -174,15 +174,17 @@ const getXTSTicksForUserPosition = async (socket) => {
 
 const tradableInstrument = async(req, res)=>{
   let response = await xtsMarketDataAPI.searchInstrument({
-    searchString: 'NIF',
+    searchString: 'BAN',
+    // searchString: 'NIF',
     source: "WEBAPI",
   });
 
   res.send(response)
   console.log(response.result);
   let response4 = response.result;
-  for(let i = 0; i < response4.length; i++){
-    if(response4[i].UnderlyingIndexName && response4[i].ContractExpiration && response4[i].StrikePrice){
+  for(let i = 0; i < response4.length; i++){ //Nifty Bank
+    // if(response4[i].UnderlyingIndexName && response4[i].ContractExpiration && response4[i].StrikePrice){
+    if(response4[i].UnderlyingIndexName === "Nifty Bank" && response4[i].ContractExpiration && response4[i].StrikePrice){
       const docs = {
         instrument_token: response4[i].ExchangeInstrumentID,
         exchange_token: response4[i].ExchangeInstrumentID,
@@ -198,7 +200,7 @@ const tradableInstrument = async(req, res)=>{
         accountType: xtsAccountType,
         lastModifiedBy: req.user._id,
         createdBy: req.user._id,
-        
+
       }
       console.log("docs", docs)
       const tradableInstrument = await TradableInstrument.create(docs);
