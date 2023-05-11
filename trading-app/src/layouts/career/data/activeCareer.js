@@ -53,17 +53,12 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
       // Handle errors here
       console.error(error);
     });
-
-
   },[])
 
-
-
-    
     return (
       <>
       {activeCareer.length > 0 ?
-
+        
           <MDBox>
             <Grid container spacing={2} bgColor="dark">
               {activeCareer?.map((e)=>{
@@ -96,7 +91,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>No. of Applicants: <span style={{fontSize:11,fontWeight:700}}>{applicationCount}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>No. of Applicants: <span style={{fontSize:11,fontWeight:700}}>{"To be configured"}</span></MDTypography>
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
