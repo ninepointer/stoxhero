@@ -16,6 +16,10 @@ exports.deletePnlKey = async () => {
             console.log(user[i]);
             await client.del(`${user[i]._id.toString()}: overallpnlPaperTrade`)
         }
+        if(await client.exists(`${req.user._id.toString()}: instrument`)){
+            console.log("in third if");
+            console.log(user[i]);
+            await client.del(`${req.user._id.toString()}: instrument`)
+        }
     }
-
 }
