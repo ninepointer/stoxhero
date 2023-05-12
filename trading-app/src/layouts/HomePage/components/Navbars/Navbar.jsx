@@ -80,14 +80,14 @@ const Navbar = () => {
             flexWrap="wrap"
             color="white"
           >
-            <a href="/Login">
+            <a href="/login">
             <LinkButton>
               <Typography variant="body2">Login</Typography>
               
             </LinkButton>
             </a>
 
-            <a href="/Signup">
+            <a href="/signup">
             <LinkButton>
               <Typography variant="body2">Signup</Typography>
               
@@ -169,7 +169,7 @@ const Navbar = () => {
               <Typography variant="body2">EN</Typography>
             </LinkButton>
 
-            <a href="/Login">
+            <a href="/login">
             <LaunchButton sx={{ borderRadius: 3, color:'light' }} />
             </a>
           </Stack>)

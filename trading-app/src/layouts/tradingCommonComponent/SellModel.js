@@ -73,6 +73,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const [regularSwitch, setRegularSwitch] = React.useState(true);
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   const [sellFormDetails, setsellFormDetails] = React.useState({
     exchange: "",
@@ -116,7 +117,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
       addInstrument();
       render ? setRender(false) : setRender(true);
     }
-    
+    setButtonClicked(false);
     setOpen(true);
   }; 
 
@@ -128,34 +129,22 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
     
     setOpen(false);
     setSellState(false);
+    setButtonClicked(false);
   };
 
 
 
-  // const [appLive, setAppLive] = useState([]);
-
-
-  // useEffect(() => {
-  //   axios.get(`${baseUrl}api/v1/readsetting`)
-  //   .then((res) => {
-  //       setAppLive(res.data);
-  //   }).catch((err) => {
-  //       return new Error(err);
-  //   })
-
-  // }, [])
-
-
   async function sellFunction(e, uId) {
+
+      if(buttonClicked){
+        // setButtonClicked(false);
+        return;
+      }
+      setButtonClicked(true);
+
       e.preventDefault()
       setOpen(false);
       setSellState(false);
-
-      // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
-      //   // window.alert("App is not Live right now. Please wait.");
-      //   openSuccessSB('error', 'App is not live right now. Please wait.')
-      //   return ;
-      // }
 
       sellFormDetails.buyOrSell = "SELL";
   

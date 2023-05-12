@@ -10,13 +10,14 @@ import Footer from './components/Footers/Footer';
 import Careers from './pages/Career';
 import { Box } from '@mui/material';
 import Contact from './pages/Contact';
+import MDBox from '../../components/MDBox';
 
 const App = () => {
   console.log(theme)
   console.log(theme.background)
   console.log(theme.background.default)
   return (
-    <div  style={{height:"100%"}}>
+    <MDBox height='auto'>
       <ThemeProvider theme={theme}>
         <Navbar/>
       <Routes>
@@ -28,7 +29,7 @@ const App = () => {
       </Routes>
       <Footer/>
       </ThemeProvider>
-    </div>
+    </MDBox>
   )
 }
 

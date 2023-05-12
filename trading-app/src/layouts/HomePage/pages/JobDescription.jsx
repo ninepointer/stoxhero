@@ -31,7 +31,7 @@ const App = () => {
             </Grid>
             <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               <MDTypography fontSize={18} color="light" style={{align:'center'}}>
-                Responsibilities for a Derivatives Trader
+                Responsibilities
               </MDTypography>
             </Grid>
             
@@ -46,7 +46,7 @@ const App = () => {
               )
             })}
 
-            <Grid item mt={2} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+            <Grid item mt={2} mb={2} xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               
               <MDButton 
                 variant='outlined' 

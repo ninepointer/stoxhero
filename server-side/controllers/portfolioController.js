@@ -136,7 +136,8 @@ exports.editPortfolioWithName = async(req, res, next) => {
 exports.myPortfolios = async(req,res,next) => {
     const userId = req.user._id;
     try{
-        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": userId});
+        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": userId})
+        .select('_id portfolioName status portfolioValue portfolioAccount portfolioType')
 
         if(!myPortfolios){
             return res.status(404).json({status:'error', message: 'No portfolio found'});
@@ -283,11 +284,34 @@ exports.getPortfolioPnl = async(req, res, next) => {
           },
       ]);
 
-      res.status(201).json(pnlDetails);
+      res.status(201).json({status: "success", data: pnlDetails});
 
   }catch(e){
       console.log(e);
       return res.status(500).json({status:'success', message: 'something went wrong.'})
+  }
+}
+
+exports.portfolioForMobile = async(req,res,next) => {
+    
+  try{
+    let portfolios = [
+      {
+        _id: "6433e1fedde9f19917ce1d11",
+        portfolioName: "Starter",
+        status: "Active",
+        portfolioValue: 100000,
+        portfolioAccount: "Free",
+        portfolioType: "Virtual Trading",
+        investedAmount: 5000,
+        cashBalance: 5000
+      }
+    ]
+      res.status(200).json({status: 'success', data: portfolios, results: portfolios.length});
+
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
   }
 }
 
