@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const uniqueId = require('uniqid')
 const retireivSchema = new mongoose.Schema({
     order_id:{
         type: String,
@@ -12,7 +12,7 @@ const retireivSchema = new mongoose.Schema({
     },
     average_price:{
         type: Number,
-        required: true
+        // required: true
     },
     quantity:{
         type: Number,
@@ -30,12 +30,12 @@ const retireivSchema = new mongoose.Schema({
         type: String,
     },
     order_timestamp:{
-        type: String,
+        type: Date,
         required: true
     },
     variety:{
         type: String,
-        required: true
+        // required: true
     },
     validity:{
         type: String,
@@ -43,10 +43,11 @@ const retireivSchema = new mongoose.Schema({
     },
     exchange:{
         type: String,
-        required: true
+        required: true,
+        default: "NFO"
     },
     exchange_timestamp:{
-        type: String,
+        type: Date,
     },
     order_type:{
         type: String,
@@ -58,32 +59,33 @@ const retireivSchema = new mongoose.Schema({
     },
     filled_quantity:{
         type: Number,
-        required: true
+        // required: true
     },
     pending_quantity:{
         type: Number,
-        required: true
+        // required: true
     },
     cancelled_quantity:{
         type: Number,
-        required: true
+        // required: true
     },
     guid:{
         type: String,
-        required: true,
-        unique: true
+        default: uniqueId()
+        // required: true,
+        // unique: true
     },
     market_protection:{
         type: Number,
-        required: true
+        // required: true
     },
     disclosed_quantity:{
         type: Number,
-        required: true
+        // required: true
     },
     tradingsymbol:{
         type: String,
-        required: true
+        // required: true
     },
     placed_by:{
         type: String,
@@ -103,7 +105,7 @@ const retireivSchema = new mongoose.Schema({
         type: Number,
     },
     exchange_update_timestamp:{
-        type: String,
+        type: Date,
     }
 })
 
