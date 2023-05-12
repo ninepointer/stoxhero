@@ -3,6 +3,10 @@ import React from "react";
 
 import Title from "../components/Title";
 import MDBox from "../../../components/MDBox"
+import trading1 from '../assets/images/section6/Trading1.png'
+import trading2 from '../assets/images/section6/Trading2.png'
+import trading3 from '../assets/images/section6/Trading3.png'
+import trading4 from '../assets/images/section6/Trading4.webp'
 
 
 
@@ -18,7 +22,7 @@ const Section6 = () => {
       <Grid container justifyContent="center" mt={0} textAlign="center"  spacing={4}>
         <Grid item xs={12} md={6} lg={3} >
           <Stack spacing={2} alignItems="center" justifyContent="center" >
-            <img src="https://www.pngall.com/wp-content/uploads/8/Trading-PNG.png"
+            <img src={trading1}
 
               style={{
                 height: "75px",
@@ -37,7 +41,7 @@ const Section6 = () => {
         </Grid>
         <Grid item xs={12} md={6} lg={3} >
           <Stack spacing={2} alignItems="center" justifyContent="center" >
-            <img src="https://cdni.iconscout.com/illustration/premium/thumb/trading-3359445-2809309.png"
+            <img src={trading2}
               style={{
                 height: "75px",
                 width: "71%",
@@ -55,7 +59,7 @@ const Section6 = () => {
         </Grid>
         <Grid item xs={12} md={6} lg={3} >
           <Stack spacing={2} alignItems="center" justifyContent="center" >
-            <img src="https://cdni.iconscout.com/illustration/premium/thumb/man-trading-stocks-3359444-2809308.png"
+            <img src={trading3}
               style={{
                 height: "75px",
                 width: "75%",
@@ -72,7 +76,7 @@ const Section6 = () => {
         </Grid>
         <Grid item xs={12} md={6} lg={3} >
           <Stack spacing={2} alignItems="center" justifyContent="center"  >
-            <img src="https://cdni.iconscout.com/illustration/premium/thumb/forex-trading-4268346-3560989.png?f=webp"
+            <img src={trading4}
 
               style={{
                 height: "75px",
