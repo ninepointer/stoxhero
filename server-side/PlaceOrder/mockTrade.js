@@ -178,6 +178,7 @@ exports.mockTrade = async (req, res) => {
             res.status(201).json({status: 'Complete', message: 'COMPLETE'});
 
         } catch(err){
+            await client.del(`${req.user._id.toString()} overallpnl`)
             await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);
         } finally {
