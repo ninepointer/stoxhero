@@ -173,6 +173,8 @@ exports.mockTrade = async (req, res) => {
                 }
                 await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
             }
+
+            await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
             // Commit the transaction
             await session.commitTransaction();
             res.status(201).json({status: 'Complete', message: 'COMPLETE'});
