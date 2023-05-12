@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const {Schema} = mongoose;
 
 const liveTrade = new mongoose.Schema({
     order_id:{

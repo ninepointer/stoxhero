@@ -1,6 +1,6 @@
-let XTSInteractive = require('xts-interactive-api').Interactive;
-var XTSInteractiveWS = require('xts-interactive-api').WS;
-
+const XTSInteractive = require('xts-interactive-api').Interactive;
+const XTSInteractiveWS = require('xts-interactive-api').WS;
+const RetrieveOrder = require("../../models/TradeDetails/retreiveOrder")
 // let xtsInteractive = new XTSInteractive('http://14.142.188.188:23000');
 
 // exports.xtsInteractive = async ()=>{
@@ -63,6 +63,9 @@ const placeOrder = async (obj)=>{
   if(obj.exchange === "NFO"){
     exchangeSegment = 'NSEFO'
   }
+  if(obj.exchange === "NSE"){
+    exchangeSegment = 'NSECM'
+  }
   const response = await xtsInteractiveAPI.placeOrder({
     exchangeSegment: exchangeSegment,
     exchangeInstrumentID: obj.instrumentToken,
@@ -78,15 +81,32 @@ const placeOrder = async (obj)=>{
     clientID: process.env.XTS_USERID,
   });
 
-  xtsInteractiveWS.onOrder((orderData) => {
-    console.log("order data", orderData);
-  });
+
+  await getPlacedOrder();
   console.log(response);
 }
 
-const getPlaced = async ()=>{
+const getPlacedOrder = async ()=>{
   xtsInteractiveWS.onOrder((orderData) => {
     console.log("order data", orderData);
+    const {ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+          TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice , OrderDisclosedQuantity,
+          ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI} = orderData;
+
+      try{
+        if(OrderStatus === "Rejected" || OrderStatus === "Complete"){
+          const saveOrder = RetrieveOrder.create({
+            order_id: AppOrderID, status: OrderStatus, average_price: OrderAverageTradedPrice,
+            quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
+            exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
+            exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
+            disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
+            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: ExchangeTransactTimeAPI
+          })
+        }
+      } catch(err){
+        console.log(err, "err in retreive order");
+      }
   });
 }
 
