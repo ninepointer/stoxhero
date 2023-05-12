@@ -249,7 +249,7 @@ router.patch("/verifyotp", async (req, res)=>{
             // role: 'user', 
             
             name: first_name + ' ' + last_name.substring(0,1), 
-             password: 'np' + last_name + '@123', status: 'Active', 
+            password: 'sh' + last_name.trim() + '@123' + mobile.slice(1,3), status: 'Active', 
             employeeid: userId, creationProcess: 'Auto SignUp',
             joining_date:user.last_modifiedOn,myReferralCode:(await myReferralCode).toString(), referrerCode:referrerCode,
             // referredBy: referredBy,
@@ -535,7 +535,9 @@ router.patch("/resendotp", async (req, res)=>{
 });
 
 router.get("/signedupusers", (req, res)=>{
-    SignedUpUser.find((err, data)=>{
+    SignedUpUser.find()
+    .sort({createdOn:-1})
+    .exec((err, data)=>{
         if(err){
             return res.status(500).send(err);
         }else{

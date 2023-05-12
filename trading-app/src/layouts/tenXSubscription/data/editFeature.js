@@ -10,6 +10,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import MDButton from '../../../components/MDButton';
 import TextField from '@mui/material/TextField';
+import EditIcon from '@mui/icons-material/Edit';
 // import Select, { SelectChangeEvent } from '@mui/material/Select';
 // import MenuItem from '@mui/material/MenuItem';
 // import InputLabel from '@mui/material/InputLabel';
@@ -140,8 +141,8 @@ const renderErrorSB = (
 
   return (
     <div>
-      <MDButton variant="outlined" color="secondary" onClick={handleClickOpen}>
-        <EditSharpIcon/>
+      <MDButton style={{padding:-2}} variant="text" color="secondary" size="small" onClick={handleClickOpen}>
+        <EditIcon fontSize='small'/>
       </MDButton>
       <Dialog
         fullScreen={fullScreen}

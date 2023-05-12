@@ -42,6 +42,18 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "FAQ'S"
   } else if(title === "stoxherotrading"){
     title = "StoxHero Trading"
+  } else if(title === "tenxtrading"){
+    title = "TenX Trading"
+  } else if(title === "referralprogram"){
+    title = "Referral Program"
+  } else if(title === "tenxsubscriptions"){
+    title = "TenX Subscriptions"
+  } else if(title === "adminreport"){
+    title = "Admin Reports(M)"
+  } else if(title === "careerlist"){
+    title = "Career List"
+  } else if(title === "careerdetails"){
+    title = "Career Details"
   }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
