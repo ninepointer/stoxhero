@@ -33,9 +33,27 @@ const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const client = require("../../marketData/redisClient")
 const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
 const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
+const {placeOrder} = require("../../services/xts/xtsInteractive");
 
 
+router.get("/placeOrder", async (req, res) => {
+  let obj = {
+    exchange: 'NFO',
+    instrumentToken: 46292,
+    Product: 'NRML',
+    OrderType: 'MARKET',
+    buyOrSell: 'BUY',
+    validity: 'DAY',
+    disclosedQuantity: 0,
+    Quantity: 50,
+    limitPrice: 15000,
+    stopPrice: 0,
+  }
+  const placeorder = await placeOrder(obj);
+  // console.log(xtsMarketDataAPI)
+  res.send(placeorder)
 
+});
 
 router.get("/getData", async (req, res) => {
   const xtsMarketDataAPI = await getInstrument();

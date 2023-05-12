@@ -10,7 +10,7 @@ const {save} = require("./xtsHelper/saveXtsCred")
 
 let xtsMarketDataWS ;
 let xtsMarketDataAPI ;
-const data = async ()=>{
+const xtsMarketLogin = async ()=>{
     xtsMarketDataAPI = new XtsMarketDataAPI(
       process.env.MARKETDATA_URL
     );
@@ -211,6 +211,6 @@ const tradableInstrument = async(req, res)=>{
 }
 
 
-module.exports = {data, getInstrument, onDisconnect, 
+module.exports = {xtsMarketLogin, getInstrument, onDisconnect, 
   tradableInstrument, subscribeInstrument, getXTSTicksForUserPosition,
   unSubscribeXTSToken, subscribeSingleXTSToken };
