@@ -1,4 +1,5 @@
 const TenXSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
+const TenXPurchaseIntent = require("../models/TenXSubscription/TenXPurchaseIntentSchema");
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -129,6 +130,16 @@ exports.getTenXSubscription = async(req, res, next)=>{
     catch{(err)=>{res.status(401).json({message: "New TenXSubscription", error:err}); }}  
 };
 
+exports.createTenXPurchaseIntent = async(req, res, next)=>{
+  console.log(req.body)
+  try{
+  const{ purchase_intent_by, tenXSubscription } = req.body;
 
+  const tenXPurchaseIntent = await TenXPurchaseIntent.create({purchase_intent_by, tenXSubscription});
+  console.log(tenXPurchaseIntent)
+  res.status(201).json({message: 'TenX Purchase Intent Captured Successfully.', data:tenXPurchaseIntent});
+  }
+  catch{(err)=>{res.status(401).json({message: "Something went wrong", error:err}); }}  
+}
 
 

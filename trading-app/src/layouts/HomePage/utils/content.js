@@ -95,9 +95,9 @@ export const section1Content = {
 
 export const section2Content = {
   items: [
-    { counter: 0, subtitle: "Leaderboards" },
-    { counter: 0, before: "", after: "", subtitle: "Total volume" },
-    { counter: 0, after: "", subtitle: "Total wallets", decimals: false },
+    { counter: 0, subtitle: "Total Signups" },
+    { counter: 0, before: "₹", after: "", subtitle: "Total Traded Volume" },
+    { counter: 0, before: "₹", after: "", subtitle: "Total Wallets Transactions", decimals: false },
     { counter: 0, after: "", subtitle: "Total Trades", decimals: false },
   ],
 };

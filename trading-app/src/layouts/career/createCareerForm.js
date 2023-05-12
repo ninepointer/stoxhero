@@ -1,5 +1,5 @@
 // import * as React from 'react';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 // import { useForm } from "react-hook-form";
 // import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -16,12 +16,15 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
 import RolesAndResponsibilities from './data/roleAndRespData';
+import CareerApplication from "./data/applicants";
 import { IoMdAddCircle } from 'react-icons/io';
 
 function Index() {
 
     const location = useLocation();
     const  id  = location?.state?.data;
+    console.log(id)
+    const [applicationCount, setApplicationCount] = useState(0);
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -43,6 +46,13 @@ function Index() {
         jobLocation:'',
         status:''
     });
+
+    useEffect(()=>{
+        setTimeout(()=>{
+            id && setUpdatedDocument(id)
+            setIsLoading(false);
+        },500)
+    })
 
 
 
@@ -71,13 +81,14 @@ function Index() {
       
       
       const data = await res.json();
-      // console.log(data);
-      if (data.status === 422 || data.error || !data) {
+      console.log(data);
+      if (data.status === 400 || data.info) {
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-          // console.log("invalid entry");
+          openErrorSB("Career not created",data?.info)
       } else {
-          openSuccessSB("Career Created",data.message)
-          setNewObjectId(data.data._id)
+          openSuccessSB("Career Created",data?.message)
+          setNewObjectId(data?.data?._id)
+          console.log("New Object Id: ",data?.data?._id,newObjectId)
           setIsSubmitted(true)
           // console.log("setting linked contest rule to: ",data.data.contestRule)
           // setLinkedContestRule(data?.data?.contestRule)
@@ -89,6 +100,7 @@ function Index() {
 
     async function onAddFeature(e,childFormState,setChildFormState){
       e.preventDefault()
+      console.log(newObjectId)
       setSaving(true)
       if(!childFormState?.orderNo || !childFormState?.description){
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
@@ -197,7 +209,7 @@ function Index() {
                 label='Job Title *'
                 fullWidth
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.jobTitle}
+                value={formState?.jobTitle || id?.jobTitle}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobTitle: e.target.value
@@ -211,9 +223,9 @@ function Index() {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
-                value={formState?.jobType}
+                value={formState?.jobType || id?.jobType}
                 // value={oldObjectId ? contestData?.status : formState?.status}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
+                disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobType: e.target.value
@@ -233,9 +245,9 @@ function Index() {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
-                value={formState?.jobLocation}
+                value={formState?.jobLocation || id?.jobLocation}
                 // value={oldObjectId ? contestData?.status : formState?.status}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
+                disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobLocation: e.target.value
@@ -255,9 +267,9 @@ function Index() {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
-                value={formState?.status}
+                value={formState?.status || id?.status}
                 // value={oldObjectId ? contestData?.status : formState?.status}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
+                disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     status: e.target.value
@@ -280,7 +292,7 @@ function Index() {
                 fullWidth
                 multiline
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.jobDescription}
+                value={formState?.jobDescription || id?.jobDescription}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobDescription: e.target.value
@@ -316,7 +328,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                         Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/portfolio") : setIsSubmitted(false)}}>
+                    <MDButton variant="contained" color="info" size="small" onClick={()=>{navigate('/Career List')}}>
                         Back
                     </MDButton>
                     </>
@@ -338,7 +350,7 @@ function Index() {
                         color="error" 
                         size="small" 
                         disabled={saving} 
-                        // onClick={()=>{setEditing(false)}}
+                        onClick={()=>{setEditing(false)}}
                         >
                         Cancel
                     </MDButton>
@@ -395,7 +407,13 @@ function Index() {
 
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
-                        <RolesAndResponsibilities updatedDocument={updatedDocument}/>
+                        <RolesAndResponsibilities updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
+                    </MDBox>
+                </Grid>}
+
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <CareerApplication career={newObjectId ? newObjectId : id?._id} applicationCount={applicationCount} setApplicationCount={setApplicationCount}/>
                     </MDBox>
                 </Grid>}
 

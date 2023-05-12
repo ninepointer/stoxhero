@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
-import { useEffect, memo } from 'react';
-import axios from "axios"
+import {  memo } from 'react';
+// import axios from "axios"
 import uniqid from "uniqid"
 import { userContext } from "../../AuthContext";
 
@@ -13,7 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -23,7 +23,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
@@ -64,7 +64,7 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
       optionData.push( <MenuItem value={i * lotSize}>{ i * lotSize}</MenuItem>)      
   }
 
-
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   const [open, setOpen] = React.useState(buyState);
   const theme = useTheme();
@@ -117,7 +117,7 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
       addInstrument();
       render ? setRender(false) : setRender(true);
     }
-    
+    setButtonClicked(false);
     setOpen(true);
   }; 
 
@@ -129,46 +129,45 @@ const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotS
     
     setOpen(false);
     setBuyState(false);
+    setButtonClicked(false);
   };
 
-  // useEffect(() => {
-  //   axios.get(`${baseUrl}api/v1/readsetting`)
-  //   .then((res) => {
-  //       setAppLive(res.data);
-  //   }).catch((err) => {
-  //       return new Error(err);
-  //   })
-  // }, [])
-
+console.log("buttonClicked", buttonClicked)
   async function buyFunction(e, uId) {
     //console.log("caseStudy 1: buy")
-      e.preventDefault()
-      setOpen(false);
-      setBuyState(false);
+    console.log("buttonClicked inside", buttonClicked)
+    if(buttonClicked){
+      // setButtonClicked(false);
+      return;
+    }
+    setButtonClicked(true);
+    e.preventDefault()
+    setOpen(false);
+    setBuyState(false);
 
 
-      // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
-      //   // window.alert("App is not Live right now. Please wait.");
-      //   openSuccessSB('error', 'App is not live right now. Please wait.')
-      //   return;
-      // }
+    // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
+    //   // window.alert("App is not Live right now. Please wait.");
+    //   openSuccessSB('error', 'App is not live right now. Please wait.')
+    //   return;
+    // }
 
 
-      buyFormDetails.buyOrSell = "BUY";
-  
-      if (regularSwitch === true) {
-        buyFormDetails.variety = "regular"
-      }
-      else {
-        buyFormDetails.variety = "amo"
-      }
+    buyFormDetails.buyOrSell = "BUY";
 
-      buyFormDetails.exchange = exchange;
-      buyFormDetails.symbol = symbol
+    if (regularSwitch === true) {
+      buyFormDetails.variety = "regular"
+    }
+    else {
+      buyFormDetails.variety = "amo"
+    }
 
-      setBuyFormDetails(buyFormDetails)
+    buyFormDetails.exchange = exchange;
+    buyFormDetails.symbol = symbol
 
-      placeOrder();
+    setBuyFormDetails(buyFormDetails)
+
+    placeOrder();
 
   }
 

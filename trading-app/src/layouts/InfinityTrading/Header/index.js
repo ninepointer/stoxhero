@@ -20,17 +20,15 @@ import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/
 // import MyPosition from '../data/MyPosition'
 // import Orders from '../data/orders'
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
-import { userContext } from '../../../AuthContext';
-import { io } from 'socket.io-client';
+// import { userContext } from '../../../AuthContext';
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 
-export default function InfinityTrading() {
+export default function InfinityTrading({socket}) {
   //console.log("rendering in userPosition: header")
   // const [reRender, setReRender] = useState(true);
-  const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   // const [fundDetail, setFundDetail] = useState({});
   const [yesterdayData, setyesterdayData] = useState({});
@@ -38,22 +36,9 @@ export default function InfinityTrading() {
   const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
 
 
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", true)
-    })
-  }, []);
 
   // useEffect(() => {
   //   axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{
@@ -155,7 +140,7 @@ export default function InfinityTrading() {
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(openingBalance+pnl.infinityNetPnl) >= 0.00 ? "+₹" + ((openingBalance+pnl.infinityNetPnl).toFixed(0)): "-₹" + ((-(openingBalance+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
+                    <MDTypography fontSize={10}>{(openingBalance+pnl.infinityNetPnl) >= 0.00 ? "₹" + ((openingBalance+pnl.infinityNetPnl).toFixed(0)): "₹" + ((-(openingBalance+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
                     <MDAvatar src={openingBalance+pnl.infinityNetPnl - openingBalance+pnl.infinityNetPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
                   </MDBox>
                 </Grid>
@@ -180,7 +165,7 @@ export default function InfinityTrading() {
                 </Grid>
            
                 <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">NET P&L</MDTypography>
+                  <MDTypography fontSize={11} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">NET P&L</MDTypography>
                   <MDBox display="flex">
                     <MDTypography fontSize={10}>Today</MDTypography>
                     {/* <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/> */}

@@ -45,6 +45,7 @@ import Carousel from './layouts/carousel'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
+import CareerDetailsForm from './layouts/career/createCareerForm'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -167,12 +168,12 @@ const routes = [
     component: <ContestPage />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
-    route: "about",
+    route: "/about",
     component: <About />,
+  },
+  {
+    route: "/Career Details",
+    component: <CareerDetails />,
   },
   
   {
@@ -180,7 +181,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "jobdescription",
+    route: "/jobdescription",
     component: <JD />,
   },
   {
@@ -188,7 +189,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "home",
+    route: "/home",
     component: <Home />,
   },
   {
@@ -204,7 +205,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "careers",
+    route: "/careers",
     component: <Careers />,
   },
   {
@@ -212,11 +213,11 @@ const routes = [
     // name: "Arena",
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "apply",
+    route: "/apply",
     component: <CareerForm />,
   },
   {
-    route: "contact",
+    route: "/contact",
     component: <Contact />,
   },
   {
@@ -224,7 +225,7 @@ const routes = [
     // name: "Arena", ContestTradePage
     // key: "arena",
     // icon: <BusinessIcon/>,
-    route: "arena/:name/register",
+    route: "/arena/:name/register",
     component: <ContestRegisterPage />,
   },
   {
@@ -232,7 +233,7 @@ const routes = [
     // name: "Arena", 
     // key: "arena", DummyPage
     // icon: <BusinessIcon/>,
-    route: "arena/contest/trade",
+    route: "/arena/contest/trade",
     component: <ContestTradePage />,
   },
   // {
@@ -307,14 +308,6 @@ const routes = [
     icon: <HomeIcon/>,
     route: "/Career List",
     component: <CareerList />,
-  },
-  {
-    // type: "collapse",
-    // name: "Company Dashboard",
-    key: "careerDetails",
-    // icon: <DashboardIcon/>,
-    route: "/Career Details",
-    component: <CareerDetails />,
   },
 
   {

@@ -100,10 +100,6 @@ React.useEffect(()=>{
             validity: res.data.data?.validity || '',
             validityPeriod: res.data.data?.validityPeriod || '',
             portfolio: res.data.data?.portfolio?.portfolioName || '',
-            // lastModifiedOn: res.data[0]?.lastModifiedOn || '',
-            // createdBy: res.data[0]?.createdBy || getDetails.userDetails._id,
-            // lastModifiedBy: res.data[0]?.lastModifiedBy || getDetails.userDetails._id,
-            // lastModifiedOn: new Date()
           });
             setTimeout(()=>{setIsLoading(false)},500) 
         // setIsLoading(false)
@@ -193,7 +189,7 @@ async function onEdit(e,formState){
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
     } else {
         setNewObjectId(data?.data._id)
-        openSuccessSB("Slab Created",data.message)
+        openSuccessSB("Subscription Created",data.message)
         setIsSubmitted(true)
         setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
       }
@@ -202,6 +198,7 @@ async function onEdit(e,formState){
   async function onAddFeature(e,childFormState,setChildFormState){
     e.preventDefault()
     setSaving(true)
+    console.log(id,newObjectId)
     if(!childFormState?.orderNo || !childFormState?.description){
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
@@ -474,7 +471,7 @@ async function onEdit(e,formState){
                         <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                             Edit
                         </MDButton>
-                        <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/TenX Subscriptions") : setIsSubmitted(false)}}>
+                        <MDButton variant="contained" color="info" size="small" onClick={()=>{(id || newObjectId) ? navigate("/TenX Subscriptions") : setIsSubmitted(false)}}>
                             Back
                         </MDButton>
                         </>
