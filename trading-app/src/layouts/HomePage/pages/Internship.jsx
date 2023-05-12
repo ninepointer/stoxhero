@@ -27,7 +27,7 @@ const Internship = () => {
     }, [])
 
     return (
-      <Box p={5}>
+      <Box p={5} mt={15} >
         <Grid container flexDirection="column" spacing={4}>
           {career.length > 0 ? (
             career.map((elem) => (
