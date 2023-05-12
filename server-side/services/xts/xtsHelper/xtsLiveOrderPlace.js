@@ -172,12 +172,10 @@ exports.liveTrade = async (req, res) => {
                     disclosed_quantity, price, filled_quantity, pending_quantity, cancelled_quantity, market_protection, guid,
                     status, uId, createdBy, average_price, Quantity: quantity, 
                     Product:product, buyOrSell:transaction_type, order_timestamp: order_timestamp,
-                    variety, validity, exchange, order_type: order_type, symbol:tradingsymbol, placed_by: placed_by, userId,
-                    algoBox:{algoName, transactionChange, instrumentChange, exchangeChange, 
-                    lotMultipler, productChange, tradingAccount, _id, marginDeduction, isDefault}, order_id, instrumentToken: real_instrument_token, 
-                    brokerage: brokerageCompany,
-                    tradeBy: tradeBy,trader: trader, isRealTrade: true, amount: (Number(quantity)*average_price), trade_time:trade_time,
-                    order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
+                    variety, validity, exchange, order_type: order_type, symbol, placed_by: placed_by,
+                    algoBox: algoBoxId, order_id, instrumentToken, brokerage: brokerageCompany,
+                    trader: trader, isRealTrade: true, amount: (Number(quantity)*average_price), trade_time:trade_time,
+                    exchange_order_id, exchange_timestamp, isMissed
                 }
         
                 const traderDoc = {
