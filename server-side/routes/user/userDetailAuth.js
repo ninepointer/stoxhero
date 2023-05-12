@@ -331,15 +331,28 @@ router.patch("/generateOTP", async (req, res)=>{
     emailService(email,subject,message);
 })
 
-router.get("/readuserdetails", (req, res)=>{
-    UserDetail.find((err, data)=>{
-        if(err){
-            return res.status(500).send(err);
-        }else{
-            return res.status(200).send(data);
-        }
-    }).sort({joining_date:1})
-})
+// router.get("/readuserdetails", (req, res)=>{
+//     UserDetail.find((err, data)=>{
+//         if(err){
+//             return res.status(500).send(err);
+//         }else{
+//             return res.status(200).send(data);
+//         }
+//     }).sort({joining_date:1})
+// })
+
+router.get("/readuserdetails", (req, res) => {
+  UserDetail.find()
+    .populate("role","roleName") // Populate the "role" field
+    .sort({ joining_date: -1 })
+    .exec((err, data) => {
+      if (err) {
+        return res.status(500).send(err);
+      } else {
+        return res.status(200).send(data);
+      }
+    });
+});
 
 router.get("/readuserdetails/:id", (req, res)=>{
     //console.log(req.params)

@@ -172,7 +172,7 @@ const routes = [
     component: <About />,
   },
   {
-    route: "/Career Details",
+    route: "/careerdetails",
     component: <CareerDetails />,
   },
   
@@ -285,28 +285,28 @@ const routes = [
     route: "/tradersMarginAllocation",
     component: <TradersMarginAllocation />,
   },
-  {
-    type: "collapse",
-    name: "Contests",
-    key: "contests",
-    icon: <WalletIcon/>,
-    route: "/contests",
-    component: <Contests />,
-  },
-  {
-    type: "collapse",
-    name: "Carousel",
-    key: "carousel",
-    icon: <HomeIcon/>,
-    route: "/carousel",
-    component: <Carousel />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Contests",
+  //   key: "contests",
+  //   icon: <WalletIcon/>,
+  //   route: "/contests",
+  //   component: <Contests />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Carousel",
+  //   key: "carousel",
+  //   icon: <HomeIcon/>,
+  //   route: "/carousel",
+  //   component: <Carousel />,
+  // },
   {
     type: "collapse",
     name: "Careers",
-    key: "Career List",
+    key: "careerlist",
     icon: <HomeIcon/>,
-    route: "/Career List",
+    route: "/careerlist",
     component: <CareerList />,
   },
 
@@ -321,19 +321,19 @@ const routes = [
 
   {
     type: "collapse",
-    name: "Referral Programme",
-    key: "referralProgramme",
+    name: "Referral Program",
+    key: "referralprogram",
     icon: <DashboardIcon/>,
-    route: "/referralProgramme",
+    route: "/referralprogram",
     component: <Referral />,
   },
 
   {
     type: "collapse",
     name: "TenX Subscriptions",
-    key: "TenX Subscriptions",
+    key: "tenxsubscriptions",
     icon: <DashboardIcon/>,
-    route: "/TenX Subscriptions",
+    route: "/tenxsubscriptions",
     component: <TenXSubscription />,
   },
   
@@ -467,10 +467,10 @@ const routes = [
   // },
   {
     type: "collapse",
-    name: "Paper Trade",
-    key: "papertrade",
+    name: "Virtual Trading",
+    key: "virtualtrading",
     icon: <BusinessIcon/>,
-    route: "/papertrade",
+    route: "/virtualtrading",
     component: <UserPosition />,
   },
   {
@@ -482,14 +482,14 @@ const routes = [
     route: "/infinitytrading",
     component: <InfinityTrader />,
   },
-  {
-    type: "collapse",
-    name: "Battle Ground",
-    key: "battlestreet",
-    icon: <StadiumIcon/>,
-    route: "/battlestreet",
-    component: <UserContest />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Battle Street",
+  //   key: "battlestreet",
+  //   icon: <StadiumIcon/>,
+  //   route: "/battlestreet",
+  //   component: <UserContest />,
+  // },
   {
     // type: "collapse",
     // name: "Arena",

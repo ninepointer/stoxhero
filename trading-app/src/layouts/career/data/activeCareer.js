@@ -73,7 +73,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/Career Details`,
+                            pathname: `/careerdetails`,
                           }}
                         state={{ data: e }}
                       >
