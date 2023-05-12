@@ -29,13 +29,6 @@ import Phone5Img from "../assets/images/section4/wallet-transfer.png";
 import BannerBgImage from "../assets/images/section5/news-block-background.webp";
 import BannerBgImageMobile from "../assets/images/section5/news-block-background-mobile.webp";
 
-// Section6
-// import Sec6Image1 from "../assets/images/section6/aggregation-protocol.webp";
-// import Sec6Image2 from "../assets/images/section6/limit-order-protocol.webp";
-// import Sec6Image3 from "../assets/images/section6/liquidity-protocol.webp";
-// import Sec6Image4 from "../assets/images/section6/earn_1.webp";
-// import Sec6Image5 from "../assets/images/section6/rabbithole.webp";
-
 // Section7
 import Sec7Image1 from "../assets/images/section7/api.webp";
 import Sec7Image2 from "../assets/images/section7/grant-program.webp";
@@ -157,37 +150,6 @@ export const section5Content = {
   subtitle:
     "The Fusion upgrade makes swaps on 1inch yet more efficient and secure, combining liquidity from the entire crypto market in one place.",
 };
-
-// export const section6Content = {
-//   title: "Why Choose Stoxhero?",
-//   ITEMS: [
-//     {
-//       title: "Learn",
-//       subtitle:
-//         " Enhance skills, expand knowledge, and unlock your trading potential.",
-//       image: "https://www.pngall.com/wp-content/uploads/8/Forex-Trading-PNG-Image.png",
-//     },
-//     {
-//       title: "Earn",
-//       subtitle:
-//         "Profitable learning with trading tools and risk-free trading with money making opportunities.",
-//       image: "https://3xincome.online/website/images/forex.png",
-//     },
-//     {
-//       title: "Trade",
-//       subtitle:
-//         "User-friendly interface with real-time data, analysis & execution for all traders, from beginners to experienced.",
-//       image: "https://www.avatrade.co.za/wp-content/uploads/2022/10/what-is-liquidity.png",
-//     },
-//     {
-//       title: "Grow",
-//       subtitle:
-//         "Transparent, secure, and reliable platform for Intraday Trading. Trusted by traders, for traders.",
-//       image: "https://www.pngall.com/wp-content/uploads/8/Trading-PNG.png",
-//     },
-    
-//   ],
-// };
 
 export const section7Content = {
   title: "Grow with our ecosystem",
