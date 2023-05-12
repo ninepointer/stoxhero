@@ -23,7 +23,8 @@ const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {deletePnlKey} = require("./controllers/deletePnlKey");
 const {subscribeInstrument, getXTSTicksForUserPosition, onDisconnect} = require("./services/xts/xtsMarket")
-
+const {xtsMarketLogin} = require("./services/xts/xtsMarket");
+const {interactiveLogin} = require("./services/xts/xtsInteractive");
 
 const path = require('path');
 // const {DummyMarketData} = require('./marketData/dummyMarketData');
@@ -44,9 +45,9 @@ app.use(helmet());
 app.use(xssClean());
 app.use(hpp());
 
-const {data, tickerConnect} = require("./services/xts/xtsMarket");
 
-data().then(()=>{})
+xtsMarketLogin().then(()=>{})
+interactiveLogin().then(()=>{})
 client.connect().then(()=>{})
 
 

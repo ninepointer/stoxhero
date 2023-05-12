@@ -9,16 +9,16 @@ const liveTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    createdBy:{
-        type: String,
-        required : true
-    },
+    // createdBy:{
+    //     type: String,
+    //     required : true
+    // },
     average_price:{
         type: Number,
         required: true
     },
     Quantity:{
-        type: String,
+        type: Number,
         required: true
     },
     Product:{
@@ -29,10 +29,10 @@ const liveTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    order_timestamp:{
-        type: String,
-        required: true
-    },
+    // order_timestamp:{
+    //     type: String,
+    //     required: true
+    // },
     variety:{
         type: String,
         required: true
@@ -57,124 +57,88 @@ const liveTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    userId:{
-        type: String,
-        required: true        
-    },
+    // userId:{
+    //     type: String,
+    //     required: true        
+    // },
     brokerage:{
-        type: String,        
+        type: Number,        
     },
     instrumentToken:{
         type: String, 
         required: true 
     },
-    tradeBy:{
-        type: String,
-        required: true        
-    },
+    // tradeBy:{
+    //     type: String,
+    //     required: true        
+    // },
     isRealTrade:{ 
         type: Boolean,
-        // required: true  
+        required: true,
+        default: true 
     },
     amount:{
         type: Number,
-        required: true        
+        // required: true        
     },
     exchange_order_id:{
         type: String,
     },
     exchange_timestamp:{
-        type: String,
+        type: Date,
     },
     disclosed_quantity:{
-        type: String,
-        required: true
+        type: Number,
+        // required: true
     },
     price:{
-        type: String,
+        type: Number,
         required: true
     },
     filled_quantity:{
-        type: String,
-        required: true
+        type: Number,
+        // required: true
     },
     pending_quantity:{
-        type: String,
-        required: true
+        type: Number,
+        // required: true
     },
     cancelled_quantity:{
-        type: String,
-        required: true
+        type: Number,
+        // required: true
     },
     market_protection:{
         type: String,
-        required: true
+        // required: true
     },
     guid:{
         type: String,
-        required: true
+        // required: true
     },
     trade_time:{
-        type: String,
-        required: true
+        type: Date,
+        required: true        
     },
-    
-    otm:{
-        type: String,
-    },
-    otm_quantity:{
-        type: String,
-    },
-    otm_token:{
-        type: String,
-    },
-    
     isMissed:{
         type: Boolean,
         default: false
     },
-
+    trader:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+        // required : true
+    },
+    createdOn:{
+        type: Date,
+        default: new Date()
+    },
+    createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail',
+    },
     algoBox:{
-        _id:{
-            type: String,
-            required: true
-        },
-        isDefault:{
-            type: Boolean,
-            required: true
-        },
-        marginDeduction:{
-            type: Boolean,
-            required: true
-        },
-        algoName:{
-            type: String,
-            required: true
-        },
-        transactionChange:{
-            type: String,
-            required : true
-        },
-        instrumentChange:{
-            type: String,
-            required : true
-        },
-        exchangeChange:{
-            type: String,
-            required : true
-        },
-        lotMultipler:{
-            type: String,
-            required : true
-        },
-        productChange:{
-            type: String,
-            required : true
-        },
-        tradingAccount:{
-            type: String,
-            required : true
-        }
+        type: Schema.Types.ObjectId,
+        ref: 'algo-trading', 
     }
 })
 
