@@ -26,8 +26,8 @@ const Section7 = () => {
 
           <Grid display="flex" justifyContent="flex-start" alignItems="center" item xs={12} md={3} sx={{ borderLeft: "2px dashed gray" }} >
             <Stack ml={3} >
-              <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Sign Up </Title>
-              <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Join a league to get start</Typography>
+            <MDBox> <img src="https://www.pngmart.com/files/22/Dot-PNG-Isolated-Transparent.png" alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Sign Up </Title></MDBox>
+            <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Join a league to get start</Typography>
             </Stack>
           </Grid>
 
