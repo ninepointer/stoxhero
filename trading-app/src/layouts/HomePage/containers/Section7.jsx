@@ -19,12 +19,12 @@ const Section7 = () => {
         <Grid container alignContent="center" justifyContent="center">
 
           <Grid item xs={12} md={3}>
-            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dotted gray",md:"none"}} >
+            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",md:"none"}} >
               <img src="https://cdni.iconscout.com/illustration/premium/thumb/trading-2268548-1888743.png" alt="" />
             </Stack>
           </Grid>
 
-          <Grid display="flex" justifyContent="flex-start" alignItems="center" item xs={12} md={3} sx={{ borderLeft: "2px dotted gray" }} >
+          <Grid display="flex" justifyContent="flex-start" alignItems="center" item xs={12} md={3} sx={{ borderLeft: "2px dashed gray" }} >
             <Stack ml={3} >
               <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Sign Up </Title>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Join a league to get start</Typography>
@@ -39,7 +39,7 @@ const Section7 = () => {
 
           <Grid justifyContent="center" item xs={12} md={3}></Grid>
 
-          <Grid display="flex" justifyContent="flex-start" alignItems="center" sx={{ borderLeft: "2px dotted gray" }} item xs={12} md={3}>
+          <Grid display="flex" justifyContent="flex-start" alignItems="center" sx={{ borderLeft: "2px dashed gray" }} item xs={12} md={3}>
             <Stack ml={3} >
               <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Build your portfolio </Title>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Follow experts, learn and start building</Typography>
@@ -47,7 +47,7 @@ const Section7 = () => {
           </Grid>
 
           <Grid item xs={12} md={3}>
-            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dotted gray",sm:"none"}}>
+            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",sm:"none"}}>
               <img src="https://cdni.iconscout.com/illustration/premium/thumb/trading-2268548-1888743.png" style={{ maxWidth: "100%" }} alt="" />
             </Stack>
           </Grid>
@@ -58,12 +58,12 @@ const Section7 = () => {
         <Grid container alignContent="center" justifyContent="center">
 
           <Grid item xs={12} md={3}>
-            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dotted gray",md:"none"}} >
+            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",md:"none"}} >
               <img src="https://cdni.iconscout.com/illustration/premium/thumb/trading-2268548-1888743.png" alt="" />
             </Stack>
           </Grid>
 
-          <Grid display="flex" justifyContent="flex-start" alignItems="center" item xs={12} md={3} sx={{ borderLeft: "2px dotted gray" }} >
+          <Grid display="flex" justifyContent="flex-start" alignItems="center" item xs={12} md={3} sx={{ borderLeft: "2px dashed gray" }} >
             <Stack ml={3} >
               <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>BYOG </Title>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >(Bring Your Own Gang!)It’s no fun without friends, who’re we kidding</Typography>
@@ -79,7 +79,7 @@ const Section7 = () => {
 
           <Grid justifyContent="center" item xs={12} md={3}></Grid>
 
-          <Grid display="flex" justifyContent="flex-start" alignItems="center" sx={{ borderLeft: "2px dotted gray" }} item xs={12} md={3}>
+          <Grid display="flex" justifyContent="flex-start" alignItems="center" sx={{ borderLeft: "2px dashed gray" }} item xs={12} md={3}>
             <Stack ml={3} >
               <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Community </Title>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Discover new company,follow experts and learn everyday</Typography>
@@ -87,7 +87,7 @@ const Section7 = () => {
           </Grid>
 
           <Grid item xs={12} md={3}>
-            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dotted gray",sm:"none"}}>
+            <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",sm:"none"}}>
               <img src="https://cdni.iconscout.com/illustration/premium/thumb/trading-2268548-1888743.png" style={{ maxWidth: "100%" }} alt="" />
             </Stack>
           </Grid>

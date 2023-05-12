@@ -32,12 +32,13 @@ const ServiceCard = ({ title, subtitle, image }) => {
           src={image}
           style={{
             height: "75px",
-            width: "25%",
+            width: "15%",
             objectFit: "contain",
             flex: 1, 
-            marginRight:{xs:"40px"}
+            marginRight:"100px"
             
           }}
+          alt=""
         />
 
         <br/>
