@@ -13,19 +13,16 @@ import JobDescription from './JobDescription';
 
 const App = () => {
   return (
-    <div style={{background:"#06070A",}}>
-    <ThemeProvider theme={theme}>
-      <div style={{background:"#06070A",}}>
-
-    <Navbar/>
-      </div>
-    <Box mt="56px" sx={{bgcolor:"white",minHeight:"60vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
+      <ThemeProvider theme={theme}>
+    <div  style={{background:"#06070A"}}>
+      <Navbar/>
+    <Box mb={10} sx={{bgcolor:"white",minHeight:"60vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
       <Internship/>
     </Box>
 
     <Footer/>
-    </ThemeProvider>
     </div>
+    </ThemeProvider>
   )
 }
 
