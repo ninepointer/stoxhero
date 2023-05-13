@@ -108,7 +108,7 @@ exports.getCareer = async (req,res,next) => {
   console.log("inside getCareer")
   const {id} = req.params;
   try {
-      const career = await Career.find({_id: id})
+      const career = await Career.findOne({_id: id})
       .populate('campaign', 'campaignName campaignCode')
 
       console.log("Career: ",career)
