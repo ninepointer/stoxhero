@@ -56,7 +56,7 @@ const Footer = () => {
       
 
       <Container>
-        <Grid container spacing={8} flexWrap="wrap">
+        <Grid container spacing={10} flexWrap="wrap">
           {/* Links */}
           <Grid spacing={4} item xs={12} md={6} lg={7} xl={8}>
             <Grid container justifyContent="center" spacing={2} ml={1} >

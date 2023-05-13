@@ -4,6 +4,7 @@ import Navbar from '../components/Navbars/Navbar'
 import React, { useState } from 'react'
 import Footer from '../components/Footers/Footer'
 import { ThemeProvider } from 'styled-components';
+import MDBox from '../../../components/MDBox'
 
 
 const Contact = () => {
@@ -50,14 +51,14 @@ const Contact = () => {
     
     return (
 
-        
-        <div style={{  width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "black" }}>
+        <div>
             <ThemeProvider theme={theme}>
+        <Box style={{  width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "black" }}>
             <Navbar/>
 
 
 
-            <Card style={{ maxWidth: 450, margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ sx: "20px" }} >
+            <Card style={{ maxWidth: 450, margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
                 <CardContent>
 
                     <Typography gutterBottom variant='h5'>Contact US</Typography>
@@ -111,8 +112,13 @@ const Contact = () => {
             </Card>
 
 
+            
+        </Box>
+        <MDBox bgColor="black" sx={{marginTop:-2}}>
+
+        <Footer/>
+        </MDBox>
         </ThemeProvider>
-            <Footer/>
         </div>
     )
 }
