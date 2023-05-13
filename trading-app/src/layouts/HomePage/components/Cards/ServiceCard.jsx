@@ -2,6 +2,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
 import OutlinedButton from "../Buttons/OutlinedButton";
 import Title from "../Title";
+import MDBox from "../../../../components/MDBox";
 
 const ServiceCard = ({ title, subtitle, image }) => {
   return (
@@ -31,20 +32,24 @@ const ServiceCard = ({ title, subtitle, image }) => {
       <img
           src={image}
           style={{
-            height: "75px",
-            width: "15%",
+            
+            width: "14%",
             objectFit: "contain",
             flex: 1, 
-            marginRight:"100px"
+            marginLeft:"-30px"
+            
             
           }}
           alt=""
         />
 
         <br/>
-        <Title style={{color:"#fff",marginLeft:"18px"}} variant={{ xs: "h5", sm: "h4" }}>{title}</Title>
+        <MDBox >
 
-        <Typography style={{marginLeft:"18px"}} variant="body2"  color="rgba(255, 255, 255, 0.6)">{subtitle}</Typography>
+        <Title style={{color:"#fff"}} variant={{ xs: "h5", sm: "h4" }}>{title}</Title>
+
+        <Typography variant="body2"  color="rgba(255, 255, 255, 0.6)">{subtitle}</Typography>
+        </MDBox>
 
       </Stack>
     </Box>
