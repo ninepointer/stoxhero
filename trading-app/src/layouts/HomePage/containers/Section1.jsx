@@ -8,6 +8,7 @@ import useMeasure from 'react-use-measure';
 import Title from '../components/Title/index'
 import { useTheme } from 'styled-components';
 import { section1Content } from '../utils/content';
+import back from '../assets/images/section1/backgroud.jpg'
 
 
 
@@ -38,31 +39,24 @@ const Section1 = () => {
   const [ref,{height}] = useMeasure();
   return (
     <Box>
-
-      {/* Main Background */}
-
-      <Box sx={{position:"fixed",zIndex:-10, top:0,left:0,right:0 }}>
-        <img src="https://wallpapercave.com/wp/wp2116604.jpg" style={{width:"100%"}} />
-      </Box>
-
-
       {/* Background Elements */}
       
-      <Box ref={ref} sx={{position:'absolute', zIndex:-1, top:0, left:0, right:0}}>
+      <Box ref={ref} sx={{position:'absolute',zIndex:-1, top:0, left:0, right:0}}>
+        <Box sx={{height:"15px",mb:3,width:"100%",background:"#06070A",position:"absolute",bottom:{xs:"-30px"}}}></Box>
+        <img src={back} style={{width:"100%",opacity:"0.9",}} alt="img" />
 
-        <img src="https://wallpapercave.com/wp/wp2116604.jpg" style={{width:"100%", opacity:0}} />
         
 
          {/* Star image */}
-        <img src={ShootingStarImage} style={{position:"absolute", top:"30px", right:'15%', width:"500px" }} />
+        {/* <img src={ShootingStarImage} style={{position:"absolute", top:"30px", right:'15%', width:"500px" }} /> */}
 
 
 
         {/* Trees */}
-        <Hidden mdDown>
+        {/* <Hidden mdDown>
 
-        </Hidden>
-        <img src={TreesImage} style={{position:"absolute",width:"100%",right:0,left:0,bottom:0 }} alt="" />
+        </Hidden> */}
+        {/* <img src={TreesImage} style={{position:"absolute",width:"100%",right:0,left:0,bottom:0 }} alt="" /> */}
 
 
         {/* Cliff image */}
@@ -72,7 +66,7 @@ const Section1 = () => {
          {/* Horse image */}
         {/* <img src={HorseImage} style={{position:"absolute",height:"38%",right:"14%",bottom:"45%" }} /> */}
 
-        <Box sx={{bgcolor:"#06070A",position:"absolute",bottom:"0",left:0,right:0,height:{xs:"3000px", md:"2150px", lg:"1800px" },top:height,}}>
+        <Box sx={{bgcolor:"#06070A",position:"absolute",bottom:"0",left:0,right:0,height:{xs:"4000px", md:"2150px", lg:"1800px" },top:height,}}>
 
         </Box>
 
