@@ -19,6 +19,7 @@ const App = () => {
 
   const location = useLocation();
   const career = location?.state?.data;
+  const campaignCode = location?.state?.campaignCode;
 
 
   return (
@@ -57,7 +58,7 @@ const App = () => {
                 to={{
                   pathname: `/apply`,
                 }}
-                state= {{data: career}}
+                state= {{data: career, campaignCode: campaignCode}}
                 >
                   Apply
               </MDButton>
