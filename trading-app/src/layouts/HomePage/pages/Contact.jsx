@@ -58,7 +58,7 @@ const Contact = () => {
 
 
 
-            <Card style={{ maxWidth: 450, margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
+            <Card style={{ maxWidth: 470, margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
                 <CardContent>
 
                     <Typography gutterBottom variant='h5'>Contact US</Typography>
@@ -104,7 +104,7 @@ const Contact = () => {
 
                         </Grid>
                             {
-                                sucess && (<Grid sx={{background:"green",color:"white",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully!</Grid>)
+                                sucess && (<Grid sx={{background:"green",color:"#fff",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully!</Grid>)
                             }
 
                     </form>
