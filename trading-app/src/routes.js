@@ -36,6 +36,7 @@ import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
 import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
+import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
@@ -46,6 +47,7 @@ import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 import CareerDetailsForm from './layouts/career/createCareerForm'
+import Campaigns from './layouts/campaign'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -175,7 +177,10 @@ const routes = [
     route: "/careerdetails",
     component: <CareerDetails />,
   },
-  
+  {
+    route: "/campaigndetails",
+    component: <CampaignDetails />,
+  },
   {
     // type: "collapse",
     // name: "Arena",
@@ -309,7 +314,6 @@ const routes = [
     route: "/careerlist",
     component: <CareerList />,
   },
-
   {
     type: "collapse",
     name: "Algo Position(s)",
@@ -318,7 +322,6 @@ const routes = [
     route: "/algoposition",
     component: <AlgoPosition />,
   },
-
   {
     type: "collapse",
     name: "Referral Program",
@@ -327,7 +330,14 @@ const routes = [
     route: "/referralprogram",
     component: <Referral />,
   },
-
+  {
+    type: "collapse",
+    name: "Campaigns",
+    key: "campaigns",
+    icon: <DashboardIcon/>,
+    route: "/campaigns",
+    component: <Campaigns />,
+  },
   {
     type: "collapse",
     name: "TenX Subscriptions",
@@ -441,30 +451,6 @@ const routes = [
     route: "/signupanalytics",
     component: <UserSignupDashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Notifications",
-  //   key: "notifications",
-  //   icon: <NotificationsActiveIcon/>,
-  //   route: "/notifications",
-  //   component: <Notifications />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "Position",
-  //   key: "position",
-  //   icon: <BusinessIcon/>,
-  //   route: "/position",
-  //   component: <UserPosition />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "User DashBoard",
-  //   key: "home",
-  //   icon: <HomeIcon/>,
-  //   route: "/home",
-  //   component: <Home />,
-  // },
   {
     type: "collapse",
     name: "Virtual Trading",

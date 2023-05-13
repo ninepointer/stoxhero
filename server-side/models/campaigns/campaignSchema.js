@@ -1,40 +1,31 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const referralProgramSchema = new mongoose.Schema({
-    referrralProgramId:{
+const campignSchema = new mongoose.Schema({
+    campaignId:{
         type: String,
         // required: true
     },
-    referralProgramName:{
+    campaignName:{
         type: String,
         required: true
-    },
-    referralProgramStartDate:{
-        type: Date,
-        required: true
-    },
-    referralProgramEndDate:{
-        type:Date,
-        required: true
-    },
-    rewardPerReferral:{
-        type:Number,
-        required: true
-    },
-    currency:{
-        type:String,
-        required: true,
-        enum: ['INR','CREDOS']
     },
     description:{
         type:String,
         required:true
     },
+    campaignCode:{
+        type:String,
+        required:true
+    },
+    campaignFor:{
+        type:String,
+        enum:['Facebook','Instagram','LinkedIn','Career','Twitter','Telegram','WhatsApp','Google','Influencer','Website','Other']
+    },
     status:{
         type:String,
         required: true,
-        enum: ['Active','Paused','Completed']
+        enum: ['Live','Draft','Cancelled']
     },
     createdOn:{
         type: Date,
@@ -59,20 +50,20 @@ const referralProgramSchema = new mongoose.Schema({
     users: [
         {
             userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
-            joinedOn:Date
+            joinedOn:{type:Date, default: new Date()}
         }
     ],
 })
 
-referralProgramSchema.pre('save', async function(next){
-    if(!this.referrralProgramId|| this.isNew){
-        const count = await referralProgramData.countDocuments();
-        const tId = "SHRP" + (count + 1).toString().padStart(8, "0");
-        this.referrralProgramId = tId;
+campignSchema.pre('save', async function(next){
+    if(!this.campaignId|| this.isNew){
+        const count = await campaign.countDocuments();
+        const tId = "SHC" + (count + 1).toString().padStart(8, "0");
+        this.campaignId = tId;
         next();
     }
     next();
 })
 
-const referralProgramData = mongoose.model("referral-program", referralProgramSchema);
-module.exports = referralProgramData;
+const campaign = mongoose.model("campaign", campignSchema);
+module.exports = campaign;

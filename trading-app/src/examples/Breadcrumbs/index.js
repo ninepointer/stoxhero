@@ -54,6 +54,8 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Career List"
   } else if(title === "careerdetails"){
     title = "Career Details"
+  } else if(title === "campaigndetails"){
+    title = "Campaign Details"
   }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
