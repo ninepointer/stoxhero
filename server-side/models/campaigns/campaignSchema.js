@@ -22,6 +22,10 @@ const campignSchema = new mongoose.Schema({
         type:String,
         enum:['Facebook','Instagram','LinkedIn','Career','Twitter','Telegram','WhatsApp','Google','Influencer','Website','Other']
     },
+    campaignLink:{
+        type:String,
+        required:true,
+    },
     status:{
         type:String,
         required: true,

@@ -15,6 +15,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import CampaignUsers from "./data/campaignUsers";
 import { IoMdAddCircle } from 'react-icons/io';
 
+
 function Index() {
 
     const location = useLocation();
@@ -37,6 +38,7 @@ function Index() {
         description:'',
         campaignFor:'',
         campaignCode: '',
+        campaignLink: '',
         status:''
     });
 
@@ -59,6 +61,7 @@ function Index() {
               description: res.data.data?.description || '',
               campaignCode: res.data.data?.campaignCode || '',
               campaignFor: res.data.data?.campaignFor || '',
+              campaignLink: res.data.data?.campaignLink || '',
               status: res.data.data?.status || '',
             });
               setTimeout(()=>{setIsLoading(false)},500) 
@@ -71,14 +74,14 @@ function Index() {
     async function onSubmit(e,formState){
       e.preventDefault()
       console.log(formState)
-      if(!formState.campaignName || !formState.description || !formState.campaignCode || !formState.campaignFor || !formState.status){
+      if(!formState.campaignName || !formState.description || !formState.campaignCode || !formState.campaignFor || !formState.campaignLink || !formState.status){
       
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
       // console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {campaignName, description, campaignCode, campaignFor, status } = formState;
+      const {campaignName, description, campaignCode, campaignFor, campaignLink, status } = formState;
       const res = await fetch(`${baseUrl}api/v1/campaign/create`, {
           method: "POST",
           credentials:"include",
@@ -87,7 +90,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignName, description, campaignCode, campaignFor, status
+            campaignName, description, campaignCode, campaignFor, campaignLink, status
           })
       });
       
@@ -111,11 +114,11 @@ function Index() {
       console.log("Edited FormState: ",formState,id._id)
       setSaving(true)
       console.log(formState)
-      if(!formState.campaignName || !formState.description || !formState.campaignFor || !formState.campaignCode || !formState.status){
+      if(!formState.campaignName || !formState.description || !formState.campaignFor || !formState.campaignLink || !formState.campaignCode || !formState.status){
           setTimeout(()=>{setSaving(false);setEditing(true)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-      const { campaignName, description, campaignFor, campaignCode, status } = formState;
+      const { campaignName, description, campaignFor, campaignLink, campaignCode, status } = formState;
   
       const res = await fetch(`${baseUrl}api/v1/campaign/${id._id}`, {
           method: "PATCH",
@@ -125,7 +128,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignName, description, campaignFor, campaignCode, status, 
+            campaignName, description, campaignFor, campaignLink, campaignCode, status, 
           })
       });
   
@@ -287,6 +290,21 @@ function Index() {
                 <MenuItem value="Cancelled">Cancelled</MenuItem>
                 </Select>
               </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={12} mt={2}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Campaign Link *'
+                fullWidth
+                multiline
+                value={formState?.campaignLink || id?.campaignLink}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    campaignLink: e.target.value
+                  }))}}
+              />
           </Grid>
 
           <Grid item xs={12} md={6} xl={12} mt={2}>

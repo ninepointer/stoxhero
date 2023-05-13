@@ -127,7 +127,7 @@ const userDetailSchema = new mongoose.Schema({
     creationProcess:{
         type: String,
         required: true,
-        enum: ['Auto SignUp','By Admin']
+        enum: ['Auto SignUp','By Admin','Career SignUp']
     },
     employeeid:{
         type: String,
@@ -275,6 +275,10 @@ const userDetailSchema = new mongoose.Schema({
         },
         referralCurrency: String
     }],
+    subscription:[{
+        subscriptionId:{type:Schema.Types.ObjectId, ref: 'tenx-subscription'},
+        subscribedOn:{type:Date},
+    }]
 
 })
 
