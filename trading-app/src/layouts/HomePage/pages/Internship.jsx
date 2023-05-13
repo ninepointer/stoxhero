@@ -13,16 +13,14 @@ import jobs from "../../../assets/images/jobs.png"
 import axios from "axios";
 
 
-const Internship = () => {
+const Internship = ({campaignCode}) => {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [career, setCareer] = useState([]);
     useEffect(()=>{
       axios.get(`${baseUrl}api/v1/career`)
       .then((res)=>{
         setCareer(res.data?.data);
-        console.log(career.length)
-        
-        
+        console.log(career.length) 
       })
     }, [])
 
@@ -43,7 +41,7 @@ const Internship = () => {
                       to={{
                         pathname: `/jobdescription`,
                       }}
-                      state={{ data: elem }}
+                      state={{ data: elem, campaignCode: campaignCode }}
                     >
                       <Grid
                         item

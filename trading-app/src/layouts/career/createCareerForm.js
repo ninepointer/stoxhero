@@ -8,7 +8,7 @@ import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, formLabelClasses } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -46,20 +46,18 @@ function Index() {
     const navigate = useNavigate();
     const [newObjectId, setNewObjectId] = useState("");
     const [updatedDocument, setUpdatedDocument] = useState([]);
-    const [campaigns,setCampaigns] = useState([]);
-    const [campaignData,setCampaignData] = useState([]);
+    const [career,setCareer] = useState([]);
 
     const [formState,setFormState] = useState({
-        jobTitle:'',
-        jobDescription:'',
+        jobTitle:'' || id?.jobTitle,
+        jobDescription:'' || id?.jobDescription,
         rolesAndResponsibilities: {
           orderNo: "",
           description: ""
         },
-        jobType:'',
-        jobLocation:'',
-        campaign: '',
-        status:''
+        jobType:'' || id?.jobType,
+        jobLocation:'' || id?.jobLocation,
+        status:'' || id?.status
     });
 
     useEffect(()=>{
@@ -67,36 +65,6 @@ function Index() {
             id && setUpdatedDocument(id)
             setIsLoading(false);
         },500)
-
-        axios.get(`${baseUrl}api/v1/campaign`)
-        .then((res)=>{
-          console.log(res?.data?.data)
-          setCampaigns(res?.data?.data);
-        }).catch((err)=>{
-            return new Error(err)
-        })
-    },[])
-
-    React.useEffect(()=>{
-
-        axios.get(`${baseUrl}api/v1/career/${id?._id}`)
-        .then((res)=>{
-            setCampaignData(res.data.data);
-            setUpdatedDocument(res.data.data)
-            console.log("career data is", res.data)
-            setFormState({
-                jobTitle: res.data.data?.jobTitle || '',
-                jobDescription: res.data.data?.jobDescription || '',
-                jobLocation: res.data.data?.jobLocation || '',
-                status: res.data.data?.status || '',
-                jobType: res.data.data?.jobType || '',
-                campaign: res.data.data?.campaign?.campaignName || '',
-              });
-                setTimeout(()=>{setIsLoading(false)},500) 
-        }).catch((err)=>{
-            return new Error(err);
-        })
-    
     },[])
 
 
@@ -179,11 +147,11 @@ function Index() {
         console.log("Edited FormState: ",formState,id._id)
         setSaving(true)
         console.log(formState)
-        if(!formState.jobTitle || !formState.jobDescription || !formState.jobLocation || !formState.jobType || !formState.campaign || !formState.status){
+        if(!formState.jobTitle || !formState.jobDescription || !formState.jobLocation || !formState.jobType || !formState.status){
             setTimeout(()=>{setSaving(false);setEditing(true)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { jobTitle, jobDescription, jobLocation, jobType, campaign, status } = formState;
+        const { jobTitle, jobDescription, jobLocation, jobType, status } = formState;
     
         const res = await fetch(`${baseUrl}api/v1/career/${id._id}`, {
             method: "PATCH",
@@ -193,7 +161,7 @@ function Index() {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                jobTitle, jobDescription, jobLocation, jobType, campaign : campaign.id, status, 
+                jobTitle, jobDescription, jobLocation, jobType, status, 
             })
         });
     
@@ -207,20 +175,6 @@ function Index() {
             console.log("entry succesfull");
         }
     }
-
-    const handleChange = (event) => {
-        const {
-          target: { value },
-        } = event;
-        let campaignId = campaigns?.filter((elem)=>{
-            return elem.campaignName === value;
-        })
-        setFormState(prevState => ({
-          ...prevState,
-          campaign: {id: campaignId[0]?._id, campaignName: campaignId[0]?.campaignName}
-        }))
-        console.log("campaignId", campaignId, formState)
-      };
   
 
     const [title,setTitle] = useState('')
@@ -271,6 +225,7 @@ function Index() {
   );
 
 
+console.log(id)
 
     return (
     <>
@@ -387,31 +342,6 @@ function Index() {
                   }))}}
               />
           </Grid>
-
-          <Grid item xs={12} md={3} xl={3} mt={2}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
-                  <InputLabel id="demo-multiple-name-label">Campaign</InputLabel>
-                  <Select
-                    labelId="demo-multiple-name-label"
-                    id="demo-multiple-name"
-                    disabled={((isSubmitted || id) && (!editing || saving))}
-                    value={formState?.campaign?.campaignName || id._id?.campaign?.campaignName}
-                    onChange={handleChange}
-                    input={<OutlinedInput label="Campaign" />}
-                    sx={{minHeight:45}}
-                    MenuProps={MenuProps}
-                  >
-                    {campaigns?.map((campaign) => (
-                      <MenuItem
-                        key={campaign?.campaignName}
-                        value={campaign?.campaignName}
-                      >
-                        {campaign.campaignName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-            </FormControl>
-            </Grid>
             
         </Grid>
 

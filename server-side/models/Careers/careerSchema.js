@@ -30,10 +30,6 @@ const Career = new mongoose.Schema({
         required: true,
         enum: ['WFH','Office']
     },
-    campaign:{
-        type: Schema.Types.ObjectId,
-        ref: 'user-personal-detail'
-    },
     status: {
         type: String,
         required: true,
