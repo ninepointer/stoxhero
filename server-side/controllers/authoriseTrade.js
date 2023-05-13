@@ -2,7 +2,7 @@
 // const DailyPnlData = require("../models/InstrumentHistoricalData/DailyPnlDataSchema");
 // const MockTradeDataUser = require("../models/mock-trade/mockTradeUserSchema");
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
-const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
+// const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const MockTradeCompany = require("../models/mock-trade/mockTradeCompanySchema")
 const MockTradeContest = require("../models/Contest/ContestTrade");

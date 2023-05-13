@@ -44,6 +44,15 @@ const CareerApplication = new mongoose.Schema({
     },
     source:{
         type:String,
+    },
+    campaignCode:{
+        type:String,
+    },
+    mobile_otp:{
+        type:String,
+    },
+    status:{
+        type:String
     }
 });
 

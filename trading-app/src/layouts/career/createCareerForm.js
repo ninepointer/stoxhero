@@ -1,5 +1,6 @@
-// import * as React from 'react';
+import * as React from 'react';
 import {useEffect, useState} from "react";
+import axios from "axios";
 // import { useForm } from "react-hook-form";
 // import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -7,17 +8,28 @@ import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
-// import axios from "axios";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, formLabelClasses } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
 import RolesAndResponsibilities from './data/roleAndRespData';
 import CareerApplication from "./data/applicants";
 import { IoMdAddCircle } from 'react-icons/io';
+import OutlinedInput from '@mui/material/OutlinedInput';
+
+const ITEM_HEIGHT = 30;
+const ITEM_PADDING_TOP = 10;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 function Index() {
 
@@ -34,17 +46,18 @@ function Index() {
     const navigate = useNavigate();
     const [newObjectId, setNewObjectId] = useState("");
     const [updatedDocument, setUpdatedDocument] = useState([]);
+    const [career,setCareer] = useState([]);
 
     const [formState,setFormState] = useState({
-        jobTitle:'',
-        jobDescription:'',
+        jobTitle:'' || id?.jobTitle,
+        jobDescription:'' || id?.jobDescription,
         rolesAndResponsibilities: {
           orderNo: "",
           description: ""
         },
-        jobType:'',
-        jobLocation:'',
-        status:''
+        jobType:'' || id?.jobType,
+        jobLocation:'' || id?.jobLocation,
+        status:'' || id?.status
     });
 
     useEffect(()=>{
@@ -52,8 +65,7 @@ function Index() {
             id && setUpdatedDocument(id)
             setIsLoading(false);
         },500)
-    })
-
+    },[])
 
 
     async function onSubmit(e,formState){
@@ -90,10 +102,6 @@ function Index() {
           setNewObjectId(data?.data?._id)
           console.log("New Object Id: ",data?.data?._id,newObjectId)
           setIsSubmitted(true)
-          // console.log("setting linked contest rule to: ",data.data.contestRule)
-          // setLinkedContestRule(data?.data?.contestRule)
-          // console.log(data.data)
-          // setContestData(data.data)
           setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
         }
     }
@@ -132,6 +140,40 @@ function Index() {
               rolesAndResponsibilities: {}
           }))
       }
+    }
+
+    async function onEdit(e,formState){
+        e.preventDefault()
+        console.log("Edited FormState: ",formState,id._id)
+        setSaving(true)
+        console.log(formState)
+        if(!formState.jobTitle || !formState.jobDescription || !formState.jobLocation || !formState.jobType || !formState.status){
+            setTimeout(()=>{setSaving(false);setEditing(true)},500)
+            return openErrorSB("Missing Field","Please fill all the mandatory fields")
+        }
+        const { jobTitle, jobDescription, jobLocation, jobType, status } = formState;
+    
+        const res = await fetch(`${baseUrl}api/v1/career/${id._id}`, {
+            method: "PATCH",
+            credentials:"include",
+            headers: {
+                "content-type" : "application/json",
+                "Access-Control-Allow-Credentials": true
+            },
+            body: JSON.stringify({
+                jobTitle, jobDescription, jobLocation, jobType, status, 
+            })
+        });
+    
+        const data = await res.json();
+        console.log(data);
+        if (data.status === 422 || data.error || !data) {
+            openErrorSB("Error",data.error)
+        } else {
+            openSuccessSB("Career Edited", "Edited Successfully")
+            setTimeout(()=>{setSaving(false);setEditing(false)},500)
+            console.log("entry succesfull");
+        }
     }
   
 
@@ -183,6 +225,7 @@ function Index() {
   );
 
 
+console.log(id)
 
     return (
     <>
@@ -341,7 +384,7 @@ function Index() {
                         size="small" 
                         sx={{mr:1, ml:2}} 
                         disabled={saving} 
-                        // onClick={(e)=>{onEdit(e,formState)}}
+                        onClick={(e)=>{onEdit(e,formState)}}
                         >
                         {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>

@@ -37,7 +37,7 @@ export default function Applicants({career}) {
 
     useEffect(()=>{
         getCareerApplications();
-    },[career])
+    },[])
 
     let columns = [
         { Header: "#", accessor: "index", align: "center" },
