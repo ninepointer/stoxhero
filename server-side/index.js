@@ -177,6 +177,7 @@ app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
 app.use('/api/v1/career', require("./routes/career/careerRoute"));
 app.use('/api/v1/tenX', require("./routes/tenXSubscription/tenXRoute"));
 app.use('/api/v1/college', require("./routes/career/collegeRoute"));
+app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));

@@ -692,9 +692,9 @@ router.get("/allusers", (req, res)=>{
 
 router.get("/allusersNameAndId", (req, res)=>{
 
-  const newuser = UserDetail.find().select('_id','first_name last_name')
+  const newuser = UserDetail.find().select('_id first_name last_name')
   .then((data)=>{
-      console.log(data)
+      // console.log(data)
       return res.status(200).json({message: "user name and id retreived", data : data, count: data.length});
   })
   .catch((err)=>{

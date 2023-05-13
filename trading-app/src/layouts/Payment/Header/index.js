@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 // import Box from '@mui/material/Box';
 // import Tab from '@mui/material/Tab';
 // import TabContext from '@mui/lab/TabContext';
@@ -12,10 +12,10 @@ import {Link} from 'react-router-dom'
 
 //data
 import ActiveTenXSubscriptions from '../data/activeTenXSubscriptions';
-import InactiveTenXSubscriptions from '../data/inactiveTenXSubscriptions';
-import DraftTenXSubscriptions from '../data/draftTenXSubscriptions';
+// import InactiveTenXSubscriptions from '../data/inactiveTenXSubscriptions';
+// import DraftTenXSubscriptions from '../data/draftTenXSubscriptions';
 
-export default function SubscriptionList() {
+export default function PaymentHeader() {
 
   return (
    
@@ -23,23 +23,23 @@ export default function SubscriptionList() {
         
         <MDBox mb={2} display="flex" justifyContent="space-between" alignItems='center' alignContent='center'>
           <MDBox>
-            <MDTypography color='light' fontWeight='bold'>Active Subscription(s)</MDTypography>
+            <MDTypography color='light' fontWeight='bold'>Payment History</MDTypography>
           </MDBox>
           <MDButton 
               variant="contained" 
               color="success" 
               fontSize="small"
               component={Link}
-              to='/TenX Subscription Details'
+              to='/Create Payment'
               >
-                  Create TenX Subscription
+                  Save Payment
           </MDButton>
         </MDBox>
         <MDBox>
           <ActiveTenXSubscriptions/>
         </MDBox>
 
-        <MDBox mb={2} mt={2} display="flex" justifyContent="space-between" alignItems='center' alignContent='center'>
+        {/* <MDBox mb={2} mt={2} display="flex" justifyContent="space-between" alignItems='center' alignContent='center'>
           <MDBox>
             <MDTypography color='light' fontWeight='bold'>Draft Subscription(s)</MDTypography>
           </MDBox>
@@ -55,7 +55,7 @@ export default function SubscriptionList() {
         </MDBox>
         <MDBox>
           <InactiveTenXSubscriptions/>
-        </MDBox>
+        </MDBox> */}
     </MDBox>
   );
 }
