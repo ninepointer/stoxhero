@@ -2,7 +2,7 @@
 // const DailyPnlData = require("../models/InstrumentHistoricalData/DailyPnlDataSchema");
 // const MockTradeDataUser = require("../models/mock-trade/mockTradeUserSchema");
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
-const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
+// const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const MockTradeCompany = require("../models/mock-trade/mockTradeCompanySchema")
 const MockTradeContest = require("../models/Contest/ContestTrade");
@@ -301,7 +301,8 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             isOpposite = true;
         }
 
-
+        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
+        req.body.portfolioId = myPortfolios[0]._id;
         console.log(runningLots, userFunds)
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             return next();
@@ -368,7 +369,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
         let userNetPnl = pnlDetails[0]?.npnl;
 
         
-        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
+        // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         let addPortfolioFund = 0;
         let flag = false;
         for(let i = 0; i < myPortfolios.length; i++){

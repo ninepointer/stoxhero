@@ -1,7 +1,7 @@
 const PaperTrade = require('../models/mock-trade/paperTrade');
 const InfinityTrade = require('../models/mock-trade/infinityTrader');
 const TraderDailyPnlData = require('../models/InstrumentHistoricalData/TraderDailyPnlDataSchema');
-const StoxHeroTrade = require('../models/mock-trade/stoxheroTrader');
+const TenXTrader = require('../models/mock-trade/tenXTraderSchema');
 const { ObjectId } = require('mongodb');
 
 exports.getPaperTradesOverview = async(req,res,next) => {
@@ -462,7 +462,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
 
 }
 
-exports.getStoxHeroTradesOverview = async(req,res,next) => {
+exports.getTenXTradersOverview = async(req,res,next) => {
 
     let userId = req.params.id;
     let today = new Date();
@@ -472,7 +472,7 @@ exports.getStoxHeroTradesOverview = async(req,res,next) => {
     const pastYear = new Date(today.getFullYear(), 0, 1);
     
 
-    let stoxHeroTradesOverview = await StoxHeroTrade.aggregate([
+    let TenXTradersOverview = await TenXTrader.aggregate([
         {
           $match: {
             trader: new ObjectId(userId),
@@ -595,7 +595,7 @@ exports.getStoxHeroTradesOverview = async(req,res,next) => {
     ]);
         // console.log(infinityTradesOverview);
 
-    res.status(200).json({status:'success', data: stoxHeroTradesOverview});    
+    res.status(200).json({status:'success', data: TenXTradersOverview});    
 
 }
 
@@ -654,7 +654,7 @@ exports.getInfinityTradesDateWiseStats = async(req, res)=>{
  
 }
 
-exports.getStoxHeroTradesDateWiseStats = async(req, res)=>{
+exports.getTenXTradersDateWiseStats = async(req, res)=>{
     const {id} = req.params;
     const{to, from} = req.query;
     let date = new Date();
@@ -663,7 +663,7 @@ exports.getStoxHeroTradesDateWiseStats = async(req, res)=>{
     const toDate = new Date(to);
     toDate.setHours(23, 59, 59, 999);
     
-    let pnlDetails = await StoxHeroTrade.aggregate([
+    let pnlDetails = await TenXTrader.aggregate([
         { $match: { trade_time: {$gte : fromDate, $lte : toDate}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
@@ -765,13 +765,13 @@ exports.getInfinityTradesMonthlyPnlData= async(req,res,next) => {
 
 }
 
-exports.getStoxHeroTradesMonthlyPnlData= async(req,res,next) => {
+exports.getTenXTradersMonthlyPnlData= async(req,res,next) => {
     const {id} = req.params;
     const today = new Date();
     const pastYear = new Date();
     pastYear.setFullYear(today.getFullYear()-1);
     console.log(pastYear,today);
-    let pnlDetails = await StoxHeroTrade.aggregate([
+    let pnlDetails = await TenXTrader.aggregate([
         { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         
         { $group: {_id: {
