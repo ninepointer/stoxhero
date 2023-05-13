@@ -18,23 +18,7 @@ exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
   const { firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career } = req.body;
-//   console.log(req.body)
-  // const uploadedFiles = req.files
-  // const fileUploadPromises = uploadedFiles.map(async (file) => {
-  //   const uploadParams = {
-  //     Bucket: process.env.AWS_BUCKET_NAME,
-  //     Key: `career/resume/${file.originalname}`,
-  //     Body: file.buffer,
-  //   };
-  //   const uploadedObject = await s3.upload(uploadParams).promise();
-  //   return {
-  //     name: file.originalname,
-  //     url: uploadedObject.Location,
-  //     size: (uploadedObject).Size,
-  //     mimetype: file.mimetype,
-  //   };
-  // });
-  // const uploadedData = await Promise.all(fileUploadPromises);
+
   const data = await CareerApplication.create({
     first_name: firstName,
     last_name: lastName,
@@ -59,11 +43,11 @@ try {
 exports.createCareer = async(req, res, next)=>{
     console.log(req.body)
     const{
-        jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+        jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation, campaign,
         status } = req.body;
     if(await Career.findOne({jobTitle, status: "Live" })) return res.status(400).json({info:'This job post is already live.'});
 
-    const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+    const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation, campaign,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});
@@ -73,10 +57,10 @@ exports.editCareer = async(req, res, next) => {
     const id = req.params.id;
 
     console.log("id is ,", id)
-    const tenx = await Career.findById(id);
+    const career = await Career.findById(id);
 
-    const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "jobLocation", "status");
-    if(req.body.rolesAndResponsibilities)filteredBody.rolesAndResponsibilities=[...tenx.rolesAndResponsibilities,
+    const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "jobLocation", "campaign", "status");
+    if(req.body.rolesAndResponsibilities)filteredBody.rolesAndResponsibilities=[...career.rolesAndResponsibilities,
         {orderNo:req.body.rolesAndResponsibilities.orderNo,
             description:req.body.rolesAndResponsibilities.description,}]
     filteredBody.lastModifiedBy = req.user._id;    
@@ -112,6 +96,7 @@ exports.getCareers = async(req, res, next)=>{
             status: 1,
             applicants: 1,
             rolesAndResponsibilities: 1,
+            campaign: 1,
           },
         },
       ]
@@ -123,9 +108,10 @@ exports.getCareer = async (req,res,next) => {
   console.log("inside getCareer")
   const {id} = req.params;
   try {
-      const career = await Career.findOne({
-        _id: id,
-      })
+      const career = await Career.find({_id: id})
+      .populate('campaign', 'campaignName campaignCode')
+
+      console.log("Career: ",career)
       if (!career) {
         return res.status(200).json({ status: 'success', message: 'Career not found.', data: {} });
       }
