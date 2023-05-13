@@ -179,7 +179,7 @@ export default function LabTabs() {
         <MDTypography color="light" fontSize={13} fontWeight="bold">Mobile No.</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By</MDTypography>
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By/Campaign</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
         <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
@@ -203,7 +203,7 @@ export default function LabTabs() {
                     <MDTypography color="light" fontSize={13}>{elem?.mobile}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : '-'}</MDTypography>
+                    <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : elem?.campaign?.campaignName}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                     <MDTypography color="light" fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</MDTypography>

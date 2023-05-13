@@ -45,56 +45,6 @@ const CareerForm = () => {
   // const [uploadedData, setUploadedData] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  // const handleFileChange = (event) => {
-  //   setFile(event.target.files);
-  // };
-
-  // const handleUpload = async () => {
-  //   setDetails(detail);
-  //   setSaving(true)
-  //   console.log(detail);
-
-  //   if(!detail.firstName || !detail.lastName || !detail.email || !detail.mobile || !detail.dob || !detail.collegeName || !detail.priorTradingExperience || !detail.source){
-  //     openSuccessSB("Alert", "Please fill all fields", "FAIL")
-  //     setSaving(false)
-  //     return;
-  //   }
-  
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append('firstName', detail.firstName);
-  //     formData.append('lastName', detail.lastName);
-  //     formData.append('email', detail.email);
-  //     formData.append('mobile', detail.mobile);
-  //     formData.append('dob', detail.dob);
-  //     formData.append('collegeName', detail.collegeName);
-  //     formData.append('priorTradingExperience', detail.priorTradingExperience);
-  //     formData.append('source', detail.source);
-  //     formData.append('career', career._id);
-  //     formData.append('campaignCode', campaignCode);
-
-  //     // console.log(formData, file, file.name)
-  //     const { data } = await axios.post(`${baseUrl}api/v1/career/userDetail`, formData, {
-  //       withCredentials: true,
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data'
-  //       },
-  //     });
-  
-  //     console.log("if file uploaded before", data);
-  //     openSuccessSB("Success", data.message, "SUCCESS")
-  //     // alert("File upload successfully");
-  //     // console.log("if file uploaded", data);
-  //     setFile(null)
-  //     setSubmitted(true);
-  //     setSaving(false);
-  //   } catch (error) {
-  //     console.log(error);
-  //     // alert('File upload failed');
-  //     openSuccessSB("Error", "Unexpected error", "FAIL")
-  //   }
-  // };
-
   async function confirmOTP(){
     console.log("Inside confirm OTP code")
  
@@ -109,6 +59,7 @@ const CareerForm = () => {
       collegeName,
       priorTradingExperience,
       source,
+      career,
       campaignCode,
       mobile_otp,
     } = detail;
@@ -127,6 +78,7 @@ const CareerForm = () => {
         mobile:mobile, 
         collegeName: collegeName,
         source:source,
+        career:career,
         dob:dob,  
         priorTradingExperience: priorTradingExperience,
         campaignCode:campaignCode,
