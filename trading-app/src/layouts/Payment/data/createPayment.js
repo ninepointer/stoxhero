@@ -3,18 +3,24 @@ import MDTypography from "../../../components/MDTypography";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton"
 import { CircularProgress, Grid, TextField } from '@mui/material';
-import {Link} from 'react-router-dom'
+// import {Link} from 'react-router-dom'
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import MDSnackbar from "../../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import { IoMdAddCircle } from 'react-icons/io';
+// import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import FeatureData from './featureData';
-import TenXSubscriptionPurchaseIntent from './tenXSubscriptionPurchaseIntent'
+import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+// import FeatureData from './featureData';
+// import TenXSubscriptionPurchaseIntent from './tenXSubscriptionPurchaseIntent'
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -27,7 +33,7 @@ const MenuProps = {
   },
 };
 
-export default function TenXSubsDetails() {
+export default function CreatePayment() {
 const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
@@ -37,14 +43,13 @@ const  id  = location?.state?.data;
 const [isLoading,setIsLoading] = useState(id ? true : false)
 // const [saving,setSaving] = useState(false)
 // const [editing,setEditing] = useState(false)
-// const [isSubmitted,setIsSubmitted] = useState(false);
-// const [creating,setCreating] = useState(false);
+const [isSubmitted,setIsSubmitted] = useState(false);
+const [creating,setCreating] = useState(false);
 const [subscriptionData, setSubscriptionData] = useState([]);
-const [updatedDocument, setUpdatedDocument] = useState([]);
+// const [updatedDocument, setUpdatedDocument] = useState([]);
 const [userData,setUserData] = useState([])
 
 
-console.log("location", location, id)
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
@@ -59,17 +64,31 @@ const [formState,setFormState] = useState({
 });
 
 React.useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/allusersNameAndId`)
+    axios.get(`${baseUrl}api/v1/allusersNameAndId`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+    })
     .then((res)=>{
-      console.log(res?.data?.data)
+    //   console.log("userdetail", res)
       setUserData(res?.data?.data);
     }).catch((err)=>{
         return new Error(err)
     })
 
-    axios.get(`${baseUrl}api/v1/tenX/active`)
+    axios.get(`${baseUrl}api/v1/tenX/active`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        }
+    })
     .then((res)=>{
-      console.log(res?.data?.data)
+        // console.log("userdetail 2", res)
       setSubscriptionData(res?.data?.data);
       setTimeout(()=>{
         setIsLoading(false)
@@ -80,108 +99,15 @@ React.useEffect(()=>{
     })
 },[])
 
-// React.useEffect(()=>{
-
-//     axios.get(`${baseUrl}api/v1/tenX/${id}`)
-//     .then((res)=>{
-//         setTenXData(res.data.data);
-//         setUpdatedDocument(res.data.data)
-//         console.log("tenX data is", res.data)
-//         setFormState({
-//             plan_name: res.data.data?.plan_name || '',
-//             actual_price: res.data.data?.actual_price || '',
-//             discounted_price: res.data.data?.discounted_price || '',
-//             status: res.data.data?.status || '',
-//             profitCap: res.data.data?.profitCap || '',
-//             validity: res.data.data?.validity || '',
-//             validityPeriod: res.data.data?.validityPeriod || '',
-//             portfolio: res.data.data?.portfolio?.portfolioName || '',
-//           });
-//             setTimeout(()=>{setIsLoading(false)},500) 
-//         // setIsLoading(false)
-//     }).catch((err)=>{
-//         //window.alert("Server Down");
-//         return new Error(err);
-//     })
-
-// },[])
-
-// async function onEdit(e,formState){
-//     e.preventDefault()
-//     setSaving(true)
-//     console.log(formState)
-//     if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
-//         setTimeout(()=>{setSaving(false);setEditing(true)},500)
-//         return openErrorSB("Missing Field","Please fill all the mandatory fields")
-//     }
-//     const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
-
-//     const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
-//         method: "PATCH",
-//         credentials:"include",
-//         headers: {
-//             "content-type" : "application/json",
-//             "Access-Control-Allow-Credentials": true
-//         },
-//         body: JSON.stringify({
-//             plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap 
-//         })
-//     });
-
-//     const data = await res.json();
-//     console.log(data);
-//     if (data.status === 422 || data.error || !data) {
-//         openErrorSB("Error",data.error)
-//     } else {
-//         openSuccessSB("Slab Edited", "Edited Successfully")
-//         setTimeout(()=>{setSaving(false);setEditing(false)},500)
-//         console.log("entry succesfull");
-//     }
-// }
-
-  const handleChangeUser = (event) => {
-    const {
-      target: { value },
-    } = event;
-    // setRuleName(value)
-    const userId = userData?.filter((elem)=>{
-        return elem.first_name + " " + elem.last_name === value;
-    })
-
-    // console.log("portfolioId", portfolioId)
-    setFormState(prevState => ({
-      ...prevState,
-      userId: userId
-    }))
-    console.log("userId", userId, formState)
-  };
-
-  const handleChangeSubscription = (event) => {
-    const {
-      target: { value },
-    } = event;
-    // setRuleName(value)
-    const userId = userData?.filter((elem)=>{
-        return elem.first_name + " " + elem.last_name === value;
-    })
-
-    // console.log("portfolioId", portfolioId)
-    setFormState(prevState => ({
-      ...prevState,
-      userId: userId
-    }))
-    console.log("userId", userId, formState)
-  };
-
   async function onSubmit(e,formState){
     e.preventDefault()
     console.log(formState)
     if(!formState.paymentTime || !formState.referenceNo || !formState.transactionId || !formState.amount || !formState.userId || !formState.subscriptionId || !formState.paymentMode || !formState.paymentStatus){
     
-        // setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
-    // setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+    setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
     const {paymentTime, referenceNo, transactionId, amount, userId, subscriptionId, paymentMode, paymentStatus } = formState;
     const res = await fetch(`${baseUrl}api/v1/payment`, {
         method: "POST",
@@ -198,50 +124,15 @@ React.useEffect(()=>{
     
     const data = await res.json();
     if (data.status === 422 || data.error || !data) {
-        // setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
     } else {
         // setNewObjectId(data?.data._id)
         openSuccessSB("Payment Created",data.message)
         setIsSubmitted(true)
-        // setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
       }
   }
 
-//   async function onAddFeature(e,childFormState,setChildFormState){
-//     e.preventDefault()
-//     setSaving(true)
-//     console.log(id,newObjectId)
-//     if(!childFormState?.orderNo || !childFormState?.description){
-//         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-//         return openErrorSB("Missing Field","Please fill all the mandatory fields")
-//     }
-//     const {orderNo, description} = childFormState;
-  
-//     const res = await fetch(`${baseUrl}api/v1/tenX/${id ? id : newObjectId}`, {
-//         method: "PATCH",
-//         credentials:"include",
-//         headers: {
-//             "content-type" : "application/json",
-//             "Access-Control-Allow-Credentials": true
-//         },
-//         body: JSON.stringify({
-//             features:{orderNo, description}
-//         })
-//     });
-//     const data = await res.json();
-//     console.log(data);
-//     if (data.status === 422 || data.error || !data) {
-//         openErrorSB("Error",data.error)
-//     } else {
-//         setUpdatedDocument(data?.data);
-//         openSuccessSB("Feature added","New Feature line item has been added in the TenX")
-//         setTimeout(()=>{setSaving(false);setEditing(false)},500)
-//         setChildFormState(prevState => ({
-//             ...prevState,
-//             rewards: {}
-//         }))
-//     }
-//   }
 
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
@@ -298,95 +189,107 @@ React.useEffect(()=>{
         <MDBox pl={2} pr={2} mt={4} mb={5}>
             <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                Fill Subscription Details
+                Fill Payment Details
             </MDTypography>
             </MDBox>
 
             <Grid container display="flex" flexDirection="row" justifyContent="space-between">
             <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
+            <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['MobileDateTimePicker']}>
+                  <DemoItem>
+                    <MobileDateTimePicker 
+                      label="Payment Time"
+                      disabled={isSubmitted}
+                      defaultValue={dayjs(new Date())}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          paymentTime: dayjs(e)
+                        }))
+                      }}
+                      minDateTime={null}
+                      sx={{ width: '100%' }}
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+          </Grid>
+
             <Grid item xs={12} md={6} xl={3}>
                 <TextField
                     disabled={isSubmitted}
                     id="outlined-required"
-                    label='Plan Name *'
+                    label='Reference No *'
+                    type='text'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    // value={formState?.plan_name || tenXSubs?.plan_name}
+                    // value={formState?.actual_price || tenXSubs?.actual_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
-                        plan_name: e.target.value
+                        referenceNo: e.target.value
                     }))}}
                 />
             </Grid>
 
             <Grid item xs={12} md={6} xl={3}>
                 <TextField
-                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={isSubmitted}
                     id="outlined-required"
-                    label='Actual Price *'
-                    type='number'
+                    label='Transaction Id *'
+                    type='text'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.actual_price || tenXSubs?.actual_price}
+                    // value={formState?.discounted_price || tenXSubs?.discounted_price}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
-                        actual_price: e.target.value
+                        transactionId: e.target.value
                     }))}}
                 />
             </Grid>
 
             <Grid item xs={12} md={6} xl={3}>
                 <TextField
-                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={isSubmitted}
                     id="outlined-required"
-                    label='Discounted Price *'
+                    label='Amount *'
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.discounted_price || tenXSubs?.discounted_price}
+                    // value={formState?.profitCap || tenXSubs?.profitCap}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
-                        discounted_price: e.target.value
+                        amount: e.target.value
                     }))}}
                 />
             </Grid>
 
             <Grid item xs={12} md={6} xl={3}>
-                <TextField
-                    disabled={((isSubmitted || id) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Profit Cap *'
-                    type='number'
-                    fullWidth
-                    // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.profitCap || tenXSubs?.profitCap}
-                    onChange={(e) => {setFormState(prevState => ({
-                        ...prevState,
-                        profitCap: e.target.value
-                    }))}}
-                />
-            </Grid>
-
-            <Grid item xs={12} md={3} xl={3} mb={-3}>
-                <FormControl sx={{ minHeight:10, minWidth:263 }}>
-                  <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
+                <FormControl 
+                sx={{ minHeight:10, minWidth:263 }}
+                >
+                  <InputLabel id="demo-multiple-name-label">User(s)</InputLabel>
                   <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
-                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={isSubmitted}
                     // defaultValue={id ? portfolios?.portfolio : ''}
-                    value={formState?.portfolio?.name || tenXSubs?.portfolio?.portfolioName}
-                    onChange={handleChangeUser}
-                    input={<OutlinedInput label="Portfolio" />}
+                    // value={formState?.portfolio?.name || tenXSubs?.portfolio?.portfolioName}
+                    onChange={(e) => {setFormState(prevState => ({
+                        ...prevState,
+                        userId: e.target.value
+                    }))}}
+                    input={<OutlinedInput label="User" />}
                     sx={{minHeight:45}}
                     MenuProps={MenuProps}
                   >
-                    {portfolios?.map((portfolio) => (
+                    {userData?.map((user) => (
                       <MenuItem
-                        key={portfolio?.portfolioName}
-                        value={portfolio?.portfolioName}
+                        key={user?._id}
+                        value={user?._id}
                       >
-                        {portfolio.portfolioName}
+                        {`${user.first_name} ${user.last_name}`}
                       </MenuItem>
                     ))}
                   </Select>
@@ -394,19 +297,32 @@ React.useEffect(()=>{
             </Grid>
 
             <Grid item xs={12} md={6} xl={3}>
-                <TextField
-                    disabled={((isSubmitted || id) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Validity *'
-                    type='number'
-                    fullWidth
-                    // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.validity || tenXSubs?.validity}
+                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                  <InputLabel id="demo-multiple-name-label">Subscription(s)</InputLabel>
+                  <Select
+                    labelId="demo-multiple-name-label"
+                    id="demo-multiple-name"
+                    disabled={isSubmitted}
+                    // defaultValue={id ? portfolios?.portfolio : ''}
+                    // value={formState?.portfolio?.name || tenXSubs?.portfolio?.portfolioName}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
-                        validity: e.target.value
+                        subscriptionId: e.target.value
                     }))}}
-                />
+                    input={<OutlinedInput label="Subscription" />}
+                    sx={{minHeight:45}}
+                    MenuProps={MenuProps}
+                  >
+                    {subscriptionData?.map((subs) => (
+                      <MenuItem
+                        key={subs?._id}
+                        value={subs?._id}
+                      >
+                        {`${subs.plan_name}`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+            </FormControl>
             </Grid>
 
             <Grid item xs={12} md={6} xl={3}>
@@ -415,19 +331,22 @@ React.useEffect(()=>{
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    value={formState?.validityPeriod || tenXSubs?.validityPeriod}
+                    // value={formState?.validityPeriod || tenXSubs?.validityPeriod}
                     // value={oldObjectId ? contestData?.status : formState?.status}
-                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={isSubmitted}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
-                        validityPeriod: e.target.value
+                        paymentMode: e.target.value
                     }))}}
                     label="Validity Period"
                     sx={{ minHeight:43 }}
                     >
-                    <MenuItem value="days">Day(s)</MenuItem>
-                    <MenuItem value="month">Month(s)</MenuItem>
-                    <MenuItem value="year">Year(s)</MenuItem>
+                        <MenuItem value="GooglePay">GooglePay</MenuItem>
+                        <MenuItem value="PhonePay">PhonePay</MenuItem>
+                        <MenuItem value="Upi">Upi</MenuItem>
+                        <MenuItem value="PayTM">PayTM</MenuItem>
+                        <MenuItem value="AmazonPay">AmazonPay</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
                     </Select>
                 </FormControl>
             </Grid>
@@ -438,19 +357,19 @@ React.useEffect(()=>{
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    value={formState?.status || tenXSubs?.status}
+                    // value={formState?.status || tenXSubs?.status}
                     // value={oldObjectId ? contestData?.status : formState?.status}
-                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={isSubmitted}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
-                        status: e.target.value
+                        paymentStatus: e.target.value
                     }))}}
-                    label="Status"
+                    label="Payment Status"
                     sx={{ minHeight:43 }}
                     >
-                    <MenuItem value="Active">Active</MenuItem>
-                    <MenuItem value="Inactive">Inactive</MenuItem>
-                    <MenuItem value="Draft">Draft</MenuItem>
+                    <MenuItem value="succeeded">Succeeded</MenuItem>
+                    <MenuItem value="failed">Failed</MenuItem>
+                    <MenuItem value="processing">Processing</MenuItem>
                     </Select>
                 </FormControl>
             </Grid>
@@ -461,24 +380,24 @@ React.useEffect(()=>{
 
             <Grid container mt={2} xs={12} md={12} xl={12} >
                 <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
-                        {!isSubmitted && !id && (
+                        {!isSubmitted  && (
                         <>
                         <MDButton 
                             variant="contained" 
                             color="success" 
                             size="small" 
                             sx={{mr:1, ml:2}} 
-                            disabled={creating} 
+                            // disabled={creating} 
                             onClick={(e)=>{onSubmit(e,formState)}}
                             >
                             {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                         </MDButton>
-                        <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/TenX Subscriptions")}}>
+                        <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/payment")}}>
                             Cancel
                         </MDButton>
                         </>
                         )}
-                        {(isSubmitted || id) && !editing && (
+                        {/* {(isSubmitted || id) && !editing && (
                         <>
                         <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                             Edit
@@ -510,10 +429,10 @@ React.useEffect(()=>{
                             Cancel
                         </MDButton>
                         </>
-                        )}
+                        )} */}
                 </Grid>
 
-                {(isSubmitted || id) && !editing && 
+                {/* {(isSubmitted || id) && !editing && 
                 <Grid item xs={12} md={6} xl={12}>
                     
                     <Grid container spacing={1}>
@@ -570,7 +489,7 @@ React.useEffect(()=>{
                     <MDBox>
                         <TenXSubscriptionPurchaseIntent tenXSubscription={newObjectId ? newObjectId : id} purchaseIntentCount={purchaseIntentCount} setPurchaseIntentCount={setPurchaseIntentCount}/>
                     </MDBox>
-                </Grid>}
+                </Grid>} */}
 
             </Grid>
 

@@ -7,7 +7,7 @@ import Footer from "../../examples/Footer";
 // Data
 // import authorsTableData from "./data/authorsTableData";
 // import projectsTableData from "./data/projectsTableData";
-import CreateTenXSubscriptionForm from "./data/createPayment";
+import CreatePayment from "./data/createPayment";
 
 function Tables() {
   // const { columns, rows } = authorsTableData();
@@ -17,7 +17,7 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <CreateTenXSubscriptionForm/>
+      <CreatePayment/>
       <Footer />
     </DashboardLayout>
     </>
