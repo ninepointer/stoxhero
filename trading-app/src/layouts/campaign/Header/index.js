@@ -8,7 +8,7 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-import ActiveCareers from '../data/activeCareer';
+import ActiveCampaigns from '../data/activeCampaigns';
 
 //data
 
@@ -32,17 +32,17 @@ export default function LabTabs() {
     color="success" 
     size="small"
     component={Link}
-    to='/careerdetails'
+    to='/campaigndetails'
     >
-        Create Career
+        Create Campaign
     </MDButton>
     </MDBox>
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Active Careers" value="1" />
-            <Tab label="Draft Careers" value="2" />
-            <Tab label="Inactive Careers" value="3" />
+            <Tab label="Active Campaigns" value="1" />
+            <Tab label="Draft Campaigns" value="2" />
+            <Tab label="Inactive Campaigns" value="3" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -52,7 +52,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <ActiveCareers/>
+          <ActiveCampaigns/>
    
           }
           </TabPanel>

@@ -36,6 +36,7 @@ import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
 import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
+import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
@@ -46,6 +47,7 @@ import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 import CareerDetailsForm from './layouts/career/createCareerForm'
+import Campaigns from './layouts/campaign'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -172,10 +174,13 @@ const routes = [
     component: <About />,
   },
   {
-    route: "/Career Details",
+    route: "/careerdetails",
     component: <CareerDetails />,
   },
-  
+  {
+    route: "/campaigndetails",
+    component: <CampaignDetails />,
+  },
   {
     // type: "collapse",
     // name: "Arena",
@@ -285,31 +290,30 @@ const routes = [
     route: "/tradersMarginAllocation",
     component: <TradersMarginAllocation />,
   },
-  {
-    type: "collapse",
-    name: "Contests",
-    key: "contests",
-    icon: <WalletIcon/>,
-    route: "/contests",
-    component: <Contests />,
-  },
-  {
-    type: "collapse",
-    name: "Carousel",
-    key: "carousel",
-    icon: <HomeIcon/>,
-    route: "/carousel",
-    component: <Carousel />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Contests",
+  //   key: "contests",
+  //   icon: <WalletIcon/>,
+  //   route: "/contests",
+  //   component: <Contests />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Carousel",
+  //   key: "carousel",
+  //   icon: <HomeIcon/>,
+  //   route: "/carousel",
+  //   component: <Carousel />,
+  // },
   {
     type: "collapse",
     name: "Careers",
-    key: "Career List",
+    key: "careerlist",
     icon: <HomeIcon/>,
-    route: "/Career List",
+    route: "/careerlist",
     component: <CareerList />,
   },
-
   {
     type: "collapse",
     name: "Algo Position(s)",
@@ -318,22 +322,28 @@ const routes = [
     route: "/algoposition",
     component: <AlgoPosition />,
   },
-
   {
     type: "collapse",
-    name: "Referral Programme",
-    key: "referralProgramme",
+    name: "Referral Program",
+    key: "referralprogram",
     icon: <DashboardIcon/>,
-    route: "/referralProgramme",
+    route: "/referralprogram",
     component: <Referral />,
   },
-
+  {
+    type: "collapse",
+    name: "Campaigns",
+    key: "campaigns",
+    icon: <DashboardIcon/>,
+    route: "/campaigns",
+    component: <Campaigns />,
+  },
   {
     type: "collapse",
     name: "TenX Subscriptions",
-    key: "TenX Subscriptions",
+    key: "tenxsubscriptions",
     icon: <DashboardIcon/>,
-    route: "/TenX Subscriptions",
+    route: "/tenxsubscriptions",
     component: <TenXSubscription />,
   },
   
@@ -441,36 +451,12 @@ const routes = [
     route: "/signupanalytics",
     component: <UserSignupDashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Notifications",
-  //   key: "notifications",
-  //   icon: <NotificationsActiveIcon/>,
-  //   route: "/notifications",
-  //   component: <Notifications />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "Position",
-  //   key: "position",
-  //   icon: <BusinessIcon/>,
-  //   route: "/position",
-  //   component: <UserPosition />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "User DashBoard",
-  //   key: "home",
-  //   icon: <HomeIcon/>,
-  //   route: "/home",
-  //   component: <Home />,
-  // },
   {
     type: "collapse",
-    name: "Paper Trade",
-    key: "papertrade",
+    name: "Virtual Trading",
+    key: "virtualtrading",
     icon: <BusinessIcon/>,
-    route: "/papertrade",
+    route: "/virtualtrading",
     component: <UserPosition />,
   },
   {
@@ -482,14 +468,14 @@ const routes = [
     route: "/infinitytrading",
     component: <InfinityTrader />,
   },
-  {
-    type: "collapse",
-    name: "Battle Ground",
-    key: "battlestreet",
-    icon: <StadiumIcon/>,
-    route: "/battlestreet",
-    component: <UserContest />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Battle Street",
+  //   key: "battlestreet",
+  //   icon: <StadiumIcon/>,
+  //   route: "/battlestreet",
+  //   component: <UserContest />,
+  // },
   {
     // type: "collapse",
     // name: "Arena",

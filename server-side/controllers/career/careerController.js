@@ -88,7 +88,34 @@ exports.editCareer = async(req, res, next) => {
 }
 
 exports.getCareers = async(req, res, next)=>{
-    const career = await Career.find({status: "Live"}).select('jobTitle jobDescription rolesAndResponsibilities jobType jobLocation status')
+    const career = await Career.aggregate(
+      [
+        {
+          $lookup: {
+            from: "career-applications",
+            localField: "_id",
+            foreignField: "career",
+            as: "applicants",
+          },
+        },
+        {
+          $match: {
+            status: "Live",
+          },
+        },
+        {
+          $project: {
+            jobTitle: 1,
+            jobDescription: 1,
+            jobType: 1,
+            jobLocation: 1,
+            status: 1,
+            applicants: 1,
+            rolesAndResponsibilities: 1,
+          },
+        },
+      ]
+    )
     res.status(201).json({message: 'success', data:career});
 }
 

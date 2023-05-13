@@ -31,148 +31,159 @@ export default function TenXSubsDetails() {
 const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
-const [purchaseIntentCount, setPurchaseIntentCount] = useState(0);
-const [tenXSubs,setTenXSubs] = useState([]);
-const [portfolios,setPortfolios] = useState([]);
+// const [purchaseIntentCount, setPurchaseIntentCount] = useState(0);
+// const [tenXSubs,setTenXSubs] = useState([]);
+// const [portfolios,setPortfolios] = useState([]);
 const [isLoading,setIsLoading] = useState(id ? true : false)
-const [saving,setSaving] = useState(false)
-const [editing,setEditing] = useState(false)
-const [isSubmitted,setIsSubmitted] = useState(false);
-const [creating,setCreating] = useState(false);
-const [newObjectId, setNewObjectId] = useState("");
+// const [saving,setSaving] = useState(false)
+// const [editing,setEditing] = useState(false)
+// const [isSubmitted,setIsSubmitted] = useState(false);
+// const [creating,setCreating] = useState(false);
+const [subscriptionData, setSubscriptionData] = useState([]);
 const [updatedDocument, setUpdatedDocument] = useState([]);
-const [tenXData,setTenXData] = useState([])
+const [userData,setUserData] = useState([])
+
 
 console.log("location", location, id)
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
-    plan_name:'',
-    actual_price:'',
-    discounted_price:'',
-    features: {
-        orderNo: "",
-        description: ""
-    },
-    profitCap:'',
-    validity:'',
-    validityPeriod:'',
-    portfolio: {
-        id: "",
-        name: ""
-    },
-    status:''
+    paymentTime:'',
+    referenceNo:'',
+    transactionId:'',
+    amount: "",
+    userId:'',
+    subscriptionId:'',
+    paymentMode:'',
+    paymentStatus: ""
 });
 
 React.useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/portfolio/tenx`)
+    axios.get(`${baseUrl}api/v1/allusersNameAndId`)
     .then((res)=>{
       console.log(res?.data?.data)
-      setPortfolios(res?.data?.data);
+      setUserData(res?.data?.data);
     }).catch((err)=>{
         return new Error(err)
     })
 
-    axios.get(`${baseUrl}api/v1/tenX/${id}`)
+    axios.get(`${baseUrl}api/v1/tenX/active`)
     .then((res)=>{
       console.log(res?.data?.data)
-      setTenXSubs(res?.data?.data);
+      setSubscriptionData(res?.data?.data);
       setTimeout(()=>{
         setIsLoading(false)
       },500)
     //   setIsLoading(false).setTimeout(30000);
     }).catch((err)=>{
         return new Error(err)
-    })    
-},[])
-
-React.useEffect(()=>{
-
-    axios.get(`${baseUrl}api/v1/tenX/${id}`)
-    .then((res)=>{
-        setTenXData(res.data.data);
-        setUpdatedDocument(res.data.data)
-        console.log("tenX data is", res.data)
-        setFormState({
-            plan_name: res.data.data?.plan_name || '',
-            actual_price: res.data.data?.actual_price || '',
-            discounted_price: res.data.data?.discounted_price || '',
-            status: res.data.data?.status || '',
-            profitCap: res.data.data?.profitCap || '',
-            validity: res.data.data?.validity || '',
-            validityPeriod: res.data.data?.validityPeriod || '',
-            portfolio: res.data.data?.portfolio?.portfolioName || '',
-          });
-            setTimeout(()=>{setIsLoading(false)},500) 
-        // setIsLoading(false)
-    }).catch((err)=>{
-        //window.alert("Server Down");
-        return new Error(err);
     })
-
 },[])
 
-async function onEdit(e,formState){
-    e.preventDefault()
-    setSaving(true)
-    console.log(formState)
-    if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
-        setTimeout(()=>{setSaving(false);setEditing(true)},500)
-        return openErrorSB("Missing Field","Please fill all the mandatory fields")
-    }
-    const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
+// React.useEffect(()=>{
 
-    const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
-        method: "PATCH",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap 
-        })
-    });
+//     axios.get(`${baseUrl}api/v1/tenX/${id}`)
+//     .then((res)=>{
+//         setTenXData(res.data.data);
+//         setUpdatedDocument(res.data.data)
+//         console.log("tenX data is", res.data)
+//         setFormState({
+//             plan_name: res.data.data?.plan_name || '',
+//             actual_price: res.data.data?.actual_price || '',
+//             discounted_price: res.data.data?.discounted_price || '',
+//             status: res.data.data?.status || '',
+//             profitCap: res.data.data?.profitCap || '',
+//             validity: res.data.data?.validity || '',
+//             validityPeriod: res.data.data?.validityPeriod || '',
+//             portfolio: res.data.data?.portfolio?.portfolioName || '',
+//           });
+//             setTimeout(()=>{setIsLoading(false)},500) 
+//         // setIsLoading(false)
+//     }).catch((err)=>{
+//         //window.alert("Server Down");
+//         return new Error(err);
+//     })
 
-    const data = await res.json();
-    console.log(data);
-    if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error",data.error)
-    } else {
-        openSuccessSB("Slab Edited", "Edited Successfully")
-        setTimeout(()=>{setSaving(false);setEditing(false)},500)
-        console.log("entry succesfull");
-    }
-}
+// },[])
 
-  const handleChange = (event) => {
+// async function onEdit(e,formState){
+//     e.preventDefault()
+//     setSaving(true)
+//     console.log(formState)
+//     if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
+//         setTimeout(()=>{setSaving(false);setEditing(true)},500)
+//         return openErrorSB("Missing Field","Please fill all the mandatory fields")
+//     }
+//     const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
+
+//     const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
+//         method: "PATCH",
+//         credentials:"include",
+//         headers: {
+//             "content-type" : "application/json",
+//             "Access-Control-Allow-Credentials": true
+//         },
+//         body: JSON.stringify({
+//             plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap 
+//         })
+//     });
+
+//     const data = await res.json();
+//     console.log(data);
+//     if (data.status === 422 || data.error || !data) {
+//         openErrorSB("Error",data.error)
+//     } else {
+//         openSuccessSB("Slab Edited", "Edited Successfully")
+//         setTimeout(()=>{setSaving(false);setEditing(false)},500)
+//         console.log("entry succesfull");
+//     }
+// }
+
+  const handleChangeUser = (event) => {
     const {
       target: { value },
     } = event;
     // setRuleName(value)
-    let portfolioId = portfolios?.filter((elem)=>{
-        return elem.portfolioName === value;
+    const userId = userData?.filter((elem)=>{
+        return elem.first_name + " " + elem.last_name === value;
     })
 
     // console.log("portfolioId", portfolioId)
     setFormState(prevState => ({
       ...prevState,
-      portfolio: {id: portfolioId[0]?._id, name: portfolioId[0]?.portfolioName}
+      userId: userId
     }))
-    console.log("portfolioId", portfolioId, formState)
+    console.log("userId", userId, formState)
+  };
+
+  const handleChangeSubscription = (event) => {
+    const {
+      target: { value },
+    } = event;
+    // setRuleName(value)
+    const userId = userData?.filter((elem)=>{
+        return elem.first_name + " " + elem.last_name === value;
+    })
+
+    // console.log("portfolioId", portfolioId)
+    setFormState(prevState => ({
+      ...prevState,
+      userId: userId
+    }))
+    console.log("userId", userId, formState)
   };
 
   async function onSubmit(e,formState){
     e.preventDefault()
     console.log(formState)
-    if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
+    if(!formState.paymentTime || !formState.referenceNo || !formState.transactionId || !formState.amount || !formState.userId || !formState.subscriptionId || !formState.paymentMode || !formState.paymentStatus){
     
-        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        // setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
-    setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    const {plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
-    const res = await fetch(`${baseUrl}api/v1/tenX/create`, {
+    // setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+    const {paymentTime, referenceNo, transactionId, amount, userId, subscriptionId, paymentMode, paymentStatus } = formState;
+    const res = await fetch(`${baseUrl}api/v1/payment`, {
         method: "POST",
         credentials:"include",
         headers: {
@@ -180,58 +191,57 @@ async function onEdit(e,formState){
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, 
-            validityPeriod, status, portfolio: portfolio.id, profitCap
+            paymentTime, referenceNo, transactionId, amount, userId, subscriptionId, paymentMode, paymentStatus
         })
     });
     
     
     const data = await res.json();
     if (data.status === 422 || data.error || !data) {
-        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        // setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
     } else {
-        setNewObjectId(data?.data._id)
-        openSuccessSB("Subscription Created",data.message)
+        // setNewObjectId(data?.data._id)
+        openSuccessSB("Payment Created",data.message)
         setIsSubmitted(true)
-        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+        // setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
       }
   }
 
-  async function onAddFeature(e,childFormState,setChildFormState){
-    e.preventDefault()
-    setSaving(true)
-    console.log(id,newObjectId)
-    if(!childFormState?.orderNo || !childFormState?.description){
-        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-        return openErrorSB("Missing Field","Please fill all the mandatory fields")
-    }
-    const {orderNo, description} = childFormState;
+//   async function onAddFeature(e,childFormState,setChildFormState){
+//     e.preventDefault()
+//     setSaving(true)
+//     console.log(id,newObjectId)
+//     if(!childFormState?.orderNo || !childFormState?.description){
+//         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+//         return openErrorSB("Missing Field","Please fill all the mandatory fields")
+//     }
+//     const {orderNo, description} = childFormState;
   
-    const res = await fetch(`${baseUrl}api/v1/tenX/${id ? id : newObjectId}`, {
-        method: "PATCH",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-            features:{orderNo, description}
-        })
-    });
-    const data = await res.json();
-    console.log(data);
-    if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error",data.error)
-    } else {
-        setUpdatedDocument(data?.data);
-        openSuccessSB("Feature added","New Feature line item has been added in the TenX")
-        setTimeout(()=>{setSaving(false);setEditing(false)},500)
-        setChildFormState(prevState => ({
-            ...prevState,
-            rewards: {}
-        }))
-    }
-  }
+//     const res = await fetch(`${baseUrl}api/v1/tenX/${id ? id : newObjectId}`, {
+//         method: "PATCH",
+//         credentials:"include",
+//         headers: {
+//             "content-type" : "application/json",
+//             "Access-Control-Allow-Credentials": true
+//         },
+//         body: JSON.stringify({
+//             features:{orderNo, description}
+//         })
+//     });
+//     const data = await res.json();
+//     console.log(data);
+//     if (data.status === 422 || data.error || !data) {
+//         openErrorSB("Error",data.error)
+//     } else {
+//         setUpdatedDocument(data?.data);
+//         openSuccessSB("Feature added","New Feature line item has been added in the TenX")
+//         setTimeout(()=>{setSaving(false);setEditing(false)},500)
+//         setChildFormState(prevState => ({
+//             ...prevState,
+//             rewards: {}
+//         }))
+//     }
+//   }
 
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
@@ -296,12 +306,12 @@ async function onEdit(e,formState){
             <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
             <Grid item xs={12} md={6} xl={3}>
                 <TextField
-                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    disabled={isSubmitted}
                     id="outlined-required"
                     label='Plan Name *'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.plan_name || tenXSubs?.plan_name}
+                    // value={formState?.plan_name || tenXSubs?.plan_name}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         plan_name: e.target.value
@@ -366,7 +376,7 @@ async function onEdit(e,formState){
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
                     value={formState?.portfolio?.name || tenXSubs?.portfolio?.portfolioName}
-                    onChange={handleChange}
+                    onChange={handleChangeUser}
                     input={<OutlinedInput label="Portfolio" />}
                     sx={{minHeight:45}}
                     MenuProps={MenuProps}

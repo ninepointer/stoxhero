@@ -13,6 +13,7 @@ const Lead = require("../../models/leads/leads");
 const MarginAllocation = require("../../models/marginAllocation/marginAllocationSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
+const Campaign = require("../../models/campaigns/campaignSchema")
 const uuid = require('uuid');
 
 router.post("/signup", async (req, res)=>{
@@ -23,7 +24,13 @@ router.post("/signup", async (req, res)=>{
     if( !first_name || !last_name || !email || !mobile){
         return res.status(400).json({status:'error', message : "Please fill all fields to proceed."})
     }
+    const isExistingUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }] })
+    if(isExistingUser)
+    {
+        return res.status(406).json({message : "Your account is already exist. Please login with mobile or email", 
+        status: 'error'});
 
+    }
     const signedupuser = await SignedUpUser.findOne({ $or: [{ email: email }, { mobile: mobile }] })
     console.log(signedupuser)
     // let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true,lowerCaseAlphabets: false, specialChars: false });
@@ -31,16 +38,12 @@ router.post("/signup", async (req, res)=>{
     try{
     if(signedupuser)
     {
-        // signedupuser.email_otp = email_otp;
-        // signedupuser.first_name = first_name;
-        // signedupuser.last_name = last_name;
-        // signedupuser.mobile = mobile;
-        // signedupuser.email = email;
-        // signedupuser.mobile_otp = mobile_otp;
-        // await signedupuser.save({validateBeforeSave:false})
-        return res.status(406).json({message : "Your account is already exist. Please login with mobile or email", 
-        status: 'error'});
-
+        signedupuser.first_name = first_name;
+        signedupuser.last_name = last_name;
+        signedupuser.mobile = mobile;
+        signedupuser.email = email;
+        signedupuser.mobile_otp = mobile_otp;
+        await signedupuser.save({validateBeforeSave:false})
     }
     else{
         //removed emailotp
@@ -133,7 +136,6 @@ router.patch("/verifyotp", async (req, res)=>{
         first_name,
         last_name,
         email,
-        // email_otp,
         mobile,
         mobile_otp,
         referrerCode,
@@ -156,44 +158,27 @@ router.patch("/verifyotp", async (req, res)=>{
             message: "OTPs don't match, please try again!"
         })
     }
-       
-
-        User.findOne({ $or: [{ email: email }, { mobile: mobile }] })
-        .then( async (dataExist)=>{
-        if(dataExist){
-            return res.status(400).json({status: 'error',message : "You already have an account, please login using your email or phone"})
-        }
-
-        //Check for referrer code
-        // console.log("Referrer Code: ",referrerCode,!referrerCode)
-        // if(!referrerCode){
-        //     console.log("Inside Referrer Code Empty Check")
-        //     return res.status(404).json({message : "No referrer code. Please enter your referrer code"});
-        // }
+ 
 
         //------
         let referredBy;
+        let campaign;
         if(referrerCode){
             const referrerCodeMatch = await User.findOne({myReferralCode: referrerCode});
-    
+            const campaignCodeMatch = await Campaign.findOne({campaignCode:referrerCode})
+            console.log(!referrerCodeMatch,!campaignCodeMatch, !referrerCodeMatch || !campaignCodeMatch)
 
-            if(!referrerCodeMatch){
+            if(!referrerCodeMatch && !campaignCodeMatch){
                 return res.status(404).json({status: 'error', message : "No such referrer code. Please enter a valid referrer code"});
             }
-
-            // const referralProgramme = await Referral.find({status: "Active"});
-    
-
 
             user.status = 'OTP Verified'
             user.last_modifiedOn = new Date()
             await user.save();
-            // res.status(200).json({
-            //     message: "OTP verification done"
-            // })
-            referredBy = referrerCodeMatch._id;
+            if(referrerCodeMatch){referredBy = referrerCodeMatch._id;}
+            if(campaignCodeMatch){campaign = campaignCodeMatch}
         }
-        user.status = 'OTP Verified'
+            user.status = 'OTP Verified'
             user.last_modifiedOn = new Date()
             await user.save();
         //--------
@@ -230,7 +215,10 @@ router.patch("/verifyotp", async (req, res)=>{
             userId = userId.toString()+(userIds.length+1).toString()
         }
         
-        let referral = await Referral.findOne({status: "Active"});
+        let referral;
+        if(referredBy){
+            referral = await Referral.findOne({status: "Active"});
+        }
 
         // free portfolio adding in user collection
         const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
@@ -246,19 +234,20 @@ router.patch("/verifyotp", async (req, res)=>{
         let obj = {
             first_name, last_name, designation: 'Trader', email, 
             mobile,
-            // role: 'user', 
-            
             name: first_name + ' ' + last_name.substring(0,1), 
-             password: 'np' + last_name + '@123', status: 'Active', 
+            password: 'sh' + last_name.trim() + '@123' + mobile.slice(1,3), 
+            status: 'Active', 
             employeeid: userId, creationProcess: 'Auto SignUp',
-            joining_date:user.last_modifiedOn,myReferralCode:(await myReferralCode).toString(), referrerCode:referrerCode,
-            // referredBy: referredBy,
+            joining_date:user.last_modifiedOn,
+            myReferralCode:(await myReferralCode).toString(), 
+            referrerCode: referredBy && referrerCode,
             portfolio: portfolioArr,
-            referralProgramme: referral._id
+            referralProgramme: referredBy && referral._id,
+            campaign: campaign && campaign._id,
+            campaignCode: campaign && referrerCode,
+            referredBy: referredBy && referredBy
         }
-        if(referredBy){
-            obj.referredBy = referredBy;
-        }
+
         const newuser = await User.create(obj);
         const token = await newuser.generateAuthToken();
 
@@ -268,6 +257,7 @@ router.patch("/verifyotp", async (req, res)=>{
         });
         
         console.log("token", token);
+        res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
         const idOfUser = newuser._id;
         
         for (const portfolio of activeFreePortfolios) {
@@ -279,13 +269,15 @@ router.patch("/verifyotp", async (req, res)=>{
                 );
             }
             
-            referral?.users?.push(newuser._id)
+        if(referredBy){
+            console.log("Inside User update in referral: ",referredBy)
+            referral?.users?.push({userId : newuser._id, joinedOn: new Date()})
+            console.log(referral?.users)
             const referralProgramme = await Referral.findOneAndUpdate({status: "Active"}, {
                 $set:{ 
                     users: referral?.users
                 }
-                
-            })
+            })        
             
             if(referrerCode){
                 let referrerCodeMatch = await User.findOne({myReferralCode: referrerCode});
@@ -308,27 +300,27 @@ router.patch("/verifyotp", async (req, res)=>{
                 }];
                 await wallet.save({validateBeforeSave:false});
             }
-            let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
+        }
+        
+        console.log("Campaign: ",campaign)
+        if(campaign){
+            console.log("Inside setting user to campaign")
+            campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
+            const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
+                $set:{ 
+                    users: campaign?.users
+                }
+            })
+            console.log(campaignData)
+        }
+
+        let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
         if(lead){
         lead.status = 'Joined'
         lead.referralCode = newuser.referrerCode
         lead.joinedOn = new Date();
         await lead.save({validateBeforeSave:false});
         }
-
-        await MarginAllocation.create(
-            {
-                amount:1000000,
-                createdOn:new Date(),
-                createdBy:newuser._id,
-                lastModifiedOn:new Date(),
-                lastModifiedBy:newuser._id,
-                userId: newuser._id,
-                traderName: newuser.name,
-                fund:1000000,
-                creditedOn: new Date(),
-                creditedBy:newuser._id 
-        })
         
         await UserWallet.create(
             {
@@ -340,7 +332,7 @@ router.patch("/verifyotp", async (req, res)=>{
 
         if(!newuser) return res.status(400).json({status: 'error', message: 'Something went wrong'});
 
-        res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
+        // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
             // let email = newuser.email;
             let subject = "Account Created - StoxHero";
             let message = 
@@ -417,7 +409,7 @@ router.patch("/verifyotp", async (req, res)=>{
                     <p>Hello ${newuser.first_name},</p>
                     <p>Your login details are:</p>
                     <p>User ID: <span class="userid">${newuser.email}</span></p>
-                    <p>Password: <span class="password">np${newuser.last_name}@123</span></p>
+                    <p>Password: <span class="password">sh${last_name.trim()}@123${mobile.slice(1,3)}</span></p>
                     <p>Please use these credentials to log in to our website:</p>
                     <a href="https://www.stoxhero.com/" class="login-button">Log In</a>
                     </div>
@@ -432,7 +424,7 @@ router.patch("/verifyotp", async (req, res)=>{
         }
         
 
-        })
+        
 
         
 })
@@ -535,7 +527,9 @@ router.patch("/resendotp", async (req, res)=>{
 });
 
 router.get("/signedupusers", (req, res)=>{
-    SignedUpUser.find((err, data)=>{
+    SignedUpUser.find()
+    .sort({createdOn:-1})
+    .exec((err, data)=>{
         if(err){
             return res.status(500).send(err);
         }else{

@@ -4,6 +4,8 @@ import MDButton from "../../../components/MDButton"
 import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditIcon from '@mui/icons-material/Edit';
 
 
 export default function RolesAndResponsibilities({updatedDocument,setUpdatedDocument}) {
@@ -31,12 +33,12 @@ updatedDocument?.rolesAndResponsibilities?.map((elem)=>{
   );
   featureObj.edit = (
     <MDButton component="a" variant="caption" color="text" fontWeight="medium">
-      Edit
+      <EditIcon fontSize='small'/>
     </MDButton>
   );
   featureObj.delete = (
     <MDButton component="a" variant="caption" color="text" fontWeight="medium">
-      Delete
+      <DeleteForeverIcon fontSize='small'/>
     </MDButton>
   );
 
@@ -48,7 +50,7 @@ updatedDocument?.rolesAndResponsibilities?.map((elem)=>{
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Feature added!
+            Roles & Responsibilities
           </MDTypography>
         </MDBox>
       </MDBox>

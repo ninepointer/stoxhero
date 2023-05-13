@@ -238,6 +238,13 @@ const userDetailSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
     },
+    campaignCode:{
+        type: String,
+    },
+    campaign:{
+        type: Schema.Types.ObjectId,
+        ref: 'campaign'
+    },
     contests:[{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
