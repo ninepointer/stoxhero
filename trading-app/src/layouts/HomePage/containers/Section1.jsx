@@ -8,6 +8,7 @@ import useMeasure from 'react-use-measure';
 import Title from '../components/Title/index'
 import { useTheme } from 'styled-components';
 import { section1Content } from '../utils/content';
+import back from '../assets/images/section1/backgroud.jpg'
 
 
 
@@ -42,7 +43,7 @@ const Section1 = () => {
       
       <Box ref={ref} sx={{position:'absolute',zIndex:-1, top:0, left:0, right:0}}>
         <Box sx={{height:"15px",mb:3,width:"100%",background:"#06070A",position:"absolute",bottom:{xs:"-30px"}}}></Box>
-        <img src="https://wallpaperaccess.com/full/6301907.jpg" style={{width:"100%",opacity:"0.9",}} />
+        <img src={back} style={{width:"100%",opacity:"0.9",}} alt="img" />
 
         
 
