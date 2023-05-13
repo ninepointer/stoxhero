@@ -463,7 +463,7 @@ async function onEdit(e,formState){
                             >
                             {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                         </MDButton>
-                        <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/TenX Subscriptions")}}>
+                        <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/tenxsubscriptions")}}>
                             Cancel
                         </MDButton>
                         </>

@@ -66,7 +66,7 @@ exports.getTenXPortolios = async(req, res, next)=>{
 
 exports.getTradingPortolios = async(req, res, next)=>{
     try{
-        const portfolio = await Portfolio.find({portfolioType: "Trading",status:"Active"})
+        const portfolio = await Portfolio.find({portfolioType: "Virtual Trading",status:"Active"})
         
         res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
     }catch(e){
