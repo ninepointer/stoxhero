@@ -1,10 +1,10 @@
 {
   "files": {
     "main.css": "/static/css/main.39dfa471.css",
-    "main.js": "/static/js/main.781b7eb0.js",
+    "main.js": "/static/js/main.9ccaa186.js",
     "static/js/498.e7cb86be.chunk.js": "/static/js/498.e7cb86be.chunk.js",
     "static/js/703.e5427e5c.chunk.js": "/static/js/703.e5427e5c.chunk.js",
-    "static/js/513.c3103bb8.chunk.js": "/static/js/513.c3103bb8.chunk.js",
+    "static/js/513.da66bcf6.chunk.js": "/static/js/513.da66bcf6.chunk.js",
     "static/media/main-bg-3.png": "/static/media/main-bg-3.c46dd2d7751431a8e006.png",
     "static/media/pattern-tree.svg": "/static/media/pattern-tree.e9679eedc33e0ad94e028761165fa9d4.svg",
     "static/media/trading.jpg": "/static/media/trading.37a53048ea613a761226.jpg",
@@ -20,6 +20,7 @@
     "static/media/token.webp": "/static/media/token.e20cc6ef8583942ac1f9.webp",
     "static/media/about5.webp": "/static/media/about5.07bfc43a7ef00c949e4d.webp",
     "static/media/news-block-background.webp": "/static/media/news-block-background.9ac4f6fd11741b350c0e.webp",
+    "static/media/Trading1.png": "/static/media/Trading1.84058099a7caf6381d73.png",
     "static/media/about1.png": "/static/media/about1.f2ff5c407490beb959c8.png",
     "static/media/main-bg-1_1.webp": "/static/media/main-bg-1_1.b051114fdd6a41f500f0.webp",
     "static/media/wallet-buy.png": "/static/media/wallet-buy.73ff4537d14f90cdd751.png",
@@ -28,16 +29,13 @@
     "static/media/wallet-transfer.png": "/static/media/wallet-transfer.8c8d08bb2c58d56ac012.png",
     "static/media/about2.png": "/static/media/about2.fee2d1f2a99ff72813da.png",
     "static/media/news-block-background-mobile.webp": "/static/media/news-block-background-mobile.66667de0e66307e673f4.webp",
+    "static/media/Trading2.png": "/static/media/Trading2.04c8ce5e37a05bdde44b.png",
     "static/media/shield.webp": "/static/media/shield.ea7f07b760cced092ecc.webp",
     "static/media/wallet-store.png": "/static/media/wallet-store.136e38564b744ed91790.png",
     "static/media/referral.png": "/static/media/referral.852ef40a0cf7d4b0f0a1.png",
-    "static/media/liquidity-protocol.webp": "/static/media/liquidity-protocol.7ebbfc07cf8015d3cd05.webp",
+    "static/media/Trading3.png": "/static/media/Trading3.d9cabfbf4f4cfb775965.png",
     "static/media/tradeSound.mp3": "/static/media/tradeSound.23db360dfcb5bea3067a.mp3",
-    "static/media/aggregation-protocol.webp": "/static/media/aggregation-protocol.17a4077045475e5844e9.webp",
-    "static/media/earn_1.webp": "/static/media/earn_1.fcfcbca72a162d882839.webp",
-    "static/media/limit-order-protocol.webp": "/static/media/limit-order-protocol.25540e82e888562234bb.webp",
     "static/media/home-decor-4.jpeg": "/static/media/home-decor-4.5b448fd339a14695f6aa.jpeg",
-    "static/media/rabbithole.webp": "/static/media/rabbithole.2672508a4a4ef29bffee.webp",
     "static/media/rule.png": "/static/media/rule.de53acfc1a7069f9e714.png",
     "static/media/main-bg-2_1.webp": "/static/media/main-bg-2_1.badcdca57b48fc341ba7.webp",
     "static/media/grant-program.webp": "/static/media/grant-program.32fa7189a8373a129886.webp",
@@ -58,6 +56,7 @@
     "static/media/nifty50icon.png": "/static/media/nifty50icon.756cff7c3b2b7493c553.png",
     "static/media/sadness.png": "/static/media/sadness.5a0bcb560a8cb5088119.png",
     "static/media/banknifty.png": "/static/media/banknifty.062f46c1696ac2c32914.png",
+    "static/media/Trading4.webp": "/static/media/Trading4.78bd6a9ac4c35d603f88.webp",
     "static/media/team-1.jpg": "/static/media/team-1.0fd36e0ee93dcfacdef8.jpg",
     "static/media/referralt.png": "/static/media/referralt.7816340f8f9218d4f992.png",
     "static/media/bruce-mars.jpg": "/static/media/bruce-mars.8a606c4a6dab54c9ceff.jpg",
@@ -127,13 +126,13 @@
     "static/media/mew.svg": "/static/media/mew.abd579786274219a78079f023ed7b335.svg",
     "index.html": "/index.html",
     "main.39dfa471.css.map": "/static/css/main.39dfa471.css.map",
-    "main.781b7eb0.js.map": "/static/js/main.781b7eb0.js.map",
+    "main.9ccaa186.js.map": "/static/js/main.9ccaa186.js.map",
     "498.e7cb86be.chunk.js.map": "/static/js/498.e7cb86be.chunk.js.map",
     "703.e5427e5c.chunk.js.map": "/static/js/703.e5427e5c.chunk.js.map",
-    "513.c3103bb8.chunk.js.map": "/static/js/513.c3103bb8.chunk.js.map"
+    "513.da66bcf6.chunk.js.map": "/static/js/513.da66bcf6.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.39dfa471.css",
-    "static/js/main.781b7eb0.js"
+    "static/js/main.9ccaa186.js"
   ]
 }
