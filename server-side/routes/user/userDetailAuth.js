@@ -629,7 +629,7 @@ router.get("/newusertoday", (req, res)=>{
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   console.log(today)
-  const newuser = UserDetail.find({joining_date:{$gte: today}}).populate('referredBy','first_name last_name')
+  const newuser = UserDetail.find({joining_date:{$gte: today}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
       console.log(data)
       return res.status(200).json({data : data, count: data.length});
