@@ -61,7 +61,7 @@ export default function TenXSubscriptions() {
                       border: '2px solid lightgray'
                     }}
                   />
-                  <MDTypography fontSize={30} color='light' ml={1} fontWeight="bold">
+                  <MDTypography fontSize={25} color='light' ml={1} fontWeight="bold">
                     {props.plan}
                   </MDTypography>
                 </MDBox>
@@ -74,7 +74,7 @@ export default function TenXSubscriptions() {
                   src={checklist} 
                   size="xs" 
                 />
-                <MDTypography fontSize={13} color='light' fontWeight='bold'> {props.plan1}</MDTypography>
+                <MDTypography fontSize={12} color='light' fontWeight='bold'> {props.plan1}</MDTypography>
               </MDTypography>
   
               <MDTypography mb={1} fontFamily="Lucida Sans" fontWeight="bold" variant="body2" color="light" display='flex' justifyContent='left' alignItems='center'>
@@ -82,7 +82,7 @@ export default function TenXSubscriptions() {
                     src={checklist} 
                     size="xs" 
                   />
-                <MDTypography fontSize={13} color='light' fontWeight='bold'> {props.plan2}</MDTypography>
+                <MDTypography fontSize={12} color='light' fontWeight='bold'> {props.plan2}</MDTypography>
               </MDTypography>
   
               <MDTypography mb={1} fontFamily="Lucida Sans" fontWeight="bold" variant="body2" color="light" display='flex' justifyContent='left' alignItems='center'>
@@ -90,7 +90,7 @@ export default function TenXSubscriptions() {
                   src={checklist} 
                   size="xs" 
                 />
-                <MDTypography fontSize={13} color='light' fontWeight='bold'> {props.plan3}</MDTypography>
+                <MDTypography fontSize={12} color='light' fontWeight='bold'> {props.plan3}</MDTypography>
               </MDTypography>
   
               <MDTypography mb={1} fontFamily="Lucida Sans" fontWeight="bold" variant="body2" color="light" display='flex' justifyContent='left' alignItems='center'>
@@ -98,7 +98,7 @@ export default function TenXSubscriptions() {
                   src={checklist} 
                   size="xs" 
                 />
-                <MDTypography fontSize={13} color='light' fontWeight='bold'> {props.plan4}</MDTypography>
+                <MDTypography fontSize={12} color='light' fontWeight='bold'> {props.plan4}</MDTypography>
               </MDTypography>
             </MDBox>
   
