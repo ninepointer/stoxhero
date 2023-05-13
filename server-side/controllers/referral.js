@@ -56,7 +56,7 @@ exports.getReferral = async(req, res, next)=>{
 
 exports.getActiveReferral = async(req, res, next)=>{
     try{
-    const referral = await Referral.find({status : 'Active'}); 
+    const referral = await Referral.find({status : 'Active'}).select('_id referralProgramName rewardPerReferral currency description referrralProgramId')
     console.log(referral)
     // .select('_id referrralProgramId referrralProgramName rewardPerReferral status');
     res.status(201).json({message: "Referral Retrived",data: referral});    
@@ -161,13 +161,13 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
               }
             },
             {
-                $project:{
-                  _id: 0,
-                  user: '$_id',
-                  totalReferralEarning: 1,
-                  totalReferralCount: 1,                 
-                }
+              $project:{
+                _id: 0,
+                user: '$_id',
+                totalReferralEarning: 1,
+                totalReferralCount: 1,                 
               }
+            }
         ]);
           console.log("leaderboard", leaderboard)
         for (item of leaderboard){
@@ -218,11 +218,20 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
         const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
         const leaderBoardScore = await client.ZSCORE(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
     
-        // console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
-        return res.status(200).json({
-          status: 'success',
-          data: {rank: leaderBoardRank+1, earnings: leaderBoardScore}
-        }); 
+        console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
+        if(leaderBoardRank !== null){
+          return res.status(200).json({
+            status: 'success',
+            data: {rank: leaderBoardRank+1, earnings: leaderBoardScore}
+          }); 
+        } 
+        else{
+          return res.status(200).json({
+            status: 'success',
+            message: 'user not participated in referrals yet.'
+          }); 
+        }
+
     
       }else{
           res.status(200).json({

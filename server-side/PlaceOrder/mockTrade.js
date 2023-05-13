@@ -26,7 +26,7 @@ exports.mockTrade = async (req, res) => {
     const MockTradeDetails = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
-        validity, variety, algoBoxId, order_id, instrumentToken,  
+        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
 
@@ -258,7 +258,7 @@ exports.mockTrade = async (req, res) => {
             const paperTrade = new PaperTrade({
                 status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                order_id, instrumentToken, brokerage: brokerageUser, 
+                order_id, instrumentToken, brokerage: brokerageUser, portfolioId,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });

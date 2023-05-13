@@ -1,6 +1,6 @@
 const aws = require('aws-sdk');
-const CareerApplication = require("../models/Careers/careerApplicationSchema");
-const Career = require("../models/Careers/careerSchema");
+const CareerApplication = require("../../models/Careers/careerApplicationSchema");
+const Career = require("../../models/Careers/careerSchema");
 
 const s3 = new aws.S3();
 
