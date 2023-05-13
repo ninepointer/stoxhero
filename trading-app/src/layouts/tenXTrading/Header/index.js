@@ -100,6 +100,13 @@ export default function TenXSubscriptions() {
                 />
                 <MDTypography fontSize={12} color='light' fontWeight='bold'> {props.plan4}</MDTypography>
               </MDTypography>
+              <MDTypography mb={1} fontFamily="Lucida Sans" fontWeight="bold" variant="body2" color="light" display='flex' justifyContent='left' alignItems='center'>
+                <MDAvatar 
+                  src={checklist} 
+                  size="xs" 
+                />
+                <MDTypography fontSize={12} color='light' fontWeight='bold'> {props.plan5}</MDTypography>
+              </MDTypography>
             </MDBox>
   
           </MDBox>
@@ -124,7 +131,7 @@ export default function TenXSubscriptions() {
             </MDBox>
             
             <MDBox>
-            <MDButton variant="contained" color="dark" onClick={(e)=>{captureIntent(props.id)}} size='small'>Purchase</MDButton>
+            <MDButton variant="contained" color="dark" onClick={(e)=>{captureIntent(props.id)}} size='small'>Unlock</MDButton>
             </MDBox>
 
             <Dialog
@@ -255,6 +262,7 @@ export default function TenXSubscriptions() {
                 plan2: elem.features[1]?.description,
                 plan3: elem.features[2]?.description,
                 plan4: elem.features[3]?.description,
+                plan5: elem.features[4]?.description,
               })}
               </Card>
             </Grid>

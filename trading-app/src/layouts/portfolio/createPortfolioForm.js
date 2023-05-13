@@ -252,7 +252,7 @@ function Index() {
                 sx={{ minHeight:43 }}
                 >
                 <MenuItem value="Battle">Battle</MenuItem>
-                <MenuItem value="Trading">Virtual Trading</MenuItem>
+                <MenuItem value="Virtual Trading">Virtual Trading</MenuItem>
                 <MenuItem value="TenX Trading">TenX Trading</MenuItem>
                 </Select>
               </FormControl>
@@ -320,7 +320,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                         Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={()=>{id ? navigate("/portfolio") : setIsSubmitted(false)}}>
+                    <MDButton variant="contained" color="info" size="small" onClick={()=>{navigate("/portfolio")}}>
                         Back
                     </MDButton>
                     </>
