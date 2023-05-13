@@ -2,6 +2,11 @@ import React from 'react'
 import MDBox from '../../../components/MDBox'
 import Title from '../components/Title'
 import { Grid, Stack, Typography } from '@mui/material'
+import dot from '../assets/images/section7/Dot.png'
+import img1 from '../assets/images/section7/section7-img1.png'
+import img2 from '../assets/images/section7/section7-img2.webp'
+import img3 from '../assets/images/section7/section7-img3.png'
+import img4 from '../assets/images/section7/section7-img4.webp'
 
 const Section7 = () => {
   return (
@@ -20,13 +25,13 @@ const Section7 = () => {
 
           <Grid item xs={12} md={3}>
             <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",md:"none"}} >
-              <img src="https://cdni.iconscout.com/illustration/premium/thumb/trading-2268548-1888743.png" alt="" />
+              <img src={img1} alt="" />
             </Stack>
           </Grid>
 
           <Grid display="flex" justifyContent="flex-start" alignItems="center" item xs={12} md={3} sx={{ borderLeft: "2px dashed gray" }} >
             <Stack ml={3} >
-            <MDBox> <img src="https://www.pngmart.com/files/22/Dot-PNG-Isolated-Transparent.png" alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Sign Up </Title></MDBox>
+            <MDBox> <img src={dot} alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Sign Up </Title></MDBox>
             <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Sign up now and earn a free portfolio.</Typography>
             </Stack>
           </Grid>
@@ -41,14 +46,14 @@ const Section7 = () => {
 
           <Grid display="flex" justifyContent="flex-start" alignItems="center" sx={{ borderLeft: "2px dashed gray" }} item xs={12} md={3}>
             <Stack ml={3} >
-            <MDBox> <img src="https://www.pngmart.com/files/22/Dot-PNG-Isolated-Transparent.png" alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Learn with Virtual Trade. </Title></MDBox>
+            <MDBox> <img src={dot} alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Learn with Virtual Trade. </Title></MDBox>
             <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Practice investing with virtual money.</Typography>
             </Stack>
           </Grid>
 
           <Grid item xs={12} md={3}>
             <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",sm:"none"}}>
-              <img src="https://cdni.iconscout.com/illustration/premium/thumb/stock-market-exchange-value-growth-5589613-4649528.png?f=webp" style={{ maxWidth: "100%" }} alt="" />
+              <img src={img2} style={{ maxWidth: "100%" }} alt="" />
             </Stack>
           </Grid>
 
@@ -59,13 +64,13 @@ const Section7 = () => {
 
           <Grid item xs={12} md={3}>
             <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",md:"none"}} >
-              <img src="https://cdni.iconscout.com/illustration/premium/thumb/stock-trading-7900356-6353926.png" alt="" />
+              <img src={img3} alt="" />
             </Stack>
           </Grid>
 
           <Grid display="flex" justifyContent="flex-start" alignItems="center" item xs={12} md={3} sx={{ borderLeft: "2px dashed gray" }} >
             <Stack ml={3} >
-            <MDBox> <img src="https://www.pngmart.com/files/22/Dot-PNG-Isolated-Transparent.png" alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Earn Real Money with 10x Trading. </Title></MDBox>
+            <MDBox> <img src={dot} alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Earn Real Money with 10x Trading. </Title></MDBox>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Turn your knowledge into profit.</Typography>
             </Stack>
           </Grid>
@@ -81,14 +86,14 @@ const Section7 = () => {
 
           <Grid display="flex" justifyContent="flex-start" alignItems="center" sx={{ borderLeft: "2px dashed gray" }} item xs={12} md={3}>
             <Stack ml={3} >
-            <MDBox> <img src="https://www.pngmart.com/files/22/Dot-PNG-Isolated-Transparent.png" alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Grow Together with Referral. </Title></MDBox>
+            <MDBox> <img src={dot} alt="" style={{width:"5%"}} /> <Title style={{ color: "#fff" }} variant={{ xs: "h6", sm: "body1" }}>Grow Together with Referral. </Title></MDBox>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.6)" >Invite friends, earn rewards, and succeed together.</Typography>
             </Stack>
           </Grid>
 
           <Grid item xs={12} md={3}>
             <Stack width={{xs:"80%",}} justifyContent={{xs:"center"}} borderLeft={{xs:"2px dashed gray",sm:"none"}}>
-              <img src="https://cdni.iconscout.com/illustration/premium/thumb/stock-trading-8054838-6465726.png?f=webp" style={{ maxWidth: "100%" }} alt="" />
+              <img src={img4} style={{ maxWidth: "100%" }} alt="" />
             </Stack>
           </Grid>
 

@@ -36,9 +36,7 @@ import BannerBgImageMobile from "../assets/images/section5/news-block-background
 // import Sec6Image4 from "../assets/images/section6/earn_1.webp";
 // import Sec6Image5 from "../assets/images/section6/rabbithole.webp";
 
-// Section7
-import Sec7Image1 from "../assets/images/section7/api.webp";
-import Sec7Image2 from "../assets/images/section7/grant-program.webp";
+
 
 // Section8
 import ShieldImage from "../assets/images/section8/shield.webp";
@@ -189,24 +187,7 @@ export const section5Content = {
 //   ],
 // };
 
-export const section7Content = {
-  title: "Grow with our ecosystem",
-  subtitle: "Build solutions alongside decentralized finance leaders",
-  ITEMS: [
-    {
-      title: "1inch API",
-      subtitle:
-        "A cutting-edge discovery and routing algorithm that offers non-custodial asset swaps at the most attractive rates in major DeFi ecosystems.",
-      image: Sec7Image1,
-    },
-    {
-      title: "1inch grant program",
-      subtitle:
-        "An initiative that fosters the 1inch Network's growth and incentivizes contributions through grants and other resources.",
-      image: Sec7Image2,
-    },
-  ],
-};
+
 
 export const section8Content = {
   title: "Your decentralized finance shield",
