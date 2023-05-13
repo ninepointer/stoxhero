@@ -13,7 +13,7 @@ const CustomCounter = ({
   subtitle,
   decimals = false,
 }) => (
-  <Stack spacing={{ xs: 1, md: 2 }} alignItems="center">
+  <Stack textAlign="center" spacing={{ xs: 1, md: 2 }} alignItems="center">
     <CountUp prefix={before} suffix={after} end={counter} decimals={decimals}>
       {({ countUpRef }) => (
         <Title variant={{ xs: "h4", md: "h2" }} style={{color:"white"}} sx={{ fontWeight: 400 }}>
@@ -31,7 +31,7 @@ const CustomCounter = ({
 const Section2 = () => {
 
   return (
-    <Container sx={{ mt: 0 }}>
+    <Container sx={{ mt:{xs:"-12px"} }}>
      <Box
      bgcolor={'#06070A'}
         sx={(theme) => ({
@@ -57,7 +57,7 @@ const Section2 = () => {
       >
         <Grid container spacing={3} justifyContent="space-between">
           {items.map(item=>(
-            <Grid item xs={6} md={3} key={item.subtitle}>
+            <Grid item xs={6} md={4} lg={3} key={item.subtitle}>
               <CustomCounter  {...item} />
             </Grid>
             

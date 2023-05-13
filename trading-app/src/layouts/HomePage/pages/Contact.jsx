@@ -1,8 +1,10 @@
-import { Box, Button, Card, CardContent, Container, Grid, Stack, TextField, ThemeProvider, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, Container, Grid, Stack, TextField,Typography } from '@mui/material'
 import theme from '../utils/theme/index'
 import Navbar from '../components/Navbars/Navbar'
 import React, { useState } from 'react'
 import Footer from '../components/Footers/Footer'
+import { ThemeProvider } from 'styled-components';
+
 
 const Contact = () => {
 
@@ -47,7 +49,11 @@ const Contact = () => {
     
     
     return (
-        <div style={{ height: "100%", width: "100vw", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "black" }}>
+
+        
+        <div style={{  width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "black" }}>
+            <ThemeProvider theme={theme}>
+            <Navbar/>
 
 
 
@@ -104,8 +110,9 @@ const Contact = () => {
                 </CardContent>
             </Card>
 
-            <Footer />
 
+        </ThemeProvider>
+            <Footer/>
         </div>
     )
 }
