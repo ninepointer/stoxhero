@@ -32,9 +32,10 @@ function Index() {
     const [newObjectId, setNewObjectId] = useState("");
     const [updatedDocument, setUpdatedDocument] = useState([]);
     const [campaignData,setCampaignData] = useState([])
-
+    const [cac,setCAC] = useState(0);
+    console.log(id?.campaignName)
     const [formState,setFormState] = useState({
-        campaignName:'',
+        campaignName: '',
         description:'',
         campaignFor:'',
         campaignCode: '',
@@ -58,6 +59,7 @@ function Index() {
           setCampaignData(res.data.data);
           setUpdatedDocument(res.data.data);
           console.log("Campaign data is", res.data)
+          setCAC(((res.data.data.campaignCost)/campaignUserCount).toFixed(2))
           // setCampaignUserCount(res?.data?.data?.users?.length);
           setFormState({
               campaignName: res.data.data?.campaignName || '',
@@ -65,6 +67,7 @@ function Index() {
               campaignCode: res.data.data?.campaignCode || '',
               campaignFor: res.data.data?.campaignFor || '',
               campaignLink: res.data.data?.campaignLink || '',
+              campaignCost: res.data.data?.campaignCost || '',
               status: res.data.data?.status || '',
             });
               setTimeout(()=>{setIsLoading(false)},500) 
@@ -72,7 +75,7 @@ function Index() {
           return new Error(err);
       })
   
-  },[])
+  },[isLoading,editing,campaignUserCount])
 
     async function onSubmit(e,formState){
       e.preventDefault()
@@ -318,12 +321,8 @@ function Index() {
                 label='CAC'
                 fullWidth
                 multiline
-                value={id ? "₹"+id?.campaignCost : 'NA'}
-                defaultValue={campaignUserCount ? "₹"+id?.campaignCost/campaignUserCount : 'NA'}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    campaignCost: e.target.value
-                  }))}}
+                value={"₹"+cac}
+                defaultValue={cac}
               />
           </Grid>
 
