@@ -16,7 +16,7 @@ import about2 from '../assets/images/About/about2.png'
 import about3 from '../assets/images/About/about3.webp'
 import about4 from '../assets/images/About/about4.png'
 import about5 from '../assets/images/About/about5.webp'
-import logo from '../assets/images/Logo.png';
+
 
 
 const About = () => {

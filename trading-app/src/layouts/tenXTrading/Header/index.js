@@ -1,50 +1,66 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
-import { userContext } from '../../../AuthContext';
+// import { userContext } from '../../../AuthContext';
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton';
+// import MDButton from '../../../components/MDButton';
 import MDAvatar from '../../../components/MDAvatar';
 import MDTypography from '../../../components/MDTypography';
-import tradesicon from '../../../assets/images/tradesicon.png'
+// import tradesicon from '../../../assets/images/tradesicon.png'
 import beginner from '../../../assets/images/beginner.png'
 import intermediate from '../../../assets/images/intermediate.png'
 import pro from '../../../assets/images/pro.png'
 import checklist from '../../../assets/images/checklist.png'
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+// import Dialog from '@mui/material/Dialog';
+// import DialogActions from '@mui/material/DialogActions';
+// import DialogContent from '@mui/material/DialogContent';
+// import DialogContentText from '@mui/material/DialogContentText';
+// import DialogTitle from '@mui/material/DialogTitle';
 
-import Box from '@mui/material/Box';
+// import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
+// import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
-import Subs from '../../../assets/images/subs.png';
+// import Button from '@mui/material/Button';
+// import Typography from '@mui/material/Typography';
+// import CheckIcon from '@mui/icons-material/Check';
+// import CloseIcon from '@mui/icons-material/Close';
+// import Subs from '../../../assets/images/subs.png';
+import Dialogue from './dialogueBox';
 
 
 export default function TenXSubscriptions() {
-  const [value, setValue] = React.useState('1');
-  const [open, setOpen] = React.useState(false);
-  const [isLoading,setIsLoading] = useState(false);
+  const [cashBalance, setCashBalance] = React.useState(0);
+  // const [open, setOpen] = React.useState(false);
+  // const [isLoading,setIsLoading] = useState(false);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
-  const getDetails = React.useContext(userContext);
+  // const getDetails = React.useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/userwallet/my`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    .then((api1Response)=>{
+      
+      const cashTransactions = (api1Response?.data?.data)?.transactions?.filter((transaction) => {
+        return transaction.transactionType === "Cash";
+      });
+      const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+        return total + transaction?.amount;
+      }, 0);
+      setCashBalance(totalCashAmount);
+    })
+  }, [])
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const card = (props)=> {
 
-  const card = (props)=> (
+    return (
     <React.Fragment>
       <CardContent sx={{height: 'auto', flex:1 ,padding:2}} justifyContent="center">
         <MDBox mb={-3}>
@@ -130,31 +146,9 @@ export default function TenXSubscriptions() {
               <MDTypography color='dark' style={{fontSize:"15px", lineHeight:4.5}}>{props.upto}</MDTypography>
             </MDBox>
             
-            <MDBox>
-            <MDButton variant="contained" color="dark" onClick={(e)=>{captureIntent(props.id)}} size='small'>Unlock</MDButton>
-            </MDBox>
+            <Dialogue amount={props.actual_discountPrice} name={props.plan} id={props.id} walletCash={cashBalance} />
 
-            <Dialog
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {"Thanks for showing your interest in our subscription!"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Our team is working to get this trading program live for you as soon as possible.
-                  Keep watching this space! 
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose} autoFocus>
-                  Close
-                </Button>
-              </DialogActions>
-            </Dialog>
+
           
           </MDBox>
   
@@ -165,23 +159,9 @@ export default function TenXSubscriptions() {
      
     </React.Fragment>
   
-  );
+  )}
 
-  async function captureIntent(id){
-    console.log(getDetails)
-    handleClickOpen();
-    const res = await fetch(`${baseUrl}api/v1/tenX/capturepurchaseintent`, {
-        method: "POST",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-          purchase_intent_by : getDetails?.userDetails?._id, tenXSubscription : id
-        })
-    });
-  }
+
 
   useEffect(()=>{
   
@@ -210,7 +190,7 @@ export default function TenXSubscriptions() {
 
   },[])
 
-  console.log(activeTenXSubs)
+  console.log("cashBalance", cashBalance)
 
   return (
    
@@ -256,6 +236,7 @@ export default function TenXSubscriptions() {
                 // upto: "/"+elem.validity+" trading "+elem.validityPeriod,
                 discount: "₹",
                 discountPrice: elem.discounted_price+"/-",
+                actual_discountPrice: elem.discounted_price,
                 validity: elem.validity,
                 validityPeriods: elem.validity+" trading "+elem.validityPeriod,
                 plan1: elem?.features[0]?.description,
