@@ -55,7 +55,7 @@ exports.generateOTP = async(req, res, next)=>{
   console.log(req.body)
   const{ firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career, campaignCode
   } = req.body
-  const applicationExists = await CareerApplication.find({$or : [{mobile: mobile, email: email}], career: career})
+  const applicationExists = await CareerApplication.find({$or : [{mobile: mobile, email: email}], career: career, status:'OTP Verified'})
   console.log(applicationExists)
   if(applicationExists.length > 0){
     return res.status(400).json({info:'You have already applied for this position'})

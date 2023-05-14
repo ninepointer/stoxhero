@@ -8,7 +8,7 @@ import Card from "@mui/material/Card";
 import axios from "axios";
 
 
-export default function Applicants({campaign, campaignUsersCount, setCampaignUsersCount}) {
+export default function Applicants({campaign, campaignUserCount}) {
     console.log("Campaign", campaign)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [campaignUsers,setCampaignUsers] = React.useState([]);
@@ -93,7 +93,7 @@ export default function Applicants({campaign, campaignUsersCount, setCampaignUse
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Campaign Users({campaignUsersCount})
+            Campaign Users({campaignUserCount ? campaignUserCount : 'No Users'})
           </MDTypography>
         </MDBox>
       </MDBox>

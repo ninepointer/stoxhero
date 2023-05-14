@@ -26,6 +26,9 @@ const campignSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    campaignCost:{
+        type:Number,
+    },
     status:{
         type:String,
         required: true,

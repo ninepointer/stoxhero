@@ -75,6 +75,14 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"black",paddingLeft:4,paddingRight:4}}>Campaign Cost: <span style={{fontSize:11,fontWeight:700}}>{e?.campaignCost ? e?.campaignCost : 'NA'}</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"black",paddingLeft:4,paddingRight:4}}>CAC: <span style={{fontSize:11,fontWeight:700}}>{e?.users?.length ? "₹"+(e?.campaignCost/e?.users?.length).toFixed(2) : 'NA'}</span></MDTypography>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
                                   <MDTypography fontSize={9} style={{color:"black", paddingLeft:4,paddingRight:4}}>Users Acquired: <span style={{fontSize:11,fontWeight:700}}>{e?.users?.length}</span></MDTypography>
                               </Grid>
       
