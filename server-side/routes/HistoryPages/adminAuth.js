@@ -31,7 +31,7 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const client = require("../../marketData/redisClient")
-const {overallPnlTrader} = require("../../controllers/infinityController");
+const {overallPnlTrader, fakeTrade} = require("../../controllers/infinityController");
 
 
 router.get("/deletePnlKey", async (req, res) => {
@@ -39,10 +39,10 @@ router.get("/deletePnlKey", async (req, res) => {
   await deletePnlKey()
 });
 
-router.get("/pnl", async (req, res) => {
-  // await client.del(`kiteCredToday:${process.env.PROD}`);
-  await overallPnlTrader(req, res)
-});
+// router.get("/trade", async (req, res) => {
+//   // await overallPnlTrader(req, res)
+//   await fakeTrade(req, res);
+// });
 
 router.post("/autotrade/:id", async (req, res) => {
   const id = req.params.id
