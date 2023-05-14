@@ -275,6 +275,10 @@ const userDetailSchema = new mongoose.Schema({
         },
         referralCurrency: String
     }],
+    subscription:[{
+        subscriptionId:{type:Schema.Types.ObjectId, ref: 'tenx-subscription'},
+        subscribedOn:{type:Date},
+    }]
 
 })
 

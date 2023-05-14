@@ -90,6 +90,8 @@ import CareerForm from './layouts/HomePage/pages/CareerForm'
 import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
 import Contact from "./layouts/HomePage/pages/Contact";
+import Payment from "./layouts/Payment";
+import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 
 
 
@@ -200,10 +202,26 @@ const routes = [
   {
     // type: "collapse",
     // name: "Arena",
-    // key: "arena",
+    // key: "arena",CreatePaymentHeader
     // icon: <BusinessIcon/>,
     route: "TenX Subscription Details",
     component: <TenXSubscriptionForm />,
+  },
+  {
+    type: "collapse",
+    name: "Payment",
+    key: "payment",
+    icon: <BusinessIcon/>,
+    route: "payment",
+    component: <Payment />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
+    route: "Create Payment",
+    component: <CreatePaymentHeader />,
   },
   {
     // type: "collapse",

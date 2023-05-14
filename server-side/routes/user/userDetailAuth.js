@@ -506,7 +506,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
     
         if(!user) return res.status(404).json({message: 'No such user found.'});
     
-        const filteredBody = filterObj(req.body, 'name', 'first_name', 'lastName', 'email', 'mobile','gender', 
+        const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
         'ifscCode','profilePhoto','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode','KYCStatus'
@@ -690,6 +690,21 @@ router.get("/allusers", (req, res)=>{
   })
 });
 
+router.get("/allusersNameAndId", (req, res)=>{
+
+  const newuser = UserDetail.find().select('_id first_name last_name')
+  .then((data)=>{
+      // console.log(data)
+      return res.status(200).json({message: "user name and id retreived", data : data, count: data.length});
+  })
+  .catch((err)=>{
+      console.log("Error:",err)
+      return res.status(422).json({error : err})
+  })
+});
+
 module.exports = router;
+
+
 
 
