@@ -4,7 +4,7 @@ import DashboardNavbar from "../../../examples/Navbars/DashboardNavbar";
 import Footer from "../../../examples/Footer";
 import { io } from 'socket.io-client';
 import { useEffect, useContext} from "react";
-
+import {useLocation} from "react-router-dom";
 
 // import Header from "./Header";
 import { userContext } from "../../../AuthContext";
@@ -14,7 +14,9 @@ function TradeViewTenX() {
   console.log("rendering in userPosition: infinity")
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const getDetails = useContext(userContext);
-
+  const location = useLocation();
+  const subscriptionId = location?.state?.subscriptionId;
+  console.log("subscriptionId", subscriptionId)
 
   let socket;
   try {
@@ -33,7 +35,7 @@ function TradeViewTenX() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <TenXTrading socket={socket}/>
+      <TenXTrading socket={socket} subscriptionId={subscriptionId}/>
       <Footer />
     </DashboardLayout>
     </>

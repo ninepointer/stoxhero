@@ -45,8 +45,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
   })
 
   const navigate = useNavigate();
-//   const [messege.lowBalanceMessage, setLowBalanceMessage] = useState("");
-//   const [thanksMessege, setThanksMessege]
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const copyText = `                    
@@ -78,7 +76,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
   }, [])
 
   const handleCopy = () => {
-    // setCopied(true);
     openSuccessSB('success', 'Text copied.');
   }
   const handleClickOpen = () => {
@@ -220,7 +217,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
         :
         messege.thanksMessege ?
         <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`)}} size='small'>Start Trading</MDButton>
+        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
         :
         <MDBox>

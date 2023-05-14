@@ -35,8 +35,8 @@ router.post("/paperTrade", authentication, authoizeTrade.fundCheckPaperTrade,  a
     MockTradeFunc.mockTrade(req, res)
     
 })
-
-router.post("/tenxPlacingOrder", authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
+//authoizeTrade.fundCheckPaperTrade
+router.post("/tenxPlacingOrder", authentication,  async (req, res)=>{
 
     console.log("in tenxPlacingOrder trade")
     const setting = await Setting.find();

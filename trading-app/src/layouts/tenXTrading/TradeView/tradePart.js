@@ -18,7 +18,7 @@ import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 import { tenxTrader } from '../../../variables';
 
-export default function TenXTrading({socket}) {
+export default function TenXTrading({socket, subscriptionId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [yesterdayData, setyesterdayData] = useState({});
   const pnl = useContext(NetPnlContext);
@@ -57,8 +57,9 @@ export default function TenXTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={tenxTrader}
+      subscriptionId={subscriptionId}
     />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [ isGetStartedClicked, handleSetIsGetStartedClicked, subscriptionId]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -66,16 +67,18 @@ export default function TenXTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={tenxTrader}
+      subscriptionId={subscriptionId}
     />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={tenxTrader}
+      subscriptionId={subscriptionId}
     />;
-  }, [handleSetIsGetStartedClicked, isGetStartedClicked]);
+  }, [handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
 
   let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
   let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
