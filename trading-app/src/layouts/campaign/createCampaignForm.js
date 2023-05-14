@@ -20,8 +20,8 @@ function Index() {
 
     const location = useLocation();
     const  id  = location?.state?.data;
-    console.log("Campaign: ",id)
-    const [campaignUserCount, setCampaignUserCount] = useState(0);
+    console.log("Campaign Users: ",id?.users?.length)
+    const [campaignUserCount, setCampaignUserCount] = useState(id?.users?.length);
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -39,6 +39,7 @@ function Index() {
         campaignFor:'',
         campaignCode: '',
         campaignLink: '',
+        campaignCost: '',
         status:''
     });
 
@@ -47,15 +48,17 @@ function Index() {
             id && setUpdatedDocument(id)
             setIsLoading(false);
         },500)
-    })
-
+        // setCampaignUserCount(id?.users?.length);
+    },[])
+    console.log("Campaign User Count: ",campaignUserCount);
     React.useEffect(()=>{
 
       axios.get(`${baseUrl}api/v1/campaign/${id?._id}`)
       .then((res)=>{
           setCampaignData(res.data.data);
-          setUpdatedDocument(res.data.data)
+          setUpdatedDocument(res.data.data);
           console.log("Campaign data is", res.data)
+          // setCampaignUserCount(res?.data?.data?.users?.length);
           setFormState({
               campaignName: res.data.data?.campaignName || '',
               description: res.data.data?.description || '',
@@ -81,7 +84,7 @@ function Index() {
       }
       // console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {campaignName, description, campaignCode, campaignFor, campaignLink, status } = formState;
+      const {campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status } = formState;
       const res = await fetch(`${baseUrl}api/v1/campaign/create`, {
           method: "POST",
           credentials:"include",
@@ -90,7 +93,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignName, description, campaignCode, campaignFor, campaignLink, status
+            campaignName, description, campaignCode, campaignFor, campaignLink, campaignCost, status
           })
       });
       
@@ -118,7 +121,7 @@ function Index() {
           setTimeout(()=>{setSaving(false);setEditing(true)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-      const { campaignName, description, campaignFor, campaignLink, campaignCode, status } = formState;
+      const { campaignName, description, campaignFor, campaignLink, campaignCode, campaignCost, status } = formState;
   
       const res = await fetch(`${baseUrl}api/v1/campaign/${id._id}`, {
           method: "PATCH",
@@ -128,7 +131,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            campaignName, description, campaignFor, campaignLink, campaignCode, status, 
+            campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode, status, 
           })
       });
   
@@ -191,7 +194,7 @@ function Index() {
   );
 
 
-
+  console.log("Campaign User Count: ",campaignUserCount);
     return (
     <>
     {isLoading ? (
@@ -201,7 +204,7 @@ function Index() {
     )
         :
       ( 
-        <MDBox pl={2} pr={2} mt={4}>
+        <MDBox pl={2} pr={2} mt={4} mb={2}>
         <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
           Fill Campaign Details
@@ -210,7 +213,7 @@ function Index() {
 
         <Grid container display="flex" flexDirection="row" justifyContent="space-between">
         <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={3} mt={2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
@@ -224,7 +227,7 @@ function Index() {
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={3} mt={2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
@@ -238,7 +241,7 @@ function Index() {
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={3} mt={2}>
               <FormControl sx={{width: "100%" }}>
                 <InputLabel id="demo-simple-select-autowidth-label">Campaign For *</InputLabel>
                 <Select
@@ -269,7 +272,7 @@ function Index() {
               </FormControl>
           </Grid>
           
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={3} mt={2}>
               <FormControl sx={{width: "100%" }}>
                 <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
                 <Select
@@ -292,7 +295,39 @@ function Index() {
               </FormControl>
           </Grid>
 
-          <Grid item xs={12} md={6} xl={12} mt={2}>
+          <Grid item xs={6} md={6} xl={2} mt={2}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Campaign Cost (in ₹)'
+                fullWidth
+                type='number'
+                multiline
+                value={formState?.campaignCost || id?.campaignCost}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    campaignCost: e.target.value
+                  }))}}
+              />
+          </Grid>
+
+          <Grid item xs={6} md={6} xl={2} mt={2}>
+            <TextField
+                disabled={true}
+                id="outlined-required"
+                label='CAC'
+                fullWidth
+                multiline
+                value={id ? "₹"+id?.campaignCost : 'NA'}
+                defaultValue={campaignUserCount ? "₹"+id?.campaignCost/campaignUserCount : 'NA'}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    campaignCost: e.target.value
+                  }))}}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={8} mt={2}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
@@ -386,11 +421,12 @@ function Index() {
                     )}
             </Grid>
 
-                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
-                    <MDBox>
-                        <CampaignUsers campaign={campaignData} campaignUserCount={campaignUserCount} setCampaignUserCount={setCampaignUserCount}/>
-                    </MDBox>
-                </Grid>}
+            {(id || newObjectId) && 
+            <Grid item xs={12} md={12} xl={12} mt={2}>
+                <MDBox>
+                    <CampaignUsers campaign={campaignData} campaignUserCount={campaignUserCount}/>
+                </MDBox>
+            </Grid>}
 
          </Grid>
 
