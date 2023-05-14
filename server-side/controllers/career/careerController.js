@@ -88,16 +88,16 @@ exports.confirmOTP = async(req, res, next)=>{
   
   const{ firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career, campaignCode, mobile_otp
   } = req.body
-  console.log(req.body)
+  // console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile, email: email}], mobile_otp: mobile_otp})
-  console.log(correctOTP)
+  // console.log(correctOTP)
   if(!correctOTP){
     return res.status(400).json({info:'Please enter the correct OTP'})
   }
 
   correctOTP.status = 'OTP Verified'
   await correctOTP.save({validateBeforeSave:false})
-  res.status(400).json({info:"Application Submitted Successfully."})
+  res.status(201).json({info:"Application Submitted Successfully."})
   const existingUser = await User.findOne({$or :[{email:email,mobile: mobile}]})
   // if(existingUser){
   //   return res.status(400).json({info:"User Already Exists"})
