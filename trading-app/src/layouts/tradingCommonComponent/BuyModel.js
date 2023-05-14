@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader } from "../../variables";
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
+const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
   console.log("rendering : buy")
   const tradeSound = new Howl({
     src : [sound],
@@ -243,7 +243,7 @@ console.log("buttonClicked", buttonClicked)
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken, 
+        symbol, lotSize, instrumentToken, subscriptionId,
         uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true
       })
     });

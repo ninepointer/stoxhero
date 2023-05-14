@@ -29,7 +29,7 @@ import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
 
 
-function InstrumentDetails({socket , setIsGetStartedClicked, from}) {
+function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId}) {
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
@@ -176,11 +176,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from}) {
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
+      <BuyModel subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (

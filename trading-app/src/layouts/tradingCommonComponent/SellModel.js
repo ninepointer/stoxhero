@@ -31,7 +31,7 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader } from "../../variables";
 
 
-const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
+const SellModel = ({subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
   // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -193,7 +193,7 @@ const SellModel = ({sellState, exchange, symbol, instrumentToken, symbolName, lo
         },
         body: JSON.stringify({
             
-          exchange, symbol, buyOrSell, Quantity, Price, 
+          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId,
           Product, OrderType, TriggerPrice, stopLoss, uId,
           validity, variety, createdBy, order_id:dummyOrderId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath

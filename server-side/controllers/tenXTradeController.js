@@ -21,8 +21,8 @@ exports.overallPnl = async (req, res, next) => {
 
     try{
 
-      if(await client.exists(`${req.user._id.toString()}: overallpnlTenXTrader`)){
-        let pnl = await client.get(`${req.user._id.toString()}: overallpnlTenXTrader`)
+      if(await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)){
+        let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
         pnl = JSON.parse(pnl);
         // console.log("pnl redis", pnl)
         
@@ -74,8 +74,8 @@ exports.overallPnl = async (req, res, next) => {
           },
         ])
         // console.log("pnlDetails in else", pnlDetails)
-        await client.set(`${req.user._id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
-        await client.expire(`${req.user._id.toString()}: overallpnlTenXTrader`, secondsRemaining);
+        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
+        await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
 
         res.status(201).json({message: "pnl received", data: pnlDetails});
       }
