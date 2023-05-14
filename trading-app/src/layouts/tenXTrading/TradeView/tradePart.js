@@ -16,6 +16,7 @@ import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfini
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
+import { tenxTrader } from '../../../variables';
 
 export default function TenXTrading({socket}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -55,7 +56,7 @@ export default function TenXTrading({socket}) {
     return <TradableInstrument
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"algoTrader"}
+      from={tenxTrader}
     />;
   }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
 
@@ -64,7 +65,7 @@ export default function TenXTrading({socket}) {
       socket={socket}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"algoTrader"}
+      from={tenxTrader}
     />;
   }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
 
@@ -72,7 +73,7 @@ export default function TenXTrading({socket}) {
     return <OverallPnl
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"algoTrader"}
+      from={tenxTrader}
     />;
   }, [handleSetIsGetStartedClicked, isGetStartedClicked]);
 
