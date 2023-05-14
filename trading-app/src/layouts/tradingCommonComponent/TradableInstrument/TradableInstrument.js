@@ -31,7 +31,7 @@ import { marketDataContext } from "../../../MarketDataContext";
 // import MDSnackbar from "../../../../components/MDSnackbar";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
-
+import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
 
 const initialState = {
   instrumentsData: [],
@@ -295,7 +295,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
           InputProps={{
             onFocus: () => textRef.current.select(),
             endAdornment: (
-              <MDButton variant="text" color={from === "paperTrade" ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
+              <MDButton variant="text" color={from === paperTrader ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
             ),
             startAdornment: (
               <>{<AiOutlineSearch/>}</>
@@ -342,12 +342,12 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  backgroundColor: from==='algoTrader' && 'white',
-                  color: from === "paperTrade" ? "white" : "lightgray",
+                  backgroundColor: from===(infinityTrader || tenxTrader) && 'white',
+                  color: from === paperTrader ? "white" : "lightgray",
                   padding:"0.5px",
                   '&:hover': {
-                    color: from === 'algoTrader' && '#1e2e4a',
-                    backgroundColor: from === "paperTrade" ? 'lightgray' : 'lightgray',
+                    color: from === (infinityTrader || tenxTrader) && '#1e2e4a',
+                    backgroundColor: from === paperTrader ? 'lightgray' : 'lightgray',
                     cursor: 'pointer',
                     fontWeight: 600
                   }

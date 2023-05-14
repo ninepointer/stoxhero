@@ -29,6 +29,8 @@ import OverallRow from './OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
+import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
+
 // import Button from '@mui/material/Button';
 
 function OverallGrid({ setIsGetStartedClicked, from}) {
@@ -73,7 +75,8 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let rows = [];
-  let pnlEndPoint = from === "paperTrade" ? "paperTrade/pnl" : from === "algoTrader" && "infinityTrade/pnl";
+  let pnlEndPoint = from === paperTrader ? `paperTrader/pnl` : from === infinityTrader && "infinityTrade/pnl" ;
+  // let pnlEndPoint = from === paperTrader ? `paperTrader/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader && `tenX/${id}/pnl`
 
 
     useEffect(()=>{
@@ -124,10 +127,10 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
       totalTransactionCost += Number(subelem.brokerage);
       let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
 
-      from === "paperTrade" ? 
+      from === paperTrader ? 
       updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
       :
-      from === "algoTrader" &&
+      from === infinityTrader &&
       updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 

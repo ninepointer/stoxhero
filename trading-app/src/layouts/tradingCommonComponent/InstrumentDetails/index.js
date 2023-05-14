@@ -28,6 +28,7 @@ import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
 
+
 function InstrumentDetails({socket , setIsGetStartedClicked, from}) {
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
