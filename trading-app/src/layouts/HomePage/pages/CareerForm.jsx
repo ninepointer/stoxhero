@@ -37,10 +37,12 @@ const CareerForm = () => {
     collegeName: "",
     priorTradingExperience: "",
     source: "",
+    career: career?._id,
     campaignCode: campaignCode,
     mobile_otp: "",
   })
-  console.log("Career: ",career)
+  console.log("Career: ",career?._id)
+  console.log("FormState: ",detail)
   const [file, setFile] = useState(null);
   // const [uploadedData, setUploadedData] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -105,7 +107,8 @@ const CareerForm = () => {
   async function generateOTP(){
     console.log("Inside generate OTP code")
     setOTPGenerated(true)
-    setDetails(detail);
+    // setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
+
 
     const { 
       firstName,
@@ -116,6 +119,7 @@ const CareerForm = () => {
       collegeName,
       priorTradingExperience,
       source,
+      career,
       campaignCode,
     } = detail;
 
@@ -138,6 +142,7 @@ const CareerForm = () => {
         mobile:mobile, 
         collegeName: collegeName,
         source:source,
+        career:career,
         dob:dob,  
         priorTradingExperience: priorTradingExperience,
         campaignCode:campaignCode,
@@ -221,7 +226,7 @@ const CareerForm = () => {
                         label="First Name"
                         type="text"
                         fullWidth
-                        onChange={(e)=>{detail.firstName = e.target.value}}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, firstName: e.target.value}))}}
                       />
                     </Grid>
 
@@ -233,7 +238,7 @@ const CareerForm = () => {
                         label="Last Name"
                         type="text"
                         fullWidth
-                        onChange={(e)=>{detail.lastName = e.target.value}}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, lastName: e.target.value}))}}
                       />
                     </Grid>
 
@@ -245,7 +250,7 @@ const CareerForm = () => {
                         label="Email"
                         type="email"
                         fullWidth
-                        onChange={(e)=>{detail.email = e.target.value}}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, email: e.target.value}))}}
                       />
                     </Grid>
 
@@ -257,7 +262,7 @@ const CareerForm = () => {
                         label="Mobile(OTP will be sent on this number)"
                         type="text"
                         fullWidth
-                        onChange={(e)=>{detail.mobile = e.target.value}}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, mobile: e.target.value}))}}
                       />
                     </Grid>
 
@@ -269,7 +274,7 @@ const CareerForm = () => {
                         label="College Name"
                         type="text"
                         fullWidth
-                        onChange={(e)=>{detail.collegeName = e.target.value}}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, collegeName: e.target.value}))}}
                       />
                     </Grid>
 
@@ -279,7 +284,7 @@ const CareerForm = () => {
                           <DatePicker
                             label="Date of Birth"
                             disabled={otpGenerated}
-                            onChange={(e)=>{detail.dob = dayjs(e)}}
+                            onChange={(e)=>{setDetails(prevState => ({...prevState, dob: dayjs(e)}))}}
                             sx={{ width: '100%' }}
                           />
                         </DemoContainer>
@@ -295,7 +300,7 @@ const CareerForm = () => {
                         // value={formState?.jobType}
                         // value={oldObjectId ? contestData?.status : formState?.status}
                         disabled={otpGenerated}
-                        onChange={(e)=>{detail.priorTradingExperience = e.target.value}}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, priorTradingExperience: e.target.value}))}}
                         label="Trading Exp."
                         sx={{ minHeight:43 }}
                         >
@@ -314,7 +319,7 @@ const CareerForm = () => {
                         // value={formState?.jobType}
                         // value={oldObjectId ? contestData?.status : formState?.status}
                         disabled={otpGenerated}
-                        onChange={(e)=>{detail.source = e.target.value}}
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, source: e.target.value}))}}
                         label="From where you hear about us ?"
                         sx={{ minHeight:43 }}
                         >
@@ -346,7 +351,7 @@ const CareerForm = () => {
                           label="Please enter the OTP"
                           type="text"
                           fullWidth
-                          onChange={(e)=>{detail.mobile_otp = e.target.value}}
+                          onChange={(e)=>{setDetails(prevState => ({...prevState, mobile_otp: e.target.value}))}}
                         />
                     </Grid>}
 
