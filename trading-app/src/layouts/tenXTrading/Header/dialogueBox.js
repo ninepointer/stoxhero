@@ -277,11 +277,11 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
               </MDBox>
 
-              <MDBox border="1px solid red" borderRadius="10px" mt={5}>
+              <MDBox border="1px solid red" textAlign="center"  width="80%" borderRadius="10px"  mt={5}>
 
-                <MDBox>
+                <MDBox display="flex"  alignItems="center" width="100%"  justifyContent="center">
                   {(walletCash < amount) &&
-                  <MDBox display="flex" flexDirection="column" textAlign="center" justifyContent="center" sx={{width:{xs:"95%"}}} >
+                  <MDBox display="flex" alignItems="center" justifyContent="center" sx={{width:"95%"}} >
 
                     <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >Your wallet balance is low kindly refer more users on this platform to buy this subscription.</Typography>
                      <br />
