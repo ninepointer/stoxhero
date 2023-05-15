@@ -46,21 +46,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   const copyText = `                    
 
-  AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR
-
-  Join me at StoxHero - Options Trading and Investment Platform 🤝                            
-
-  👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code
-
-  👉 Join the community of ace traders and learn real-time options trading
-
-  👉 Participate in TenX Trading and earn 10% real cash on the profit you will make on the platform
-
-  📲 Visit https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}                          
-
-  Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading
-
-  My Referral Code to join the StoxHero: ${getDetails.userDetails.myReferralCode}`
+  📲 Visit https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(()=>{
     console.log("user detail", getDetails?.userDetails)
@@ -101,28 +87,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   const buySubscription = async () => {
     if(walletCash < amount){
-        setMessege({
-            ...messege, 
-            lowBalanceMessage: 
-            <>
-                <MDTypography>Your wallet balance is low refer more user to plateform for buy this subscription.</MDTypography>
-                <MDBox display='flex' 
-                    alignItems='center' 
-                    style={{
-                        backgroundColor:'#c3c3c3', 
-                        padding: '10px',
-                        borderRadius: '10px'
-                    }}
-                >
-                <MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
-                <MDButton variant='text' color='black' padding={0} margin={0} >
-                    <CopyToClipboard text = {copyText} onCopy={handleCopy}>
-                        <BiCopy/>
-                    </CopyToClipboard>
-                </MDButton>
-                </MDBox>
-            </>
-        });
       return;
     }
     const res = await fetch(`${baseUrl}api/v1/userwallet/deduct`, {
@@ -228,12 +192,11 @@ export default function Dialogue({amount, name, id, walletCash}) {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-              <MDBox display="flex" alignItems="center" justifyContent="center" >
-                
-                 <LockOutlinedIcon sx={{color:"#000"}} />
-                
-              </MDBox>
-
+              {!messege.thanksMessege &&
+                <MDBox display="flex" alignItems="center" justifyContent="center" >
+                  <LockOutlinedIcon sx={{color:"#000"}} />
+                </MDBox>
+              }
 
             {/* {!messege.thanksMessege ?
                 <>
@@ -246,61 +209,67 @@ export default function Dialogue({amount, name, id, walletCash}) {
             } */}
             </DialogTitle>
             <DialogContent>
-            <DialogContentText id="alert-dialog-description">
+              {messege.thanksMessege ? 
 
-              <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
-                <Title variant={{xs:"h2",md:"h3"}} style={{color:"#000",fontWeight:"bold",marginTop:"10px"}} >Choose how to pay</Title>
-                <Typography textAlign="center" sx={{mt:"12px", width:"75%",mb:"12px"}} color="#000" variant="body2">Your payment is encrypted and you can change your payment method at anytime.</Typography>
-                <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography>
-                <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Cancel easily online.</Typography>
-              </MDBox>
-                {/* {messege.thanksMessege ? messege.thanksMessege
-                :
-                messege.lowBalanceMessage ? messege.lowBalanceMessage
-                :
-                "Purchase subscription using your wallet money"
-                } */}
-            </DialogContentText>
+              messege.thanksMessege
+              :
+              <>
+                <DialogContentText id="alert-dialog-description">
 
-            <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={8} >
-              <MDBox border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{height:"40px",width:{xs:"85%",md:"auto"},"&:hover":{cursor:"pointer",border:"1px solid blue"}}} >
-
-                <MDBox display="flex" justifyContent="center">
-                <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft:"8px" }} >Stoxhero wallet</Typography>
-                <AccountBalanceWalletIcon sx={{marginTop:"5px",color:"#000",marginRight:"4px"}} />
-                <Typography variant="body2" sx={{fontSize:"16.4px",fontWeight:"550"}} color="#000" > {` ₹${walletCash}`}</Typography>
-                </MDBox>
-
-                <MDBox>
-                <ArrowForwardIosIcon sx={{mt:"8px",color:"#000",marginRight:"5px",marginLeft:"5px"}}/>
-                </MDBox>
-
-              </MDBox>
-
-              <MDBox border="1px solid red" borderRadius="10px" mt={5}>
-
-                <MDBox>
-                  {(walletCash < amount) &&
-                  <MDBox display="flex" flexDirection="column" textAlign="center" justifyContent="center" sx={{width:{xs:"95%"}}} >
-
-                    <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >Your wallet balance is low kindly refer more users on this platform to buy this subscription.</Typography>
-                     <br />
-                    {/* <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >  {`Your wallet money is INR ${walletCash}`} </Typography> */}
-                 
+                  <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
+                    <Title variant={{xs:"h2",md:"h3"}} style={{color:"#000",fontWeight:"bold",marginTop:"10px"}} >Choose how to pay</Title>
+                    <Typography textAlign="center" sx={{mt:"12px", width:"75%",mb:"12px"}} color="#000" variant="body2">Your payment is encrypted and you can change your payment method at anytime.</Typography>
+                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography>
+                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Cancel easily online.</Typography>
                   </MDBox>
-                //  :
-                //  <Typography>
+                    {/* {messege.thanksMessege ? messege.thanksMessege
+                    :
+                    messege.lowBalanceMessage ? messege.lowBalanceMessage
+                    :
+                    "Purchase subscription using your wallet money"
+                    } */}
+                </DialogContentText>
 
-                //    "Thanks for showing your interest in our subscription!"
-                //  </Typography>
+                <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={8} >
+                  <MDBox onClick={()=>{buySubscription()}} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{height:"40px",width:{xs:"85%",md:"auto"},"&:hover":{cursor:"pointer",border:"1px solid blue"}}} >
+
+                    <MDBox display="flex" justifyContent="center">
+                    <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft:"8px" }} >Stoxhero wallet</Typography>
+                    <AccountBalanceWalletIcon sx={{marginTop:"5px",color:"#000",marginRight:"4px"}} />
+                    <Typography variant="body2" sx={{fontSize:"16.4px",fontWeight:"550"}} color="#000" > {` ₹${walletCash}`}</Typography>
+                    </MDBox>
+
+                    <MDBox>
+                    <ArrowForwardIosIcon sx={{mt:"8px",color:"#000",marginRight:"5px",marginLeft:"5px"}}/>
+                    </MDBox>
+
+                  </MDBox>
+
+                  <MDBox border="1px solid red" borderRadius="10px" mt={5}>
+
+                    <MDBox>
+                      {(walletCash < amount) &&
+                      <MDBox display="flex" flexDirection="column" textAlign="center" justifyContent="center" sx={{width:{xs:"95%"}}} >
+
+                        <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >Your wallet balance is low kindly refer more users on this platform to buy this subscription.</Typography>
+                        <br />
+                        {/* <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >  {`Your wallet money is INR ${walletCash}`} </Typography> */}
+                    
+                      </MDBox>
+                    //  :
+                    //  <Typography>
+
+                    //    "Thanks for showing your interest in our subscription!"
+                    //  </Typography>
+                    
+                  }
+                    </MDBox>
                 
-              }
+                  </MDBox>
+
                 </MDBox>
-             
-              </MDBox>
-
-            </MDBox>
-
+              </>
+              }
 
             </DialogContent>
             <DialogActions>
