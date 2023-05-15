@@ -75,14 +75,6 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         }];
         wallet.save();
 
-        // const user = await User.findOne({_id: userId});
-        // user.subscription = [...user.subscription, {
-        //     subscriptionId: subscribedId,
-        //     subscribedOn: new Date()
-        // }];
-        // console.log("user", user.subscription)
-        // user.save();
-
         const user = await User.findOneAndUpdate(
             { _id: userId },
             {

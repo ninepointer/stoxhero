@@ -278,6 +278,11 @@ const userDetailSchema = new mongoose.Schema({
     subscription:[{
         subscriptionId:{type:Schema.Types.ObjectId, ref: 'tenx-subscription'},
         subscribedOn:{type:Date},
+        status: {
+            type: String, 
+            enum:["Live", "Expired"],
+            default: "Live"
+        }
     }]
 
 })

@@ -1,16 +1,7 @@
 import React, {useEffect, useState} from 'react';
-// import axios from "axios";
 import { userContext } from '../../../AuthContext';
-// import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
-// import MDAvatar from '../../../components/MDAvatar';
-// import MDTypography from '../../../components/MDTypography';
-// import tradesicon from '../../../assets/images/tradesicon.png'
-// import beginner from '../../../assets/images/beginner.png'
-// import intermediate from '../../../assets/images/intermediate.png'
-// import pro from '../../../assets/images/pro.png'
-// import checklist from '../../../assets/images/checklist.png'
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -30,10 +21,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 // import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import MDTypography from '../../../components/MDTypography';
-// import Typography from '@mui/material/Typography';
-// import CheckIcon from '@mui/icons-material/Check';
-// import CloseIcon from '@mui/icons-material/Close';
-// import Subs from '../../../assets/images/subs.png';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
