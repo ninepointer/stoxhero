@@ -16,6 +16,7 @@ import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfini
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
+import { infinityTrader } from '../../../variables';
 
 export default function InfinityTrading({socket}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -55,7 +56,7 @@ export default function InfinityTrading({socket}) {
     return <TradableInstrument
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"algoTrader"}
+      from={infinityTrader}
     />;
   }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
 
@@ -64,7 +65,7 @@ export default function InfinityTrading({socket}) {
       socket={socket}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"algoTrader"}
+      from={infinityTrader}
     />;
   }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
 
@@ -72,8 +73,7 @@ export default function InfinityTrading({socket}) {
     return <OverallPnl
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={"algoTrader"}
-      // setAvailbleMargin={setAvailbleMargin}
+      from={infinityTrader}
     />;
   }, [handleSetIsGetStartedClicked, isGetStartedClicked]);
 

@@ -11,13 +11,13 @@ import money from "../../../assets/images/money.png"
 import { Link, useLocation } from "react-router-dom";
 
 
-const ActiveCampaigns = ({type}) => {
+const ActiveCampaigns = ({status}) => {
 const [applicationCount, setApplicationCount] = useState(0);
 const [activeCampaign,setActiveCampaign] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/campaign`,{
+    let call1 = axios.get(`${baseUrl}api/v1/campaign/status/${status}`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",

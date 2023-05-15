@@ -49,7 +49,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let rows = [];
-  let pnlEndPoint = from === paperTrader ? `paperTrader/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader && `tenX/${subscriptionId}/trade/pnl`;
+  let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader && `tenX/${subscriptionId}/trade/pnl`;
 
   console.log("pnlEndPoint", pnlEndPoint)
 
