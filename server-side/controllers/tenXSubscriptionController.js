@@ -142,4 +142,17 @@ exports.createTenXPurchaseIntent = async(req, res, next)=>{
   catch{(err)=>{res.status(401).json({message: "Something went wrong", error:err}); }}  
 }
 
+exports.getTenXSubscriptionPurchaseIntent = async(req, res, next)=>{
+  const id = req.params.id ? req.params.id : '';
+  try{
+      const purchaseIntent = await TenXPurchaseIntent.find({tenXSubscription : id})
+      .populate('purchase_intent_by', 'first_name last_name mobile email joining_date')
+
+      res.status(201).json({status: 'success', data: purchaseIntent, count: purchaseIntent.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
 

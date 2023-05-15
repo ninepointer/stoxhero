@@ -7,6 +7,7 @@ import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import EditFeature from './editFeature';
 import MDSnackbar from "../../../components/MDSnackbar";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 
 
@@ -70,7 +71,7 @@ export default function FeatureData({updatedDocument, setUpdatedDocument}) {
       );
       featureObj.delete = (
         <MDButton component="a" variant="caption" color="text" fontWeight="medium" onClick={()=>{deleteFeature(elem._id)}}>
-          Delete
+          <DeleteForeverIcon fontSize='small'/>
         </MDButton>
       );
 

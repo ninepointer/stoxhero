@@ -14,6 +14,7 @@ import FormControl from '@mui/material/FormControl';
 import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import FeatureData from './featureData';
+import TenXSubscriptionPurchaseIntent from './tenXSubscriptionPurchaseIntent'
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -30,6 +31,7 @@ export default function TenXSubsDetails() {
 const location = useLocation();
 const navigate = useNavigate();
 const  id  = location?.state?.data;
+const [purchaseIntentCount, setPurchaseIntentCount] = useState(0);
 const [tenXSubs,setTenXSubs] = useState([]);
 const [portfolios,setPortfolios] = useState([]);
 const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -461,7 +463,7 @@ async function onEdit(e,formState){
                             >
                             {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                         </MDButton>
-                        <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/TenX Subscriptions")}}>
+                        <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/tenxsubscriptions")}}>
                             Cancel
                         </MDButton>
                         </>
@@ -471,7 +473,7 @@ async function onEdit(e,formState){
                         <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                             Edit
                         </MDButton>
-                        <MDButton variant="contained" color="info" size="small" onClick={()=>{(id || newObjectId) ? navigate("/TenX Subscriptions") : setIsSubmitted(false)}}>
+                        <MDButton variant="contained" color="info" size="small" onClick={()=>{(id || newObjectId) ? navigate("/tenxsubscriptions") : setIsSubmitted(false)}}>
                             Back
                         </MDButton>
                         </>
@@ -551,6 +553,12 @@ async function onEdit(e,formState){
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
                         <FeatureData updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
+                    </MDBox>
+                </Grid>}
+
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <TenXSubscriptionPurchaseIntent tenXSubscription={newObjectId ? newObjectId : id} purchaseIntentCount={purchaseIntentCount} setPurchaseIntentCount={setPurchaseIntentCount}/>
                     </MDBox>
                 </Grid>}
 

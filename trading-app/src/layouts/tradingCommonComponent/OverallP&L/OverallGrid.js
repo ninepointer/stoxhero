@@ -20,7 +20,7 @@ import { GrAnchor } from "react-icons/gr";
 // import DataTable from '../../../examples/Tables/DataTable';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
-import { userContext } from '../../../AuthContext';
+// import { userContext } from '../../../AuthContext';
 import MDButton from '../../../components/MDButton';
 import ExitPosition from './ExitPosition';
 import Buy from "../../tradingCommonComponent/BuyModel";
@@ -29,9 +29,11 @@ import OverallRow from './OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
+import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
+
 // import Button from '@mui/material/Button';
 
-function OverallGrid({ setIsGetStartedClicked, from}) {
+function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   //console.log("rendering in userPosition: overallPnl")
   const {render, setRender} = useContext(renderContext);
 
@@ -43,15 +45,6 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
     color: "#7b809a",
     opacity: 0.7,
     // padding: "50px"
-  }
-  let styleBottomRow = {
-    textAlign: "center", 
-    fontSize: ".75rem", 
-    color: "#003366", 
-    backgroundColor: "#CCCCCC", 
-    borderRadius: "5px", 
-    padding: "5px",  
-    fontWeight: "600",
   }
 
   
@@ -73,7 +66,8 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let rows = [];
-  let pnlEndPoint = from === "paperTrade" ? "paperTrade/pnl" : from === "algoTrader" && "infinityTrade/pnl";
+  // let pnlEndPoint = from === paperTrader ? `paperTrader/pnl` : from === infinityTrader && "infinityTrade/pnl" ;
+  let pnlEndPoint = from === paperTrader ? `paperTrader/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader && `tenX/${subscriptionId}/trade/pnl`;
 
 
     useEffect(()=>{
@@ -99,15 +93,7 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
 
       return () => abortController.abort();
     }, [render])
-  // }, [marketDetails.marketData, render])
 
-    // useEffect(() => {
-    //   return () => {
-    //       socket.emit('removeKey', socket.id);
-    //       socket.close();
-    //   }
-    // }, [])
-    //console.log("tradeData", tradeData)
 
     tradeData.map((subelem, index)=>{
       let obj = {};
@@ -124,10 +110,10 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
       totalTransactionCost += Number(subelem.brokerage);
       let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
 
-      from === "paperTrade" ? 
+      from === paperTrader ? 
       updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
       :
-      from === "algoTrader" &&
+      (from === infinityTrader || from === tenxTrader) &&
       updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
@@ -202,14 +188,14 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
         );
       }
       obj.exit = (
-        < ExitPosition from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
+        < ExitPosition subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
       );
       obj.buy = (
-        <Buy from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
+        <Buy subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>
       );
       
       obj.sell = (
-        <Sell from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
+        <Sell subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState}/>
       );
 
       obj.sellState = (
@@ -254,8 +240,6 @@ function OverallGrid({ setIsGetStartedClicked, from}) {
       newRows[index].sellState = true;
       rows = (newRows);
     };
-
-    // console.log("rows", rows)
 
   return (
     <Card>

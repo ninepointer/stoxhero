@@ -1,23 +1,16 @@
-// const HistoryInstrumentData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
-// const DailyPnlData = require("../models/InstrumentHistoricalData/DailyPnlDataSchema");
-// const MockTradeDataUser = require("../models/mock-trade/mockTradeUserSchema");
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
-const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
+const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const MockTradeCompany = require("../models/mock-trade/mockTradeCompanySchema")
 const MockTradeContest = require("../models/Contest/ContestTrade");
-
-// const Contest = require("../models/Contest/contestSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
-
 const UserDetail = require("../models/User/userDetailSchema");
-// const MarginAllocation = require('../models/marginAllocation/marginAllocationSchema');
 const axios = require("axios");
 const getKiteCred = require('../marketData/getKiteCred'); 
 const MarginCall = require('../models/marginAllocation/MarginCall');
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
-
+const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
 const ObjectId = require('mongodb').ObjectId;
 
 const { v4: uuidv4 } = require('uuid');
@@ -27,10 +20,6 @@ exports.fundCheck = async(req, res, next) => {
 
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity} = req.body;
-    // let stoxheroTrader;
-    console.log(req.user._id);
-    // const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
-    // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
     getKiteCred.getAccess().then(async (data)=>{
 
@@ -59,10 +48,6 @@ exports.fundCheck = async(req, res, next) => {
         }]
         let userFunds;
         try{
-            // if(req.user.isAlgoTrader && stoxheroTrader){
-            // } else{
-
-            // }
             const user = await UserDetail.findOne({_id: new ObjectId(req.user._id)});
             userFunds = user.fund;
 
@@ -301,7 +286,8 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             isOpposite = true;
         }
 
-
+        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
+        req.body.portfolioId = myPortfolios[0]._id;
         console.log(runningLots, userFunds)
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             return next();
@@ -368,7 +354,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
         let userNetPnl = pnlDetails[0]?.npnl;
 
         
-        const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
+        // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         let addPortfolioFund = 0;
         let flag = false;
         for(let i = 0; i < myPortfolios.length; i++){
@@ -414,6 +400,244 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                     });    
                     console.log("margincall saving")
                     await paperTrade.save();
+                }catch(e){
+                    console.log("error saving margin call", e);
+                }
+
+                //console.log("sending response from authorise trade");
+                return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
+            } 
+            else{
+                console.log("if user have enough funds")
+                return next();
+            }
+        }     
+    });
+}
+
+exports.fundCheckTenxTrader = async(req, res, next) => {
+
+    console.log("in fundCheckTenxTrader")
+    const {exchange, symbol, buyOrSell, variety,
+           Product, OrderType, Quantity, subscriptionId} = req.body;
+    
+
+    getKiteCred.getAccess().then(async (data)=>{
+
+        let userFunds;
+        let runningLots;
+        let date = new Date();
+        let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        todayDate = todayDate + "T00:00:00.000Z";
+        const today = new Date(todayDate);
+
+        let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
+        let headers = {
+            'X-Kite-Version':'3',
+            'Authorization': auth,
+            "content-type" : "application/json"
+        }
+        let orderData = [{
+            "exchange": exchange,
+            "tradingsymbol": symbol,
+            "transaction_type": buyOrSell,
+            "variety": variety,
+            "product": Product,
+            "order_type": OrderType,
+            "quantity": Quantity,
+            "price": 0,
+            "trigger_price": 0
+        }]
+
+        try{
+            runningLots = await TenXTrader.aggregate([
+                {
+                $match:
+                    {
+                        trade_time:{
+                            $gte: today
+                        },
+                        symbol: symbol,
+                        trader: req.user._id,
+                        status: "COMPLETE",
+                        subscriptionId: new ObjectId(subscriptionId)
+                    }
+                },
+                {
+                $group:
+                    {
+                    _id: {symbol: "$symbol"},
+                    runningLots: {
+                        $sum: {$toInt: "$Quantity"}
+                    }
+                    }
+                },
+            ])
+        } catch(e){
+            console.log("errro fetching pnl", e);
+        }
+
+        let transactionTypeRunningLot = runningLots[0]?.runningLots > 0 ? "BUY" : "SELL";
+        if(runningLots[0]?._id?.symbol !== symbol){
+            isSymbolMatch = false;
+        } 
+        if(Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots)){
+            isLesserQuantity = true;
+        }
+        if(transactionTypeRunningLot !== buyOrSell){
+            isOpposite = true;
+        }
+
+        const portfolioValue = await Subscription.aggregate([
+            {
+              $match: {
+                _id: new ObjectId(subscriptionId),
+              },
+            },
+            {
+              $lookup: {
+                from: "user-portfolios",
+                localField: "portfolio",
+                foreignField: "_id",
+                as: "portfolioData",
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  subscriptionId: "$_id",
+                  totalFund: {
+                    $arrayElemAt: [
+                      "$portfolioData.portfolioValue",
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                subscriptionId: "$_id.subscriptionId",
+                totalFund: "$_id.totalFund",
+              },
+            },
+        ])
+        userFunds = portfolioValue?.totalFund;
+        // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
+        // req.body.portfolioId = myPortfolios[0]._id;
+        console.log(runningLots, userFunds)
+        if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
+            return next();
+        }
+        let marginData;
+        let zerodhaMargin;
+
+        try{
+            marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, {headers : headers})
+            zerodhaMargin = marginData.data.data.orders[0].total;
+        }catch(e){
+            // console.log("error fetching zerodha margin", e);
+        } 
+
+        let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+        let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+        lastDayOfMonthDate = new Date(lastDayOfMonthDate);
+        firstDayOfMonthDate = new Date(firstDayOfMonthDate);
+
+        console.log(firstDayOfMonthDate, lastDayOfMonthDate);
+        let pnlDetails = await TenXTrader.aggregate([
+            {
+            $match:
+                {
+                    trade_time: {
+                        $gte: (firstDayOfMonthDate),
+                        $lte: (lastDayOfMonthDate)
+                        },
+                    trader: req.user._id,
+                    status: "COMPLETE",
+                },
+            },
+            {
+            $group:
+                {
+                    _id: {
+                        trader: "$trader",
+                        // trader: "$createdBy",
+                    },
+                    gpnl: {
+                        $sum: {
+                        $multiply: ["$amount", -1],
+                        },
+                    },
+                    brokerage: {
+                        $sum: {
+                        $toDouble: "$brokerage",
+                        },
+                    },
+                },
+            },
+            {
+            $addFields:
+                {
+                npnl: {
+                    $subtract: ["$gpnl", "$brokerage"],
+                },
+                },
+            },
+        ])
+
+        let userNetPnl = pnlDetails[0]?.npnl;
+
+        
+        // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
+        // let addPortfolioFund = 0;
+        // let flag = false;
+        // for(let i = 0; i < myPortfolios.length; i++){
+        //     let fund = myPortfolios[i].portfolioValue;
+        //     if(!flag && userNetPnl ? Number(fund + userNetPnl - zerodhaMargin) > 0 : Number(fund - zerodhaMargin) > 0){
+        //         userFunds = fund;
+        //         req.body.portfolioId = myPortfolios[i]._id;
+        //         break;
+        //     } else if (fund > 0){
+        //         flag = true;
+        //         addPortfolioFund += fund;
+        //         if(userNetPnl ? Number(addPortfolioFund + userNetPnl - zerodhaMargin) > 0 : Number(addPortfolioFund - zerodhaMargin) > 0){
+        //             userFunds = addPortfolioFund;
+        //             req.body.portfolioId = myPortfolios[i-1]._id;
+        //         }
+        //     }
+        // }
+
+        // 20 15
+        // 10 15 -->2nd 50
+        // 0  15
+        // console.log("portfolio", req.body.portfolioId)
+        console.log( userFunds , userNetPnl , zerodhaMargin)
+        console.log((userFunds + userNetPnl - zerodhaMargin))
+
+        if(Number(userFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
+            console.log("user wants square off")
+            return next();
+        } else{
+            console.log("in else")
+            if(userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0){
+                let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
+                     instrumentToken, trader, order_id} = req.body;
+                
+                try{
+
+                    const tenXTrade = new TenXTrader({
+                        status:"REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
+                        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                        order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id, 
+                        trader: trader, amount: null, trade_time: new Date()
+                        
+                    });    
+                    console.log("margincall saving")
+                    await tenXTrade.save();
                 }catch(e){
                     console.log("error saving margin call", e);
                 }

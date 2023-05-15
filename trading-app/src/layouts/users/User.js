@@ -78,11 +78,11 @@ const User = () => {
       const dojWeekNumber = getWeekNumber(new Date(elem.joining_date))[1];
       const statuscolor = elem.status == "Active" ? "success" : "error"
   
-      activeusers.edit = (
-          <MDButton variant="Contained" color="info" fontWeight="medium">
-            <UserEditModel data={activeData} id={elem._id} Render={{setReRender, reRender}}/>
-          </MDButton>
-        );
+      // activeusers.edit = (
+      //     <MDButton variant="Contained" color="info" fontWeight="medium">
+      //       <UserEditModel data={activeData} id={elem._id} Render={{setReRender, reRender}}/>
+      //     </MDButton>
+      //   );
         activeusers.employeeid = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
             {elem.employeeid}
@@ -90,14 +90,14 @@ const User = () => {
         );
       activeusers.name = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.name}
+          {elem.first_name} {elem.last_name}
         </MDTypography>
       );
-      activeusers.cohort = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.cohort}
-        </MDTypography>
-      );
+      // activeusers.cohort = (
+      //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      //     {elem.cohort}
+      //   </MDTypography>
+      // );
       activeusers.designation = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
           {elem.designation}
@@ -118,29 +118,29 @@ const User = () => {
           {elem.gender}
         </MDTypography>
       );
-      activeusers.tradingexp = (
-        <MDTypography component="a" variant="caption" color={statuscolor} fontWeight="medium">
-          {elem.trading_exp}
-        </MDTypography>
-      );
-      activeusers.location = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.location}
-        </MDTypography>
-      );
+      // activeusers.tradingexp = (
+      //   <MDTypography component="a" variant="caption" color={statuscolor} fontWeight="medium">
+      //     {elem.trading_exp}
+      //   </MDTypography>
+      // );
+      // activeusers.location = (
+      //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      //     {elem.location}
+      //   </MDTypography>
+      // );
       activeusers.doj = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.joining_date}
+          {new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
         </MDTypography>
       );
-      activeusers.dojweek = (
-        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {dojWeekNumber}
-        </MDTypography>
-      );
+      // activeusers.dojweek = (
+      //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      //     {dojWeekNumber}
+      //   </MDTypography>
+      // );
       activeusers.role = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {elem.role}
+          {elem.role.roleName}
         </MDTypography>
       );
       activeusers.fund = (
