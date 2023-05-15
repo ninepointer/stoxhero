@@ -8,7 +8,7 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-import ActiveCampaigns from '../data/activeCampaigns';
+import Campaigns from '../data/activeCampaigns';
 
 //data
 
@@ -42,7 +42,7 @@ export default function LabTabs() {
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Active Campaigns" value="1" />
             <Tab label="Draft Campaigns" value="2" />
-            <Tab label="Inactive Campaigns" value="3" />
+            <Tab label="Cancelled Campaigns" value="3" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -52,7 +52,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <ActiveCampaigns/>
+          <Campaigns status="Live"/>
    
           }
           </TabPanel>
@@ -62,8 +62,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-        //   <TradingPortfolioCard/>
-        <></>
+          <Campaigns status="Draft"/>
           }
         </TabPanel>
         <TabPanel value="3">
@@ -72,8 +71,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-        //   <InactivePortfolioCard/>
-        <></>
+          <Campaigns status="Cancelled"/>
           }
         </TabPanel>
       </TabContext>
