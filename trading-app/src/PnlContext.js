@@ -11,8 +11,8 @@ export const NetPnlProvider = ({ children }) => {
   });
   const [contestNetPnl, setContestNetPnl] = useState(0);
   const [contestTotalRunningLots, setContestTotalRunningLots] = useState(0);
-
-  const [infinityNetPnl, setInfinityNetPnl] = useState(0);
+  const [pnlData, setPnlData] = useState([]);
+  // const [infinityNetPnl, setInfinityNetPnl] = useState(0);
   // const [contestTotalRunningLots, setContestTotalRunningLots] = useState(0);
 
 
@@ -29,13 +29,13 @@ export const NetPnlProvider = ({ children }) => {
     setContestTotalRunningLots(contestRunningLot);
   };
 
-  const updateInfinityNetPnl = (npnl) => {
-    setInfinityNetPnl(npnl);
-    // setContestTotalRunningLots(contestRunningLot);
-  };
+  // const updateInfinityNetPnl = (npnl) => {
+  //   setInfinityNetPnl(npnl);
+  //   // setContestTotalRunningLots(contestRunningLot);
+  // };updateInfinityNetPnl
 
   return (
-    <NetPnlContext.Provider value={{ netPnl,totalRunningLots, updateNetPnl, updateContestNetPnl, updateInfinityNetPnl, infinityNetPnl, contestNetPnl, contestTotalRunningLots, grossPnlAndBrokerage }}>
+    <NetPnlContext.Provider value={{ pnlData, setPnlData, netPnl,totalRunningLots, updateNetPnl, updateContestNetPnl, contestNetPnl, contestTotalRunningLots, grossPnlAndBrokerage }}>
       {children}
     </NetPnlContext.Provider>
   );

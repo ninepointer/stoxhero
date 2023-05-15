@@ -22,33 +22,8 @@ export default function TenXTrading({socket, subscriptionId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [yesterdayData, setyesterdayData] = useState({});
   const pnl = useContext(NetPnlContext);
-  const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
-
-  //   console.log("fund details in useeffect")
-  //   // axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
-  //   //   withCredentials: true,
-  //   //   headers: {
-  //   //       Accept: "application/json",
-  //   //       "Content-Type": "application/json",
-  //   //       "Access-Control-Allow-Credentials": true
-  //   //   }}
-  //   //   ).then((res)=>{
-  //   //     console.log("fund details", res.data.data)
-  //   //     setyesterdayData(res.data.data);
-  //   //   })
-
-  //     axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`,{
-  //       withCredentials: true,
-  //       headers: {
-  //           Accept: "application/json",
-  //           "Content-Type": "application/json",
-  //           "Access-Control-Allow-Credentials": true
-  //       }}
-  //       ).then((res)=>{
-  //         setyesterdayData(res.data.data);
-  //       })
-      
-  // }, []);
+  const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+  const [availbaleMargin, setAvailbleMargin] = useState([]);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;
@@ -84,12 +59,13 @@ export default function TenXTrading({socket, subscriptionId}) {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={tenxTrader}
       subscriptionId={subscriptionId}
+      setAvailbleMargin={setAvailbleMargin}
     />;
   }, [handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
 
   // let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
-  let fundChangePer = openingBalance ? ((openingBalance+pnl.infinityNetPnl - openingBalance)*100/openingBalance) : 0;
+  let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;
 
   console.log("fundDetail", fundChangePer, openingBalance)
   return (
@@ -110,8 +86,8 @@ export default function TenXTrading({socket, subscriptionId}) {
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(openingBalance+pnl.infinityNetPnl) >= 0.00 ? "₹" + ((openingBalance+pnl.infinityNetPnl).toFixed(0)): "₹" + ((-(openingBalance+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
-                    <MDAvatar src={openingBalance+pnl.infinityNetPnl - openingBalance+pnl.infinityNetPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
+                    <MDTypography fontSize={10}>{(openingBalance+pnl.netPnl) >= 0.00 ? "₹" + ((openingBalance+pnl.netPnl).toFixed(0)): "₹" + ((-(openingBalance+pnl.netPnl)).toFixed(0))}</MDTypography>
+                    <MDAvatar src={openingBalance+pnl.netPnl - openingBalance+pnl.netPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
                   </MDBox>
                 </Grid>
               
@@ -143,7 +119,7 @@ export default function TenXTrading({socket, subscriptionId}) {
                 </Grid>
               
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.infinityNetPnl >= 0.00 ? "+₹" + (pnl.infinityNetPnl.toFixed(2)): "-₹" + ((-pnl.infinityNetPnl).toFixed(2))}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)): "-₹" + ((-pnl.netPnl).toFixed(2))}</MDTypography>
                 </Grid>
               </Grid>
             
@@ -169,7 +145,7 @@ export default function TenXTrading({socket, subscriptionId}) {
           {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
-          <TenXTMargin subscriptionId={subscriptionId} setyesterdayData={setyesterdayData}/>
+          <TenXTMargin availbaleMargin={availbaleMargin} subscriptionId={subscriptionId} setyesterdayData={setyesterdayData}/>
         </Grid>
       </Grid>
 
