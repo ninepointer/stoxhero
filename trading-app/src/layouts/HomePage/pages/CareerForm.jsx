@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
+import { CircularProgress, formLabelClasses } from "@mui/material";
 import { Grid, Input, TextField } from '@mui/material'
 import theme from '../utils/theme/index';
 import { ThemeProvider } from 'styled-components';
@@ -24,6 +25,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 const CareerForm = () => {
   const [submitted,setSubmitted] = useState(false)
   const [saving,setSaving] = useState(false)
+  const [creating,setCreating] = useState(false)
   const [otpGenerated,setOTPGenerated] = useState(false);
   const location = useLocation();
   const career = location?.state?.data;
@@ -49,7 +51,7 @@ const CareerForm = () => {
 
   async function confirmOTP(){
     console.log("Inside confirm OTP code")
- 
+    setCreating(true);
     setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
 
     const { 
@@ -90,12 +92,13 @@ const CareerForm = () => {
 
   const data = await res.json();
     console.log(data, res.status);
-    if(res.status === 400 || res.status === 200){ 
+    if(res.status === 201){ 
         // window.alert(data.message);
         // setOTPGenerated(true);
         // setTimerActive(true);
         // setResendTimer(30); 
-        setSubmitted(true)
+        setSubmitted(true);
+        setCreating(false);
         return openSuccessSB("Application Submitted",data.info,"SUCCESS");  
     }else{
         // console.log("openInfoBS Called")
@@ -357,8 +360,13 @@ const CareerForm = () => {
 
                     {otpGenerated && <Grid item xs={12} md={6} lg={12}>
                     <MDBox mb={1} display="flex" justifyContent="space-around">
-                      <MDButton onClick={()=>{confirmOTP()}} variant="gradient" color="info">
-                        Confirm
+                      <MDButton 
+                        onClick={()=>{confirmOTP()}} 
+                        variant="gradient" 
+                        color="info"
+                        disabled={creating} 
+                      >
+                      {creating ? <CircularProgress size={20} color="inherit" /> : "Confirm"}
                       </MDButton>
                     </MDBox>
                     </Grid>}
@@ -380,7 +388,7 @@ const CareerForm = () => {
             }
 
         </MDBox>
-        <MDBox bgColor="black" sx={{marginTop:-2}}>
+        <MDBox bgColor="black" sx={{marginTop:2}}>
 
         <Footer/>
         </MDBox>

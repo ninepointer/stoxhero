@@ -48,6 +48,12 @@ exports.getCampaigns = async(req, res, next)=>{
     res.status(201).json({message: 'success', data:campaign});
 }
 
+exports.getCampaignsByStatus = async(req, res, next)=>{
+  const {status} = req.params;
+  const campaign = await Campaign.find({status:status}).select('campaignName description campaignFor campaignLink campaignCost campaignCode status users')
+  res.status(201).json({message: 'success', data:campaign});
+}
+
 exports.getCampaign = async (req,res,next) => {
   console.log("inside getCampaign")
   const {id} = req.params;

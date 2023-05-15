@@ -19,9 +19,9 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
-const {autoTradeContest} = require('./controllers/contestTradeController');
+// const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
-const {deletePnlKey} = require("./controllers/deletePnlKey");
+const {autoExpireSubscription} = require("./controllers/tenXTradeController");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -197,7 +197,7 @@ let weekDay = date.getDay();
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
-        // const autotrade = nodeCron.schedule(`45-59/1 3-9 * * ${weekDay}`, autoTradeWrapper);
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
     }
   }
 

@@ -1,5 +1,3 @@
-
-
 import React, {useEffect, useState, useContext} from 'react'
 import Card from "@mui/material/Card";
 import axios from "axios";
@@ -8,19 +6,9 @@ import { Typography } from "@mui/material";
 import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 import { Tooltip } from '@mui/material';
-
-// Material Dashboard 2 React components
-
 import { GrAnchor } from "react-icons/gr";
-
-
-// Data
-
-// import OverallPL from './Overall P&L';
-// import DataTable from '../../../examples/Tables/DataTable';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
-// import { userContext } from '../../../AuthContext';
 import MDButton from '../../../components/MDButton';
 import ExitPosition from './ExitPosition';
 import Buy from "../../tradingCommonComponent/BuyModel";
@@ -31,10 +19,8 @@ import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
 
-// import Button from '@mui/material/Button';
 
 function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
-  //console.log("rendering in userPosition: overallPnl")
   const {render, setRender} = useContext(renderContext);
 
   console.log("rendering : overallgrid")
@@ -44,18 +30,15 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
     fontWeight: "800",
     color: "#7b809a",
     opacity: 0.7,
-    // padding: "50px"
   }
 
   
-  const { updateInfinityNetPnl } = useContext(NetPnlContext);
-  const { updateNetPnl } = useContext(NetPnlContext);
+  const { updateNetPnl , setPnlData} = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
 
-  // const getDetails = useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
@@ -66,9 +49,9 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let rows = [];
-  // let pnlEndPoint = from === paperTrader ? `paperTrader/pnl` : from === infinityTrader && "infinityTrade/pnl" ;
-  let pnlEndPoint = from === paperTrader ? `paperTrader/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader && `tenX/${subscriptionId}/trade/pnl`;
+  let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader && `tenX/${subscriptionId}/trade/pnl`;
 
+  console.log("pnlEndPoint", pnlEndPoint)
 
     useEffect(()=>{
 
@@ -87,6 +70,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
            },
            signal: signal }
            );
+           setPnlData(data.data);
            setTradeData(data.data);
 
       })();
@@ -110,11 +94,11 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
       totalTransactionCost += Number(subelem.brokerage);
       let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
 
-      from === paperTrader ? 
+      // from === paperTrader ? 
       updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
-      :
-      (from === infinityTrader || from === tenxTrader) &&
-      updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
+      // :
+      // (from === infinityTrader || from === tenxTrader) &&
+      // updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
       const instrumentcolor = subelem._id.symbol?.slice(-2) == "CE" ? "success" : "error"
