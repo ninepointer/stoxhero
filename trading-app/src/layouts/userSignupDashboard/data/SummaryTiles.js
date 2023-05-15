@@ -162,6 +162,82 @@ export default function LabTabs() {
               </Grid>
           </MDBox>
         </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+              <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                <Grid item xs={12} md={6} lg={3}>
+                  <MDAvatar src={todaysignup} size="sm"/>
+                </Grid>
+           
+                <Grid item xs={12} md={6} lg={9}>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Referrals/Campaigns</MDTypography>
+                  <MDBox display="flex">
+                    <MDTypography fontSize={13}>{yesterdayCount}/{yesterdayCount} signups today</MDTypography>
+                  </MDBox>
+                </Grid>
+
+              </Grid>
+          </MDBox>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+              <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                <Grid item xs={12} md={6} lg={3}>
+                  <MDAvatar src={todaysignup} size="sm"/>
+                </Grid>
+           
+                <Grid item xs={12} md={6} lg={9}>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Referrals/Campaigns</MDTypography>
+                  <MDBox display="flex">
+                    <MDTypography fontSize={13}>{yesterdayCount}/{yesterdayCount} signups yesterday</MDTypography>
+                  </MDBox>
+                </Grid>
+
+              </Grid>
+          </MDBox>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+              <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                <Grid item xs={12} md={6} lg={3}>
+                  <MDAvatar src={todaysignup} size="sm"/>
+                </Grid>
+           
+                <Grid item xs={12} md={6} lg={9}>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Referrals/Campaigns</MDTypography>
+                  <MDBox display="flex">
+                    <MDTypography fontSize={13}>{yesterdayCount}/{yesterdayCount} signups this month</MDTypography>
+                  </MDBox>
+                </Grid>
+
+              </Grid>
+          </MDBox>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+              <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                <Grid item xs={12} md={6} lg={3}>
+                  <MDAvatar src={todaysignup} size="sm"/>
+                </Grid>
+           
+                <Grid item xs={12} md={6} lg={9}>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Referrals/Campaigns</MDTypography>
+                  <MDBox display="flex">
+                    <MDTypography fontSize={13}>{yesterdayCount}/{yesterdayCount} total signups</MDTypography>
+                  </MDBox>
+                </Grid>
+
+              </Grid>
+          </MDBox>
+        </Grid>
     
     </Grid>
 
@@ -182,10 +258,10 @@ export default function LabTabs() {
         <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By/Campaign</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
+        <MDTypography color="light" fontSize={13} fontWeight="bold">SignUp Method</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Time</MDTypography>
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
         </Grid>
     </Grid>
 
@@ -206,10 +282,10 @@ export default function LabTabs() {
                     <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : elem?.campaign?.campaignName}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</MDTypography>
+                    <MDTypography color="light" fontSize={13}>{elem?.creationProcess}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color='light' fontSize={13}>{(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color='light' fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
             )
@@ -232,10 +308,10 @@ export default function LabTabs() {
         <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
+        <MDTypography color="light" fontSize={13} fontWeight="bold">SignUp Method</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Time</MDTypography>
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
         </Grid>
     </Grid>
 
@@ -256,10 +332,10 @@ export default function LabTabs() {
                     <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : elem?.campaign?.campaignName}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</MDTypography>
+                    <MDTypography color="light" fontSize={13}>{elem?.creationProcess}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color='light' fontSize={13}>{(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color='light' fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
             )
@@ -282,10 +358,10 @@ export default function LabTabs() {
         <MDTypography color="light" fontSize={13} fontWeight="bold">Referred By</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
+        <MDTypography color="light" fontSize={13} fontWeight="bold">SignUp Method</MDTypography>
         </Grid>
         <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Time</MDTypography>
+        <MDTypography color="light" fontSize={13} fontWeight="bold">Joining Date</MDTypography>
         </Grid>
     </Grid>
 
@@ -306,10 +382,10 @@ export default function LabTabs() {
                     <MDTypography color="light" fontSize={13}>{elem?.referredBy ? (elem?.referredBy?.first_name + ' ' + elem?.referredBy?.last_name) : elem?.campaign?.campaignName}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</MDTypography>
+                    <MDTypography color="light" fontSize={13}>{elem?.creationProcess}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color='light' fontSize={13}>{(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color='light' fontSize={13}>{new Date(elem?.joining_date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joining_date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
             )
