@@ -22,7 +22,9 @@ const client = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {autoExpireSubscription} = require("./controllers/tenXTradeController");
-
+const path = require('path');
+const {DummyMarketData} = require('./marketData/dummyMarketData');
+require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const hpp = require("hpp")
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000, // 1 minutes
@@ -39,9 +41,7 @@ app.use(xssClean());
 app.use(hpp());
 
 // issue fix --> if enviournment variable path is not work
-const path = require('path');
-const {DummyMarketData} = require('./marketData/dummyMarketData');
-require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
+
 client.connect().then(()=>{})
 console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
