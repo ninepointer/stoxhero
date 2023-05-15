@@ -140,6 +140,7 @@ exports.overallPnlCompanySide = async (req, res, next) => {
   res.status(201).json({message: "pnl received", data: pnlDetails});
 }
 
+
 exports.myTodaysTrade = async (req, res, next) => {
   
   // const id = req.params.id

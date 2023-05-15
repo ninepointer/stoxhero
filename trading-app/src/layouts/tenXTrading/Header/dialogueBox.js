@@ -213,7 +213,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
   return (
    
     <>
-        {isSubscribed ?
+        {/* {isSubscribed ?
         <MDBox>
         <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
@@ -222,10 +222,11 @@ export default function Dialogue({amount, name, id, walletCash}) {
         <MDBox>
         <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`)}} size='small'>Start Trading</MDButton>
         </MDBox>
-        :
+        : */}
         <MDBox>
         <MDButton variant="contained" color="dark" onClick={captureIntent} size='small'>Unlock</MDButton>
-        </MDBox>}
+        </MDBox>
+        {/* } */}
 
         <Dialog
             open={open}
@@ -234,7 +235,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-            {!messege.thanksMessege ?
+            {/* {!messege.thanksMessege ?
                 <>
                     Thanks for showing your interest in our subscription!
                     <br />
@@ -242,22 +243,25 @@ export default function Dialogue({amount, name, id, walletCash}) {
                 </>
                 :
                 "Thanks for showing your interest in our subscription!"
-            }
+            } */}
+                Thanks for showing your interest in our subscription!
             </DialogTitle>
             <DialogContent>
             <DialogContentText id="alert-dialog-description">
-                {messege.thanksMessege ? messege.thanksMessege
+                {/* {messege.thanksMessege ? messege.thanksMessege
                 :
                 messege.lowBalanceMessage ? messege.lowBalanceMessage
                 :
                 "Purchase subscription using your wallet money"
-                }
+                } */}
+
+                Our team is working on it to get this live as soon as possible.
             </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button onClick={buySubscription} autoFocus>
+            {/* <Button onClick={buySubscription} autoFocus>
                 Buy
-            </Button>
+            </Button> */}
             <Button onClick={handleClose} autoFocus>
                 Close
             </Button>
