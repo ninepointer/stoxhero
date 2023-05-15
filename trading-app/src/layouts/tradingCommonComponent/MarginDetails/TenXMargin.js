@@ -8,12 +8,22 @@ import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from '../../../renderContext';
 
 const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
-  const { infinityNetPnl } = useContext(NetPnlContext);
+  const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
   // const [yesterdayData, setyesterdayData] = useState({});
   const {render} = useContext(renderContext);
 
+ 
+
+  const todayAmount = pnlData.reduce((total, acc) => {
+    if (acc.lots !== 0) {
+      return total + Math.abs(acc.amount);
+    }
+    return total; // return the accumulator if the condition is false
+  }, 0);
+
+  console.log("margin", todayAmount)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`,{
@@ -30,19 +40,19 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
       
   }, [render]);
 
-  console.log("fundDetail", Number(infinityNetPnl?.toFixed(0)), fundDetail?.openingBalance)
+  console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail?.openingBalance)
 
   let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
 
-  let runningPnl = Number(infinityNetPnl?.toFixed(0));
+  let runningPnl = Number(netPnl?.toFixed(0));
   let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
   let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  let availableMargin = openingBalance ? Number(openingBalance)+runningPnl : fundDetail?.totalFund;
+  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)+runningPnl-todayAmount) : fundDetail?.totalFund;
   let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
   let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin)?.toLocaleString() : "-₹" + (-Number(usedMargin))?.toLocaleString()
   
-  console.log("checkmargin", infinityNetPnl, fundDetail, fundDetail)
+  console.log("checkmargin", netPnl, fundDetail, fundDetail)
     
     return (<>
   

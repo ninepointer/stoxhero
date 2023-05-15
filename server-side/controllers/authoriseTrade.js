@@ -523,10 +523,12 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
               },
             },
         ])
-        userFunds = portfolioValue?.totalFund;
+        console.log(portfolioValue)
+        userFunds = portfolioValue[0]?.totalFund;
         // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         // req.body.portfolioId = myPortfolios[0]._id;
         console.log(runningLots, userFunds)
+        console.log((runningLots[0]?._id?.symbol === symbol) , Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) , (transactionTypeRunningLot !== buyOrSell));
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             return next();
         }
@@ -558,6 +560,7 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
                         },
                     trader: req.user._id,
                     status: "COMPLETE",
+                    subscriptionId: new ObjectId(subscriptionId)
                 },
             },
             {
@@ -591,30 +594,6 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
 
         let userNetPnl = pnlDetails[0]?.npnl;
 
-        
-        // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
-        // let addPortfolioFund = 0;
-        // let flag = false;
-        // for(let i = 0; i < myPortfolios.length; i++){
-        //     let fund = myPortfolios[i].portfolioValue;
-        //     if(!flag && userNetPnl ? Number(fund + userNetPnl - zerodhaMargin) > 0 : Number(fund - zerodhaMargin) > 0){
-        //         userFunds = fund;
-        //         req.body.portfolioId = myPortfolios[i]._id;
-        //         break;
-        //     } else if (fund > 0){
-        //         flag = true;
-        //         addPortfolioFund += fund;
-        //         if(userNetPnl ? Number(addPortfolioFund + userNetPnl - zerodhaMargin) > 0 : Number(addPortfolioFund - zerodhaMargin) > 0){
-        //             userFunds = addPortfolioFund;
-        //             req.body.portfolioId = myPortfolios[i-1]._id;
-        //         }
-        //     }
-        // }
-
-        // 20 15
-        // 10 15 -->2nd 50
-        // 0  15
-        // console.log("portfolio", req.body.portfolioId)
         console.log( userFunds , userNetPnl , zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
 
