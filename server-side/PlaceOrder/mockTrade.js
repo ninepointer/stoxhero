@@ -205,7 +205,7 @@ exports.mockTrade = async (req, res) => {
                 
             });
     
-            //console.log("mockTradeDetails", paperTrade);
+            console.log("mockTradeDetails", paperTrade);
             paperTrade.save().then(async ()=>{
                 console.log("sending response");
                 if(await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
