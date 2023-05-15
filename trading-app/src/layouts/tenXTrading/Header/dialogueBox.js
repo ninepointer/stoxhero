@@ -245,27 +245,38 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
                   </MDBox>
 
-                  <MDBox border="1px solid red" borderRadius="10px" mt={5}>
 
-                    <MDBox>
                       {(walletCash < amount) &&
+                      <MDBox border="1px solid red" borderRadius="10px" mt={5} p={1}>
+
+                      <MDBox>
                       <MDBox display="flex" flexDirection="column" textAlign="center" justifyContent="center" sx={{width:{xs:"95%"}}} >
 
                         <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >Your wallet balance is low kindly refer more users on this platform to buy this subscription.</Typography>
-                        <br />
-                        {/* <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >  {`Your wallet money is INR ${walletCash}`} </Typography> */}
+                        <MDBox display='flex' 
+                            alignItems='center' justifyContent='center'
+
+                            style={{
+                                // backgroundColor:'#c3c3c3', 
+                                padding: '10px',
+                                borderRadius: '10px'
+                            }}
+                        >
+                        <MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
+                        <MDButton variant='text' color='black' padding={0} margin={0} >
+                            <CopyToClipboard text = {copyText} onCopy={handleCopy}>
+                                <BiCopy/>
+                            </CopyToClipboard>
+                        </MDButton>
+                        </MDBox>
                     
                       </MDBox>
-                    //  :
-                    //  <Typography>
-
-                    //    "Thanks for showing your interest in our subscription!"
-                    //  </Typography>
-                    
-                  }
-                    </MDBox>
+                      </MDBox>
                 
-                  </MDBox>
+                   </MDBox>
+                    
+                    }
+
 
                 </MDBox>
               </>
@@ -285,3 +296,22 @@ export default function Dialogue({amount, name, id, walletCash}) {
     </>
   );
 }
+
+{/* <>
+<MDTypography>Your wallet balance is low refer more user to plateform for buy this subscription.</MDTypography>
+<MDBox display='flex' 
+    alignItems='center' 
+    style={{
+        backgroundColor:'#c3c3c3', 
+        padding: '10px',
+        borderRadius: '10px'
+    }}
+>
+<MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
+<MDButton variant='text' color='black' padding={0} margin={0} >
+    <CopyToClipboard text = {copyText} onCopy={handleCopy}>
+        <BiCopy/>
+    </CopyToClipboard>
+</MDButton>
+</MDBox>
+</> */}
