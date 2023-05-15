@@ -36,7 +36,7 @@ router.post("/paperTrade", authentication, authoizeTrade.fundCheckPaperTrade,  a
     
 })
 //authoizeTrade.fundCheckPaperTrade
-router.post("/tenxPlacingOrder", authentication,  async (req, res)=>{
+router.post("/tenxPlacingOrder", authentication, authoizeTrade.fundCheckTenxTrader,  async (req, res)=>{
 
     console.log("in tenxPlacingOrder trade")
     const setting = await Setting.find();

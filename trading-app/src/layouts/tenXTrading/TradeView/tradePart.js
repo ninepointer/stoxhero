@@ -1,6 +1,6 @@
-import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
-import axios from "axios";
-import { CircularProgress, Grid, Divider } from '@mui/material';
+import React, { useState, useCallback, useMemo, useContext} from 'react';
+// import axios from "axios";
+import { Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
@@ -15,7 +15,7 @@ import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
-import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
+import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { tenxTrader } from '../../../variables';
 
 export default function TenXTrading({socket, subscriptionId}) {
@@ -24,24 +24,31 @@ export default function TenXTrading({socket, subscriptionId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
 
+  //   console.log("fund details in useeffect")
+  //   // axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
+  //   //   withCredentials: true,
+  //   //   headers: {
+  //   //       Accept: "application/json",
+  //   //       "Content-Type": "application/json",
+  //   //       "Access-Control-Allow-Credentials": true
+  //   //   }}
+  //   //   ).then((res)=>{
+  //   //     console.log("fund details", res.data.data)
+  //   //     setyesterdayData(res.data.data);
+  //   //   })
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-  useEffect(() => {
-    console.log("fund details in useeffect")
-    axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      }}
-      ).then((res)=>{
-        console.log("fund details", res.data.data)
-        setyesterdayData(res.data.data);
-      })
+  //     axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`,{
+  //       withCredentials: true,
+  //       headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //           "Access-Control-Allow-Credentials": true
+  //       }}
+  //       ).then((res)=>{
+  //         setyesterdayData(res.data.data);
+  //       })
       
-  }, []);
+  // }, []);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;
@@ -80,8 +87,8 @@ export default function TenXTrading({socket, subscriptionId}) {
     />;
   }, [handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
 
-  let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
-  let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
+  // let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
+  let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.infinityNetPnl - openingBalance)*100/openingBalance) : 0;
 
   console.log("fundDetail", fundChangePer, openingBalance)
@@ -157,15 +164,12 @@ export default function TenXTrading({socket, subscriptionId}) {
           {/* <WatchList/> */}
           {memoizedInstrumentDetails}
         </Grid>
-        {/* <Grid item xs={12} md={6} lg={3}>
-          <BuySell/>
-        </Grid> */}
+
         <Grid item xs={12} md={6} lg={12}>
-          {/* <OverallPnl/> */}
           {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
-          <InfinityMargin />
+          <TenXTMargin subscriptionId={subscriptionId} setyesterdayData={setyesterdayData}/>
         </Grid>
       </Grid>
 

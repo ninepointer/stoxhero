@@ -20,7 +20,7 @@ import { GrAnchor } from "react-icons/gr";
 // import DataTable from '../../../examples/Tables/DataTable';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
-import { userContext } from '../../../AuthContext';
+// import { userContext } from '../../../AuthContext';
 import MDButton from '../../../components/MDButton';
 import ExitPosition from './ExitPosition';
 import Buy from "../../tradingCommonComponent/BuyModel";
@@ -113,7 +113,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
       from === paperTrader ? 
       updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
       :
-      from === infinityTrader &&
+      (from === infinityTrader || from === tenxTrader) &&
       updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
