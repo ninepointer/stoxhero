@@ -8,10 +8,11 @@ import Card from "@mui/material/Card";
 import axios from "axios";
 
 
-export default function Applicants({career, applicationCount, setApplicationCount}) {
+export default function Applicants({career}) {
     console.log("Career", career)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [careerApplications,setCareerApplications] = React.useState([]);
+    const [applicationCount,setApplicationCount] = useState(0);
     async function getCareerApplications(){
         let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/${career}`,{
             withCredentials: true,
@@ -36,7 +37,7 @@ export default function Applicants({career, applicationCount, setApplicationCoun
 
     useEffect(()=>{
         getCareerApplications();
-    },[career])
+    },[])
 
     let columns = [
         { Header: "#", accessor: "index", align: "center" },

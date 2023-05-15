@@ -30,9 +30,9 @@ export default function LabTabs() {
     <MDButton 
     variant="contained" 
     color="success" 
-    fontSize="small"
+    size="small"
     component={Link}
-    to='/Career Details'
+    to='/careerdetails'
     >
         Create Career
     </MDButton>

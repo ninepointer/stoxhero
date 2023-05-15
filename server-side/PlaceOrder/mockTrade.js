@@ -1,11 +1,11 @@
-const axios = require("axios")
+// const axios = require("axios")
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const singleLivePrice = require('../marketData/sigleLivePrice');
-const StoxheroTrader = require("../models/mock-trade/stoxheroTrader");
+const TenxTrader = require("../models/mock-trade/tenXTraderSchema");
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
-const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
+// const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
 const client = require('../marketData/redisClient');
 const mongoose = require('mongoose')
@@ -21,18 +21,19 @@ exports.mockTrade = async (req, res) => {
     // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
 
     console.log("caseStudy 8: mocktrade")
-    let stoxheroTrader ;
-    const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
-    const MockTradeDetails = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
+    // let stoxheroTrader ;
+    // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
+    // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
-        validity, variety, algoBoxId, order_id, instrumentToken,  
+    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
+        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
 
       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
 
+    //   console.log("req body", req.body)
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
         //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
@@ -115,8 +116,8 @@ exports.mockTrade = async (req, res) => {
         const session = await mongoose.startSession();
         try{
 
-            const mockCompany = await MockTradeDetails.findOne({order_id : order_id});
-            const mockInfintyTrader = await AlgoTrader.findOne({order_id : order_id});
+            const mockCompany = await InfinityTradeCompany.findOne({order_id : order_id});
+            const mockInfintyTrader = await InfinityTrader.findOne({order_id : order_id});
             if((mockCompany || mockInfintyTrader) && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
                 return res.status(422).json({message : "data already exist", error: "Fail to trade"})
             }
@@ -140,8 +141,8 @@ exports.mockTrade = async (req, res) => {
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
             }
     
-            const mockTradeDetails = await MockTradeDetails.create([companyDoc], { session });
-            const algoTrader = await AlgoTrader.create([traderDoc], { session });
+            const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
+            const algoTrader = await InfinityTrader.create([traderDoc], { session });
             console.log(algoTrader, mockTradeDetails)
             if(await client.exists(`${req.user._id.toString()} overallpnl`)){
                 let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
@@ -173,8 +174,11 @@ exports.mockTrade = async (req, res) => {
                 }
                 await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
             }
+
+            await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
             // Commit the transaction
             await session.commitTransaction();
+            io.emit("updatePnl", mockTradeDetails)
             res.status(201).json({status: 'Complete', message: 'COMPLETE'});
 
         } catch(err){
@@ -185,63 +189,6 @@ exports.mockTrade = async (req, res) => {
         // End the session
             session.endSession();
         }
-        // MockTradeDetails.findOne({order_id : order_id})
-        // .then((dateExist)=>{
-        //     if(dateExist && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
-        //         console.log("data already in mock company", checkingMultipleAlgoFlag);
-        //         return res.status(422).json({error : "date already exist..."})
-        //     }
-    
-        //     const mockTradeDetails = new MockTradeDetails({
-        //         status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
-        //         Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
-        //         symbol: realSymbol, placed_by: "ninepointer", algoBox:algoBoxId, order_id, 
-        //         instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
-        //         trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
-        //         trade_time:trade_time,
-                
-        //     });
-    
-        //     // console.log("mockTradeDetails comapny", mockTradeDetails);
-        //     console.log("caseStudy 10: company mock")
-        //     mockTradeDetails.save().then(()=>{
-                
-        //         io.emit("updatePnl", mockTradeDetails)
-        //     }).catch(err => {console.log(err, "fail")});
-            
-        // }).catch(err => {console.log(err, "fail")});
-    
-        // AlgoTrader.findOne({order_id : order_id})
-        // .then((dateExist)=>{
-        //     if(dateExist){
-        //         //console.log("data already");
-        //         return res.status(422).json({error : "date already exist..."})
-        //     }
-    
-        //     const algoTrader = new AlgoTrader({
-        //         status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-        //         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-        //         isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
-        //         createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
-                
-        //     });
-    
-        //     // console.log("mockTradeDetails", algoTrader);
-        //     console.log("caseStudy 11: algo mock")
-        //     algoTrader.save().then(async ()=>{
-        //         console.log("caseStudy 12: algo mock")
-        //         console.log("sending response");
-
-
-        //         await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
-        //         res.status(201).json({status: 'Complete', message: 'COMPLETE'});
-        //     }).catch((err)=> {
-        //         console.log("in err", err)
-        //         // res.status(500).json({error:"Failed to enter data"})
-        //     });
-            
-    
-        // }).catch(err => {console.log("fail", err)});    
     }
     
     if(paperTrade){
@@ -249,14 +196,13 @@ exports.mockTrade = async (req, res) => {
         PaperTrade.findOne({order_id : order_id})
         .then((dateExist)=>{
             if(dateExist){
-                //console.log("data already");
                 return res.status(422).json({error : "date already exist..."})
             }
     
             const paperTrade = new PaperTrade({
                 status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                order_id, instrumentToken, brokerage: brokerageUser, 
+                order_id, instrumentToken, brokerage: brokerageUser, portfolioId,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
@@ -306,8 +252,73 @@ exports.mockTrade = async (req, res) => {
                 console.log("in err", err)
                 // res.status(500).json({error:"Failed to enter data"})
             });
-            
+        }).catch(err => {console.log(err, "fail")});  
+    }
+
+    if(tenxTraderPath){
+        
+        TenxTrader.findOne({order_id : order_id})
+        .then((dataExist)=>{
+            if(dataExist){
+                return res.status(422).json({error : "date already exist..."})
+            }
     
+            const tenx = new TenxTrader({
+                status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId,
+                createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+                
+            });
+
+            // console.log("tenx tenx", tenx)
+
+    
+            //console.log("mockTradeDetails", paperTrade);
+            tenx.save().then(async ()=>{
+                console.log("sending response");
+                if(await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)){
+                    //console.log("in the if condition")
+                    let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
+                    pnl = JSON.parse(pnl);
+                    //console.log("before pnl", pnl)
+                    const matchingElement = pnl.find((element) => (element._id.instrumentToken === tenx.instrumentToken && element._id.product === tenx.Product ));
+          
+                    // if instrument is same then just updating value
+                    if (matchingElement) {
+                      // Update the values of the matching element with the values of the first document
+                      matchingElement.amount += (tenx.amount * -1);
+                      matchingElement.brokerage += Number(tenx.brokerage);
+                      matchingElement.lastaverageprice = tenx.average_price;
+                      matchingElement.lots += Number(tenx.Quantity);
+                      //console.log("matchingElement", matchingElement)
+
+                    } else {
+                      // Create a new element if instrument is not matching
+                      pnl.push({
+                        _id: {
+                          symbol: tenx.symbol,
+                          product: tenx.Product,
+                          instrumentToken: tenx.instrumentToken,
+                          exchange: tenx.exchange,
+                        },
+                        amount: (tenx.amount * -1),
+                        brokerage: Number(tenx.brokerage),
+                        lots: Number(tenx.Quantity),
+                        lastaverageprice: tenx.average_price,
+                      });
+                    }
+                    
+                    await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl))
+                    
+                }
+
+                await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
+                res.status(201).json({status: 'Complete', message: 'COMPLETE'});
+            }).catch((err)=> {
+                console.log("in err", err)
+                // res.status(500).json({error:"Failed to enter data"})
+            });
         }).catch(err => {console.log(err, "fail")});  
     }
 

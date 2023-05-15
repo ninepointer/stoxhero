@@ -41,6 +41,10 @@ const TenXSubscription = new mongoose.Schema({
               }
             }],
     },
+    users:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        subscribedOn:{type:Date},
+    }],
     status: {
         type: String,
         required: true,
@@ -61,7 +65,7 @@ const TenXSubscription = new mongoose.Schema({
     lastModifiedBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
-    },
+    }
 });
 
 const TenXSubscriptionSchema = mongoose.model('tenx-subscription', TenXSubscription);

@@ -58,6 +58,7 @@ import Home from "../src/layouts/HomePage/pages/Home";
 import About from "../src/layouts/HomePage/pages/About";
 // import ResetPassword from './layouts/authentication/reset-password'
 import ResetPassword from './layouts/authentication/reset-password/cover';
+import CampaignDetails from './layouts/campaign/campaignDetails'
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
@@ -299,6 +300,7 @@ export default function App() {
           <Route path='/home' element={<Home/>}/>
           <Route path='/login' element={<SignIn/>}/>
           <Route path='/about' element={<About/>}/>
+          {/* <Route path='/campaigndetails' element={<CampaignDetails/>}/> */}
             
         </Routes>
       </ThemeProvider>

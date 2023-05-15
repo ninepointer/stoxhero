@@ -4,10 +4,6 @@ import { CircularProgress, Grid, Divider } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
-// import MDButton from '../../../components/MDButton'
-// import {Link} from 'react-router-dom'
-// import niftyicon from '../../../assets/images/nifty50icon.png'
-// import bankniftyicon from '../../../assets/images/bankniftyicon.png'
 import upicon from '../../../assets/images/arrow.png'
 import downicon from '../../../assets/images/down.png'
 import marginicon from '../../../assets/images/marginicon.png'
@@ -15,44 +11,20 @@ import netpnlicon from '../../../assets/images/netpnlicon.png'
 
 
 import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
-// import WatchList from '../data/WatchList';
-// import BuySell from '../data/BuySell'
-// import MyPosition from '../data/MyPosition'
-// import Orders from '../data/orders'
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
-// import { userContext } from '../../../AuthContext';
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 
 export default function InfinityTrading({socket}) {
-  //console.log("rendering in userPosition: header")
-  // const [reRender, setReRender] = useState(true);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
-  // const [fundDetail, setFundDetail] = useState({});
   const [yesterdayData, setyesterdayData] = useState({});
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
 
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-
-
-  // useEffect(() => {
-  //   axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{
-  //     withCredentials: true,
-  //     headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //         "Access-Control-Allow-Credentials": true
-  //     }}
-  //     ).then((res)=>{
-  //       setFundDetail(res.data.data);
-  //     })
-      
-  // }, []);
 
   useEffect(() => {
     console.log("fund details in useeffect")
@@ -78,15 +50,9 @@ export default function InfinityTrading({socket}) {
     setIsGetStartedClicked(value);
   }, []);
 
-  // const memoizedSetReRender = useCallback((value) => {
-  //   setReRender(value);
-  // }, []);
 
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
-      // socket={socket}
-      // reRender={reRender}
-      // setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
@@ -96,9 +62,6 @@ export default function InfinityTrading({socket}) {
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
       socket={socket}
-      // reRender={reRender}
-      // setReRender={setReRender}
-      // setReRender={}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}
@@ -107,10 +70,6 @@ export default function InfinityTrading({socket}) {
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
-      // socket={socket}
-      // reRender={reRender}
-      // setReRender={memoizedSetReRender}
-      // setReRender={}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"algoTrader"}

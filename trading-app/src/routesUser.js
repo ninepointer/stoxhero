@@ -46,6 +46,7 @@ import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
 import Contact from "./layouts/HomePage/pages/Contact";
+import TradeViewTenX from "./layouts/tenXTrading/TradeView/main";
 // import logo from "../src/assets/images/logo1.jpeg"
 
 const routes = [
@@ -120,6 +121,15 @@ const routes = [
     icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
+  },
+  {
+    // type: "collapse",
+    // name: "TenX Trading",
+    // key: "tenxtrading",
+    // // icon: <Icon fontSize="small">person</Icon>,
+    // icon: <CurrencyRupeeIcon/>,
+    route: "/tenxtrading/:name",
+    component: <TradeViewTenX />,
   },
   // {
   //   type: "collapse",

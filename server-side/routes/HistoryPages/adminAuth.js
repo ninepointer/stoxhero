@@ -31,11 +31,18 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const client = require("../../marketData/redisClient")
-
+const {overallPnlTrader} = require("../../controllers/infinityController");
+const {marginDetail} = require("../../controllers/tenXTradeController")
 
 router.get("/deletePnlKey", async (req, res) => {
   await client.del(`kiteCredToday:${process.env.PROD}`);
   await deletePnlKey()
+});
+
+router.get("/pnl", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
+  await overallPnlTrader(req, res)
+  // await marginDetail(req, res)
 });
 
 router.post("/autotrade/:id", async (req, res) => {

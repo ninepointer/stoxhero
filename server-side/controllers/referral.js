@@ -13,7 +13,7 @@ const filterObj = (obj, ...allowedFields) => {
   };
 
 exports.createReferral = async(req, res, next)=>{
-    console.log(req.body);
+    // console.log(req.body);
     const{referralProgramName, referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency,
         description, status
@@ -57,7 +57,7 @@ exports.getReferral = async(req, res, next)=>{
 exports.getActiveReferral = async(req, res, next)=>{
     try{
     const referral = await Referral.find({status : 'Active'}); 
-    console.log(referral)
+    // console.log(referral)
     // .select('_id referrralProgramId referrralProgramName rewardPerReferral status');
     res.status(201).json({message: "Referral Retrived",data: referral});    
     }
@@ -68,7 +68,7 @@ exports.editReferral = async(req, res, next) => {
     try{ 
         // const {referrralProgramName} = req.params
         const {status, referralProgramEndDate, referrralProgramName} = req.body
-        console.log(req.body);
+        // console.log(req.body);
         // const {isAddedWatchlist} = req.body;
         // const {_id} = req.user;
         // console.log("in removing", instrumentToken, _id);
@@ -94,7 +94,7 @@ exports.editReferral = async(req, res, next) => {
             }
             
         })
-        console.log("removing", editReferral);
+        // console.log("removing", editReferral);
         // res.send(inactiveInstrument)
         res.status(201).json({message : "programme edited succesfully"});
     } catch (e){
@@ -132,7 +132,7 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
     
     //If the leaderboard exisits in redis
     if(await client.exists(`referralLeaderboard:${process.env.PROD}`)){
-      console.log("in if of referral")
+      // console.log("in if of referral")
         const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderboard:${process.env.PROD}`, "0", "19",  'WITHSCORES']);
         const transformedData = transformData(leaderBoard);
 
@@ -143,7 +143,7 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
           });  
   
     }else{
-      console.log("in else of referral")
+      // console.log("in else of referral")
         //If the leaderboard doesn't exist in redis
         const leaderboard = await User.aggregate([
             {
@@ -161,15 +161,15 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
               }
             },
             {
-                $project:{
-                  _id: 0,
-                  user: '$_id',
-                  totalReferralEarning: 1,
-                  totalReferralCount: 1,                 
-                }
+              $project:{
+                _id: 0,
+                user: '$_id',
+                totalReferralEarning: 1,
+                totalReferralCount: 1,                 
               }
+            }
         ]);
-          console.log("leaderboard", leaderboard)
+          // console.log("leaderboard", leaderboard)
         for (item of leaderboard){
             const { employeeid, first_name, last_name } = item.user;
             const score = item.totalReferralEarning;
@@ -218,11 +218,20 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
         const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
         const leaderBoardScore = await client.ZSCORE(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
     
-        // console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
-        return res.status(200).json({
-          status: 'success',
-          data: {rank: leaderBoardRank+1, earnings: leaderBoardScore}
-        }); 
+        console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
+        if(leaderBoardRank !== null){
+          return res.status(200).json({
+            status: 'success',
+            data: {rank: leaderBoardRank+1, earnings: leaderBoardScore}
+          }); 
+        } 
+        else{
+          return res.status(200).json({
+            status: 'success',
+            message: 'user not participated in referrals yet.'
+          }); 
+        }
+
     
       }else{
           res.status(200).json({

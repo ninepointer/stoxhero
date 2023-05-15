@@ -12,9 +12,9 @@ import DataTable from "../../examples/Tables/DataTable";
 // Data
 // import authorsTableData from "./data/authorsTableData";
 import activeInstrumentsData from "./data/activeInstrumentsData";
-import InstrumentModel from './InstrumentModel';
-import InstrumentEditModel from "./InstrumentEditModel";
-import MDButton from "../../components/MDButton";
+// import InstrumentModel from './InstrumentModel';
+// import InstrumentEditModel from "./InstrumentEditModel";
+// import MDButton from "../../components/MDButton";
 import axios from "axios";
 
 

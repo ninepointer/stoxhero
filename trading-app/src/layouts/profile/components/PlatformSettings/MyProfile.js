@@ -456,7 +456,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 required
                 disabled={true}
                 id="outlined-required"
-                label="Trader ID"
+                label="User ID"
                 defaultValue={formStatePD.employeeid}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
