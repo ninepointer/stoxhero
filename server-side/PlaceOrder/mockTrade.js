@@ -33,7 +33,7 @@ exports.mockTrade = async (req, res) => {
       const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
       const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
 
-      console.log("req body", req.body)
+    //   console.log("req body", req.body)
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
         //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
@@ -271,7 +271,7 @@ exports.mockTrade = async (req, res) => {
                 
             });
 
-            console.log("tenx tenx", tenx)
+            // console.log("tenx tenx", tenx)
 
     
             //console.log("mockTradeDetails", paperTrade);
