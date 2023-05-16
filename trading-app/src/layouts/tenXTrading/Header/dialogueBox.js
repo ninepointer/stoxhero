@@ -1,21 +1,20 @@
 import React, {useEffect, useState} from 'react';
-// import axios from "axios";
 import { userContext } from '../../../AuthContext';
-// import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
-// import MDAvatar from '../../../components/MDAvatar';
-// import MDTypography from '../../../components/MDTypography';
-// import tradesicon from '../../../assets/images/tradesicon.png'
-// import beginner from '../../../assets/images/beginner.png'
-// import intermediate from '../../../assets/images/intermediate.png'
-// import pro from '../../../assets/images/pro.png'
-// import checklist from '../../../assets/images/checklist.png'
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import axios from "axios";
+
+
+//icons
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Title from '../../HomePage/components/Title'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 // import Box from '@mui/material/Box';
 // import Card from '@mui/material/Card';
@@ -23,14 +22,13 @@ import DialogTitle from '@mui/material/DialogTitle';
 // import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import MDTypography from '../../../components/MDTypography';
-// import Typography from '@mui/material/Typography';
-// import CheckIcon from '@mui/icons-material/Check';
-// import CloseIcon from '@mui/icons-material/Close';
-// import Subs from '../../../assets/images/subs.png';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
+import { Typography } from '@mui/material';
+
+
 
 
 
@@ -38,6 +36,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
+  const [updatedUser, setUpdatedUser] = React.useState({});
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
@@ -45,40 +44,49 @@ export default function Dialogue({amount, name, id, walletCash}) {
   })
 
   const navigate = useNavigate();
-//   const [messege.lowBalanceMessage, setLowBalanceMessage] = useState("");
-//   const [thanksMessege, setThanksMessege]
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  const copyText = `                    
-
-  AB INDIA SIKHEGA OPTIONS TRADING AUR BANEGA ATMANIRBHAR
-
-  Join me at StoxHero - Options Trading and Investment Platform 🤝                            
-
-  👉 Get 10,00,000 virtual currency in your account to start option trading using my referral code
-
-  👉 Join the community of ace traders and learn real-time options trading
-
-  👉 Participate in TenX Trading and earn 10% real cash on the profit you will make on the platform
-
-  📲 Visit https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}                          
-
-  Use my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading
-
-  My Referral Code to join the StoxHero: ${getDetails.userDetails.myReferralCode}`
+  const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(()=>{
-    console.log("user detail", getDetails?.userDetails)
-    let subscribed = (getDetails?.userDetails?.subscription)?.filter((elem)=>{
-      return (elem?.subscriptionId)?.toString() === (id)?.toString();
+
+    console.log("in useEffect")
+
+    axios.get(`${baseUrl}api/v1/loginDetail`, {
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+      },
+    })
+    .then((res)=>{
+      setUpdatedUser(res.data);
+      console.log("subscribed", res.data)
+      let subscribed = (res.data?.subscription)?.filter((elem)=>{
+        return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
+      })
+
+      console.log("subscribed", subscribed)
+      if(subscribed?.length > 0){
+        setIsSubscribed(true);
+      }
+
+    }).catch((err)=>{
+      console.log("Fail to fetch data of user", err);
+    })
+  }, [])
+
+  useEffect(()=>{
+    let subscribed = (updatedUser?.subscription)?.filter((elem)=>{
+      return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
     })
     if(subscribed?.length > 0){
       setIsSubscribed(true);
     }
-  }, [])
+  }, [updatedUser])
 
   const handleCopy = () => {
-    // setCopied(true);
     openSuccessSB('success', 'Text copied.');
   }
   const handleClickOpen = () => {
@@ -107,28 +115,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   const buySubscription = async () => {
     if(walletCash < amount){
-        setMessege({
-            ...messege, 
-            lowBalanceMessage: 
-            <>
-                <MDTypography>Your wallet balance is low refer more user to plateform for buy this subscription.</MDTypography>
-                <MDBox display='flex' 
-                    alignItems='center' 
-                    style={{
-                        backgroundColor:'#c3c3c3', 
-                        padding: '10px',
-                        borderRadius: '10px'
-                    }}
-                >
-                <MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
-                <MDButton variant='text' color='black' padding={0} margin={0} >
-                    <CopyToClipboard text = {copyText} onCopy={handleCopy}>
-                        <BiCopy/>
-                    </CopyToClipboard>
-                </MDButton>
-                </MDBox>
-            </>
-        });
       return;
     }
     const res = await fetch(`${baseUrl}api/v1/userwallet/deduct`, {
@@ -149,9 +135,11 @@ export default function Dialogue({amount, name, id, walletCash}) {
     } else {
         setMessege({
             ...messege,
-            thanksMessege: "Thanks for purchase subscription"
+            thanksMessege: "Congrats you have unlocked your TenX trading subscription"
         })
-        openSuccessSB("success", dataResp.message)
+        console.log(dataResp.data)
+        setUpdatedUser(dataResp.data);
+        // openSuccessSB("success", dataResp.message)
     }
   }
 
@@ -213,20 +201,19 @@ export default function Dialogue({amount, name, id, walletCash}) {
   return (
    
     <>
-        {/* {isSubscribed ?
+        {isSubscribed ?
         <MDBox>
         <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
         :
         messege.thanksMessege ?
         <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`)}} size='small'>Start Trading</MDButton>
+        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
-        : */}
+        :
         <MDBox>
         <MDButton variant="contained" color="dark" onClick={captureIntent} size='small'>Unlock</MDButton>
-        </MDBox>
-        {/* } */}
+        </MDBox>}
 
         <Dialog
             open={open}
@@ -235,33 +222,83 @@ export default function Dialogue({amount, name, id, walletCash}) {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-            {/* {!messege.thanksMessege ?
-                <>
-                    Thanks for showing your interest in our subscription!
-                    <br />
-                    {`Your wallet money is INR ${walletCash}`}
-                </>
-                :
-                "Thanks for showing your interest in our subscription!"
-            } */}
-                Thanks for showing your interest in our subscription!
+              {!messege.thanksMessege &&
+                <MDBox display="flex" alignItems="center" justifyContent="center" >
+                  <LockOutlinedIcon sx={{color:"#000"}} />
+                </MDBox>
+              }
+
             </DialogTitle>
             <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-                {/* {messege.thanksMessege ? messege.thanksMessege
-                :
-                messege.lowBalanceMessage ? messege.lowBalanceMessage
-                :
-                "Purchase subscription using your wallet money"
-                } */}
+              {messege.thanksMessege ? 
 
-                Our team is working on it to get this live as soon as possible.
-            </DialogContentText>
+              messege.thanksMessege
+              :
+              <>
+                <DialogContentText id="alert-dialog-description">
+
+                  <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
+                    <Title variant={{xs:"h2",md:"h3"}} style={{color:"#000",fontWeight:"bold",marginTop:"10px"}} >Choose how to pay</Title>
+                    <Typography textAlign="center" sx={{mt:"12px", width:"75%",mb:"12px"}} color="#000" variant="body2">Your payment is encrypted and you can change your payment method at anytime.</Typography>
+                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography>
+                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Cancel easily online.</Typography>
+                  </MDBox>
+                </DialogContentText>
+
+                <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={8} >
+                  <MDBox onClick={()=>{buySubscription()}} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{height:"40px",width:{xs:"85%",md:"auto"},"&:hover":{cursor:"pointer",border:"1px solid blue"}}} >
+
+                    <MDBox display="flex" justifyContent="center">
+                    <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft:"8px" }} >Stoxhero wallet</Typography>
+                    <AccountBalanceWalletIcon sx={{marginTop:"5px",color:"#000",marginRight:"4px"}} />
+                    <Typography variant="body2" sx={{fontSize:"16.4px",fontWeight:"550"}} color="#000" > {` ₹${walletCash}`}</Typography>
+                    </MDBox>
+
+                    <MDBox>
+                    <ArrowForwardIosIcon sx={{mt:"8px",color:"#000",marginRight:"5px",marginLeft:"5px"}}/>
+                    </MDBox>
+
+                  </MDBox>
+
+
+                      {(walletCash < amount) &&
+                      <MDBox border="1px solid red" borderRadius="10px" mt={5} p={1}>
+
+                      <MDBox>
+                      <MDBox display="flex" flexDirection="column" textAlign="center" justifyContent="center" sx={{width:{xs:"95%"}}} >
+
+                        <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >Your wallet balance is low kindly refer more users on this platform to buy this subscription.</Typography>
+                        <MDBox display='flex' 
+                            alignItems='center' justifyContent='center'
+
+                            style={{
+                                // backgroundColor:'#c3c3c3', 
+                                padding: '10px',
+                                borderRadius: '10px'
+                            }}
+                        >
+                        <MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
+                        <MDButton variant='text' color='black' padding={0} margin={0} >
+                            <CopyToClipboard text = {copyText} onCopy={handleCopy}>
+                                <BiCopy/>
+                            </CopyToClipboard>
+                        </MDButton>
+                        </MDBox>
+                    
+                      </MDBox>
+                      </MDBox>
+                
+                   </MDBox>
+                    
+                    }
+
+
+                </MDBox>
+              </>
+              }
+
             </DialogContent>
             <DialogActions>
-            {/* <Button onClick={buySubscription} autoFocus>
-                Buy
-            </Button> */}
             <Button onClick={handleClose} autoFocus>
                 Close
             </Button>

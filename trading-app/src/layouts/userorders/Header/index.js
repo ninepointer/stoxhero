@@ -17,7 +17,7 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import {InfinityTraderRole} from "../../../variables";
+import {InfinityTraderRole, tenxTrader} from "../../../variables";
 
 
 
@@ -54,6 +54,7 @@ function Header({ children }) {
   let url2 = 'my/historyorders'
   let url = (view === 'today' ? url1 : url2)
   let infinityUrl = infinityView === 'today' ? url1 : url2;
+  let infinityBaseUrl = getDetails.userDetails.role.roleName == InfinityTraderRole ? "infinityTrade" : "tenX"
  
 
   useEffect(()=>{
@@ -138,7 +139,7 @@ function Header({ children }) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/${infinityBaseUrl}/${infinityUrl}?skip=${InfinitySkip}&limit=${limitSetting}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -158,7 +159,6 @@ function Header({ children }) {
     })
       
   }, [getDetails,infinityView,url1,url2])
-    console.log(data);
 
   function infinityBackHandler(){
       if(InfinitySkip <= 0){
@@ -166,7 +166,7 @@ function Header({ children }) {
       }
     setInfinitySkip(prev => prev-limitSetting);
     setOrders([]);
-    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/${infinityBaseUrl}/${infinityUrl}?skip=${InfinitySkip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -194,7 +194,7 @@ function Header({ children }) {
     console.log("inside next handler")
     setInfinitySkip(prev => prev+limitSetting);
     setInfinityData([]);
-    axios.get(`${baseUrl}api/v1/infinityTrade/${infinityUrl}?skip=${InfinitySkip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/${infinityBaseUrl}/${infinityUrl}?skip=${InfinitySkip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -298,7 +298,9 @@ function Header({ children }) {
   return finalFormattedDate
   }
 
-  console.log(filterData, infinityFilterData)
+  // console.log(filterData, infinityFilterData)
+  console.log("infinityData", infinityData, infinityFilterData);
+
   return (
     
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
@@ -340,7 +342,86 @@ function Header({ children }) {
             </>
             :
             
-            getDetails.userDetails.role.roleName === InfinityTraderRole ?
+            getDetails.userDetails.role.roleName !== InfinityTraderRole ?
+            <>
+            
+            <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+              <Grid item xs={12} md={2} lg={2}>
+                <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Contract</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Quantity</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Price</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Amount</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Type</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.6} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Order Id</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Status</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Subscription</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Time</MDTypography>
+              </Grid>
+            </Grid>
+
+            {infinityFilterData?.map((elem)=>{
+              let buysellcolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
+              let statuscolor = elem?.status === 'COMPLETE' ? 'success' : 'error'
+           
+            return (
+            <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
+                <Grid item xs={12} md={2} lg={2}>
+                  <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>{elem?.Quantity}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.average_price))}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.amount))}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color={buysellcolor} fontSize={13} fontWeight="bold">{elem?.buyOrSell}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.6} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>{elem?.order_id}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color={"light"} fontSize={13}>{elem?.subscriptionId?.plan_name}</MDTypography>
+                </Grid>
+                <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDTypography color="light" fontSize={13}>{dateConvert(elem?.trade_time)}</MDTypography>
+                </Grid>
+            </Grid>
+            )
+            })}
+            
+            {infinityCount !== 0 &&
+            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
+                <MDButton variant='outlined' size="small" color="light" onClick={infinityBackHandler}>Back</MDButton>
+                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {infinityCount} | Page {(InfinitySkip+limitSetting)/limitSetting} of {Math.ceil(infinityCount/limitSetting)}</MDTypography>
+                <MDButton variant='outlined' size="small" color="light" onClick={infinityNextHandler}>Next</MDButton>
+            </MDBox>
+            }
+            </>
+            :
+
             <>
             
             <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
@@ -412,15 +493,8 @@ function Header({ children }) {
             </MDBox>
             }
             </>
-            :
-            <>
-            <Grid item xs={12} md={6} lg={12}>
-              <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
-                <img src={tradesicon} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any TenX trading orders!"}</MDTypography>
-              </MDBox>
-            </Grid>
-            </>}
+
+            }
         </Grid>
 
       </Grid>

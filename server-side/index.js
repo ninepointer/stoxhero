@@ -19,10 +19,12 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
-const {autoTradeContest} = require('./controllers/contestTradeController');
+// const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
-const {deletePnlKey} = require("./controllers/deletePnlKey");
-
+const {autoExpireSubscription} = require("./controllers/tenXTradeController");
+const path = require('path');
+const {DummyMarketData} = require('./marketData/dummyMarketData');
+require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const hpp = require("hpp")
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000, // 1 minutes
@@ -39,9 +41,7 @@ app.use(xssClean());
 app.use(hpp());
 
 // issue fix --> if enviournment variable path is not work
-const path = require('path');
-const {DummyMarketData} = require('./marketData/dummyMarketData');
-require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
+
 client.connect().then(()=>{})
 console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
@@ -197,7 +197,7 @@ let weekDay = date.getDay();
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
-        // const autotrade = nodeCron.schedule(`45-59/1 3-9 * * ${weekDay}`, autoTradeWrapper);
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
     }
   }
 

@@ -2,27 +2,33 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Brokerage = require("../../models/Trading Account/brokerageSchema");
+const authentication = require("../../authentication/authentication")
 
-router.post("/brokerage", (req, res)=>{
-    const {brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, createdOn, lastModified, createdBy, transaction, exchange, ctt, dpCharge, uId} = req.body;
+router.post("/brokerage", authentication, (req, res)=>{
+    const {brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, transaction, exchange, ctt, dpCharge} = req.body;
     //console.log(req.body);
-    if(!brokerName || !type || !brokerageCharge || !exchangeCharge || !gst || !sebiCharge || !stampDuty || !sst || !createdOn || !lastModified || !createdBy || !transaction || !exchange || !ctt || !dpCharge || !uId){
+    if(!brokerName || !type || !brokerageCharge || !exchangeCharge || !gst || !sebiCharge || !stampDuty || !sst || !transaction || !exchange || !ctt || !dpCharge){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "plz filled the field..."})
     }
 
-    Brokerage.findOne({uId : uId})
-    .then((dateExist)=>{
-        if(dateExist){
-            //console.log("data already");
-            return res.status(422).json({error : "date already exist..."})
-        }
-        const brokerage = new Brokerage({brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, createdOn, lastModified, createdBy, transaction, exchange, ctt, dpCharge, uId});
+    const brokerage = new Brokerage({brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, transaction, exchange, ctt, dpCharge, lastModifiedBy:req.user._id, createdBy: req.user._id});
 
-        brokerage.save().then(()=>{
-            res.status(201).json({massage : "data enter succesfully"});
-        }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
-    }).catch(err => {console.log( "fail in brokerage auth")});
+    brokerage.save().then(()=>{
+        res.status(201).json({massage : "data enter succesfully"});
+    }).catch((err)=> {
+        console.log(err)
+        res.status(500).json({error:"Failed to enter data"})
+    });
+
+
+    // Brokerage.findOne({uId : uId})
+    // .then((dateExist)=>{
+    //     if(dateExist){
+    //         //console.log("data already");
+    //         return res.status(422).json({error : "date already exist..."})
+    //     }
+    // }).catch(err => {console.log( "fail in brokerage auth")});
     
 })
 
@@ -48,28 +54,29 @@ router.get("/readBrokerage/:id", (req, res)=>{
     })
 })
 
-router.put("/readBrokerage/:id", async (req, res)=>{
+router.put("/readBrokerage/:id", authentication, async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
         const {id} = req.params
         const brokerage = await Brokerage.findOneAndUpdate({_id : id}, {
             $set:{
-                brokerName: req.body.Broker,
-                type: req.body.Type,
-                brokerageCharge: req.body.BrokerageCharge,
-                exchangeCharge: req.body.ExchangeCharge,
-                gst: req.body.GST,
-                sebiCharge: req.body.SEBICharge,
-                stampDuty: req.body.StampDuty,
-                sst: req.body.SST,
-                lastModified: req.body.lastModified,
-                transaction: req.body.Transaction,
-                exchange: req.body.Exchange,
-                ctt: req.body.CTT,
-                dpCharge: req.body.DPCharges
+                brokerName: req.body.brokerName,
+                type: req.body.type,
+                brokerageCharge: req.body.brokerageCharge,
+                exchangeCharge: req.body.exchangeCharge,
+                gst: req.body.gst,
+                sebiCharge: req.body.sebiCharge,
+                stampDuty: req.body.stampDuty,
+                sst: req.body.sst,
+                lastModifiedBy: req.user._id,
+                transaction: req.body.transaction,
+                exchange: req.body.exchange,
+                ctt: req.body.ctt,
+                dpCharge: req.body.dpCharge,
+                modifiedOn: new Date()
             }
-        })
+        }, {new: true})
         //console.log("this is role", brokerage);
         res.send(brokerage)
         // res.status(201).json({massage : "data edit succesfully"});

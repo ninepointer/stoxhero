@@ -35,6 +35,18 @@ router.post("/paperTrade", authentication, authoizeTrade.fundCheckPaperTrade,  a
     MockTradeFunc.mockTrade(req, res)
     
 })
+//authoizeTrade.fundCheckPaperTrade
+router.post("/tenxPlacingOrder", authentication, authoizeTrade.fundCheckTenxTrader,  async (req, res)=>{
+
+    console.log("in tenxPlacingOrder trade")
+    const setting = await Setting.find();
+    // console.log("settings", setting, req.user?.role?.roleName )
+    if(!setting[0].isAppLive && req.user?.role?.roleName != 'Admin'){
+        return res.status(401).send({message: "App is not Live right now. Please wait."}) 
+      }
+    MockTradeFunc.mockTrade(req, res)
+    
+})
 
 router.post("/tenxPlacingOrder", authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
 

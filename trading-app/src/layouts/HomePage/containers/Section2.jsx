@@ -17,7 +17,7 @@ const CustomCounter = ({
     <CountUp prefix={before} suffix={after} end={counter} decimals={decimals}>
       {({ countUpRef }) => (
         <Title variant={{ xs: "h4", md: "h2" }} style={{color:"white"}} sx={{ fontWeight: 400 }}>
-          <span sx={{color:"red"}} ref={countUpRef} />
+          <span sx={{color:"white"}} ref={countUpRef} />
         </Title>
       )}
     </CountUp>
