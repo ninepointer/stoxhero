@@ -403,7 +403,7 @@ function Header({ children }) {
                   <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color={statuscolor} fontSize={13}>{elem?.subscriptionId?.plan_name}</MDTypography>
+                  <MDTypography color={"light"} fontSize={13}>{elem?.subscriptionId?.plan_name}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color="light" fontSize={13}>{dateConvert(elem?.trade_time)}</MDTypography>

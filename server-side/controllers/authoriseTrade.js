@@ -612,7 +612,7 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
                         status:"REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id, 
-                        trader: trader, amount: null, trade_time: new Date()
+                        trader: trader, amount: null, trade_time: new Date(), subscriptionId
                         
                     });    
                     console.log("margincall saving")
