@@ -13,6 +13,7 @@ const { ObjectId } = require('mongodb');
 
 let xtsMarketDataWS ;
 let xtsMarketDataAPI ;
+let filteredTicks = [];
 const xtsMarketLogin = async ()=>{
     xtsMarketDataAPI = new XtsMarketDataAPI(
       process.env.MARKETDATA_URL
@@ -108,7 +109,8 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
 
 const getXTSTicksForUserPosition = async (socket) => {
 
-  let marketDepth ;
+  let ticks = [];
+  let marketDepth = {};
   let indecies = await client.get("index")
   if(!indecies){
     indecies = await StockIndex.find({status: "Active"});
@@ -117,91 +119,100 @@ const getXTSTicksForUserPosition = async (socket) => {
     indecies = JSON.parse(indecies);  
   }
 
-  xtsMarketDataWS.onCandleDataEvent((candleData) => {
-    console.log("candle data", candleData);
-  });
-
   xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
     marketDepth = marketDepthData;
-    // console.log(marketDepthData);
   });
-
+  // let timeoutId = null;
+  let userId = await client.get(socket.id)
+  await emitTicks(userId);
   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
-    // console.log("candle data", ticksObj, marketDepth);
-    let intervalId;
-    if(intervalId){
-      clearTimeout(intervalId);
-    }
+    
     ticksObj = JSON.parse(ticksObj);
-    // ticksObj.last_price = ticksObj.LastTradedPrice;
-    // ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+
+    if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
+      ticksObj.last_price = ticksObj.LastTradedPrice;
+      ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+      ticksObj.change = marketDepth.Touchline.PercentChange;
+    
+      const instrumentMap = new Map(ticks.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
+      if (instrumentMap.has(ticksObj.ExchangeInstrumentID)) {
+        const existingInstrument = instrumentMap.get(ticksObj.ExchangeInstrumentID);
+        Object.assign(existingInstrument, ticksObj);
+      } else {
+        instrumentMap.set(ticksObj.ExchangeInstrumentID, ticksObj);
+      }
+      ticks = Array.from(instrumentMap.values());
+    }
  
-    let ticks = [];
-    ticks.push(ticksObj);
-    // console.log(ticks)
+
     let indexObj = {};
-    let now = performance.now();
     // populate hash table with indexObj from indecies
     for (let i = 0; i < indecies?.length; i++) {
       indexObj[indecies[i]?.instrumentToken] = true;
     }
-    // filter ticks using hash table lookups
     let indexData = ticks.filter(function(item) {
       return indexObj[item.ExchangeInstrumentID];
     });
 
 
     try{
-      let instrumentTokenArr;
-      let userId = await client.get(socket.id)
-      // await client.del(userId)
-      // const user = await User.findById(new ObjectId(userId));
-      // if(await client.exists(userId)){
-        let instruments = await client.SMEMBERS(userId)
-        instrumentTokenArr = [...new Set(instruments)]; 
-      // } else{
-
-      // }
-
-      console.log(instrumentTokenArr)
-
-      let filteredTicks = [];
-      for(let i=0; i < instrumentTokenArr.length; i++){
-        // ticksObj, marketDepth
-        if(ticksObj.ExchangeInstrumentID == instrumentTokenArr[i] && marketDepth.ExchangeInstrumentID == instrumentTokenArr[i]){
-            ticksObj.last_price = ticksObj.LastTradedPrice;
-            ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
-            ticksObj.change = marketDepth.Touchline.PercentChange;
-            filteredTicks.push(ticksObj)
+      let instrumentTokenArr = [];
+      // let userId = await client.get(socket.id)
+      if(await client.exists((userId).toString())){
+        let instruments = await client.SMEMBERS((userId).toString())
+        instrumentTokenArr = new Set(instruments)
+      } else{
+        console.log("in else part")
+        const user = await User.findById(new ObjectId(userId))
+        .populate('watchlistInstruments')
+  
+        for(let i = 0; i < user.watchlistInstruments.length; i++){
+          instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
         }
+        instrumentTokenArr = new Set(instrumentTokenArr)
       }
 
-      // let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.ExchangeInstrumentID).toString()));
+      filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+
       if (indexData && indexData.length > 0) {
         socket.emit('index-tick', indexData);
       }
       
-      console.log("filteredTicks", filteredTicks);
-      // setTimeout(()=>{
-        filteredTicks = [...filteredTicks, ...filteredTicks];        
-        
-        if (filteredTicks.length > 0) {
-          io.to(`${userId}`).emit('tick-room', filteredTicks);
-        }
-      // }, 1000)
+      // if (filteredTicks.length > 0) {
+      //   if (!timeoutId) {
+      //     console.log("Will emit filteredTicks in 2 seconds...");
+      //     timeoutId = setTimeout(() => {
+      //       console.log("Emitting filteredTicks...");
+      //       io.to(`${userId}`).emit("tick-room", filteredTicks);
+      //       filteredTicks = null;
+      //       clearTimeout(timeoutId);
+      //       timeoutId = null; // reset timeoutId after executing the callback
+      //     }, 1000); // wait for 2 seconds
+      //   }
+      // }
 
-
-
-      filteredTicks = null;
-      ticks = null;
       indexData = null;
       instrumentTokenArr = null;
-      instruments = null;
 
     } catch (err){
       console.log(err)
     }
   });
+}
+
+const emitTicks = async(userId)=>{
+  // if (filteredTicks.length > 0) {
+    // if (!timeoutId) {
+      console.log("Will emit filteredTicks in 2 seconds...");
+      timeoutId = setInterval(() => {
+        console.log("Emitting filteredTicks...");
+        io.to(`${userId}`).emit("tick-room", filteredTicks);
+        filteredTicks = null;
+        // clearTimeout(timeoutId);
+        // timeoutId = null; // reset timeoutId after executing the callback
+      }, 1000); // wait for 2 seconds
+    // }
+  // }
 }
 
 const tradableInstrument = async(req, res)=>{
