@@ -101,20 +101,12 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             { new: true }
           );
 
-        // const subscription = await Subscription.findOne({_id: subscribedId});
-        console.log("subscription1" ,subscription.users)
-        // subscription.users = [...subscription.users, {
-        //   userId: userId,
-        //   subscribedOn: new Date()
-        // }];
-        // console.log("subscription" ,subscription.users)
-        // subscription.save();
 
         if(!wallet){
             return res.status(404).json({status:'error', message: 'No Wallet found'});
         }
 
-        res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: wallet});
+        res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
 
     }catch(e){
         console.log(e);
