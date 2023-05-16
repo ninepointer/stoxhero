@@ -38,7 +38,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
         setyesterdayData(res.data.data);
       })
       
-  }, [render]);
+  }, [render, subscriptionId]);
 
   console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail?.openingBalance)
 

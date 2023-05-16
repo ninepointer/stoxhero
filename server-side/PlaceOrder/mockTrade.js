@@ -76,21 +76,31 @@ exports.mockTrade = async (req, res) => {
     function buyBrokerage(totalAmount){
         let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
         let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
-        let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailBuy[0].gst) / 100);
         let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
         let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
         let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
+        let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailBuy[0].gst) / 100);
         let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
         return finalCharge;
     }
 
     function sellBrokerage(totalAmount){
+        // let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
+        // let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
+        // let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailSell[0].gst) / 100);
+        // let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
+        // let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
+        // let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
+        // let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+        // return finalCharge
+
         let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
         let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
-        let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailSell[0].gst) / 100);
         let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
         let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
         let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
+        let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailSell[0].gst) / 100);
+
         let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
         return finalCharge
     }

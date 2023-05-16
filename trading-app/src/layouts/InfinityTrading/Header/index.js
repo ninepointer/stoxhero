@@ -21,27 +21,28 @@ import { infinityTrader } from '../../../variables';
 export default function InfinityTrading({socket}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [yesterdayData, setyesterdayData] = useState({});
+  const [availbaleMargin, setAvailbleMargin] = useState([]);
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   // const [availbaleMargin, setAvailbleMargin] = useState([]);
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  useEffect(() => {
-    console.log("fund details in useeffect")
-    axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      }}
-      ).then((res)=>{
-        console.log("fund details", res.data.data)
-        setyesterdayData(res.data.data);
-      })
+  // useEffect(() => {
+  //   console.log("fund details in useeffect")
+  //   axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
+  //     withCredentials: true,
+  //     headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //         "Access-Control-Allow-Credentials": true
+  //     }}
+  //     ).then((res)=>{
+  //       console.log("fund details", res.data.data)
+  //       setyesterdayData(res.data.data);
+  //     })
       
-  }, []);
+  // }, []);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;
@@ -73,6 +74,7 @@ export default function InfinityTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
+      setAvailbleMargin={setAvailbleMargin}
     />;
   }, [handleSetIsGetStartedClicked, isGetStartedClicked]);
 
@@ -152,9 +154,7 @@ export default function InfinityTrading({socket}) {
           {/* <WatchList/> */}
           {memoizedInstrumentDetails}
         </Grid>
-        {/* <Grid item xs={12} md={6} lg={3}>
-          <BuySell/>
-        </Grid> */}
+
         <Grid item xs={12} md={6} lg={12}>
           {/* <OverallPnl/> */}
           {memoizedOverallPnl}
