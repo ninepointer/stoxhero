@@ -7,7 +7,7 @@ import { RiStockFill } from "react-icons/ri";
 import { TiMediaRecord } from "react-icons/ti";
 import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+// import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Tooltip } from '@mui/material';
 
 
