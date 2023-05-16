@@ -51,7 +51,6 @@ export default function InfinityTrading({socket}) {
     setIsGetStartedClicked(value);
   }, []);
 
-
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
       isGetStartedClicked={isGetStartedClicked}
@@ -161,7 +160,7 @@ export default function InfinityTrading({socket}) {
           {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
-          <InfinityMargin />
+          <InfinityMargin availbaleMargin={availbaleMargin} setyesterdayData={setyesterdayData}/>
         </Grid>
       </Grid>
 

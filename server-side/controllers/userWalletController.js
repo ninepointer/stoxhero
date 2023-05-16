@@ -3,6 +3,7 @@ const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
 const uuid = require('uuid');
+const client = require("../marketData/redisClient")
 
 
 
@@ -86,21 +87,22 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
               }
             },
             { new: true }
-          );
+        );
 
-          const subscription = await Subscription.findOneAndUpdate(
-            { _id: subscribedId },
-            {
-              $push: {
-                users: {
-                    userId: userId,
-                    subscribedOn: new Date()
-                }
-              }
-            },
-            { new: true }
-          );
+        const subscription = await Subscription.findOneAndUpdate(
+        { _id: subscribedId },
+        {
+            $push: {
+            users: {
+                userId: userId,
+                subscribedOn: new Date()
+            }
+            }
+        },
+        { new: true }
+        );
 
+        await client.del(`${user._id.toString()}authenticatedUser`);
 
         if(!wallet){
             return res.status(404).json({status:'error', message: 'No Wallet found'});

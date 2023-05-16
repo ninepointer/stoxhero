@@ -75,21 +75,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
     }).catch((err)=>{
       console.log("Fail to fetch data of user", err);
     })
-
-
-
-    // if(Object.keys(updatedUser).length){
-
-    // } else{
-    //   let subscribed = (getDetails?.userDetails?.subscription)?.filter((elem)=>{
-    //     return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
-    //   })
-    //   if(subscribed?.length > 0){
-    //     setIsSubscribed(true);
-    //   }
-    // }
-    // console.log("user detail", getDetails?.userDetails)
-
   }, [])
 
   useEffect(()=>{
@@ -150,11 +135,11 @@ export default function Dialogue({amount, name, id, walletCash}) {
     } else {
         setMessege({
             ...messege,
-            thanksMessege: "Thanks for purchase subscription"
+            thanksMessege: "Congrats you have unlocked your TenX trading subscription"
         })
         console.log(dataResp.data)
         setUpdatedUser(dataResp.data);
-        openSuccessSB("success", dataResp.message)
+        // openSuccessSB("success", dataResp.message)
     }
   }
 

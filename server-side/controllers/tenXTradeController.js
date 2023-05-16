@@ -106,7 +106,7 @@ exports.myTodaysTrade = async (req, res, next) => {
   const count = await TenXTrader.countDocuments({trader: userId, trade_time: {$gte:today}})
   console.log("Under my today orders",userId, today)
   try {
-    const myTodaysTrade = await TenXTrader.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+    const myTodaysTrade = await TenXTrader.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'subscriptionId': 1}).populate('subscriptionId', '')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
@@ -130,7 +130,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const count = await TenXTrader.countDocuments({trader: userId, trade_time: {$lt:today}})
   console.log("Under my today orders",userId, today)
   try {
-    const myHistoryTrade = await TenXTrader.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+    const myHistoryTrade = await TenXTrader.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'subscriptionId': 1}).populate('subscriptionId', 'plan_name')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
