@@ -66,10 +66,6 @@ const tenXTraderSchema = new mongoose.Schema({
         type: Date,
         // required: true        
     },
-    isMissed:{
-        type: Boolean,
-        default: false
-    },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
@@ -83,7 +79,7 @@ const tenXTraderSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
-    subscription:{
+    subscriptionId:{
         type: Schema.Types.ObjectId,
         ref: 'tenx-subscription',
     }

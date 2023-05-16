@@ -3,20 +3,21 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 // Images
-import team2 from "../../../assets/images/team-2.jpg";
-import team3 from "../../../assets/images/team-3.jpg";
-import team4 from "../../../assets/images/team-4.jpg";
+// import team2 from "../../../assets/images/team-2.jpg";
+// import team3 from "../../../assets/images/team-3.jpg";
+// import team4 from "../../../assets/images/team-4.jpg";
 
 import MDTypography from "../../../components/MDTypography";
 import MDButton from "../../../components/MDButton";
-import EditSharpIcon from '@mui/icons-material/EditSharp';
+// import EditSharpIcon from '@mui/icons-material/EditSharp';
+import BrokerageEdit from "../BrokerageEdit";
 
 export default function AllActiveBrokerages() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const [activeData, setActiveData] = useState([]);
-  const [inactiveData, setInactiveData] = useState([]);
+  // const [inactiveData, setInactiveData] = useState([]);
 
   useEffect(()=>{
 
@@ -41,6 +42,7 @@ export default function AllActiveBrokerages() {
   let activebrokeragearr = [];
   
   activeData.map((elem)=>{
+    console.log("elem", elem)
     let activebrokerage = {}
     // const exchangecolor = elem.exchange == "NFO" ? "info" : "error"
     const statuscolor = elem.status == "Active" ? "success" : "error"
@@ -48,7 +50,8 @@ export default function AllActiveBrokerages() {
 
     activebrokerage.edit = (
         <MDButton variant="Contained" color="info" fontWeight="medium">
-          <EditSharpIcon/>
+          {/* <EditSharpIcon/> */}
+          <BrokerageEdit data={elem} id={elem._id}/>
         </MDButton>
       );
     activebrokerage.broker = (

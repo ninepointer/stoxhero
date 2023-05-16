@@ -1,8 +1,11 @@
 const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
+const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const client = require('../marketData/redisClient');
+
 const { ObjectId } = require("mongodb");
+
 
 exports.overallPnl = async (req, res, next) => {
     
@@ -18,13 +21,14 @@ exports.overallPnl = async (req, res, next) => {
     const tempDate = new Date(tempTodayDate);
     const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
+    console.log(today, subscriptionId)
 
     try{
 
-      if(await client.exists(`${req.user._id.toString()}: overallpnlTenXTrader`)){
-        let pnl = await client.get(`${req.user._id.toString()}: overallpnlTenXTrader`)
+      if(await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)){
+        let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
         pnl = JSON.parse(pnl);
-        // console.log("pnl redis", pnl)
+        console.log("pnl redis", pnl)
         
         res.status(201).json({message: "pnl received", data: pnl});
 
@@ -38,7 +42,7 @@ exports.overallPnl = async (req, res, next) => {
                   },
                   status: "COMPLETE",
                   trader: new ObjectId(userId),
-                  subscription: subscriptionId 
+                  subscriptionId: new ObjectId(subscriptionId) 
               },
           },
           {
@@ -73,9 +77,9 @@ exports.overallPnl = async (req, res, next) => {
             },
           },
         ])
-        // console.log("pnlDetails in else", pnlDetails)
-        await client.set(`${req.user._id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
-        await client.expire(`${req.user._id.toString()}: overallpnlTenXTrader`, secondsRemaining);
+        console.log("pnlDetails in else", pnlDetails)
+        await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
+        await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
 
         res.status(201).json({message: "pnl received", data: pnlDetails});
       }
@@ -102,7 +106,7 @@ exports.myTodaysTrade = async (req, res, next) => {
   const count = await TenXTrader.countDocuments({trader: userId, trade_time: {$gte:today}})
   console.log("Under my today orders",userId, today)
   try {
-    const myTodaysTrade = await TenXTrader.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+    const myTodaysTrade = await TenXTrader.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'subscriptionId': 1}).populate('subscriptionId', '')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
@@ -126,7 +130,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const count = await TenXTrader.countDocuments({trader: userId, trade_time: {$lt:today}})
   console.log("Under my today orders",userId, today)
   try {
-    const myHistoryTrade = await TenXTrader.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+    const myHistoryTrade = await TenXTrader.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'subscriptionId': 1}).populate('subscriptionId', 'plan_name')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
@@ -139,254 +143,277 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
-  let subscriptionId = req.body.id;
+  let subscriptionId = req.params.id;
   let date = new Date();
-
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  // console.log(userId, today)
 
   try {
     const subscription = await Subscription.aggregate([
         {
-            $match: {
-                status: "Active",
-                _id: subscriptionId
-            },
-        },
-        {
-            $lookup: {
-                status: "Active",
-                _id: subscriptionId
-            },
-        }
-    ])
-
-
-
-    const portfoliosFund = await Portfolio.aggregate([
-      {
-        $match: {
-          status: "Active",
-          "users.userId": new ObjectId(req.user._id),
-          portfolioType: "Virtual Trading"
-        },
-      },
-      {
-        $group: {
-          _id: {
-             valueSum : {$sum: "$portfolioValue"},
-             name: "$portfolioName"
-          }
-        }
-      },
-      {
-        $project: {
-          totalFund: "$_id",
-          _id: 0
-        }
-      }
-    ])
-
-    let pnlDetails = await TenXTrader.aggregate([
-        {
-            $match: {
-                trade_time:{
-                    $lt: today
-                },
-                status: "COMPLETE",
-                trader: new ObjectId(req.user._id)
-            },
-        },
-        {
-          $group: {
-            _id: {
-              trader: "$trader",
-            },
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-
+          $match: {
+            _id: new ObjectId(subscriptionId),
           },
         },
-
         {
-          $project: {
-            _id: 0,
-            npnl: {
-              $subtract: ["$amount", "$brokerage"]
-             },
-          }
+          $lookup: {
+            from: "user-portfolios",
+            localField: "portfolio",
+            foreignField: "_id",
+            as: "portfolioData",
+          },
+        },
+        {
+          $lookup: {
+            from: "tenx-trade-users",
+            localField: "_id",
+            foreignField: "subscriptionId",
+            as: "trades",
+          },
+        },
+        {
+          $unwind:
+            {
+              path: "$trades",
+              includeArrayIndex: "string",
+            },
+        },
+        {
+            $match: {
+                "trades.trade_time": {$lt: today},
+                "trades.status": "COMPLETE",
+                "trades.trader": new ObjectId(req.user._id)
+            },
+        },
+        {
+          $group:
+      
+            {
+              _id: {
+                subscriptionId: "$_id",
+                totalFund: {
+                  $arrayElemAt: [
+                    "$portfolioData.portfolioValue",
+                    0,
+                  ],
+                },
+              },
+              totalAmount: {
+                $sum:{
+                    $multiply: ["$trades.amount", -1],
+                }
+              },
+              totalBrokerage: {
+                $sum: "$trades.brokerage",
+              },
+            },
+        },
+        {
+          $project:
+      
+            {
+              _id: 0,
+              subscriptionId: "$_id.subscriptionId",
+              totalFund: "$_id.totalFund",
+              npnl: {
+                $subtract: [
+                  "$totalAmount",
+                  "$totalBrokerage",
+                ],
+              },
+              openingBalance: {
+                $sum: [
+                    "$_id.totalFund",
+                    { $subtract: ["$totalAmount", "$totalBrokerage"] }
+                  ]
+              }
+            },
         },
     ])
 
-    console.log("pnlDetails", pnlDetails, portfoliosFund)
-    res.status(200).json({status: 'success', data: {totalCredit: portfoliosFund[0], lifetimePnl: pnlDetails[0]}});
+    if(subscription.length > 0){
+        res.status(200).json({status: 'success', data: subscription[0]});
+    } else{
+        const portfolioValue = await Subscription.aggregate([
+            {
+              $match: {
+                _id: new ObjectId(subscriptionId),
+              },
+            },
+            {
+              $lookup: {
+                from: "user-portfolios",
+                localField: "portfolio",
+                foreignField: "_id",
+                as: "portfolioData",
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  subscriptionId: "$_id",
+                  totalFund: {
+                    $arrayElemAt: [
+                      "$portfolioData.portfolioValue",
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                subscriptionId: "$_id.subscriptionId",
+                totalFund: "$_id.totalFund",
+              },
+            },
+        ])
+        res.status(200).json({status: 'success', data: portfolioValue[0]});
+    }
   } catch (e) {
     console.log(e);
     res.status(500).json({status:'error', message: 'Something went wrong'});
   }
 }
 
-// exports.openingBalance = async (req, res, next) => {
-//     let date = new Date();
-//     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//     todayDate = todayDate + "T00:00:00.000Z";
-//     const today = new Date(todayDate);
-//     console.log(req.user._id)
-//     const subscriptionId = req.params.id;
+exports.tradingDays = async(req, res, next)=>{
+    // let subscriptionId = req.params.id;
+    let userId = req.user._id;
+    // "63788f3991fc4bf629de6df0"
+    // req.user._id;
 
-//     let myPnlAndCreditData = await Subscription.aggregate([
-//         {
-//             $match:{
-//                 status: "Active",
-//                 _id: subscriptionId
-//             }
-//         },
-//         {
-//           $lookup: {
-//             from: "user-personal-details",
-//             localField: "trader",
-//             foreignField: "_id",
-//             as: "result",
-//           },
-//         },
-//         {
-//           $match: {
-//           status : "COMPLETE",
-//           trader: new ObjectId(req.user._id),
-//           trade_time: {$lt:today}
-//           }
-//         },
-//         {
-//           $group: {
-//             _id: {
-//               // trader: "$trader",
-//               // employeeId: {
-//               //   $arrayElemAt: ["$result.employeeid", 0],
-//               // },
-//               funds: {
-//                 $arrayElemAt: ["$result.fund", 0],
-//               },
-//             },
-//             gpnl: {
-//               $sum: {
-//                 $multiply: ["$amount", -1],
-//               },
-//             },
-//             brokerage: {
-//               $sum: {
-//                 $toDouble: "$brokerage",
-//               },
-//             },
-//           },
-//         },
-//         {
-//           $addFields:
-//             {
-//               npnl: {
-//                 $subtract: ["$gpnl", "$brokerage"],
-//               },
-//               availableMargin : {
-//                 $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
-//               }
-//             },
-//         },
-//         {
-//           $project:
-//             {
-//               _id: 0,
-//               // userId: "$_id.userId",
-//               // employeeId: "$_id.employeeId",
-//               totalCredit: "$_id.funds",
-//               gpnl: "$gpnl",
-//               brokerage: "$brokerage",
-//               npnl: "$npnl",
-//               availableMargin: "$availableMargin"
-//             },
-//         },
-//         {
-//           $sort : {npnl : 1}
-//         }
-//       ])
+    const tradingDays = await TenXTrader.aggregate([
+        {
+          $match: {
+            trader: new ObjectId(userId),
+            status: "COMPLETE",
+          },
+        },
+        {
+          $lookup: {
+            from: "tenx-subscriptions",
+            localField: "subscriptionId",
+            foreignField: "_id",
+            as: "subscriptionData",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              subscriptionId: "$subscriptionId",
+              validity: "$subscriptionData.validity",
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$trade_time",
+                },
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              id: "$_id.subscriptionId",
+              validity: {
+                $arrayElemAt: ["$_id.validity", 0],
+              },
+            },
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            subscriptionId: "$_id.id",
+            totalTradingDays: "$count",
+            remainingDays: {
+              $subtract: ["$_id.validity", "$count"],
+            },
+          },
+        },
+      ])
+      res.status(200).json({status: 'success', data: tradingDays});
+    // res.send(tradingDays);
+}
 
+exports.autoExpireSubscription = async()=>{
+    console.log("autoExpireSubscription running");
+    const subscription = await Subscription.find({status:"Active"});
 
-//     let myPnlAndCreditData = await InfinityTrader.aggregate([
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "trader",
-//           foreignField: "_id",
-//           as: "result",
-//         },
-//       },
-//       {
-//         $match: {
-//         status : "COMPLETE",
-//         trader: new ObjectId(req.user._id),
-//         trade_time: {$lt:today}
-//         }
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             // trader: "$trader",
-//             // employeeId: {
-//             //   $arrayElemAt: ["$result.employeeid", 0],
-//             // },
-//             funds: {
-//               $arrayElemAt: ["$result.fund", 0],
-//             },
-//           },
-//           gpnl: {
-//             $sum: {
-//               $multiply: ["$amount", -1],
-//             },
-//           },
-//           brokerage: {
-//             $sum: {
-//               $toDouble: "$brokerage",
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $addFields:
-//           {
-//             npnl: {
-//               $subtract: ["$gpnl", "$brokerage"],
-//             },
-//             availableMargin : {
-//               $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
-//             }
-//           },
-//       },
-//       {
-//         $project:
-//           {
-//             _id: 0,
-//             // userId: "$_id.userId",
-//             // employeeId: "$_id.employeeId",
-//             totalCredit: "$_id.funds",
-//             gpnl: "$gpnl",
-//             brokerage: "$brokerage",
-//             npnl: "$npnl",
-//             availableMargin: "$availableMargin"
-//           },
-//       },
-//       {
-//         $sort : {npnl : 1}
-//       }
-//     ])
-  
-//     console.log("myPnlAndCreditData", myPnlAndCreditData)
-  
-//     res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
-//   }
+    for(let i = 0; i < subscription.length; i++){
+        let users = subscription[i].users;
+        for(let j = 0; j < users.length; j++){
+            let userId = users[j].userId;
+            const tradingDays = await TenXTrader.aggregate([
+                {
+                  $match: {
+                    trader: new ObjectId(userId),
+                    subscriptionId: new ObjectId(subscription[i]._id),
+                    status: "COMPLETE",
+                  },
+                },
+                {
+                  $group: {
+                    _id: {
+                      date: {
+                        $dateToString: {
+                          format: "%Y-%m-%d",
+                          date: "$trade_time",
+                        },
+                      },
+                    },
+                  },
+                },
+                {
+                  $group: {
+                    _id: {
+                        id: new ObjectId(userId)
+                    },
+                    count: {
+                      $sum: 1,
+                    },
+                  },
+                },
+                {
+                  $project: {
+                    _id: 0,
+                    // subscriptionId: "$_id.id",
+                    totalTradingDays: "$count",
+                    // remainingDays: {
+                    //   $subtract: ["$_id.validity", "$count"],
+                    // },
+                  },
+                },
+            ])
 
+            // console.log("tradingDays", tradingDays, userId)
+
+            if(tradingDays.length && tradingDays[0].totalTradingDays === 0){
+                const updateUser = await User.findOneAndUpdate(
+                    { _id: new ObjectId(userId), "subscription.subscriptionId": new ObjectId(subscription[i]._id)},
+                    {
+                      $set: {
+                        'subscription.$.status': "Expired"
+                      }
+                    },
+                    { new: true }
+                );
+        
+                const updateSubscription = await Subscription.findOneAndUpdate(
+                    { _id: new ObjectId(subscription[i]._id), "users.userId": new ObjectId(userId)},
+                    {
+                        $set: {
+                          'users.$.status': "Expired"
+                        }
+                      },
+                    { new: true }
+                );
+            }
+        }
+    }
+}

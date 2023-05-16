@@ -21,27 +21,28 @@ import { infinityTrader } from '../../../variables';
 export default function InfinityTrading({socket}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [yesterdayData, setyesterdayData] = useState({});
+  const [availbaleMargin, setAvailbleMargin] = useState([]);
   const pnl = useContext(NetPnlContext);
-  const gpnlcolor = pnl.infinityNetPnl >= 0 ? "success" : "error"
+  const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+  // const [availbaleMargin, setAvailbleMargin] = useState([]);
 
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-  useEffect(() => {
-    console.log("fund details in useeffect")
-    axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      }}
-      ).then((res)=>{
-        console.log("fund details", res.data.data)
-        setyesterdayData(res.data.data);
-      })
+  // useEffect(() => {
+  //   console.log("fund details in useeffect")
+  //   axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
+  //     withCredentials: true,
+  //     headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //         "Access-Control-Allow-Credentials": true
+  //     }}
+  //     ).then((res)=>{
+  //       console.log("fund details", res.data.data)
+  //       setyesterdayData(res.data.data);
+  //     })
       
-  }, []);
+  // }, []);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;
@@ -50,7 +51,6 @@ export default function InfinityTrading({socket}) {
   const handleSetIsGetStartedClicked = useCallback((value) => {
     setIsGetStartedClicked(value);
   }, []);
-
 
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
@@ -74,12 +74,12 @@ export default function InfinityTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
+      setAvailbleMargin={setAvailbleMargin}
     />;
   }, [handleSetIsGetStartedClicked, isGetStartedClicked]);
 
-  let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
-  let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
-  let fundChangePer = openingBalance ? ((openingBalance+pnl.infinityNetPnl - openingBalance)*100/openingBalance) : 0;
+  let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
+  let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;
 
   console.log("fundDetail", fundChangePer, openingBalance)
   return (
@@ -100,8 +100,8 @@ export default function InfinityTrading({socket}) {
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(openingBalance+pnl.infinityNetPnl) >= 0.00 ? "₹" + ((openingBalance+pnl.infinityNetPnl).toFixed(0)): "₹" + ((-(openingBalance+pnl.infinityNetPnl)).toFixed(0))}</MDTypography>
-                    <MDAvatar src={openingBalance+pnl.infinityNetPnl - openingBalance+pnl.infinityNetPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
+                    <MDTypography fontSize={10}>{(openingBalance+pnl.netPnl) >= 0.00 ? "₹" + ((openingBalance+pnl.netPnl).toFixed(0)): "₹" + ((-(openingBalance+pnl.netPnl)).toFixed(0))}</MDTypography>
+                    <MDAvatar src={openingBalance+pnl.netPnl - openingBalance+pnl.netPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
                   </MDBox>
                 </Grid>
               
@@ -133,7 +133,7 @@ export default function InfinityTrading({socket}) {
                 </Grid>
               
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.infinityNetPnl >= 0.00 ? "+₹" + (pnl.infinityNetPnl.toFixed(2)): "-₹" + ((-pnl.infinityNetPnl).toFixed(2))}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)): "-₹" + ((-pnl.netPnl).toFixed(2))}</MDTypography>
                 </Grid>
               </Grid>
             
@@ -154,15 +154,13 @@ export default function InfinityTrading({socket}) {
           {/* <WatchList/> */}
           {memoizedInstrumentDetails}
         </Grid>
-        {/* <Grid item xs={12} md={6} lg={3}>
-          <BuySell/>
-        </Grid> */}
+
         <Grid item xs={12} md={6} lg={12}>
           {/* <OverallPnl/> */}
           {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
-          <InfinityMargin />
+          <InfinityMargin availbaleMargin={availbaleMargin} setyesterdayData={setyesterdayData}/>
         </Grid>
       </Grid>
 

@@ -3,7 +3,9 @@ import { ThemeProvider } from 'styled-components';
 import Title from '../components/Title/index'
 import React from 'react'
 import ServiceCard from '../components/Cards/ServiceCard'
+
 import useMeasure from 'react-use-measure'
+
 import Footer from '../components/Footers/Footer'
 
 import Navbar from '../components/Navbars/Navbar'
@@ -48,7 +50,7 @@ const About = () => {
                         </Grid>
 
                         <Grid item xs={12} md={6} sx={{mt:10}} >
-                            <img src={about1} style={{ width: "100%", objectFit: "contain" }} />
+                            <img src={about1} style={{ width: "100%", objectFit: "contain" }} alt="" />
                         </Grid>
                     </Grid>
                 </Container>
@@ -58,6 +60,7 @@ const About = () => {
                     <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center" sx={{ mt: { xs: 10, md: 15 } }}>
                         <Grid item xs={12} md={6}  >
                             <Stack spacing={2} sx={{ maxWidth: 480 }}>
+
                                 <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1 }} style={{ color: "white" }} >Idea</Title>
                                 <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >At StoxHero, we understand the importance of practice and learning in mastering the art of trading. That's why we have created a cutting-edge platform that combines the thrill of gamification with the dynamics of intra-day trading. Our daily contests on real-time contracts provide users with the perfect opportunity to test their skills, implement different strategies, and stay ahead in the competitive stock market environment..</Title>
 
@@ -101,7 +104,7 @@ const About = () => {
     )
 }
 
-export default About
+export default About;
 
 
 
