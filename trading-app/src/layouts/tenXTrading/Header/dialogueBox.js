@@ -7,6 +7,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import axios from "axios";
 
 
 //icons
@@ -35,6 +36,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
+  const [updatedUser, setUpdatedUser] = React.useState({});
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
@@ -44,19 +46,60 @@ export default function Dialogue({amount, name, id, walletCash}) {
   const navigate = useNavigate();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  const copyText = `                    
-
-  📲 Visit https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
+  const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(()=>{
-    console.log("user detail", getDetails?.userDetails)
-    let subscribed = (getDetails?.userDetails?.subscription)?.filter((elem)=>{
-      return (elem?.subscriptionId)?.toString() === (id)?.toString();
+
+    console.log("in useEffect")
+
+    axios.get(`${baseUrl}api/v1/loginDetail`, {
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+      },
+    })
+    .then((res)=>{
+      setUpdatedUser(res.data);
+      console.log("subscribed", res.data)
+      let subscribed = (res.data?.subscription)?.filter((elem)=>{
+        return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
+      })
+
+      console.log("subscribed", subscribed)
+      if(subscribed?.length > 0){
+        setIsSubscribed(true);
+      }
+
+    }).catch((err)=>{
+      console.log("Fail to fetch data of user", err);
+    })
+
+
+
+    // if(Object.keys(updatedUser).length){
+
+    // } else{
+    //   let subscribed = (getDetails?.userDetails?.subscription)?.filter((elem)=>{
+    //     return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
+    //   })
+    //   if(subscribed?.length > 0){
+    //     setIsSubscribed(true);
+    //   }
+    // }
+    // console.log("user detail", getDetails?.userDetails)
+
+  }, [])
+
+  useEffect(()=>{
+    let subscribed = (updatedUser?.subscription)?.filter((elem)=>{
+      return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
     })
     if(subscribed?.length > 0){
       setIsSubscribed(true);
     }
-  }, [])
+  }, [updatedUser])
 
   const handleCopy = () => {
     openSuccessSB('success', 'Text copied.');
@@ -109,6 +152,8 @@ export default function Dialogue({amount, name, id, walletCash}) {
             ...messege,
             thanksMessege: "Thanks for purchase subscription"
         })
+        console.log(dataResp.data)
+        setUpdatedUser(dataResp.data);
         openSuccessSB("success", dataResp.message)
     }
   }
@@ -198,15 +243,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
                 </MDBox>
               }
 
-            {/* {!messege.thanksMessege ?
-                <>
-                    Thanks for showing your interest in our subscription!
-                    <br />
-                    {`Your wallet money is INR ${walletCash}`}
-                </>
-                :
-                "Thanks for showing your interest in our subscription!"
-            } */}
             </DialogTitle>
             <DialogContent>
               {messege.thanksMessege ? 
@@ -222,12 +258,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
                     <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography>
                     <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Cancel easily online.</Typography>
                   </MDBox>
-                    {/* {messege.thanksMessege ? messege.thanksMessege
-                    :
-                    messege.lowBalanceMessage ? messege.lowBalanceMessage
-                    :
-                    "Purchase subscription using your wallet money"
-                    } */}
                 </DialogContentText>
 
                 <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={8} >
@@ -284,9 +314,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
             </DialogContent>
             <DialogActions>
-            {/* <Button onClick={buySubscription} autoFocus>
-                Buy
-            </Button> */}
             <Button onClick={handleClose} autoFocus>
                 Close
             </Button>
@@ -296,22 +323,3 @@ export default function Dialogue({amount, name, id, walletCash}) {
     </>
   );
 }
-
-{/* <>
-<MDTypography>Your wallet balance is low refer more user to plateform for buy this subscription.</MDTypography>
-<MDBox display='flex' 
-    alignItems='center' 
-    style={{
-        backgroundColor:'#c3c3c3', 
-        padding: '10px',
-        borderRadius: '10px'
-    }}
->
-<MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
-<MDButton variant='text' color='black' padding={0} margin={0} >
-    <CopyToClipboard text = {copyText} onCopy={handleCopy}>
-        <BiCopy/>
-    </CopyToClipboard>
-</MDButton>
-</MDBox>
-</> */}
