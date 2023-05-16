@@ -650,7 +650,7 @@ router.get("/newuseryesterday", (req, res)=>{
   yesterdayDate = yesterdayDate + "T00:00:00.000Z";
   const yesterday = new Date(yesterdayDate);
   console.log(today,yesterday)
-  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}}).populate('referredBy','first_name last_name')
+  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
       console.log(data)
       return res.status(200).json({data : data, count: data.length});
@@ -667,7 +667,7 @@ router.get("/newuserthismonth", (req, res)=>{
   monthStartDate = monthStartDate + "T00:00:00.000Z";
   const monthStart = new Date(monthStartDate);
   console.log(monthStart)
-  const newuser = UserDetail.find({joining_date:{$gte: monthStart}}).populate('referredBy','first_name last_name')
+  const newuser = UserDetail.find({joining_date:{$gte: monthStart}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
       console.log(data)
       return res.status(200).json({data : data, count: data.length});
@@ -679,7 +679,7 @@ router.get("/newuserthismonth", (req, res)=>{
 
 router.get("/allusers", (req, res)=>{
 
-  const newuser = UserDetail.find().populate('referredBy','first_name last_name')
+  const newuser = UserDetail.find().populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
       console.log(data)
       return res.status(200).json({data : data, count: data.length});
@@ -696,6 +696,144 @@ router.get("/allusersNameAndId", (req, res)=>{
   .then((data)=>{
       // console.log(data)
       return res.status(200).json({message: "user name and id retreived", data : data, count: data.length});
+  })
+  .catch((err)=>{
+      console.log("Error:",err)
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/newuserreferralstoday", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  console.log(today)
+  const newuser = UserDetail.find({joining_date:{$gte: today},referredBy : { $exists: true }}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/newuserreferralsyesterday", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  date.setDate(date.getDate() - 1);
+  let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+  const yesterday = new Date(yesterdayDate);
+  console.log(today,yesterday)
+  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}, referredBy :{$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/newuserreferralsthismonth", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
+  monthStartDate = monthStartDate + "T00:00:00.000Z";
+  const monthStart = new Date(monthStartDate);
+  console.log(monthStart)
+  const newuser = UserDetail.find({joining_date:{$gte: monthStart}, referredBy : {$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/allreferralsusers", (req, res)=>{
+
+  const newuser = UserDetail.find({referredBy : {$exists:true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      console.log("Error:",err)
+      return res.status(422).json({error : err})
+  })
+});
+
+//-----
+
+router.get("/newusercampaigntoday", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  console.log(today)
+  const newuser = UserDetail.find({joining_date:{$gte: today},campaign : { $exists: true }}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/newusercampaignyesterday", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  date.setDate(date.getDate() - 1);
+  let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+  const yesterday = new Date(yesterdayDate);
+  console.log(today,yesterday)
+  const newuser = UserDetail.find({joining_date:{$gte: yesterday,$lte: today}, campaign :{$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/newusercampaignthismonth", (req, res)=>{
+  //console.log(req.params)
+  let date = new Date();
+  let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
+  monthStartDate = monthStartDate + "T00:00:00.000Z";
+  const monthStart = new Date(monthStartDate);
+  console.log(monthStart)
+  const newuser = UserDetail.find({joining_date:{$gte: monthStart}, campaign : {$exists : true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
+  })
+  .catch((err)=>{
+      return res.status(422).json({error : err})
+  })
+});
+
+router.get("/allcampaignusers", (req, res)=>{
+
+  const newuser = UserDetail.find({campaign : {$exists:true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
+  .then((data)=>{
+      console.log(data)
+      return res.status(200).json({data : data, count: data.length});
   })
   .catch((err)=>{
       console.log("Error:",err)
