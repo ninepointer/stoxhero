@@ -267,7 +267,7 @@ router.get("/referralCode", async (req, res) => {
 
 router.get("/tradableInstrument", authentication, async (req, res, next)=>{
   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
-  // await TradableInstrument.tradableInstrument(req,res,next);
+  await tradableInstrument(req,res,next);
 })
 
 router.get("/xtsTradable", authentication, async (req, res, next)=>{

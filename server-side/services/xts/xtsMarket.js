@@ -1,12 +1,15 @@
 let XtsMarketDataAPI = require('xts-marketdata-api').XtsMarketDataAPI;
 let XtsMarketDataWS = require('xts-marketdata-api').WS;
 const socketIoClient = require("socket.io-client");
+const StockIndex = require("../../models/StockIndex/stockIndexSchema");
+const User = require("../../models/User/userDetailSchema");
 const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema");
 const {xtsAccountType} = require("../../constant");
 const fetchXTSToken = require("./xtsHelper/fetchXTSToken");
 const client = require("../../marketData/redisClient");
 const io = require('../../marketData/socketio');
-const {save} = require("./xtsHelper/saveXtsCred")
+const {save} = require("./xtsHelper/saveXtsCred");
+const { ObjectId } = require('mongodb');
 
 let xtsMarketDataWS ;
 let xtsMarketDataAPI ;
@@ -68,9 +71,13 @@ const subscribeInstrument = async()=>{
   const token = await fetchXTSToken();
   let response3 = await xtsMarketDataAPI.subscription({
     instruments: token,
+    xtsMessageCode: 1502,
+  });
+  let response4 = await xtsMarketDataAPI.subscription({
+    instruments: token,
     xtsMessageCode: 1512,
   });
-  console.log(response3);
+  console.log("subscription info", response4);
 }
 
 const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
@@ -101,6 +108,7 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
 
 const getXTSTicksForUserPosition = async (socket) => {
 
+  let marketDepth ;
   let indecies = await client.get("index")
   if(!indecies){
     indecies = await StockIndex.find({status: "Active"});
@@ -113,14 +121,20 @@ const getXTSTicksForUserPosition = async (socket) => {
     console.log("candle data", candleData);
   });
 
+  xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
+    marketDepth = marketDepthData;
+    // console.log(marketDepthData);
+  });
+
   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
+    // console.log("candle data", ticksObj, marketDepth);
     let intervalId;
     if(intervalId){
       clearTimeout(intervalId);
     }
     ticksObj = JSON.parse(ticksObj);
-    ticksObj.last_price = ticksObj.LastTradedPrice;
-    ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+    // ticksObj.last_price = ticksObj.LastTradedPrice;
+    // ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
  
     let ticks = [];
     ticks.push(ticksObj);
@@ -138,18 +152,36 @@ const getXTSTicksForUserPosition = async (socket) => {
 
 
     try{
+      let instrumentTokenArr;
       let userId = await client.get(socket.id)
       // await client.del(userId)
-      let instruments = await client.SMEMBERS(userId)
-      // console.log(userId, instruments)
-      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      // console.log(instrumentTokenArr)
-      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.ExchangeInstrumentID).toString()));
+      // const user = await User.findById(new ObjectId(userId));
+      // if(await client.exists(userId)){
+        let instruments = await client.SMEMBERS(userId)
+        instrumentTokenArr = [...new Set(instruments)]; 
+      // } else{
+
+      // }
+
+      console.log(instrumentTokenArr)
+
+      let filteredTicks = [];
+      for(let i=0; i < instrumentTokenArr.length; i++){
+        // ticksObj, marketDepth
+        if(ticksObj.ExchangeInstrumentID == instrumentTokenArr[i] && marketDepth.ExchangeInstrumentID == instrumentTokenArr[i]){
+            ticksObj.last_price = ticksObj.LastTradedPrice;
+            ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+            ticksObj.change = marketDepth.Touchline.PercentChange;
+            filteredTicks.push(ticksObj)
+        }
+      }
+
+      // let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.ExchangeInstrumentID).toString()));
       if (indexData && indexData.length > 0) {
         socket.emit('index-tick', indexData);
       }
       
-      // console.log("filteredTicks", filteredTicks);
+      console.log("filteredTicks", filteredTicks);
       // setTimeout(()=>{
         filteredTicks = [...filteredTicks, ...filteredTicks];        
         
