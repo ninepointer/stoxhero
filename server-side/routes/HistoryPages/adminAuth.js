@@ -35,7 +35,7 @@ const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 
 router.get("/deletePnlKey", async (req, res) => {
-  await client.del(`kiteCredToday:${process.env.PROD}`);
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
   await deletePnlKey()
 });
 
