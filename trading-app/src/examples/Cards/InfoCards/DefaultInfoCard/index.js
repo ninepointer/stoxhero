@@ -25,9 +25,9 @@ import Icon from "@mui/material/Icon";
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
 
-function DefaultInfoCard({ color, icon, title, description, value }) {
+function DefaultInfoCard({ color, icon, title, description, value,value2 }) {
   return (
-    <Card>
+    <Card sx={{background:"#161717"}}>
       <MDBox p={2} mx={3} display="flex" justifyContent="center">
         {/* <MDBox
           display="grid"
@@ -45,7 +45,7 @@ function DefaultInfoCard({ color, icon, title, description, value }) {
         </MDBox> */}
       </MDBox>
       <MDBox pb={2} px={2} textAlign="center" lineHeight={1.25}>
-        <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
+        <MDTypography variant="h6" fontWeight="500" fontSize={17} sx={{color:"#fff"}} textTransform="capitalize">
           {title}
         </MDTypography>
         {description && (
@@ -55,9 +55,16 @@ function DefaultInfoCard({ color, icon, title, description, value }) {
         )}
         {description && !value ? null : <Divider />}
         {value && (
-          <MDTypography variant="h5" fontWeight="medium">
+
+          <MDBox display="flex" flexDirection="column" >
+          <MDTypography  fontSize={14} fontWeight="400" sx={{color:"#fff"}}>
             {value}
           </MDTypography>
+
+          <MDTypography fontSize={28} fontWeight="500" sx={{color:"#fff"}} >
+            {value2}
+          </MDTypography>
+          </MDBox>
         )}
       </MDBox>
     </Card>

@@ -76,6 +76,7 @@ MDTypography.propTypes = {
     "dark",
     "text",
     "white",
+    "green",
   ]),
   fontWeight: PropTypes.oneOf([false, "light", "regular", "medium", "bold"]),
   textTransform: PropTypes.oneOf(["none", "capitalize", "uppercase", "lowercase"]),

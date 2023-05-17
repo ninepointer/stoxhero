@@ -9,6 +9,9 @@ import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Tooltip } from '@mui/material';
+import SensorsIcon from '@mui/icons-material/Sensors';
+import SensorsOffIcon from '@mui/icons-material/SensorsOff';
+import trade from '../../../assets/images/tradesicon.png';
 
 
 // Material Dashboard 2 React components
@@ -38,9 +41,10 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   console.log("rendering : InstrumentDetails")
   let styleTD = {
     textAlign: "center",
-    fontSize: "11px",
-    fontWeight: "900",
-    color: "#7b809a",
+  
+    fontSize: "14px",
+    fontWeight: "500",
+    color: "#FFFFFF",
     opacity: 0.7
   }
 
@@ -137,7 +141,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
 
     instrumentDetailObj.instrument = (
-      <MDTypography variant="caption" color={instrumentcolor} fontWeight="medium">
+      <MDTypography variant="caption" color="#00ff00" fontWeight="medium">
         {elem.instrument}
       </MDTypography>
     );
@@ -262,16 +266,16 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       onClose={closeSuccessSB}
       close={closeSuccessSB}
       bgWhite="info"
-      sx={{ borderLeft: '10px solid red', borderRadius: "15px" }}
+      sx={{ borderRadius: "15px" }}
     />
   );
 
 
   return (
-    <Card>
+    <Card sx={{width:"100%",background:"#161717"}} >
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
         <MDBox display="flex">
-          <MDTypography variant="h6" gutterBottom>
+          <MDTypography variant="h6" sx={{color:"#fff"}}>
             My Watchlist
           </MDTypography>
           <MDBox display="flex" alignItems="center" lineHeight={0}>
@@ -285,23 +289,24 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
             color={isAppLive ? "success" : "error"}
             style={{display:"flex",alignItems:"center"}}
             >
-              <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"}
+             <MDBox borderRadius="20px" bgColor="#F44335" width="66px"> {isAppLive  ? <MDBox display="flex" alignItems="center" > <Typography color="#fff" fontSize={14} fontWeight={400} ml={1} >Live</Typography> <SensorsIcon sx={{color:"#fff",ml:"10px"}} /></MDBox> :<MDBox display="flex" alignItems="center" > <Typography color="#fff" fontSize={14} fontWeight={400} ml={0.5} >Offline</Typography><SensorsOffIcon sx={{color:"#fff",ml:"3px"}}/></MDBox>} </MDBox> 
             </MDTypography>
         </MDBox>
       </MDBox>
       {instrumentDetailArr?.length === 0 ? (
-      <MDBox display="flex" flexDirection="column" mb={4} sx={{alignItems:"center"}}>
-        <RiStockFill style={{fontSize: '30px'}}/>
-        <Typography style={{fontSize: '20px',color:"grey"}}>Nothing here</Typography>
+      <MDBox bgColor="#000" height="432px" display="flex" flexDirection="column" justifyContent="center" sx={{alignItems:"center"}}>
+        {/* <RiStockFill style={{fontSize: '30px'}}/> */}
+        <img src={trade} alt="" style={{width:"48px",height:"48px"}} />
+        <Typography style={{fontSize: '20px',color:"#fff"}}>Nothing here</Typography>
         <Typography mb={2} fontSize={15} color="grey">Use the search bar to add instruments.</Typography>
         <MDButton variant="outlined" size="small" color="info" onClick={()=>{setIsGetStartedClicked(true)}}>Add Instrument</MDButton>
       </MDBox>)
       :
-      (<MDBox>
+      (<MDBox bgColor="#161717" >
         <TableContainer component={Paper}>
-          <table style={{borderCollapse: "collapse", width: "100%", borderSpacing: "10px 5px"}}>
-            <thead>
-              <tr style={{borderBottom: "1px solid #D3D3D3"}}>
+          <table style={{borderCollapse: "collapse",borderBottom: "2px solid black", width: "100%",background:"#000"}}>
+            <thead style={{background:"#161717",marginBottom:"20px"}} >
+              <tr style={{}}>
                 <td style={styleTD}>CONTRACT DATE</td>
                 <td style={styleTD} >SYMBOL</td>
                 <td style={styleTD} >INSTRUMENT</td>
@@ -318,7 +323,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
               {instrumentDetailArr.map((elem, index)=>{
                 return(
               <tr
-              style={{borderBottom: "1px solid #D3D3D3"}} key={elem.instrumentToken.props.children}
+              style={{height:"54px",}} key={elem.instrumentToken.props.children}
               >
                   <InstrumentComponent 
                     contractDate={elem.contractDate.props.children}

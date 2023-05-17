@@ -14,19 +14,19 @@ code {
 
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 9px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  border-radius: 10px;
+  border-radius: 8px;
   background: #000;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 /* Handle on hover */

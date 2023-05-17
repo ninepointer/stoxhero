@@ -138,6 +138,9 @@ const colors = {
       main: "#323a54",
       state: "#1a2035",
     },
+    green:{
+      main:"#00ff00",
+    }
   },
 
   socialMediaColors: {

@@ -236,7 +236,11 @@ export default function App() {
     
   ) : (
     
+      
+
+         
       <ThemeProvider theme={darkMode ? themeDark : theme}>
+        <MDBox bgColor=" #1E1E1E" opacity={0.9}>
         <CssBaseline />
         {layout === "dashboard" && (
           <>
@@ -263,6 +267,7 @@ export default function App() {
             <Configurator />
             {/* {configsButton} */}
           </>
+        
         )}
         {layout === "companyposition" && <Configurator />}
         {/* {layout === "analytics" && <Configurator />} */}
@@ -303,6 +308,7 @@ export default function App() {
           {/* <Route path='/campaigndetails' element={<CampaignDetails/>}/> */}
             
         </Routes>
+        </MDBox>
       </ThemeProvider>
     
   );

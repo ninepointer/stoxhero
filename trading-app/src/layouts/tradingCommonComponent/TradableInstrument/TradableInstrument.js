@@ -33,6 +33,7 @@ import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
 import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
 
+
 const initialState = {
   instrumentsData: [],
   successSB: false,
@@ -282,26 +283,28 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
  //handleBuyClick
 
   return (
-    <MDBox sx={{backgroundColor:"white", display:"flex", borderRadius:2, marginBottom:2}}>
-      <MDBox display="flex" flexDirection="column" justifyContent="space-between" sx={{width:"100%"}}>
+    <MDBox sx={{backgroundColor:"#161717", display:"flex", marginBottom:2}}>
+      <MDBox display="flex" flexDirection="column" justifyContent="space-between"  sx={{width:"100%"}}>
         <TextField
           id="outlined-basic" 
           // label="Click here to search any symbol and add them in your watchlist to start trading" 
-          variant="outlined" 
+          variant='outlined' 
           type="text"
+          size="100px"
           placeholder="Type here to search any symbol and add them in your watchlist to start trading"
           value={state.text}
           inputRef={textRef}
           InputProps={{
             onFocus: () => textRef.current.select(),
             endAdornment: (
-              <MDButton variant="text" color={from === paperTrader ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
+              <MDButton variant="elevated" sx={{color:"#fff",fontSize:"25px",fontWeight:"bold",'&:hover':{background:"#3726FF"}}} ml={20} color={from === paperTrader ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
             ),
             startAdornment: (
-              <>{<AiOutlineSearch/>}</>
+              <>{<AiOutlineSearch style={{color:"#fff"}} />}</>
             ),
           }}
-          sx={{margin: 0, background:"white",padding : 0, borderRadius:2 ,width:"100%",'& label': { color: '#49a3f1', fontSize:20, padding:0.4 }}} onChange={(e)=>{dispatch({ type: 'setText', payload: e.target.value });sendSearchReq(e)}} //e.target.value.toUpperCase()
+          style={{color:"#FFFFFF"}}
+          sx={{margin: 0, background:" #161717",padding : 0,fontSize:"14px",fontWeight:"400", borderRadius:2 ,width:"100%",'& label': { color: '#FFFFFF', fontSize:20, padding:0.4 }}} onChange={(e)=>{dispatch({ type: 'setText', payload: e.target.value });sendSearchReq(e)}} //e.target.value.toUpperCase()
           />
         <MDBox>
         { state.instrumentsData?.length > 0 &&

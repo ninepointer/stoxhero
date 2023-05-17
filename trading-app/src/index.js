@@ -10,6 +10,7 @@ import AuthContext, { userContext } from "./AuthContext";
 import {NetPnlProvider} from './PnlContext';
 import MarketDataContext from './MarketDataContext';
 import RenderContext from "./renderContext";
+import './index.css';
 
 
 ReactDOM.render(

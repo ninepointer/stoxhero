@@ -19,6 +19,8 @@ import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
 
+import tradelogo from '../../../assets/images/tradesicon.png'
+
 
 function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   const {render, setRender} = useContext(renderContext);
@@ -226,18 +228,22 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
     };
 
   return (
-    <Card>
+
+    
+
+    <Card sx={{background:"#161717"}} >
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-        <MDBox>
-          <MDTypography variant="h6" gutterBottom>
-            {`My Positions (Open P: ${countPosition.openPosition} | Close P: ${countPosition.closePosition})`}
+        <MDBox display="flex" >
+          <MDTypography fontSize={24} fontWeight={500} style={{color:"#fff"}}>
+            My Positions
           </MDTypography>
+          <MDTypography fontSize={16} fontWeight={400} style={{color:"#FFFFFF",marginTop:"10px",marginLeft:"10px"}} >{`(Open P: ${countPosition.openPosition} | Close P: ${countPosition.closePosition})`}</MDTypography>
         </MDBox>
       </MDBox>
       {rows.length === 0 ? (
-      <MDBox display="flex" flexDirection="column" mb={4} sx={{alignItems:"center"}}>
-        <GrAnchor style={{fontSize: '30px'}}/>
-        <Typography style={{fontSize: '20px', color:"grey"}}>No open positions yet</Typography>
+      <MDBox bgColor="#000" display="flex" justifyContent="center" flexDirection="column" mb={4} sx={{alignItems:"center",height:"431px"}}>
+        <img src={tradelogo} alt="" style={{height:"48px",width:"48px"}} />
+        <Typography style={{fontSize: '20px', color:"#fff"}}>No open positions yet</Typography>
         <Typography mb={2} fontSize={15} color="grey">Add instruments and start trading.</Typography>
         <MDButton variant="outlined" size="small" color="info" onClick={()=>{setIsGetStartedClicked(true)}}>Get Started</MDButton>
       </MDBox>)

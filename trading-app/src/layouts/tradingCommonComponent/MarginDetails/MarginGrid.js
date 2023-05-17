@@ -11,6 +11,7 @@ import downicon from '../../../assets/images/down.png'
 import marginicon from '../../../assets/images/marginicon.png'
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
+import { Typography } from '@mui/material';
 
 const MarginGrid = () => {
   console.log("rendering : papermargin")
@@ -89,12 +90,41 @@ const MarginGrid = () => {
             <Grid item xs={16} lg={12}>
               <Grid container spacing={3}>
 
-                <Grid item xs={16} >
+                <Grid  item xs={4} >
                   <DefaultInfoCard
                     title={`Portfolio Details(${portfolioName})`}
-                    description="Below is a summary of the total funds and their intended uses"
-                    value={`Total Credit: ${totalCreditString} | Available Margin: ${availableMarginString}  | Used Margin Today: ${usedMarginString}`}
+                    
+                    value="Total Credit"
+                    value2={totalCreditString}
                   />
+
+                  
+                </Grid>
+
+                <Grid item xs={4} >
+                  <DefaultInfoCard
+                    title={`Portfolio Details(${portfolioName})`}
+                    
+                    value="Available Margin"
+                    value2={availableMarginString}
+                  />
+
+                  
+                </Grid>
+
+                <Grid item xs={4} >
+                  <DefaultInfoCard
+                    title={`Portfolio Details(${portfolioName})`}
+                    
+                    value="Used Margin Today"
+                    value2={usedMarginString}
+                  />
+
+                  
+                </Grid>
+
+                
+
                 </Grid>
                 {/* <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
@@ -126,7 +156,7 @@ const MarginGrid = () => {
                 </Grid> */}
               </Grid>
             </Grid>
-          </Grid>
+          
         </MDBox>
       </MDBox>
           {/* <Grid item xs={12} md={6} lg={12}>

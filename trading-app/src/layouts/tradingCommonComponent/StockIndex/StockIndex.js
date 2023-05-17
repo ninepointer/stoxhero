@@ -1,16 +1,18 @@
-import React, {memo, useContext} from "react";
+import React, { memo, useContext } from "react";
 import Grid from "@mui/material/Grid";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { NetPnlContext } from "../../../PnlContext";
 
+import analytics from '../../../assets/images/analyticspnl.png';
 
-function StockIndex({socket}) {
+
+function StockIndex({ socket }) {
     console.log("rendering : stock index")
     //console.log("rendering stock index")
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -20,62 +22,62 @@ function StockIndex({socket}) {
     const lightTheme = createTheme({ palette: { mode: 'light' } });
     const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
 
-    useEffect(()=>{
+    useEffect(() => {
         axios.get(`${baseUrl}api/v1/stockindex`)
-        .then((res) => {
-            setIndexData(res.data);
-        }).catch((err) => {
-            return new Error(err);
-        })
+            .then((res) => {
+                setIndexData(res.data);
+            }).catch((err) => {
+                return new Error(err);
+            })
     }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         socket?.on("index-tick", (data) => {
             setIndexLiveData(prevInstruments => {
-              const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-              data.forEach(instrument => {
-                instrumentMap.set(instrument.instrument_token, instrument);
-              });
-              return Array.from(instrumentMap.values());
+                const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+                data.forEach(instrument => {
+                    instrumentMap.set(instrument.instrument_token, instrument);
+                });
+                return Array.from(instrumentMap.values());
             });
-      
-          })
+
+        })
     }, [])
 
     let finalArr = [];
-    indexLiveData?.map((elem)=>{
+    indexLiveData?.map((elem) => {
         let obj = {};
-        let name = indexData.filter((subElem)=>{
+        let name = indexData.filter((subElem) => {
             return subElem.instrumentToken == elem.instrument_token;
         })
 
-        let previousPrice = (elem?.last_price*100)/(100+elem?.change);
+        let previousPrice = (elem?.last_price * 100) / (100 + elem?.change);
         obj.instrument = (
             <MDTypography variant="caption" fontWeight="medium">
-              {name[0]?.displayName}
+                {name[0]?.displayName}
             </MDTypography>
-          );
+        );
         obj.ltp = (
-        <MDTypography variant="caption" fontWeight="medium">
-            {elem?.last_price?.toFixed(2)}
-        </MDTypography>
+            <MDTypography variant="caption" fontWeight="medium">
+                {elem?.last_price?.toFixed(2)}
+            </MDTypography>
         );
         obj.percentageChange = (
-        <MDTypography variant="caption" color="text" fontWeight="medium">
-            {elem?.change?.toFixed(2)}
-        </MDTypography>
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+                {elem?.change?.toFixed(2)}
+            </MDTypography>
         );
         obj.valueChange = (
-        <MDTypography variant="caption" color="text" fontWeight="medium">
-            {(elem?.last_price - previousPrice)?.toFixed(2)}
-        </MDTypography>
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+                {(elem?.last_price - previousPrice)?.toFixed(2)}
+            </MDTypography>
         );
         obj.elevation = (
-        <MDTypography variant="caption" color="text" fontWeight="medium">
-            {2}
-        </MDTypography>
+            <MDTypography variant="caption" color="text" fontWeight="medium">
+                {2}
+            </MDTypography>
         );
-    
+
         finalArr.push(obj);
     })
 
@@ -83,51 +85,86 @@ function StockIndex({socket}) {
         ...theme.typography.body2,
         textAlign: 'center',
         color: theme.palette.text.secondary,
-        height: 40,
-        lineHeight: '60px',
+
+        
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: "column",
+        justifyContent: "center",
+        background: "#0D0D0D",
+        boxShadow: "0px 4px 16px 4px rgba(23, 24, 33, 0.25)",
     }));
 
-//console.log("finalArr", finalArr)
-  return (
-    <MDBox mb={0} mt={0}>
-        <Grid container spacing={3}>
-        {[lightTheme].map((theme, index) => (
-            <Grid item xs={12} key={index} >
-            <ThemeProvider theme={theme}>
-                <MDBox
-                sx={{
-                    p: 1,
-                    pb:2,
-                    // bgcolor: 'background.default',
-                    bgcolor: 'none',
-                    display: 'grid',
-                    gridTemplateColumns: { md: '1fr 1fr 1fr' },
-                    gap: 3,
-                }}
-                >
-                {finalArr.map((e) => {
-                    return (
-                        <Item key={e.instrument.props.children} elevation={e.elevation.props.children}>           
-                        <MDBox m={0.5} fontWeight={700}>{e.instrument.props.children}</MDBox>
-                        <MDBox m={0.5} fontWeight={700} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>{e.ltp.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.ltp.props.children).toFixed(2)}</MDBox>
-                        <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} color={e.valueChange.props.children >= 0 ? "success" : "error"}>{e.valueChange.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.valueChange.props.children).toFixed(2)}</MDBox>
-                        <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>({e.percentageChange.props.children>0 ? '+' : ''}{e.percentageChange.props.children}%)</MDBox>
-                        </Item>
-                    )})}
-                    <Item elevation={2}>           
-                    <MDBox m={0.5} fontWeight={700} >Net P&L:</MDBox>
-                    <MDBox m={0.5} fontWeight={700} color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)): "-₹" + ((-pnl.netPnl).toFixed(2))}</MDBox>
-                    </Item>
-                </MDBox>
-            </ThemeProvider>
-            </Grid>
-        ))}
+    //console.log("finalArr", finalArr)
+    return (
+        <MDBox mb={5} mt={5}>
+            <Grid container spacing={3}>
+                {[lightTheme].map((theme, index) => (
+                    <Grid item xs={12} key={index} >
+                        <ThemeProvider theme={theme}>
+                            <MDBox
+                                sx={{
+                                    p: 1,
+                                    pb: 2,
+                                    // bgcolor: 'background.default',
+                                    bgcolor: 'none',
+                                    display: 'grid',
+                                    gridTemplateColumns: { md: '1fr 1fr 1fr' },
+                                    gap: 3,
+                                    
+                                }}
+                            >
+                                {finalArr.map((e) => {
+                                    return (
+                                        <Item sx={{ height: "128px", width: "297px",borderRadius:"10px" }} key={e.instrument.props.children} elevation={e.elevation.props.children}>
 
-        </Grid>
-    </MDBox>
+                                            <MDBox display="flex" alignItems="center">
+                                                <MDBox sx={{ ml: "10px" }} height={60} width={60} borderRadius="8px" bgcolor="#161717" display="flex" justifyContent="center" alignItems="center" ><img src={analytics} alt="" style={{ width: "32px", height: "32px" }} /></MDBox>
+                                                <MDBox sx={{ ml: "10px" }} display="flex" flexDirection="column" alignItems="flex-start" >
+
+                                                    <MDBox  fontSize={14} color="#fff" fontWeight={500}>{e.instrument.props.children}</MDBox>
+                                                    <MDBox fontSize={28} fontWeight={700} sx={{ color: "#fff" }} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>{e.ltp.props.children >= 0 ? '+₹' : '-₹'}{Math.abs(e.ltp.props.children).toFixed(2)}</MDBox>
+                                                </MDBox>
+                                            </MDBox>
+
+                                            <MDBox mt={1} ml={1.5} display="flex" justifyContent="flex-start"  alignItems="center" >
+
+                                                <MDBox fontSize={14} fontWeight={500} color="rgba(255, 255, 255, 0.4)"  >Today</MDBox>
+                                                <MDBox mt={0.2} ml={2} fontWeight={700}  fontSize={14} color={e.valueChange.props.children >= 0 ? "sucess" : "error"}>{e.valueChange.props.children >= 0 ? '+₹' : '-₹'}{Math.abs(e.valueChange.props.children).toFixed(2)}</MDBox>
+                                                <MDBox mt={0.2} ml={0.5} fontWeight={700} fontSize={14} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>({e.percentageChange.props.children > 0 ? '+' : ''}{e.percentageChange.props.children}%)</MDBox>
+
+                                            </MDBox>
+
+                                        </Item>
+
+                                        
+                                    )
+                                })}
+                                <Item sx={{height: "128px", width: "297px", borderRadius:"10px" }} elevation={2}>
+                                    <MDBox display="flex" mb={2.5}>
+
+                                    
+                                    <MDBox sx={{ ml: "10px" }} height={60} width={60} borderRadius="8px" bgcolor="#161717" display="flex" justifyContent="center" alignItems="center" ><img src={analytics} alt="" style={{ width: "32px", height: "32px" }} /></MDBox>
+                                    
+
+                                    <MDBox display="flex" flexDirection="column" ml={1} >
+
+                                    <MDBox fontSize={14} color="#fff" mr={4}  fontWeight={500} >Net P&L</MDBox>
+                                    <MDBox  fontSize={28} fontWeight={700} sx={{ color: "#fff" }} color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)) : "-₹" + ((-pnl.netPnl).toFixed(2))}</MDBox>
+                                    </MDBox>
+
+
+                                    </MDBox>
+
+
+
+                                </Item>
+                            </MDBox>
+                        </ThemeProvider>
+                    </Grid>
+                ))}
+
+            </Grid>
+        </MDBox>
     )
 }
 
