@@ -18,7 +18,7 @@ exports.mockTrade = async (req, res) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
+    console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
 
     console.log("caseStudy 8: mocktrade")
     // let stoxheroTrader ;
@@ -123,6 +123,7 @@ exports.mockTrade = async (req, res) => {
     console.log(paperTrade, isAlgoTrader);
     if(!paperTrade && isAlgoTrader){
 
+        let settingRedis ;
         const session = await mongoose.startSession();
         try{
 
@@ -138,7 +139,7 @@ exports.mockTrade = async (req, res) => {
             const companyDoc = {
                 status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
                 Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
-                symbol: realSymbol, placed_by: "ninepointer", algoBox:algoBoxId, order_id, 
+                symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
                 instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
                 trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
                 trade_time:trade_time,
@@ -153,7 +154,7 @@ exports.mockTrade = async (req, res) => {
     
             const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
             const algoTrader = await InfinityTrader.create([traderDoc], { session });
-            console.log(algoTrader, mockTradeDetails)
+            console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
             if(await client.exists(`${req.user._id.toString()} overallpnl`)){
                 let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
                 pnl = JSON.parse(pnl);
@@ -182,19 +183,29 @@ exports.mockTrade = async (req, res) => {
                     lastaverageprice: algoTrader[0].average_price,
                   });
                 }
-                await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
+                settingRedis = await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))
+                console.log("settingRedis", settingRedis)
             }
 
             await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
             // Commit the transaction
-            await session.commitTransaction();
+            
             io.emit("updatePnl", mockTradeDetails)
+
+            if(settingRedis === "OK"){
+                await session.commitTransaction();
+            } else{
+                throw new Error();
+            }
+            
+             
             res.status(201).json({status: 'Complete', message: 'COMPLETE'});
 
         } catch(err){
-            await client.del(`${req.user._id.toString()} overallpnl`)
+            const del = await client.del(`${req.user._id.toString()} overallpnl`)
             await session.abortTransaction();
-            console.error('Transaction failed, documents not saved:', err);
+            console.error('Transaction failed, documents not saved:', err, del);
+            res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
         } finally {
         // End the session
             session.endSession();
