@@ -30,7 +30,7 @@ const Authenticate = async (req, res, next)=>{
             
             else{
                 const user = await User.findOne({_id: verifyToken._id}).populate('role', 'roleName')
-                .select(' aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals')
+                .select(' aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription')
                 if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
                 await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
                 await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 30);

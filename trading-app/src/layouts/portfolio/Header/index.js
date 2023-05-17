@@ -44,10 +44,10 @@ export default function LabTabs() {
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Battle Portfolios" value="1" />
-            <Tab label="Trading Portfolios" value="2" />
-            <Tab label="TenX Portfolios" value="3" />
-            <Tab label="Inactive Portfolios" value="4" />
+            <Tab label="Virtual Trading Portfolios" value="1" />
+            <Tab label="TenX Portfolios" value="2" />
+            <Tab label="Inactive Portfolios" value="3" />
+            <Tab label="Battle Portfolios" value="4" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -56,19 +56,10 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <ContestPortfolioCard/>
-          }
-          </TabPanel>
-        <TabPanel value="2">
-          {isLoading ? 
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
           <TradingPortfolioCard/>
           }
         </TabPanel>
-        <TabPanel value="3">
+        <TabPanel value="2">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
@@ -77,7 +68,7 @@ export default function LabTabs() {
           <TenXPortfolioCard/>
           }
         </TabPanel>
-        <TabPanel value="4">
+        <TabPanel value="3">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
@@ -86,6 +77,15 @@ export default function LabTabs() {
           <InactivePortfolioCard/>
           }
         </TabPanel>
+        <TabPanel value="4">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <ContestPortfolioCard/>
+          }
+          </TabPanel>
       </TabContext>
     </Box>
   );

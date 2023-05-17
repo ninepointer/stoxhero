@@ -27,14 +27,15 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
+import { paperTrader, infinityTrader, tenxTrader } from "../../variables";
 
 
 // import MDBox from '../../../../../components/MDBox';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
-  console.log("rendering : buy")
+const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
+  console.log("rendering : buy", subscriptionId)
   const tradeSound = new Howl({
     src : [sound],
     html5 : true
@@ -176,12 +177,16 @@ console.log("buttonClicked", buttonClicked)
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
-    if(from === "paperTrade"){
+    let tenxTraderPath;
+    if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
-    } else if(from === "algoTrader"){
+    } else if(from === infinityTrader){
       endPoint = 'placingOrder';
       paperTrade = false;
+    } else if(from === tenxTrader){
+      endPoint = 'tenxPlacingOrder';
+      tenxTraderPath = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -192,8 +197,8 @@ console.log("buttonClicked", buttonClicked)
         body: JSON.stringify({
           exchange, symbol, buyOrSell, Quantity, Price, 
           Product, OrderType, TriggerPrice, stopLoss, uId,
-          validity, variety, createdBy, order_id:dummyOrderId,
-          userId, instrumentToken, trader, paperTrade: paperTrade
+          validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
+          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
         })
     });
@@ -238,7 +243,7 @@ console.log("buttonClicked", buttonClicked)
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken, 
+        symbol, lotSize, instrumentToken,
         uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true
       })
     });

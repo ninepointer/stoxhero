@@ -18,53 +18,58 @@ const brokerageSchema = new mongoose.Schema({
         required : true
     },
     brokerageCharge:{
-        type: String,
+        type: Number,
         required : true
     },
     exchangeCharge:{
-        type: String,
+        type: Number,
         required : true
     },
     gst:{
-        type: String,
+        type: Number,
         required : true
     },
     sebiCharge:{
-        type: String,
+        type: Number,
         required : true
     },
     stampDuty:{
-        type: String,
+        type: Number,
         required : true
     },
     sst:{
-        type: String,
+        type: Number,
         required : true
     },
     createdOn:{
-        type: String,
+        type: Date,
+        default: new Date(),
         required : true
     },
-    lastModified:{
-        type: String,
+    modifiedOn:{
+        type: Date,
+        default: new Date(),
+        required : true
+    },
+    lastModifiedBy:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user-personal-details',
         required : true
     },
     createdBy:{
-        type: String,
-        required : true
-    },
-    uId:{
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user-personal-details',
         required : true
     },
     ctt:{
-        type: String,
+        type: Number,
         required : true
     },
     dpCharge:{
-        type: String,
+        type: Number,
         required : true
-    }
+    },
+    
 })
 
 const brokerageDetail = mongoose.model("trading-brokerage", brokerageSchema);

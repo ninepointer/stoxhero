@@ -28,10 +28,9 @@ import { AiOutlineSearch } from 'react-icons/ai';
 import BuyModel from "../BuyModel";
 import SellModel from "../SellModel";
 import { marketDataContext } from "../../../MarketDataContext";
-// import MDSnackbar from "../../../../components/MDSnackbar";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
-
+import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
 
 const initialState = {
   instrumentsData: [],
@@ -75,9 +74,9 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}) {
+function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId}) {
 
-  console.log("rendering : tradable instrument")
+  console.log("rendering : tradable instrument", from)
   //console.log("rendering in userPosition: TradableInstrument", from)
   const {render, setRender} = useContext(renderContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -88,7 +87,6 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
   const [state, dispatch] = useReducer(reducer, initialState);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
-  // const [instru]
 
   const openSuccessSB = () => {
     return dispatch({ type: 'openSuccess', payload: true });
@@ -293,7 +291,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
           InputProps={{
             onFocus: () => textRef.current.select(),
             endAdornment: (
-              <MDButton variant="text" color={from === "paperTrade" ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
+              <MDButton variant="text" color={from === paperTrader ? "dark" : "light"} onClick={handleClear}>{state.text && <RxCross2/>}</MDButton>
             ),
             startAdornment: (
               <>{<AiOutlineSearch/>}</>
@@ -340,12 +338,12 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  backgroundColor: from==='algoTrader' && 'white',
-                  color: from === "paperTrade" ? "white" : "lightgray",
+                  backgroundColor: (from===infinityTrader || from === tenxTrader) && 'white',
+                  color: from === paperTrader ? "white" : "lightgray",
                   padding:"0.5px",
                   '&:hover': {
-                    color: from === 'algoTrader' && '#1e2e4a',
-                    backgroundColor: from === "paperTrade" ? 'lightgray' : 'lightgray',
+                    color: (from===infinityTrader || from === tenxTrader) && '#1e2e4a',
+                    backgroundColor: from === paperTrader ? 'lightgray' : 'lightgray',
                     cursor: 'pointer',
                     fontWeight: 600
                   }
@@ -360,7 +358,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
                       <Tooltip title="Buy" placement="top">
 
                         {!elem.buyState ?
-                          <BuyModel setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
+                          <BuyModel subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
                           :
                           <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
@@ -371,7 +369,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from}
 
                     <Grid>
                         {!elem.sellState ?
-                          <SellModel setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
+                          <SellModel subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
                           :
                           <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S

@@ -8,10 +8,11 @@ import Card from "@mui/material/Card";
 import axios from "axios";
 
 
-export default function Applicants({career, applicationCount, setApplicationCount}) {
+export default function Applicants({career}) {
     console.log("Career", career)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [careerApplications,setCareerApplications] = React.useState([]);
+    const [applicationCount,setApplicationCount] = useState(0);
     async function getCareerApplications(){
         let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/${career}`,{
             withCredentials: true,
@@ -36,9 +37,10 @@ export default function Applicants({career, applicationCount, setApplicationCoun
 
     useEffect(()=>{
         getCareerApplications();
-    },[career])
+    },[])
 
     let columns = [
+        { Header: "#", accessor: "index", align: "center" },
         { Header: "First Name", accessor: "firstname", align: "center" },
         { Header: "Last Name", accessor: "lastname", align: "center" },
         { Header: "Date of Birth", accessor: "dob", align: "center" },
@@ -52,8 +54,13 @@ export default function Applicants({career, applicationCount, setApplicationCoun
 
     let rows = []
 
-  careerApplications?.map((elem)=>{
+  careerApplications?.map((elem, index)=>{
   let featureObj = {}
+  featureObj.index = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {index+1}
+    </MDTypography>
+  );
   featureObj.firstname = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.first_name}
@@ -110,7 +117,7 @@ export default function Applicants({career, applicationCount, setApplicationCoun
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Career Applications
+            Career Applications({applicationCount})
           </MDTypography>
         </MDBox>
       </MDBox>

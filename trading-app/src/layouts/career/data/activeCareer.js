@@ -47,23 +47,17 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
       // Process the responses here
       console.log(api1Response.data.data);
       setActiveCareer(api1Response.data.data)
-    
     })
     .catch((error) => {
       // Handle errors here
       console.error(error);
     });
-
-
   },[])
-
-
-
-    
+  console.log("Applicant Count: ",applicationCount)
     return (
       <>
       {activeCareer.length > 0 ?
-
+        
           <MDBox>
             <Grid container spacing={2} bgColor="dark">
               {activeCareer?.map((e)=>{
@@ -78,9 +72,9 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/Career Details`,
+                            pathname: `/careerdetails`,
                           }}
-                        state={{ data: e }}
+                        state={{data: e}}
                       >
                           <Grid container>
                               
@@ -96,7 +90,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>No. of Applicants: <span style={{fontSize:11,fontWeight:700}}>{applicationCount}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>No. of Applicants: <span style={{fontSize:11,fontWeight:700}}>{e?.applicants?.length}</span></MDTypography>
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">

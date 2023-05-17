@@ -12,20 +12,22 @@ import Internship from './Internship';
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
 import { Link } from 'react-router-dom';
+import MDBox from '../../../components/MDBox';
 
 
 const App = () => {
 
   const location = useLocation();
   const career = location?.state?.data;
+  const campaignCode = location?.state?.campaignCode;
 
 
   return (
-    <div>
+    <MDBox mt={0} >
       <ThemeProvider theme={theme}>
         <Navbar/>
-        <Box p={5} sx={{bgcolor:theme.palette.background.default,height:{lg:'auto',md:'auto',xs:"800px"}, marginTop:'65px'}}>
-          <Grid container height="500px" >
+        <Box p={5} sx={{bgcolor:theme.palette.background.default,height:{xs:"800px",lg:"auto",md:"auto"},}}  >
+          <Grid mt={10} container height="500px" >
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               <MDTypography fontSize={20} color="light" style={{align:'center'}}>JOB DESCRIPTION</MDTypography>
             </Grid>
@@ -56,7 +58,7 @@ const App = () => {
                 to={{
                   pathname: `/apply`,
                 }}
-                state= {{data: career}}
+                state= {{data: career, campaignCode: campaignCode}}
                 >
                   Apply
               </MDButton>
@@ -68,7 +70,7 @@ const App = () => {
         
         <Footer/>
         
-    </div>
+    </MDBox>
   )
 }
 

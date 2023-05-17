@@ -4,6 +4,7 @@ import MDBox from '../../../components/MDBox'
 import MDTypography from '../../../components/MDTypography'
 import MDAvatar from '../../../components/MDAvatar'
 // import Title from '../components/Title/index'
+import { CircularProgress, formLabelClasses } from "@mui/material";
 import React, {useEffect, useState} from 'react'
 // import theme from '../utils/theme/index'
 // import ServiceCard from '../components/Cards/ServiceCard'
@@ -13,22 +14,27 @@ import jobs from "../../../assets/images/jobs.png"
 import axios from "axios";
 
 
-const Internship = () => {
+const Internship = ({campaignCode}) => {
+  const [isLoading,setIsLoading] = useState(false);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [career, setCareer] = useState([]);
     useEffect(()=>{
+      setIsLoading(true)
       axios.get(`${baseUrl}api/v1/career`)
       .then((res)=>{
         setCareer(res.data?.data);
-        console.log(career.length)
-        
-        
+        console.log(career.length) 
+        setTimeout(()=>{
+          setIsLoading(false);
+        },1000) 
       })
     }, [])
 
     return (
-      <Box p={5}>
+      <Box p={5} mt={15} >
         <Grid container flexDirection="column" spacing={4}>
+        {!isLoading ?
+        <>
           {career.length > 0 ? (
             career.map((elem) => (
               <Grid key={elem._id} item xs={16} md={15} lg={20}>
@@ -43,7 +49,7 @@ const Internship = () => {
                       to={{
                         pathname: `/jobdescription`,
                       }}
-                      state={{ data: elem }}
+                      state={{ data: elem, campaignCode: campaignCode }}
                     >
                       <Grid
                         item
@@ -54,16 +60,44 @@ const Internship = () => {
                         display="flex"
                         alignContent="center"
                         alignItems="center"
+                        justifyContent="center"
                       >
-                        <MDAvatar src={jobs} size="xl" display="flex" justifyContent="left" />
-                        <MDBox ml={2} display="flex" flexDirection="column">
-                          <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="left" style={{ color: "black" }}>
+                        <Grid container display="flex" justifyContent="center" alignItems="center">
+                          <Grid item lg={2} display="flex" justifyContent="left" alignItems="center">
+                            <MDAvatar src={jobs} size="xl" />
+                          </Grid>
+                          <Grid item lg={10} display="flex" justifyContent="flex-end">
+                            <MDBox>
+                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                                {elem?.jobTitle}
+                              </MDTypography>
+                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                                {elem?.jobType}
+                              </MDTypography>
+                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                                Job Location: {elem?.jobLocation}
+                              </MDTypography>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                                Click Here to Apply!
+                              </MDTypography>
+                          </MDBox>
+                          </Grid>
+                        </Grid>
+                        {/* <MDBox display="flex" justifyContent="flex-start">
+                        <MDAvatar src={jobs} size="xl" />
+                        </MDBox>
+                        <MDBox ml={2} display="flex" flexDirection="column" justifyContent="center">
+                          <MDBox>
+                          <MDTypography fontSize={20} fontWeight="bold" style={{ color: "black" }}>
                             {`${elem?.jobTitle} (${elem?.jobType})`}
                           </MDTypography>
-                          <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
+                          </MDBox>
+                          <MDBox>
+                          <MDTypography fontSize={15} fontWeight="bold" style={{ color: "black" }}>
                             Click Here to Apply!
                           </MDTypography>
-                        </MDBox>
+                          </MDBox>
+                        </MDBox> */}
                       </Grid>
                     </MDButton>
                   </Tooltip>
@@ -73,53 +107,40 @@ const Internship = () => {
           ) : (
 
             <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center">
-        {/* Left */}
-        <Grid item border="1px solid transparent" xs={12} md={6}>
-          <Stack border="1px solid transparent" spacing={2} sx={{ maxWidth: 480 }}>
+        
+              <Grid item border="1px solid transparent" xs={12} md={6}>
+                <Stack border="1px solid transparent" spacing={2} sx={{ maxWidth: 480 }}>
 
-          
-            
-         < Typography variant="h5" color="#fff" sx={{ pb: 2 }}>
-          Thank you for showing your intrest ! 
-         </Typography>
-
-            <Typography variant="body1" color="rgba(255, 255, 255, 0.6)" sx={{ pb: 2 }}>
-
-             But sorry , No job possitions avilable at this moment. Kindly visit after some time or contact us for more information...
-              
-            </Typography>
-
-            
-          </Stack>
-        </Grid>
-
-        {/* Right */}
-        <Grid item xs={12} md={6}>
-          <img
-            src="https://static.wixstatic.com/media/b9acc2_008499800fb54c848577218f49d05660~mv2.png/v1/fill/w_640,h_580,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/b9acc2_008499800fb54c848577218f49d05660~mv2.png"
-            style={{ width: "100%", objectFit: "contain",}}
-          />
-        </Grid>
-      </Grid>
-
-
-
-
-
-
-
-
-
-            // <Grid lg={12} xs={10}  alignItems="center" justifyContent="center" container border="1px solid transparent" sx={{background:"linear-gradient(120deg,#5f5f61,transparent) border-box"}} color="#fff" borderRadius="10px" >
-            
-            //   <Grid height="290px" item flexDirection="column" justifyContent='center' alignItems="center">
-
-            //     <img src="https://static.wixstatic.com/media/b9acc2_008499800fb54c848577218f49d05660~mv2.png/v1/fill/w_640,h_580,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/b9acc2_008499800fb54c848577218f49d05660~mv2.png" sx={{height:"30px"}} />
                 
+                  
+              < Typography variant="h5" color="#fff" sx={{ pb: 2 }}>
+                Thank you for showing interest! 
+              </Typography>
 
-            //   </Grid>
-            // </Grid>
+                  <Typography variant="body1" color="rgba(255, 255, 255, 0.6)" sx={{ pb: 2 }}>
+
+                  No currently we don't have any open positions. Kindly visit after sometime or contact us for more information...
+                    
+                  </Typography>
+
+                  
+                </Stack>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <img
+                  src="https://static.wixstatic.com/media/b9acc2_008499800fb54c848577218f49d05660~mv2.png/v1/fill/w_640,h_580,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/b9acc2_008499800fb54c848577218f49d05660~mv2.png"
+                  style={{ width: "100%", objectFit: "contain",}}
+                />
+              </Grid>
+            </Grid>
           )}
+        </>
+        :
+
+        <CircularProgress size={100} color="light" />
+                  
+        }
         </Grid>
       </Box>
     );

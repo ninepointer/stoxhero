@@ -25,7 +25,7 @@ const LinkButton = ({ children, ...props }) => (
     sx={{
       cursor: "pointer",
       color: theme.palette.text.secondary,
-      "&:hover": { color: 'black'},
+      "&:hover": { color: '#fff'},
     }}
     {...props}
   >
@@ -103,7 +103,7 @@ const Navbar = () => {
 
             <a href="/about">
             <LinkButton spacing={0.5}>
-              <Typography variant="body2">About us</Typography>
+              <Typography variant="body2">About Us</Typography>
               
             </LinkButton>
             </a>
@@ -126,26 +126,33 @@ const Navbar = () => {
           >
             < img src ="https://icon-library.com/images/x-button-icon/x-button-icon-3.jpg" style={{height:"40px",position:"absolute",top:"8px",color:"#fff", right:"14px",}} sx={{fontSize:"100px"}} onClick={()=>setOpen(false)}/>
             
+            <a href="/Login">
             <LinkButton>
-              <Typography variant="body2">Products</Typography>
-              <KeyboardArrowDownIcon fontSize="small" />
+              <Typography variant="body2">Login</Typography>
+              
             </LinkButton>
+            </a>
 
-            <LinkButton sx={{color: scrollPosition>10 ? 'rgb(255,250,250)' : 'rgb(255,250,250)'}}>
+            <a href="/Signup">
+            <LinkButton>
+              <Typography variant="body2">Signup</Typography>
+              
+            </LinkButton>
+            </a>
+
+            <a href="/careers">
+            <LinkButton>
               <Typography variant="body2">Careers</Typography>
-              <KeyboardArrowDownIcon fontSize="small" />
+              
             </LinkButton>
+            </a>
 
-            <LinkButton sx={{color: scrollPosition>10 ? 'rgb(255,250,250)' : 'rgb(255,250,250)'}}>
-              <Typography variant="body2">About</Typography>
-              <KeyboardArrowDownIcon fontSize="small" />
+            <a href="/about">
+            <LinkButton spacing={0.5}>
+              <Typography variant="body2">About us</Typography>
+              
             </LinkButton>
-
-            <LinkButton spacing={0.5} sx={{color: scrollPosition>10 ? 'rgb(255,250,250)' : 'rgb(255,250,250)'}}>
-              <Typography variant="body2">Blog</Typography>
-              <CallMade sx={{ fontSize: 12 }} />
-            </LinkButton>
-            
+            </a>
             </Stack>
           )}
 

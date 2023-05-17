@@ -59,7 +59,7 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
       
           requestTokens.save().then(async ()=>{
             
-              await client.del(`kiteCredToday:${process.env.PROD}`);
+              // await client.del(`kiteCredToday:${process.env.PROD}`);
               disconnectTicker();
               getKiteCred.getAccess().then((data) => {
                   //console.log(data);

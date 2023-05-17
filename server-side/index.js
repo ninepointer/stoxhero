@@ -4,7 +4,7 @@ const router = express.Router();
 const cors = require('cors');
 const app = express();
 const dotenv = require('dotenv');
-const fetch = require('./marketData/placeOrder');
+// const fetch = require('./marketData/placeOrder');
 app.use(require("cookie-parser")());
 const fetchData = require('./marketData/fetchToken');
 const io = require('./marketData/socketio');
@@ -19,12 +19,14 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const client = require("./marketData/redisClient");
-const {autoTradeContest} = require('./controllers/contestTradeController');
+// const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {deletePnlKey} = require("./controllers/deletePnlKey");
 const {subscribeInstrument, getXTSTicksForUserPosition, onDisconnect} = require("./services/xts/xtsMarket")
 const {xtsMarketLogin} = require("./services/xts/xtsMarket");
 const {interactiveLogin} = require("./services/xts/xtsInteractive");
+const {autoExpireSubscription} = require("./controllers/tenXTradeController");
+const {DummyMarketData} = require('./marketData/dummyMarketData');
 
 const path = require('path');
 // const {DummyMarketData} = require('./marketData/dummyMarketData');
@@ -117,7 +119,7 @@ getKiteCred.getAccess().then(async (data)=>{
 
 
 
-app.get('/api/v1/data', fetch);
+// app.get('/api/v1/data', fetch);
 
 let newCors = process.env.NODE_ENV === "production" ? "http://3.110.187.5/" : "http://localhost:3000"
 app.use(cors({
@@ -152,7 +154,7 @@ app.use('/api/v1', require('./routes/CronJobsRouter/getHistoryData'));
 app.use('/api/v1', require('./routes/CronJobsRouter/historyTrade'));
 app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
 app.use('/api/v1', require("./marketData/getRetrieveOrder"));
-app.use('/api/v1', require('./marketData/placeOrder'));
+// app.use('/api/v1', require('./marketData/placeOrder'));
 app.use('/api/v1', require('./marketData/switchToRealTrade'));
 app.use('/api/v1', require('./routes/instrument/instrumentAuth'));
 app.use('/api/v1', require('./routes/instrument/tradableInstrument'));
@@ -175,6 +177,7 @@ app.use('/api/v1', require("./routes/marginAllocation/marginAllocationAuth"));
 app.use('/api/v1/contest', require("./routes/contest/contestRoutes"));
 app.use('/api/v1/batch', require("./routes/stoxheroTrading/batchRoutes"));
 app.use('/api/v1/referrals', require("./routes/campaigns/referralRoutes"));
+app.use('/api/v1/campaign', require("./routes/campaigns/campaignRoute"));
 app.use('/api/v1/contestTrade', require("./routes/contest/contestTradeRoutes"));
 app.use('/api/v1/portfolio', require("./routes/userPortfolio/userPortfolioRoutes"));
 app.use('/api/v1/userwallet', require("./routes/userWallet/userWalletRoutes"));
@@ -183,6 +186,8 @@ app.use('/api/v1/paperTrade', require("./routes/mockTrade/paperTrade"));
 app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
 app.use('/api/v1/career', require("./routes/career/careerRoute"));
 app.use('/api/v1/tenX', require("./routes/tenXSubscription/tenXRoute"));
+app.use('/api/v1/college', require("./routes/career/collegeRoute"));
+app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
@@ -202,7 +207,7 @@ let weekDay = date.getDay();
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
-        // const autotrade = nodeCron.schedule(`45-59/1 3-9 * * ${weekDay}`, autoTradeWrapper);
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
     }
   }
 

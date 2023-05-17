@@ -31,6 +31,9 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const client = require("../../marketData/redisClient")
+const {overallPnlTrader} = require("../../controllers/infinityController");
+const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
+
 const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
 const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
 const {placeOrder} = require("../../services/xts/xtsInteractive");
@@ -66,6 +69,13 @@ router.get("/getData", async (req, res) => {
 router.get("/deletePnlKey", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   await deletePnlKey()
+});
+
+router.get("/pnl", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
+  // await overallPnlTrader(req, res)
+
+  await autoExpireSubscription(req, res)
 });
 
 router.post("/autotrade/:id", async (req, res) => {

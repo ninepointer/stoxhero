@@ -23,8 +23,10 @@ import InputLabel from '@mui/material/InputLabel';
 import { renderContext } from '../../../renderContext';
 import {Howl} from "howler";
 import sound from "../../../assets/sound/tradeSound.mp3"
+import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
 
-function ExitPosition({from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
+
+function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -173,12 +175,16 @@ console.log("lotSize", lotSize, maxLot)
 
     let endPoint 
     let paperTrade = false;
-    if(from === "paperTrade"){
+    let tenxTraderPath;
+    if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
-    } else if(from === "algoTrader"){
+    } else if(from === infinityTrader){
       endPoint = 'placingOrder';
       paperTrade = false;
+    } else if(from === tenxTrader){
+      endPoint = 'tenxPlacingOrder';
+      tenxTraderPath = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
       method: "POST",
@@ -190,8 +196,8 @@ console.log("lotSize", lotSize, maxLot)
 
         exchange, symbol, buyOrSell, Quantity, Price,
         Product, OrderType, TriggerPrice, stopLoss,
-        validity, variety, order_id: dummyOrderId,
-        userId, instrumentToken, trader, paperTrade: paperTrade
+        validity, variety, order_id: dummyOrderId, subscriptionId,
+        userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
       })
     });
