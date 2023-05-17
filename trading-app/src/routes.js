@@ -92,6 +92,8 @@ import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDet
 import Contact from "./layouts/HomePage/pages/Contact";
 import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
+import College from "./layouts/college";
+import InternBatch from "./layouts/internBatch";
 
 
 
@@ -568,6 +570,23 @@ const routes = [
     route: "/wallet",
     component: <UserWallet />,
   },
+  {
+    // type: "collapse",
+    // name: "Wallet",
+    key: "internship batch",
+    // icon: <AccountBalanceWalletIcon/>,
+    route: "/internbatch",
+    component: <InternBatch />,
+  },
+  {
+    // type: "collapse",
+    // name: "Wallet",
+    key: "college",
+    // icon: <AccountBalanceWalletIcon/>,
+    route: "/college",
+    component: <College />,
+  },
+
 
 ];
 
