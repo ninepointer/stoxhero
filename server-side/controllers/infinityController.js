@@ -141,6 +141,7 @@ exports.overallPnlCompanySide = async (req, res, next) => {
   res.status(201).json({message: "pnl received", data: pnlDetails});
 }
 
+
 exports.myTodaysTrade = async (req, res, next) => {
   
   // const id = req.params.id
@@ -284,7 +285,11 @@ exports.getPnlAndCreditData = async (req, res, next) => {
 }
 
 exports.getMyPnlAndCreditData = async (req, res, next) => {
-  
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
   let myPnlAndCreditData = await InfinityTrader.aggregate([
     {
       $lookup: {
@@ -297,7 +302,10 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
     {
       $match: {
       status : "COMPLETE",
-      trader: new ObjectId(req.user._id)
+      trader: new ObjectId(req.user._id),
+      trade_time: {
+          $lt: today
+        }
       }
     },
     {
@@ -340,11 +348,11 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
           _id: 0,
           // userId: "$_id.userId",
           // employeeId: "$_id.employeeId",
-          totalCredit: "$_id.funds",
+          totalFund: "$_id.funds",
           gpnl: "$gpnl",
           brokerage: "$brokerage",
           npnl: "$npnl",
-          availableMargin: "$availableMargin"
+          openingBalance: "$availableMargin"
         },
     },
     {
@@ -352,7 +360,82 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
     }
   ])
 
-  res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
+  if(myPnlAndCreditData.length > 0){
+    res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
+  } else{
+    let fundDetail = await InfinityTrader.aggregate([
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "result",
+        },
+      },
+      // {
+      //   $match: {
+      //   status : "COMPLETE",
+      //   trader: new ObjectId(req.user._id),
+      //   trade_time: {
+      //       $lt: today
+      //     }
+      //   }
+      // },
+      {
+        $group: {
+          _id: {
+            // trader: "$trader",
+            // employeeId: {
+            //   $arrayElemAt: ["$result.employeeid", 0],
+            // },
+            funds: {
+              $arrayElemAt: ["$result.fund", 0],
+            },
+          },
+          // gpnl: {
+          //   $sum: {
+          //     $multiply: ["$amount", -1],
+          //   },
+          // },
+          // brokerage: {
+          //   $sum: {
+          //     $toDouble: "$brokerage",
+          //   },
+          // },
+        },
+      },
+      // {
+      //   $addFields:
+      //     {
+      //       npnl: {
+      //         $subtract: ["$gpnl", "$brokerage"],
+      //       },
+      //       availableMargin : {
+      //         $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
+      //       }
+      //     },
+      // },
+      {
+        $project:
+          {
+            _id: 0,
+            // userId: "$_id.userId",
+            // employeeId: "$_id.employeeId",
+            totalCredit: "$_id.funds",
+            // gpnl: "$gpnl",
+            // brokerage: "$brokerage",
+            // npnl: "$npnl",
+            // availableMargin: "$availableMargin"
+          },
+      },
+      // {
+      //   $sort : {npnl : 1}
+      // }
+    ])
+    res.status(201).json({message: "data received", data: fundDetail[0]});
+  }
+
+  
 }
 
 exports.openingBalance = async (req, res, next) => {

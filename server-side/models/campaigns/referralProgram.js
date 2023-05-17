@@ -56,15 +56,12 @@ const referralProgramSchema = new mongoose.Schema({
         ref: 'user-personal-detail',
         // required : true
     },
-    joinedUsers: [
+    users: [
         {
             userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
             joinedOn:Date
         }
     ],
-    invitedUsers: [
-        {name:String,mobile:String,email:String,invitedOn:Date}  
-    ]
 })
 
 referralProgramSchema.pre('save', async function(next){

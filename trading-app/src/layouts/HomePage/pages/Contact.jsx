@@ -1,8 +1,11 @@
-import { Box, Button, Card, CardContent, Container, Grid, Stack, TextField, ThemeProvider, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, Container, Grid, Stack, TextField,Typography } from '@mui/material'
 import theme from '../utils/theme/index'
 import Navbar from '../components/Navbars/Navbar'
 import React, { useState } from 'react'
 import Footer from '../components/Footers/Footer'
+import { ThemeProvider } from 'styled-components';
+import MDBox from '../../../components/MDBox'
+
 
 const Contact = () => {
 
@@ -47,11 +50,15 @@ const Contact = () => {
     
     
     return (
-        <div style={{ height: "100%", width: "100vw", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "black" }}>
+
+        <div>
+            <ThemeProvider theme={theme}>
+        <Box style={{  width: "100%", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center", background: "black" }}>
+            <Navbar/>
 
 
 
-            <Card style={{ maxWidth: 450, margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ sx: "20px" }} >
+            <Card style={{ maxWidth: 470, margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
                 <CardContent>
 
                     <Typography gutterBottom variant='h5'>Contact US</Typography>
@@ -97,15 +104,21 @@ const Contact = () => {
 
                         </Grid>
                             {
-                                sucess && (<Grid sx={{background:"green",color:"white",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully!</Grid>)
+                                sucess && (<Grid sx={{background:"green",color:"#fff",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully!</Grid>)
                             }
 
                     </form>
                 </CardContent>
             </Card>
 
-            <Footer />
 
+            
+        </Box>
+        <MDBox bgColor="black" sx={{marginTop:-2}}>
+
+        <Footer/>
+        </MDBox>
+        </ThemeProvider>
         </div>
     )
 }

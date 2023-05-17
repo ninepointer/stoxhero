@@ -381,7 +381,7 @@ function Cover(props) {
                   <Grid item xs={12} md={12} xl={12}>
                     <TextField
                         // required
-                        // disabled={showEmailOTP}
+                        disabled={formstate.referrerCode}
                         type="text"
                         id="outlined-required"
                         label={formstate.referrerCode?'':"Referrer Code"}

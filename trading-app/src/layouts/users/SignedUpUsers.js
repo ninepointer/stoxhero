@@ -53,21 +53,21 @@ const SignedUpUser = () => {
     signedUpUserData.map((elem)=>{
       let signedupusers = {}
   
-        signedupusers.edit = (
-          <MDButton variant="Contained" color="info" fontWeight="medium">
-            <SignedUpUserEditModel data={signedupusers} id={elem._id} Render={{setReRender, reRender}}/>
-          </MDButton>
-        );
-        signedupusers.fname = (
+        // signedupusers.edit = (
+        //   <MDButton variant="Contained" color="info" fontWeight="medium">
+        //     <SignedUpUserEditModel data={signedupusers} id={elem._id} Render={{setReRender, reRender}}/>
+        //   </MDButton>
+        // );
+        signedupusers.name = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {elem.first_name}
+            {elem.first_name} {elem.last_name}
           </MDTypography>
         );
-        signedupusers.lname = (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {elem.last_name}
-          </MDTypography>
-        );
+        // signedupusers.lname = (
+        //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        //     {elem.last_name}
+        //   </MDTypography>
+        // );
         signedupusers.email = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
             {elem.email}
@@ -78,31 +78,31 @@ const SignedUpUser = () => {
             {elem.mobile}
           </MDTypography>
         );
-        signedupusers.wmobile = (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {elem.watsApp_number}
-          </MDTypography>
-        );
-        signedupusers.gender = (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {elem.gender}
-          </MDTypography>
-        );
-        signedupusers.tradingexp = (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {elem.trading_exp} Months
-          </MDTypography>
-        );
-        signedupusers.city = (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {elem.city}
-          </MDTypography>
-        );
-        signedupusers.dob = (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {elem.dob}
-          </MDTypography>
-        );
+        // signedupusers.wmobile = (
+        //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        //     {elem.watsApp_number}
+        //   </MDTypography>
+        // );
+        // signedupusers.gender = (
+        //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        //     {elem.gender}
+        //   </MDTypography>
+        // );
+        // signedupusers.tradingexp = (
+        //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        //     {elem.trading_exp} Months
+        //   </MDTypography>
+        // );
+        // signedupusers.city = (
+        //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        //     {elem.city}
+        //   </MDTypography>
+        // );
+        // signedupusers.dob = (
+        //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        //     {elem.dob}
+        //   </MDTypography>
+        // );
         signedupusers.status = (
             <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
               {elem.status}

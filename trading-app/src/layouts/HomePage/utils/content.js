@@ -30,15 +30,13 @@ import BannerBgImage from "../assets/images/section5/news-block-background.webp"
 import BannerBgImageMobile from "../assets/images/section5/news-block-background-mobile.webp";
 
 // Section6
-import Sec6Image1 from "../assets/images/section6/aggregation-protocol.webp";
-import Sec6Image2 from "../assets/images/section6/limit-order-protocol.webp";
-import Sec6Image3 from "../assets/images/section6/liquidity-protocol.webp";
-import Sec6Image4 from "../assets/images/section6/earn_1.webp";
-import Sec6Image5 from "../assets/images/section6/rabbithole.webp";
+// import Sec6Image1 from "../assets/images/section6/aggregation-protocol.webp";
+// import Sec6Image2 from "../assets/images/section6/limit-order-protocol.webp";
+// import Sec6Image3 from "../assets/images/section6/liquidity-protocol.webp";
+// import Sec6Image4 from "../assets/images/section6/earn_1.webp";
+// import Sec6Image5 from "../assets/images/section6/rabbithole.webp";
 
-// Section7
-import Sec7Image1 from "../assets/images/section7/api.webp";
-import Sec7Image2 from "../assets/images/section7/grant-program.webp";
+
 
 // Section8
 import ShieldImage from "../assets/images/section8/shield.webp";
@@ -95,9 +93,9 @@ export const section1Content = {
 
 export const section2Content = {
   items: [
-    { counter: 0, subtitle: "Leaderboards" },
-    { counter: 0, before: "", after: "", subtitle: "Total volume" },
-    { counter: 0, after: "", subtitle: "Total wallets", decimals: false },
+    { counter: 0, subtitle: "Total Signups" },
+    { counter: 0, before: "₹", after: "", subtitle: "Total Traded Volume" },
+    { counter: 0, before: "₹", after: "", subtitle: "Total Wallets Transactions", decimals: false },
     { counter: 0, after: "", subtitle: "Total Trades", decimals: false },
   ],
 };
@@ -158,59 +156,38 @@ export const section5Content = {
     "The Fusion upgrade makes swaps on 1inch yet more efficient and secure, combining liquidity from the entire crypto market in one place.",
 };
 
-export const section6Content = {
-  title: "1inch products",
-  ITEMS: [
-    {
-      title: "Aggregation Protocol",
-      subtitle:
-        "Liquidity aggregation from multiple DEXes to ensure the best swap rates.",
-      image: Sec6Image1,
-    },
-    {
-      title: "Limit Order Protocol",
-      subtitle:
-        "The most innovative and flexible limit order functionality in DeFi.",
-      image: Sec6Image2,
-    },
-    {
-      title: "Liquidity Protocol",
-      subtitle:
-        "A next-generation AMM that offers capital efficiency to liquidity providers.",
-      image: Sec6Image3,
-    },
-    {
-      title: "1inch Earn",
-      subtitle:
-        "A derivative-based product offering liquidity providers attractive APYs.",
-      image: Sec6Image4,
-    },
-    {
-      title: "1inch RabbitHole",
-      subtitle: "A feature that protects MetaMask users from sandwich attacks.",
-      image: Sec6Image5,
-    },
-  ],
-};
+// export const section6Content = {
+//   title: "Why Choose Stoxhero?",
+//   ITEMS: [
+//     {
+//       title: "Learn",
+//       subtitle:
+//         " Enhance skills, expand knowledge, and unlock your trading potential.",
+//       image: "https://www.pngall.com/wp-content/uploads/8/Forex-Trading-PNG-Image.png",
+//     },
+//     {
+//       title: "Earn",
+//       subtitle:
+//         "Profitable learning with trading tools and risk-free trading with money making opportunities.",
+//       image: "https://3xincome.online/website/images/forex.png",
+//     },
+//     {
+//       title: "Trade",
+//       subtitle:
+//         "User-friendly interface with real-time data, analysis & execution for all traders, from beginners to experienced.",
+//       image: "https://www.avatrade.co.za/wp-content/uploads/2022/10/what-is-liquidity.png",
+//     },
+//     {
+//       title: "Grow",
+//       subtitle:
+//         "Transparent, secure, and reliable platform for Intraday Trading. Trusted by traders, for traders.",
+//       image: "https://www.pngall.com/wp-content/uploads/8/Trading-PNG.png",
+//     },
+    
+//   ],
+// };
 
-export const section7Content = {
-  title: "Grow with our ecosystem",
-  subtitle: "Build solutions alongside decentralized finance leaders",
-  ITEMS: [
-    {
-      title: "1inch API",
-      subtitle:
-        "A cutting-edge discovery and routing algorithm that offers non-custodial asset swaps at the most attractive rates in major DeFi ecosystems.",
-      image: Sec7Image1,
-    },
-    {
-      title: "1inch grant program",
-      subtitle:
-        "An initiative that fosters the 1inch Network's growth and incentivizes contributions through grants and other resources.",
-      image: Sec7Image2,
-    },
-  ],
-};
+
 
 export const section8Content = {
   title: "Your decentralized finance shield",

@@ -56,10 +56,10 @@ const Footer = () => {
       
 
       <Container>
-        <Grid container spacing={8} flexWrap="wrap">
+        <Grid container spacing={10} flexWrap="wrap">
           {/* Links */}
           <Grid spacing={4} item xs={12} md={6} lg={7} xl={8}>
-            <Grid container spacing={2}>
+            <Grid container justifyContent="center" spacing={2} ml={1} >
               {/* Protocols */}
               <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={3}>
                 <a style={{color:"#fff"}} href="/contact">Contact us</a>
@@ -87,11 +87,11 @@ const Footer = () => {
           </Grid>
 
           {/* Subscribe */}
-          <Grid item xs={12} md={6} lg={5} xl={4}>
+          <Grid item  xs={12} md={6} lg={5} xl={4}>
             <Stack color={'rgba(255, 255, 255, 0.6)'}>
-              <Title sx={{ mb: 1 }}>{subscribe.title}</Title>
+              <Title  ml={8} sx={{ mb: 1 }}>{subscribe.title}</Title>
 
-              <Typography variant="body2" color="rgba(255, 255, 255, 0.6)">
+              <Typography ml={8} variant="body2" color="rgba(255, 255, 255, 0.6)">
                 {subscribe.subtitle}
               </Typography>
 
