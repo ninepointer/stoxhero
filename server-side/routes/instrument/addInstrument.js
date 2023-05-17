@@ -9,7 +9,7 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const { unSubscribeTokens, subscribeSingleToken} = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
-const client = require("../../marketData/redisClient");
+const {client, isRedisConnected} = require("../../marketData/redisClient");
 const ObjectId = require('mongodb').ObjectId;
 
 router.post("/addInstrument",authentication, async (req, res)=>{

@@ -7,7 +7,7 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 // const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
-const client = require('../marketData/redisClient');
+const {client, isRedisConnected} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
 
 

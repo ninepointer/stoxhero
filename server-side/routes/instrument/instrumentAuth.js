@@ -3,7 +3,7 @@ const router = express.Router();
 require("../../db/conn");
 const Instrument = require("../../models/Instruments/instrumentSchema");
 const ContestInstrument = require("../../models/Instruments/contestInstrument");
-const client = require("../../marketData/redisClient");
+const {client, isRedisConnected} = require("../../marketData/redisClient");
 
 const axios = require('axios');
 const fetchToken = require("../../marketData/generateSingleToken");

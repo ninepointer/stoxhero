@@ -9,7 +9,7 @@ const KiteConnect = require('kiteconnect').KiteConnect;
 // const totp = require("totp-generator");
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
 const authentication = require("../../authentication/authentication");
-const client = require("../../marketData/redisClient");
+const {client, isRedisConnected} = require("../../marketData/redisClient");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 
 router.post("/requestToken", authentication, (req, res)=>{
