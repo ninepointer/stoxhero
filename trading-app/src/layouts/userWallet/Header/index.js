@@ -100,7 +100,7 @@ export default function Wallet() {
                       </MDBox>
                     </Grid>
                     <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="flex-end">
-                      <MDTypography color="light" fontSize={15} fontWeight="bold">+₹{elem?.amount}</MDTypography>
+                      <MDTypography color="light" fontSize={15} fontWeight="bold">{elem.amount>0 ? '₹'+ elem?.amount: '-₹'+ -elem.amount}</MDTypography>
                     </Grid>
                   </Grid>
                 </MDBox>

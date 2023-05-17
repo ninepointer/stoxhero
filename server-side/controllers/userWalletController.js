@@ -3,6 +3,7 @@ const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
 const uuid = require('uuid');
+const client = require("../marketData/redisClient")
 
 
 
@@ -86,35 +87,28 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
               }
             },
             { new: true }
-          );
+        );
 
-          const subscription = await Subscription.findOneAndUpdate(
-            { _id: subscribedId },
-            {
-              $push: {
-                users: {
-                    userId: userId,
-                    subscribedOn: new Date()
-                }
-              }
-            },
-            { new: true }
-          );
+        const subscription = await Subscription.findOneAndUpdate(
+        { _id: subscribedId },
+        {
+            $push: {
+            users: {
+                userId: userId,
+                subscribedOn: new Date()
+            }
+            }
+        },
+        { new: true }
+        );
 
-        // const subscription = await Subscription.findOne({_id: subscribedId});
-        console.log("subscription1" ,subscription.users)
-        // subscription.users = [...subscription.users, {
-        //   userId: userId,
-        //   subscribedOn: new Date()
-        // }];
-        // console.log("subscription" ,subscription.users)
-        // subscription.save();
+        await client.del(`${user._id.toString()}authenticatedUser`);
 
         if(!wallet){
             return res.status(404).json({status:'error', message: 'No Wallet found'});
         }
 
-        res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: wallet});
+        res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
 
     }catch(e){
         console.log(e);
