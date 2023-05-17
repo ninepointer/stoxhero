@@ -168,7 +168,7 @@ exports.fundCheck = async(req, res, next) => {
             return next();
         } else{
             console.log("in else", Boolean(!userFunds))
-            if(!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0)){
+            if(!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0 )){
                 let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
                     TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, realTrade,
                         realBuyOrSell, realQuantity, apiKey, accessToken, userId, checkingMultipleAlgoFlag, 
@@ -849,5 +849,3 @@ exports.contestFundCheck = async(req, res, next) => {
     
    
 }
-
-//mongodb+srv://vvv201214:5VPljkBBPd4Kg9bJ@cluster0.j7ieec6.mongodb.net/admin-data?retryWrites=true&w=majority

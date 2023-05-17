@@ -28,29 +28,34 @@ const xtsMarketLogin = async ()=>{
         appKey: process.env.MARKETDATA_APP_KEY,
     };
     
-    (async ()=>{
-      console.log(loginRequest, process.env.MARKETDATA_URL)
-      let logIn = await xtsMarketDataAPI.logIn(loginRequest);
-      console.log(logIn)
-      let socketInitRequest = {
-          userID: process.env.XTS_USERID,
-          publishFormat: 'JSON',
-          broadcastMode: 'Full',
-          token: logIn.result.token
-        };
-      xtsMarketDataWS.init(socketInitRequest);
+    try{
+      (async ()=>{
+        console.log(loginRequest, process.env.MARKETDATA_URL)
+        let logIn = await xtsMarketDataAPI.logIn(loginRequest);
+        console.log(logIn)
+        let socketInitRequest = {
+            userID: process.env.XTS_USERID,
+            publishFormat: 'JSON',
+            broadcastMode: 'Full',
+            token: logIn?.result?.token
+          };
+        xtsMarketDataWS.init(socketInitRequest);
+  
+        xtsMarketDataWS.onConnect((connectData) => {
+          console.log("socket connection", connectData);
+        });
+  
+        xtsMarketDataWS.onJoined((joinedData) => {
+          console.log("joinedData", joinedData);
+        });
+  
+        await save(logIn?.result?.userID, logIn?.result?.token)
+      
+    })();
+    } catch(err){
+      console.log(err)
+    }
 
-      xtsMarketDataWS.onConnect((connectData) => {
-        console.log("socket connection", connectData);
-      });
-
-      xtsMarketDataWS.onJoined((joinedData) => {
-        console.log("joinedData", joinedData);
-      });
-
-      await save(logIn.result.userID, logIn.result.token)
-    
-  })();
 }
 
 const onDisconnect = async()=>{
@@ -113,7 +118,7 @@ const getXTSTicksForUserPosition = async (socket) => {
   let marketDepth = {};
   let indecies = await client.get("index")
   if(!indecies){
-    indecies = await StockIndex.find({status: "Active"});
+    indecies = await StockIndex.find({status: "Active", accountType: xtsAccountType});
     await client.set("index", JSON.stringify(indecies));
   } else{
     indecies = JSON.parse(indecies);  
@@ -126,7 +131,7 @@ const getXTSTicksForUserPosition = async (socket) => {
   let userId = await client.get(socket.id)
   await emitTicks(userId);
   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
-    
+    console.log(ticksObj)
     ticksObj = JSON.parse(ticksObj);
 
     if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
@@ -153,6 +158,8 @@ const getXTSTicksForUserPosition = async (socket) => {
     let indexData = ticks.filter(function(item) {
       return indexObj[item.ExchangeInstrumentID];
     });
+
+    console.log("indexData", indexData)
 
 
     try{

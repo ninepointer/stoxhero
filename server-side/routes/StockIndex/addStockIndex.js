@@ -16,7 +16,7 @@ router.post("/stockindex",authentication, async (req, res)=>{
     // const id = req.user;
 
     try{
-        let {displayName, exchange, instrumentSymbol, status} = req.body;
+        let {accountType, displayName, exchange, instrumentSymbol, status} = req.body;
         console.log(req.body)
         const id = req.user._id;
         let instrumentToken = await fetchToken(exchange, instrumentSymbol);
@@ -30,20 +30,21 @@ router.post("/stockindex",authentication, async (req, res)=>{
             return res.status(422).json({error : "Any of one feild is incorrect..."})
         }
     
-        StockIndex.findOne({instrumentToken : instrumentToken})
-        .then(async (dataExist)=>{
-            if(dataExist){
-                console.log("data already");
-                res.status(422).json({message : "Index already Added"})
-                return;
-            }
-            const index = new StockIndex({displayName, exchange, instrumentSymbol, status, instrumentToken, createdBy : id, lastModifiedBy : id});
-            // console.log("instruments Symbol", instrumentSymbol)
-            index.save().then(async(data)=>{
-                 await subscribeSingleToken(instrumentToken);
-                res.status(201).json({message : "Index Added",data : data._id});
-            }).catch((err)=> res.status(500).json({error:err}));
-        }).catch(err => {console.log(err)});
+        // StockIndex.findOne({instrumentToken : instrumentToken})
+        // .then(async (dataExist)=>{
+        //     if(dataExist){
+        //         console.log("data already");
+        //         res.status(422).json({message : "Index already Added"})
+        //         return;
+        //     }
+        // }).catch(err => {console.log(err)});
+        const index = new StockIndex({exchangeSegment, accountType, displayName, exchange, instrumentSymbol, status, instrumentToken, createdBy : id, lastModifiedBy : id});
+        // console.log("instruments Symbol", instrumentSymbol)
+        index.save().then(async(data)=>{
+             await subscribeSingleToken(instrumentToken);
+            res.status(201).json({message : "Index Added",data : data._id});
+        }).catch((err)=> res.status(500).json({error:err}));
+
 
     } catch(err) {
         // res.status(500).json({error:"Failed to enter data Check access token"});

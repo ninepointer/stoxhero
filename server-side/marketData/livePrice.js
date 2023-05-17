@@ -7,7 +7,7 @@ const RequestToken = require("../models/Trading Account/requestTokenSchema");
 const Instrument = require("../models/Instruments/instrumentSchema");
 const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
-const client = require("../marketData/redisClient")
+const {client, isRedisConnected} = require("../marketData/redisClient")
 
 
 

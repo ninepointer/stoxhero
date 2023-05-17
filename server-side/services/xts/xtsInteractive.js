@@ -33,29 +33,34 @@ const interactiveLogin = async ()=>{
         appKey: process.env.INTERACTIVE_APP_KEY,
     };
     
-    (async ()=>{
-      console.log(loginRequest, process.env.INTERACTIVE_URL)
-      let logIn = await xtsInteractiveAPI.logIn(loginRequest);
-      console.log(logIn)
-      let socketInitRequest = {
-          userID: process.env.XTS_USERID,
-          publishFormat: 'JSON',
-          broadcastMode: 'Full',
-          token: logIn.result.token
-        };
-      xtsInteractiveWS.init(socketInitRequest);
+    try{
+      (async ()=>{
+        console.log(loginRequest, process.env.INTERACTIVE_URL)
+        let logIn = await xtsInteractiveAPI.logIn(loginRequest);
+        console.log(logIn)
+        let socketInitRequest = {
+            userID: process.env.XTS_USERID,
+            publishFormat: 'JSON',
+            broadcastMode: 'Full',
+            token: logIn?.result?.token
+          };
+        xtsInteractiveWS.init(socketInitRequest);
+  
+        xtsInteractiveWS.onConnect((connectData) => {
+          console.log("socket connection", connectData);
+        });
+  
+        xtsInteractiveWS.onJoined((joinedData) => {
+          console.log("joinedData", joinedData);
+        });
+  
+        // await save(logIn.result.userID, logIn.result.token)
+      
+    })();
+    } catch(err){
+      console.log(err);
+    }
 
-      xtsInteractiveWS.onConnect((connectData) => {
-        console.log("socket connection", connectData);
-      });
-
-      xtsInteractiveWS.onJoined((joinedData) => {
-        console.log("joinedData", joinedData);
-      });
-
-      // await save(logIn.result.userID, logIn.result.token)
-    
-  })();
 }
 
 const placeOrder = async (obj)=>{
