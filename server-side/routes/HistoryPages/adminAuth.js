@@ -49,8 +49,8 @@ router.get("/placeOrder", async (req, res) => {
     validity: 'DAY',
     disclosedQuantity: 0,
     Quantity: 50,
-    limitPrice: 15000,
-    stopPrice: 0,
+    // limitPrice: 15000,
+    // stopPrice: 0,
   }
   const placeorder = await placeOrder(obj);
   // console.log(xtsMarketDataAPI)

@@ -75,10 +75,10 @@ const placeOrder = async (obj)=>{
     timeInForce: obj.validity,
     disclosedQuantity: 0,
     orderQuantity: obj.Quantity,
-    limitPrice: 15000,
+    limitPrice: 0,
     stopPrice: 0,
     // orderUniqueIdentifier: '45485',
-    clientID: process.env.XTS_USERID,
+    clientID: process.env.XTS_CLIENTID,
   });
 
 
@@ -93,15 +93,23 @@ const getPlacedOrder = async ()=>{
           TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice , OrderDisclosedQuantity,
           ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI} = orderData;
 
+          const date = '17-05-2023 15:21:06';
+          const date1 = date.split(" ");
+          const date2 = date1[0].split("-");
+          const date3 = `${date2[2]}-${date2[1]}-${date2[0]} ${date1[1]}`
+          
+          const utcDate = new Date(date3).toUTCString();
+          
+          console.log(new Date(utcDate));
       try{
-        if(OrderStatus === "Rejected" || OrderStatus === "Complete"){
+        if(OrderStatus === "Rejected" || OrderStatus === "Filled"){
           const saveOrder = RetrieveOrder.create({
             order_id: AppOrderID, status: OrderStatus, average_price: OrderAverageTradedPrice,
             quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
             exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
             exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
             disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
-            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: ExchangeTransactTimeAPI
+            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate)
           })
         }
       } catch(err){
