@@ -50,7 +50,11 @@ app.use(hpp());
 
 xtsMarketLogin().then(()=>{})
 interactiveLogin().then(()=>{})
-client.connect().then(()=>{})
+client.connect()
+.then(()=>{})
+.catch((err)=>{
+  console.log("redis not connected", err)
+})
 
 
 
