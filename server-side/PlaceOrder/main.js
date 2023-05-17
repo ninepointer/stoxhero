@@ -7,6 +7,7 @@ const MockTradeFunc = require("../PlaceOrder/mockTrade")
 const LiveTradeFunc = require("../PlaceOrder/liveTrade")
 const authentication = require("../authentication/authentication")
 const Setting = require("../models/settings/setting");
+const {liveTrade} = require("../services/xts/xtsHelper/xtsLiveOrderPlace");
 
 
 router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
@@ -17,7 +18,8 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
         return res.status(401).send({message: "App is not Live right now. Please wait."}) 
     }
     if(req.body.apiKey && req.body.accessToken){
-        LiveTradeFunc.liveTrade(req.body, res);
+            // await liveTrade(req, res);
+        // LiveTradeFunc.liveTrade(req.body, res); TODO toggle
     } else{
         MockTradeFunc.mockTrade(req, res);
     }
