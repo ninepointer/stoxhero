@@ -18,7 +18,7 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
         return res.status(401).send({message: "App is not Live right now. Please wait."}) 
     }
     if(req.body.apiKey && req.body.accessToken){
-            // await liveTrade(req, res);
+            await liveTrade(req, res);
         // LiveTradeFunc.liveTrade(req.body, res); TODO toggle
     } else{
         MockTradeFunc.mockTrade(req, res);
