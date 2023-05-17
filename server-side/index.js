@@ -18,7 +18,7 @@ const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
-const client = require("./marketData/redisClient");
+let {client, isRedisConnected} = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {autoExpireSubscription} = require("./controllers/tenXTradeController");
@@ -42,7 +42,14 @@ app.use(hpp());
 
 // issue fix --> if enviournment variable path is not work
 
-client.connect().then(()=>{})
+// client.connect().then(()=>{})
+
+client.connect()
+.then((res)=>{isRedisConnected = true ; console.log("redis connected", res)})
+.catch((err)=>{
+  isRedisConnected = false;
+  console.log("redis not connected", err)
+})
 console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
@@ -86,7 +93,7 @@ getKiteCred.getAccess().then(async (data)=>{
     });
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
-        await getTicksForUserPosition(socket);
+        await getTicksForUserPosition(socket, data);
         // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
@@ -209,5 +216,5 @@ let weekDay = date.getDay();
 
 
 const PORT = process.env.PORT;
-
+console.log("index end")
 const server = app.listen(PORT);
