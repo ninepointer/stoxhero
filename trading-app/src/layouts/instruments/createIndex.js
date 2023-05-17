@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {useContext, useState} from "react";
-import Box from '@mui/material/Box';
+// import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
-import Icon from "@mui/material/Icon";
-import { Tooltip } from '@mui/material';
+// import Icon from "@mui/material/Icon";
+// import { Tooltip } from '@mui/material';
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import { zerodhaAccountType, xtsAccountType} from '../../variables';
 
 
 
@@ -44,6 +45,8 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 instrumentSymbol: res.data[0]?.instrumentSymbol || '',
                 exchange: res.data[0]?.exchange || '',
                 status: res.data[0]?.status || '',
+                accountType: res.data[0]?.accountType || '',
+                exchangeSegment: res.data[0]?.exchangeSegment || '',
                 createdBy: res.data[0]?.createdBy || '',
                 lastModifiedBy: res.data[0]?.lastModifiedBy || '',
                 lastModifiedOn: res.data[0]?.lastModifiedOn || '',
@@ -64,11 +67,11 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
             e.preventDefault()
             setSaving(true)
             console.log(formState)
-            if(!formState?.displayName || !formState?.instrumentSymbol || !formState?.exchange || !formState?.status){
+            if(!formState?.displayName || !formState?.instrumentSymbol || !formState?.exchange || !formState?.status || !formState?.accountType || !formState?.exchangeSegment){
                 setTimeout(()=>{setSaving(false);setEditing(true)},500)
                 return openErrorSB("Missing Field","Please fill all the mandatory fields")
             }
-            const { displayName, instrumentSymbol, exchange, status } = formState;
+            const {accountType, exchangeSegment, displayName, instrumentSymbol, exchange, status } = formState;
     
             const res = await fetch(`${baseUrl}api/v1/stockindex/${id ? id : newObjectId}`, {
                 method: "PUT",
@@ -78,7 +81,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                     "Access-Control-Allow-Credentials": true
                 },
                 body: JSON.stringify({
-                    displayName, instrumentSymbol, exchange, status
+                    accountType, exchangeSegment, displayName, instrumentSymbol, exchange, status
                 })
             });
       
@@ -100,11 +103,11 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
         setCreating(true)
         console.log(formState)
         
-        if(!formState?.displayName || !formState?.instrumentSymbol || !formState?.exchange || !formState?.status){
+        if(!formState?.displayName || !formState?.instrumentSymbol || !formState?.exchange || !formState?.status || !formState?.accountType || !formState?.exchangeSegment){
             setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { displayName, instrumentSymbol, exchange, status } = formState;
+        const {accountType, exchangeSegment, displayName, instrumentSymbol, exchange, status } = formState;
         const res = await fetch(`${baseUrl}api/v1/stockindex`, {
             method: "POST",
             credentials:"include",
@@ -113,7 +116,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                displayName, instrumentSymbol, exchange, status
+                accountType, exchangeSegment, displayName, instrumentSymbol, exchange, status
             })
         });
   
@@ -201,7 +204,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
           Index Details
         </MDTypography>
         </MDBox>
-
+        
         <Grid container spacing={1} mt={0.5} mb={0}>
           <Grid item xs={12} md={6} xl={3}>
             <TextField
@@ -222,6 +225,21 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
+                label='Exchange Segment *'
+                fullWidth
+                // defaultValue={indexData?.displayName}
+                value={formState?.exchangeSegment}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    exchangeSegment: e.target.value
+                  }))}}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
                 label='Instrument Symbol *'
                 defaultValue={indexData?.instrumentSymbol}
                 fullWidth
@@ -230,6 +248,41 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
                     instrumentSymbol: e.target.value
                   }))}}
               />
+          </Grid>
+
+          {/* <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Account Type *'
+                defaultValue={indexData?.accountType}
+                fullWidth
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    accountType: e.target.value
+                  }))}}
+              />
+          </Grid> */}
+
+          <Grid item xs={12} md={6} xl={3}>
+              <FormControl sx={{width: "100%" }}>
+                <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
+                <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                defaultValue={indexData?.accountType}
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    accountType: e.target.value
+                }))}}
+                label="Status"
+                sx={{ minHeight:43 }}
+                >
+                <MenuItem value={zerodhaAccountType}>ZERODHA</MenuItem>
+                <MenuItem value={xtsAccountType}>XTS</MenuItem>
+                </Select>
+              </FormControl>
           </Grid>
 
           <Grid item xs={12} md={6} xl={3}>

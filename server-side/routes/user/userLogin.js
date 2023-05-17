@@ -14,7 +14,7 @@ router.post("/login", async (req, res)=>{
         return res.status(422).json({status: 'error', message : "Please provide login credentials"});
     }
 
-    const userLogin = await UserDetail.findOne({email : userId})
+    const userLogin = await UserDetail.findOne({email : userId, status: "Active"})
     //console.log(userLogin);
     if(!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))){
         return res.status(422).json({error : "invalid details"})

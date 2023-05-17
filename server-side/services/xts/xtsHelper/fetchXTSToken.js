@@ -22,12 +22,12 @@ const fetchXTSData = async () => {
         exchangeInstrumentID: elem.instrumentToken,
       })
     }) 
-    // index.forEach((elem)=>{
-    //   tokens.push({
-    //     exchangeSegment: 1, //TODO change constant in client side
-    //     exchangeInstrumentID: elem.instrumentToken,
-    //   });
-    // }) 
+    index.forEach((elem)=>{
+      tokens.push({
+        exchangeSegment: elem.exchangeSegment,
+        exchangeInstrumentID: elem.instrumentToken,
+      });
+    }) 
     // contest.forEach((elem)=>{
     //   tokens.push(elem.instrumentToken);
     // }) 

@@ -30,14 +30,14 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
-const client = require("../../marketData/redisClient")
+const {client, isRedisConnected} = require("../../marketData/redisClient")
 const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 
 const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
 const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
 const {placeOrder} = require("../../services/xts/xtsInteractive");
-
+const fetchToken = require("../../marketData/generateSingleToken");
 
 router.get("/placeOrder", async (req, res) => {
   let obj = {
@@ -64,6 +64,14 @@ router.get("/getData", async (req, res) => {
   res.send(xtsMarketDataAPI)
 
 });
+
+// router.get("/tokenData", async (req, res) => {
+//   // const xtsMarketDataAPI = await getInstrument();
+//   // console.log(xtsMarketDataAPI)
+  
+//   res.send(await fetchToken("NSE", "NIFTY 50"))
+
+// });
 
 
 router.get("/deletePnlKey", async (req, res) => {

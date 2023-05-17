@@ -4,7 +4,7 @@ const AccessAndRequestToken = require("../models/Trading Account/requestTokenSch
 const {disconnectTicker, createNewTicker}  = require('../marketData/kiteTicker');
 const getKiteCred = require('../marketData/getKiteCred');
 const totp = require("totp-generator");
-const client = require("../marketData/redisClient");
+// const {client, isRedisConnected} = require("../marketData/redisClient");
 const { ObjectId } = require("mongodb");
 const {zerodhaAccountType} = require("../constant");
 

@@ -18,7 +18,7 @@ const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
-const client = require("./marketData/redisClient");
+let {client, isRedisConnected} = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {deletePnlKey} = require("./controllers/deletePnlKey");
@@ -27,7 +27,7 @@ const {xtsMarketLogin} = require("./services/xts/xtsMarket");
 const {interactiveLogin} = require("./services/xts/xtsInteractive");
 const {autoExpireSubscription} = require("./controllers/tenXTradeController");
 const {DummyMarketData} = require('./marketData/dummyMarketData');
-
+const {tenXAutoTrade} = require("./controllers/autoTrade/autoTradeCut")
 const path = require('path');
 // const {DummyMarketData} = require('./marketData/dummyMarketData');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
@@ -48,17 +48,29 @@ app.use(xssClean());
 app.use(hpp());
 
 
-xtsMarketLogin().then(()=>{})
-interactiveLogin().then(()=>{})
-client.connect()
+// client.connect().then(()=>{})
+xtsMarketLogin()
 .then(()=>{})
 .catch((err)=>{
-  console.log("redis not connected", err)
+  console.log(err, "xts market login")
+})
+interactiveLogin()
+.then(()=>{})
+.catch((err)=>{
+  console.log(err, "xts interactive login")
 })
 
-
-
-
+client.connect()
+.then((res)=>{
+  // setValue(true)
+  isRedisConnected = true ; 
+  console.log("redis connected")})
+.catch((err)=>{
+  // setValue(false)
+  isRedisConnected = false;
+  console.log("redis not connected", err)
+})
+console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
@@ -98,8 +110,7 @@ getKiteCred.getAccess().then(async (data)=>{
     });
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
-        // await getTicksForUserPosition(socket);
-        await getXTSTicksForUserPosition(socket); //TODO toggle
+        await getTicksForUserPosition(socket, data);
         // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
@@ -216,12 +227,13 @@ let weekDay = date.getDay();
   }
 
   try{
-    // const autotrade = nodeCron.schedule(`*/10 * 3-10 * * *`, autoTradeContest);
+    const autotrade = nodeCron.schedule(`0 10 * * *`, tenXAutoTrade);
+
   } catch(err){
     console.log("err from cronjob", err)
   }
 
 
 const PORT = process.env.PORT;
-
+console.log("index end")
 const server = app.listen(PORT);

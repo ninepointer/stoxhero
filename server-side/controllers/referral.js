@@ -1,6 +1,6 @@
 const Referral = require('../models/campaigns/referralProgram');
 const User = require('../models/User/userDetailSchema');
-const client = require('../marketData/redisClient');
+const {client, isRedisConnected} = require('../marketData/redisClient');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -131,7 +131,7 @@ exports.editReferralWithId = async(req, res, next) => {
 exports.getReferralLeaderboard = async(req,res,next) =>{
     
     //If the leaderboard exisits in redis
-    if(await client.exists(`referralLeaderboard:${process.env.PROD}`)){
+    if(isRedisConnected && await client.exists(`referralLeaderboard:${process.env.PROD}`)){
       // console.log("in if of referral")
         const leaderBoard = await client.sendCommand(['ZREVRANGE', `referralLeaderboard:${process.env.PROD}`, "0", "19",  'WITHSCORES']);
         const transformedData = transformData(leaderBoard);
@@ -214,7 +214,7 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
     // console.log("My Leaderboard User: ",req.user)
     const referralCount = req?.user?.referrals?.length
     try{
-      if(await client.exists(`referralLeaderboard:${process.env.PROD}`)){
+      if(isRedisConnected && await client.exists(`referralLeaderboard:${process.env.PROD}`)){
         const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
         const leaderBoardScore = await client.ZSCORE(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
     

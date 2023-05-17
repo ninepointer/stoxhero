@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 
 const stockIndexSchema = new mongoose.Schema({
     displayName:{
@@ -40,6 +41,15 @@ const stockIndexSchema = new mongoose.Schema({
     lastModifiedBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        // required : true
+    },
+    accountType:{
+        type: String,
+        required : true,
+        enum : [zerodhaAccountType, xtsAccountType]
+    },
+    exchangeSegment:{
+        type: Number,
         // required : true
     },
 })

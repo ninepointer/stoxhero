@@ -1,7 +1,7 @@
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTraderCompany = require("../models/mock-trade/infinityTradeCompany");
 const { ObjectId } = require("mongodb");
-const client = require('../marketData/redisClient');
+const {client, isRedisConnected} = require('../marketData/redisClient');
 
 
 exports.overallPnlTrader = async (req, res, next) => {
@@ -21,7 +21,7 @@ exports.overallPnlTrader = async (req, res, next) => {
 
     try{
 
-      if(await client.exists(`${req.user._id.toString()} overallpnl`)){
+      if(isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)){
         let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
         pnl = JSON.parse(pnl);
         // console.log("pnl redis", pnl)
@@ -73,8 +73,11 @@ exports.overallPnlTrader = async (req, res, next) => {
           },
         ])
         // console.log("pnlDetails in else", pnlDetails)
-        await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnlDetails))
-        await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
+
+        if(isRedisConnected){
+          await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnlDetails))
+          await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);  
+        }
 
         // console.log("pnlDetails", pnlDetails)
         res.status(201).json({message: "pnl received", data: pnlDetails});
@@ -84,8 +87,6 @@ exports.overallPnlTrader = async (req, res, next) => {
         console.log(e);
         return res.status(500).json({status:'success', message: 'something went wrong.'})
     }
-
-
 }
 
 exports.overallPnlCompanySide = async (req, res, next) => {
