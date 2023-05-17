@@ -206,7 +206,7 @@ const emitTicks = async(userId)=>{
       console.log("Will emit filteredTicks in 2 seconds...");
       timeoutId = setInterval(() => {
         if (filteredTicks && filteredTicks.length > 0) {
-          console.log("Emitting filteredTicks...");
+          // console.log("Emitting filteredTicks...");
           io.to(`${userId}`).emit("tick-room", filteredTicks);
           filteredTicks = null;
         }
