@@ -200,22 +200,22 @@ export default function TenXSubscriptions() {
       <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is TenX Trading / TenX ट्रेडिंग क्या है?</MDTypography>
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
-          <span style={{fontWeight:'bold', fontSize:20}}>TenX</span> is a unique program that gives every trader (beginner or experienced) 
-          an opportunity to make a profit at <span style={{color:'red'}}>0 (Zero) capital</span>. You start trading using 
-          virtual currency of a specific value (margin money) provided by StoxHero. 
-          After 20 days of trading, if you've made a profit, <span style={{color:'red'}}>we'll transfer 10% of 
-          the net profit amount to your wallet</span>. Yes, you heard it right. You have 
-          a chance to earn real money, with virtual currency while learning & improving 
-          your trading skills. Don’t miss it. Start trading now!
+          <span style={{fontWeight:'bold', fontSize:20}}>TenX</span> gives every trader an opportunity to make a profit with <span style={{fontWeight:'bold', fontSize:20}}>0 (Zero) capital.</span> You just have 
+          to start trading using the virtual currency (i.e. margin money) provided by StoxHero. After 
+          20 days of active trading, <span style={{fontWeight:'bold', fontSize:20}}>we'll transfer 10%</span> of the net profit (the real money) to your wallet.
+          And the cycle repeats. Yes, you heard it right. Don't miss out on the opportunity to learn and 
+          potentially earn real money through virtual currency trading, with the ultimate goal of becoming 
+          a successful trader, a StoxHero. Your trader's journey starts now.
         </MDTypography>
       </MDBox>
       <MDBox bgColor="white" p={2} mb={1} mt={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
-          <span style={{fontWeight:'bold', fontSize:20}}>TenX</span> एक अनोखा कार्यक्रम है जो प्रत्येक ट्रेडर (शुरुआती या अनुभवी) को <span style={{color:'red'}}>0 (शून्य) पूंजी</span> पर लाभ कमाने का अवसर देता है। आप स्टॉक्सहेरो द्वारा प्रदान किए गए एक विशिष्ट मूल्य (मार्जिन मनी)
-          की आभासी मुद्रा का उपयोग करके व्यापार करना शुरू करते हैं। 20 दिनों के व्यापार के बाद, यदि आपने लाभ कमाया है, 
-          <span style={{color:'red'}}> तो हम शुद्ध लाभ राशि का 10% आपके बटुए में स्थानांतरित कर देंगे।</span> हां, 
-          आपने इसे सही सुना। आपके पास अपने व्यापारिक कौशल सीखने और सुधारने के दौरान आभासी मुद्रा के साथ वास्तविक पैसा कमाने का 
-          मौका है। इसे याद मत करो अभी ट्रेडिंग शुरू करें!
+          <span style={{fontWeight:'bold', fontSize:20}}>TenX</span> हर ट्रेडर को वास्तविक पैसे कमाने का मौका देता है 
+          जहां उपभोक्ता को <span style={{fontWeight:'bold', fontSize:20}}>0 (शून्य) पूंजी</span> के साथ लाभ कमाने का मौका मिलता है। आपको सिर्फ StoxHero द्वारा प्रदान की जाने वाली 
+          वर्चुअल मुद्रा (अर्थात मार्जिन पैसे) का उपयोग करके ट्रेडिंग शुरू करनी होगी। सक्रिय ट्रेडिंग के 20 दिनों के बाद, हम आपके <span style={{fontWeight:'bold', fontSize:20}}> वॉलेट में 10% </span>
+          नेट लाभ (वास्तविक पैसे) स्थानांतरित करेंगे। और यह प्रक्रिया दोहराती रहेगी। हाँ, आपने सही सुना है। वास्तविक मुद्रा ट्रेडिंग के माध्यम से 
+          सीखने और संभावित रूप से वास्तविक पैसे कमाने का यह मौका न छोड़ें, जहां अंतिम लक्ष्य है सफल ट्रेडर बनना, एक स्टॉक्सहीरो। आपकी 
+          ट्रेडर की यात्रा अब शुरू होती है।
         </MDTypography>
       </MDBox>
     </MDBox>

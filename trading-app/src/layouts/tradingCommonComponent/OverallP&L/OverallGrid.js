@@ -70,6 +70,10 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
            },
            signal: signal }
            );
+
+           if(data?.data?.length === 0){
+            updateNetPnl(0, 0, 0, 0);
+           }
            setPnlData(data.data);
            setTradeData(data.data);
 

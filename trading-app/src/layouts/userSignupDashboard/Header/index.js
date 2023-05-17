@@ -23,7 +23,7 @@ export default function LabTabs() {
 
   return (
    
-    <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
+    <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
           <SummaryTiles/> 
     </MDBox>
   );
