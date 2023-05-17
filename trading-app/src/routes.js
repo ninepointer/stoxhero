@@ -92,6 +92,7 @@ import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDet
 import Contact from "./layouts/HomePage/pages/Contact";
 import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
+import TenXTrading from "./layouts/tenXTrading"
 
 
 
@@ -485,6 +486,15 @@ const routes = [
     icon: <GiNinjaHeroicStance/>,
     route: "/infinitytrading",
     component: <InfinityTrader />,
+  },
+  {
+    type: "collapse",
+    name: "TenX Trading",
+    key: "tenxtrading",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <CurrencyRupeeIcon/>,
+    route: "/tenxtrading",
+    component: <TenXTrading />,
   },
   // {
   //   type: "collapse",

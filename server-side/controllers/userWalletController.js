@@ -1,4 +1,5 @@
 const UserWallet = require('../models/UserWallet/userWalletSchema');
+const emailService = require("../utils/emailService")
 const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
@@ -51,7 +52,7 @@ exports.myWallet = async(req,res,next) => {
         if(!myWallet){
             return res.status(404).json({status:'error', message: 'No Wallet found'});
         }
-
+        
         res.status(200).json({status: 'success', data: myWallet});
 
     }catch(e){
@@ -68,8 +69,8 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
 
         const wallet = await UserWallet.findOne({userId: userId});
         wallet.transactions = [...wallet.transactions, {
-              title: 'Subscription Deduct',
-              description: `Amount deducted for subscription ${subscriptionName} purchase`,
+              title: 'Bought TenX Trading Subscription',
+              description: `Amount deducted for the purchase of ${subscriptionName} subscription`,
               amount: (-subscriptionAmount),
               transactionId: uuid.v4(),
               transactionType: 'Cash'
@@ -106,7 +107,97 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
 
         if(!wallet){
             return res.status(404).json({status:'error', message: 'No Wallet found'});
-        }
+        } 
+            let recipients = [user.email,'team@stoxhero.com'];
+            let recipientString = recipients.join(",");
+            let subject = "New Subscription - StoxHero";
+            let message = 
+            `
+            <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>New Subscription Purchased</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
+
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+
+                    p {
+                        margin: 0 0 20px;
+                    }
+
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>New Subscription Purchased</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Thanks for purchasing our subscription! Please find your purchase details below.</p>
+                    <p>User ID: <span class="userid">${user.employeeid}</span></p>
+                    <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+                    <p>Email: <span class="password">${user.email}</span></p>
+                    <p>Mobile: <span class="password">${user.mobile}</span></p>
+                    <p>Subscription Name: <span class="password">${subscription.plan_name}</span></p>
+                    <p>Subscription Actual Price: <span class="password">₹${subscription.actual_price}/-</span></p>
+                    <p>Subscription Discounted Price: <span class="password">₹${subscription.discounted_price}/-</span></p>  
+                    </div>
+                </body>
+                </html>
+
+            `
+            emailService(recipientString,subject,message);
+            console.log("Subscription Email Sent")
 
         res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
 
