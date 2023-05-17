@@ -58,7 +58,7 @@ exports.liveTrade = async (req, res) => {
         limitPrice: 15000,
         stopPrice: 0,
     }
-    // const placeorder = await placeOrder(obj);
+    const placeorder = await placeOrder(obj);
 
     if(buyOrSell === "SELL"){
         Quantity = "-"+Quantity;
@@ -73,7 +73,7 @@ exports.liveTrade = async (req, res) => {
 
 
     const AppOrderID = placeorder?.result?.AppOrderID;
-    // await saveData();
+    await saveData();
     function saveData(){
         setTimeout(async ()=>{
             const gettingOrder = await RetreiveOrder.findOne({order_id: AppOrderID});
