@@ -201,13 +201,15 @@ const getXTSTicksForUserPosition = async (socket) => {
 }
 
 const emitTicks = async(userId)=>{
-  // if (filteredTicks.length > 0) {
+  
     // if (!timeoutId) {
       console.log("Will emit filteredTicks in 2 seconds...");
       timeoutId = setInterval(() => {
-        console.log("Emitting filteredTicks...");
-        io.to(`${userId}`).emit("tick-room", filteredTicks);
-        filteredTicks = null;
+        if (filteredTicks && filteredTicks.length > 0) {
+          console.log("Emitting filteredTicks...");
+          io.to(`${userId}`).emit("tick-room", filteredTicks);
+          filteredTicks = null;
+        }
         // clearTimeout(timeoutId);
         // timeoutId = null; // reset timeoutId after executing the callback
       }, 1000); // wait for 2 seconds
