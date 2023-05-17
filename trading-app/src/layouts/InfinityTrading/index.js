@@ -25,7 +25,7 @@ function Tables() {
   useEffect(() => {
     socket.on("connect", () => {
       socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", true)
+      socket.emit("user-ticks", getDetails.userDetails._id)
     })
   }, []);
   return (

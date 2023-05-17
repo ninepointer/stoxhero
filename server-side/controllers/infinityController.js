@@ -1,7 +1,7 @@
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTraderCompany = require("../models/mock-trade/infinityTradeCompany");
 const { ObjectId } = require("mongodb");
-const client = require('../marketData/redisClient');
+const {client, isRedisConnected} = require('../marketData/redisClient');
 
 
 exports.overallPnlTrader = async (req, res, next) => {

@@ -5,9 +5,10 @@ const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
 const DummyMarketData = require("./dummyMarketData")
-
+const User = require("../models/User/userDetailSchema")
 const io = require('../marketData/socketio');
 const {client, isRedisConnected} = require("./redisClient");
+const { ObjectId } = require('mongodb');
 
 
 
@@ -87,9 +88,31 @@ const getTicks = async (socket) => {
     });
 
     try{
-      let userId = await client.get(socket.id)
-      let instruments = await client.SMEMBERS(userId)
-      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
+
+      let instrumentTokenArr = [];
+      let userId ;
+      if(isRedisConnected){
+        userId = await client.get(socket.id);
+      }
+      
+      if(isRedisConnected && await client.exists((userId).toString())){
+        let instruments = await client.SMEMBERS((userId).toString())
+        instrumentTokenArr = new Set(instruments)
+      } else{
+        console.log("in else part")
+        const user = await User.findById(new ObjectId(userId))
+        .populate('watchlistInstruments')
+  
+        userId = user._id;
+        for(let i = 0; i < user.watchlistInstruments.length; i++){
+          instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
+        }
+        instrumentTokenArr = new Set(instrumentTokenArr)
+      }
+
+      // let userId = await client.get(socket.id)
+      // let instruments = await client.SMEMBERS(userId)
+      // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
       let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
       if(indexData?.length > 0){
         socket.emit('index-tick', indexData)
@@ -122,15 +145,21 @@ const getDummyTicks = async(socket) => {
   let filteredTicks = await DummyMarketData();
   io.to(userId).emit('contest-ticks', filteredTicks);
 }
-const getTicksForUserPosition = async (socket) => {
-  let indecies = await client.get("index")
+const getTicksForUserPosition = async (socket, id) => {
+  let indecies;
+  if(isRedisConnected){
+    indecies = await client.get("index")
+  }
+  
   if(!indecies){
     indecies = await StockIndex.find({status: "Active"});
-    await client.set("index", JSON.stringify(indecies));
+    if(isRedisConnected){
+      await client.set("index", JSON.stringify(indecies));
+    }
   } else{
-    indecies = JSON.parse(indecies);  
+    indecies = JSON.parse(indecies);
   }
-
+  console.log("indecies", indecies)
   ticker.on('ticks', async (ticks) => {
 
     let indexObj = {};
@@ -144,14 +173,34 @@ const getTicksForUserPosition = async (socket) => {
       return indexObj[item.instrument_token];
     });
 
+    console.log("indexdata", indexData)
 
     try{
-      let userId = await client.get(socket.id)
-      // await client.del(userId)
-      let instruments = await client.SMEMBERS(userId)
-      // console.log(userId, instruments)
-      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      // console.log(instrumentTokenArr)
+      let instrumentTokenArr = [];
+      let userId ;
+      if(isRedisConnected){
+        userId = await client.get(socket.id);
+      }
+      
+      if(isRedisConnected && await client.exists((userId).toString())){
+        let instruments = await client.SMEMBERS((userId).toString())
+        instrumentTokenArr = new Set(instruments)
+      } else{
+        console.log("in else part")
+        const user = await User.findById(new ObjectId(id))
+        .populate('watchlistInstruments')
+  
+        userId = user._id;
+        for(let i = 0; i < user.watchlistInstruments.length; i++){
+          instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
+        }
+        instrumentTokenArr = new Set(instrumentTokenArr)
+      }
+
+
+      // let userId = await client.get(socket.id)
+      // let instruments = await client.SMEMBERS(userId)
+      // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
       let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
       if(indexData?.length > 0){
         socket.emit('index-tick', indexData)
@@ -177,35 +226,35 @@ const getTicksForUserPosition = async (socket) => {
 
 const getTicksForContest = async (socket) => {
 
-  ticker.on('ticks', async (ticks) => {
+  // ticker.on('ticks', async (ticks) => {
 
 
-    try{
-      let contestId = await client.get(socket.id)
-      let instruments = await client.SMEMBERS((contestId))
-      // console.log(contestId, instruments)
-      let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      // console.log(instrumentTokenArr)
-      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+  //   try{
+  //     let contestId = await client.get(socket.id)
+  //     let instruments = await client.SMEMBERS((contestId))
+  //     // console.log(contestId, instruments)
+  //     let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
+  //     // console.log(instrumentTokenArr)
+  //     let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
     
-      if(filteredTicks.length > 0){
-        io.to(`${contestId}`).emit('contest-ticks', filteredTicks);
-      }
-      // console.log("performance", performance.now()-now, socket.id);
+  //     if(filteredTicks.length > 0){
+  //       io.to(`${contestId}`).emit('contest-ticks', filteredTicks);
+  //     }
+  //     // console.log("performance", performance.now()-now, socket.id);
 
-      filteredTicks = null;
-      ticks = null;
-      indexData = null;
-      instrumentTokenArr = null;
-      instruments = null;
-
-
-    } catch (err){
-      // console.log(err)
-    }
+  //     filteredTicks = null;
+  //     ticks = null;
+  //     indexData = null;
+  //     instrumentTokenArr = null;
+  //     instruments = null;
 
 
-  });
+  //   } catch (err){
+  //     // console.log(err)
+  //   }
+
+
+  // });
 }
 
 const getTicksForCompanySide = async (socket) => {
