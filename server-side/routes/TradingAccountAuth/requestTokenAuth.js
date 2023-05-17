@@ -47,7 +47,9 @@ router.post("/requestToken", authentication, (req, res)=>{
 router.post("/autologin", authentication, async (req, res)=>{
     // await client.del(`kiteCredToday:${process.env.PROD}`);
     // await deletePnlKey();
-    await client.del(`referralLeaderboard:${process.env.PROD}`);
+    if(isRedisConnected){
+        await client.del(`referralLeaderboard:${process.env.PROD}`);
+    }
     const {accountId, apiKey, apiSecret, status, uId} = req.body;
     req.body.createdBy = req.user._id;
     if(!accountId || !apiKey || !apiSecret || !status || !uId){

@@ -93,7 +93,7 @@ getKiteCred.getAccess().then(async (data)=>{
     });
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
-        await getTicksForUserPosition(socket);
+        await getTicksForUserPosition(socket, data);
         // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
