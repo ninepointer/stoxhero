@@ -14,6 +14,7 @@ const { ObjectId } = require('mongodb');
 let xtsMarketDataWS ;
 let xtsMarketDataAPI ;
 let filteredTicks = [];
+let companyTicks = [];
 const xtsMarketLogin = async ()=>{
     xtsMarketDataAPI = new XtsMarketDataAPI(
       process.env.MARKETDATA_URL
@@ -110,6 +111,34 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
     ],
     xtsMessageCode: 1502,
   });
+}
+
+const getXTSTicksForCompanySide = async (socket) => {
+  let marketDepth;
+  
+  xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
+    marketDepth = marketDepthData;
+  });
+
+  await emitCompanyTicks();
+  xtsMarketDataWS.onLTPEvent((ticksObj) => {
+    ticksObj = JSON.parse(ticksObj);
+    if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
+      ticksObj.last_price = ticksObj.LastTradedPrice;
+      ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+      ticksObj.change = marketDepth.Touchline.PercentChange;
+    
+      const instrumentMap = new Map(companyTicks.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
+      if (instrumentMap.has(ticksObj.ExchangeInstrumentID)) {
+        const existingInstrument = instrumentMap.get(ticksObj.ExchangeInstrumentID);
+        Object.assign(existingInstrument, ticksObj);
+      } else {
+        instrumentMap.set(ticksObj.ExchangeInstrumentID, ticksObj);
+      }
+      companyTicks = Array.from(instrumentMap.values());
+    }
+  });
+
 }
 
 const getXTSTicksForUserPosition = async (socket) => {
@@ -227,6 +256,16 @@ const emitTicks = async(userId)=>{
   }, 1000); // wait for 2 seconds
 }
 
+const emitCompanyTicks = async()=>{
+  
+  timeoutId = setInterval(() => {
+    if (companyTicks && companyTicks.length > 0) {
+      socket.emit('tick', companyTicks);
+      companyTicks = null;
+    }
+  }, 1000);
+}
+
 const tradableInstrument = async(req, res)=>{
   let response = await xtsMarketDataAPI.searchInstrument({
     searchString: 'BAN',
@@ -268,4 +307,4 @@ const tradableInstrument = async(req, res)=>{
 
 module.exports = {xtsMarketLogin, getInstrument, onDisconnect, 
   tradableInstrument, subscribeInstrument, getXTSTicksForUserPosition,
-  unSubscribeXTSToken, subscribeSingleXTSToken };
+  unSubscribeXTSToken, subscribeSingleXTSToken, getXTSTicksForCompanySide };
