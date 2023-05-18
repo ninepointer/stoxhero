@@ -4,7 +4,7 @@ const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
 const uuid = require('uuid');
-const {client, isRedisConnected} = require("../marketData/redisClient")
+const {client, getValue} = require("../marketData/redisClient")
 
 
 
@@ -62,6 +62,7 @@ exports.myWallet = async(req,res,next) => {
 }
 
 exports.deductSubscriptionAmount = async(req,res,next) => {
+    let isRedisConnected = getValue();
     const userId = req.user._id;
     const {subscriptionAmount, subscriptionName, subscribedId} = req.body
     console.log("all three", subscriptionAmount, subscriptionName, subscribedId)

@@ -1,6 +1,6 @@
 const Referral = require('../models/campaigns/referralProgram');
 const User = require('../models/User/userDetailSchema');
-const {client, isRedisConnected} = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -129,7 +129,7 @@ exports.editReferralWithId = async(req, res, next) => {
 }
 
 exports.getReferralLeaderboard = async(req,res,next) =>{
-    
+  let isRedisConnected = getValue();
     //If the leaderboard exisits in redis
     if(isRedisConnected && await client.exists(`referralLeaderboard:${process.env.PROD}`)){
       // console.log("in if of referral")
@@ -212,6 +212,7 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
 exports.getMyLeaderBoardRank = async(req,res,next) => {
     // const {id} = req.params;
     // console.log("My Leaderboard User: ",req.user)
+    let isRedisConnected = getValue();
     const referralCount = req?.user?.referrals?.length
     try{
       if(isRedisConnected && await client.exists(`referralLeaderboard:${process.env.PROD}`)){

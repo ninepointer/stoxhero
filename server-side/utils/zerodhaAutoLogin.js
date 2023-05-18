@@ -4,7 +4,7 @@ const AccessAndRequestToken = require("../models/Trading Account/requestTokenSch
 const {disconnectTicker, createNewTicker}  = require('../marketData/kiteTicker');
 const getKiteCred = require('../marketData/getKiteCred');
 const totp = require("totp-generator");
-const {client, isRedisConnected} = require("../marketData/redisClient");
+const {client, getValue} = require("../marketData/redisClient");
 
 
 function sleep(ms) {
