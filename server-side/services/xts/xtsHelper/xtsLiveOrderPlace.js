@@ -61,12 +61,12 @@ exports.liveTrade = async (req, res) => {
     }
     const placeorder = await placeOrder(obj);
 
-    if(buyOrSell === "SELL"){
-        Quantity = "-"+Quantity;
-    }
-    if(realBuyOrSell === "SELL"){
-        realQuantity = "-"+realQuantity;
-    }
+    // if(buyOrSell === "SELL"){
+    //     Quantity = "-"+Quantity;
+    // }
+    // if(realBuyOrSell === "SELL"){
+    //     realQuantity = "-"+realQuantity;
+    // }
 
 
     const AppOrderID = placeorder?.result?.AppOrderID;
@@ -104,14 +104,15 @@ exports.liveTrade = async (req, res) => {
             let responseMsg = status;
             let responseErr = status_message;
 
+            console.log("transaction_type", transaction_type)
             if(transaction_type == "SELL"){
                 console.log("in if", quantity);
-                quantity = -quantity;
+                quantity = 0-quantity;
                 console.log("after if", quantity);
             }
             if(buyOrSell == "SELL"){
                 console.log("in if", Quantity);
-                Quantity = -Quantity;
+                Quantity = 0-Quantity;
                 console.log("after if", Quantity);
             }
         
@@ -273,55 +274,6 @@ exports.liveTrade = async (req, res) => {
         }, 500)
     }
 
-console.log("in live order", req.body, obj)
+// console.log("in live order", req.body, obj)
 
 }
-
-
-
-// {
-//     LoginID: 'CK68',
-//  88   ClientID: 'CK68',
-//  4   AppOrderID: 1200026157,
-//     OrderReferenceID: '',
-//     GeneratedBy: 'TWSAPI',
-//  29   ExchangeOrderID: '',
-//     OrderCategoryType: 'NORMAL',
-//     ExchangeSegment: 'NSEFO',
-// 102    ExchangeInstrumentID: 46292,
-//  25   OrderSide: 'Buy',
-// 51    OrderType: 'Market',
-//  21   ProductType: 'NRML',
-//  40   TimeInForce: 'DAY',
-//   55  OrderPrice: 0,
-//  17   OrderQuantity: 50,
-//     OrderStopPrice: 0,
-//  9   OrderStatus: 'Rejected',
-//  13   OrderAverageTradedPrice: '',
-//     LeavesQuantity: 50,
-//     CumulativeQuantity: 0,
-//  80   OrderDisclosedQuantity: 0,
-//     OrderGeneratedDateTime: '2023-05-12T11:42:54.8611515',
-//  48   ExchangeTransactTime: '2023-05-12T11:42:54+05:30',
-//  32   LastUpdateDateTime: '2023-05-12T11:42:54.8621523',
-//     OrderExpiryDate: '1980-01-01T00:00:00',
-//  96   CancelRejectReason: 'OEMS:RMS : Margin Exceeds :  - Set Limit:[0] Total Required Margin:[8087.5] Available Margin[0] Margin Shortfall[8087.5] for entity [Client]-[CK68] across [ALL|ALL|ALL]',
-//     OrderUniqueIdentifier: '',
-//     OrderLegStatus: 'SingleOrderLeg',
-//     IsSpread: false,
-//     BoLegDetails: 0,
-//     BoEntryOrderId: '',
-//     OrderAverageTradedPriceAPI: 'NaN',
-//     OrderSideAPI: 'BUY',
-//     OrderGeneratedDateTimeAPI: '12-05-2023 11:42:54',
-//  105   ExchangeTransactTimeAPI: '12-05-2023 11:42:54',
-//     LastUpdateDateTimeAPI: '12-05-2023 11:42:54',
-//     OrderExpiryDateAPI: '01-01-1980 00:00:00',
-//     MessageCode: 9004,
-//     MessageVersion: 4,
-//     TokenID: 0,
-//     ApplicationType: 146,
-//     SequenceNumber: 1060436480762617
-//   }
-
-// exchange, tradingsymbol

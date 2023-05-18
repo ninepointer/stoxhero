@@ -71,15 +71,18 @@ const placeOrder = async (obj)=>{
   });
 
 
-  await getPlacedOrder();
+  await getPlacedOrder(false);
 
   return response;
   // console.log(response);
 }
 
-const getPlacedOrder = async ()=>{
+const getPlacedOrder = async (isDataSaved)=>{
   xtsInteractiveWS.onOrder((orderData) => {
-    // console.log("order data", orderData);
+    if(isDataSaved){
+      return;
+    }
+    console.log("order data", orderData);
     const {ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
           TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice , OrderDisclosedQuantity,
           ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI} = orderData;
@@ -94,7 +97,7 @@ const getPlacedOrder = async ()=>{
           console.log(new Date(utcDate));
       try{
         if(OrderStatus === "Rejected" || OrderStatus === "Filled"){
-          let status, order_timestamp ;
+          let status, transaction_type ;
           if(OrderStatus === "Rejected"){
             status = "REJECTED";
           }else if(OrderStatus === "Filled"){
@@ -102,18 +105,20 @@ const getPlacedOrder = async ()=>{
           }
 
           if(OrderSide == "Sell"){
-            order_timestamp = "SELL";
+            transaction_type = "SELL";
           } else if(OrderSide == "Buy"){
-            order_timestamp = "BUY";
+            transaction_type = "BUY";
           }
           const saveOrder = RetrieveOrder.create({
             order_id: AppOrderID, status: status, average_price: OrderAverageTradedPrice,
-            quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
+            quantity: OrderQuantity, product: ProductType, transaction_type: transaction_type,
             exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
             exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
             disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
-            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate)
+            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate), guid: `${ExchangeOrderID}${AppOrderID}`
           })
+
+          isDataSaved = true;
         }
       } catch(err){
         console.log(err, "err in retreive order");

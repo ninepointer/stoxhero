@@ -155,11 +155,19 @@ const getXTSTicksForUserPosition = async (socket) => {
     for (let i = 0; i < indecies?.length; i++) {
       indexObj[indecies[i]?.instrumentToken] = true;
     }
-    let indexData = ticks.filter(function(item) {
-      return indexObj[item.ExchangeInstrumentID];
-    });
+    let indexData = [];
+    // ticks.filter(function(item) {
+    //   return indexObj[item.ExchangeInstrumentID];
+    // });
 
-    // console.log("indexData", indexData)
+    if(indexObj[ticksObj.ExchangeInstrumentID] && indexObj[marketDepth.ExchangeInstrumentID]){
+      ticksObj.last_price = ticksObj.LastTradedPrice;
+      ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+      ticksObj.change = marketDepth.Touchline.PercentChange;
+      indexData.push(ticksObj)
+    }
+
+    console.log("indexData", indexData)
 
 
     try{
