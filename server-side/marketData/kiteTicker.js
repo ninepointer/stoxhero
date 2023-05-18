@@ -159,7 +159,7 @@ const getTicksForUserPosition = async (socket, id) => {
   } else{
     indecies = JSON.parse(indecies);
   }
-  console.log("indecies", indecies)
+  // console.log("indecies", indecies)
   ticker.on('ticks', async (ticks) => {
 
     let indexObj = {};
@@ -173,7 +173,7 @@ const getTicksForUserPosition = async (socket, id) => {
       return indexObj[item.instrument_token];
     });
 
-    console.log("indexdata", indexData)
+    // console.log("indexdata", indexData)
 
     try{
       let instrumentTokenArr = [];
@@ -181,7 +181,7 @@ const getTicksForUserPosition = async (socket, id) => {
       if(isRedisConnected){
         userId = await client.get(socket.id);
       }
-      
+      console.log(isRedisConnected)
       if(isRedisConnected && await client.exists((userId).toString())){
         let instruments = await client.SMEMBERS((userId).toString())
         instrumentTokenArr = new Set(instruments)
