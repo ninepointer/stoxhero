@@ -7,11 +7,12 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 // const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
-const {client, isRedisConnected} = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
 
 
 exports.mockTrade = async (req, res) => {
+    let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T23:59:59.999Z";

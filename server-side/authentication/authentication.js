@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User/userDetailSchema");
-const {client, isRedisConnected} = require("../marketData/redisClient");
+const {client, getValue} = require("../marketData/redisClient");
 const { ObjectId } = require("bson");
 
+
 const Authenticate = async (req, res, next)=>{
+    let isRedisConnected = getValue();
     let token;
     try{
     if (
@@ -20,7 +22,7 @@ const Authenticate = async (req, res, next)=>{
 
 
         try{
-            // console.log("above authentication", client);
+            console.log("above authentication", isRedisConnected, getValue());
             // console.log("check",  client.exists(`${verifyToken._id.toString()}authenticatedUser`))
             if(isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)){
                 console.log("in authentication if")

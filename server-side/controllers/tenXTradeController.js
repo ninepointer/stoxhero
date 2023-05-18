@@ -2,13 +2,13 @@ const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
-const {client, isRedisConnected} = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 
 const { ObjectId } = require("mongodb");
 
 
 exports.overallPnl = async (req, res, next) => {
-    
+  let isRedisConnected = getValue();
     const userId = req.user._id;
     const subscriptionId = req.params.id;
     let date = new Date();
