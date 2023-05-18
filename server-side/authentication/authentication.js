@@ -33,7 +33,7 @@ const Authenticate = async (req, res, next)=>{
             else{
 
                 // console.log("in else authentication")
-                const user = await User.findOne({_id: verifyToken._id}).populate('role', 'roleName')
+                const user = await User.findOne({_id: verifyToken._id, status: "Active"}).populate('role', 'roleName')
                 .select(' aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription')
                 if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
 
