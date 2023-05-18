@@ -7,7 +7,7 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 // const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
-const client = require('../marketData/redisClient');
+const {client, isRedisConnected} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
 
 
@@ -123,6 +123,7 @@ exports.mockTrade = async (req, res) => {
     console.log(paperTrade, isAlgoTrader);
     if(!paperTrade && isAlgoTrader){
 
+        let settingRedis ;
         const session = await mongoose.startSession();
         try{
 
@@ -138,7 +139,7 @@ exports.mockTrade = async (req, res) => {
             const companyDoc = {
                 status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
                 Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
-                symbol: realSymbol, placed_by: "ninepointer", algoBox:algoBoxId, order_id, 
+                symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
                 instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
                 trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
                 trade_time:trade_time,
@@ -153,8 +154,8 @@ exports.mockTrade = async (req, res) => {
     
             const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
             const algoTrader = await InfinityTrader.create([traderDoc], { session });
-            console.log(algoTrader, mockTradeDetails)
-            if(await client.exists(`${req.user._id.toString()} overallpnl`)){
+            console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
+            if(isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)){
                 let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
                 pnl = JSON.parse(pnl);
                 console.log("redis pnl", pnl)
@@ -182,19 +183,34 @@ exports.mockTrade = async (req, res) => {
                     lastaverageprice: algoTrader[0].average_price,
                   });
                 }
-                await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
+                settingRedis = await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))
+                console.log("settingRedis", settingRedis)
             }
 
-            await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
+            if(isRedisConnected){
+                await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
+            }
             // Commit the transaction
-            await session.commitTransaction();
+            
             io.emit("updatePnl", mockTradeDetails)
+
+            if(settingRedis === "OK"){
+                await session.commitTransaction();
+            } else{
+                // await session.commitTransaction();
+                throw new Error();
+            }
+            
+             
             res.status(201).json({status: 'Complete', message: 'COMPLETE'});
 
         } catch(err){
-            await client.del(`${req.user._id.toString()} overallpnl`)
+            if(isRedisConnected){
+                const del = await client.del(`${req.user._id.toString()} overallpnl`)
+            }
             await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);
+            res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
         } finally {
         // End the session
             session.endSession();
@@ -220,7 +236,7 @@ exports.mockTrade = async (req, res) => {
             //console.log("mockTradeDetails", paperTrade);
             paperTrade.save().then(async ()=>{
                 console.log("sending response");
-                if(await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
+                if(isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
                     //console.log("in the if condition")
                     let pnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
                     pnl = JSON.parse(pnl);
@@ -256,7 +272,9 @@ exports.mockTrade = async (req, res) => {
                     
                 }
 
-                await client.expire(`${req.user._id.toString()}: overallpnlPaperTrade`, secondsRemaining);
+                if(isRedisConnected){
+                    await client.expire(`${req.user._id.toString()}: overallpnlPaperTrade`, secondsRemaining);
+                }
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
                 console.log("in err", err)
@@ -287,7 +305,7 @@ exports.mockTrade = async (req, res) => {
             //console.log("mockTradeDetails", paperTrade);
             tenx.save().then(async ()=>{
                 console.log("sending response");
-                if(await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)){
+                if(isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)){
                     //console.log("in the if condition")
                     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
                     pnl = JSON.parse(pnl);
@@ -323,7 +341,9 @@ exports.mockTrade = async (req, res) => {
                     
                 }
 
-                await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
+                if(isRedisConnected){
+                    await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
+                }
                 res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             }).catch((err)=> {
                 console.log("in err", err)
