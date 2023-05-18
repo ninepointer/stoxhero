@@ -1,11 +1,11 @@
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTraderCompany = require("../models/mock-trade/infinityTradeCompany");
 const { ObjectId } = require("mongodb");
-const {client, isRedisConnected} = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 
 
 exports.overallPnlTrader = async (req, res, next) => {
-    
+    let isRedisConnected = getValue();
     const userId = req.user._id;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
