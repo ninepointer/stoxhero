@@ -82,7 +82,7 @@ const InfinityMarginGrid = ({setyesterdayData}) => {
   let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)+runningPnl-todayAmount) : fundDetail?.totalFund;
   let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
-  let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin)?.toLocaleString() : "-₹" + (-Number(usedMargin))?.toLocaleString()
+  let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin)?.toLocaleString() : "+₹" + (-Number(usedMargin))?.toLocaleString()
 
   // console.log("checkmargin", netPnl, yesterdayData, fundDetail)
     
