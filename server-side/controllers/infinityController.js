@@ -214,7 +214,14 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.getPnlAndCreditData = async (req, res, next) => {
-  
+  let date = new Date();
+  let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+  let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+  lastDayOfMonthDate = new Date(lastDayOfMonthDate);
+  firstDayOfMonthDate = new Date(firstDayOfMonthDate);
+
   let pnlAndCreditData = await InfinityTrader.aggregate([
     {
       $lookup: {
@@ -226,7 +233,7 @@ exports.getPnlAndCreditData = async (req, res, next) => {
     },
     {
       $match: {
-      status : "COMPLETE" 
+      status : "COMPLETE",
       }
     },
     {
