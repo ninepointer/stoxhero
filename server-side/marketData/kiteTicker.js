@@ -7,7 +7,7 @@ const ContestInstrument = require("../models/Instruments/contestInstrument");
 const DummyMarketData = require("./dummyMarketData")
 const User = require("../models/User/userDetailSchema")
 const io = require('../marketData/socketio');
-const {client, isRedisConnected} = require("./redisClient");
+const {client, getValue} = require("./redisClient");
 const { ObjectId } = require('mongodb');
 
 
@@ -55,6 +55,7 @@ const unSubscribeTokens = async(token) => {
 }
 
 const getTicks = async (socket) => {
+  let isRedisConnected = getValue();
   let indecies;
   if(isRedisConnected){
     indecies = await client.get("index")
@@ -146,6 +147,8 @@ const getDummyTicks = async(socket) => {
   io.to(userId).emit('contest-ticks', filteredTicks);
 }
 const getTicksForUserPosition = async (socket, id) => {
+  let isRedisConnected = getValue();
+  console.log("this is getter1", getValue());
   let indecies;
   if(isRedisConnected){
     indecies = await client.get("index")
@@ -159,7 +162,7 @@ const getTicksForUserPosition = async (socket, id) => {
   } else{
     indecies = JSON.parse(indecies);
   }
-  console.log("indecies", indecies)
+  // console.log("indecies", indecies)
   ticker.on('ticks', async (ticks) => {
 
     let indexObj = {};
@@ -186,7 +189,7 @@ const getTicksForUserPosition = async (socket, id) => {
         let instruments = await client.SMEMBERS((userId)?.toString())
         instrumentTokenArr = new Set(instruments)
       } else{
-        console.log("in else part")
+        // console.log("in else part")
         const user = await User.findById(new ObjectId(id))
         .populate('watchlistInstruments')
   
@@ -197,7 +200,7 @@ const getTicksForUserPosition = async (socket, id) => {
         instrumentTokenArr = new Set(instrumentTokenArr)
       }
 
-
+      console.log("this is getter2", getValue());
       // let userId = await client.get(socket.id)
       // let instruments = await client.SMEMBERS(userId)
       // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements

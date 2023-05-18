@@ -30,10 +30,17 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
-const {client, isRedisConnected} = require("../../marketData/redisClient")
+const {client, getValue} = require("../../marketData/redisClient")
 const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
+const tenx = require("../../controllers/AutoTradeCut/autoTradeCut");
+
+
+router.get("/autotrade", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
+  await tenx()
+});
 
 router.get("/deletePnlKey", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);

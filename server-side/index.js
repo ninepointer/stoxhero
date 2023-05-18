@@ -18,10 +18,11 @@ const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
-let {client, isRedisConnected} = require("./marketData/redisClient");
+let {client, isRedisConnected, setValue} = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {autoExpireSubscription} = require("./controllers/tenXTradeController");
+const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
 const {DummyMarketData} = require('./marketData/dummyMarketData');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
@@ -45,9 +46,14 @@ app.use(hpp());
 // client.connect().then(()=>{})
 
 client.connect()
-.then((res)=>{isRedisConnected = true ; console.log("redis connected", res)})
+.then((res)=>{
+  // isRedisConnected = true ; 
+  setValue(true);
+  console.log("redis connected", res)
+})
 .catch((err)=>{
-  isRedisConnected = false;
+  // isRedisConnected = false;
+  setValue(false);
   console.log("redis not connected", err)
 })
 console.log("index.js")
@@ -209,7 +215,7 @@ let weekDay = date.getDay();
   }
 
   try{
-    // const autotrade = nodeCron.schedule(`*/10 * 3-10 * * *`, autoTradeContest);
+    const autotrade = nodeCron.schedule(`0 0 10 * * *`, tenx);
   } catch(err){
     console.log("err from cronjob", err)
   }

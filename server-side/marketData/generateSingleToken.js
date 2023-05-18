@@ -1,7 +1,7 @@
 const axios = require('axios');
 const Account = require("../models/Trading Account/accountSchema");
 const RequestToken = require("../models/Trading Account/requestTokenSchema");
-const {client, isRedisConnected} = require("../marketData/redisClient")
+const {client, getValue} = require("../marketData/redisClient")
 
 
 async function fetchToken (exchange, symbol){
