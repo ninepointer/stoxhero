@@ -197,8 +197,8 @@ exports.mockTrade = async (req, res) => {
             if(settingRedis === "OK"){
                 await session.commitTransaction();
             } else{
-                await session.commitTransaction();
-                // throw new Error();
+                // await session.commitTransaction();
+                throw new Error();
             }
             
              
