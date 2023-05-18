@@ -54,6 +54,10 @@ const batchSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
         // required : true
+    },
+    portfolio:{
+        type: Schema.Types.ObjectId,
+        ref:'user-portfolio'
     }
 })
 

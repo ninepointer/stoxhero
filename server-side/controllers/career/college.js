@@ -15,13 +15,25 @@ exports.createCollege = async(req, res, next)=>{
 
 exports.getColleges = async(req, res, next)=>{
     try{
-        const college = await College.find();
-        res.status(201).json({status: 'success', data: college, results: college.length});    
+        const colleges = await College.find();
+        res.status(200).json({status: 'success', data: colleges, results: colleges.length});    
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 };
+
+exports.getCollege = async(req, res, next) => {
+    const id = req.params.id;
+
+    try {
+        const college = await College.findById(id);
+        res.status(200).json({status: 'success', data: college});
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+}
 
 exports.editCollege = async(req, res, next) => {
     const id = req.params.id;
