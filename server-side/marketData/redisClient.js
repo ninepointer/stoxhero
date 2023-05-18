@@ -28,13 +28,13 @@
 
     
     const redis = require('redis');
-    let isRedisConnected = true;
+    // let isRedisConnected = true;
     // function setValue(value){
     //     isRedisConnected = value;
     // }
     const client = redis.createClient(6379, 'http://127.0.0.1:8081/');
 
-    module.exports = {client, isRedisConnected}
+    module.exports = {client, isRedisConnected: true}
 
 
     // module.exports = client;
