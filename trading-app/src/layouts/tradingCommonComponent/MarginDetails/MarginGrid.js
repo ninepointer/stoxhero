@@ -69,12 +69,12 @@ const MarginGrid = () => {
   // rows.OpeningBalance = openingBalance
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
   // let usedMargin = runninglotnumber == 0 ? openingBalance - availableMargin : openingBalance - availableMargin + runningPnl
-  let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin).toLocaleString() : "+₹" + (-Number(usedMargin)).toLocaleString()
+  let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin).toLocaleString() : "₹" + (-Number(usedMargin)).toLocaleString()
   // let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
   // let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount).toLocaleString() : "-₹" + (-Number(payInAmount)).toLocaleString()
   let availableMargin = totalCredit + Number(totalPnl);
   //console.log("availableMargin", totalCredit , Number(totalPnl))
-  let availableMarginString = availableMargin >= 0 ? "+₹" + Number(availableMargin).toLocaleString() : "-₹" + (-Number(availableMargin)).toLocaleString()
+  let availableMarginString = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
 
   
   // //console.log("runningPnl", runningPnl, openingBalance)
