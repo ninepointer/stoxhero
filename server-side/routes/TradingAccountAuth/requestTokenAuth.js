@@ -46,7 +46,7 @@ router.post("/requestToken", authentication, (req, res)=>{
 
 router.post("/autologin", authentication, async (req, res)=>{
     // await client.del(`kiteCredToday:${process.env.PROD}`);
-    // await deletePnlKey();
+    await deletePnlKey();
     if(isRedisConnected){
         await client.del(`referralLeaderboard:${process.env.PROD}`);
     }
