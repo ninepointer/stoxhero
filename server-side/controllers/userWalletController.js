@@ -4,7 +4,7 @@ const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
 const uuid = require('uuid');
-const client = require("../marketData/redisClient")
+const {client, isRedisConnected} = require("../marketData/redisClient")
 
 
 
@@ -103,7 +103,9 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         { new: true }
         );
 
-        await client.del(`${user._id.toString()}authenticatedUser`);
+        if(isRedisConnected){
+            await client.del(`${user._id.toString()}authenticatedUser`);
+        }
 
         if(!wallet){
             return res.status(404).json({status:'error', message: 'No Wallet found'});
