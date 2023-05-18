@@ -6,7 +6,7 @@ const User = require("../../models/User/userDetailSchema");
 const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema");
 const {xtsAccountType} = require("../../constant");
 const fetchXTSToken = require("./xtsHelper/fetchXTSToken");
-const client = require("../../marketData/redisClient");
+const {client, isRedisConnected} = require("../../marketData/redisClient");
 const io = require('../../marketData/socketio');
 const {save} = require("./xtsHelper/saveXtsCred");
 const { ObjectId } = require('mongodb');
@@ -131,7 +131,7 @@ const getXTSTicksForUserPosition = async (socket) => {
   let userId = await client.get(socket.id)
   await emitTicks(userId);
   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
-    console.log(ticksObj)
+    // console.log(ticksObj)
     ticksObj = JSON.parse(ticksObj);
 
     if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
@@ -159,7 +159,7 @@ const getXTSTicksForUserPosition = async (socket) => {
       return indexObj[item.ExchangeInstrumentID];
     });
 
-    console.log("indexData", indexData)
+    // console.log("indexData", indexData)
 
 
     try{
@@ -169,7 +169,7 @@ const getXTSTicksForUserPosition = async (socket) => {
         let instruments = await client.SMEMBERS((userId).toString())
         instrumentTokenArr = new Set(instruments)
       } else{
-        console.log("in else part")
+        // console.log("in else part")
         const user = await User.findById(new ObjectId(userId))
         .populate('watchlistInstruments')
   
@@ -209,19 +209,14 @@ const getXTSTicksForUserPosition = async (socket) => {
 
 const emitTicks = async(userId)=>{
   
-    // if (!timeoutId) {
-      console.log("Will emit filteredTicks in 2 seconds...");
-      timeoutId = setInterval(() => {
-        if (filteredTicks && filteredTicks.length > 0) {
-          // console.log("Emitting filteredTicks...");
-          io.to(`${userId}`).emit("tick-room", filteredTicks);
-          filteredTicks = null;
-        }
-        // clearTimeout(timeoutId);
-        // timeoutId = null; // reset timeoutId after executing the callback
-      }, 1000); // wait for 2 seconds
-    // }
-  // }
+  console.log("Will emit filteredTicks in 2 seconds...");
+  timeoutId = setInterval(() => {
+    if (filteredTicks && filteredTicks.length > 0) {
+      // console.log("Emitting filteredTicks...");
+      io.to(`${userId}`).emit("tick-room", filteredTicks);
+      filteredTicks = null;
+    }
+  }, 1000); // wait for 2 seconds
 }
 
 const tradableInstrument = async(req, res)=>{

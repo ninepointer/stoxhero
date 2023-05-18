@@ -1,21 +1,6 @@
 const XTSInteractive = require('xts-interactive-api').Interactive;
 const XTSInteractiveWS = require('xts-interactive-api').WS;
 const RetrieveOrder = require("../../models/TradeDetails/retreiveOrder")
-// let xtsInteractive = new XTSInteractive('http://14.142.188.188:23000');
-
-// exports.xtsInteractive = async ()=>{
-//   let loginRequest = {
-//     secretKey: 'Lbwl467$oF',
-//     appKey: 'bebaffdb51b1a9a1b1d140',
-//     source: 'WEBAPI',
-//   };
-
-//   let logIn = await xtsInteractive.logIn(loginRequest);
-//   console.log(logIn);
-
-//   return logIn;
-// }
-
 
 let xtsInteractiveWS ;
 let xtsInteractiveAPI ;
@@ -82,18 +67,19 @@ const placeOrder = async (obj)=>{
     orderQuantity: obj.Quantity,
     limitPrice: 0,
     stopPrice: 0,
-    // orderUniqueIdentifier: '45485',
     clientID: process.env.XTS_CLIENTID,
   });
 
 
   await getPlacedOrder();
-  console.log(response);
+
+  return response;
+  // console.log(response);
 }
 
 const getPlacedOrder = async ()=>{
   xtsInteractiveWS.onOrder((orderData) => {
-    console.log("order data", orderData);
+    // console.log("order data", orderData);
     const {ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
           TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice , OrderDisclosedQuantity,
           ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI} = orderData;
@@ -108,8 +94,20 @@ const getPlacedOrder = async ()=>{
           console.log(new Date(utcDate));
       try{
         if(OrderStatus === "Rejected" || OrderStatus === "Filled"){
+          let status, order_timestamp ;
+          if(OrderStatus === "Rejected"){
+            status = "REJECTED";
+          }else if(OrderStatus === "Filled"){
+            status = "COMPLETE";
+          }
+
+          if(OrderSide == "Sell"){
+            order_timestamp = "SELL";
+          } else if(OrderSide == "Buy"){
+            order_timestamp = "BUY";
+          }
           const saveOrder = RetrieveOrder.create({
-            order_id: AppOrderID, status: OrderStatus, average_price: OrderAverageTradedPrice,
+            order_id: AppOrderID, status: status, average_price: OrderAverageTradedPrice,
             quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
             exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
             exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,

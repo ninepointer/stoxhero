@@ -1,19 +1,22 @@
 
 
-const axios = require("axios")
+// const axios = require("axios")
 const BrokerageDetail = require("../../../models/Trading Account/brokerageSchema");
 // const PaperTrade = require("../../../models/mock-trade/paperTrade");
-const singleLivePrice = require('../../../marketData/sigleLivePrice');
+// const singleLivePrice = require('../../../marketData/sigleLivePrice');
 // const StoxheroTrader = require("../../../models/mock-trade/stoxheroTrader");
-const InfinityLiveTrader = require("../../../models/TradeDetails/liveTradeUserSchema");
+const InfinityLiveTrader = require("../../../models/TradeDetails/infinityLiveUser");
 const InfinityLiveCompany = require("../../../models/TradeDetails/liveTradeSchema");
+const InfinityMockTrader = require("../../../models/mock-trade/infinityTrader");
+const InfinityMockCompany = require("../../../models/mock-trade/infinityTradeCompany");
 // const StoxheroTradeCompany = require("../../../models/mock-trade/stoxheroTradeCompany");
 const io = require('../../../marketData/socketio');
-const client = require('../../../marketData/redisClient');
+const {client} = require('../../../marketData/redisClient');
 const mongoose = require('mongoose');
-const singleXTSLivePrice = require("./singleXTSLivePrice");
+// const singleXTSLivePrice = require("./singleXTSLivePrice");
 const {placeOrder} = require("../xtsInteractive")
 const RetreiveOrder = require("../../../models/TradeDetails/retreiveOrder");
+const {xtsAccountType} = require("../../../constant");
 
 exports.liveTrade = async (req, res) => {
     let date = new Date();
@@ -38,8 +41,8 @@ exports.liveTrade = async (req, res) => {
         exchangeSegment = 2;
     }
 
-    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
-    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
+    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
+    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
 
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
@@ -55,8 +58,6 @@ exports.liveTrade = async (req, res) => {
         validity: validity,
         disclosedQuantity: 0,
         Quantity: realQuantity,
-        limitPrice: 15000,
-        stopPrice: 0,
     }
     const placeorder = await placeOrder(obj);
 
@@ -67,12 +68,9 @@ exports.liveTrade = async (req, res) => {
         realQuantity = "-"+realQuantity;
     }
 
-    let newTimeStamp = "";
-    let trade_time = "";
-
-
 
     const AppOrderID = placeorder?.result?.AppOrderID;
+    console.log(placeorder?.result, placeorder?.result?.AppOrderID)
     await saveData();
     function saveData(){
         setTimeout(async ()=>{
@@ -106,11 +104,15 @@ exports.liveTrade = async (req, res) => {
             let responseMsg = status;
             let responseErr = status_message;
 
-            if(transaction_type === "SELL"){
+            if(transaction_type == "SELL"){
+                console.log("in if", quantity);
                 quantity = -quantity;
+                console.log("after if", quantity);
             }
-            if(buyOrSell === "SELL"){
+            if(buyOrSell == "SELL"){
+                console.log("in if", Quantity);
                 Quantity = -Quantity;
+                console.log("after if", Quantity);
             }
         
             function buyBrokerage(totalAmount){
@@ -155,43 +157,63 @@ exports.liveTrade = async (req, res) => {
                 brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * average_price);
             }
 
-
+            let settingRedis ;
             const session = await mongoose.startSession();
             try{
         
-                const mockCompany = await InfinityLiveCompany.findOne({order_id : order_id});
+                const liveCompany = await InfinityLiveCompany.findOne({order_id : order_id});
                 const mockInfintyTrader = await InfinityLiveTrader.findOne({order_id : order_id});
-                if((mockCompany || mockInfintyTrader) && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
+                if((liveCompany || mockInfintyTrader) && checkingMultipleAlgoFlag === 1){
                     return res.status(422).json({message : "data already exist", error: "Fail to trade"})
                 }
         
                 
                 session.startTransaction();
-        
+                
+                console.log(quantity, Quantity)
                 const companyDoc = {
                     disclosed_quantity, price, filled_quantity, pending_quantity, cancelled_quantity, market_protection, guid,
-                    status, uId, createdBy, average_price, Quantity: quantity, 
-                    Product:product, buyOrSell:transaction_type, order_timestamp: order_timestamp,
+                    status, uId, createdBy: req.user._id, average_price, Quantity: quantity, 
+                    Product:product, buyOrSell:transaction_type, 
                     variety, validity, exchange, order_type: order_type, symbol, placed_by: placed_by,
                     algoBox: algoBoxId, order_id, instrumentToken, brokerage: brokerageCompany,
-                    trader: trader, isRealTrade: true, amount: (Number(quantity)*average_price), trade_time:trade_time,
-                    exchange_order_id, exchange_timestamp, isMissed
+                    trader: trader, isRealTrade: true, amount: (Number(quantity)*average_price), trade_time:order_timestamp,
+                    exchange_order_id, exchange_timestamp, isMissed: false
                 }
         
                 const traderDoc = {
                     disclosed_quantity, price, filled_quantity, pending_quantity, cancelled_quantity, market_protection, guid,
-                    status, uId, createdBy, average_price, Quantity: Quantity, 
-                    Product:Product, buyOrSell:buyOrSell, order_timestamp: new_order_timestamp,
-                    variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by, userId,
-                    order_id, instrumentToken, brokerage: brokerageUser,
-                    tradeBy: createdBy, isRealTrade: true, amount: (Number(Quantity)*average_price), trade_time:trade_time,
-                    order_req_time: createdOn, order_save_time: order_save_time, exchange_order_id, exchange_timestamp, isMissed
+                    status, uId, createdBy: req.user._id, average_price, Quantity: Quantity, 
+                    Product:Product, buyOrSell:buyOrSell,
+                    variety, validity, exchange, order_type: OrderType, symbol:symbol, placed_by: placed_by,
+                    order_id, instrumentToken, brokerage: brokerageUser, trader: trader,
+                    isRealTrade: true, amount: (Number(Quantity)*average_price), trade_time:order_timestamp,
+                    exchange_order_id, exchange_timestamp, isMissed: false
+                }
+
+                const companyDocMock = {
+                    status, average_price, Quantity: quantity, 
+                    Product: product, buyOrSell: transaction_type, variety, validity, exchange, order_type: order_type, 
+                    symbol, placed_by: placed_by, algoBox:algoBoxId, order_id, 
+                    instrumentToken, brokerage: brokerageCompany, createdBy: req.user._id,
+                    trader: trader, isRealTrade: false, amount: (Number(quantity)*average_price), 
+                    trade_time: order_timestamp,
                 }
         
-                const mockTradeDetails = await InfinityLiveCompany.create([companyDoc], { session });
-                const algoTrader = await InfinityLiveTrader.create([traderDoc], { session });
-                console.log(algoTrader, mockTradeDetails)
-                if(await client.exists(`${req.user._id.toString()} overallpnlLive`)){
+                const traderDocMock = {
+                    status, average_price, Quantity: Quantity, Product, buyOrSell,
+                    variety, validity, exchange, order_type: OrderType, symbol, placed_by: placed_by,
+                    isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
+                    createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*average_price), trade_time:order_timestamp,
+                }
+        
+                const liveCompanyTrade = await InfinityLiveCompany.create([companyDoc], { session });
+                const algoTraderLive = await InfinityLiveTrader.create([traderDoc], { session });
+                const mockCompany = await InfinityMockCompany.create([companyDocMock], {session});
+                const algoTrader = await InfinityMockTrader.create([traderDocMock], {session})
+
+                // console.log(algoTrader, mockTradeDetails)
+                if(await client.exists(`${req.user._id.toString()} overallpnl`)){
                     let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
                     pnl = JSON.parse(pnl);
                     console.log("redis pnl", pnl)
@@ -219,16 +241,22 @@ exports.liveTrade = async (req, res) => {
                         lastaverageprice: algoTrader[0].average_price,
                         });
                     }
-                    await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
+                    settingRedis = await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
                 }
         
-                await client.expire(`${req.user._id.toString()} overallpnlLive`, secondsRemaining);
+                await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
                 // Commit the transaction
-                await session.commitTransaction();
-                res.status(201).json({status: 'Complete', message: 'COMPLETE'});
-        
+
+                if(settingRedis === "OK"){
+                    await session.commitTransaction();
+                } else{
+                    // await session.commitTransaction();
+                    throw new Error();
+                }
+                // res.status(201).json({status: 'Complete', message: 'COMPLETE'});
+
             } catch(err){
-                await client.del(`${req.user._id.toString()} overallpnlLive`)
+                await client.del(`${req.user._id.toString()} overallpnl`)
                 await session.abortTransaction();
                 console.error('Transaction failed, documents not saved:', err);
             } finally {
@@ -237,7 +265,7 @@ exports.liveTrade = async (req, res) => {
             }
         
             setTimeout(()=>{
-                if(!isMissed && !dontSendResp){
+                if(!dontSendResp){
                     return res.status(201).json({message : responseMsg, err: responseErr})
                 }
             },0)
