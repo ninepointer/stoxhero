@@ -23,9 +23,19 @@ const gdSchema = new Schema({
         type: String,
         required: true,
     },
-    participants: [{
-        type: Schema.Types.ObjectId,
-        ref: 'user-personal-detail'
+    participants: [{user: {
+            type: Schema.Types.ObjectId,
+            ref: 'user-personal-detail'
+        },
+        attended:{
+            type: Boolean,
+            default: false
+        },
+        status:{
+            type: String,
+            enum: ['Shortlisted','Selected','Rejected'],
+            default:'Shortlisted'
+        }
     }],
     status: {
         type: String,
