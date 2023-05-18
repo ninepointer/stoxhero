@@ -1,7 +1,7 @@
 // if(process.env.PROD){
 
     // const redis = require('redis');
-    // let isRedisConnected;
+    // let isRedisConnected = true;
     // client = redis.createClient(
     //     {
     //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
