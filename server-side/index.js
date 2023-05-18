@@ -22,7 +22,8 @@ let {client, isRedisConnected} = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {deletePnlKey} = require("./controllers/deletePnlKey");
-const {subscribeInstrument, getXTSTicksForUserPosition, onDisconnect} = require("./services/xts/xtsMarket")
+const {subscribeInstrument, getXTSTicksForUserPosition,
+      onDisconnect, getXTSTicksForCompanySide} = require("./services/xts/xtsMarket")
 const {xtsMarketLogin} = require("./services/xts/xtsMarket");
 const {interactiveLogin} = require("./services/xts/xtsInteractive");
 const {autoExpireSubscription} = require("./controllers/tenXTradeController");
@@ -104,7 +105,8 @@ getKiteCred.getAccess().then(async (data)=>{
     });
     socket.on('company-ticks', async (data) => {
       console.log("in company-ticks event")
-        await getTicksForCompanySide(socket);
+        // await getTicksForCompanySide(socket);
+        await getXTSTicksForCompanySide(socket);
         await onError();
         // await onOrderUpdate();
     });
