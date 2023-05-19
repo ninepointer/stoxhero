@@ -25,6 +25,14 @@ const {autoExpireSubscription} = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
 const {DummyMarketData} = require('./marketData/dummyMarketData');
+const { Kafka } = require('kafkajs')
+const {takeAutoTenxTrade} = require("./controllers/AutoTradeCut/autoTrade");
+// const kafka = new Kafka({
+//   clientId: 'my-app',
+//   brokers: ['b-1.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092', 
+//             'b-2.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092', 
+//             'b-3.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092'],  // replace with your brokers
+// })
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -221,6 +229,21 @@ let weekDay = date.getDay();
   } catch(err){
     console.log("err from cronjob", err)
   }
+
+
+  // (async () => {
+  //   const consumer = kafka.consumer({ groupId: 'my-group' })
+    
+  //   await consumer.connect()
+  //   await consumer.subscribe({ topic: 'my-topic', fromBeginning: true })
+    
+  //   await consumer.run({
+  //     eachMessage: async ({ topic, partition, message }) => {
+  //       await takeAutoTenxTrade(message.value.toString());
+  //       // console.log(message)
+  //     },
+  //   })
+  // })().catch(console.error)
 
 
 const PORT = process.env.PORT;

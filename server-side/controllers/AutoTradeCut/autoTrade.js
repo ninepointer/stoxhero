@@ -6,6 +6,7 @@ const singleLivePrice = require('../../marketData/sigleLivePrice');
 const {client, getValue} = require('../../marketData/redisClient');
 
 exports.takeAutoTenxTrade = async (tradeDetails) => {
+  tradeDetails = JSON.parse(tradeDetails)
     let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
