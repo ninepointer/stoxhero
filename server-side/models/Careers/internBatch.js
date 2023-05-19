@@ -15,21 +15,22 @@ const batchSchema = new mongoose.Schema({
         required: true
     },
     participants:[{
-        type: Schema.Types.ObjectId,
-        ref: 'user-personal-detail'
+        user:{
+            type: Schema.Types.ObjectId,
+            ref: 'user-personal-detail'
+        },
+        college:{
+            type: Schema.Types.ObjectId,
+            ref: 'college'
+        },
+        joiningDate: {
+            type: Date,
+        }   
     }],
     batchStatus:{
         type:String,
         required: true,
         enum: ['Active','Inactive']
-    },
-    batchLimit:{
-        type:Number,
-        required: true,
-    },
-    batchID:{
-        type:String,
-        required: true,
     },
     careerId:{
         type: Schema.Types.ObjectId,

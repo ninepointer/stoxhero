@@ -35,6 +35,10 @@ const gdSchema = new Schema({
             type: String,
             enum: ['Shortlisted','Selected','Rejected'],
             default:'Shortlisted'
+        },
+        college: {
+            type: Schema.Types.ObjectId,
+            ref: 'college'
         }
     }],
     status: {
