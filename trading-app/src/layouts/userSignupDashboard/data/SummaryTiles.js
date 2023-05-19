@@ -178,7 +178,7 @@ export default function LabTabs() {
     <>
     {isLoading ?
         <MDBox display="flex" justifyContent="center" alignItems="center" mt={10} mb={10}>
-        <CircularProgress color="light" />
+          <CircularProgress fontSize='xxl' color="light" />
         </MDBox>
 
       :
@@ -197,7 +197,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">New Users (Today)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{todayCount}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{todayCount}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -216,7 +216,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">New Users (Yesterday)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{yesterdayCount}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{yesterdayCount}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -235,7 +235,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">New Users (This Month)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{thisMonthCount}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{thisMonthCount}</MDTypography>
                     </MDBox>
                   </Grid>
                 
@@ -254,7 +254,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Total Users</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{allUsersCount}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{allUsersCount}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -273,7 +273,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Referrals (Today)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{referralsCountToday}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{referralsCountToday}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -292,7 +292,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Referrals (Yesterday)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{referralsCountYesterday}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{referralsCountYesterday}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -311,7 +311,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Referrals (This Month)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{referralsCountThisMonth}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{referralsCountThisMonth}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -330,7 +330,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Total Referrals</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{referralsCountAll}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{referralsCountAll}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -347,9 +347,9 @@ export default function LabTabs() {
                   </Grid>
             
                   <Grid item xs={12} md={6} lg={9}>
-                    <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Cmapaigns (Today)</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Campaigns (Today)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{campaignCountToday}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{campaignCountToday}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -368,7 +368,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Campaigns (Yesterday)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{campaignCountYesterday}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{campaignCountYesterday}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -387,7 +387,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Campaigns (This Month)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{campaignCountThisMonth}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{campaignCountThisMonth}</MDTypography>
                     </MDBox>
                   </Grid>
 
@@ -406,7 +406,7 @@ export default function LabTabs() {
                   <Grid item xs={12} md={6} lg={9}>
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Campaigns (Total)</MDTypography>
                     <MDBox display="flex">
-                      <MDTypography fontSize={13}>{campaignCountAll}</MDTypography>
+                      <MDTypography fontWeight='bold' fontSize={15}>{campaignCountAll}</MDTypography>
                     </MDBox>
                   </Grid>
 
