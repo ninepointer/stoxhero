@@ -283,8 +283,12 @@ const userDetailSchema = new mongoose.Schema({
             enum:["Live", "Expired"],
             default: "Live"
         }
+    }],
+    internshipBatch:[{
+        batch:{
+            type: Schema.Types.ObjectId
+        }
     }]
-
 })
 
 //Adding the ninepointer id before saving

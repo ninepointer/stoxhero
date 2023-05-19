@@ -1,6 +1,8 @@
 const GroupDiscussion = require("../../models/Careers/groupDiscussion");
 const Batch = require("../../models/Careers/internBatch");
 const User = require("../../models/User/userDetailSchema");
+const mailSender = require('../../utils/emailService');
+const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 
 exports.createGroupDiscussion = async(req, res, next)=>{
     console.log(req.body) // batchID
@@ -123,6 +125,7 @@ exports.markAttendance = async(req,res, next) => {
 exports.selectCandidate = async (req, res, next) => {
   const userId = req.params.userId;
   const gdId = req.params.gdId;
+  const{collegeId} = req.body;
 
   try {
     const gd = await GroupDiscussion.findById(gdId);
@@ -151,26 +154,103 @@ exports.selectCandidate = async (req, res, next) => {
     });
 
     gd.participants = [...participants];
-    await gd.save({validateBeforeSave: false});
-
-    //TODOs:
-
-    //Candidate gets selection email
-
+    await gd.save({validateBeforeSave: false});    
+    
+    
     //Add user to batch
     const batch = await Batch.findById(gd.batchId);
-
-    batch.participants = [...batch.participants, userId];
-
+    
+    batch.participants = [...batch.participants, {user: userId, college: collegeId, joiningDate: new Date()}];
+    
     await batch.save({validateBeforeSave: false});
-
-    //Change the user role to intern
-
-
+    
+    //Add batch info to the user's document
+    
+    const user = await User.findById(userId);
+    user.internshipBatch = gd.batchId;
+    
     //Give user the intern portfolio
+    // user.portfolio = [...user.portfolio, {portfolioId: batch.portfolio, activationDate: new Date()}]
+    await user.save({validateBeforeSave: false});
+    const portfolio = await Portfolio.findById(batch.portfolio);
+    portfolio.users = [...portfolio.users, {userId: userId, linkedOn: new Date(), portfolioValue: 1000000}]
+    await portfolio.save();
+    const jobTitle = await Batch.findById(gd.batchId).populate('careerId', 'jobTitle').select('careerId');
+    //Candidate gets selection email
+    const message = `<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Email OTP</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin: 0 0 20px;
+        }
+
+        .otp-code {
+            display: inline-block;
+            background-color: #f5f5f5;
+            padding: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .cta-button:hover {
+            background-color: #0069d9;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+        <h1>Email OTP</h1>
+        <p>Congratulations ${user.first_name},</p>
+        <p>Your are selected for ${jobTitle.jobTitle}</p>
+        <p>Please Login with your credentials and start your journey with StoxHero </p>
+        <p>If you did not apply for the position, please ignore this email.</p>
+        <p>Thank you,</p>
+        <p>Team StoxHero</p>
+        </div>
+    </body>
+    </html>
+`
+    // await mailSender(user.email, 'Congratulations! You\'re selected for the internship.', message);
 
     //send success response
-    
+    res.status(200).json({status: 'success', message: 'User selected for batch'});
+
   } catch (e) {
     console.log(e);
     return res.status(500).json({status:'error', message: 'Something went wrong.'});
