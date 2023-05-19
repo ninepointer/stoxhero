@@ -1,73 +1,85 @@
 import React, {useState, useEffect} from 'react'
 import Grid from "@mui/material/Grid";
-import axios from "axios";
+// import axios from "axios";
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import money from "../../../assets/images/money.png"
-import link from "../../../assets/images/link.png"
+// import link from "../../../assets/images/link.png"
 
 
-const MyPortfolioCard = ({type}) => {
+const MyPortfolioCard = ({type, data}) => {
   
-  const [myPortfolio,setMyPortfolio] = useState([]);
-  const [portfolioPnl, setPortfolioPnl] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // const [myPortfolio,setMyPortfolio] = useState([]);
+  // const [portfolioPnl, setPortfolioPnl] = useState([]);
+  // const [tenX, setTenX] = useState([]);
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
-  useEffect(()=>{
+  // useEffect(()=>{
   
 
-    let call1 = axios.get(`${baseUrl}api/v1/portfolio/my`,{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
+  //   let call1 = axios.get(`${baseUrl}api/v1/portfolio/my`,{
+  //               withCredentials: true,
+  //               headers: {
+  //                   Accept: "application/json",
+  //                   "Content-Type": "application/json",
+  //                   "Access-Control-Allow-Credentials": true
+  //                 },
+  //               })
 
-    let call2 = axios.get(`${baseUrl}api/v1/portfolio/pnl`,{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    Promise.all([call1, call2])
-    .then(([api1Response, api2Response]) => {
-      // Process the responses here
-      console.log(api1Response.data.data);
-      console.log(api2Response.data);
-      setMyPortfolio(api1Response.data.data)
-      setPortfolioPnl(api2Response.data.data)
+  //   let call2 = axios.get(`${baseUrl}api/v1/portfolio/pnl`,{
+  //               withCredentials: true,
+  //               headers: {
+  //                   Accept: "application/json",
+  //                   "Content-Type": "application/json",
+  //                   "Access-Control-Allow-Credentials": true
+  //                 },
+  //               })
+  //   Promise.all([call1, call2])
+  //   .then(([api1Response, api2Response]) => {
+  //     // Process the responses here
+  //     console.log(api1Response.data.data);
+  //     console.log(api2Response.data);
+  //     setMyPortfolio(api1Response.data.data)
+  //     setPortfolioPnl(api2Response.data.data)
     
-    })
-    .catch((error) => {
-      // Handle errors here
-      console.error(error);
-    });
+  //   })
+  //   .catch((error) => {
+  //     // Handle errors here
+  //     console.error(error);
+  //   });
 
 
-  },[])
+  // },[])
 
+  // useEffect(()=>{
+  //   axios.get(`${baseUrl}api/v1/portfolio/myTenx`,{
+  //     withCredentials: true,
+  //     headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //         "Access-Control-Allow-Credentials": true
+  //       },
+  //     })
+  //     .then((res)=>{
+  //       setMyPortfolio(res.data.data);
+  //     })
+  // }, [])
 
-
-    
     return (
       <>
-      {myPortfolio.length > 0 ?
+      {data.length > 0 ?
           <MDBox>
             <Grid container spacing={2}>
-              {myPortfolio?.map((e)=>{
-                  let portfolio = portfolioPnl.filter((elem)=>{
-                    return e?._id === elem?._id?.portfolioId
-                  })
+              {data?.map((e)=>{
+                  // let portfolio = portfolioPnl.filter((elem)=>{
+                  //   return e?._id === elem?._id?.portfolioId
+                  // })
 
-                  let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
+                  // let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
                   if(e?.portfolioType === type){
                     return (
                       
@@ -79,12 +91,12 @@ const MyPortfolioCard = ({type}) => {
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
                                   <MDBox>
                                     <MDTypography fontSize={20} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>{e?.portfolioName}</MDTypography>
-                                    {e?.portfolioType === 'Battle' ? <MDBox display="flex" alignContent="center" alignItems="center" size="small">
+                                    {/* {e?.portfolioType === 'Battle' ? <MDBox display="flex" alignContent="center" alignItems="center" size="small">
                                     <MDAvatar src={link} size="sm" display="flex" justifyContent="left"/>
                                     <MDTypography fontSize={10} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio linked to Battle: 'Add Battle Name Here'</MDTypography>
                                     </MDBox>
                                     :
-                                    ''}
+                                    ''} */}
                                   </MDBox>
                               </Grid>
                               
@@ -99,7 +111,7 @@ const MyPortfolioCard = ({type}) => {
                               <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
                                   <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>Invested Amount</MDTypography>
-                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>NA</MDTypography>
+                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(e?.investedAmount))}</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -107,7 +119,7 @@ const MyPortfolioCard = ({type}) => {
                                   <MDBox display="flex" flexDirection="column">
                                   <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>Cash Balance</MDTypography>
                                   <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(netPnl ? (e?.portfolioValue + netPnl).toFixed(0): e?.portfolioValue.toFixed(0))}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.cashBalance)}
                                   </MDTypography>
                                   </MDBox>
                               </Grid>

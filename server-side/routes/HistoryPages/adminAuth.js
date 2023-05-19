@@ -30,9 +30,17 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
-const client = require("../../marketData/redisClient")
+const {client, getValue} = require("../../marketData/redisClient")
 const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
+const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
+const tenx = require("../../controllers/AutoTradeCut/autoTradeCut");
+
+
+router.get("/autotrade", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
+  await tenx()
+});
 
 router.get("/deletePnlKey", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
@@ -43,7 +51,8 @@ router.get("/pnl", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   // await overallPnlTrader(req, res)
 
-  await autoExpireSubscription(req, res)
+  // await autoExpireSubscription(req, res)
+  await getMyPnlAndCreditData(req, res);
 });
 
 router.post("/autotrade/:id", async (req, res) => {
@@ -244,7 +253,7 @@ router.get("/referralCode", async (req, res) => {
 });
 
 router.get("/tradableInstrument", authentication, async (req, res, next)=>{
-  await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
+  await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
   await TradableInstrument.tradableInstrument(req,res,next);
 })
 

@@ -283,7 +283,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           :
           pathname == "/resetpassword" ?
-          <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route path="/resetpassword" element={<ResetPassword/>} />
           :
           <Route path="/" element={<SignIn />} />
           :

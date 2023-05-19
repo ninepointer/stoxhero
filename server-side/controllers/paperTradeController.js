@@ -1,10 +1,10 @@
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
-const client = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 const { ObjectId } = require("mongodb");
 
 exports.overallPnl = async (req, res, next) => {
-    
+    let isRedisConnected = getValue();
     const userId = req.user._id;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -19,7 +19,7 @@ exports.overallPnl = async (req, res, next) => {
 
     try{
 
-      if(await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
+      if(isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
         let pnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
         pnl = JSON.parse(pnl);
         // console.log("pnl redis", pnl)
@@ -71,9 +71,11 @@ exports.overallPnl = async (req, res, next) => {
           },
         ])
         // console.log("pnlDetails in else", pnlDetails)
-        await client.set(`${req.user._id.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlDetails))
-        await client.expire(`${req.user._id.toString()}: overallpnlPaperTrade`, secondsRemaining);
 
+        if(isRedisConnected){
+          await client.set(`${req.user._id.toString()}: overallpnlPaperTrade`, JSON.stringify(pnlDetails))
+          await client.expire(`${req.user._id.toString()}: overallpnlPaperTrade`, secondsRemaining);
+        }
         res.status(201).json({message: "pnl received", data: pnlDetails});
       }
 

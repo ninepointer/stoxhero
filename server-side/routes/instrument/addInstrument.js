@@ -9,11 +9,11 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const { unSubscribeTokens, subscribeSingleToken} = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
-const client = require("../../marketData/redisClient");
+const {client, getValue} = require("../../marketData/redisClient");
 const ObjectId = require('mongodb').ObjectId;
 
 router.post("/addInstrument",authentication, async (req, res)=>{
-      
+    let isRedisConnected = getValue();
     const {_id} = req.user;
 
     try{
@@ -45,10 +45,12 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                 try{
                     console.log((_id).toString(), instrumentToken)
                     // const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
-                    const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
-                    console.log("this is redis client", newredisClient);
+                    if(isRedisConnected){
+                        const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
+                    }
+                    // console.log("this is redis client", newredisClient);
 
-                    if(await client.exists(`${req.user._id.toString()}: instrument`)){
+                    if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                         let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
                             _id: dataExist._id,
                             instrument: dataExist.instrument,
@@ -75,11 +77,14 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                 try{
                     console.log((_id).toString(), instrumentToken)
                 //  const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
-                 const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
+
+                if(isRedisConnected){
+                    const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
+                }
 
                 //  console.log("this is redis client", newredisClient)
 
-                if(await client.exists(`${req.user._id.toString()}: instrument`)){
+                if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                     let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
                         _id: addingInstruments._id,
                         instrument: addingInstruments.instrument,
@@ -150,6 +155,7 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
 router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
+    let isRedisConnected = getValue();
     try{ 
         const {instrumentToken} = req.params
         const {isAddedWatchlist} = req.body;
@@ -159,7 +165,7 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
         const removeFromWatchlist = await Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
         let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
         console.log("index", index)
-        if (index !== -1) {
+        if (index !== -1 && isRedisConnected) {
             try{
             //  const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
              const removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify({
@@ -203,12 +209,12 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
 })
 
 router.get("/instrumentDetails", authentication, async (req, res)=>{
-
+    let isRedisConnected = getValue();
     const {_id} = req.user
 
     try{
 
-        if(await client.exists(`${req.user._id.toString()}: instrument`)){
+        if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
             // await client.expire(`${req.user._id.toString()}: instrument`, 1)
 
           let instrument = await client.LRANGE(`${req.user._id.toString()}: instrument`, 0, -1)
@@ -229,7 +235,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                                 // console.log("instruments", instrument)
             const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
             console.log("instrumentJSONs", instrumentJSONs)
-            if(instrumentJSONs.length > 0){
+            if(instrumentJSONs.length > 0 && isRedisConnected){
                 await client.LPUSH(`${req.user._id.toString()}: instrument`, [...instrumentJSONs])
             }
             // console.log("instruments", instruments)
