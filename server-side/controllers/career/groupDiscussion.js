@@ -3,6 +3,7 @@ const Batch = require("../../models/Careers/internBatch");
 const User = require("../../models/User/userDetailSchema");
 const mailSender = require('../../utils/emailService');
 const Portfolio =require('../../models/userPortfolio/UserPortfolio');
+const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 
 exports.createGroupDiscussion = async(req, res, next)=>{
     console.log(req.body) // batchID
@@ -63,8 +64,8 @@ exports.editGroupDiscussion = async(req, res, next) => {
             gdEndDate: req.body.gdEndDate,
             meetLink: req.body.meetLink,
             status: req.body.status,
-            careerId: req.body.careerId,
-            batchId: req.body.batchId,
+            career: req.body.careerId,
+            batch: req.body.batchId,
             lastModifiedBy: req.user._id,
             lastModifiedOn: new Date()
         }
@@ -116,9 +117,14 @@ exports.addUserToGd = async(req, res, next) => {
   const {collegeId} = req.body;
   try{
     const gd = await GroupDiscussion.findById(gdId);
-    gd.participants = [...gd.participants, {user: userId, attended: false, status: 'Shortlisted', college: collegeId}]
+    const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
+    const user = await User.find({email: career.email}).select('_id');
+    console.log(user._id);
+    gd.participants = [...gd.participants, {user: user._id, attended: false, status: 'Shortlisted', college: collegeId}]
+    console.log(gd.participants);
     await gd.save({validateBeforeSave: false});
-
+    career.applicationStatus = 'Shortlisted';
+    await career.save({validateBeforeSave: false});
     res.status(200).json({status:'success', message: 'User added to gd'});
   }catch(e){
     console.log(e);
@@ -134,8 +140,10 @@ exports.markAttendance = async(req,res, next) => {
   const{attended} = req.body;
   try {
     const gd = await GroupDiscussion.findById(gdId);
-    let participants = gd.participants.filter((item)=>item.user != userId)
-    gd.participants = [...participants, {user:userId, attended: req.body, status: 'Shortlisted'}]
+    const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
+    const user = await User.find({email: career.email}).select('_id');
+    let participants = gd.participants.filter((item)=>item.user != user._id)
+    gd.participants = [...participants, {user:user._id, attended: req.body, status: 'Shortlisted'}]
     await gd.save({validateBeforeSave: false});
     res.status(200).json({status:'success', message: 'Attendance marked'});
   } catch (error) {
@@ -151,10 +159,12 @@ exports.selectCandidate = async (req, res, next) => {
 
   try {
     const gd = await GroupDiscussion.findById(gdId);
+    const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
+    const user = await User.find({email: career.email}).select('_id');
     let participants = gd.participants.map((item)=>{
-      if(item.user == userId){
+      if(item.user == user._id){
         return{
-          user: userId,
+          user: user._id,
           status: 'Selected',
           attended: item.attended
         }
@@ -180,24 +190,23 @@ exports.selectCandidate = async (req, res, next) => {
     
     
     //Add user to batch
-    const batch = await Batch.findById(gd.batchId);
+    const batch = await Batch.findById(gd.batch);
     
-    batch.participants = [...batch.participants, {user: userId, college: collegeId, joiningDate: new Date()}];
+    batch.participants = [...batch.participants, {user: user._id, college: collegeId, joiningDate: new Date()}];
     
     await batch.save({validateBeforeSave: false});
     
     //Add batch info to the user's document
     
-    const user = await User.findById(userId);
-    user.internshipBatch = gd.batchId;
+    user.internshipBatch = gd.batch;
     
     //Give user the intern portfolio
     // user.portfolio = [...user.portfolio, {portfolioId: batch.portfolio, activationDate: new Date()}]
     await user.save({validateBeforeSave: false});
     const portfolio = await Portfolio.findById(batch.portfolio);
-    portfolio.users = [...portfolio.users, {userId: userId, linkedOn: new Date(), portfolioValue: 1000000}]
+    portfolio.users = [...portfolio.users, {userId: user._id, linkedOn: new Date(), portfolioValue: 1000000}]
     await portfolio.save();
-    const jobTitle = await Batch.findById(gd.batchId).populate('careerId', 'jobTitle').select('careerId');
+    const jobTitle = await Batch.findById(gd.batch).populate('careerId', 'jobTitle').select('careerId');
     //Candidate gets selection email
     const message = `<!DOCTYPE html>
     <html>
@@ -277,4 +286,35 @@ exports.selectCandidate = async (req, res, next) => {
     console.log(e);
     return res.status(500).json({status:'error', message: 'Something went wrong.'});
   }
+}
+
+exports.getGdsByCareer = async(req, res, next) => {
+
+  const {careerId} = req.params;
+  try{
+    const batches = await Batch.find({career: careerId});
+    if(batches.length == 0){
+      return res.status(200).json({status: 'success', message:'No batches found with this career'});
+    }
+  
+    const batchIds = batches.map((batch)=>batch._id);
+    console.log('batchIds', batchIds);
+  
+    const gds = await GroupDiscussion.find({batchId: {$in:batchIds}, gdEndDate:{$gte:new Date()} });
+    console.log('gds', gds);
+    if(gds.length == 0){
+      return res.status(200).json({status: 'success', message:'No gds found with this career'});
+    }
+
+    res.status(200).json({status:'success', data: gds, results:gds.count});
+
+  }catch(e){
+    console.log(e);
+    return res.status(500).json({status:'error', message: 'Something went wrong.'});
+
+  }
+
+
+
+
 }
