@@ -89,9 +89,10 @@ exports.deleteGroupDiscussion = async(req, res, next) => {
 exports.addUserToGd = async(req, res, next) => {
   const userId = req.params.userId;
   const gdId = req.params.gdId;
+  const {collegeId} = req.body;
   try{
     const gd = await GroupDiscussion.findById(gdId);
-    gd.participants = [...gd.participants, {user: userId, attended: false, status: 'Shortlisted'}]
+    gd.participants = [...gd.participants, {user: userId, attended: false, status: 'Shortlisted', college: collegeId}]
     await gd.save({validateBeforeSave: false});
 
     res.status(200).json({status:'success', message: 'User added to gd'});
