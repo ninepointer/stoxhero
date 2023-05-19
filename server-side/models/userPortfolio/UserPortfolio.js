@@ -35,7 +35,7 @@ const PortfolioSchema = new mongoose.Schema({
     },
     portfolioType:{
         type:String,
-        enum:['Contest','Trading', 'Equity Trading','TenX Trading']
+        enum:['Contest','Trading', 'Equity Trading','TenX Trading','Internship']
     },
     createdBy:{
         type: Schema.Types.ObjectId,

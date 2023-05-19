@@ -53,6 +53,10 @@ const CareerApplication = new mongoose.Schema({
     },
     status:{
         type:String
+    },
+    applicationStatus:{
+        type:String,
+        enum:['Applied','Shortlisted','Selected','Rejected']
     }
 });
 

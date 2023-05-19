@@ -41,18 +41,9 @@ const gdSchema = new Schema({
             ref: 'college'
         }
     }],
-    status: {
-        type: String,
-        required: true,
-        enum: ['Active','Inactive']
-    },
-    batchId:{
+    batch:{
         type: Schema.Types.ObjectId,
         ref: 'intern-batch'
-    },
-    careerId:{
-        type: Schema.Types.ObjectId,
-        ref: 'career'
     },
     createdOn: {
         type: Date,

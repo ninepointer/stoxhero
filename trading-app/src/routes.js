@@ -36,6 +36,7 @@ import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
 import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
+import BatchDetails from './layouts/internBatch/batchDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
@@ -68,6 +69,8 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import TableViewIcon from '@mui/icons-material/TableView';
 import BusinessIcon from '@mui/icons-material/Business';
+import CampaignIcon from '@mui/icons-material/Campaign';
+import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
@@ -76,8 +79,11 @@ import WalletIcon from '@mui/icons-material/Wallet';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
+import BatchIcon from '@mui/icons-material/Diversity3';
+import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import UserContest from "./layouts/UserContest"
 import Batch from "./layouts/batch";
+import WorkIcon from '@mui/icons-material/Work';
 import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
@@ -181,6 +187,10 @@ const routes = [
   {
     route: "/careerdetails",
     component: <CareerDetails />,
+  },
+  {
+    route: "/batchdetails",
+    component: <BatchDetails />,
   },
   {
     route: "/campaigndetails",
@@ -299,7 +309,7 @@ const routes = [
     type: "collapse",
     name: "Batch",
     key: "batch",
-    icon: <BusinessIcon/>,
+    icon: <BatchIcon/>,
     route: "/batch",
     component: < Batch />,
   },
@@ -331,23 +341,31 @@ const routes = [
     type: "collapse",
     name: "Careers",
     key: "careerlist",
-    icon: <HomeIcon/>,
+    icon: <WorkIcon/>,
     route: "/careerlist",
     component: <CareerList />,
   },
   {
     type: "collapse",
-    name: "Algo Position(s)",
-    key: "algoposition",
-    icon: <EngineeringIcon/>,
-    route: "/algoposition",
-    component: <AlgoPosition />,
+    name: "Internship Batch",
+    key: "internshipbatch",
+    icon: <BatchIcon/>,
+    route: "/internshipbatch",
+    component: <InternBatch />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Algo Position(s)",
+  //   key: "algoposition",
+  //   icon: <EngineeringIcon/>,
+  //   route: "/algoposition",
+  //   component: <AlgoPosition />,
+  // },
   {
     type: "collapse",
     name: "Referral Program",
     key: "referralprogram",
-    icon: <DashboardIcon/>,
+    icon: <FolderSharedIcon/>,
     route: "/referralprogram",
     component: <Referral />,
   },
@@ -355,7 +373,7 @@ const routes = [
     type: "collapse",
     name: "Campaigns",
     key: "campaigns",
-    icon: <DashboardIcon/>,
+    icon: <CampaignIcon/>,
     route: "/campaigns",
     component: <Campaigns />,
   },
@@ -363,7 +381,7 @@ const routes = [
     type: "collapse",
     name: "TenX Subscriptions",
     key: "tenxsubscriptions",
-    icon: <DashboardIcon/>,
+    icon: <CardMembershipIcon/>,
     route: "/tenxsubscriptions",
     component: <TenXSubscription />,
   },
@@ -579,14 +597,6 @@ const routes = [
     // icon: <AccountBalanceWalletIcon/>,
     route: "/wallet",
     component: <UserWallet />,
-  },
-  {
-    // type: "collapse",
-    // name: "Wallet",
-    key: "internship batch",
-    // icon: <AccountBalanceWalletIcon/>,
-    route: "/internbatch",
-    component: <InternBatch />,
   },
   {
     // type: "collapse",
