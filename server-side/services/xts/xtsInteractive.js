@@ -51,7 +51,7 @@ const interactiveLogin = async ()=>{
           console.log("joinedData", joinedData);
         });
   
-        await save(logIn.result.userID, logIn.result.token, "Interactive")
+        await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
       
     })();
     } catch(err){
