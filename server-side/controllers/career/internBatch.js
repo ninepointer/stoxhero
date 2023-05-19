@@ -1,12 +1,13 @@
 const { ObjectId } = require("mongodb");
 const Batch = require("../../models/Careers/internBatch");
 const User = require("../../models/User/userDetailSchema");
+const moment = require('moment');
 
 
 exports.createBatch = async(req, res, next)=>{
     console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, 
-        batchStatus, batchLimit, careerId } = req.body;
+        batchStatus, career, portfolio } = req.body;
 
     const date = new Date();
     const month = date.toLocaleString('default', { month: 'short' }).substring(0, 3);
@@ -16,15 +17,17 @@ exports.createBatch = async(req, res, next)=>{
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
     const batch = await Batch.create({batchID, batchName, batchStartDate, batchEndDate,
-        batchStatus, batchLimit, createdBy: req.user._id, lastModifiedBy: req.user._id, careerId});
+        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});
 
 }
 
-exports.getBatch = async(req, res, next)=>{
+exports.getBatches = async(req, res, next)=>{
     try{
-        const batch = await Batch.find({status: "Active"});
+        const batch = await Batch.find({status: "Active"})
+        .populate('career','jobTitle')
+        .populate('portfolio','portfolioName portfolioValue');
         res.status(201).json({status: 'success', data: batch, results: batch.length});    
     }catch(e){
         console.log(e);
@@ -32,12 +35,55 @@ exports.getBatch = async(req, res, next)=>{
     }
 };
 
-exports.getActiveBatch = async(req, res, next)=>{
-    console.log("inside ActiveContest")
+exports.getBatch = async(req, res, next)=>{
+    const id = req.params.id;
+    try{
+        const batch = await Batch.findOne({_id:id})
+        .populate('career','jobTitle')
+        .populate('portfolio','portfolioName portfolioValue');
+        res.status(201).json({status: 'success', data: batch});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getActiveBatches = async(req, res, next)=>{
+    console.log("inside ActiveBatches")
     try {
-        const batch = await Batch.find({ batchEndDate: { $gte: new Date() }, status: 'Active' }); 
+        const batch = await Batch.find({ batchEndDate: { $gte: new Date() }, batchStatus: 'Active' })
+                                .populate('career','jobTitle')
+                                .populate('portfolio','portfolioName portfolioValue');; 
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
         
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }      
+};
+
+exports.getCompletedBatches = async(req, res, next)=>{
+    console.log("inside CompletedBatches")
+    try {
+        const batch = await Batch.find({ batchEndDate: { $lt: new Date() }, batchStatus: 'Active' })
+                                .populate('career','jobTitle')
+                                .populate('portfolio','portfolioName portfolioValue');; 
+        res.status(201).json({status: 'success', data: batch, results: batch.length}); 
+        console.log(batch)
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }      
+};
+
+exports.getInactiveBatches = async(req, res, next)=>{
+    console.log("inside InactiveBatches")
+    try {
+        const batch = await Batch.find({ batchStatus: 'Inactive' })
+                                .populate('career','jobTitle')
+                                .populate('portfolio','portfolioName portfolioValue');; 
+        res.status(201).json({status: 'success', data: batch, results: batch.length}); 
+        console.log(batch)
     } catch (e) {
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
@@ -55,8 +101,8 @@ exports.editBatch = async(req, res, next) => {
             batchStartDate: req.body.batchStartDate,
             batchEndDate: req.body.batchEndDate,
             batchStatus: req.body.batchStatus,
-            batchLimit: req.body.batchLimit,
-            careerId: req.body.careerId,
+            career: req.body.career,
+            portfolio: req.body.portfolio,
             lastModifiedBy: req.user._id,
             lastModifiedOn: new Date()
         }

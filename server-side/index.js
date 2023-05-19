@@ -159,6 +159,8 @@ app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
 app.use('/api/v1', require("./marketData/getRetrieveOrder"));
 // app.use('/api/v1', require('./marketData/placeOrder'));
 app.use('/api/v1', require('./marketData/switchToRealTrade'));
+app.use('/api/v1/internbatch', require('./routes/career/internBatchRoute'));
+app.use('/api/v1/gd', require('./routes/career/groupDiscussionRoute'));
 app.use('/api/v1', require('./routes/instrument/instrumentAuth'));
 app.use('/api/v1', require('./routes/instrument/tradableInstrument'));
 app.use('/api/v1', require('./routes/instrument/addInstrument'));

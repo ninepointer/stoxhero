@@ -254,6 +254,7 @@ function Index() {
                 <MenuItem value="Battle">Battle</MenuItem>
                 <MenuItem value="Virtual Trading">Virtual Trading</MenuItem>
                 <MenuItem value="TenX Trading">TenX Trading</MenuItem>
+                <MenuItem value="Internship">Internship</MenuItem>
                 </Select>
               </FormControl>
           </Grid>
