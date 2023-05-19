@@ -94,6 +94,7 @@ import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
+import TenXTrading from "./layouts/tenXTrading"
 
 
 
@@ -487,6 +488,15 @@ const routes = [
     icon: <GiNinjaHeroicStance/>,
     route: "/infinitytrading",
     component: <InfinityTrader />,
+  },
+  {
+    type: "collapse",
+    name: "TenX Trading",
+    key: "tenxtrading",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <CurrencyRupeeIcon/>,
+    route: "/tenxtrading",
+    component: <TenXTrading />,
   },
   // {
   //   type: "collapse",

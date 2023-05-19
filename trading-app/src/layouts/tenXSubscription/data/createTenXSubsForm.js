@@ -15,6 +15,7 @@ import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import FeatureData from './featureData';
 import TenXSubscriptionPurchaseIntent from './tenXSubscriptionPurchaseIntent'
+import TenXSubscribers from './tenXSubscriber'
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -42,6 +43,7 @@ const [creating,setCreating] = useState(false);
 const [newObjectId, setNewObjectId] = useState("");
 const [updatedDocument, setUpdatedDocument] = useState([]);
 const [tenXData,setTenXData] = useState([])
+const [subscriptionCount,setSubscriptionCount] = useState([]);
 
 console.log("location", location, id)
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -553,6 +555,12 @@ async function onEdit(e,formState){
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
                         <FeatureData updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
+                    </MDBox>
+                </Grid>}
+
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <TenXSubscribers tenXSubscription={tenXSubs} subscriptionCount={subscriptionCount} setSubscriptionCount={setSubscriptionCount}/>
                     </MDBox>
                 </Grid>}
 

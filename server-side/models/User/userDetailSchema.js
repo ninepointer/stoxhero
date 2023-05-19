@@ -186,7 +186,7 @@ const userDetailSchema = new mongoose.Schema({
     watchlistInstruments: [
         {
             type: Schema.Types.ObjectId,
-            ref: "instruments-details"
+            ref: "instrument-detail"
         }
         
     ],

@@ -123,7 +123,8 @@ exports.getTenXSubscription = async(req, res, next)=>{
     const id = req.params.id ? req.params.id : '';
     try{
     const tenXSubscription = await TenXSubscription.findById(id)
-    .populate('portfolio', 'portfolioName portfolioValue');
+    .populate('portfolio', 'portfolioName portfolioValue')
+    .populate('users.userId','first_name last_name mobile email');
 
     res.status(201).json({message: "TenXSubscription Retrived",data: tenXSubscription});    
     }

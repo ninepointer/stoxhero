@@ -121,10 +121,10 @@ exports.fundCheck = async(req, res, next) => {
             {
             $match:
                 {
-                    trade_time: {
-                        $gte: (firstDayOfMonthDate),
-                        $lte: (lastDayOfMonthDate)
-                        },
+                    // trade_time: {
+                    //     $gte: (firstDayOfMonthDate),
+                    //     $lte: (lastDayOfMonthDate)
+                    //     },
                     trader: new ObjectId(userId),
                     status: "COMPLETE",
                 },
@@ -168,7 +168,7 @@ exports.fundCheck = async(req, res, next) => {
             return next();
         } else{
             console.log("in else", Boolean(!userFunds))
-            if(!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin)) < 0){
+            if(!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0 )){
                 let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
                     TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, realTrade,
                         realBuyOrSell, realQuantity, apiKey, accessToken, userId, checkingMultipleAlgoFlag, 
@@ -314,10 +314,10 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             {
             $match:
                 {
-                    trade_time: {
-                        $gte: (firstDayOfMonthDate),
-                        $lte: (lastDayOfMonthDate)
-                        },
+                    // trade_time: {
+                    //     $gte: (firstDayOfMonthDate),
+                    //     $lte: (lastDayOfMonthDate)
+                    //     },
                     trader: req.user._id,
                     status: "COMPLETE",
                 },
@@ -554,10 +554,10 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
             {
             $match:
                 {
-                    trade_time: {
-                        $gte: (firstDayOfMonthDate),
-                        $lte: (lastDayOfMonthDate)
-                        },
+                    // trade_time: {
+                    //     $gte: (firstDayOfMonthDate),
+                    //     $lte: (lastDayOfMonthDate)
+                    //     },
                     trader: req.user._id,
                     status: "COMPLETE",
                     subscriptionId: new ObjectId(subscriptionId)
@@ -849,5 +849,3 @@ exports.contestFundCheck = async(req, res, next) => {
     
    
 }
-
-//mongodb+srv://vvv201214:5VPljkBBPd4Kg9bJ@cluster0.j7ieec6.mongodb.net/admin-data?retryWrites=true&w=majority

@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User/userDetailSchema");
-const client = require("../marketData/redisClient");
+const {client, getValue} = require("../marketData/redisClient");
 const { ObjectId } = require("bson");
 
+
 const Authenticate = async (req, res, next)=>{
+    let isRedisConnected = getValue();
     let token;
     try{
     if (
@@ -20,7 +22,10 @@ const Authenticate = async (req, res, next)=>{
 
 
         try{
-            if(await client.exists(`${verifyToken._id.toString()}authenticatedUser`)){
+            console.log("above authentication", isRedisConnected, getValue());
+            // console.log("check",  client.exists(`${verifyToken._id.toString()}authenticatedUser`))
+            if(isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)){
+                console.log("in authentication if")
                 let user = await client.get(`${verifyToken._id.toString()}authenticatedUser`)
                 user = JSON.parse(user);
                 // await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 10);
@@ -28,11 +33,18 @@ const Authenticate = async (req, res, next)=>{
                 req.user = user;
             }
             else{
-                const user = await User.findOne({_id: verifyToken._id}).populate('role', 'roleName')
+
+                // console.log("in else authentication")
+                const user = await User.findOne({_id: verifyToken._id, status: "Active"}).populate('role', 'roleName')
                 .select(' aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription')
                 if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
-                await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
-                await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 30);
+
+                // console.log("abobe redis")
+                if(isRedisConnected){
+                    await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
+                    await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 30);    
+                }
+                // console.log("below redis")
                 req.user = user;
             }
           }catch(e){
@@ -40,6 +52,7 @@ const Authenticate = async (req, res, next)=>{
           }
 
     } catch(err){
+        console.log("err", err)
         return res.status(401).send({status: "error", message: "Unauthenthicated"});
     }
     next();

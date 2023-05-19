@@ -1,6 +1,6 @@
 const Account =  require('../models/Trading Account/accountSchema');
 const RequestToken = require("../models/Trading Account/requestTokenSchema");
-const client = require("../marketData/redisClient")
+const {client, getValue} = require("../marketData/redisClient")
 exports.getAccess = async () => {
     // await client.connect();
     let date = new Date();

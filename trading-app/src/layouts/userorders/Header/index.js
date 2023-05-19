@@ -371,7 +371,7 @@ function Header({ children }) {
                 <MDTypography color="light" fontSize={13} fontWeight="bold">Subscription</MDTypography>
               </Grid>
               <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Time</MDTypography>
+                <MDTypography color="light" fontSize={13} fontWeight="bold">TimeStamp</MDTypography>
               </Grid>
             </Grid>
 
@@ -406,7 +406,7 @@ function Header({ children }) {
                   <MDTypography color={"light"} fontSize={13}>{elem?.subscriptionId?.plan_name}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{dateConvert(elem?.trade_time)}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
             )
@@ -447,7 +447,7 @@ function Header({ children }) {
                 <MDTypography color="light" fontSize={13} fontWeight="bold">Status</MDTypography>
               </Grid>
               <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Time</MDTypography>
+                <MDTypography color="light" fontSize={13} fontWeight="bold">TimeStamp</MDTypography>
               </Grid>
             </Grid>
 
@@ -479,7 +479,7 @@ function Header({ children }) {
                   <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{dateConvert(elem?.trade_time)}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
             )
@@ -561,7 +561,7 @@ function Header({ children }) {
                 <MDTypography color="light" fontSize={13} fontWeight="bold">Status</MDTypography>
               </Grid>
               <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Time</MDTypography>
+                <MDTypography color="light" fontSize={13} fontWeight="bold">TimeStamp</MDTypography>
               </Grid>
             </Grid>
 
@@ -593,7 +593,7 @@ function Header({ children }) {
                   <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{dateConvert(elem?.trade_time)}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
             )
