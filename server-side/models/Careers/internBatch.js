@@ -14,6 +14,10 @@ const batchSchema = new mongoose.Schema({
         type:Date,
         required: true
     },
+    // participants:[{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'user-personal-detail'
+    // }],
     participants:[{
         user:{
             type: Schema.Types.ObjectId,
@@ -32,7 +36,11 @@ const batchSchema = new mongoose.Schema({
         required: true,
         enum: ['Active','Inactive']
     },
-    careerId:{
+    batchID:{
+        type:String,
+        // required: true,
+    },
+    career:{
         type: Schema.Types.ObjectId,
         ref: 'career'
     },

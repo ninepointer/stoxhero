@@ -7,18 +7,18 @@ const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 exports.createGroupDiscussion = async(req, res, next)=>{
     console.log(req.body) // batchID
     const{gdTitle, gdTopic, gdStartDate, 
-        gdEndDate, meetLink, status, careerId, batchId } = req.body;
+        gdEndDate, meetLink, batch } = req.body;
 
-    if(await GroupDiscussion.findOne({gdTitle})) return res.status(400).json({message:'This group discussion already exists.'});
+    if(await GroupDiscussion.findOne({gdStartDate : gdStartDate, batch: batch})) return res.status(400).json({message:'This group discussion already exists.'});
 
     const gd = await GroupDiscussion.create({gdTitle, gdTopic, gdStartDate, gdEndDate, meetLink, 
-        status, createdBy: req.user._id, lastModifiedBy: req.user._id, careerId, batchId});
+        createdBy: req.user._id, lastModifiedBy: req.user._id, batch});
     
     res.status(201).json({message: 'GroupDiscussion successfully created.', data:gd});
 
 }
 
-exports.getGroupDiscussion = async(req, res, next)=>{
+exports.getGroupDiscussions = async(req, res, next)=>{
     try{
         const gd = await GroupDiscussion.find({status: "Active"});
         res.status(201).json({status: 'success', data: gd, results: gd.length});    
@@ -26,6 +26,28 @@ exports.getGroupDiscussion = async(req, res, next)=>{
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
+};
+
+exports.getGroupDiscussion = async(req, res, next)=>{
+  const id = req.params.id;
+  try{
+      const gd = await GroupDiscussion.find({_id: id});
+      res.status(201).json({status: 'success', data: gd});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
+exports.getBatchGroupDiscussion = async(req, res, next)=>{
+  const id = req.params.id;
+  try{
+      const gd = await GroupDiscussion.find({batch: id});
+      res.status(201).json({status: 'success', data: gd, count:gd.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
 };
 
 exports.editGroupDiscussion = async(req, res, next) => {
