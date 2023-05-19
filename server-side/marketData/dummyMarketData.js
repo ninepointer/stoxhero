@@ -1,4 +1,4 @@
-const client = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 const io = require('../marketData/socketio');
 // const DummyMarketData = () => {
 //   return new Promise((resolve) => {
@@ -120,6 +120,7 @@ const DummyMarketData = (socket) => {
     let timeoutId; // Store the timeout ID
 
     const sendDummyTicks = async () => {
+      let isRedisConnected = getValue();
       try {
         filteredTicks = [
           // Replace with your logic to filter ticks
@@ -177,7 +178,10 @@ const DummyMarketData = (socket) => {
                       }
           // ...
         ];
-        let userId = await client.get(socket.id);
+        let userId; 
+        if(isRedisConnected){
+          userId = await client.get(socket.id);
+        }
         io.to(userId).emit('tick-room', filteredTicks);
         console.log('sending');
         resolve(filteredTicks);

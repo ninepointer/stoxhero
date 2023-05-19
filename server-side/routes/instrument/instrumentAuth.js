@@ -3,7 +3,7 @@ const router = express.Router();
 require("../../db/conn");
 const Instrument = require("../../models/Instruments/instrumentSchema");
 const ContestInstrument = require("../../models/Instruments/contestInstrument");
-const client = require("../../marketData/redisClient");
+const {client, getValue} = require("../../marketData/redisClient");
 
 const axios = require('axios');
 const fetchToken = require("../../marketData/generateSingleToken");
@@ -13,7 +13,7 @@ const {subscribeTokens, unSubscribeTokens} = require('../../marketData/kiteTicke
 const authentication = require("../../authentication/authentication");
 
 router.post("/contestInstrument", authentication, async (req, res)=>{
-
+    let isRedisConnected = getValue();
     try{
         let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, contest} = req.body;
         const {_id, contestName} = contest;
@@ -44,7 +44,9 @@ router.post("/contestInstrument", authentication, async (req, res)=>{
             const instruments = new ContestInstrument({instrument, exchange, symbol, status, uId, createdBy: req.user._id, lastModifiedBy: req.user._id, lotSize, instrumentToken, contractDate, maxLot, contest: {name: contestName, contestId: _id}});
             console.log("instruments", instruments)
             instruments.save().then(async()=>{
-                 const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
+                if(isRedisConnected){
+                    const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
+                }
                  console.log("this is redis client", newredisClient)
                 // client.del(socket.id);
                  await subscribeTokens();
@@ -112,6 +114,7 @@ router.get("/readInstrumentDetails/:id", (req, res)=>{
 })
 
 router.put("/contestInstrument/:id", async (req, res)=>{
+    let isRedisConnected = getValue();
     //console.log(req.params)
     console.log( req.body)
     let {contest, contract_Date, Exchange, Symbole} = req.body;
@@ -143,12 +146,16 @@ router.put("/contestInstrument/:id", async (req, res)=>{
         })
         //console.log("this is role", instrument);
         if(((req.body).Symbole !== instrument.symbol) || (req.body).Status === "Inactive"){
-            const redisClient = await client.SREM((_id).toString(), (instrument.instrumentToken).toString());
-            console.log("redisClient", redisClient)
+            if(isRedisConnected){
+                const redisClient = await client.SREM((_id).toString(), (instrument.instrumentToken).toString());
+            }
+            // console.log("redisClient", redisClient)
 
             unSubscribeTokens(instrument.instrumentToken).then(()=>{});
         }
-        const newredisClient = await client.SADD((_id).toString(), (instrument.instrumentToken).toString());
+        if(isRedisConnected){
+            const newredisClient = await client.SADD((_id).toString(), (instrument.instrumentToken).toString());
+        }
         subscribeTokens().then(()=>{});           
 
         res.send(instrument)

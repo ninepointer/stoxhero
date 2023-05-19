@@ -186,7 +186,7 @@ const userDetailSchema = new mongoose.Schema({
     watchlistInstruments: [
         {
             type: Schema.Types.ObjectId,
-            ref: "instruments-details"
+            ref: "instrument-detail"
         }
         
     ],
@@ -283,8 +283,12 @@ const userDetailSchema = new mongoose.Schema({
             enum:["Live", "Expired"],
             default: "Live"
         }
+    }],
+    internshipBatch:[{
+        batch:{
+            type: Schema.Types.ObjectId
+        }
     }]
-
 })
 
 //Adding the ninepointer id before saving

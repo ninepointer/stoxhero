@@ -94,7 +94,7 @@ export default function Wallet() {
                       <MDBox display="flex" flexDirection="column">
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={15} fontWeight="bold">{elem?.title}</MDTypography>
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={10} fontWeight="bold">
-                          {moment(elem?.transactionDate).tz('Asia/Kolkata').format('DD:MM:YYYY HH:mm')}
+                          {new Date(elem?.transactionDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.transactionDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
                         </MDTypography>
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={10} fontWeight="bold">{elem?.description}</MDTypography>
                       </MDBox>
