@@ -76,6 +76,18 @@ exports.getTradingPortolios = async(req, res, next)=>{
         
 };
 
+exports.getInternshipPortolios = async(req, res, next)=>{
+  try{
+      const portfolio = await Portfolio.find({portfolioType: "Internship",status: "Active"})
+      
+      res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
+
 exports.getInactivePortolios = async(req, res, next)=>{
     try{
         const portfolio = await Portfolio.find({status:"Inactive"})

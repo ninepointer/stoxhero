@@ -74,7 +74,8 @@ exports.generateOTP = async(req, res, next)=>{
       career: career,
       campaignCode: campaignCode,
       mobile_otp: mobile_otp,
-      status: 'OTP Verification Pending'
+      status: 'OTP Verification Pending',
+      applicationStatus: 'Applied'
       });
       console.log(data)
       sendOTP(mobile.toString(), mobile_otp);
