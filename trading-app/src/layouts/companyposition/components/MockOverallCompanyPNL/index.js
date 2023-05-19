@@ -93,15 +93,15 @@ function MockOverallCompantPNL({socket}) {
       })
 
       // Get Lastest Trade timestamp
-      axios.get(`${baseUrl}api/v1/getlastestmocktradecompany`)
+      axios.get(`${baseUrl}api/v1/infinityTrade/mock/letestTradeCompany`)
       .then((res)=>{
           // console.log(res.data);
-          latestLive.tradeTime = (res.data.trade_time) ;
-          latestLive.tradeBy = (res.data.createdBy) ;
-          latestLive.tradeType = (res.data.buyOrSell) ;
-          latestLive.tradeQuantity = (res.data.Quantity) ;
-          latestLive.tradeSymbol = (res.data.symbol) ;
-          latestLive.tradeStatus = (res.data.status)
+          latestLive.tradeTime = (res.data.data.trade_time) ;
+          latestLive.tradeBy = (res.data.data.createdBy) ;
+          latestLive.tradeType = (res.data.data.buyOrSell) ;
+          latestLive.tradeQuantity = (res.data.data.Quantity) ;
+          latestLive.tradeSymbol = (res.data.data.symbol) ;
+          latestLive.tradeStatus = (res.data.data.status)
     
           setLatestLive(latestLive)
       }).catch((err) => { 
@@ -294,10 +294,9 @@ function MockOverallCompantPNL({socket}) {
               <span>
                 <strong> last trade </strong>
                 {latestLive.tradeBy} {latestLive.tradeType === "BUY" ? "bought " : "sold "}  
-                {Math.abs(latestLive.tradeQuantity)} quantity of 
-                {latestLive.tradeSymbol} at {latestLive.tradeTime} - {latestLive.tradeStatus}
+                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(new Date(latestLive.tradeTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())} - {latestLive.tradeStatus}
               </span>
-              : "No trades today"
+              : "No real trades today"
             }
             </MDTypography>
           </MDBox>

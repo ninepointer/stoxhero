@@ -27,13 +27,13 @@ function LiveTraderwiseCompantPNL(props) {
 
   const openMenu = ({ currentTarget }) => setMenu(currentTarget);
   const closeMenu = () => setMenu(null);
-  const [lastestLiveTradeTimearr, setLatestLiveTradeTimearr] = useState([]);
-  const [lastestLiveTradeTime, setLatestLiveTradeTime] = useState([]);
-  const [lastestLiveTradeBy, setLatestLiveTradeBy] = useState([]);
-  const [lastestLiveTradeSymbol, setLatestLiveTradeSymbol] = useState([]);
-  const [lastestLiveTradeType, setLatestLiveTradeType] = useState([]);
-  const [lastestLiveTradeQunaity, setLatestLiveTradeQuantity] = useState([]);
-  const [lastestLiveTradeStatus, setLatestLiveTradeStatus] = useState([]);
+  // const [lastestLiveTradeTimearr, setLatestLiveTradeTimearr] = useState([]);
+  // const [lastestLiveTradeTime, setLatestLiveTradeTime] = useState([]);
+  // const [lastestLiveTradeBy, setLatestLiveTradeBy] = useState([]);
+  // const [lastestLiveTradeSymbol, setLatestLiveTradeSymbol] = useState([]);
+  // const [lastestLiveTradeType, setLatestLiveTradeType] = useState([]);
+  // const [lastestLiveTradeQunaity, setLatestLiveTradeQuantity] = useState([]);
+  // const [lastestLiveTradeStatus, setLatestLiveTradeStatus] = useState([]);
 
   console.log("re rendering index live")
   // const {render, setRender} = Render
@@ -91,13 +91,13 @@ function LiveTraderwiseCompantPNL(props) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/gettraderwisepnllivetradecompanytoday/batchwisedata/${props.batchName}`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/mock/traderwiseBatchWise/${props.batchName}`)
     .then((res) => {
-        setAllTrade(res.data);
+        setAllTrade(res.data.data);
     }).catch((err)=>{
         return new Error(err);
     })
-  }, [marketData])
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -106,24 +106,24 @@ function LiveTraderwiseCompantPNL(props) {
     }
   }, [])
 
-  useEffect(()=>{
-         // Get Lastest Trade timestamp
-  axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`)
-  // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
-  .then((res)=>{
-      //console.log(res.data);
-      setLatestLiveTradeTimearr(res.data);
-      setLatestLiveTradeTime(res.data.trade_time) ;
-      setLatestLiveTradeBy(res.data.createdBy) ;
-      setLatestLiveTradeType(res.data.buyOrSell) ;
-      setLatestLiveTradeQuantity(res.data.Quantity) ;
-      setLatestLiveTradeSymbol(res.data.symbol) ;
-      setLatestLiveTradeStatus(res.data.status)
-        //console.log(lastestLiveTradeTimearr);
-  }).catch((err) => {
-    return new Error(err);
-  })
-  }, [marketData])
+  // useEffect(()=>{
+  //        // Get Lastest Trade timestamp
+  // axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`)
+  // // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
+  // .then((res)=>{
+  //     //console.log(res.data);
+  //     setLatestLiveTradeTimearr(res.data);
+  //     setLatestLiveTradeTime(res.data.trade_time) ;
+  //     setLatestLiveTradeBy(res.data.createdBy) ;
+  //     setLatestLiveTradeType(res.data.buyOrSell) ;
+  //     setLatestLiveTradeQuantity(res.data.Quantity) ;
+  //     setLatestLiveTradeSymbol(res.data.symbol) ;
+  //     setLatestLiveTradeStatus(res.data.status)
+  //       //console.log(lastestLiveTradeTimearr);
+  // }).catch((err) => {
+  //   return new Error(err);
+  // })
+  // }, [marketData])
 
 
     let mapForParticularUser = new Map();

@@ -132,88 +132,88 @@ function LiveOverallCompantPNL({socket}) {
         totalTransactionCost += Number(elem.brokerage);
     })
 
-      tradeData.map((subelem, index)=>{
-        let obj = {};
-        totalRunningLots += Number(subelem.lots)
+    tradeData.map((subelem, index)=>{
+      let obj = {};
+      totalRunningLots += Number(subelem.lots)
 
-        const liveDetail = marketData.filter((elem)=>{
-          return elem !== undefined && elem.instrument_token == subelem.instrumentToken
-        })
-
-        console.log("liveDetail", liveDetail[0]?.instrument_token, subelem?.instrumentToken)
-        let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
-        totalGrossPnl += updatedValue;
-
-        const instrumentcolor = subelem.symbol.slice(-2) == "CE" ? "success" : "error"
-        const quantitycolor = subelem.lots >= 0 ? "success" : "error"
-        const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-        const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-        const productcolor =  subelem.product === "NRML" ? "info" : subelem.product == "MIS" ? "warning" : "error"
-
-        obj.Product = (
-          <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
-            {(subelem.product)}
-          </MDTypography>
-        );
-
-        obj.symbol = (
-          <MDTypography component="a" variant="caption" color={instrumentcolor} fontWeight="medium">
-            {(subelem.symbol)}
-          </MDTypography>
-        );
-
-        obj.Quantity = (
-          <MDTypography component="a" variant="caption" color={quantitycolor} fontWeight="medium">
-            {subelem.lots}
-          </MDTypography>
-        );
-
-        obj.avgPrice = (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {"₹"+subelem.lastaverageprice.toFixed(2)}
-          </MDTypography>
-        );
-
-        if((liveDetail[0]?.last_price)){
-          obj.last_price = (
-            <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-              {"₹"+(liveDetail[0]?.last_price).toFixed(2)}
-            </MDTypography>
-          );
-        } else{
-          obj.last_price = (
-            <MDTypography component="a" variant="caption" color="dark" fontWeight="medium">
-              {"₹"+(liveDetail[0]?.last_price)}
-            </MDTypography>
-          );
-        }
-
-        obj.grossPnl = (
-          <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-            {updatedValue >= 0.00 ? "+₹" + (updatedValue.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2))}
-          </MDTypography>
-        );
-
-        if((liveDetail[0]?.change)){
-          obj.change = (
-            <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-              {(liveDetail[0]?.change).toFixed(2)+"%"}
-            </MDTypography>
-          );
-        } else{
-          obj.change = (
-            <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-              {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%"}
-            </MDTypography>
-          );
-        }
-        //console.log(obj)
-        if(subelem.lots != 0){
-          rows.unshift(obj);
-        } else{
-          rows.push(obj);
-        }
+      const liveDetail = marketData.filter((elem)=>{
+        return elem !== undefined && elem.instrument_token == subelem.instrumentToken
       })
+
+      console.log("liveDetail", liveDetail[0]?.instrument_token, subelem?.instrumentToken)
+      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+      totalGrossPnl += updatedValue;
+
+      const instrumentcolor = subelem.symbol.slice(-2) == "CE" ? "success" : "error"
+      const quantitycolor = subelem.lots >= 0 ? "success" : "error"
+      const gpnlcolor = updatedValue >= 0 ? "success" : "error"
+      const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+      const productcolor =  subelem.product === "NRML" ? "info" : subelem.product == "MIS" ? "warning" : "error"
+
+      obj.Product = (
+        <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+          {(subelem.product)}
+        </MDTypography>
+      );
+
+      obj.symbol = (
+        <MDTypography component="a" variant="caption" color={instrumentcolor} fontWeight="medium">
+          {(subelem.symbol)}
+        </MDTypography>
+      );
+
+      obj.Quantity = (
+        <MDTypography component="a" variant="caption" color={quantitycolor} fontWeight="medium">
+          {subelem.lots}
+        </MDTypography>
+      );
+
+      obj.avgPrice = (
+        <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+          {"₹"+subelem.lastaverageprice.toFixed(2)}
+        </MDTypography>
+      );
+
+      if((liveDetail[0]?.last_price)){
+        obj.last_price = (
+          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+            {"₹"+(liveDetail[0]?.last_price).toFixed(2)}
+          </MDTypography>
+        );
+      } else{
+        obj.last_price = (
+          <MDTypography component="a" variant="caption" color="dark" fontWeight="medium">
+            {"₹"+(liveDetail[0]?.last_price)}
+          </MDTypography>
+        );
+      }
+
+      obj.grossPnl = (
+        <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
+          {updatedValue >= 0.00 ? "+₹" + (updatedValue.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2))}
+        </MDTypography>
+      );
+
+      if((liveDetail[0]?.change)){
+        obj.change = (
+          <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
+            {(liveDetail[0]?.change).toFixed(2)+"%"}
+          </MDTypography>
+        );
+      } else{
+        obj.change = (
+          <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
+            {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%"}
+          </MDTypography>
+        );
+      }
+      //console.log(obj)
+      if(subelem.lots != 0){
+        rows.unshift(obj);
+      } else{
+        rows.push(obj);
+      }
+    })
 
 
       let obj = {};
@@ -308,8 +308,7 @@ function LiveOverallCompantPNL({socket}) {
               <span>
                 <strong> last trade </strong>
                 {latestLive.tradeBy} {latestLive.tradeType === "BUY" ? "bought " : "sold "}  
-                {Math.abs(latestLive.tradeQuantity)} quantity of 
-                {latestLive.tradeSymbol} at {latestLive.tradeTime} - {latestLive.tradeStatus}
+                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(new Date(latestLive.tradeTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())} - {latestLive.tradeStatus}
               </span>
               : "No real trades today"
             }

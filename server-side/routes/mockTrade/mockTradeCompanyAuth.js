@@ -2042,7 +2042,7 @@ router.get("/updatealgoid", async(req, res)=>{
             _id: -1,
           },
         },
-      ])
+    ])
             
 
         res.status(201).json(pnlDetails);
