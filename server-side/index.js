@@ -26,7 +26,9 @@ const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
 const {DummyMarketData} = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
-const {takeAutoTenxTrade} = require("./controllers/AutoTradeCut/autoTrade");
+const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
+
+const test = require("./kafkaTest");
 // const kafka = new Kafka({
 //   clientId: 'my-app',
 //   brokers: ['b-1.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092', 
@@ -64,6 +66,10 @@ client.connect()
   setValue(false);
   console.log("redis not connected", err)
 })
+
+
+// test().then(()=>{})
+
 console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
