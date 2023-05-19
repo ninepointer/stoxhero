@@ -21,7 +21,7 @@ exports.mockTrade = async (req, res) => {
 
     // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
 
-    console.log("caseStudy 8: mocktrade")
+    console.log("caseStudy 8: mocktrade", isRedisConnected)
     // let stoxheroTrader ;
     // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
     // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
