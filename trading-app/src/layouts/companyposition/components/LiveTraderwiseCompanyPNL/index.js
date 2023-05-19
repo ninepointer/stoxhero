@@ -38,34 +38,11 @@ function LiveTraderwiseCompantPNL(props) {
     tradeStatus: ""
   })
 
-  // const {render, setRender} = Render
-
-  // const renderMenu = (
-  //   <Menu
-  //     id="simple-menu"
-  //     anchorEl={menu}
-  //     anchorOrigin={{
-  //       vertical: "top",
-  //       horizontal: "left",
-  //     }}
-  //     transformOrigin={{
-  //       vertical: "top",
-  //       horizontal: "right",
-  //     }}
-  //     open={Boolean(menu)}
-  //     onClose={closeMenu}
-  //   >
-  //     <MenuItem onClick={closeMenu}>Action</MenuItem>
-  //     <MenuItem onClick={closeMenu}>Another action</MenuItem>
-  //     <MenuItem onClick={closeMenu}>Something else</MenuItem>
-  //   </Menu>
-  // );
-
-
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
+  const [trackEvent, setTrackEvent] = useState({});
 
   useEffect(()=>{
 
@@ -93,11 +70,20 @@ function LiveTraderwiseCompantPNL(props) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/gettraderwisepnllivetradecompanytoday`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/traderWiseCompany`)
     .then((res) => {
-        setAllTrade(res.data);
+        setAllTrade(res.data.data);
     }).catch((err)=>{
         return new Error(err);
+    })
+  }, [trackEvent])
+
+  useEffect(()=>{
+    props.socket.on('updatePnl', (data)=>{
+      // console.log("in the pnl event", data)
+      setTimeout(()=>{
+        setTrackEvent(data);
+      })
     })
   }, [])
 
@@ -110,17 +96,17 @@ function LiveTraderwiseCompantPNL(props) {
 
   useEffect(()=>{
          // Get Lastest Trade timestamp
-  axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`)
+  axios.get(`${baseUrl}api/v1/infinityTrade/live/letestTradeCompany`)
   // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
   .then((res)=>{
       //console.log(res.data);
       // setLatestLiveTradeTimearr(res.data);
-      latestLive.tradeTime = (res.data.trade_time) ;
-      latestLive.tradeBy = (res.data.createdBy) ;
-      latestLive.tradeType = (res.data.buyOrSell) ;
-      latestLive.tradeQuantity = (res.data.Quantity) ;
-      latestLive.tradeSymbol = (res.data.symbol) ;
-      latestLive.tradeStatus = (res.data.status)
+      latestLive.tradeTime = (res.data.data.trade_time) ;
+      latestLive.tradeBy = (res.data.data.createdBy) ;
+      latestLive.tradeType = (res.data.data.buyOrSell) ;
+      latestLive.tradeQuantity = (res.data.data.Quantity) ;
+      latestLive.tradeSymbol = (res.data.data.symbol) ;
+      latestLive.tradeStatus = (res.data.data.status)
 
       setLatestLive(latestLive)
   }).catch((err) => {
@@ -134,17 +120,17 @@ if(allTrade.length !== 0)
     //console.log("Length of All Trade Array:",allTrade.length);
     for(let i = 0; i < allTrade.length; i++){
       // //console.log(allTrade[i])
-      if(mapForParticularUser.has(allTrade[i]._id.traderId)){
+      if(mapForParticularUser.has(allTrade[i].traderId)){
         //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
           //console.log("market Data Instrument",elem.instrument_token)
-          return elem.instrument_token == Number(allTrade[i]._id.symbol)
+          return elem.instrument_token == Number(allTrade[i].symbol)
         })
 
-        let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
+        let obj = mapForParticularUser.get(allTrade[i].traderId)
         //console.log(marketDataInstrument, "marketDataInstrument")
         obj.totalPnl += ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price)));
-        //console.log("Total P&L: ",allTrade[i]._id.traderId, allTrade[i].amount,Number(allTrade[i]._id.symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
+        //console.log("Total P&L: ",allTrade[i].traderId, allTrade[i].amount,Number(allTrade[i].symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
         obj.lotUsed += Math.abs(allTrade[i].lotUsed)
         obj.runninglots += allTrade[i].lots;
         obj.brokerage += allTrade[i].brokerage;
@@ -152,21 +138,21 @@ if(allTrade.length !== 0)
 
       } else{
         //console.log(marketData, "marketData")
-        //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
+        //console.log(Number(allTrade[i].symbol) ,Number(allTrade[i].symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && elem.instrument_token === Number(allTrade[i]._id.symbol)
+          return elem !== undefined && elem.instrument_token === Number(allTrade[i].symbol)
         })
         ////console.log(marketDataInstrument)
         //console.log(marketDataInstrument, "marketDataInstrument")
-        mapForParticularUser.set(allTrade[i]._id.traderId, {
-          name : allTrade[i]._id.traderName,
+        mapForParticularUser.set(allTrade[i].traderId, {
+          name : allTrade[i].traderName,
           totalPnl : ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price))),
           lotUsed : Math.abs(allTrade[i].lotUsed),
           runninglots : allTrade[i].lots,
           brokerage: allTrade[i].brokerage,
           noOfTrade: allTrade[i].trades,
-          userId: allTrade[i]._id.traderId,
-          algoName: allTrade[i]._id.algoName
+          userId: allTrade[i].traderId,
+          algoName: allTrade[i].algoName
         }) 
       }
 
@@ -183,7 +169,7 @@ if(allTrade.length !== 0)
       return (b.totalPnl-b.brokerage)-(a.totalPnl-a.brokerage)
     });
 
-    //console.log(finalTraderPnl)
+    console.log("finalTraderPnl", finalTraderPnl)
 
 
     let totalGrossPnlGrid = 0;
@@ -259,7 +245,7 @@ if(allTrade.length !== 0)
          </MDTypography>
        );
       //  obj.view = (
-      //   <LiveViewTradeDetail socket={props.socket} userId={subelem.userId}/>
+      //   <LiveViewTradeDetail userId={subelem.userId}/>
       // );
       // obj.orders = (
       //   <LiveTraderwiseOrders userId={subelem.userId}/>

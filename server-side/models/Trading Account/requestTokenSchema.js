@@ -41,6 +41,11 @@ const requestTokenSchema = new mongoose.Schema({
         type: String,
         required : true,
         enum : [zerodhaAccountType, xtsAccountType]
+    },
+    xtsType: {
+        type: String,
+        // required : true,
+        enum : ["Market", "Interactive"]
     }
 })
 
