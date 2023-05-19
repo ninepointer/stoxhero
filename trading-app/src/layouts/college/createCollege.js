@@ -23,14 +23,14 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import { IoMdAddCircle } from 'react-icons/io';
 import { useTheme } from '@mui/material/styles';
 // import OutlinedInput from '@mui/material/OutlinedInput';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 
-function CreateCollege({createContestForm, setCreateCollegeForm, oldObjectId, setOldObjectId, setCreateBatchFormCard}) {
+function CreateCollege({setCreateCollegeForm,oldObjectId}) {
   const [isSubmitted,setIsSubmitted] = useState(false);
   const getDetails = useContext(userContext);
   const [batchData,setBatchData] = useState([]);
-  const [formState,setFormState] = useState();
+  
   const [id,setId] = useState(oldObjectId ? oldObjectId : '');
   const [isObjectNew,setIsObjectNew] = useState(id ? true : false)
   const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -39,29 +39,58 @@ function CreateCollege({createContestForm, setCreateCollegeForm, oldObjectId, se
   const [creating,setCreating] = useState(false)
   const [newObjectId,setNewObjectId] = useState(oldObjectId)
   const [contestRules,setContestRules] = useState([])
+  const location = useLocation();
+  const [updatedDocument, setUpdatedDocument] = useState([]);
+  const [formState,setFormState] = useState({
+    collegeName: '',
+    zone:'',
+    
+});
+    
   // const [addRewardObject,setAddRewardObject] = useState(false);
 
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 const navigate = useNavigate();
 
 
+
+
+React.useEffect(()=>{
+  setTimeout(()=>{
+      id && setUpdatedDocument(id)
+      setIsLoading(false);
+  },500)
+  // setCampaignUserCount(id?.users?.length);
+  
+},[])
+
+
+
+
+
+
+
+
+
+
 async function onSubmit(e,formState){
 e.preventDefault()
+console.log(formState)
+
 setCreating(true)
 
 if(
-    !formState?.batchName || !formState?.batchLimit || !formState?.participantRevenueSharing || 
-    !formState?.batchStartDate || !formState?.batchEndDate || !formState?.applicationStartDate || 
-    !formState?.applicationEndDate || !formState?.batchStatus){
+    !formState?.collegeName || !formState?.zone){
 
     setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
     return openErrorSB("Missing Field","Please fill all the mandatory fields")
 
 }
 // console.log("Is Submitted before State Update: ",isSubmitted)
+
 setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
 const { collegeName, zone} = formState;
-const res = await fetch(`${baseUrl}api/v1/batch`, {
+const res = await fetch(`${baseUrl}api/v1/college`, {
     method: "POST",
     credentials:"include",
     headers: {
@@ -85,7 +114,7 @@ if (data.batchStatus === 422 || data.error || !data) {
     setIsSubmitted(true)
     // setLinkedContestRule(data?.data?.contestRule)
     // console.log(data.data)
-    setBatchData(data.data)
+    
     setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
   }
 }
@@ -93,19 +122,18 @@ if (data.batchStatus === 422 || data.error || !data) {
 
 async function onEdit(e,formState){
   e.preventDefault()
+  console.log("Edited FormState: ",formState,id._id)
   setSaving(true)
   console.log(formState)
   if(
-    !formState?.batchName || !formState?.batchLimit || !formState?.participantRevenueSharing || 
-    !formState?.batchStartDate || !formState?.batchEndDate || !formState?.applicationStartDate || 
-    !formState?.applicationEndDate || !formState?.batchStatus){
+    !formState?.collegeName || !formState?.zone){
 
     setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
     return openErrorSB("Missing Field","Please fill all the mandatory fields")
 
 }
-  const { batchName, batchLimit, participantRevenueSharing, batchStartDate, batchEndDate, applicationStartDate, applicationEndDate, batchStatus } = formState;
-
+setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+const { collegeName,zone } = formState;
   const res = await fetch(`${baseUrl}api/v1/batch/${isObjectNew}`, {
       method: "PATCH",
       credentials:"include",
@@ -114,8 +142,9 @@ async function onEdit(e,formState){
           "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        batchName, batchLimit, participantRevenueSharing, batchStartDate, batchEndDate, applicationStartDate, applicationEndDate, batchStatus
+        collegeName, zone, 
       })
+      
     });
 
   const data = await res.json();
@@ -123,8 +152,9 @@ async function onEdit(e,formState){
   if (data.batchStatus === 422 || data.error || !data) {
       openErrorSB("Error","data.error")
   } else {
-      openSuccessSB("Contest Edited",data.displayName + " | " + data.instrumentSymbol + " | " + data.exchange + " | " + data.batchStatus)
-      setTimeout(()=>{setSaving(false);setEditing(false)},500)
+      openSuccessSB("Contest Edited",data.collegeName + " | " + data.zone)
+      // setTimeout(()=>{setSaving(false);setEditing(false)},500)
+      setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
       console.log("entry succesfull");
   }
 }
@@ -179,6 +209,7 @@ const renderErrorSB = (
 
 console.log("Old Object Id: ",oldObjectId)
 
+
     return (
     <>
     {isLoading ? (
@@ -201,12 +232,13 @@ console.log("Old Object Id: ",oldObjectId)
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
                 label='College Name *'
+                value={formState?.collegeName || oldObjectId?.collegeName}
                 fullWidth
                 // defaultValue={batchData?.displayName}
-                defaultValue={oldObjectId ? batchData?.batchName : formState?.batchName}
+                // defaultValue={oldObjectId ? batchData?.batchName : formState?.batchName}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,   
-                    batchName: e.target.value
+                    collegeName: e.target.value
                   }))}}
                   sx={{ input: { color: '#ffffff' }, label: {color: '#ffffff'}, outline: {color: '#ffffff'} }}  
               />
@@ -219,7 +251,9 @@ console.log("Old Object Id: ",oldObjectId)
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
-                value={oldObjectId ? batchData?.batchStatus : formState?.batchStatus}
+                // value={oldObjectId ? newObjectId.zone : formState?.zone}
+                
+
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
@@ -249,18 +283,20 @@ console.log("Old Object Id: ",oldObjectId)
                 </MDButton>
                 </>
                 )}
-                {(isSubmitted || isObjectNew) && !editing && (
+
+                {(isSubmitted || id) && !editing && (
                 <>
-                <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}} disabled={editing} onClick={(e)=>{setEditing(true)}}>
+                {/* <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}}  onClick={(e)=>{setEditing(true)}}>
                     {editing ? <CircularProgress size={20} color="inherit" /> : "Edit"}
-                </MDButton>
-                <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={()=>{id ? navigate("/contests") : setIsSubmitted(false)}}>
+                </MDButton> */}
+                <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={()=>setCreateCollegeForm(false)}>
                     Back
                 </MDButton>
-                {/* onClick={()=>{setCreateBatchFormCard(false); setCreateBatchForm(false)}} */}
+                
                 </>
                 )}
-                {(isSubmitted || isObjectNew) && editing && (
+
+                {/* {(isSubmitted || id) && editing && (
                 <>
                 <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} disabled={saving} 
                 onClick={(e)=>{onEdit(e,formState)}}
@@ -272,7 +308,7 @@ console.log("Old Object Id: ",oldObjectId)
                     Cancel
                 </MDButton>
                 </>
-                )}
+                )} */}
           </Grid>
           </Grid>
           {renderSuccessSB}

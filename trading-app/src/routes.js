@@ -50,6 +50,7 @@ import CareerDetailsForm from './layouts/career/createCareerForm'
 import Campaigns from './layouts/campaign'
 
 
+
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
 
@@ -94,6 +95,7 @@ import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
+import CollegeEdit from './layouts/college/CollegeEdit'
 
 
 
@@ -586,6 +588,16 @@ const routes = [
     route: "/college",
     component: <College />,
   },
+  {
+    // type: "collapse",
+    // name: "Wallet",
+    key: "collegeEdit",
+    // icon: <AccountBalanceWalletIcon/>,
+    route: "/collegeEdit",
+    component: <CollegeEdit/>,
+  },
+
+  
 
 
 ];
