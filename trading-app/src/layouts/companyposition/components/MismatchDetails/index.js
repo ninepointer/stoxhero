@@ -26,7 +26,7 @@ function MismatchDetails({socket}) {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const { columns, rows } = data();
-  const [menu, setMenu] = useState(null);
+  // const [menu, setMenu] = useState(null);
   const [marketData, setMarketData] = useState([]);
   const [OpenPositionData, setOpenPositionData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
@@ -49,6 +49,7 @@ function MismatchDetails({socket}) {
     })
 
     socket.on("tick", (data) => {
+      console.log("ticks", data)
       setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -61,17 +62,17 @@ function MismatchDetails({socket}) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/getOpenPositions`)
+    axios.get(`${baseUrl}api/v1/getPositions`)
     .then((res) => {
-        setOpenPositionData(res.data);
+        setOpenPositionData(res.data.data);
     }).catch((err) => {
         return new Error(err);
     })
 
 
-    axios.get(`${baseUrl}api/v1/getoverallpnllivetradecompanytoday`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/livePnlCompany`)
     .then((res) => {
-        setTradeData(res.data);
+        setTradeData(res.data.data);
 
     }).catch((err) => {
         return new Error(err);
@@ -85,82 +86,84 @@ function MismatchDetails({socket}) {
   }, [])
 
 
-  console.log("Open Position Data: ",OpenPositionData)
+  console.log("Open Position Data: ",OpenPositionData, tradeData)
 
-  if(OpenPositionData.length !== 0)
-  {
+  if(OpenPositionData.length !== 0){
 
-  OpenPositionData.map((elem)=>{
-    let appPnlData = tradeData.filter((element)=>{
-      return element._id.symbol === elem.tradingsymbol && elem.product === element._id.product;
+    OpenPositionData.map((elem)=>{
+      let XTSPnl = Number(elem.NetAmount);
+      let appPnlData = tradeData.filter((element)=>{
+        return element.instrumentToken == elem.ExchangeInstrumentId && elem.ProductType == element.product;
+      })
+
+      console.log("appdata", appPnlData)
+
+      let liveDetail = marketData.filter((element)=>{
+        return element !== undefined && element.instrument_token == elem.ExchangeInstrumentId
+      })
+
+
+      let updatedValue = (appPnlData[0]?.amount+(appPnlData[0]?.lots)*liveDetail[0]?.last_price);
+
+      apprunninglotsTotal += Math.abs(appPnlData[0] ? appPnlData[0]?.lots : 0);
+      zerodharunninglotsTotal += Math.abs(elem.Quantity) 
+      appPnlTotal += (updatedValue ? updatedValue : 0); 
+      zerodhaPnlTotal += XTSPnl;
+      if(appPnlData[0]?.instrumentToken === elem.ExchangeInstrumentId){
+        appAndZerodhaSameSymbolRunningLotTotal += Math.abs(elem.Quantity);
+        appAndZerodhaSameSymbolPnlTotal += XTSPnl;
+      }
+      otmRunningLotsTotal = Math.abs(zerodharunninglotsTotal - apprunninglotsTotal)
+      
+      let obj = {};
+      const productcolor = elem.ProductType == "NRML" ? "info" : "warning"
+      const instrumenttypecolor = !updatedValue ? "warning" : "info"
+      const updatedValuecolor = updatedValue >= 0 ? "success" : "error"
+      const pnlcolor = XTSPnl >= 0 ? "success" : "error"
+      const appPnlDatacolor = appPnlData[0] >= 0 ? "info" : "error"
+      const quantitycolor = (elem.Quantity) >= 0 ? "info" : "error"
+      const instrumentcolor = elem.TradingSymbol.includes("CE") ? "success" : "error"
+      
+      obj.instrument = (
+        <MDTypography component="a" variant="caption" color={instrumentcolor} fontWeight="medium">
+          {elem.TradingSymbol}
+        </MDTypography>
+      );
+      obj.product = (
+        <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
+          {elem.ProductType}
+        </MDTypography>
+      );
+      obj.instrumenttype = (
+        <MDTypography component="a" variant="caption" color={instrumenttypecolor} fontWeight="medium">
+          {!updatedValue ? "OTM" : "REGULAR"}
+        </MDTypography>
+      );
+      obj.appgrosspnl = (
+        <MDTypography component="a" variant="caption" color={updatedValuecolor} fontWeight="medium">
+
+          {updatedValue ? updatedValue >= 0.00 ? "+₹" + (updatedValue.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2)) : "+₹0"}
+        </MDTypography>
+      );
+      obj.zerodhagrosspnl = (
+        <MDTypography component="a" variant="caption" color={pnlcolor} fontWeight="medium">
+          {XTSPnl >= 0.00 ? "+₹" + (XTSPnl.toFixed(2)): "-₹" + ((-XTSPnl).toFixed(2))}
+        </MDTypography>
+      );
+      obj.apprunninglots = (
+        <MDTypography component="a" variant="caption" color={appPnlDatacolor} fontWeight="medium">
+          {appPnlData[0] ? appPnlData[0]?.lots : 0}
+        </MDTypography>
+      );
+      obj.zerodharunninglots = (
+        <MDTypography component="a" variant="caption" color={quantitycolor} fontWeight="medium">
+          {elem.Quantity}
+        </MDTypography>
+      );
+
+      rows.push(obj)
+
     })
-
-    let liveDetail = marketData.filter((element)=>{
-      return element !== undefined && element.instrument_token == elem.instrument_token
-    })
-
-
-    let updatedValue = (appPnlData[0]?.amount+(appPnlData[0]?.lots)*liveDetail[0]?.last_price);
-
-    apprunninglotsTotal += Math.abs(appPnlData[0] ? appPnlData[0]?.lots : 0);
-    zerodharunninglotsTotal += Math.abs(elem.buy_quantity - elem.sell_quantity) 
-    appPnlTotal += (updatedValue ? updatedValue : 0); 
-    zerodhaPnlTotal += elem.pnl;
-    if(appPnlData[0]?._id.symbol === elem.tradingsymbol){
-      appAndZerodhaSameSymbolRunningLotTotal += Math.abs(elem.buy_quantity - elem.sell_quantity);
-      appAndZerodhaSameSymbolPnlTotal += elem.pnl;
-    }
-    otmRunningLotsTotal = Math.abs(zerodharunninglotsTotal - apprunninglotsTotal)
-    
-    let obj = {};
-    const productcolor = elem.product == "NRML" ? "info" : "warning"
-    const instrumenttypecolor = !updatedValue ? "warning" : "info"
-    const updatedValuecolor = updatedValue >= 0 ? "success" : "error"
-    const pnlcolor = elem.pnl >= 0 ? "success" : "error"
-    const appPnlDatacolor = appPnlData[0] >= 0 ? "info" : "error"
-    const quantitycolor = (elem.buy_quantity - elem.sell_quantity) >= 0 ? "info" : "error"
-    const instrumentcolor = elem.tradingsymbol.slice(-2) == "CE" ? "success" : "error"
-    
-    obj.instrument = (
-      <MDTypography component="a" variant="caption" color={instrumentcolor} fontWeight="medium">
-        {elem.tradingsymbol}
-      </MDTypography>
-    );
-    obj.product = (
-      <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
-        {elem.product}
-      </MDTypography>
-    );
-    obj.instrumenttype = (
-      <MDTypography component="a" variant="caption" color={instrumenttypecolor} fontWeight="medium">
-        {!updatedValue ? "OTM" : "REGULAR"}
-      </MDTypography>
-    );
-    obj.appgrosspnl = (
-      <MDTypography component="a" variant="caption" color={updatedValuecolor} fontWeight="medium">
-
-        {updatedValue ? updatedValue >= 0.00 ? "+₹" + (updatedValue.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2)) : "+₹0"}
-      </MDTypography>
-    );
-    obj.zerodhagrosspnl = (
-      <MDTypography component="a" variant="caption" color={pnlcolor} fontWeight="medium">
-        {elem.pnl >= 0.00 ? "+₹" + (elem.pnl.toFixed(2)): "-₹" + ((-elem.pnl).toFixed(2))}
-      </MDTypography>
-    );
-    obj.apprunninglots = (
-      <MDTypography component="a" variant="caption" color={appPnlDatacolor} fontWeight="medium">
-        {appPnlData[0] ? appPnlData[0]?.lots : 0}
-      </MDTypography>
-    );
-    obj.zerodharunninglots = (
-      <MDTypography component="a" variant="caption" color={quantitycolor} fontWeight="medium">
-        {elem.buy_quantity - elem.sell_quantity}
-      </MDTypography>
-    );
-
-    rows.push(obj)
-
-  })
 
 
   let obj = {};
@@ -211,7 +214,6 @@ function MismatchDetails({socket}) {
 
   }
 
-  // const closeMenu = () => setMenu(null);
 
 
   return (
@@ -227,8 +229,8 @@ function MismatchDetails({socket}) {
       {rows.length === 0 ? (
       <MDBox display="flex" flexDirection="column" mb={4} sx={{alignItems:"center"}}>
         <TbEqualNot style={{fontSize: '30px', color:"green"}}/>
-        <Typography style={{fontSize: '20px',color:"grey"}}>No open trades on Zerodha</Typography>
-        <Typography mb={2} fontSize={15} color="grey">This section shows mismatch of App and Zerodha trades</Typography> 
+        <Typography style={{fontSize: '20px',color:"grey"}}>No open trades on XTS/Zerodha</Typography>
+        <Typography mb={2} fontSize={15} color="grey">This section shows mismatch of App and XTS/Zerodha trades</Typography> 
       </MDBox>)
       :
         (<MDBox>

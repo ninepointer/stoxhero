@@ -50,7 +50,7 @@ const xtsMarketLogin = async ()=>{
           console.log("joinedData", joinedData);
         });
   
-        await save(logIn?.result?.userID, logIn?.result?.token)
+        await save(logIn?.result?.userID, logIn?.result?.token, "Market")
       
     })();
     } catch(err){
@@ -120,22 +120,22 @@ const getXTSTicksForCompanySide = async (socket) => {
     marketDepth = marketDepthData;
   });
 
-  await emitCompanyTicks();
+  await emitCompanyTicks(socket);
   xtsMarketDataWS.onLTPEvent((ticksObj) => {
     ticksObj = JSON.parse(ticksObj);
-    if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
-      ticksObj.last_price = ticksObj.LastTradedPrice;
-      ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
-      ticksObj.change = marketDepth.Touchline.PercentChange;
+    if (ticksObj?.ExchangeInstrumentID == marketDepth?.ExchangeInstrumentID) {
+      ticksObj.last_price = ticksObj?.LastTradedPrice;
+      ticksObj.instrument_token = ticksObj?.ExchangeInstrumentID;
+      ticksObj.change = marketDepth?.Touchline?.PercentChange;
     
-      const instrumentMap = new Map(companyTicks.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
-      if (instrumentMap.has(ticksObj.ExchangeInstrumentID)) {
-        const existingInstrument = instrumentMap.get(ticksObj.ExchangeInstrumentID);
+      const instrumentMap = new Map(companyTicks?.map(instrument => [instrument?.ExchangeInstrumentID, instrument]));
+      if (instrumentMap?.has(ticksObj.ExchangeInstrumentID)) {
+        const existingInstrument = instrumentMap?.get(ticksObj.ExchangeInstrumentID);
         Object.assign(existingInstrument, ticksObj);
       } else {
         instrumentMap.set(ticksObj.ExchangeInstrumentID, ticksObj);
       }
-      companyTicks = Array.from(instrumentMap.values());
+      companyTicks = Array.from(instrumentMap?.values());
     }
   });
 
@@ -196,7 +196,7 @@ const getXTSTicksForUserPosition = async (socket) => {
       indexData.push(ticksObj)
     }
 
-    console.log("indexData", indexData)
+    // console.log("indexData", indexData)
 
 
     try{
@@ -256,7 +256,7 @@ const emitTicks = async(userId)=>{
   }, 1000); // wait for 2 seconds
 }
 
-const emitCompanyTicks = async()=>{
+const emitCompanyTicks = async(socket)=>{
   
   timeoutId = setInterval(() => {
     if (companyTicks && companyTicks.length > 0) {

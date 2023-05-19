@@ -2180,9 +2180,7 @@ router.get("/getmocktradebatchestoday", async(req, res)=>{
         },
       ])
             
-                // //console.log(pnlDetails)
-
-        res.status(201).json(batchDetails);
+      res.status(201).json(batchDetails);
  
 })
 

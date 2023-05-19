@@ -29,7 +29,7 @@ function MockOverallCompantPNL({socket}) {
   const closeMenu = () => setMenu(null);
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  const [liveDetail, setLiveDetail] = useState([]);
+  // const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   // const {render} = useContext(renderContext);
@@ -88,18 +88,6 @@ function MockOverallCompantPNL({socket}) {
       axios.get(`${baseUrl}api/v1/getoverallpnlmocktradecompanytoday`)
       .then((res) => {
           setTradeData(res.data);
-        //   res.data.map((elem)=>{
-        //     marketData.map((subElem)=>{
-        //         if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-        //             liveDetailsArr.push(subElem)
-        //         }
-        //     })
-        //   })
-
-        // setLiveDetail(liveDetailsArr);
-
-                 
-
       }).catch((err) => {
           return new Error(err);
       })

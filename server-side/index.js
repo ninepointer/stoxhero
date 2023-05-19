@@ -25,7 +25,7 @@ const {deletePnlKey} = require("./controllers/deletePnlKey");
 const {subscribeInstrument, getXTSTicksForUserPosition,
       onDisconnect, getXTSTicksForCompanySide} = require("./services/xts/xtsMarket")
 const {xtsMarketLogin} = require("./services/xts/xtsMarket");
-const {interactiveLogin} = require("./services/xts/xtsInteractive");
+const {interactiveLogin, positions} = require("./services/xts/xtsInteractive");
 const {autoExpireSubscription} = require("./controllers/tenXTradeController");
 const {DummyMarketData} = require('./marketData/dummyMarketData');
 const {tenXAutoTrade} = require("./controllers/autoTrade/autoTradeCut")
@@ -113,6 +113,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
         // await getTicksForUserPosition(socket, data);
+        await positions();
         await getXTSTicksForUserPosition(socket)
         // await DummyMarketData(socket);
         await onError();
@@ -126,9 +127,10 @@ getKiteCred.getAccess().then(async (data)=>{
   
     });
     // await subscribeTokens(); TODO toggle
-    await subscribeInstrument();
+    
   });
 
+  await subscribeInstrument();
   // io.on('disconnection', () => {disconnectTicker()}); TODO toggle
   io.on('disconnection', () => {onDisconnect()});
 
@@ -207,6 +209,8 @@ app.use('/api/v1/tenX', require("./routes/tenXSubscription/tenXRoute"));
 app.use('/api/v1/college', require("./routes/career/collegeRoute"));
 app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
+app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
+
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
 app.use('/api/v1', require("./PlaceOrder/switching"));

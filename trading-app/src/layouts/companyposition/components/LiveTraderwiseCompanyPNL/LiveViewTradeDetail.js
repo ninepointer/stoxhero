@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react"
+import {useState, useEffect, memo} from "react"
 import axios from "axios";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
@@ -42,11 +42,11 @@ const handleClose = (e) => {
 
 
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-const [liveDetail, setLiveDetail] = useState([]);
+// const [liveDetail, setLiveDetail] = useState([]);
 const [marketData, setMarketData] = useState([]);
 const [tradeData, setTradeData] = useState([]);
 
-let liveDetailsArr = [];
+// let liveDetailsArr = [];
 let totalTransactionCost = 0;
 let totalGrossPnl = 0;
 let totalRunningLots = 0;
@@ -63,33 +63,33 @@ let totalRunningLots = 0;
         return new Error(err);
     })
 
-    socket.on("tick", (data) => {
-      //console.log("this is live market data", data);
-      setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
-          instrumentMap.set(instrument.instrument_token, instrument);
-        });
-        return Array.from(instrumentMap.values());
-      });
-      // setDetails.setMarketData(data);
-    })
+    // socket.on("tick", (data) => {
+    //   //console.log("this is live market data", data);
+    //   setMarketData(prevInstruments => {
+    //     const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+    //     data.forEach(instrument => {
+    //       instrumentMap.set(instrument.instrument_token, instrument);
+    //     });
+    //     return Array.from(instrumentMap.values());
+    //   });
+    //   // setDetails.setMarketData(data);
+    // })
   }, [])
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/getoverallpnllivetradeparticularusertodaycompanyside/${userId}`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/traderPnlCompany/${userId}`)
     .then((res) => {
-        setTradeData(res.data);
-        res.data.map((elem)=>{
-          marketData.map((subElem)=>{
-              if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-                  liveDetailsArr.push(subElem)
-              }
-          })
-        })
+        setTradeData(res.data.data);
+        // res.data.map((elem)=>{
+        //   marketData.map((subElem)=>{
+        //       if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
+        //           liveDetailsArr.push(subElem)
+        //       }
+        //   })
+        // })
 
-      setLiveDetail(liveDetailsArr);
+      // setLiveDetail(liveDetailsArr);
 
                
 
@@ -115,6 +115,10 @@ let totalRunningLots = 0;
   tradeData.map((subelem, index)=>{
     let obj = {};
     totalRunningLots += Number(subelem.lots)
+
+    const liveDetail = marketData.filter((elem)=>{
+      return elem !== undefined && elem.instrument_token == subelem._id.instrumentToken
+    })
 
     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[index]?.last_price);
     totalGrossPnl += updatedValue;
@@ -272,4 +276,4 @@ return (
 
 
 }
-export default LiveViewTradeDetail;
+export default memo(LiveViewTradeDetail);

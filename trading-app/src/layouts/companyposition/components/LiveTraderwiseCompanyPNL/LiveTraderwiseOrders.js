@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react"
+import {useState, useEffect, memo} from "react"
 import axios from "axios";
 // @mui material components
 
@@ -159,4 +159,4 @@ return (
 );
 
 }
-export default TraderOrders;
+export default memo(TraderOrders);

@@ -25,24 +25,18 @@ exports.liveTrade = async (req, res) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
 
-    console.log("caseStudy 8: mocktrade")
-    // let stoxheroTrader ;
-    // const AlgoTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
-    // const MockTradeDetails = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
+    let {algoBoxId, exchange, symbol, buyOrSell, Quantity, 
+        Product, OrderType, validity, variety,trader,
+        uId, instrumentToken, realBuyOrSell, realQuantity, 
+        dontSendResp} = req.body
 
-    let {algoBoxId, order_id, isAlgoTrader, exchangeSegment, exchange, symbol, buyOrSell, Quantity, 
-        Price, Product, OrderType, TriggerPrice, validity, variety, createdBy,trader,
-        createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, 
-        userId, real_instrument_token, realSymbol, switching, dontSendResp, tradeBy} = req.body 
+    // if(exchange === "NFO"){
+    //     exchangeSegment = 2;
+    // }
 
-    if(exchange === "NFO"){
-        exchangeSegment = 2;
-    }
-
-    const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
-    const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
+    // const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
+    // const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
 
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
@@ -59,7 +53,7 @@ exports.liveTrade = async (req, res) => {
         disclosedQuantity: 0,
         Quantity: realQuantity,
     }
-    const placeorder = await placeOrder(obj);
+    const placeorder = await placeOrder(obj, req, res);
 
     // if(buyOrSell === "SELL"){
     //     Quantity = "-"+Quantity;
@@ -69,9 +63,9 @@ exports.liveTrade = async (req, res) => {
     // }
 
 
-    const AppOrderID = placeorder?.result?.AppOrderID;
-    console.log(placeorder?.result, placeorder?.result?.AppOrderID)
-    await saveData();
+    // const AppOrderID = placeorder?.result?.AppOrderID;
+    // console.log(placeorder?.result, placeorder?.result?.AppOrderID)
+    // await saveData();
     function saveData(){
         setTimeout(async ()=>{
             const gettingOrder = await RetreiveOrder.findOne({order_id: AppOrderID});
@@ -118,13 +112,10 @@ exports.liveTrade = async (req, res) => {
         
             function buyBrokerage(totalAmount){
                 let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
-                // let totalAmount = Number(Details.last_price) * Number(quantity);
                 let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
-                // console.log("exchangeCharge", exchangeCharge, totalAmount, (Number(brokerageDetailBuy[0].exchangeCharge)));
                 let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailBuy[0].gst) / 100);
                 let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
                 let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
-                // console.log("stampDuty", stampDuty);
                 let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
                 let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
                 return finalCharge;
@@ -132,7 +123,6 @@ exports.liveTrade = async (req, res) => {
         
             function sellBrokerage(totalAmount){
                 let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
-                // let totalAmount = Number(Details.last_price) * Number(quantity);
                 let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
                 let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailSell[0].gst) / 100);
                 let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);

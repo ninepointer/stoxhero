@@ -266,12 +266,12 @@ finalTraderPnl.map((subelem, index)=>{
       {((subelem.totalPnl)-(subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
     </MDTypography>
   );
-  obj.view = (
-    <ViewTradeDetail socket={props.socket} userId={subelem.userId}/>
-  );
-  obj.orders = (
-    <ViewOrderDetail userId={subelem.userId}/>
-  );
+  // obj.view = (
+  //   <ViewTradeDetail socket={props.socket} userId={subelem.userId}/>
+  // );
+  // obj.orders = (
+  //   <ViewOrderDetail userId={subelem.userId}/>
+  // );
 
   rows.push(obj);
 })
