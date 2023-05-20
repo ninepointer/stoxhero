@@ -12,7 +12,14 @@
 
 // }
 // else if(process.env.STAGE){
-    // let isRedisConnected = true;
+    // let isRedisConnected ;
+    // function setValue(value){
+    //     isRedisConnected = value;
+    // }
+
+    // function getValue(){
+    //     return isRedisConnected;
+    // }
     // const redis = require('redis');
     // client = redis.createClient(
     //     {
@@ -20,7 +27,7 @@
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }
     // )
-    // module.exports = {client, isRedisConnected};
+    // module.exports = {client, isRedisConnected, setValue, getValue}
 
 // }
 // else{
