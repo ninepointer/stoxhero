@@ -30,9 +30,18 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
-const {client, isRedisConnected} = require("../../marketData/redisClient")
+const {client, getValue} = require("../../marketData/redisClient")
 const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
+const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
+const tenx = require("../../controllers/AutoTradeCut/autoTradeCut");
+
+
+router.get("/autotrade", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
+  let arr = await tenx();
+  console.log(arr);
+});
 
 const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
 const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
@@ -83,7 +92,8 @@ router.get("/pnl", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   // await overallPnlTrader(req, res)
 
-  await autoExpireSubscription(req, res)
+  // await autoExpireSubscription(req, res)
+  await getMyPnlAndCreditData(req, res);
 });
 
 router.post("/autotrade/:id", async (req, res) => {
@@ -292,6 +302,8 @@ router.get("/xtsTradable", authentication, async (req, res, next)=>{
   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
   // await TradableInstrument.tradableInstrument(req,res,next);
   await tradableInstrument(req, res);
+  await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
+  await TradableInstrument.tradableInstrument(req,res,next);
 })
 
 router.get("/updateName", async (req, res)=>{

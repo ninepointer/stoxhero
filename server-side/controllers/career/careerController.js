@@ -74,7 +74,8 @@ exports.generateOTP = async(req, res, next)=>{
       career: career,
       campaignCode: campaignCode,
       mobile_otp: mobile_otp,
-      status: 'OTP Verification Pending'
+      status: 'OTP Verification Pending',
+      applicationStatus: 'Applied'
       });
       console.log(data)
       sendOTP(mobile.toString(), mobile_otp);
@@ -384,6 +385,6 @@ exports.getCareer = async (req,res,next) => {
 
 exports.getCareerApplicantions = async(req, res, next)=>{
   const {id} = req.params;
-  const careerApplications = await CareerApplication.find({career: id}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode')
+  const careerApplications = await CareerApplication.find({career: id}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }

@@ -9,7 +9,7 @@ const KiteConnect = require('kiteconnect').KiteConnect;
 // const totp = require("totp-generator");
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
 const authentication = require("../../authentication/authentication");
-const {client, isRedisConnected} = require("../../marketData/redisClient");
+const {client, getValue} = require("../../marketData/redisClient");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const {xtsInteractive} = require("../../services/xts/xtsInteractive");
 const {xtsAccountType, zerodhaAccountType} = require("../../constant");
@@ -49,7 +49,8 @@ router.post("/requestToken", authentication, (req, res)=>{
 
 router.post("/autologin", authentication, async (req, res)=>{
     // await client.del(`kiteCredToday:${process.env.PROD}`);
-    // await deletePnlKey();
+    let isRedisConnected = getValue();
+    await deletePnlKey();
     if(isRedisConnected){
         await client.del(`referralLeaderboard:${process.env.PROD}`);
     }

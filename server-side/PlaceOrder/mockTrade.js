@@ -7,13 +7,14 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 // const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
-const {client, isRedisConnected} = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
 const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice");
 const {xtsAccountType} = require("../constant");
 
 
 exports.mockTrade = async (req, res) => {
+    let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T23:59:59.999Z";
@@ -91,7 +92,6 @@ exports.mockTrade = async (req, res) => {
     }
 
     function sellBrokerage(totalAmount){
-
         let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
         let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
         let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
@@ -298,7 +298,7 @@ exports.mockTrade = async (req, res) => {
                 
             });
 
-            // console.log("tenx tenx", tenx)
+            console.log("tenx tenx", tenx)
 
     
             //console.log("mockTradeDetails", paperTrade);

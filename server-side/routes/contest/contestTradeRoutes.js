@@ -3,7 +3,7 @@ const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
 const {getHistoryRanks, newTrade, getUserTrades, currentUser, getContestRank, getMyContestRank, getContestPnl, getTradeByPagination, countTrades, getRedisLeaderBoard, getRedisMyRank, getHistoryMyRank} = require('../../controllers/contestTradeController');
 const authoizeTrade = require('../../controllers/authoriseTrade');
-const {client, isRedisConnected} = require('../../marketData/redisClient');
+const {client, getValue} = require('../../marketData/redisClient');
 
 router.route('/myTrades').get(Authenticate, currentUser , getUserTrades);
 router.route('/pnl').get(Authenticate, getContestPnl);

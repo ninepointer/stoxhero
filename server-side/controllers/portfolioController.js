@@ -3,7 +3,7 @@ const User = require('../models/User/userDetailSchema');
 const Contest = require('../models/Contest/contestSchema');
 const ContestTrade = require('../models/Contest/ContestTrade');
 const ObjectId = require('mongodb').ObjectId;
-
+const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -74,6 +74,18 @@ exports.getTradingPortolios = async(req, res, next)=>{
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
         
+};
+
+exports.getInternshipPortolios = async(req, res, next)=>{
+  try{
+      const portfolio = await Portfolio.find({portfolioType: "Internship",status: "Active"})
+      
+      res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
 };
 
 exports.getInactivePortolios = async(req, res, next)=>{
@@ -313,6 +325,202 @@ exports.portfolioForMobile = async(req,res,next) => {
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});
   }
+}
+
+exports.myTenXPortfolio = async(req, res, next)=>{
+  let pnlDetails = await Subscription.aggregate([
+    {
+      $unwind:
+        {
+          path: "$users",
+        },
+    },
+    {
+      $match: {
+        "users.userId": new ObjectId(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "user-portfolios",
+        localField: "portfolio",
+        foreignField: "_id",
+        as: "portfolioData",
+      },
+    },
+    {
+      $lookup: {
+        from: "tenx-trade-users",
+        localField: "_id",
+        foreignField: "subscriptionId",
+        as: "trades",
+      },
+    },
+    {
+      $unwind:
+        {
+          path: "$trades",
+          includeArrayIndex: "string",
+        },
+    },
+    {
+        $match: {
+            "trades.status": "COMPLETE",
+        },
+    },
+    {
+      $group:
+  
+        {
+          _id: {
+            subscriptionId: "$_id",
+            totalFund: {
+              $arrayElemAt: [
+                "$portfolioData.portfolioValue",
+                0,
+              ],
+            },
+            portfolioName: {
+              $arrayElemAt: [
+                "$portfolioData.portfolioName",
+                0,
+              ],
+            },
+            portfolioType: {
+              $arrayElemAt: [
+                "$portfolioData.portfolioType",
+                0,
+              ],
+            },
+            portfolioAccount: {
+              $arrayElemAt: [
+                "$portfolioData.portfolioAccount",
+                0,
+              ],
+            },
+          },
+          totalAmount: {
+            $sum:{
+                $multiply: ["$trades.amount", -1],
+            }
+          },
+          totalBrokerage: {
+            $sum: "$trades.brokerage",
+          },
+        },
+    },
+    {
+      $project:
+  
+        {
+          _id: 0,
+          subscriptionId: "$_id.subscriptionId",
+          portfolioValue: "$_id.totalFund",
+          portfolioType: "$_id.portfolioType",
+          portfolioName: "$_id.portfolioName",
+          portfolioAccount: "$_id.portfolioAccount",
+          investedAmount: {
+            $subtract: [
+              "$totalAmount",
+              "$totalBrokerage",
+            ],
+          },
+          cashBalance: {
+            $sum: [
+                "$_id.totalFund",
+                { $subtract: ["$totalAmount", "$totalBrokerage"] }
+              ]
+          }
+        },
+    },
+  ]);
+
+  res.status(201).json({status: "success", data: pnlDetails});
+
+}
+
+exports.myVirtualFreePortfolio = async(req, res, next)=>{
+  console.log("in free", req.user._id)
+  let pnlDetails = await Portfolio.aggregate([
+    {
+      $match: {
+        portfolioType: "Virtual Trading",
+        portfolioAccount: "Free"
+      },
+    },
+    {
+      $unwind:
+        {
+          path: "$users",
+        },
+    },
+    {
+      $lookup: {
+        from: "paper-trades",
+        localField: "users.userId",
+        foreignField: "trader",
+        as: "trades",
+      },
+    },
+    {
+      $unwind:{
+        path: "$trades",
+      },
+    },
+    {
+      $match: {
+        "trades.trader": new ObjectId(req.user._id),
+      },
+    },
+    {
+      $group:
+  
+        {
+          _id: {
+            portfolioId: "$_id",
+            totalFund: "$portfolioValue",
+            portfolioName: "$portfolioName",
+            portfolioType: "$portfolioType",
+            portfolioAccount: "$portfolioAccount",
+          },
+          totalAmount: {
+            $sum:{
+                $multiply: ["$trades.amount", -1],
+            }
+          },
+          totalBrokerage: {
+            $sum: "$trades.brokerage",
+          },
+        },
+    },
+    {
+      $project:
+  
+        {
+          _id: 0,
+          portfolioId: "$_id.portfolioId",
+          portfolioValue: "$_id.totalFund",
+          portfolioType: "$_id.portfolioType",
+          portfolioName: "$_id.portfolioName",
+          portfolioAccount: "$_id.portfolioAccount",
+          investedAmount: {
+            $subtract: [
+              "$totalAmount",
+              "$totalBrokerage",
+            ],
+          },
+          cashBalance: {
+            $sum: [
+                "$_id.totalFund",
+                { $subtract: ["$totalAmount", "$totalBrokerage"] }
+              ]
+          }
+        },
+    },
+  ]);
+  console.log("pnlDetails", pnlDetails)
+  res.status(201).json({status: "success", data: pnlDetails});
+
 }
 
 

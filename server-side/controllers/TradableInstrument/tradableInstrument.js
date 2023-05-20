@@ -33,7 +33,7 @@ exports.tradableInstrument = async (req,res,next) => {
         };
     
         // Create a connection to MongoDB
-        // const {client, isRedisConnected} = new MongoClient(connectionString);
+        // const {client, getValue} = new MongoClient(connectionString);
         // client.connect();
         // const database = client.db('mydatabase');
     

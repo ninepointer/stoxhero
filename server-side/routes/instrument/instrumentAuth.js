@@ -3,7 +3,7 @@ const router = express.Router();
 require("../../db/conn");
 const Instrument = require("../../models/Instruments/instrumentSchema");
 const ContestInstrument = require("../../models/Instruments/contestInstrument");
-const {client, isRedisConnected} = require("../../marketData/redisClient");
+const {client, getValue} = require("../../marketData/redisClient");
 
 const axios = require('axios');
 const fetchToken = require("../../marketData/generateSingleToken");
@@ -13,7 +13,7 @@ const {subscribeTokens, unSubscribeTokens} = require('../../marketData/kiteTicke
 const authentication = require("../../authentication/authentication");
 
 router.post("/contestInstrument", authentication, async (req, res)=>{
-
+    let isRedisConnected = getValue();
     try{
         let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, contest} = req.body;
         const {_id, contestName} = contest;
@@ -114,6 +114,7 @@ router.get("/readInstrumentDetails/:id", (req, res)=>{
 })
 
 router.put("/contestInstrument/:id", async (req, res)=>{
+    let isRedisConnected = getValue();
     //console.log(req.params)
     console.log( req.body)
     let {contest, contract_Date, Exchange, Symbole} = req.body;

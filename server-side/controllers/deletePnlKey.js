@@ -1,5 +1,5 @@
 const User = require("../models/User/userDetailSchema");
-const client = require("../marketData/redisClient");
+const {client} = require("../marketData/redisClient");
 
 
 exports.deletePnlKey = async () => {
