@@ -226,7 +226,7 @@ let weekDay = date.getDay();
   }
 
   try{
-    const autotrade = nodeCron.schedule(`0 0 10 * * *`, tenx);
+    const autotrade = nodeCron.schedule(`0 0 5 * * *`, tenx);
   } catch(err){
     console.log("err from cronjob", err)
   }
