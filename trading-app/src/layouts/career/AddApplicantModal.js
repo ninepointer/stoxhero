@@ -39,6 +39,7 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
 
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title,content) => {
+  console.log('status success')  
   setTitle(title)
   setContent(content)
   setSuccessSB(true);
@@ -47,7 +48,7 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
     useEffect(()=>{
       getColleges();
       getGroupDiscussionsByCareer();
-    },[]);
+    },[open]);
   
     const renderSuccessSB = (
       <MDSnackbar
@@ -102,14 +103,19 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
 
   const addApplicant = async() => {
     try{
-      console.log(college, gd, applicant)
+      console.log(college, gd, applicant);
       const res = await axios.patch(`${apiUrl}gd/add/${gd}/${applicant}`,{collegeId: college}, {withCredentials: true});
       console.log(res.data);
+      console.log('Status', res.status);
       if(res.status == 200){
-        openSuccessSB('Added', res.data.data.message);
+        console.log('success response');
+        console.log(res.data);
+        openSuccessSB('Added', res.data.message);
       }else{
-        openErrorSB('Error', res.data.data.message);
+        openErrorSB('Error', res.data.message);
       }
+      console.log('stat');
+      handleClose();
     }catch(e){
       console.log(e);
     }
