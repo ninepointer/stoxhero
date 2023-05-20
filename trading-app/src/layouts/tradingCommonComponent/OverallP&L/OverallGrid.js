@@ -273,7 +273,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
                 return(
                   <>
               <tr
-              style={{borderBottom: "1px solid #D3D3D3"}}  key={elem.symbol.props.children}
+               key={elem.symbol.props.children}
               >
                   <OverallRow
                     quantity={elem?.Quantity?.props?.children}

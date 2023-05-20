@@ -274,8 +274,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   return (
     <Card sx={{width:"100%",background:"#161717"}} >
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
-        <MDBox display="flex">
-          <MDTypography variant="h6" sx={{color:"#fff"}}>
+        <MDBox display="flex" ml={4}>
+          <MDTypography fontSize={24} sx={{color:"#fff"}}>
             My Watchlist
           </MDTypography>
           <MDBox display="flex" alignItems="center" lineHeight={0}>
@@ -289,7 +289,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
             color={isAppLive ? "success" : "error"}
             style={{display:"flex",alignItems:"center"}}
             >
-             <MDBox borderRadius="20px" bgColor="#F44335" width="66px"> {isAppLive  ? <MDBox display="flex" alignItems="center" > <Typography color="#fff" fontSize={14} fontWeight={400} ml={1} >Live</Typography> <SensorsIcon sx={{color:"#fff",ml:"10px"}} /></MDBox> :<MDBox display="flex" alignItems="center" > <Typography color="#fff" fontSize={14} fontWeight={400} ml={0.5} >Offline</Typography><SensorsOffIcon sx={{color:"#fff",ml:"3px"}}/></MDBox>} </MDBox> 
+             <MDBox borderRadius="20px" bgColor="#F44335" mr={4} width="66px"> {isAppLive  ? <MDBox display="flex" alignItems="center" > <Typography color="#fff" fontSize={14} fontWeight={400} ml={1} >Live</Typography> <SensorsIcon sx={{color:"#fff",ml:"10px"}} /></MDBox> :<MDBox display="flex" alignItems="center" > <Typography color="#fff" fontSize={14} fontWeight={400} ml={0.5} >Offline</Typography><SensorsOffIcon sx={{color:"#fff",ml:"3px"}}/></MDBox>} </MDBox> 
             </MDTypography>
         </MDBox>
       </MDBox>
@@ -303,10 +303,10 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       </MDBox>)
       :
       (<MDBox bgColor="#161717" >
-        <TableContainer component={Paper}>
+        <TableContainer sx={{borderRadius:"0px",mt:"20px",mb:"20px"}} component={Paper}>
           <table style={{borderCollapse: "collapse",borderBottom: "2px solid black", width: "100%",background:"#000"}}>
-            <thead style={{background:"#161717",marginBottom:"20px"}} >
-              <tr style={{}}>
+            <thead style={{background:"#161717",}} >
+              <tr>
                 <td style={styleTD}>CONTRACT DATE</td>
                 <td style={styleTD} >SYMBOL</td>
                 <td style={styleTD} >INSTRUMENT</td>

@@ -11,7 +11,8 @@ function InstrumentComponent({last_price, change, contractDate, symbol, instrume
         fontSize: ".75rem",
         fontColor: "grey",
         color: "#7b809a",
-        fontWeight: "600"
+        fontWeight: "600",
+        marginTop:"20px"
       }
 
   return (
