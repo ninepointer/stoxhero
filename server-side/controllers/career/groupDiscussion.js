@@ -33,8 +33,8 @@ exports.getGroupDiscussions = async(req, res, next)=>{
 exports.getGroupDiscussion = async(req, res, next)=>{
   const id = req.params.id;
   try{
-      const gd = await GroupDiscussion.find({_id: id});
-      res.status(201).json({status: 'success', data: gd});    
+      const gd = await GroupDiscussion.find({_id: id}).populate('participants.user', 'first_name last_name mobile email').populate('participants.college', 'collegeName');
+      res.status(200).json({status: 'success', data: gd});    
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});
@@ -120,8 +120,9 @@ exports.addUserToGd = async(req, res, next) => {
     let user;
     const gd = await GroupDiscussion.findById(gdId);
     const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name');
-    user = await User.find({email: career.email}).select('_id');
-    console.log(user);
+    console.log(career);
+    user = await User.findOne({email: career.email}).select('_id');
+    console.log('user is', user);
     const {campaignCode, mobileNo, email,first_name, last_name} = career;
     const  campaign = await Campaign.findOne({campaignCode: campaignCode});
     if(!user){
@@ -156,7 +157,7 @@ exports.addUserToGd = async(req, res, next) => {
             userId = userId.toString()+(userIds.length+1).toString()
         }
     
-      const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
+      const activeFreePortfolios = await Portfolio.find({status: "Active", portfolioAccount: "Free"});
       let portfolioArr = [];
       for (const portfolio of activeFreePortfolios) {
           let obj = {};
@@ -303,7 +304,7 @@ exports.addUserToGd = async(req, res, next) => {
                     </html>
     
                 `
-                mailSender(newuser.email,subject,message);
+                // mailSender(newuser.email,subject,message);
       }catch(e){
         console.log(e);
       }
@@ -322,16 +323,23 @@ exports.addUserToGd = async(req, res, next) => {
 }
 
 exports.markAttendance = async(req,res, next) => {
-  
+  console.log('marking');
   const userId = req.params.userId;
   const gdId = req.params.gdId;
   const{attended} = req.body;
+  console.log(attended);
   try {
     const gd = await GroupDiscussion.findById(gdId);
-    const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
-    const user = await User.find({email: career.email}).select('_id');
-    let participants = gd.participants.filter((item)=>item.user != user._id)
-    gd.participants = [...participants, {user:user._id, attended: req.body, status: 'Shortlisted'}]
+    // const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
+    // console.log('career', career)
+    // const user = await User.findOne({_id: userId}).select('_id');
+    // let participants = gd.participants.filter((item)=>item.user != userId)
+    // gd.participants = [...participants, {user:user._id, attended, status: 'Shortlisted'}]
+    for (participant of gd.participants){
+      if (participant.user == userId){
+        participant.attended = attended
+      }
+    }
     await gd.save({validateBeforeSave: false});
     res.status(200).json({status:'success', message: 'Attendance marked'});
   } catch (error) {
@@ -393,7 +401,7 @@ exports.selectCandidate = async (req, res, next) => {
     await user.save({validateBeforeSave: false});
     const portfolio = await Portfolio.findById(batch.portfolio);
     portfolio.users = [...portfolio.users, {userId: user._id, linkedOn: new Date(), portfolioValue: 1000000}]
-    await portfolio.save();
+    await portfolio.save({validateBeforeSave: false});
     const jobTitle = await Batch.findById(gd.batch).populate('careerId', 'jobTitle').select('careerId');
     //Candidate gets selection email
     const message = `<!DOCTYPE html>
@@ -479,6 +487,7 @@ exports.selectCandidate = async (req, res, next) => {
 exports.getGdsByCareer = async(req, res, next) => {
 
   const {careerId} = req.params;
+  console.log(careerId);
   try{
     const batches = await Batch.find({career: careerId});
     if(batches.length == 0){
@@ -488,7 +497,7 @@ exports.getGdsByCareer = async(req, res, next) => {
     const batchIds = batches.map((batch)=>batch._id);
     console.log('batchIds', batchIds);
   
-    const gds = await GroupDiscussion.find({batchId: {$in:batchIds}, gdEndDate:{$gte:new Date()} });
+    const gds = await GroupDiscussion.find({batch: {$in:batchIds}, gdStartDate:{$gte:new Date()} });
     console.log('gds', gds);
     if(gds.length == 0){
       return res.status(200).json({status: 'success', message:'No gds found with this career'});
@@ -504,15 +513,21 @@ exports.getGdsByCareer = async(req, res, next) => {
 
 }
 
-exports.removeUserFromGD = async()=>{
+exports.removeUserFromGD = async(req, res, next)=>{
   const{gdId, userId} = req.params;
-
-  const gd = await GroupDiscussion.findById(gdId);
-  gd.participants = gd,participants.filter((item)=>item.user != userId);
-  const user = await User.findById(userId).select('_id email');
-  const careerApplicant = await CareerApplication.findOne({email: user.email});
-  careerApplicant.applicationStatus = 'Applied';
-  await careerApplicant
-  await gd.save();
+  try{
+    const gd = await GroupDiscussion.findById(gdId);
+    gd.participants = gd.participants.filter((item)=>item.user != userId);
+    const user = await User.findById(userId).select('_id email');
+    const careerApplicant = await CareerApplication.findOne({email: user.email});
+    careerApplicant.applicationStatus = 'Applied';
+    await careerApplicant.save({validateBeforeSave:false});
+    await gd.save({validateBeforeSave: false});
+  
+    res.status(204).json({status:'success', message:'Removed from GD'});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status: 'error', message:'Something went wrong.'})
+  }
 
 }
