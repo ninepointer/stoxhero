@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User/userDetailSchema");
-const {client, isRedisConnected} = require("../marketData/redisClient");
+const {client, getValue} = require("../marketData/redisClient");
 const { ObjectId } = require("bson");
 
+
 const Authenticate = async (req, res, next)=>{
+    let isRedisConnected = getValue();
     let token;
     try{
     if (

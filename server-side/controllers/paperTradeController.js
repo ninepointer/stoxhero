@@ -1,10 +1,10 @@
 const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
-const {client, isRedisConnected} = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 const { ObjectId } = require("mongodb");
 
 exports.overallPnl = async (req, res, next) => {
-    
+    let isRedisConnected = getValue();
     const userId = req.user._id;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`

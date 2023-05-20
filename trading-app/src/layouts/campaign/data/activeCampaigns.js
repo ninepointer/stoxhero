@@ -8,7 +8,7 @@ import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import money from "../../../assets/images/money.png"
-import { Link, useLocation } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 
 const ActiveCampaigns = ({status}) => {

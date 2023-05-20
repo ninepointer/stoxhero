@@ -23,22 +23,27 @@ const gdSchema = new Schema({
         type: String,
         required: true,
     },
-    participants: [{
-        type: Schema.Types.ObjectId,
-        ref: 'user-personal-detail'
+    participants: [{user: {
+            type: Schema.Types.ObjectId,
+            ref: 'user-personal-detail'
+        },
+        attended:{
+            type: Boolean,
+            default: false
+        },
+        status:{
+            type: String,
+            enum: ['Shortlisted','Selected','Rejected'],
+            default:'Shortlisted'
+        },
+        college: {
+            type: Schema.Types.ObjectId,
+            ref: 'college'
+        }
     }],
-    status: {
-        type: String,
-        required: true,
-        enum: ['Active','Inactive']
-    },
-    batchId:{
+    batch:{
         type: Schema.Types.ObjectId,
         ref: 'intern-batch'
-    },
-    careerId:{
-        type: Schema.Types.ObjectId,
-        ref: 'career'
     },
     createdOn: {
         type: Date,

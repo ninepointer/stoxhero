@@ -121,10 +121,10 @@ exports.fundCheck = async(req, res, next) => {
             {
             $match:
                 {
-                    trade_time: {
-                        $gte: (firstDayOfMonthDate),
-                        $lte: (lastDayOfMonthDate)
-                        },
+                    // trade_time: {
+                    //     $gte: (firstDayOfMonthDate),
+                    //     $lte: (lastDayOfMonthDate)
+                    //     },
                     trader: new ObjectId(userId),
                     status: "COMPLETE",
                 },
@@ -314,10 +314,10 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             {
             $match:
                 {
-                    trade_time: {
-                        $gte: (firstDayOfMonthDate),
-                        $lte: (lastDayOfMonthDate)
-                        },
+                    // trade_time: {
+                    //     $gte: (firstDayOfMonthDate),
+                    //     $lte: (lastDayOfMonthDate)
+                    //     },
                     trader: req.user._id,
                     status: "COMPLETE",
                 },
@@ -554,10 +554,10 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
             {
             $match:
                 {
-                    trade_time: {
-                        $gte: (firstDayOfMonthDate),
-                        $lte: (lastDayOfMonthDate)
-                        },
+                    // trade_time: {
+                    //     $gte: (firstDayOfMonthDate),
+                    //     $lte: (lastDayOfMonthDate)
+                    //     },
                     trader: req.user._id,
                     status: "COMPLETE",
                     subscriptionId: new ObjectId(subscriptionId)

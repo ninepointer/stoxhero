@@ -32,6 +32,7 @@ import { userRole } from '../../../variables';
 import { InfinityTraderRole } from '../../../variables';
 
 function Basic() {
+  console.log('Rendering sign in');
   // const [rememberMe, setRememberMe] = useState(false);
   const [userId, setEmail] = useState(false);
   const [pass, setPassword] = useState(false);

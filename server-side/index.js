@@ -18,7 +18,7 @@ const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
-let {client, isRedisConnected} = require("./marketData/redisClient");
+let {client, isRedisConnected, setValue} = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
 const {appLive, appOffline} = require('./controllers/appSetting');
 const {deletePnlKey} = require("./controllers/deletePnlKey");
@@ -27,10 +27,13 @@ const {subscribeInstrument, getXTSTicksForUserPosition,
 const {xtsMarketLogin} = require("./services/xts/xtsMarket");
 const {interactiveLogin, positions} = require("./services/xts/xtsInteractive");
 const {autoExpireSubscription} = require("./controllers/tenXTradeController");
-const {DummyMarketData} = require('./marketData/dummyMarketData');
-const {tenXAutoTrade} = require("./controllers/autoTrade/autoTradeCut")
+const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
-// const {DummyMarketData} = require('./marketData/dummyMarketData');
+const {DummyMarketData} = require('./marketData/dummyMarketData');
+const { Kafka } = require('kafkajs')
+const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
+
+const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 
 const hpp = require("hpp")
@@ -63,14 +66,19 @@ interactiveLogin()
 
 client.connect()
 .then((res)=>{
-  // setValue(true)
-  isRedisConnected = true ; 
-  console.log("redis connected")})
+  // isRedisConnected = true ; 
+  setValue(true);
+  console.log("redis connected", res)
+})
 .catch((err)=>{
-  // setValue(false)
-  isRedisConnected = false;
+  // isRedisConnected = false;
+  setValue(false);
   console.log("redis not connected", err)
 })
+
+
+// test().then(()=>{})
+
 console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   console.log(data)
@@ -176,6 +184,8 @@ app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
 app.use('/api/v1', require("./marketData/getRetrieveOrder"));
 // app.use('/api/v1', require('./marketData/placeOrder'));
 app.use('/api/v1', require('./marketData/switchToRealTrade'));
+app.use('/api/v1/internbatch', require('./routes/career/internBatchRoute'));
+app.use('/api/v1/gd', require('./routes/career/groupDiscussionRoute'));
 app.use('/api/v1', require('./routes/instrument/instrumentAuth'));
 app.use('/api/v1', require('./routes/instrument/tradableInstrument'));
 app.use('/api/v1', require('./routes/instrument/addInstrument'));
@@ -230,15 +240,30 @@ let weekDay = date.getDay();
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+        
     }
   }
 
   try{
-    const autotrade = nodeCron.schedule(`0 10 * * *`, tenXAutoTrade);
-
+    const autotrade = nodeCron.schedule(`0 0 5 * * *`, test);
   } catch(err){
     console.log("err from cronjob", err)
   }
+
+
+  // (async () => {
+  //   const consumer = kafka.consumer({ groupId: 'my-group' })
+    
+  //   await consumer.connect()
+  //   await consumer.subscribe({ topic: 'my-topic', fromBeginning: true })
+    
+  //   await consumer.run({
+  //     eachMessage: async ({ topic, partition, message }) => {
+  //       await takeAutoTenxTrade(message.value.toString());
+  //       // console.log(message)
+  //     },
+  //   })
+  // })().catch(console.error)
 
 
 const PORT = process.env.PORT;

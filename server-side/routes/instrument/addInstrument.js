@@ -9,12 +9,12 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 const { unSubscribeTokens, subscribeSingleToken} = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
-const {client, isRedisConnected} = require("../../marketData/redisClient");
+const {client, getValue} = require("../../marketData/redisClient");
 const ObjectId = require('mongodb').ObjectId;
 const {subscribeSingleXTSToken, unSubscribeXTSToken} = require("../../services/xts/xtsMarket")
 
 router.post("/addInstrument",authentication, async (req, res)=>{
-      
+    let isRedisConnected = getValue();
     const {_id} = req.user;
 
     try{
@@ -162,6 +162,7 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
 router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
+    let isRedisConnected = getValue();
     try{ 
         const {instrumentToken} = req.params
         const {isAddedWatchlist} = req.body;
@@ -216,7 +217,7 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
 })
 
 router.get("/instrumentDetails", authentication, async (req, res)=>{
-
+    let isRedisConnected = getValue();
     const {_id} = req.user
 
     try{

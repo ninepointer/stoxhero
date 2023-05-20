@@ -6,13 +6,27 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
+import AddApplicantModal from '../AddApplicantModal';
 
 
 export default function Applicants({career}) {
-    console.log("Career", career)
+    console.log("Career", career);
+    const [open, setOpen] = useState(false);
+    const [selectedApplicant, setSelectedApplicant] = useState();
+    const [selectedApplicantName, setSelectedApplicantName]=useState();
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [careerApplications,setCareerApplications] = React.useState([]);
     const [applicationCount,setApplicationCount] = useState(0);
+    const handleClose = () => {
+      setOpen(false);
+      setSelectedApplicant('');
+      setSelectedApplicantName('');
+    };
+    const handleOpen = (applicant, name) => {
+      setSelectedApplicant(applicant);
+      setSelectedApplicantName(name);
+      setOpen(true);
+    };
     async function getCareerApplications(){
         let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/${career}`,{
             withCredentials: true,
@@ -37,38 +51,33 @@ export default function Applicants({career}) {
 
     useEffect(()=>{
         getCareerApplications();
-    },[])
+    },[open])
 
     let columns = [
-        { Header: "#", accessor: "index", align: "center" },
-        { Header: "First Name", accessor: "firstname", align: "center" },
-        { Header: "Last Name", accessor: "lastname", align: "center" },
+        { Header: "Action", accessor: "action", align: "center" },
+        { Header: "Full Name", accessor: "fullname", align: "center" },
         { Header: "Date of Birth", accessor: "dob", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "Mobile", accessor: "mobile", align: "center" },
         { Header: "College", accessor: "college", align: "center" },
         { Header: "Trading Exp.", accessor: "tradingexp", align: "center" },
         { Header: "Source", accessor: "source", align: "center" },
-        { Header: "Applied On", accessor: "appliedon", align: "center" },
+        { Header: "Status", accessor: "status", align: "center" },
+        { Header: "Applied On", accessor: "appliedon", align: "center" },   
       ]
 
     let rows = []
 
   careerApplications?.map((elem, index)=>{
   let featureObj = {}
-  featureObj.index = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {index+1}
-    </MDTypography>
+  featureObj.action = (
+    <MDButton component="a" variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{handleOpen(elem._id, `${elem.first_name} ${elem.last_name}`)}}>
+      Assign GD
+    </MDButton>
   );
-  featureObj.firstname = (
+  featureObj.fullname = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.first_name}
-    </MDTypography>
-  );
-  featureObj.lastname = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.last_name}
+      {elem?.first_name} {elem?.last_name}
     </MDTypography>
   );
   featureObj.dob = (
@@ -101,6 +110,11 @@ export default function Applicants({career}) {
       {elem?.source}
     </MDTypography>
   );
+  featureObj.status = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem?.applicationStatus}
+    </MDTypography>
+  );
   featureObj.appliedon = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {new Date(elem?.appliedOn).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.appliedOn).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
@@ -130,6 +144,7 @@ export default function Applicants({career}) {
           entriesPerPage={false}
         />
       </MDBox>
+      <AddApplicantModal open={open} handleClose={handleClose} applicant={selectedApplicant} applicantName={selectedApplicantName} career = {career}/>
     </Card>
   );
 }

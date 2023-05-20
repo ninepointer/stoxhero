@@ -72,7 +72,7 @@ export default function TenXTrading({socket, subscriptionId}) {
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >
       <Grid container spacing={3} mb={2}>
-        
+
         {memoizedStockIndex}
 
         <Grid item xs={12} md={6} lg={3}>

@@ -1,11 +1,11 @@
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTraderCompany = require("../models/mock-trade/infinityTradeCompany");
 const { ObjectId } = require("mongodb");
-const {client, isRedisConnected} = require('../marketData/redisClient');
+const {client, getValue} = require('../marketData/redisClient');
 
 
 exports.overallPnlTrader = async (req, res, next) => {
-    
+    let isRedisConnected = getValue();
     const userId = req.user._id;
     // const userId = new ObjectId('642cedb5a7aa9b00ba1e4866');
     let date = new Date();
@@ -215,7 +215,14 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.getPnlAndCreditData = async (req, res, next) => {
-  
+  let date = new Date();
+  let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+  let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+  lastDayOfMonthDate = new Date(lastDayOfMonthDate);
+  firstDayOfMonthDate = new Date(firstDayOfMonthDate);
+
   let pnlAndCreditData = await InfinityTrader.aggregate([
     {
       $lookup: {
@@ -227,7 +234,7 @@ exports.getPnlAndCreditData = async (req, res, next) => {
     },
     {
       $match: {
-      status : "COMPLETE" 
+      status : "COMPLETE",
       }
     },
     {
@@ -288,6 +295,7 @@ exports.getPnlAndCreditData = async (req, res, next) => {
 exports.getMyPnlAndCreditData = async (req, res, next) => {
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  // todayDate = "2023-05-19" + "T00:00:00.000Z";
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
