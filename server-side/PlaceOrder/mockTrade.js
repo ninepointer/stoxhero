@@ -291,7 +291,7 @@ exports.mockTrade = async (req, res) => {
                 
             });
 
-            // console.log("tenx tenx", tenx)
+            console.log("tenx tenx", tenx)
 
     
             //console.log("mockTradeDetails", paperTrade);
