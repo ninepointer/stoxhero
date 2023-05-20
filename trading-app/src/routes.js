@@ -103,6 +103,7 @@ import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
+import SchoolIcon from '@mui/icons-material/School';
 
 
 
@@ -346,6 +347,14 @@ const routes = [
     icon: <WorkIcon/>,
     route: "/careerlist",
     component: <CareerList />,
+  },
+  {
+    type: "collapse",
+    name: "College",
+    key: "college",
+    icon: <SchoolIcon/>,
+    route: "/college",
+    component: <College />,
   },
   {
     type: "collapse",
@@ -600,14 +609,7 @@ const routes = [
     route: "/wallet",
     component: <UserWallet />,
   },
-  {
-    // type: "collapse",
-    // name: "Wallet",
-    key: "college",
-    // icon: <AccountBalanceWalletIcon/>,
-    route: "/college",
-    component: <College />,
-  },
+  
   {
     // type: "collapse",
     // name: "Wallet",
@@ -616,7 +618,7 @@ const routes = [
     route: "/collegeEdit",
     component: <CollegeEdit/>,
   },
-
+  
   
 
 
