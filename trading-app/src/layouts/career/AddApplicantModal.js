@@ -12,6 +12,8 @@ import {InputLabel} from '@mui/material';
 import {OutlinedInput} from '@mui/material';
 import {MenuItem} from '@mui/material';
 import MDButton from '../../components/MDButton';
+import { CircularProgress } from "@mui/material";
+import MDSnackbar from "../../components/MDSnackbar";
 
 
 
@@ -32,6 +34,54 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
     boxShadow: 24,
     p: 4,
   };
+  const [title,setTitle] = useState('')
+  const [content,setContent] = useState('')
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title,content) => {
+  setTitle(title)
+  setContent(content)
+  setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+    useEffect(()=>{
+      getColleges();
+      getGroupDiscussionsByCareer();
+    },[]);
+  
+    const renderSuccessSB = (
+      <MDSnackbar
+          color="success"
+          icon="check"
+          title={title}
+          content={content}
+          open={successSB}
+          onClose={closeSuccessSB}
+          close={closeSuccessSB}
+          bgWhite="info"
+      />
+      );
+      
+      const [errorSB, setErrorSB] = useState(false);
+      const openErrorSB = (title,content) => {
+      setTitle(title)
+      setContent(content)
+      setErrorSB(true);
+      }
+      const closeErrorSB = () => setErrorSB(false);
+      
+      const renderErrorSB = (
+      <MDSnackbar
+          color="error"
+          icon="warning"
+          title={title}
+          content={content}
+          open={errorSB}
+          onClose={closeErrorSB}
+          close={closeErrorSB}
+          bgWhite
+      />
+      );  
   const getColleges = async () => {
     try{
       const res = await axios.get(`${apiUrl}college`);
@@ -55,6 +105,11 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
       console.log(college, gd, applicant)
       const res = await axios.patch(`${apiUrl}gd/add/${gd}/${applicant}`,{collegeId: college}, {withCredentials: true});
       console.log(res.data);
+      if(res.status == 200){
+        openSuccessSB('Added', res.data.data.message);
+      }else{
+        openErrorSB('Error', res.data.data.message);
+      }
     }catch(e){
       console.log(e);
     }
@@ -70,12 +125,9 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
     let gdId = gds?.filter((elem)=>elem.gdTitle==val);
     setGd(gdId[0]._id);
   }
-
-  useEffect(()=>{
-    getColleges();
-    getGroupDiscussionsByCareer();
-  },[]);
+  
   return (
+    <>
    <Modal
       open={open}
       onClose={handleClose}
@@ -139,6 +191,9 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
             </Grid>
     </Box>
    </Modal>
+   {renderSuccessSB}
+   {renderErrorSB}
+   </>
   )
 }
 
