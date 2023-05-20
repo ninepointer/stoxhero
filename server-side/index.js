@@ -29,12 +29,6 @@ const { Kafka } = require('kafkajs')
 const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
 
 const test = require("./kafkaTest");
-// const kafka = new Kafka({
-//   clientId: 'my-app',
-//   brokers: ['b-1.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092', 
-//             'b-2.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092', 
-//             'b-3.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092'],  // replace with your brokers
-// })
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -227,6 +221,7 @@ let weekDay = date.getDay();
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+        
     }
   }
 
