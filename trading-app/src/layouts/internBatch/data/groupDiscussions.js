@@ -7,10 +7,20 @@ import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
 import moment from 'moment';
+import ParticipantsModal from './participantsModal';
 
 
 export default function GroupDiscussions({saving,batch}) {
     console.log("Batch", batch)
+    const [open, setOpen] = useState(false);
+    const[selectedGd, setSelectedGd] = useState();
+    const handleClose = () => {
+      setOpen(false);
+    };
+    const handleOpen = (gd) => {
+      setSelectedGd(gd);
+      setOpen(true);
+    };
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [groupDiscussions,setGroupDiscussions] = React.useState([]);
     const [gdCount,setGDCount] = useState(0);
@@ -54,6 +64,16 @@ export default function GroupDiscussions({saving,batch}) {
 
   groupDiscussions?.map((elem, index)=>{
   let featureObj = {}
+  featureObj.candidates = (
+    <MDButton component="a" variant="outlined" color="text" fontWeight="medium" onClick={()=>{handleOpen(elem._id)}}>
+      View Participants
+    </MDButton>
+  ); 
+  featureObj.noofcandidates = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem.participants.length}
+    </MDTypography>
+  );
   featureObj.title = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.gdTitle}
@@ -101,6 +121,7 @@ console.log(groupDiscussions)
           entriesPerPage={false}
         />
       </MDBox>
+      <ParticipantsModal open={open} handleClose={handleClose} gd={selectedGd}/>
     </Card>
   );
 }

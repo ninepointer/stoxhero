@@ -21,7 +21,7 @@ exports.mockTrade = async (req, res) => {
 
     // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
 
-    console.log("caseStudy 8: mocktrade")
+    console.log("caseStudy 8: mocktrade", isRedisConnected)
     // let stoxheroTrader ;
     // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
     // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
@@ -86,15 +86,6 @@ exports.mockTrade = async (req, res) => {
     }
 
     function sellBrokerage(totalAmount){
-        // let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
-        // let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
-        // let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailSell[0].gst) / 100);
-        // let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
-        // let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
-        // let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
-        // let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
-        // return finalCharge
-
         let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
         let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
         let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
@@ -300,7 +291,7 @@ exports.mockTrade = async (req, res) => {
                 
             });
 
-            // console.log("tenx tenx", tenx)
+            console.log("tenx tenx", tenx)
 
     
             //console.log("mockTradeDetails", paperTrade);
