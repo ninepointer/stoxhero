@@ -30,6 +30,7 @@ const ParticipantsModal = ( {open, handleClose, gd}) => {
     transform: 'translate(-50%, -50%)',
     // width: 400,
     bgcolor: 'background.paper',
+    // height: '85vh',
   //   border: '2px solid #000',
     borderRadius:2,
     boxShadow: 24,
@@ -56,9 +57,14 @@ const ParticipantsModal = ( {open, handleClose, gd}) => {
     setAction(!action);
   }
   const handleChecked = async(e, userId) =>{
-    console.log(e.target.checked);
     const res = await axios.patch(`${apiUrl}gd/mark/${gd}/${userId}`,{attended: e.target.checked},{withCredentials:true});
     console.log('res', res.data);
+  }
+
+  const handleSelect = async (userId, collegeId) => {
+    const res = await axios.patch(`${apiUrl}gd/select/${gd}/${userId}`,{collegeId:collegeId},{withCredentials:true});
+    console.log('res', res.data);
+    setAction(!action);
   }
 
   let columns = [
@@ -81,12 +87,12 @@ participants?.map((elem, index)=>{
       </MDTypography>
     );
     featureObj.remove = (
-        <MDButton component="a" variant="contained" color="error" fontWeight="medium" size='small' onClick={()=>{handleRemove(elem?.user?._id)}} >
+        <MDButton component="a" variant="contained" color="error" disabled={elem?.status=='Selected'} fontWeight="medium" size='small' onClick={()=>{handleRemove(elem?.user?._id)}} >
           R
         </MDButton>
       );
       featureObj.select = (
-        <MDButton component="a" variant="contained" color="success" fontWeight="medium" size='small' onClick={()=>{}}>
+        <MDButton component="a" variant="contained" color="success" disabled={elem?.status=='Selected'} fontWeight="medium" size='small' onClick={()=>{handleSelect(elem?.user?._id, elem?.college?._id)}}>
         S
       </MDButton>
       );
@@ -127,8 +133,8 @@ participants?.map((elem, index)=>{
    >
     <Box sx={style}>
       <MDTypography>Group Discussion participants</MDTypography>
-      <MDBox mt={1}>
-        <DataTable
+      <MDBox mt={1} style={{height:'85vh'}}>
+        <DataTable  
           table={{ columns, rows }}
           showTotalEntries={false}
           isSorted={false}
