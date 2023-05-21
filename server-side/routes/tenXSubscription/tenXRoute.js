@@ -4,7 +4,7 @@ const {createTenXSubscription, editTanx, getActiveTenXSubs,
     getTenXSubscription, editFeature, removeFeature, getTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, createTenXPurchaseIntent, getTenXSubscriptionPurchaseIntent} = require("../../controllers/tenXSubscriptionController");
 const authentication = require("../../authentication/authentication")
 const tenXTradeRoute = require("../mockTrade/tenXTradeRoute")
-const {myTodaysTrade, myHistoryTrade} = require("../../controllers/tenXTradeController")
+const {myTodaysTrade, myHistoryTrade, tradingDays} = require("../../controllers/tenXTradeController")
 
 // router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
 router.route('/create').post(authentication, createTenXSubscription);
@@ -14,7 +14,7 @@ router.route('/inactive').get(authentication, getInactiveTenXSubs);
 
 router.route('/my/todayorders').get(authentication, myTodaysTrade)
 router.route('/my/historyorders').get(authentication, myHistoryTrade)
-
+router.route('/countTradingDays').get(authentication, tradingDays)
 router.route('/subscriptionpurchaseintent/:id').get(authentication, getTenXSubscriptionPurchaseIntent);
 router.route('/draft').get(authentication, getDraftTenXSubs);
 router.route('/:id').get(getTenXSubscription).patch(authentication, editTanx);
