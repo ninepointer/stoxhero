@@ -13,6 +13,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import VideoChatIcon from '@mui/icons-material/VideoChat';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 
@@ -47,6 +48,8 @@ import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
 import Contact from "./layouts/HomePage/pages/Contact";
 import TradeViewTenX from "./layouts/tenXTrading/TradeView/main";
+import TutorialVideo from './layouts/tutorials'
+import CategoryVideos from './layouts/tutorials/Header/categoryVideos'
 // import logo from "../src/assets/images/logo1.jpeg"
 
 const routes = [
@@ -130,6 +133,15 @@ const routes = [
     // icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading/:name",
     component: <TradeViewTenX />,
+  },
+  {
+    // type: "collapse",
+    // name: "TenX Trading",
+    // key: "tenxtrading",
+    // // icon: <Icon fontSize="small">person</Icon>,
+    // icon: <CurrencyRupeeIcon/>,
+    route: "/tutorials/:category",
+    component: <CategoryVideos />,
   },
   // {
   //   type: "collapse",
@@ -271,6 +283,14 @@ const routes = [
     icon: <HelpIcon/>,
     route: "/faqs",
     component: <FAQs />,
+  },
+  {
+    type: "collapse",
+    name: "Tutorials",
+    key: "tutorials",
+    icon: <VideoChatIcon/>,
+    route: "/tutorials",
+    component: <TutorialVideo />,
   },
   {
     // type: "collapse",
