@@ -1,10 +1,10 @@
 {
   "files": {
     "main.css": "/static/css/main.39dfa471.css",
-    "main.js": "/static/js/main.9c3f87fd.js",
-    "static/js/498.e7cb86be.chunk.js": "/static/js/498.e7cb86be.chunk.js",
-    "static/js/703.e5427e5c.chunk.js": "/static/js/703.e5427e5c.chunk.js",
-    "static/js/513.5af73d3c.chunk.js": "/static/js/513.5af73d3c.chunk.js",
+    "main.js": "/static/js/main.fe531cfa.js",
+    "static/js/498.71b2877e.chunk.js": "/static/js/498.71b2877e.chunk.js",
+    "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
+    "static/js/513.3e810b52.chunk.js": "/static/js/513.3e810b52.chunk.js",
     "static/media/main-bg-3.png": "/static/media/main-bg-3.c46dd2d7751431a8e006.png",
     "static/media/pattern-tree.svg": "/static/media/pattern-tree.475ab2ca88d273ae8280db405b754ce4.svg",
     "static/media/trading.jpg": "/static/media/trading.37a53048ea613a761226.jpg",
@@ -46,6 +46,7 @@
     "static/media/about4.png": "/static/media/about4.dba46fdc20acf86d2a4f.png",
     "static/media/discord.webp": "/static/media/discord.941e3603547494c02f75.webp",
     "static/media/reddit.webp": "/static/media/reddit.157d61434c78a75c0ead.webp",
+    "static/media/VideoTutorial.jpg": "/static/media/VideoTutorial.f158b6faebf2daa96a3d.jpg",
     "static/media/mastercard.png": "/static/media/mastercard.27fca3e7637a9458fb64.png",
     "static/media/twitter.webp": "/static/media/twitter.6f157b8030dd5b66a747.webp",
     "static/media/transaction.png": "/static/media/transaction.2fb4ae3bc020d454e8af.png",
@@ -130,13 +131,13 @@
     "static/media/mew.svg": "/static/media/mew.b0269a00f9248097aadb55069a898680.svg",
     "index.html": "/index.html",
     "main.39dfa471.css.map": "/static/css/main.39dfa471.css.map",
-    "main.9c3f87fd.js.map": "/static/js/main.9c3f87fd.js.map",
-    "498.e7cb86be.chunk.js.map": "/static/js/498.e7cb86be.chunk.js.map",
-    "703.e5427e5c.chunk.js.map": "/static/js/703.e5427e5c.chunk.js.map",
-    "513.5af73d3c.chunk.js.map": "/static/js/513.5af73d3c.chunk.js.map"
+    "main.fe531cfa.js.map": "/static/js/main.fe531cfa.js.map",
+    "498.71b2877e.chunk.js.map": "/static/js/498.71b2877e.chunk.js.map",
+    "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
+    "513.3e810b52.chunk.js.map": "/static/js/513.3e810b52.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.39dfa471.css",
-    "static/js/main.9c3f87fd.js"
+    "static/js/main.fe531cfa.js"
   ]
 }
