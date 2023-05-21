@@ -14,15 +14,15 @@ import {MenuItem} from '@mui/material';
 import MDButton from '../../../components/MDButton';
 import MDBox from '../../../components/MDBox';
 import DataTable from '../../../examples/Tables/DataTable';
+import MDSnackbar from '../../../components/MDSnackbar';
 
 
 
-const ParticipantsModal = ( {open, handleClose, gd}) => {
+const ParticipantsModal = ( {open, handleClose, gd, action, setAction}) => {
   const [colleges, setColleges] = useState([]); 
   const [gds, setGds] = useState([]); 
   const [college, setCollege] = useState();
   const [participants, setParticipants] = useState();
-  const [action, setAction] = useState(false);
   const style = {
     position: 'absolute',
     top: '50%',
@@ -30,11 +30,57 @@ const ParticipantsModal = ( {open, handleClose, gd}) => {
     transform: 'translate(-50%, -50%)',
     // width: 400,
     bgcolor: 'background.paper',
+    // height: '85vh',
   //   border: '2px solid #000',
     borderRadius:2,
     boxShadow: 24,
     p: 4,
   };
+  const [title,setTitle] = useState('')
+  const [content,setContent] = useState('')
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title,content) => {
+  console.log('status success')  
+  setTitle(title)
+  setContent(content)
+  setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  
+    const renderSuccessSB = (
+      <MDSnackbar
+          color="success"
+          icon="check"
+          title={title}
+          content={content}
+          open={successSB}
+          onClose={closeSuccessSB}
+          close={closeSuccessSB}
+          bgWhite="info"
+      />
+      );
+      
+      const [errorSB, setErrorSB] = useState(false);
+      const openErrorSB = (title,content) => {
+      setTitle(title)
+      setContent(content)
+      setErrorSB(true);
+      }
+      const closeErrorSB = () => setErrorSB(false);
+      
+      const renderErrorSB = (
+      <MDSnackbar
+          color="error"
+          icon="warning"
+          title={title}
+          content={content}
+          open={errorSB}
+          onClose={closeErrorSB}
+          close={closeErrorSB}
+          bgWhite
+      />
+      );
 
   const getParticipants = async() =>{
     try{
@@ -56,9 +102,24 @@ const ParticipantsModal = ( {open, handleClose, gd}) => {
     setAction(!action);
   }
   const handleChecked = async(e, userId) =>{
-    console.log(e.target.checked);
     const res = await axios.patch(`${apiUrl}gd/mark/${gd}/${userId}`,{attended: e.target.checked},{withCredentials:true});
     console.log('res', res.data);
+  }
+
+  const handleSelect = async (userId, collegeId) => {
+    try{
+        const res = await axios.patch(`${apiUrl}gd/select/${gd}/${userId}`,{collegeId:collegeId},{withCredentials:true});
+        console.log('res', res.data);
+        if(res.status == 200 || res.status == 204){
+            openSuccessSB('Success', res.data.message);
+        }else{
+            openErrorSB('Error', res.data.message);
+        }
+    }catch(e){
+        console.log('error bro', e);
+        // openErrorSB('Error', e);
+    }
+    setAction(!action);
   }
 
   let columns = [
@@ -81,12 +142,12 @@ participants?.map((elem, index)=>{
       </MDTypography>
     );
     featureObj.remove = (
-        <MDButton component="a" variant="contained" color="error" fontWeight="medium" size='small' onClick={()=>{handleRemove(elem?.user?._id)}} >
+        <MDButton component="a" variant="contained" color="error" disabled={elem?.status=='Selected'} fontWeight="medium" size='small' onClick={()=>{handleRemove(elem?.user?._id)}} >
           R
         </MDButton>
       );
       featureObj.select = (
-        <MDButton component="a" variant="contained" color="success" fontWeight="medium" size='small' onClick={()=>{}}>
+        <MDButton component="a" variant="contained" color="success" disabled={elem?.status=='Selected'} fontWeight="medium" size='small' onClick={()=>{handleSelect(elem?.user?._id, elem?.college?._id)}}>
         S
       </MDButton>
       );
@@ -119,6 +180,7 @@ participants?.map((elem, index)=>{
   })
 
   return (
+    <>
    <Modal
       open={open}
       onClose={handleClose}
@@ -127,8 +189,8 @@ participants?.map((elem, index)=>{
    >
     <Box sx={style}>
       <MDTypography>Group Discussion participants</MDTypography>
-      <MDBox mt={1}>
-        <DataTable
+      <MDBox mt={1} style={{height:'85vh'}}>
+        <DataTable  
           table={{ columns, rows }}
           showTotalEntries={false}
           isSorted={false}
@@ -138,6 +200,9 @@ participants?.map((elem, index)=>{
       </MDBox>
     </Box>
    </Modal>
+    {renderSuccessSB}
+    {renderErrorSB}
+    </>
   )
 }
 

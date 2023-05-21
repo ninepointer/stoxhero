@@ -49,6 +49,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 import CareerDetailsForm from './layouts/career/createCareerForm'
 import Campaigns from './layouts/campaign'
+import TutorialVideos from './layouts/tutorialVideos'
 
 
 
@@ -96,6 +97,7 @@ import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
 import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
+import TutorialCategoryForm from './layouts/tutorialVideos/tutorialCategoryDetails'
 import Contact from "./layouts/HomePage/pages/Contact";
 import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
@@ -224,6 +226,14 @@ const routes = [
     component: <TenXSubscriptionForm />,
   },
   {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
+    route: "tutorialcategory",
+    component: <TutorialCategoryForm />,
+  },
+  {
     type: "collapse",
     name: "Payment",
     key: "payment",
@@ -257,7 +267,7 @@ const routes = [
   },
   {
     route: "/contact",
-    component: <Contact />,
+    component: <Contact/>,
   },
   {
     // type: "collapse",
@@ -395,6 +405,14 @@ const routes = [
     icon: <CardMembershipIcon/>,
     route: "/tenxsubscriptions",
     component: <TenXSubscription />,
+  },
+  {
+    type: "collapse",
+    name: "Tutorial Videos",
+    key: "tutorialvideos",
+    icon: <CardMembershipIcon/>,
+    route: "/tutorialvideos",
+    component: <TutorialVideos />,
   },
   
   {

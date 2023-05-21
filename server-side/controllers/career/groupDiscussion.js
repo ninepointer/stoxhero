@@ -123,6 +123,7 @@ exports.addUserToGd = async(req, res, next) => {
     console.log(career);
     user = await User.findOne({email: career.email}).select('_id');
     console.log('user is', user);
+    console.log('college is', collegeId);
     const {campaignCode, mobileNo, email,first_name, last_name} = career;
     const  campaign = await Campaign.findOne({campaignCode: campaignCode});
     if(!user){
@@ -355,27 +356,32 @@ exports.selectCandidate = async (req, res, next) => {
 
   try {
     const gd = await GroupDiscussion.findById(gdId);
-    const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
-    const user = await User.find({email: career.email}).select('_id');
+    const user = await User.findById(userId);
+    if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
+      return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
+    }
     let participants = gd.participants.map((item)=>{
-      if(item.user == user._id){
+      if(item.user == userId){
         return{
-          user: user._id,
+          user: userId,
           status: 'Selected',
-          attended: item.attended
+          attended: item.attended,
+          college: item.college
         }
       }else{
         if(item.status != 'Selected'){
           return{
             user: item.user,
             status: 'Rejected',
-            attended: item.attended
+            attended: item.attended,
+            college: item.college
           }
         }else{
           return{
             user: item.user,
             status: 'Selected',
-            attended: item.attended
+            attended: item.attended,
+            college: item.college
           }
         }
       }
@@ -388,7 +394,7 @@ exports.selectCandidate = async (req, res, next) => {
     //Add user to batch
     const batch = await Batch.findById(gd.batch);
     
-    batch.participants = [...batch.participants, {user: user._id, college: collegeId, joiningDate: new Date()}];
+    batch.participants = [...batch.participants, {user: userId, college: collegeId, joiningDate: new Date()}];
     
     await batch.save({validateBeforeSave: false});
     
@@ -402,7 +408,7 @@ exports.selectCandidate = async (req, res, next) => {
     const portfolio = await Portfolio.findById(batch.portfolio);
     portfolio.users = [...portfolio.users, {userId: user._id, linkedOn: new Date(), portfolioValue: 1000000}]
     await portfolio.save({validateBeforeSave: false});
-    const jobTitle = await Batch.findById(gd.batch).populate('careerId', 'jobTitle').select('careerId');
+    const jobTitle = await Batch.findById(gd.batch).populate('career', 'jobTitle').select('jobTitle');
     //Candidate gets selection email
     const message = `<!DOCTYPE html>
     <html>

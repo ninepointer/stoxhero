@@ -6,15 +6,17 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
+import { apiUrl } from '../../../constants/constants';
 
 
-export default function Participants({batch}) {
+export default function Participants({batch, action, setAction}) {
     console.log("Batch", batch)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [batchParticipants,setBatchParticipants] = React.useState([]);
     const [applicationCount,setApplicationCount] = useState(0);
+    // const [action, setAction] = useState(false);
     async function getBatchParticipants(){
-        let call1 = axios.get(`${baseUrl}api/v1/batch/batchparticipants/${batch}`,{
+        let call1 = axios.get(`${baseUrl}api/v1/internbatch/batchparticipants/${batch}`,{
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -26,8 +28,8 @@ export default function Participants({batch}) {
             .then(([api1Response]) => {
             // Process the responses here
             console.log(api1Response.data.data);
-            setBatchParticipants(api1Response.data.data)
-            setApplicationCount(api1Response.data.count);
+            setBatchParticipants(api1Response.data.data.participants)
+            setApplicationCount(api1Response.data.data.participants.length);
             })
             .catch((error) => {
             // Handle errors here
@@ -37,13 +39,16 @@ export default function Participants({batch}) {
 
     useEffect(()=>{
       getBatchParticipants();
-    },[])
-
+    },[action])
+    const handleRemove = async (userId) =>{
+      const res = await axios.patch(`${apiUrl}internbatch/remove/${batch}/${userId}`, {}, {withCredentials: true});
+      console.log(res.data);
+      setAction(!action);
+    }
     let columns = [
         { Header: "#", accessor: "index", align: "center" },
-        { Header: "First Name", accessor: "firstname", align: "center" },
-        { Header: "Last Name", accessor: "lastname", align: "center" },
-        { Header: "Date of Birth", accessor: "dob", align: "center" },
+        { Header: "Remove", accessor: "remove", align: "center" },
+        { Header: "Name", accessor: "fullname", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "Mobile", accessor: "mobile", align: "center" },
         { Header: "College", accessor: "college", align: "center" },
@@ -59,39 +64,35 @@ export default function Participants({batch}) {
       {index+1}
     </MDTypography>
   );
-  featureObj.firstname = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.userId?.first_name}
-    </MDTypography>
-  );
-  featureObj.lastname = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.userId?.last_name}
-    </MDTypography>
-  );
-  featureObj.dob = (
-    <MDButton component="a" variant="caption" color="text" fontWeight="medium">
-      {new Date(elem?.userId?.dob).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}
+  featureObj.remove = (
+    <MDButton component="a" variant="Outlined" color="error" fontWeight="medium" onClick = {()=>{handleRemove(elem?.user._id)}}>
+      Remove
     </MDButton>
   );
+  featureObj.fullname = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem?.user?.first_name} {elem?.user?.last_name}
+    </MDTypography>
+  );
+
   featureObj.email = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.userId?.email}
+      {elem?.user?.email}
     </MDTypography>
   );
   featureObj.mobile = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.userId?.mobile}
+      {elem?.user?.mobile}
     </MDTypography>
   );
   featureObj.college = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {elem?.collegeName}
+      {elem?.college?.collegeName}
     </MDTypography>
   );
   featureObj.joinedon = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {new Date(elem?.joinedOn).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joinedOn).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
+      {new Date(elem?.joiningDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.joiningDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
     </MDTypography>
   );
 
