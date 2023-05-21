@@ -2,6 +2,7 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTraderCompany = require("../models/mock-trade/infinityTradeCompany");
 const { ObjectId } = require("mongodb");
 const {client, getValue} = require('../marketData/redisClient');
+const User = require("../models/User/userDetailSchema");
 
 
 exports.overallPnlTrader = async (req, res, next) => {
@@ -440,7 +441,10 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
       //   $sort : {npnl : 1}
       // }
     ])
-    res.status(201).json({message: "data received", data: fundDetail[0]});
+    const data = await User.findById(req.user._id).select('fund');
+    const respData = {"totalFund": data.fund};
+    //res.status(201).json({message: "data received", data: fundDetail[0]});
+    res.status(201).json({message: "data received", data: respData});
   }
 
   
