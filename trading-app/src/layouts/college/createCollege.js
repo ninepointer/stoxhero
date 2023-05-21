@@ -1,11 +1,11 @@
 import * as React from 'react';
-import {useContext, useState} from "react";
+import { useContext, useState } from "react";
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton"
-import {userContext} from "../../AuthContext";
+import { userContext } from "../../AuthContext";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
@@ -26,43 +26,43 @@ import { useTheme } from '@mui/material/styles';
 import { useLocation, useNavigate } from "react-router-dom";
 
 
-function CreateCollege({setCreateCollegeForm,oldObjectId}) {
-  const [isSubmitted,setIsSubmitted] = useState(false);
+function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const getDetails = useContext(userContext);
-  const [batchData,setBatchData] = useState([]);
-  
-  const [id,setId] = useState(oldObjectId ? oldObjectId : '');
-  const [isObjectNew,setIsObjectNew] = useState(id ? true : false)
-  const [isLoading,setIsLoading] = useState(id ? true : false)
-  const [editing,setEditing] = useState(false)
-  const [saving,setSaving] = useState(false)
-  const [creating,setCreating] = useState(false)
-  const [newObjectId,setNewObjectId] = useState(oldObjectId)
-  const [contestRules,setContestRules] = useState([])
+  const [batchData, setBatchData] = useState([]);
+
+  const [id, setId] = useState(oldObjectId ? oldObjectId : '');
+  const [isObjectNew, setIsObjectNew] = useState(id ? true : false)
+  const [isLoading, setIsLoading] = useState(id ? true : false)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [newObjectId, setNewObjectId] = useState(oldObjectId)
+  const [contestRules, setContestRules] = useState([])
   const location = useLocation();
   const [updatedDocument, setUpdatedDocument] = useState([]);
-  const [formState,setFormState] = useState({
+  const [formState, setFormState] = useState({
     collegeName: '',
-    zone:'',
-    
-});
-    
+    zone: '',
+
+  });
+
   // const [addRewardObject,setAddRewardObject] = useState(false);
 
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-const navigate = useNavigate();
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  const navigate = useNavigate();
 
 
 
 
-React.useEffect(()=>{
-  setTimeout(()=>{
+  React.useEffect(() => {
+    setTimeout(() => {
       id && setUpdatedDocument(id)
       setIsLoading(false);
-  },500)
-  // setCampaignUserCount(id?.users?.length);
-  
-},[])
+    }, 500)
+    // setCampaignUserCount(id?.users?.length);
+
+  }, [])
 
 
 
@@ -73,180 +73,182 @@ React.useEffect(()=>{
 
 
 
-async function onSubmit(e,formState){
-e.preventDefault()
-console.log(formState)
+  async function onSubmit(e, formState) {
+    e.preventDefault()
+    console.log(formState)
 
-setCreating(true)
+    setCreating(true)
 
-if(
-    !formState?.collegeName || !formState?.zone){
+    if (
+      !formState?.collegeName || !formState?.zone) {
 
-    setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-    return openErrorSB("Missing Field","Please fill all the mandatory fields")
+      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
 
-}
-// console.log("Is Submitted before State Update: ",isSubmitted)
+    }
+    // console.log("Is Submitted before State Update: ",isSubmitted)
 
-setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-const { collegeName, zone} = formState;
-const res = await fetch(`${baseUrl}api/v1/college`, {
-    method: "POST",
-    credentials:"include",
-    headers: {
-        "content-type" : "application/json",
-        "Access-Control-Allow-Credentials": true
-    },
-    body: JSON.stringify({
-     collegeName, zone
-    })
-});
-
-
-const data = await res.json();
-// console.log(data);
-if (data.batchStatus === 422 || data.error || !data) {
-    setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-    // console.log("invalid entry");
-} else {
-    openSuccessSB("Contest Created",data.message)
-    setNewObjectId(data.data._id)
-    setIsSubmitted(true)
-    // setLinkedContestRule(data?.data?.contestRule)
-    // console.log(data.data)
-    
-    setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-  }
-}
-
-
-async function onEdit(e,formState){
-  e.preventDefault()
-  console.log("Edited FormState: ",formState,id._id)
-  setSaving(true)
-  console.log(formState)
-  if(
-    !formState?.collegeName || !formState?.zone){
-
-    setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-    return openErrorSB("Missing Field","Please fill all the mandatory fields")
-
-}
-setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-const { collegeName,zone } = formState;
-  const res = await fetch(`${baseUrl}api/v1/batch/${isObjectNew}`, {
-      method: "PATCH",
-      credentials:"include",
+    setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+    const { collegeName, zone } = formState;
+    const res = await fetch(`${baseUrl}api/v1/college`, {
+      method: "POST",
+      credentials: "include",
       headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": true
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        collegeName, zone, 
+        collegeName, zone
       })
-      
     });
 
-  const data = await res.json();
-  console.log(data);
-  if (data.batchStatus === 422 || data.error || !data) {
-      openErrorSB("Error","data.error")
-  } else {
-      openSuccessSB("Contest Edited",data.collegeName + " | " + data.zone)
-      // setTimeout(()=>{setSaving(false);setEditing(false)},500)
-      setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-      console.log("entry succesfull");
+
+    const data = await res.json();
+    // console.log(data);
+    if (data.batchStatus === 422 || data.error || !data) {
+      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+      // console.log("invalid entry");
+    } else {
+      openSuccessSB("Contest Created", data.message)
+      setNewObjectId(data.data._id)
+      setIsSubmitted(true)
+      // setLinkedContestRule(data?.data?.contestRule)
+      // console.log(data.data)
+
+      setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+    }
   }
-}
 
 
-const [title,setTitle] = useState('')
-const [content,setContent] = useState('')
+  async function onEdit(e, formState) {
+    e.preventDefault()
+    console.log("Edited FormState: ", formState, id._id)
+    setSaving(true)
+    console.log(formState)
+    if (
+      !formState?.collegeName || !formState?.zone) {
 
-const [successSB, setSuccessSB] = useState(false);
-const openSuccessSB = (title,content) => {
-setTitle(title)
-setContent(content)
-setSuccessSB(true);
-}
-const closeSuccessSB = () => setSuccessSB(false);
-console.log("contestRules",contestRules)
+      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
 
+    }
+    setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+    const { collegeName, zone } = formState;
+    const res = await fetch(`${baseUrl}api/v1/batch/${isObjectNew}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+      body: JSON.stringify({
+        collegeName, zone,
+      })
 
-const renderSuccessSB = (
-<MDSnackbar
-    color="success"
-    icon="check"
-    title={title}
-    content={content}
-    open={successSB}
-    onClose={closeSuccessSB}
-    close={closeSuccessSB}
-    bgWhite="info"
-/>
-);
+    });
 
-const [errorSB, setErrorSB] = useState(false);
-const openErrorSB = (title,content) => {
-setTitle(title)
-setContent(content)
-setErrorSB(true);
-}
-const closeErrorSB = () => setErrorSB(false);
-
-const renderErrorSB = (
-<MDSnackbar
-    color="error"
-    icon="warning"
-    title={title}
-    content={content}
-    open={errorSB}
-    onClose={closeErrorSB}
-    close={closeErrorSB}
-    bgWhite
-/>
-);
-
-console.log("Old Object Id: ",oldObjectId)
+    const data = await res.json();
+    console.log(data);
+    if (data.batchStatus === 422 || data.error || !data) {
+      openErrorSB("Error", "data.error")
+    } else {
+      openSuccessSB("Contest Edited", data.collegeName + " | " + data.zone)
+      // setTimeout(()=>{setSaving(false);setEditing(false)},500)
+      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+      console.log("entry succesfull");
+    }
+  }
 
 
-    return (
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+  console.log("contestRules", contestRules)
+
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
+  );
+
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title, content) => {
+    setTitle(title)
+    setContent(content)
+    setErrorSB(true);
+  }
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
+
+  console.log("Old Object Id: ", oldObjectId)
+
+
+  return (
     <>
-    {isLoading ? (
+      {isLoading ? (
         <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
           <CircularProgress color="info" />
         </MDBox>
       )
         :
-      ( 
-        <MDBox pl={2} pr={2} pt={4} mt={3}>
-        <MDBox display="flex" justifyContent="space-between" alignItems="center">
-        <MDTypography variant="caption" fontWeight="bold" color="white" textTransform="uppercase">
-          College Details
-        </MDTypography>
-        </MDBox>
+        (
+          <MDBox pl={2} pr={2} pt={4} mt={3}>
+            <MDBox display="flex" justifyContent="space-between" alignItems="center">
+              <MDTypography variant="caption" fontWeight="bold" color="white" textTransform="uppercase">
+                College Details
+              </MDTypography>
+            </MDBox>
 
-        <Grid container spacing={1} mt={0.5}>
-          <Grid item xs={12} md={6} xl={6}>
-            <TextField
-                disabled={((isSubmitted || id) && (!editing || saving))}
-                id="outlined-required"
-                label='College Name *'
-                value={formState?.collegeName || oldObjectId?.collegeName}
-                fullWidth
-                // defaultValue={batchData?.displayName}
-                // defaultValue={oldObjectId ? batchData?.batchName : formState?.batchName}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,   
-                    collegeName: e.target.value
-                  }))}}
-                  sx={{ input: { color: '#ffffff' }, label: {color: '#ffffff'}, outline: {color: '#ffffff'} }}  
-              />
-          </Grid>
+            <Grid container spacing={1} mt={0.5}>
+              <Grid item xs={12} md={6} xl={6}>
+                <TextField
+                  disabled={((isSubmitted || id) && (!editing || saving))}
+                  id="outlined-required"
+                  label='College Name *'
+                  value={formState?.collegeName || oldObjectId?.collegeName}
+                  fullWidth
+                  // defaultValue={batchData?.displayName}
+                  // defaultValue={oldObjectId ? batchData?.batchName : formState?.batchName}
+                  onChange={(e) => {
+                    setFormState(prevState => ({
+                      ...prevState,
+                      collegeName: e.target.value
+                    }))
+                  }}
+                  sx={{ input: { color: '#ffffff' }, label: { color: '#ffffff' }, outline: { color: '#ffffff' } }}
+                />
+              </Grid>
 
 
-          <Grid item xs={12} md={6} xl={6}>
-              <FormControl sx={{width: "100%" }}>
+              {/* <Grid item xs={12} md={6} xl={6}>
+              <FormControl sx={{width: "100%"}}>
                 <InputLabel id="demo-simple-select-autowidth-label">Zone*</InputLabel>
                 <Select
                 labelId="demo-simple-select-autowidth-label"
@@ -260,7 +262,8 @@ console.log("Old Object Id: ",oldObjectId)
                     zone: e.target.value
                 }))}}
                 label="Zone*"
-                sx={{ input: { color: '#ffffff' }, label: {color: '#ffffff'}, outline: {color: '#ffffff'},  minHeight:43 }} 
+                sx={{ input: { color: '#ffffff' }, label: {color: '#ffffff'}, outline: {color: '#ffffff'},  minHeight:43,color:"#fff" }} 
+                
                 >
                 <MenuItem value="North">North</MenuItem>
                 <MenuItem value="South">South</MenuItem>
@@ -269,31 +272,66 @@ console.log("Old Object Id: ",oldObjectId)
                 <MenuItem value="Central">Central</MenuItem>
                 </Select>
               </FormControl>
-          </Grid>
+          </Grid> */}
 
 
-          <Grid item display="flex" justifyContent="flex-end" alignContent="center" xs={12} md={6} xl={6}>
+              <Grid item xs={12} md={6} xl={6}>
+                <FormControl sx={{ width: '100%' }}>
+                  <InputLabel id="demo-simple-select-autowidth-label">Zone*</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    // value={oldObjectId ? newObjectId.zone : formState?.zone}
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        zone: e.target.value,
+                      }));
+                    }}
+                    label="Zone*"
+                    sx={{
+                      color: '#ffffff',
+                      '& .MuiInputBase-input': { color: '#ffffff' },
+                      '& .MuiInputLabel-root': { color: '#ffffff' },
+                      '& .MuiOutlinedInput-notchedOutline': { borderColor: '#ffffff' },
+                      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#ffffff' },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#ffffff' },
+                      minHeight: 43,
+                    }}
+                  >
+                    <MenuItem value="North">North</MenuItem>
+                    <MenuItem value="South">South</MenuItem>
+                    <MenuItem value="East">East</MenuItem>
+                    <MenuItem value="West">West</MenuItem>
+                    <MenuItem value="Central">Central</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+
+              <Grid item display="flex" justifyContent="flex-end" alignContent="center" xs={12} md={6} xl={6}>
                 {!isSubmitted && !isObjectNew && (
-                <>
-                <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}} disabled={creating} onClick={(e)=>{onSubmit(e,formState)}}>
-                    {creating ? <CircularProgress size={20} color="inherit" /> : "Submit"}
-                </MDButton>
-                <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{setCreateCollegeForm(false)}}>
-                    Cancel
-                </MDButton>
-                </>
+                  <>
+                    <MDButton variant="contained" color="success" size="small" sx={{ mr: 1, ml: 2 }} disabled={creating} onClick={(e) => { onSubmit(e, formState) }}>
+                      {creating ? <CircularProgress size={20} color="inherit" /> : "Submit"}
+                    </MDButton>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { setCreateCollegeForm(false) }}>
+                      Cancel
+                    </MDButton>
+                  </>
                 )}
 
                 {(isSubmitted || id) && !editing && (
-                <>
-                {/* <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}}  onClick={(e)=>{setEditing(true)}}>
+                  <>
+                    {/* <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}}  onClick={(e)=>{setEditing(true)}}>
                     {editing ? <CircularProgress size={20} color="inherit" /> : "Edit"}
                 </MDButton> */}
-                <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={()=>setCreateCollegeForm(false)}>
-                    Back
-                </MDButton>
-                
-                </>
+                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={() => setCreateCollegeForm(false)}>
+                      Back
+                    </MDButton>
+
+                  </>
                 )}
 
                 {/* {(isSubmitted || id) && editing && (
@@ -309,14 +347,14 @@ console.log("Old Object Id: ",oldObjectId)
                 </MDButton>
                 </>
                 )} */}
-          </Grid>
-          </Grid>
-          {renderSuccessSB}
-          {renderErrorSB}
-    </MDBox>
-    )
-}
+              </Grid>
+            </Grid>
+            {renderSuccessSB}
+            {renderErrorSB}
+          </MDBox>
+        )
+      }
     </>
-    )
+  )
 }
 export default CreateCollege;
