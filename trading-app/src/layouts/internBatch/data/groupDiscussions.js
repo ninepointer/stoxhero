@@ -10,7 +10,7 @@ import moment from 'moment';
 import ParticipantsModal from './participantsModal';
 
 
-export default function GroupDiscussions({saving,batch}) {
+export default function GroupDiscussions({saving,batch, action, setAction}) {
     console.log("Batch", batch)
     const [open, setOpen] = useState(false);
     const[selectedGd, setSelectedGd] = useState();
@@ -121,7 +121,7 @@ console.log(groupDiscussions)
           entriesPerPage={false}
         />
       </MDBox>
-      <ParticipantsModal open={open} handleClose={handleClose} gd={selectedGd}/>
+      <ParticipantsModal open={open} handleClose={handleClose} gd={selectedGd} action={action} setAction={setAction}/>
     </Card>
   );
 }

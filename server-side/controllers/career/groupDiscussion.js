@@ -358,7 +358,7 @@ exports.selectCandidate = async (req, res, next) => {
     const gd = await GroupDiscussion.findById(gdId);
     const user = await User.findById(userId);
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
-      return res.status(400).json({status:'error', message: 'Can\'t select participant without attendance'});
+      return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
     }
     let participants = gd.participants.map((item)=>{
       if(item.user == userId){
