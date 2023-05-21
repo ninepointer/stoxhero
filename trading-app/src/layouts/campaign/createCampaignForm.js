@@ -196,6 +196,42 @@ function Index() {
     />
   );
 
+  const handleChange = (e) => {
+    if (!formState.campaignName.includes(e.target.value)) {
+      setFormState(prevState => ({
+        ...prevState,
+        campaignName: e.target.value,
+      }));
+    }
+    if(!formState.campaignCode.includes(e.target.value)){
+      setFormState(prevState=>({
+        ...prevState,
+        campaignCode:e.target.value,
+      }))
+    }
+
+    if(!formState.campaignCost.includes(e.target.value)){
+      setFormState(prevState=>({
+        ...prevState,
+        campaignCost:e.target.value,
+      }))
+    }
+
+    if(!formState.campaignLink.includes(e.target.value)){
+      setFormState(prevState=>({
+        ...prevState,
+        campaignLink:e.target.value,
+      }))
+    }
+
+    if(!formState.description.includes(e.target.value)){
+      setFormState(prevState=>({
+        ...prevState,
+        description:e.target.value,
+      }))
+    }
+  };
+
 
   console.log("Campaign User Count: ",campaignUserCount);
     return (
@@ -222,11 +258,14 @@ function Index() {
                 id="outlined-required"
                 label='Campaign Name *'
                 fullWidth
-                value={formState?.campaignName || id?.campaignName}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    campaignName: e.target.value
-                  }))}}
+                // value={formState?.campaignName || id?.campaignName}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     campaignName: e.target.value
+                //   }))}}
+
+                defaultValue={editing ? formState.campaignName:id?.campaignName}
+                onChange={handleChange}
               />
           </Grid>
 
@@ -236,11 +275,13 @@ function Index() {
                 id="outlined-required"
                 label='Campaign Code *'
                 fullWidth
-                value={formState?.campaignCode || id?.campaignCode}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    campaignCode: e.target.value
-                  }))}}
+                // value={formState?.campaignCode || id?.campaignCode}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     campaignCode: e.target.value
+                //   }))}}
+                defaultValue={editing ? formState.campaignCode:id?.campaignCode}
+                onChange={handleChange}
               />
           </Grid>
 
@@ -306,11 +347,14 @@ function Index() {
                 fullWidth
                 type='number'
                 multiline
-                value={formState?.campaignCost || id?.campaignCost}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    campaignCost: e.target.value
-                  }))}}
+                // value={formState?.campaignCost || id?.campaignCost}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     campaignCost: e.target.value
+                //   }))}}
+
+                defaultValue={editing ? formState.campaignCost : id?.campaignCost}
+                onChange={handleChange}
               />
           </Grid>
 
@@ -333,11 +377,14 @@ function Index() {
                 label='Campaign Link *'
                 fullWidth
                 multiline
-                value={formState?.campaignLink || id?.campaignLink}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    campaignLink: e.target.value
-                  }))}}
+                // value={formState?.campaignLink || id?.campaignLink}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     campaignLink: e.target.value
+                //   }))}}
+
+                defaultValue={editing ? formState?.campaignLink:id?.campaignLink}
+                onChange={handleChange}
               />
           </Grid>
 
@@ -348,11 +395,14 @@ function Index() {
                 label='Campaign Description *'
                 fullWidth
                 multiline
-                value={formState?.description || id?.description}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    description: e.target.value
-                  }))}}
+                // value={formState?.description || id?.description}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     description: e.target.value
+                //   }))}}
+
+                defaultValue={editing ? formState?.description : id?.description}
+                onChange={handleChange}
               />
           </Grid>
             
