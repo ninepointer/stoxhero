@@ -35,7 +35,16 @@ const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 const tenx = require("../../controllers/AutoTradeCut/autoTradeCut");
+// const {tradingDays} = require("../../controllers/tenXTradeController");
 
+
+
+router.get("/getTradingDay", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);
+  let data = await tradingDays(req,res);
+  // res.send(data);
+  // console.log(arr);
+});
 
 router.get("/autotrade", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
