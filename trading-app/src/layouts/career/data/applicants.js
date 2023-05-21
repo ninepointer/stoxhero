@@ -6,13 +6,27 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
+import AddApplicantModal from '../AddApplicantModal';
 
 
 export default function Applicants({career}) {
-    console.log("Career", career)
+    console.log("Career", career);
+    const [open, setOpen] = useState(false);
+    const [selectedApplicant, setSelectedApplicant] = useState();
+    const [selectedApplicantName, setSelectedApplicantName]=useState();
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [careerApplications,setCareerApplications] = React.useState([]);
     const [applicationCount,setApplicationCount] = useState(0);
+    const handleClose = () => {
+      setOpen(false);
+      setSelectedApplicant('');
+      setSelectedApplicantName('');
+    };
+    const handleOpen = (applicant, name) => {
+      setSelectedApplicant(applicant);
+      setSelectedApplicantName(name);
+      setOpen(true);
+    };
     async function getCareerApplications(){
         let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/${career}`,{
             withCredentials: true,
@@ -37,7 +51,7 @@ export default function Applicants({career}) {
 
     useEffect(()=>{
         getCareerApplications();
-    },[])
+    },[open])
 
     let columns = [
         { Header: "Action", accessor: "action", align: "center" },
@@ -56,6 +70,11 @@ export default function Applicants({career}) {
 
   careerApplications?.map((elem, index)=>{
   let featureObj = {}
+  featureObj.action = (
+    <MDButton component="a" variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{handleOpen(elem._id, `${elem.first_name} ${elem.last_name}`)}}>
+      Assign GD
+    </MDButton>
+  );
   featureObj.fullname = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.first_name} {elem?.last_name}
@@ -125,6 +144,7 @@ export default function Applicants({career}) {
           entriesPerPage={false}
         />
       </MDBox>
+      <AddApplicantModal open={open} handleClose={handleClose} applicant={selectedApplicant} applicantName={selectedApplicantName} career = {career}/>
     </Card>
   );
 }

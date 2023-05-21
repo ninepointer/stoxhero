@@ -25,6 +25,10 @@ const {autoExpireSubscription} = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
 const {DummyMarketData} = require('./marketData/dummyMarketData');
+const { Kafka } = require('kafkajs')
+const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
+
+const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -56,6 +60,10 @@ client.connect()
   setValue(false);
   console.log("redis not connected", err)
 })
+
+
+// test().then(()=>{})
+
 console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
@@ -213,14 +221,30 @@ let weekDay = date.getDay();
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+        
     }
   }
 
   try{
-    const autotrade = nodeCron.schedule(`0 0 10 * * *`, tenx);
+    const autotrade = nodeCron.schedule(`0 0 5 * * *`, tenx);
   } catch(err){
     console.log("err from cronjob", err)
   }
+
+
+  // (async () => {
+  //   const consumer = kafka.consumer({ groupId: 'my-group' })
+    
+  //   await consumer.connect()
+  //   await consumer.subscribe({ topic: 'my-topic', fromBeginning: true })
+    
+  //   await consumer.run({
+  //     eachMessage: async ({ topic, partition, message }) => {
+  //       await takeAutoTenxTrade(message.value.toString());
+  //       // console.log(message)
+  //     },
+  //   })
+  // })().catch(console.error)
 
 
 const PORT = process.env.PORT;

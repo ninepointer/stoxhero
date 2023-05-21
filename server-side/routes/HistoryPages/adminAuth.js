@@ -39,7 +39,8 @@ const tenx = require("../../controllers/AutoTradeCut/autoTradeCut");
 
 router.get("/autotrade", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
-  await tenx()
+  let arr = await tenx();
+  console.log(arr);
 });
 
 router.get("/deletePnlKey", async (req, res) => {
