@@ -9,12 +9,12 @@ import axios from "axios";
 import { apiUrl } from '../../../constants/constants';
 
 
-export default function Participants({batch}) {
+export default function Participants({batch, action, setAction}) {
     console.log("Batch", batch)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [batchParticipants,setBatchParticipants] = React.useState([]);
     const [applicationCount,setApplicationCount] = useState(0);
-    const [action, setAction] = useState(false);
+    // const [action, setAction] = useState(false);
     async function getBatchParticipants(){
         let call1 = axios.get(`${baseUrl}api/v1/internbatch/batchparticipants/${batch}`,{
             withCredentials: true,
