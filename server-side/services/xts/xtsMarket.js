@@ -145,9 +145,9 @@ const getXTSTicksForUserPosition = async (socket) => {
 
   let ticks = [];
   let marketDepth = {};
-  let indecies = await client.get("index")
+  let indecies = await client.get("index") || await StockIndex.find({status: "Active", accountType: xtsAccountType});
   if(!indecies){
-    indecies = await StockIndex.find({status: "Active", accountType: xtsAccountType});
+    // indecies = 
     await client.set("index", JSON.stringify(indecies));
   } else{
     indecies = JSON.parse(indecies);  
@@ -157,7 +157,7 @@ const getXTSTicksForUserPosition = async (socket) => {
     marketDepth = marketDepthData;
   });
   // let timeoutId = null;
-  let userId = await client.get(socket.id)
+  const userId = await client.get(socket.id)
   await emitTicks(userId);
   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
     // console.log(ticksObj)
@@ -235,8 +235,8 @@ const getXTSTicksForUserPosition = async (socket) => {
       //   }
       // }
 
-      indexData = null;
-      instrumentTokenArr = null;
+      indexData = [];
+      instrumentTokenArr = [];
 
     } catch (err){
       console.log(err)
@@ -244,20 +244,121 @@ const getXTSTicksForUserPosition = async (socket) => {
   });
 }
 
-const emitTicks = async(userId)=>{
-  
+// const getXTSTicksForUserPosition = async (socket) => {
+//   let ticks = [];
+//   let marketDepth = {};
+//   let indeciesData = await client.get("index") || await StockIndex.find({ status: "Active", accountType: xtsAccountType });
+
+//   let indecies;
+//   if (!indeciesData) {
+//     await client.set("index", JSON.stringify(indeciesData));
+//     indecies = indeciesData;
+//   } else {
+//     indecies = JSON.parse(indeciesData);
+//   }
+
+//   xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
+//     marketDepth = marketDepthData;
+//   });
+
+//   const userId = await client.get(socket.id);
+//   await emitTicks(userId);
+
+//   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
+//     const instrumentMap = new Map(ticks.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
+
+//     if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
+//       ticksObj.last_price = ticksObj.LastTradedPrice;
+//       ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+//       ticksObj.change = marketDepth?.Touchline?.PercentChange;
+
+//       if (instrumentMap.has(ticksObj.ExchangeInstrumentID)) {
+//         const existingInstrument = instrumentMap.get(ticksObj.ExchangeInstrumentID);
+//         instrumentMap.set(ticksObj.ExchangeInstrumentID, Object.assign({}, existingInstrument, ticksObj));
+//       } else {
+//         instrumentMap.set(ticksObj.ExchangeInstrumentID, ticksObj);
+//       }
+
+//       ticks = Array.from(instrumentMap.values());
+//     }
+
+//     const indexObj = {};
+//     indecies?.forEach(index => {
+//       indexObj[index.instrumentToken] = true;
+//     });
+
+//     const indexData = [];
+
+//     if (indexObj[ticksObj.ExchangeInstrumentID] && indexObj[marketDepth.ExchangeInstrumentID]) {
+//       ticksObj.last_price = ticksObj.LastTradedPrice;
+//       ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
+//       ticksObj.change = marketDepth.Touchline.PercentChange;
+//       indexData.push(ticksObj);
+//     }
+
+//     try {
+//       let instrumentTokenArr = new Set();
+//       if (await client.exists(userId.toString())) {
+//         const instruments = await client.SMEMBERS(userId.toString());
+//         instrumentTokenArr = new Set(instruments);
+//       } else {
+//         const user = await User.findById(new ObjectId(userId)).populate('watchlistInstruments');
+//         user.watchlistInstruments.forEach(instrument => {
+//           instrumentTokenArr.add(instrument.instrumentToken);
+//         });
+//       }
+
+//       filteredTicks = ticks.filter(tick => instrumentTokenArr.has(tick.instrument_token.toString()));
+
+//       if (indexData.length > 0) {
+//         socket.emit('index-tick', indexData);
+//       }
+
+//       indexData = null;
+//       instrumentTokenArr = null;
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   });
+// };
+
+
+// const emitTicks = async(userId)=>{
+//   let timeoutId;
+//   if(timeoutId){
+//     clearTimeout(timeoutId)
+//   }
+//   console.log("Will emit filteredTicks in 2 seconds...");
+//   timeoutId = setInterval(() => {
+//     if (filteredTicks && filteredTicks.length > 0) {
+//       // console.log("Emitting filteredTicks...");
+//       io.to(`${userId}`).emit("tick-room", filteredTicks);
+//       filteredTicks = null;
+//     }
+//   }, 1000); // wait for 2 seconds
+// }
+
+const emitTicks = async (userId) => {
+  let intervalId;
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+
   console.log("Will emit filteredTicks in 2 seconds...");
-  timeoutId = setInterval(() => {
+  intervalId = setInterval(() => {
     if (filteredTicks && filteredTicks.length > 0) {
-      // console.log("Emitting filteredTicks...");
       io.to(`${userId}`).emit("tick-room", filteredTicks);
-      filteredTicks = null;
+      filteredTicks = [];
     }
-  }, 1000); // wait for 2 seconds
-}
+  }, 1000);
+};
+
 
 const emitCompanyTicks = async(socket)=>{
-  
+  let timeoutId;
+  if(timeoutId){
+    clearTimeout(timeoutId)
+  }
   timeoutId = setInterval(() => {
     if (companyTicks && companyTicks.length > 0) {
       socket.emit('tick', companyTicks);
