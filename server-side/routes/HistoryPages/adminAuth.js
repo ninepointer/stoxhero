@@ -9,6 +9,7 @@ const MockUser = require("../../models/mock-trade/mockTradeUserSchema");
 // const MockCompany = require("../../models/mock-trade/mockTradeCompanySchema");
 const InfinityTraderCompany = require("../../models/mock-trade/infinityTradeCompany");
 const InfinityTrader = require("../../models/mock-trade/infinityTrader");
+const PaperTrade = require("../../models/mock-trade/paperTrade");
 
 const RetreiveTrade = require("../../models/TradeDetails/retireivingTrade")
 const BrokerageDetail = require("../../models/Trading Account/brokerageSchema");
@@ -34,13 +35,93 @@ const {client, getValue} = require("../../marketData/redisClient")
 const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
-const tenx = require("../../controllers/AutoTradeCut/autoTradeCut");
+const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 
+
+
+router.get("/deleteMatching", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
+  const del = await InfinityTrader.aggregate([
+    {
+      $match: {
+        status: "COMPLETE",
+        // instrumentToken: "18845698",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          id: "$_id",
+          userId: "$trader",
+          // subscriptionId: "$subscriptionId",
+          exchange: "$exchange",
+          symbol: "$symbol",
+          instrumentToken: "$instrumentToken",
+          variety: "$variety",
+          validity: "$validity",
+          order_type: "$order_type",
+          Product: "$Product",
+          algoBoxId: "$algoBox",
+        },
+        runningLots: {
+          $sum: "$Quantity",
+        },
+        takeTradeQuantity: {
+          $sum: {
+            $multiply: ["$Quantity", -1],
+          },
+        },
+      },
+    },
+    // {
+    //   $match:
+    //     /**
+    //      * query: The query in MQL.
+    //      */
+    //     {
+    //       runningLots: {
+    //         $gt: 0,
+    //       },
+    //     },
+    // }
+    {
+      $project: {
+        _id: "$_id.id",
+        userId: "$_id.userId",
+        // subscriptionId: "$_id.subscriptionId",
+        exchange: "$_id.exchange",
+        symbol: "$_id.symbol",
+        instrumentToken: "$_id.instrumentToken",
+        variety: "$_id.variety",
+        validity: "$_id.validity",
+        order_type: "$_id.order_type",
+        Product: "$_id.Product",
+        runningLots: "$runningLots",
+        takeTradeQuantity: "$takeTradeQuantity",
+        algoBoxId: "$_id.algoBoxId",
+      },
+    },
+    {
+      $match: {
+        runningLots: {
+          $ne: 0,
+        },
+      },
+    },
+  ])
+
+  // const result = await del.aggregate(pipeline).toArray();
+
+  const deleteResult = await InfinityTrader.deleteMany({ _id: { $in: del.map(doc => doc._id) } });
+  console.log(deleteResult)
+});
 
 router.get("/autotrade", async (req, res) => {
-  // await client.del(`kiteCredToday:${process.env.PROD}`);
+  // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
   let arr = await tenx();
-  console.log(arr);
+  let arr1 = await paperTrade();
+  let arr2 = await infinityTrade();
+  console.log(arr, arr1, arr2);
 });
 
 router.get("/deletePnlKey", async (req, res) => {
