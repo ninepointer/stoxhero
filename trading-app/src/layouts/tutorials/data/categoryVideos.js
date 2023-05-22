@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-// import YouTube from 'react-youtube';
+import YouTube from 'react-youtube';
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -24,15 +24,15 @@ function CategoryVideos() {
 
     
     console.log("Updated Category Data: ",id)
-    // const opts = {
-    //   height: '200',
-    //   width: '100%',
-    //   // modestbranding:1,
-    //   playerVars: {
-    //     // https://developers.google.com/youtube/player_parameters
-    //     autoplay: 0,
-    //   },
-    // };
+    const opts = {
+      height: '200',
+      width: '100%',
+      // modestbranding:1,
+      playerVars: {
+        // https://developers.google.com/youtube/player_parameters
+        autoplay: 0,
+      },
+    };
 
   
     return (
@@ -50,7 +50,7 @@ function CategoryVideos() {
                    <Grid item xs={12} md={6} lg={4}>
                         <MDTypography fontSize={15} fontWeight='bold' display='flex' justifyContent='center' alignItems='center'>{elem?.title}</MDTypography>
                         <MDBox>
-                          {/* <YouTube videoId={elem?.videoId} opts={opts} /> */}
+                          <YouTube videoId={elem?.videoId} opts={opts} />
                         </MDBox>
                     </Grid>
                 </>)
