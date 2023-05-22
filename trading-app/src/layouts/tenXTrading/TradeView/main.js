@@ -3,8 +3,9 @@ import DashboardLayout from "../../../examples/LayoutContainers/DashboardLayout"
 import DashboardNavbar from "../../../examples/Navbars/DashboardNavbar";
 import Footer from "../../../examples/Footer";
 import { io } from 'socket.io-client';
-import { useEffect, useContext} from "react";
+import { useEffect, useContext, useState} from "react";
 import {useLocation} from "react-router-dom";
+import axios from "axios";
 
 // import Header from "./Header";
 import { userContext } from "../../../AuthContext";
@@ -17,6 +18,37 @@ function TradeViewTenX() {
   const location = useLocation();
   const subscriptionId = location?.state?.subscriptionId;
   console.log("subscriptionId", subscriptionId)
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  const [tradingDayData, setTradingDayData] = useState([]);
+
+  useEffect(()=>{
+
+    let abortController;
+    (async () => {
+         abortController = new AbortController();
+         let signal = abortController.signal;    
+
+         // the signal is passed into the request(s) we want to abort using this controller
+         const { data } = await axios.get(`${baseUrl}api/v1/tenX/countTradingDays`,{
+         withCredentials: true,
+         headers: {
+             Accept: "application/json",
+             "Content-Type": "application/json",
+             "Access-Control-Allow-Credentials": true
+         },
+         signal: signal }
+         );
+
+         let filtered = (data?.data).filter((elem)=>{
+          return elem.subscriptionId == subscriptionId
+         })
+
+         setTradingDayData(filtered);
+
+    })();
+
+    return () => abortController.abort();
+  }, [])
 
   let socket;
   try {
@@ -31,11 +63,13 @@ function TradeViewTenX() {
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
   }, []);
+
+  console.log("tradingDayData", tradingDayData)
   return (
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <TenXTrading socket={socket} subscriptionId={subscriptionId}/>
+      <TenXTrading tradingDayData={tradingDayData} socket={socket} subscriptionId={subscriptionId}/>
       <Footer />
     </DashboardLayout>
     </>
