@@ -267,7 +267,7 @@ const routes = [
   },
   {
     route: "/contact",
-    component: <Contact />,
+    component: <Contact/>,
   },
   {
     // type: "collapse",
