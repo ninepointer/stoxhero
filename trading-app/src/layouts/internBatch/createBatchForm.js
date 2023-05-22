@@ -314,6 +314,15 @@ function Index() {
 
 console.log(id)
 
+const handleChange = (e) => {
+  if (!formState.batchName.includes(e.target.value)) {
+    setFormState(prevState => ({
+      ...prevState,
+      batchName: e.target.value,
+    }));
+  }
+};
+
     return (
     <>
     {isLoading ? (
@@ -339,11 +348,12 @@ console.log(id)
                 label='Batch Name *'
                 fullWidth
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.batchName || id?.batchName}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    batchName: e.target.value
-                  }))}}
+                defaultValue={editing ? formState?.batchName : id?.batchName}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     batchName: e.target.value
+                //   }))}}
+                onChange={handleChange}
               />
           </Grid>
 
