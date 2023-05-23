@@ -49,6 +49,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 import CareerDetailsForm from './layouts/career/createCareerForm'
 import Campaigns from './layouts/campaign'
+import TutorialVideos from './layouts/tutorialVideos'
 
 
 
@@ -96,6 +97,7 @@ import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
 import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
+import TutorialCategoryForm from './layouts/tutorialVideos/tutorialCategoryDetails'
 import Contact from "./layouts/HomePage/pages/Contact";
 import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
@@ -103,6 +105,7 @@ import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
+import SchoolIcon from '@mui/icons-material/School';
 
 
 
@@ -223,13 +226,21 @@ const routes = [
     component: <TenXSubscriptionForm />,
   },
   {
-    type: "collapse",
-    name: "Payment",
-    key: "payment",
-    icon: <BusinessIcon/>,
-    route: "payment",
-    component: <Payment />,
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
+    route: "tutorialcategory",
+    component: <TutorialCategoryForm />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Payment",
+  //   key: "payment",
+  //   icon: <BusinessIcon/>,
+  //   route: "payment",
+  //   component: <Payment />,
+  // },
   {
     // type: "collapse",
     // name: "Arena",
@@ -256,7 +267,7 @@ const routes = [
   },
   {
     route: "/contact",
-    component: <Contact />,
+    component: <Contact/>,
   },
   {
     // type: "collapse",
@@ -349,6 +360,14 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "College",
+    key: "college",
+    icon: <SchoolIcon/>,
+    route: "/college",
+    component: <College />,
+  },
+  {
+    type: "collapse",
     name: "Internship Batch",
     key: "internshipbatch",
     icon: <BatchIcon/>,
@@ -386,6 +405,14 @@ const routes = [
     icon: <CardMembershipIcon/>,
     route: "/tenxsubscriptions",
     component: <TenXSubscription />,
+  },
+  {
+    type: "collapse",
+    name: "Tutorial Videos",
+    key: "tutorialvideos",
+    icon: <CardMembershipIcon/>,
+    route: "/tutorialvideos",
+    component: <TutorialVideos />,
   },
   
   {
@@ -600,14 +627,7 @@ const routes = [
     route: "/wallet",
     component: <UserWallet />,
   },
-  {
-    // type: "collapse",
-    // name: "Wallet",
-    key: "college",
-    // icon: <AccountBalanceWalletIcon/>,
-    route: "/college",
-    component: <College />,
-  },
+  
   {
     // type: "collapse",
     // name: "Wallet",
@@ -616,7 +636,7 @@ const routes = [
     route: "/collegeEdit",
     component: <CollegeEdit/>,
   },
-
+  
   
 
 

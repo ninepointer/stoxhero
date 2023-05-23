@@ -279,14 +279,21 @@ exports.marginDetail = async (req, res, next) => {
     res.status(500).json({ status: 'error', message: 'Something went wrong' });
   }
 }
-
+// TODO remove hardcode of 60 days
 exports.tradingDays = async (req, res, next) => {
+  // let subscriptionId = req.params.id;
   let userId = req.user._id;
+  // req.user._id
+  // req.user._id;
+  const today = new Date();
 
-  const tradingDays = await TenXTrader.aggregate([
+  const tradingDays = await TenXTrader.aggregate(
+    [
     {
       $match: {
-        trader: new ObjectId(userId),
+        trader: new ObjectId(
+          req.user._id
+        ),
         status: "COMPLETE",
       },
     },
@@ -298,10 +305,12 @@ exports.tradingDays = async (req, res, next) => {
         as: "subscriptionData",
       },
     },
+  
     {
       $group: {
         _id: {
           subscriptionId: "$subscriptionId",
+          users: "$subscriptionData.users",
           validity: "$subscriptionData.validity",
           date: {
             $dateToString: {
@@ -312,9 +321,11 @@ exports.tradingDays = async (req, res, next) => {
         },
       },
     },
+  
     {
       $group: {
         _id: {
+          users:{$arrayElemAt:  ["$_id.users", 0]},
           id: "$_id.subscriptionId",
           validity: {
             $arrayElemAt: ["$_id.validity", 0],
@@ -323,19 +334,93 @@ exports.tradingDays = async (req, res, next) => {
         count: {
           $sum: 1,
         },
+        firstMatchedDate: {
+          $first: "$_id.date",
+        },
       },
+    },
+    {
+      $unwind: {
+        path: "$_id.users"
+      }
+    },
+      {
+      $match:
+  
+        {
+          "_id.users.userId": new ObjectId(
+          req.user._id
+        ),
+        },
     },
     {
       $project: {
         _id: 0,
         subscriptionId: "$_id.id",
         totalTradingDays: "$count",
+        firstMatchedDate: 1,
         remainingDays: {
           $subtract: ["$_id.validity", "$count"],
+        },
+        defaultRemaining: {
+          $divide: [
+            {
+              $subtract: [
+                today,
+                {
+                  $toDate: "$_id.users.subscribedOn",
+                },
+                
+              ],
+            },
+            24 * 60 * 60 * 1000, // Convert milliseconds to days
+          ],
+        },
+  
+        remainingAfterDefault: {
+          $subtract: [
+            60,
+            {
+              $divide: [
+                {
+                  $subtract: [
+                    today,
+                                 {
+                  $toDate: "$_id.users.subscribedOn",
+                },
+                  
+                  ],
+                },
+                24 * 60 * 60 * 1000, // Convert milliseconds to days
+              ],
+            },
+          ],
+        },
+  
+        actualRemainingDay: {
+          $min: [
+            {
+              $subtract: [
+                "$_id.validity",
+                "$count",
+              ],
+            },
+            {
+              $subtract: [
+                today,
+                {
+                  $toDate: "$_id.users.subscribedOn",
+                },
+                
+              ],
+            },
+          ],
         },
       },
     },
   ])
+
+  console.log("tradingDays", tradingDays)
   res.status(200).json({ status: 'success', data: tradingDays });
   // res.send(tradingDays);
 }
@@ -348,7 +433,11 @@ exports.autoExpireSubscription = async () => {
     let users = subscription[i].users;
     for (let j = 0; j < users.length; j++) {
       let userId = users[j].userId;
-      const tradingDays = await TenXTrader.aggregate([
+
+      const todayDate = new Date();  // Get the current date
+
+      const tradingDays = await TenXTrader.aggregate(
+        [
         {
           $match: {
             trader: new ObjectId(userId),
@@ -357,8 +446,20 @@ exports.autoExpireSubscription = async () => {
           },
         },
         {
+          $lookup: {
+            from: "tenx-subscriptions",
+            localField: "subscriptionId",
+            foreignField: "_id",
+            as: "subscriptionData",
+          },
+        },
+      
+        {
           $group: {
             _id: {
+              subscriptionId: "$subscriptionId",
+              users: "$subscriptionData.users",
+              validity: "$subscriptionData.validity",
               date: {
                 $dateToString: {
                   format: "%Y-%m-%d",
@@ -368,31 +469,109 @@ exports.autoExpireSubscription = async () => {
             },
           },
         },
+      
         {
           $group: {
             _id: {
-              id: new ObjectId(userId)
+              users:{$arrayElemAt:  ["$_id.users", 0]},
+              id: "$_id.subscriptionId",
+              validity: {
+                $arrayElemAt: ["$_id.validity", 0],
+              },
             },
             count: {
               $sum: 1,
             },
+            firstMatchedDate: {
+              $first: "$_id.date",
+            },
           },
+        },
+        {
+          $unwind: {
+            path: "$_id.users"
+          }
+        },
+          {
+          $match:
+      
+            {
+              "_id.users.userId": new ObjectId(
+              req.user._id
+            ),
+            },
         },
         {
           $project: {
             _id: 0,
             // subscriptionId: "$_id.id",
             totalTradingDays: "$count",
-            // remainingDays: {
-            //   $subtract: ["$_id.validity", "$count"],
-            // },
+            firstMatchedDate: 1,
+            remainingDays: {
+              $subtract: ["$_id.validity", "$count"],
+            },
+            defaultRemaining: {
+              $divide: [
+                {
+                  $subtract: [
+                    today,
+                    {
+                      $toDate: "$_id.users.subscribedOn",
+                    },
+                    
+                  ],
+                },
+                24 * 60 * 60 * 1000, // Convert milliseconds to days
+              ],
+            },
+      
+            remainingAfterDefault: {
+              $subtract: [
+                60,
+                {
+                  $divide: [
+                    {
+                      $subtract: [
+                        today,
+                                     {
+                      $toDate: "$_id.users.subscribedOn",
+                    },
+                      
+                      ],
+                    },
+                    24 * 60 * 60 * 1000, // Convert milliseconds to days
+                  ],
+                },
+              ],
+            },
+      
+            actualRemainingDay: {
+              $min: [
+                {
+                  $subtract: [
+                    "$_id.validity",
+                    "$count",
+                  ],
+                },
+                {
+                  $subtract: [
+                    today,
+                    {
+                      $toDate: "$_id.users.subscribedOn",
+                    },
+                    
+                  ],
+                },
+              ],
+            },
           },
         },
-      ])
+      ]);
+
 
       // console.log("tradingDays", tradingDays, userId)
 
-      if (tradingDays.length && tradingDays[0].totalTradingDays === 0) {
+      if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) === 0) {
         const updateUser = await User.findOneAndUpdate(
           { _id: new ObjectId(userId), "subscription.subscriptionId": new ObjectId(subscription[i]._id) },
           {

@@ -186,6 +186,7 @@ app.use('/api/v1', require("./marketData/getRetrieveOrder"));
 app.use('/api/v1', require('./marketData/switchToRealTrade'));
 app.use('/api/v1/internbatch', require('./routes/career/internBatchRoute'));
 app.use('/api/v1/gd', require('./routes/career/groupDiscussionRoute'));
+app.use('/api/v1/tutorialcategory', require('./routes/tutorialVideos/tutorialCategory'));
 app.use('/api/v1', require('./routes/instrument/instrumentAuth'));
 app.use('/api/v1', require('./routes/instrument/tradableInstrument'));
 app.use('/api/v1', require('./routes/instrument/addInstrument'));
@@ -245,7 +246,7 @@ let weekDay = date.getDay();
   }
 
   try{
-    const autotrade = nodeCron.schedule(`0 0 5 * * *`, test);
+    const autotrade = nodeCron.schedule(`0 0 10 * * *`, test);
   } catch(err){
     console.log("err from cronjob", err)
   }

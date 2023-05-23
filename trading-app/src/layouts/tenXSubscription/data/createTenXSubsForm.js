@@ -278,6 +278,45 @@ async function onEdit(e,formState){
       bgWhite
     />
   );
+
+
+  const handleEdit = (e)=>{
+    if (!formState.plan_name.includes(e.target.value)) {
+        setFormState(prevState => ({
+          ...prevState,
+          plan_name: e.target.value,
+        }));
+      }
+
+      if (!formState.actual_price.includes(e.target.value)) {
+        setFormState(prevState => ({
+          ...prevState,
+          actual_price: e.target.value,
+        }));
+      }
+
+      if (!formState.discounted_price.includes(e.target.value)) {
+        setFormState(prevState => ({
+          ...prevState,
+          discounted_price: e.target.value,
+        }));
+      }
+
+      if (!formState.profitCap.includes(e.target.value)) {
+        setFormState(prevState => ({
+          ...prevState,
+          profitCap: e.target.value,
+        }));
+      }
+
+      if (!formState.validity.includes(e.target.value)) {
+        setFormState(prevState => ({
+          ...prevState,
+          validity: e.target.value,
+        }));
+      }
+  }
+
     return (
     <>
     {isLoading ? (
@@ -303,11 +342,12 @@ async function onEdit(e,formState){
                     label='Plan Name *'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.plan_name || tenXSubs?.plan_name}
-                    onChange={(e) => {setFormState(prevState => ({
-                        ...prevState,
-                        plan_name: e.target.value
-                    }))}}
+                    defaultValue={editing ? formState?.plan_name : tenXSubs?.plan_name}
+                    // onChange={(e) => {setFormState(prevState => ({
+                    //     ...prevState,
+                    //     plan_name: e.target.value
+                    // }))}}
+                    onChange={handleEdit}
                 />
             </Grid>
 
@@ -319,11 +359,12 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.actual_price || tenXSubs?.actual_price}
-                    onChange={(e) => {setFormState(prevState => ({
-                        ...prevState,
-                        actual_price: e.target.value
-                    }))}}
+                    defaultValue={editing ? formState?.actual_price : tenXSubs?.actual_price}
+                    // onChange={(e) => {setFormState(prevState => ({
+                    //     ...prevState,
+                    //     actual_price: e.target.value
+                    // }))}}
+                    onChange={handleEdit}
                 />
             </Grid>
 
@@ -335,11 +376,12 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.discounted_price || tenXSubs?.discounted_price}
-                    onChange={(e) => {setFormState(prevState => ({
-                        ...prevState,
-                        discounted_price: e.target.value
-                    }))}}
+                    defaultValue={editing ? formState?.discounted_price : tenXSubs?.discounted_price}
+                    // onChange={(e) => {setFormState(prevState => ({
+                    //     ...prevState,
+                    //     discounted_price: e.target.value
+                    // }))}}
+                    onChange={handleEdit}
                 />
             </Grid>
 
@@ -351,11 +393,13 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.profitCap || tenXSubs?.profitCap}
-                    onChange={(e) => {setFormState(prevState => ({
-                        ...prevState,
-                        profitCap: e.target.value
-                    }))}}
+                    defaultValue={ editing ? formState?.profitCap : tenXSubs?.profitCap}
+                    // onChange={(e) => {setFormState(prevState => ({
+                    //     ...prevState,
+                    //     profitCap: e.target.value
+                    // }))}}
+
+                    onChange={handleEdit}
                 />
             </Grid>
 
@@ -393,11 +437,12 @@ async function onEdit(e,formState){
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.validity || tenXSubs?.validity}
-                    onChange={(e) => {setFormState(prevState => ({
-                        ...prevState,
-                        validity: e.target.value
-                    }))}}
+                    defaultValue={editing ? formState?.validity : tenXSubs?.validity}
+                    // onChange={(e) => {setFormState(prevState => ({
+                    //     ...prevState,
+                    //     validity: e.target.value
+                    // }))}}
+                    onChange={handleEdit}
                 />
             </Grid>
 

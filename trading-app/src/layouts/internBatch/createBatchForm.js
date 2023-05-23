@@ -54,6 +54,7 @@ function Index() {
     const [batch,setBatch] = useState([]);
     const [portfolios,setPortfolios] = useState([]);
     const [careers,setCareers] = useState([]);
+    const [action, setAction] = useState(false);
 
     const [formState,setFormState] = useState({
         batchName:'' || id?.batchName,
@@ -313,6 +314,15 @@ function Index() {
 
 console.log(id)
 
+const handleChange = (e) => {
+  if (!formState.batchName.includes(e.target.value)) {
+    setFormState(prevState => ({
+      ...prevState,
+      batchName: e.target.value,
+    }));
+  }
+};
+
     return (
     <>
     {isLoading ? (
@@ -338,11 +348,12 @@ console.log(id)
                 label='Batch Name *'
                 fullWidth
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.batchName || id?.batchName}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    batchName: e.target.value
-                  }))}}
+                defaultValue={editing ? formState?.batchName : id?.batchName}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     batchName: e.target.value
+                //   }))}}
+                onChange={handleChange}
               />
           </Grid>
 
@@ -620,13 +631,13 @@ console.log(id)
 
                 {(isSubmitted || id) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
-                        <GroupDiscussions saving={saving} batch={batch} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument}/>
+                        <GroupDiscussions saving={saving} batch={batch} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} action={action} setAction={setAction}/>
                     </MDBox>
                 </Grid>}
 
                 {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                     <MDBox>
-                        <BatchParticipants batch={newObjectId ? newObjectId : id?._id}/>
+                        <BatchParticipants batch={newObjectId ? newObjectId : id?._id} action={action} setAction={setAction}/>
                     </MDBox>
                 </Grid>}
 

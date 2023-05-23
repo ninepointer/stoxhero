@@ -1,6 +1,6 @@
-const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
+const {tenx, paperTrade, infinityTrade} = require("./controllers/AutoTradeCut/autoTradeCut");
 const { Kafka } = require('kafkajs')
-const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
+const {takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade} = require("./controllers/AutoTradeCut/autoTrade");
 
 
 const kafka = new Kafka({
@@ -31,14 +31,17 @@ async function test(){
   createTopic('my-topic');
 
   let arr = await tenx();
+  let arr1 = await paperTrade();
+  let arr2 = await infinityTrade();
 
   const producer = kafka.producer()
   
   await producer.connect()
-  await producer.send({
-    topic: 'my-topic',
-    messages: arr,
-  })
+  await Promise.all([
+    producer.send({ topic: 'my-topic', messages: arr }),
+    producer.send({ topic: 'my-topic', messages: arr1 }),
+    producer.send({ topic: 'my-topic', messages: arr2 })
+  ]);
 
   await producer.disconnect()
 
@@ -49,10 +52,12 @@ async function test(){
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
-      // console.log({
-      //   value: message.value.toString(),
-      // })
-      await takeAutoTenxTrade(message.value.toString());
+      const value = message.value.toString();
+      await Promise.all([
+        takeAutoTenxTrade(value),
+        takeAutoPaperTrade(value),
+        takeAutoInfinityTrade(value)
+      ]);
     },
   })
 }
