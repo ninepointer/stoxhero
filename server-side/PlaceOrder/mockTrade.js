@@ -11,9 +11,11 @@ const {client, getValue} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
 const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice");
 const {xtsAccountType} = require("../constant");
+const Setting = require("../models/settings/setting");
 
 
 exports.mockTrade = async (req, res) => {
+    const setting = await Setting.find().select('toggle');
     let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -60,7 +62,13 @@ exports.mockTrade = async (req, res) => {
     try{
         // console.log("above data")
         // let liveData = await singleLivePrice(exchange, symbol) TODO toggle
-        let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+        // let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+        let liveData;
+        if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
+            liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+        } else{
+            liveData = await singleLivePrice(exchange, symbol)
+        }
         console.log("live data", liveData)
         for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){

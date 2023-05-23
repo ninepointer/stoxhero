@@ -8,40 +8,42 @@ const dotenv = require('dotenv');
 app.use(require("cookie-parser")());
 const fetchData = require('./marketData/fetchToken');
 const io = require('./marketData/socketio');
-const {createNewTicker, disconnectTicker, getTicker, 
-      subscribeTokens, getTicks, onError, getMargins, 
-      onOrderUpdate, getTicksForContest, getTicksForUserPosition, 
-      getTicksForCompanySide} = require('./marketData/kiteTicker');
-const getKiteCred = require('./marketData/getKiteCred'); 
+const { createNewTicker, disconnectTicker, getTicker,
+  subscribeTokens, getTicks, onError, getMargins,
+  onOrderUpdate, getTicksForContest, getTicksForUserPosition,
+  getTicksForCompanySide } = require('./marketData/kiteTicker');
+const getKiteCred = require('./marketData/getKiteCred');
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
 const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
-let {client, isRedisConnected, setValue} = require("./marketData/redisClient");
+let { client, isRedisConnected, setValue } = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
-const {appLive, appOffline} = require('./controllers/appSetting');
-const {deletePnlKey} = require("./controllers/deletePnlKey");
-const {subscribeInstrument, getXTSTicksForUserPosition,
-      onDisconnect, getXTSTicksForCompanySide} = require("./services/xts/xtsMarket")
-const {xtsMarketLogin} = require("./services/xts/xtsMarket");
-const {interactiveLogin, positions} = require("./services/xts/xtsInteractive");
-const {autoExpireSubscription} = require("./controllers/tenXTradeController");
+const { appLive, appOffline } = require('./controllers/appSetting');
+const { deletePnlKey } = require("./controllers/deletePnlKey");
+const { subscribeInstrument, getXTSTicksForUserPosition,
+  onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
+const { xtsMarketLogin } = require("./services/xts/xtsMarket");
+const { interactiveLogin, positions } = require("./services/xts/xtsInteractive");
+const { autoExpireSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
-const {DummyMarketData} = require('./marketData/dummyMarketData');
+const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
-
+const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
+const {xtsAccountType, zerodhaAccountType} = require("./constant")
+
 
 const hpp = require("hpp")
 const limiter = rateLimit({
-	windowMs: 1 * 60 * 1000, // 1 minutes
-	max: 100000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  max: 100000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: "Too many request"
 })
 // Apply the rate limiting middleware to all requests
@@ -52,95 +54,118 @@ app.use(xssClean());
 app.use(hpp());
 
 
-// client.connect().then(()=>{})
-xtsMarketLogin()
-.then(()=>{})
-.catch((err)=>{
-  console.log(err, "xts market login")
-})
-interactiveLogin()
-.then(()=>{})
-.catch((err)=>{
-  console.log(err, "xts interactive login")
+let setting ;
+Setting.find()
+.then((res)=>{
+
+  setting = res[0].toggle;
+
 })
 
+
+
+// .select('toggle')
+
+
+// client.connect().then(()=>{})
+xtsMarketLogin()
+  .then(() => { })
+  .catch((err) => {
+    console.log(err, "xts market login")
+  })
+interactiveLogin()
+  .then(() => { })
+  .catch((err) => {
+    console.log(err, "xts interactive login")
+  })
+
 client.connect()
-.then((res)=>{
-  // isRedisConnected = true ; 
-  setValue(true);
-  console.log("redis connected", res)
-})
-.catch((err)=>{
-  // isRedisConnected = false;
-  setValue(false);
-  console.log("redis not connected", err)
-})
+  .then((res) => {
+    // isRedisConnected = true ; 
+    setValue(true);
+    console.log("redis connected", res)
+  })
+  .catch((err) => {
+    // isRedisConnected = false;
+    setValue(false);
+    console.log("redis not connected", err)
+  })
 
 
 // test().then(()=>{})
 
 console.log("index.js")
-getKiteCred.getAccess().then(async (data)=>{
+getKiteCred.getAccess().then(async (data) => {
   console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
   io.on("connection", async (socket) => {
     console.log(socket.id, "socket id")
-    socket.on('userId', async (data)=>{
+    socket.on('userId', async (data) => {
       socket.join(`${data}`)
       console.log("in index.js ", socket.id, data)
       // await tickerConnect();
       await client.set(socket.id, data);
     })
-  
+
     socket.emit('check', false)
-  
-  
-    socket.on('disconnect', ()=>{
+
+
+    socket.on('disconnect', () => {
       console.log("disconnecting socket")
       // client.del(socket.id);
     })
-  
+
     socket.on('hi', async (data) => {
       // getKiteCred.getAccess().then(async (data)=>{
       console.log("in hii event");
-        await getTicks(socket);
-        // await getDummyTicks(socket);
-        // await DummyMarketData(socket);
-        await onError();
-        await onOrderUpdate();
-  
+      await getTicks(socket);
+      // await getDummyTicks(socket);
+      // await DummyMarketData(socket);
+      await onError();
+      await onOrderUpdate();
+
       // });
     });
     socket.on('company-ticks', async (data) => {
       console.log("in company-ticks event")
-        // await getTicksForCompanySide(socket);
+      if(setting.ltp == zerodhaAccountType || setting.complete == zerodhaAccountType){
+        await getTicksForCompanySide(socket);
+      } else{
         await getXTSTicksForCompanySide(socket);
-        await onError();
-        // await onOrderUpdate();
+      }
+
+      await onError();
+      // await onOrderUpdate();
     });
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
-        // await getTicksForUserPosition(socket, data);
-        await positions();
-        await getXTSTicksForUserPosition(socket)
-        // await DummyMarketData(socket);
-        await onError();
-        await onOrderUpdate();
-  
+      // await getTicksForUserPosition(socket, data);
+      await positions();
+      if(setting.ltp == zerodhaAccountType || setting.complete == zerodhaAccountType){
+        await getTicksForUserPosition(socket, data);
+      } else{
+        await getXTSTicksForUserPosition(socket, data);
+      }
+      
+      // await DummyMarketData(socket);
+      await onError();
+      await onOrderUpdate();
+
     });
     socket.on('contest', async (data) => {
       console.log("in contest event")
-        await getTicksForContest(socket);
-        await onError();
-  
+      await getTicksForContest(socket);
+      await onError();
+
     });
-    // await subscribeTokens(); TODO toggle
-    
+    await subscribeTokens(); //TODO toggle
+
   });
 
+  
   await subscribeInstrument();
-  // io.on('disconnection', () => {disconnectTicker()}); TODO toggle
-  io.on('disconnection', () => {onDisconnect()});
+  io.on('disconnection', () => {disconnectTicker()}); //TODO toggle
+  io.on('disconnection', () => { onDisconnect() });
 
 });
 
@@ -151,15 +176,15 @@ getKiteCred.getAccess().then(async (data)=>{
 
 let newCors = process.env.NODE_ENV === "production" ? "http://3.110.187.5/" : "http://localhost:3000"
 app.use(cors({
-  credentials:true,
+  credentials: true,
 
   // origin: "http://3.7.187.183/"  // staging
   // origin: "http://3.108.76.71/"  // production
-    origin: "http://localhost:3000"
+  origin: "http://localhost:3000"
 
 }));
 
-app.use(express.json({limit: "20kb"}));
+app.use(express.json({ limit: "20kb" }));
 
 
 app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
@@ -169,8 +194,12 @@ app.use('/api/v1', require("./routes/user/signedUpUser"))
 app.use('/api/v1', require("./routes/expense/categoryAuth"))
 app.use('/api/v1', require("./routes/setting/settingAuth"))
 app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
-// app.use('/api/v1', require("./marketData/livePrice")); TODO toggle
-app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
+if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
+  app.use('/api/v1', require("./marketData/livePrice"));
+} else{
+  app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
+}
+//  TODO toggle
 app.use('/api/v1', require("./marketData/Margin"));
 app.use('/api/v1', require("./routes/user/userLogin"));
 app.use('/api/v1', require('./routes/TradeData/getUserTrade'));
@@ -233,38 +262,38 @@ require('./db/conn');
 
 let date = new Date();
 let weekDay = date.getDay();
-  if(process.env.PROD){
-    let date = new Date();
-    let weekDay = date.getDay();
-    if(weekDay > 0 && weekDay < 6){
-        const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
-        const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
-        const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
-        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-        
-    }
+if (process.env.PROD) {
+  let date = new Date();
+  let weekDay = date.getDay();
+  if (weekDay > 0 && weekDay < 6) {
+    const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
+    const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
+    const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
+    const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+
   }
+}
 
-  try{
-    const autotrade = nodeCron.schedule(`0 0 10 * * *`, test);
-  } catch(err){
-    console.log("err from cronjob", err)
-  }
+try {
+  const autotrade = nodeCron.schedule(`0 0 10 * * *`, test);
+} catch (err) {
+  console.log("err from cronjob", err)
+}
 
 
-  // (async () => {
-  //   const consumer = kafka.consumer({ groupId: 'my-group' })
-    
-  //   await consumer.connect()
-  //   await consumer.subscribe({ topic: 'my-topic', fromBeginning: true })
-    
-  //   await consumer.run({
-  //     eachMessage: async ({ topic, partition, message }) => {
-  //       await takeAutoTenxTrade(message.value.toString());
-  //       // console.log(message)
-  //     },
-  //   })
-  // })().catch(console.error)
+// (async () => {
+//   const consumer = kafka.consumer({ groupId: 'my-group' })
+
+//   await consumer.connect()
+//   await consumer.subscribe({ topic: 'my-topic', fromBeginning: true })
+
+//   await consumer.run({
+//     eachMessage: async ({ topic, partition, message }) => {
+//       await takeAutoTenxTrade(message.value.toString());
+//       // console.log(message)
+//     },
+//   })
+// })().catch(console.error)
 
 
 const PORT = process.env.PORT;
