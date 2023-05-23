@@ -35,7 +35,7 @@ function TradeViewTenX() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <InternshipTrading socket={socket} subscriptionId={subscriptionId}/>
+      <InternshipTrading socket={socket} BatchId={subscriptionId}/>
       <Footer />
     </DashboardLayout>
     </>
