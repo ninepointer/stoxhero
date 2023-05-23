@@ -44,7 +44,7 @@ exports.search = async (searchString, res, req) => {
           status: 'Active'
         },
         {
-          accountType: accountType
+          // accountType: accountType
         },
         {
           expiry: {

@@ -10,7 +10,7 @@ const io = require('../marketData/socketio');
 const {client, getValue} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
 const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice");
-const {xtsAccountType} = require("../constant");
+const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 
 
@@ -38,8 +38,15 @@ exports.mockTrade = async (req, res) => {
             exchangeSegment = 2;
         }
 
-      const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
-      const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
+        let accountType;
+        if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
+            accountType = xtsAccountType;
+        } else{
+            accountType = zerodhaAccountType;
+        }
+
+      const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType});
+      const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType});
 
     //   console.log("req body", req.body)
 
