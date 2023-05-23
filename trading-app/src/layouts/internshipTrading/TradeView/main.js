@@ -15,7 +15,7 @@ function TradeViewTenX() {
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const getDetails = useContext(userContext);
   const location = useLocation();
-  const subscriptionId = getDetails?.internshipBatch||'123';
+  const subscriptionId = getDetails?.userDetails.internshipBatch||'123';
   console.log("subscriptionId", subscriptionId)
 
   let socket;
@@ -31,6 +31,7 @@ function TradeViewTenX() {
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
   }, []);
+  console.log("subscriptionId", subscriptionId)
   return (
     <>
     <DashboardLayout>
