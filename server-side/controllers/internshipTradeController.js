@@ -272,6 +272,8 @@ exports.marginDetail = async (req, res, next) => {
               },
             },
         ])
+
+        console.log("portfolioValue", portfolioValue)
         res.status(200).json({status: 'success', data: portfolioValue[0]});
     }
   } catch (e) {
