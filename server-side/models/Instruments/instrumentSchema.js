@@ -32,6 +32,10 @@ const instrumentSchema = new mongoose.Schema({
         type: Number,
         required : true
     },
+    exchangeInstrumentToken:{
+        type: Number,
+        required : true
+    },
     contractDate:{
         type: Date,
         required : true
@@ -47,7 +51,7 @@ const instrumentSchema = new mongoose.Schema({
     },
     accountType:{
         type: String,
-        required : true,
+        // required : true,
         enum : [zerodhaAccountType, xtsAccountType]
     },
     exchangeSegment:{

@@ -18,10 +18,13 @@ router.post("/addInstrument",authentication, async (req, res)=>{
     const {_id} = req.user;
 
     try{
-        let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment} = req.body;
+        let {exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment} = req.body;
 
-        console.log("contractDate", exchangeSegment, Number(exchangeSegment))
-        if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken || !accountType){
+        console.log("contractDate", exchangeSegment)
+        if(exchangeSegment === "NFO-OPT"){
+            exchangeSegment = 2;
+        }
+        if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken ){
             if(!instrumentToken){
                 return res.status(422).json({error : "Please enter a valid Instrument."})
             }
@@ -62,7 +65,8 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                             instrumentToken: dataExist.instrumentToken ,
                             contractDate: dataExist.contractDate ,
                             maxLot: dataExist.maxLot ,
-                            accountType: dataExist.accountType
+                            accountType: dataExist.accountType,
+                            exchangeInstrumentToken: dataExist.exchangeInstrumentToken
                           }))                
                     }
     
@@ -72,7 +76,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                 res.status(422).json({message : "Instrument Added"})
                 return;
             }
-            const addingInstruments = new Instrument({instrument, exchange, symbol, status, 
+            const addingInstruments = new Instrument({exchangeInstrumentToken, instrument, exchange, symbol, status, 
                 uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken, 
                 contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment)});
             //console.log("instruments", instruments)
@@ -99,8 +103,9 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                         instrumentToken: addingInstruments.instrumentToken ,
                         contractDate: addingInstruments.contractDate ,
                         maxLot: addingInstruments.maxLot ,
-                        accountType: addingInstruments.accountType
-                      }))
+                        accountType: addingInstruments.accountType,
+                        exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken
+                    }))
                 }
 
                 } catch(err){
@@ -108,7 +113,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                 }
                 
                  await subscribeSingleToken(instrumentToken);//TODO toggle
-                 await subscribeSingleXTSToken(instrumentToken, Number(exchangeSegment))
+                 await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                  let getInstruments = await User.findOne({_id : _id});
                  getInstruments.watchlistInstruments.push(addingInstruments._id)
                  const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
@@ -185,7 +190,8 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
                 instrumentToken: removeFromWatchlist.instrumentToken ,
                 contractDate: removeFromWatchlist.contractDate ,
                 maxLot: removeFromWatchlist.maxLot,
-                accountType: removeFromWatchlist.accountType
+                accountType: removeFromWatchlist.accountType,
+                exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
               }))
 
               console.log("redisClient", removeInstrument)

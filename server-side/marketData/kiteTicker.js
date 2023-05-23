@@ -162,7 +162,7 @@ const getTicksForUserPosition = async (socket, id) => {
   }
   // console.log("indecies", indecies)
   ticker.on('ticks', async (ticks) => {
-
+console.log("tick", ticks)
     let indexObj = {};
     let now = performance.now();
     // populate hash table with indexObj from indecies

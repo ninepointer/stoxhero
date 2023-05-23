@@ -129,9 +129,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     let instrumentDetailObj = {}
     const instrumentcolor = elem.symbol.slice(-2) == "CE" ? "success" : "error"
     let perticularInstrumentMarketData = marketDetails.marketData.filter((subelem)=>{
-      return elem.instrumentToken === subelem.instrument_token
+      console.log("perticularInstrumentMarketData", elem.instrumentToken , subelem.instrument_token, elem.exchangeInstrumentToken)
+      return (elem.instrumentToken == subelem.instrument_token) || (elem.exchangeInstrumentToken == subelem.instrument_token)
     })
     
+    // console.log("perticularInstrumentMarketData", perticularInstrumentMarketData, elem.instrumentToken , subelem.instrument_token, elem.exchangeInstrumentToken)
     const percentagechangecolor = perticularInstrumentMarketData[0]?.change >= 0 ? "success" : "error"
     const percentagechangecolor1 = (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "success" : "error"
 
