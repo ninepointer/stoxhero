@@ -285,9 +285,8 @@ const userDetailSchema = new mongoose.Schema({
         }
     }],
     internshipBatch:[{
-        batch:{
-            type: Schema.Types.ObjectId
-        }
+        type: Schema.Types.ObjectId,
+        ref: "intern-batch"
     }]
 })
 
