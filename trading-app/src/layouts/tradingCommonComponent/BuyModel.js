@@ -173,7 +173,7 @@ console.log("buttonClicked", buttonClicked)
   }
 
   async function placeOrder() {
-    //console.log("caseStudy 2: place")
+    console.log("caseStudy 2: place", subscriptionId)
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
