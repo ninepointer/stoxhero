@@ -235,14 +235,14 @@ const routes = [
     route: "tutorialcategory",
     component: <TutorialCategoryForm />,
   },
-  {
-    type: "collapse",
-    name: "Payment",
-    key: "payment",
-    icon: <BusinessIcon/>,
-    route: "payment",
-    component: <Payment />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Payment",
+  //   key: "payment",
+  //   icon: <BusinessIcon/>,
+  //   route: "payment",
+  //   component: <Payment />,
+  // },
   {
     // type: "collapse",
     // name: "Arena",
@@ -269,7 +269,7 @@ const routes = [
   },
   {
     route: "/contact",
-    component: <Contact />,
+    component: <Contact/>,
   },
   {
     // type: "collapse",

@@ -226,6 +226,21 @@ function Index() {
 
 
 console.log(id)
+const handleChange = (e) => {
+    if (!formState.jobTitle.includes(e.target.value)) {
+      setFormState(prevState => ({
+        ...prevState,
+       jobTitle : e.target.value,
+      }));
+    }
+
+    if (!formState.jobDescription.includes(e.target.value)) {
+        setFormState(prevState => ({
+          ...prevState,
+         jobDescription : e.target.value,
+        }));
+      }
+  };
 
     return (
     <>
@@ -252,11 +267,12 @@ console.log(id)
                 label='Job Title *'
                 fullWidth
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.jobTitle || id?.jobTitle}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    jobTitle: e.target.value
-                  }))}}
+                defaultValue={editing ? formState?.jobTitle : id?.jobTitle}
+                // onChange={(e) => {setFormState(prevState => ({
+                //     ...prevState,
+                //     jobTitle: e.target.value
+                //   }))}}
+                onChange={handleChange}
               />
           </Grid>
 
@@ -335,7 +351,7 @@ console.log(id)
                 fullWidth
                 multiline
                 // defaultValue={portfolioData?.portfolioName}
-                value={formState?.jobDescription || id?.jobDescription}
+                defaultValue={editing ? formState?.jobDescription : id?.jobDescription}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
                     jobDescription: e.target.value

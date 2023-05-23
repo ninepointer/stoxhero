@@ -372,75 +372,75 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
   if(myPnlAndCreditData.length > 0){
     res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
   } else{
-    let fundDetail = await InfinityTrader.aggregate([
-      {
-        $lookup: {
-          from: "user-personal-details",
-          localField: "trader",
-          foreignField: "_id",
-          as: "result",
-        },
-      },
-      // {
-      //   $match: {
-      //   status : "COMPLETE",
-      //   trader: new ObjectId(req.user._id),
-      //   trade_time: {
-      //       $lt: today
-      //     }
-      //   }
-      // },
-      {
-        $group: {
-          _id: {
-            // trader: "$trader",
-            // employeeId: {
-            //   $arrayElemAt: ["$result.employeeid", 0],
-            // },
-            funds: {
-              $arrayElemAt: ["$result.fund", 0],
-            },
-          },
-          // gpnl: {
-          //   $sum: {
-          //     $multiply: ["$amount", -1],
-          //   },
-          // },
-          // brokerage: {
-          //   $sum: {
-          //     $toDouble: "$brokerage",
-          //   },
-          // },
-        },
-      },
-      // {
-      //   $addFields:
-      //     {
-      //       npnl: {
-      //         $subtract: ["$gpnl", "$brokerage"],
-      //       },
-      //       availableMargin : {
-      //         $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
-      //       }
-      //     },
-      // },
-      {
-        $project:
-          {
-            _id: 0,
-            // userId: "$_id.userId",
-            // employeeId: "$_id.employeeId",
-            totalCredit: "$_id.funds",
-            // gpnl: "$gpnl",
-            // brokerage: "$brokerage",
-            // npnl: "$npnl",
-            // availableMargin: "$availableMargin"
-          },
-      },
-      // {
-      //   $sort : {npnl : 1}
-      // }
-    ])
+    // let fundDetail = await InfinityTrader.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: "user-personal-details",
+    //       localField: "trader",
+    //       foreignField: "_id",
+    //       as: "result",
+    //     },
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //   status : "COMPLETE",
+    //   //   trader: new ObjectId(req.user._id),
+    //   //   trade_time: {
+    //   //       $lt: today
+    //   //     }
+    //   //   }
+    //   // },
+    //   {
+    //     $group: {
+    //       _id: {
+    //         // trader: "$trader",
+    //         // employeeId: {
+    //         //   $arrayElemAt: ["$result.employeeid", 0],
+    //         // },
+    //         funds: {
+    //           $arrayElemAt: ["$result.fund", 0],
+    //         },
+    //       },
+    //       // gpnl: {
+    //       //   $sum: {
+    //       //     $multiply: ["$amount", -1],
+    //       //   },
+    //       // },
+    //       // brokerage: {
+    //       //   $sum: {
+    //       //     $toDouble: "$brokerage",
+    //       //   },
+    //       // },
+    //     },
+    //   },
+    //   // {
+    //   //   $addFields:
+    //   //     {
+    //   //       npnl: {
+    //   //         $subtract: ["$gpnl", "$brokerage"],
+    //   //       },
+    //   //       availableMargin : {
+    //   //         $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
+    //   //       }
+    //   //     },
+    //   // },
+    //   {
+    //     $project:
+    //       {
+    //         _id: 0,
+    //         // userId: "$_id.userId",
+    //         // employeeId: "$_id.employeeId",
+    //         totalCredit: "$_id.funds",
+    //         // gpnl: "$gpnl",
+    //         // brokerage: "$brokerage",
+    //         // npnl: "$npnl",
+    //         // availableMargin: "$availableMargin"
+    //       },
+    //   },
+    //   // {
+    //   //   $sort : {npnl : 1}
+    //   // }
+    // ])
     const data = await User.findById(req.user._id).select('fund');
     const respData = {"totalFund": data.fund};
     //res.status(201).json({message: "data received", data: fundDetail[0]});

@@ -200,7 +200,7 @@ const getTicksForUserPosition = async (socket, id) => {
         instrumentTokenArr = new Set(instrumentTokenArr)
       }
 
-      console.log("this is getter2", getValue());
+      // console.log("this is getter2", getValue());
       // let userId = await client.get(socket.id)
       // let instruments = await client.SMEMBERS(userId)
       // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
@@ -220,7 +220,7 @@ const getTicksForUserPosition = async (socket, id) => {
       instruments = null;
 
     } catch (err){
-      console.log(err)
+      // console.log(err)
     }
 
 
