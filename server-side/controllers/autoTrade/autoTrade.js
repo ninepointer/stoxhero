@@ -1,7 +1,7 @@
 // const axios = require("axios")
 const BrokerageDetail = require("../../models/Trading Account/brokerageSchema");
 // const PaperTrade = require("../models/mock-trade/paperTrade");
-// const singleLivePrice = require('../marketData/sigleLivePrice');
+const singleLivePrice = require('../marketData/sigleLivePrice');
 const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 // const InfinityTrader = require("../models/mock-trade/infinityTrader");
 // const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
@@ -11,10 +11,11 @@ const {client, isRedisConnected} = require('../../marketData/redisClient');
 // const mongoose = require('mongoose')
 const singleXTSLivePrice = require("../../services/xts/xtsHelper/singleXTSLivePrice");
 const {xtsAccountType} = require("../../constant");
-
+const Setting = require("../../models/settings/setting");
 
 exports.takeAutoTrade = async (tradeDetails) => {
 
+    const setting = await Setting.find().select('toggle');
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeSegment,
         validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dontSendResp } = tradeDetails
@@ -46,8 +47,13 @@ exports.takeAutoTrade = async (tradeDetails) => {
     let trade_time = "";
     try{
         // console.log("above data")
-        // let liveData = await singleLivePrice(exchange, symbol) TODO toggle
-        let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+        let liveData;
+        if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
+            liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+        } else{
+            liveData = await singleLivePrice(exchange, symbol)
+        }
+        // let  TODO toggle
         console.log("live data", liveData)
         for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){

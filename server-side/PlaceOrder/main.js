@@ -8,6 +8,7 @@ const LiveTradeFunc = require("../PlaceOrder/liveTrade")
 const authentication = require("../authentication/authentication")
 const Setting = require("../models/settings/setting");
 const {liveTrade} = require("../services/xts/xtsHelper/xtsLiveOrderPlace");
+const { xtsAccountType, zerodhaAccountType } = require("../constant");
 
 
 router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
@@ -18,8 +19,12 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
         return res.status(401).send({message: "App is not Live right now. Please wait."}) 
     }
     if(req.body.apiKey && req.body.accessToken){
+        if(setting[0]?.toggle?.liveOrder == zerodhaAccountType || setting[0]?.toggle?.complete == zerodhaAccountType){
             await liveTrade(req, res);
-        // LiveTradeFunc.liveTrade(req.body, res); TODO toggle
+        } else{
+            await LiveTradeFunc.liveTrade(req.body, res);
+        }
+        //  TODO toggle
     } else{
         MockTradeFunc.mockTrade(req, res);
     }
@@ -50,16 +55,16 @@ router.post("/tenxPlacingOrder", authentication, authoizeTrade.fundCheckTenxTrad
     
 })
 
-router.post("/tenxPlacingOrder", authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
+// router.post("/tenxPlacingOrder", authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
 
-    console.log("in tenxPlacingOrder trade")
-    const setting = await Setting.find();
-    // console.log("settings", setting, req.user?.role?.roleName )
-    if(!setting[0].isAppLive && req.user?.role?.roleName != 'Admin'){
-        return res.status(401).send({message: "App is not Live right now. Please wait."}) 
-      }
-    MockTradeFunc.mockTrade(req, res)
+//     console.log("in tenxPlacingOrder trade")
+//     const setting = await Setting.find();
+//     // console.log("settings", setting, req.user?.role?.roleName )
+//     if(!setting[0].isAppLive && req.user?.role?.roleName != 'Admin'){
+//         return res.status(401).send({message: "App is not Live right now. Please wait."}) 
+//       }
+//     MockTradeFunc.mockTrade(req, res)
     
-})
+// })
 
 module.exports = router;
