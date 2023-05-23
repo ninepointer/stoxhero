@@ -62,6 +62,7 @@ import CampaignDetails from './layouts/campaign/campaignDetails'
 import { adminRole } from "./variables";
 import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
+import Contact from "./layouts/HomePage/pages/Contact";
 
 export default function App() {
   const cookieValue = Cookies.get("jwt");
@@ -300,6 +301,7 @@ export default function App() {
           <Route path='/home' element={<Home/>}/>
           <Route path='/login' element={<SignIn/>}/>
           <Route path='/about' element={<About/>}/>
+          <Route path='/contact' element={<Contact/>}/>
           {/* <Route path='/campaigndetails' element={<CampaignDetails/>}/> */}
             
         </Routes>
