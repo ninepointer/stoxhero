@@ -17,6 +17,7 @@ import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
 import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { internshipTrader } from '../../../variables';
+import InternshipMargin from '../../tradingCommonComponent/MarginDetails/InternshipMargin';
 
 export default function TenXTrading({socket, subscriptionId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -145,7 +146,7 @@ export default function TenXTrading({socket, subscriptionId}) {
           {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
-          <TenXTMargin availbaleMargin={availbaleMargin} subscriptionId={subscriptionId} setyesterdayData={setyesterdayData}/>
+          <InternshipMargin availbaleMargin={availbaleMargin} BatchId={subscriptionId} setyesterdayData={setyesterdayData}/>
         </Grid>
       </Grid>
 
