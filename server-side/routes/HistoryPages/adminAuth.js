@@ -39,6 +39,12 @@ const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCu
 
 
 
+router.get("/orderData", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
+  const data = await InfinityTrader.find({trader: new ObjectId("63b45f0f906e240bb6ed792a"), trade_time: {$gte: new Date("2023-05-10T00:00:00.000Z"), $lte: new Date("2023-05-10T23:59:00.000Z")}})
+  res.send(data);
+});
+
 router.get("/deleteMatching", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
   const del = await InfinityTrader.aggregate([
