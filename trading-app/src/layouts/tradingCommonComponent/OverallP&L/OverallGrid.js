@@ -17,7 +17,7 @@ import OverallRow from './OverallRow';
 import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
-import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
 
 
 function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
@@ -49,7 +49,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let rows = [];
-  let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader && `tenX/${subscriptionId}/trade/pnl`;
+  let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === internshipTrader? `internship/pnl` : from === tenxTrader && `tenX/${subscriptionId}/trade/pnl`;
 
   console.log("pnlEndPoint", pnlEndPoint)
 
