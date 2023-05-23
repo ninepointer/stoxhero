@@ -197,7 +197,7 @@ export default function TenXSubscriptions() {
 
   return (
    
-    <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10}>
+    <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10} minHeight='65vh' >
 
     <MDBox display="flex" justifyContent='center' flexDirection='column' mb={2} mt={1}>
       <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is StoxHero Internship?</MDTypography>
@@ -211,13 +211,19 @@ export default function TenXSubscriptions() {
     </MDBox>
           
     <Grid container spacing={3} mb={1} mt={2}>
-      <MDBox bgColor="white" p={2} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)" mb={2} mt={1} ml={3}>
-        <MDTypography fontSize={15} fontWeight='bold' color="dark">
+      <MDBox bgColor="white" p={2} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)" mb={2} mt={1} ml={3} width='100%'>
+        <MDTypography fontSize={18} fontWeight='bold' color="dark">
           Rules for completion of Internship
         </MDTypography>
+        <MDTypography fontSize = {15}>1. You must accept and abide by the terms of usage.</MDTypography>
+        <MDTypography fontSize = {15}>2. You must take trades on 80 percent of the trading days during the internship period.</MDTypography>
+        <MDTypography fontSize = {15}>3. You must have a net positive P&L by the end of the internship period.</MDTypography>
+        <MDTypography fontSize = {15}>4. You must not partake in any malpractices or manipulation.</MDTypography>
+        <MDTypography fontSize = {15}>5. It is preferred if you refer more people to the platform.</MDTypography>
+        <MDTypography></MDTypography>
       </MDBox>
-      <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/internship/trade`)}} size='small'>Start Trading</MDButton>
+      <MDBox width='100%'>
+        <MDButton variant="contained" color="success" sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} onClick={()=>{navigate(`/internship/trade`)}} size='small'>Start Trading</MDButton>
       </MDBox>               
     </Grid>
 
