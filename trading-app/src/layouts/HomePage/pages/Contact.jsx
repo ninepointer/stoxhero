@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardContent, Container, Grid, Stack, TextField,Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, Grid, Stack, TextField,Typography } from '@mui/material'
 import theme from '../utils/theme/index'
 import Navbar from '../components/Navbars/Navbar'
 import React, { useState } from 'react'
@@ -57,8 +57,8 @@ const Contact = () => {
             <Navbar/>
 
 
-
-            <Card style={{ maxWidth: 470, margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
+            
+            <Card style={{ maxWidth: 470,margin: "150px auto", padding: "20px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
                 <CardContent>
 
                     <Typography gutterBottom variant='h5'>Contact US</Typography>
@@ -69,13 +69,13 @@ const Contact = () => {
 
                         <Grid container spacing={5}>
 
-                            <Grid item xs={12} sm={6} >
+                            <Grid item xs={12} sm={12} >
 
                                 <TextField value={data.fname} name='fname' label="First Name" placeholder='Enter first name' variant='outlined' fullWidth required onChange={HandleChange} />
 
                             </Grid>
 
-                            <Grid item xs={12} sm={6} >
+                            <Grid item xs={12} sm={12} >
 
                                 <TextField value={data.lname} name='lname' label="Last Name" placeholder='Enter last name' variant='outlined' fullWidth required onChange={HandleChange} />
 
@@ -99,17 +99,23 @@ const Contact = () => {
 
                             </Grid>
 
+                            {/* <Grid item ml={8} xs={4}>
+                                <img style={{height:"130px",width:"300px"}} src="https://c0.wallpaperflare.com/preview/409/599/766/digitization-handshake-shaking-hands-industry.jpg" alt="" />
+                            </Grid> */}
+
 
                             
 
                         </Grid>
-                            {
+                            {/* {
                                 sucess && (<Grid sx={{background:"green",color:"#fff",textAlign:"center", borderRadius:"20px",mt:"10px",pl:"-5px"}} item xs={10}>Submitted Sucessfully!</Grid>)
-                            }
+                            } */}
 
                     </form>
                 </CardContent>
             </Card>
+            
+            
 
 
             

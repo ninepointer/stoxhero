@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Grid, Paper, TableContainer, TextField, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Grid, Paper, TableContainer, TextField, Typography } from '@mui/material';
 import React from 'react';
 import MDBox from '../../components/MDBox';
 import MDButton from '../../components/MDButton';
@@ -7,38 +7,8 @@ import CreateCollege from "./createCollege";
 import {useState, useEffect} from 'react';
 import CollegeComponent from '../../assets/theme/components/collegeComponent/CollegeComponent';
 import axios from "axios";
-
+import EditIcon from '@mui/icons-material/Edit';
 import { Link} from "react-router-dom";
-
-
-
-const data = [
-  {
-    id:1,
-    collegeName :"college",
-    zone:"xxx",
-  },
-  {
-    id:2,
-    collegeName :"college",
-    zone:"xxx",
-  },
-  {
-    id:3,
-    collegeName :"college",
-    zone:"xxx",
-  },
-  {
-    id:4,
-    collegeName :"college",
-    zone:"xxx",
-  },
-  {
-    id:5,
-    collegeName :"college",
-    zone:"xxx",
-  },
-]
 
 
 
@@ -47,13 +17,14 @@ const data = [
 const College = () => {
 
 
-  let baseUrl =  "http://localhost:5000/api/v1/college"
+  // let baseUrl =  "http://localhost:5000/api/v1/college"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   let [collegeData,setCollegeData] = useState([])
   
 
 useEffect(()=>{
-  let call1 = axios.get(baseUrl,{
+  let call1 = axios.get((`${baseUrl}api/v1/college`),{
               withCredentials: true,
               headers: {
                   Accept: "application/json",
@@ -74,6 +45,7 @@ useEffect(()=>{
     // Handle errors here
     console.error(error);
   });
+  
 },[])
 
 
@@ -88,13 +60,15 @@ useEffect(()=>{
 
 
   return (
-    <MDBox style={{marginTop:"10px", height: "80vh", backgroundColor:"#344666", borderRadius:"12px"}}>
+    <MDBox style={{marginTop:"10px", height: "80vh",background:"#344767" ,borderRadius:"12px"}}>
         {!createCollegeForm ? 
         <>
-        <MDBox>
+        <MDBox display="flex" justifyContent="flex-end"  sx={{width:"92%",marginLeft:{xs:"-55px",md:"50px"}}}>
+          
             <MDButton
                variant="contained" 
                size="small" 
+               style={{marginTop:"20px"}}
                color="success" 
                sx={{marginLeft:1.5}}
                onClick={()=>{setCreateCollegeForm(true);setIsObjectNew(true)}}
@@ -105,40 +79,48 @@ useEffect(()=>{
 
         <>
         
-         <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
-              <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">College</MDTypography>
+         <Grid mt={3} p={1} container sx={{background:"#fff",borderRadius:"8px",color:"#000",marginLeft:{xs:"13px",md:"50px"},width:"92%"}}>
+              <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center" alignContent="center"  alignItems="center">
+                <MDTypography  fontSize={13} fontWeight="bold">College</MDTypography>
               </Grid>
               <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Zone</MDTypography>
+                <MDTypography  fontSize={13} fontWeight="bold">Zone</MDTypography>
               </Grid>
               <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Action</MDTypography>
+                <MDTypography  fontSize={13} fontWeight="bold">Action</MDTypography>
               </Grid>
          </Grid>
 
          
 
-         <Card container>
+         <MDBox sx={{ maxHeight: '500px', overflow: 'auto' }} mt={3}>
+         
        {collegeData.map((elem,index)=>{
          return(
-           <Grid key={elem._id} container mt={1} p={1}>
-                  <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center" borderBottom="1px solid gray" alignContent="center" alignItems="center">
-                <MDTypography color="#000" fontSize={13} fontWeight="bold">{elem.collegeName}</MDTypography>
-              </Grid>
-              <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center" borderBottom="1px solid gray" alignContent="center" alignItems="center">
-                <MDTypography color="#000" fontSize={13} fontWeight="bold">{elem.zone}</MDTypography>
-              </Grid>
-              <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center" borderBottom="1px solid gray" alignContent="center" alignItems="center">
 
-           
-              <MDButton  size="small" style={{background:"blue",color:"#fff",fontSize:"10px",fontWeight:"500",width:"60px",borderRadius:"10px",marginBottom:"5px"}} component={Link} to={{pathname:"/collegeEdit"}} state={{data:elem}} >edit</MDButton>
-              </Grid>
+
+           <Grid key={elem._id} container  sx={{background:"whitesmoke",marginLeft:{xs:"13px",md:"50px"},width:"92%"}} borderRadius="8px"  mt={1} mb={1} p={1}>
+
+                  <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center"  alignContent="center" alignItems="center">
+                   <MDTypography color="#000" fontSize={13} fontWeight="bold">{elem.collegeName}</MDTypography>
                   </Grid>
-                )
+
+                  <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center"  alignContent="center" alignItems="center">
+                   <MDTypography color="#000" fontSize={13} fontWeight="bold">{elem.zone}</MDTypography>
+                  </Grid>
+
+                 <Grid item xs={4} md={4} lg={4} display="flex" justifyContent="center"  alignContent="center" alignItems="center">
+                   <MDButton size="small" style={{color:"#fff",fontSize:"13px",fontWeight:"500",width:"60px",marginBottom:"2px",marginTop:"1px",background:"rgb(88, 115, 196)"}} component={Link} to={{pathname:"/collegeEdit"}} state={{data:elem}} ><EditIcon/></MDButton>
+                 </Grid>
+
+
+            </Grid>
+
+          
+                   )
               })}
 
-         </Card>
+         </MDBox>
    
          
         </>
@@ -153,3 +135,20 @@ useEffect(()=>{
 }
 
 export default College
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

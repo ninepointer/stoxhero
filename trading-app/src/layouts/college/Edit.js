@@ -1,3 +1,125 @@
+
+// import { Button, Card, CardContent, Grid, TextField, Typography } from '@mui/material'
+// import React, { useState } from 'react'
+// import MDButton from '../../components/MDButton'
+// import { Link} from "react-router-dom";
+// import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
+// import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
+// import Footer from "../../examples/Footer";
+
+// const Edit = () => {
+
+    
+
+
+//     let [data, setData] = useState({
+//         fname: "",
+//         lname: "",
+        
+//     })
+    
+//     let [newData, setNewData] = useState([])
+    
+    
+    
+    
+//     const HandleChange = (e) => {
+    
+//      let { name, value } = e.target;
+    
+//         setData((prev) => {
+//             return {
+//                 ...prev, [name]: value
+//             }
+//         })
+    
+//     }
+    
+//     const HandleSubmit = (e) => {
+    
+//         e.preventDefault();
+//         setNewData([...newData, data]);    
+      
+//         setData({fname:"",lname:""})
+//     }
+    
+
+//   return (
+
+//    <DashboardLayout>
+
+//     <DashboardNavbar />
+//         <Card style={{ maxWidth: "70%", margin: "60px auto", padding: "20px 5px", textAlign: "left" }} sx={{ xs: "20px" }} >
+//                 <CardContent>
+
+//                     <Typography  gutterBottom variant='h5'>Edit College Details</Typography>
+                    
+
+//                     <form onSubmit={HandleSubmit} >
+
+
+//                         <Grid container spacing={5}>
+
+//                             <Grid item xs={12} sm={12} >
+
+//                                 <TextField value={data.fname} name='fname' label="College Name" placeholder='Enter College name' variant='outlined' fullWidth required onChange={HandleChange} />
+
+//                             </Grid>
+
+//                             <Grid item xs={12} sm={12} >
+
+//                                 <TextField value={data.lname} name='lname' label="Zone" placeholder='Enter Zone' variant='outlined' fullWidth required onChange={HandleChange} />
+
+//                             </Grid>
+
+//                             <Grid item xs={12}  >
+
+//                                 <Button type='submit' variant='contained' sx={{color:"#fff"}} fullWidth>Save</Button>
+
+//                             </Grid>
+
+//                             <Grid item xs={12}>
+
+//                                 <MDButton component = {Link} to={{pathname: `/college`}} variant='contained' color={"light"} sx={{color:"#fff",background:'blue','&:hover':{background:"blue"}}} fullWidth >Back</MDButton>
+
+//                             </Grid>
+
+
+                            
+
+//                         </Grid>
+                            
+
+//                     </form>
+//                 </CardContent>
+//             </Card>
+//         <Footer />
+//     </DashboardLayout>
+         
+//   )
+// }
+
+// export default Edit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React ,{useEffect, useState} from "react";
 import axios from "axios";
 import TextField from '@mui/material/TextField';
@@ -12,8 +134,13 @@ import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
-import CampaignUsers from "./data/campaignUsers";
+
 import { IoMdAddCircle } from 'react-icons/io';
+
+import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
+import Footer from "../../examples/Footer";
+
 
 
 function Index() {
@@ -23,7 +150,7 @@ function Index() {
     console.log("Campaign Users: ",id?.users?.length)
     const [campaignUserCount, setCampaignUserCount] = useState(id?.users?.length);
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/api/v1/college"
     const [isLoading,setIsLoading] = useState(id ? true : false)
     const [editing,setEditing] = useState(false)
     const [saving,setSaving] = useState(false)
@@ -33,15 +160,11 @@ function Index() {
     const [updatedDocument, setUpdatedDocument] = useState([]);
     const [campaignData,setCampaignData] = useState([])
     const [cac,setCAC] = useState(0);
-    console.log(id?.campaignName)
+    console.log(id?.collegeName)
     const [formState,setFormState] = useState({
-        campaignName: '',
-        description:'',
-        campaignFor:'',
-        campaignCode: '',
-        campaignLink: '',
-        campaignCost: '',
-        status:''
+        collegeName: '',
+        zone:'',
+        
     });
 
     useEffect(()=>{
@@ -54,7 +177,7 @@ function Index() {
     console.log("Campaign User Count: ",campaignUserCount);
     React.useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/campaign/${id?._id}`)
+      axios.get(`${baseUrl}api/v1/college/${id?._id}`)
       .then((res)=>{
           setCampaignData(res.data.data);
           setUpdatedDocument(res.data.data);
@@ -62,13 +185,9 @@ function Index() {
           setCAC(((res.data.data.campaignCost)/campaignUserCount).toFixed(2))
           // setCampaignUserCount(res?.data?.data?.users?.length);
           setFormState({
-              campaignName: res.data.data?.campaignName || '',
-              description: res.data.data?.description || '',
-              campaignCode: res.data.data?.campaignCode || '',
-              campaignFor: res.data.data?.campaignFor || '',
-              campaignLink: res.data.data?.campaignLink || '',
-              campaignCost: res.data.data?.campaignCost || '',
-              status: res.data.data?.status || '',
+              collegeName: res.data.data?.collegeName || '',
+              zone: res.data.data?.zone || '',
+              
             });
               setTimeout(()=>{setIsLoading(false)},500) 
       }).catch((err)=>{
@@ -196,46 +315,11 @@ function Index() {
     />
   );
 
-  const handleChange = (e) => {
-    if (!formState.campaignName.includes(e.target.value)) {
-      setFormState(prevState => ({
-        ...prevState,
-        campaignName: e.target.value,
-      }));
-    }
-    if(!formState.campaignCode.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        campaignCode:e.target.value,
-      }))
-    }
-
-    if(!formState.campaignCost.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        campaignCost:e.target.value,
-      }))
-    }
-
-    if(!formState.campaignLink.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        campaignLink:e.target.value,
-      }))
-    }
-
-    if(!formState.description.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        description:e.target.value,
-      }))
-    }
-  };
-
 
   console.log("Campaign User Count: ",campaignUserCount);
     return (
-    <>
+    <DashboardLayout>
+         <DashboardNavbar />
     {isLoading ? (
         <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
         <CircularProgress color="info" />
@@ -246,7 +330,7 @@ function Index() {
         <MDBox pl={2} pr={2} mt={4} mb={2}>
         <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-          Fill Campaign Details
+          Fill College Details
         </MDTypography>
         </MDBox>
 
@@ -256,16 +340,13 @@ function Index() {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
-                label='Campaign Name *'
+                label='College Name *'
                 fullWidth
-                // value={formState?.campaignName || id?.campaignName}
-                // onChange={(e) => {setFormState(prevState => ({
-                //     ...prevState,
-                //     campaignName: e.target.value
-                //   }))}}
-
-                defaultValue={editing ? formState.campaignName:id?.campaignName}
-                onChange={handleChange}
+                value={formState?.collegeName || id?.collegeName}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    collegeName: e.target.value
+                  }))}}
               />
           </Grid>
 
@@ -273,19 +354,17 @@ function Index() {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
-                label='Campaign Code *'
+                label='Zone *'
                 fullWidth
-                // value={formState?.campaignCode || id?.campaignCode}
-                // onChange={(e) => {setFormState(prevState => ({
-                //     ...prevState,
-                //     campaignCode: e.target.value
-                //   }))}}
-                defaultValue={editing ? formState.campaignCode:id?.campaignCode}
-                onChange={handleChange}
+                value={formState?.zone || id?.zone}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    zone: e.target.value
+                  }))}}
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3} mt={2}>
+          {/* <Grid item xs={12} md={6} xl={3} mt={2}>
               <FormControl sx={{width: "100%" }}>
                 <InputLabel id="demo-simple-select-autowidth-label">Campaign For *</InputLabel>
                 <Select
@@ -347,14 +426,11 @@ function Index() {
                 fullWidth
                 type='number'
                 multiline
-                // value={formState?.campaignCost || id?.campaignCost}
-                // onChange={(e) => {setFormState(prevState => ({
-                //     ...prevState,
-                //     campaignCost: e.target.value
-                //   }))}}
-
-                defaultValue={editing ? formState.campaignCost : id?.campaignCost}
-                onChange={handleChange}
+                value={formState?.campaignCost || id?.campaignCost}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    campaignCost: e.target.value
+                  }))}}
               />
           </Grid>
 
@@ -377,14 +453,11 @@ function Index() {
                 label='Campaign Link *'
                 fullWidth
                 multiline
-                // value={formState?.campaignLink || id?.campaignLink}
-                // onChange={(e) => {setFormState(prevState => ({
-                //     ...prevState,
-                //     campaignLink: e.target.value
-                //   }))}}
-
-                defaultValue={editing ? formState?.campaignLink:id?.campaignLink}
-                onChange={handleChange}
+                value={formState?.campaignLink || id?.campaignLink}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    campaignLink: e.target.value
+                  }))}}
               />
           </Grid>
 
@@ -395,16 +468,13 @@ function Index() {
                 label='Campaign Description *'
                 fullWidth
                 multiline
-                // value={formState?.description || id?.description}
-                // onChange={(e) => {setFormState(prevState => ({
-                //     ...prevState,
-                //     description: e.target.value
-                //   }))}}
-
-                defaultValue={editing ? formState?.description : id?.description}
-                onChange={handleChange}
+                value={formState?.description || id?.description}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    description: e.target.value
+                  }))}}
               />
-          </Grid>
+          </Grid> */}
             
         </Grid>
 
@@ -424,7 +494,7 @@ function Index() {
                         >
                         {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/campaigns")}}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/college")}}>
                         Cancel
                     </MDButton>
                     </>
@@ -440,7 +510,7 @@ function Index() {
                     >
                         Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={()=>{navigate('/campaigns')}}>
+                    <MDButton variant="contained" color="info" size="small" onClick={()=>{navigate('/college')}}>
                         Back
                     </MDButton>
                     </>
@@ -470,12 +540,12 @@ function Index() {
                     )}
             </Grid>
 
-            {(id || newObjectId) && 
+            {/* {(id || newObjectId) && 
             <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
                     <CampaignUsers campaign={campaignData} campaignUserCount={campaignUserCount}/>
                 </MDBox>
-            </Grid>}
+            </Grid>} */}
 
          </Grid>
 
@@ -484,7 +554,8 @@ function Index() {
     </MDBox>
     )
                 }
-    </>
+                <Footer />
+    </DashboardLayout>
     )
 }
 export default Index;
