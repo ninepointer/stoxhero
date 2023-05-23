@@ -407,7 +407,7 @@ exports.tradingDays = async (req, res, next) => {
             {
               $subtract: [
                 today,
-                              {
+                {
                   $toDate: "$_id.users.subscribedOn",
                 },
                 
