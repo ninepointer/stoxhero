@@ -166,7 +166,7 @@ async function onEdit(e,formState){
 
   async function onSubmit(e,formState){
     e.preventDefault()
-    console.log(formState)
+    console.log(formState);
     if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
     
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
@@ -281,38 +281,11 @@ async function onEdit(e,formState){
 
 
   const handleEdit = (e)=>{
-    if (!formState.plan_name.includes(e.target.value)) {
+    const{name,value} = e.target;
+    if (!formState[name]?.includes(e.target.value)) {
         setFormState(prevState => ({
           ...prevState,
-          plan_name: e.target.value,
-        }));
-      }
-
-      if (!formState.actual_price.includes(e.target.value)) {
-        setFormState(prevState => ({
-          ...prevState,
-          actual_price: e.target.value,
-        }));
-      }
-
-      if (!formState.discounted_price.includes(e.target.value)) {
-        setFormState(prevState => ({
-          ...prevState,
-          discounted_price: e.target.value,
-        }));
-      }
-
-      if (!formState.profitCap.includes(e.target.value)) {
-        setFormState(prevState => ({
-          ...prevState,
-          profitCap: e.target.value,
-        }));
-      }
-
-      if (!formState.validity.includes(e.target.value)) {
-        setFormState(prevState => ({
-          ...prevState,
-          validity: e.target.value,
+          [name]: value,
         }));
       }
   }
@@ -340,6 +313,7 @@ async function onEdit(e,formState){
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     id="outlined-required"
                     label='Plan Name *'
+                    name='plan_name'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
                     defaultValue={editing ? formState?.plan_name : tenXSubs?.plan_name}
@@ -356,6 +330,7 @@ async function onEdit(e,formState){
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     id="outlined-required"
                     label='Actual Price *'
+                    name='actual_price'
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
@@ -373,6 +348,7 @@ async function onEdit(e,formState){
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     id="outlined-required"
                     label='Discounted Price *'
+                    name='discounted_price'
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
@@ -390,6 +366,7 @@ async function onEdit(e,formState){
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     id="outlined-required"
                     label='Profit Cap *'
+                    name='profitCap'
                     type='number'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
@@ -409,6 +386,7 @@ async function onEdit(e,formState){
                   <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
+                    name='portfolio'
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
                     value={formState?.portfolio?.name || tenXSubs?.portfolio?.portfolioName}
@@ -435,6 +413,7 @@ async function onEdit(e,formState){
                     id="outlined-required"
                     label='Validity *'
                     type='number'
+                    name='validity'
                     fullWidth
                     // defaultValue={portfolioData?.portfolioName}
                     defaultValue={editing ? formState?.validity : tenXSubs?.validity}
@@ -452,6 +431,7 @@ async function onEdit(e,formState){
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
+                    name='validityPeriod'
                     value={formState?.validityPeriod || tenXSubs?.validityPeriod}
                     // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}
@@ -475,6 +455,7 @@ async function onEdit(e,formState){
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
+                    name='status'
                     value={formState?.status || tenXSubs?.status}
                     // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}

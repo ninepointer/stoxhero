@@ -197,40 +197,14 @@ function Index() {
   );
 
   const handleChange = (e) => {
-    if (!formState.campaignName.includes(e.target.value)) {
+    const{name, value} = e.target;
+    if (!formState[name]?.includes(e.target.value)) {
       setFormState(prevState => ({
         ...prevState,
-        campaignName: e.target.value,
+        [name]: value,
       }));
     }
-    if(!formState.campaignCode.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        campaignCode:e.target.value,
-      }))
-    }
-
-    if(!formState.campaignCost.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        campaignCost:e.target.value,
-      }))
-    }
-
-    if(!formState.campaignLink.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        campaignLink:e.target.value,
-      }))
-    }
-
-    if(!formState.description.includes(e.target.value)){
-      setFormState(prevState=>({
-        ...prevState,
-        description:e.target.value,
-      }))
-    }
-  };
+     };
 
 
   console.log("Campaign User Count: ",campaignUserCount);
@@ -256,6 +230,7 @@ function Index() {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
+                name="campaignName"
                 label='Campaign Name *'
                 fullWidth
                 // value={formState?.campaignName || id?.campaignName}
@@ -274,6 +249,7 @@ function Index() {
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
                 label='Campaign Code *'
+                name="campaignCode"
                 fullWidth
                 // value={formState?.campaignCode || id?.campaignCode}
                 // onChange={(e) => {setFormState(prevState => ({
@@ -291,6 +267,7 @@ function Index() {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
+                name="campaignFor"
                 value={formState?.campaignFor || id?.campaignFor}
                 // value={oldObjectId ? contestData?.status : formState?.status}
                 disabled={((isSubmitted || id) && (!editing || saving))}
@@ -321,6 +298,7 @@ function Index() {
                 <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
                 <Select
                 labelId="demo-simple-select-autowidth-label"
+                name="status"
                 id="demo-simple-select-autowidth"
                 value={formState?.status || id?.status}
                 // value={oldObjectId ? contestData?.status : formState?.status}
@@ -343,6 +321,7 @@ function Index() {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
+                name="campaignCost"
                 label='Campaign Cost (in ₹)'
                 fullWidth
                 type='number'
@@ -362,6 +341,7 @@ function Index() {
             <TextField
                 disabled={true}
                 id="outlined-required"
+                name="cac"
                 label='CAC'
                 fullWidth
                 multiline
@@ -374,6 +354,7 @@ function Index() {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
+                name="campaignLink"
                 label='Campaign Link *'
                 fullWidth
                 multiline
@@ -392,6 +373,7 @@ function Index() {
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
+                name="description"
                 label='Campaign Description *'
                 fullWidth
                 multiline

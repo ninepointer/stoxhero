@@ -227,19 +227,13 @@ function Index() {
 
 console.log(id)
 const handleChange = (e) => {
-    if (!formState.jobTitle.includes(e.target.value)) {
+    const {name,value} = e.target;
+    if (!formState[name]?.includes(e.target.value)) {
       setFormState(prevState => ({
         ...prevState,
-       jobTitle : e.target.value,
+       [name] : value,
       }));
     }
-
-    if (!formState.jobDescription.includes(e.target.value)) {
-        setFormState(prevState => ({
-          ...prevState,
-         jobDescription : e.target.value,
-        }));
-      }
   };
 
     return (
@@ -265,6 +259,7 @@ const handleChange = (e) => {
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
                 label='Job Title *'
+                name='jobTitle'
                 fullWidth
                 // defaultValue={portfolioData?.portfolioName}
                 defaultValue={editing ? formState?.jobTitle : id?.jobTitle}
@@ -282,6 +277,7 @@ const handleChange = (e) => {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
+                name='jobType'
                 value={formState?.jobType || id?.jobType}
                 // value={oldObjectId ? contestData?.status : formState?.status}
                 disabled={((isSubmitted || id) && (!editing || saving))}
@@ -304,6 +300,7 @@ const handleChange = (e) => {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
+                name='jobLocation'
                 value={formState?.jobLocation || id?.jobLocation}
                 // value={oldObjectId ? contestData?.status : formState?.status}
                 disabled={((isSubmitted || id) && (!editing || saving))}
@@ -326,6 +323,7 @@ const handleChange = (e) => {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
+                name='status'
                 value={formState?.status || id?.status}
                 // value={oldObjectId ? contestData?.status : formState?.status}
                 disabled={((isSubmitted || id) && (!editing || saving))}
@@ -348,6 +346,7 @@ const handleChange = (e) => {
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
                 label='Job Description *'
+                name='jobDescription'
                 fullWidth
                 multiline
                 // defaultValue={portfolioData?.portfolioName}
