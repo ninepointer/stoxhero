@@ -31,22 +31,9 @@ function OverallTraderPNL({socket}) {
   const [marketData, setMarketData] = useState([]);
   // const [instrumentData, setInstrumentData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
-  // const [lastestTradeTimearr, setLatestTradeTimearr] = useState([]);
-  // const [lastestTradeTime, setLatestTradeTime] = useState([]);
-  // const [lastestTradeBy, setLatestTradeBy] = useState([]);
-  // const [lastestTradeSymbol, setLatestTradeSymbol] = useState([]);
-  // const [lastestTradeType, setLatestTradeType] = useState([]);
-  // const [lastestTradeQunaity, setLatestTradeQuantity] = useState([]);
-  // const [lastestTradeStatus, setLatestTradeStatus] = useState([]);
-  // const [lastAvgPriceArr, setLastAvgPriceArr] = useState([]);
 
-  // Get Latest Trade Time Stamp code ends
-
-
-  var Total = 0;
-  let avgPriceArr = [];
   let liveDetailsArr = [];
-  let overallPnl = [];
+  // let overallPnl = [];
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -78,42 +65,16 @@ function OverallTraderPNL({socket}) {
 
     useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/getoverallpnlmocktradetradertoday`)
+      axios.get(`${baseUrl}api/v1/infinityTrade/mock/pnlAllTrader`)
       .then((res) => {
-          setTradeData(res.data);
-          res.data.map((elem)=>{
-            marketData.map((subElem)=>{
-                if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-                    liveDetailsArr.push(subElem)
-                }
-            })
-          })
-
-        setLiveDetail(liveDetailsArr);
-
-                 
+          setTradeData(res.data.data);
 
       }).catch((err) => {
           return new Error(err);
       })
 
-      // Get Lastest Trade timestamp
-      // axios.get(`${baseUrl}api/v1/getlastestmocktradecompany`)
-      // .then((res)=>{
-      //     console.log(res.data);
-      //     setLatestTradeTimearr(res.data);
-      //     setLatestTradeTime(res.data.trade_time) ;
-      //     setLatestTradeBy(res.data.createdBy) ;
-      //     setLatestTradeType(res.data.buyOrSell) ;
-      //     setLatestTradeQuantity(res.data.Quantity) ;
-      //     setLatestTradeSymbol(res.data.symbol) ;
-      //     setLatestTradeStatus(res.data.status)
-      //       console.log(lastestTradeTimearr);
-      // }).catch((err) => { 
-      //   return new Error(err);
-      // })
 
-    }, [marketData])
+    }, [])
 
 
     useEffect(() => {
@@ -121,6 +82,8 @@ function OverallTraderPNL({socket}) {
           socket.close();
       }
     }, [])
+
+    console.log("tradeData", tradeData)
 
     tradeData.map((elem)=>{
         totalTransactionCost += Number(elem.brokerage);
@@ -130,13 +93,17 @@ function OverallTraderPNL({socket}) {
       let obj = {};
       totalRunningLots += Number(subelem.lots)
 
-      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[index]?.last_price);
+      const liveDetail = marketData.filter((elem)=>{
+        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+      })
+
+      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
       totalGrossPnl += updatedValue;
 
       const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
       const quantitycolor = subelem.lots >= 0 ? "success" : "error"
       const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-      const pchangecolor = (liveDetail[index]?.change) >= 0 ? "success" : "error"
+      const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
       const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
 
       obj.Product = (
@@ -163,16 +130,16 @@ function OverallTraderPNL({socket}) {
         </MDTypography>
       );
 
-      if((liveDetail[index]?.last_price)){
+      if((liveDetail[0]?.last_price)){
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {"₹"+(liveDetail[index]?.last_price).toFixed(2)}
+            {"₹"+(liveDetail[0]?.last_price).toFixed(2)}
           </MDTypography>
         );
       } else{
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="dark" fontWeight="medium">
-            {"₹"+(liveDetail[index]?.last_price)}
+            {"₹"+(liveDetail[0]?.last_price)}
           </MDTypography>
         );
       }
@@ -183,16 +150,16 @@ function OverallTraderPNL({socket}) {
         </MDTypography>
       );
 
-      if((liveDetail[index]?.change)){
+      if((liveDetail[0]?.change)){
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(liveDetail[index]?.change).toFixed(2)+"%"}
+            {(liveDetail[0]?.change).toFixed(2)+"%"}
           </MDTypography>
         );
       } else{
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(((liveDetail[index]?.last_price-liveDetail[index]?.average_price)/liveDetail[index]?.average_price)*100).toFixed(2)+"%"}
+            {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%"}
           </MDTypography>
         );
       }

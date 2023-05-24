@@ -1,7 +1,7 @@
 
 import React from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { io } from "socket.io-client";
 // @mui material components
 import { Chart } from 'chart.js/auto';
@@ -14,9 +14,9 @@ import MDBox from "../../components/MDBox";
 
 
 // Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
+// import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
+// import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
+// import Footer from "../../examples/Footer";
 // import ReportsBarChart from "../../examples/Charts/BarCharts/ReportsBarChart";
 // import ReportsLineChart from "../../examples/Charts/LineCharts/ReportsLineChart";
 // import ComplexStatisticsCard from "../../examples/Cards/StatisticsCards/ComplexStatisticsCard";
@@ -50,7 +50,7 @@ function AlgoBoxMain({batchName}) {
     }
   
   
-      const [userPermission, setUserPermission] = useState([]);
+    //   const [userPermission, setUserPermission] = useState([]);
      
       useEffect(()=>{
   
@@ -63,29 +63,45 @@ function AlgoBoxMain({batchName}) {
   
       }, []);
   
-      useEffect(()=>{
+    //   useEffect(()=>{
 
-          axios.get(`${baseUrl}api/v1/readpermission`)
-          .then((res)=>{
-            setUserPermission((res.data));            
-              //setOrderCountTodayCompany((res.data).length);
-          }).catch((err)=>{
-              //window.alert("Server Down");
-              return new Error(err);
-          })
+    //       axios.get(`${baseUrl}api/v1/readpermission`)
+    //       .then((res)=>{
+    //         setUserPermission((res.data));            
+    //           //setOrderCountTodayCompany((res.data).length);
+    //       }).catch((err)=>{
+    //           //window.alert("Server Down");
+    //           return new Error(err);
+    //       })
   
-      }, []);
+    //   }, []);
   
-      const handleSwitchChange = id => {
-        setUserPermission(prevUsers =>
-          prevUsers.map(user => {
-            if (user.userId === id) {
-              return { ...user, isRealTradeEnable: !user.isRealTradeEnable };
-            }
-            return user;
-          })
-        );
-      };
+    //   const handleSwitchChange = id => {
+    //     setUserPermission(prevUsers =>
+    //       prevUsers.map(user => {
+    //         if (user.userId === id) {
+    //           return { ...user, isRealTradeEnable: !user.isRealTradeEnable };
+    //         }
+    //         return user;
+    //       })
+    //     );
+    //   };
+  
+      const mockOverallCompanyPNL = useMemo(() => {
+        return <MockOverallCompanyPNL batchName={batchName} socket={socket}/>
+      }, [socket, batchName]);
+
+      const mockTraderwiseCompanyPNL = useMemo(() => {
+        return <MockTraderwiseCompanyPNL socket={socket} batchName={batchName} />
+      }, [socket, batchName]);
+
+      const liveOverallCompanyPNL = useMemo(() => {
+        return <LiveOverallCompanyPNL socket={socket} batchName={batchName} />
+      }, [socket, batchName]);
+
+      const liveTraderwiseCompanyPNL = useMemo(() => {
+        return <LiveTraderwiseCompanyPNL socket={socket} batchName={batchName} />
+      }, [socket, batchName]);
   
 
   return (
@@ -95,14 +111,16 @@ function AlgoBoxMain({batchName}) {
             <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
                 {/* <MockOverallCompanyPNL  /> */}
-                <MockOverallCompanyPNL batchName={batchName} socket={socket} />
+                {mockOverallCompanyPNL}
+                {/* <MockOverallCompanyPNL batchName={batchName} socket={socket} /> */}
             </Grid>
             </Grid>
         </MDBox>
         <MDBox mt={2}>
             <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
-                <MockTraderwiseCompanyPNL batchName={batchName} users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} />
+                {mockTraderwiseCompanyPNL}
+                {/* <MockTraderwiseCompanyPNL batchName={batchName} socket={socket} /> */}
             </Grid>
             </Grid>
         </MDBox>
@@ -110,14 +128,16 @@ function AlgoBoxMain({batchName}) {
             <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
                 {/* <MockTraderwiseCompanyPNL /> */}
-                <LiveOverallCompanyPNL batchName={batchName} socket={socket} />
+                {liveOverallCompanyPNL}
+                {/* <LiveOverallCompanyPNL batchName={batchName} socket={socket} /> */}
             </Grid>
             </Grid>
         </MDBox>
         <MDBox mt={2}>
             <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
-                <LiveTraderwiseCompanyPNL batchName={batchName} users={userPermission} handleSwitchChange={handleSwitchChange} socket={socket} />
+                {liveTraderwiseCompanyPNL}
+                {/* <LiveTraderwiseCompanyPNL batchName={batchName} socket={socket} /> */}
             </Grid>
             </Grid>
         </MDBox>

@@ -49,7 +49,9 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 import CareerDetailsForm from './layouts/career/createCareerForm'
 import Campaigns from './layouts/campaign'
-import TutorialVideos from './layouts/tutorialVideos'
+import TutorialVideos from './layouts/tutorialVideos';
+import Internship from './layouts/internshipTrading';
+import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 
 
 
@@ -646,6 +648,23 @@ const routes = [
     component: <CreateCollege/>,
   },
   
+  
+  {
+    type: "collapse",
+    name: "Internship",
+    key: "internship",
+    icon: <AccountBalanceIcon/>,
+    route: "/internship",
+    component: <Internship/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/internship/trade",
+    component: <InternshipTrade/>,
+  },
 
 
 ];
