@@ -206,9 +206,14 @@ exports.removeParticipantFromBatch = async(req, res, next) => {
         }
 
         //Find the user in career application
-        const user = await User.findById(userId).select('email');
+        const user = await User.findById(userId).select('email internshipBatch');
+        console.log('batchId', batchId);
+        console.log(user.internshipBatch.filter((item)=>item!=batchId));
+        user.internshipBatch = user.internshipBatch.filter((item)=>item!=batchId);
+        console.log(user.internshipBatch);
         const careerApplicant = await CareerApplication.findOne({email: user.email});
         careerApplicant.applicationStatus = 'Shortlisted';
+        await user.save({validateBeforeSave: false});
         await careerApplicant.save({validateBeforeSave: false});
 
         res.status(200).json({status: 'success', message:'Participant removed from batch'});

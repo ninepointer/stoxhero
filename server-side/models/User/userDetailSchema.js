@@ -296,8 +296,8 @@ userDetailSchema.pre('save', async function(next){
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();
         console.log("Count of Documents: ",count)
-        const userId = this.email.split('@')[0]
-        const userIds = await userPersonalDetail.find({employeeid:userId})
+        let userId = this.email.split('@')[0]
+        let userIds = await userPersonalDetail.find({employeeid:userId})
         if(userIds.length > 0)
         {
              userId = userId.toString()+(userIds.length+1).toString()
