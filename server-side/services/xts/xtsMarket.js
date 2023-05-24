@@ -23,7 +23,7 @@ const xtsMarketLogin = async ()=>{
     xtsMarketDataWS = new XtsMarketDataWS(
       process.env.MARKETDATA_URL
     );
-    console.log("xtsMarketDataAPI", xtsMarketDataAPI)
+    // console.log("xtsMarketDataAPI", xtsMarketDataAPI)
     let loginRequest = {
         secretKey: process.env.MARKETDATA_SECRET_KEY,
         appKey: process.env.MARKETDATA_APP_KEY,
@@ -31,7 +31,7 @@ const xtsMarketLogin = async ()=>{
     
     try{
       (async ()=>{
-        console.log(loginRequest, process.env.MARKETDATA_URL)
+        // console.log(loginRequest, process.env.MARKETDATA_URL)
         let logIn = await xtsMarketDataAPI.logIn(loginRequest);
         console.log(logIn)
         let socketInitRequest = {
@@ -43,11 +43,11 @@ const xtsMarketLogin = async ()=>{
         xtsMarketDataWS.init(socketInitRequest);
   
         xtsMarketDataWS.onConnect((connectData) => {
-          console.log("socket connection", connectData);
+          // console.log("socket connection", connectData);
         });
   
         xtsMarketDataWS.onJoined((joinedData) => {
-          console.log("joinedData", joinedData);
+          // console.log("joinedData", joinedData);
         });
   
         await save(logIn?.result?.userID, logIn?.result?.token, "Market")
@@ -88,7 +88,7 @@ const subscribeInstrument = async()=>{
 }
 
 const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
-  console.log(exchangeSegment)
+  // console.log(exchangeSegment)
   let response3 = await xtsMarketDataAPI.subscription({
     instruments: [
       {
@@ -142,7 +142,7 @@ const getXTSTicksForCompanySide = async (socket) => {
 
 }
 
-const getXTSTicksForUserPosition = async (socket) => {
+const getXTSTicksForUserPosition = async (socket, id) => {
 
   let ticks = [];
   let marketDepth = {};
@@ -178,7 +178,7 @@ const getXTSTicksForUserPosition = async (socket) => {
       }
       ticks = Array.from(instrumentMap.values());
     }
- 
+
 
     let indexObj = {};
     // populate hash table with indexObj from indecies
@@ -201,40 +201,40 @@ const getXTSTicksForUserPosition = async (socket) => {
 
 
     try{
-      let instrumentTokenArr = [];
+      let instrumentTokenArr ;
       // let userId = await client.get(socket.id)
       if(await client.exists((userId).toString())){
         let instruments = await client.SMEMBERS((userId).toString())
-        instrumentTokenArr = new Set(instruments)
+        // instruments = JSON.parse(instruments);
+        const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
+        instrumentTokenArr = new Set();
+
+        parsedInstruments.forEach(obj => {
+          instrumentTokenArr.add(obj.instrumentToken);
+          instrumentTokenArr.add(obj.exchangeInstrumentToken);
+        });
+        // instrumentTokenArr = new Set([parsedInstruments.instrumentToken, parsedInstruments.exchangeInstrumentToken])
+
+        console.log(instrumentTokenArr, parsedInstruments)
       } else{
         // console.log("in else part")
-        const user = await User.findById(new ObjectId(userId))
+        const user = await User.findById(new ObjectId(id))
         .populate('watchlistInstruments')
   
         for(let i = 0; i < user.watchlistInstruments.length; i++){
           instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
+          instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
         }
         instrumentTokenArr = new Set(instrumentTokenArr)
       }
 
-      filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
-
+      console.log("tick", ticks, instrumentTokenArr)
+      filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
+      console.log("filteredTicks", filteredTicks)
       if (indexData && indexData.length > 0) {
         socket.emit('index-tick', indexData);
       }
-      
-      // if (filteredTicks.length > 0) {
-      //   if (!timeoutId) {
-      //     console.log("Will emit filteredTicks in 2 seconds...");
-      //     timeoutId = setTimeout(() => {
-      //       console.log("Emitting filteredTicks...");
-      //       io.to(`${userId}`).emit("tick-room", filteredTicks);
-      //       filteredTicks = null;
-      //       clearTimeout(timeoutId);
-      //       timeoutId = null; // reset timeoutId after executing the callback
-      //     }, 1000); // wait for 2 seconds
-      //   }
-      // }
+    
 
       indexData = [];
       instrumentTokenArr = [];
@@ -245,99 +245,6 @@ const getXTSTicksForUserPosition = async (socket) => {
   });
 }
 
-// const getXTSTicksForUserPosition = async (socket) => {
-//   let ticks = [];
-//   let marketDepth = {};
-//   let indeciesData = await client.get("index") || await StockIndex.find({ status: "Active", accountType: xtsAccountType });
-
-//   let indecies;
-//   if (!indeciesData) {
-//     await client.set("index", JSON.stringify(indeciesData));
-//     indecies = indeciesData;
-//   } else {
-//     indecies = JSON.parse(indeciesData);
-//   }
-
-//   xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
-//     marketDepth = marketDepthData;
-//   });
-
-//   const userId = await client.get(socket.id);
-//   await emitTicks(userId);
-
-//   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
-//     const instrumentMap = new Map(ticks.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
-
-//     if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
-//       ticksObj.last_price = ticksObj.LastTradedPrice;
-//       ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
-//       ticksObj.change = marketDepth?.Touchline?.PercentChange;
-
-//       if (instrumentMap.has(ticksObj.ExchangeInstrumentID)) {
-//         const existingInstrument = instrumentMap.get(ticksObj.ExchangeInstrumentID);
-//         instrumentMap.set(ticksObj.ExchangeInstrumentID, Object.assign({}, existingInstrument, ticksObj));
-//       } else {
-//         instrumentMap.set(ticksObj.ExchangeInstrumentID, ticksObj);
-//       }
-
-//       ticks = Array.from(instrumentMap.values());
-//     }
-
-//     const indexObj = {};
-//     indecies?.forEach(index => {
-//       indexObj[index.instrumentToken] = true;
-//     });
-
-//     const indexData = [];
-
-//     if (indexObj[ticksObj.ExchangeInstrumentID] && indexObj[marketDepth.ExchangeInstrumentID]) {
-//       ticksObj.last_price = ticksObj.LastTradedPrice;
-//       ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
-//       ticksObj.change = marketDepth.Touchline.PercentChange;
-//       indexData.push(ticksObj);
-//     }
-
-//     try {
-//       let instrumentTokenArr = new Set();
-//       if (await client.exists(userId.toString())) {
-//         const instruments = await client.SMEMBERS(userId.toString());
-//         instrumentTokenArr = new Set(instruments);
-//       } else {
-//         const user = await User.findById(new ObjectId(userId)).populate('watchlistInstruments');
-//         user.watchlistInstruments.forEach(instrument => {
-//           instrumentTokenArr.add(instrument.instrumentToken);
-//         });
-//       }
-
-//       filteredTicks = ticks.filter(tick => instrumentTokenArr.has(tick.instrument_token.toString()));
-
-//       if (indexData.length > 0) {
-//         socket.emit('index-tick', indexData);
-//       }
-
-//       indexData = null;
-//       instrumentTokenArr = null;
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   });
-// };
-
-
-// const emitTicks = async(userId)=>{
-//   let timeoutId;
-//   if(timeoutId){
-//     clearTimeout(timeoutId)
-//   }
-//   console.log("Will emit filteredTicks in 2 seconds...");
-//   timeoutId = setInterval(() => {
-//     if (filteredTicks && filteredTicks.length > 0) {
-//       // console.log("Emitting filteredTicks...");
-//       io.to(`${userId}`).emit("tick-room", filteredTicks);
-//       filteredTicks = null;
-//     }
-//   }, 1000); // wait for 2 seconds
-// }
 
 const emitTicks = async (userId) => {
   let intervalId;
@@ -376,7 +283,7 @@ const tradableInstrument = async(req, res)=>{
   });
 
   res.send(response)
-  console.log(response.result);
+  // console.log(response.result);
   let response4 = response.result;
   for(let i = 0; i < response4.length; i++){ //Nifty Bank
     // if(response4[i].UnderlyingIndexName && response4[i].ContractExpiration && response4[i].StrikePrice){
@@ -400,7 +307,7 @@ const tradableInstrument = async(req, res)=>{
       }
       console.log("docs", docs)
       const tradableInstrument = await TradableInstrument.create(docs);
-      console.log(tradableInstrument)
+      // console.log(tradableInstrument)
     }
   }
 

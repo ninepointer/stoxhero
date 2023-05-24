@@ -29,8 +29,9 @@ exports.liveTrade = async (req, res) => {
     let {algoBoxId, exchange, symbol, buyOrSell, Quantity, 
         Product, OrderType, validity, variety,trader,
         uId, instrumentToken, realBuyOrSell, realQuantity, 
-        dontSendResp} = req.body
+        dontSendResp, exchangeInstrumentToken} = req.body
 
+        console.log(req.body)
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
         return res.status(422).json({error : "please fill all the feilds..."})
@@ -38,7 +39,7 @@ exports.liveTrade = async (req, res) => {
 
     let obj = {
         exchange: exchange,
-        instrumentToken: instrumentToken,
+        exchangeInstrumentToken: exchangeInstrumentToken,
         Product: Product,
         OrderType: OrderType,
         buyOrSell: realBuyOrSell,

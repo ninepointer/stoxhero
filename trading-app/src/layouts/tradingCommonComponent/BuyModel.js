@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader } from "../../variables";
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
+const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeInstrumentToken}) => {
   console.log("rendering : buy", subscriptionId)
   const tradeSound = new Howl({
     src : [sound],
@@ -173,7 +173,7 @@ console.log("buttonClicked", buttonClicked)
   }
 
   async function placeOrder() {
-    //console.log("caseStudy 2: place")
+    console.log("exchangeInstrumentToken", exchangeInstrumentToken)
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
@@ -196,7 +196,7 @@ console.log("buttonClicked", buttonClicked)
         },
         body: JSON.stringify({
           exchange, symbol, buyOrSell, Quantity, Price, 
-          Product, OrderType, TriggerPrice, stopLoss, uId,
+          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 

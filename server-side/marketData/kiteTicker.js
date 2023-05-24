@@ -144,6 +144,7 @@ const getDummyTicks = async(socket) => {
   let filteredTicks = await DummyMarketData();
   io.to(userId).emit('contest-ticks', filteredTicks);
 }
+
 const getTicksForUserPosition = async (socket, id) => {
   let isRedisConnected = getValue();
   console.log("this is getter1", getValue());
@@ -162,7 +163,7 @@ const getTicksForUserPosition = async (socket, id) => {
   }
   // console.log("indecies", indecies)
   ticker.on('ticks', async (ticks) => {
-console.log("tick", ticks)
+// console.log("tick", ticks)
     let indexObj = {};
     let now = performance.now();
     // populate hash table with indexObj from indecies
@@ -177,7 +178,7 @@ console.log("tick", ticks)
     // console.log("indexdata", indexData)
 
     try{
-      let instrumentTokenArr = [];
+      let instrumentTokenArr ;
       let userId ;
       if(isRedisConnected){
         userId = await client.get(socket.id);
@@ -185,7 +186,14 @@ console.log("tick", ticks)
       // console.log(isRedisConnected)
       if(isRedisConnected && await client.exists((userId)?.toString())){
         let instruments = await client.SMEMBERS((userId)?.toString())
-        instrumentTokenArr = new Set(instruments)
+        // instrumentTokenArr = new Set(instruments)
+        const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
+        instrumentTokenArr = new Set();
+
+        parsedInstruments.forEach(obj => {
+          instrumentTokenArr.add(obj.instrumentToken);
+          instrumentTokenArr.add(obj.exchangeInstrumentToken);
+        });
       } else{
         // console.log("in else part")
         const user = await User.findById(new ObjectId(id))
@@ -194,6 +202,8 @@ console.log("tick", ticks)
         userId = user._id;
         for(let i = 0; i < user.watchlistInstruments.length; i++){
           instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
+          instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
+
         }
         instrumentTokenArr = new Set(instrumentTokenArr)
       }
@@ -202,7 +212,7 @@ console.log("tick", ticks)
       // let userId = await client.get(socket.id)
       // let instruments = await client.SMEMBERS(userId)
       // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
       if(indexData?.length > 0){
         socket.emit('index-tick', indexData)
       }
