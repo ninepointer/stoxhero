@@ -218,9 +218,8 @@ export default function TenXSubscriptions() {
         </MDTypography>
         <MDTypography fontSize = {15}>1. You must accept and abide by the terms of usage.</MDTypography>
         <MDTypography fontSize = {15}>2. You must take trades on 80 percent of the trading days during the internship period.</MDTypography>
-        <MDTypography fontSize = {15}>3. You must have a net positive P&L by the end of the internship period.</MDTypography>
-        <MDTypography fontSize = {15}>4. You must not partake in any malpractices or manipulation.</MDTypography>
-        <MDTypography fontSize = {15}>5. It is preferred if you refer more people to the platform.</MDTypography>
+        <MDTypography fontSize = {15}>3. You must not partake in any malpractices or manipulation.</MDTypography>
+        <MDTypography fontSize = {15}>4. It is preferred if you refer more people to the platform.</MDTypography>
         <MDTypography></MDTypography>
       </MDBox>
       <MDBox width='100%'>
