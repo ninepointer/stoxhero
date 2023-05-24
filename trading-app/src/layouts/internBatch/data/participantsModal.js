@@ -103,6 +103,7 @@ const ParticipantsModal = ( {open, handleClose, gd, action, setAction}) => {
   }
   const handleChecked = async(e, userId) =>{
     const res = await axios.patch(`${apiUrl}gd/mark/${gd}/${userId}`,{attended: e.target.checked},{withCredentials:true});
+    setAction(!action);
     console.log('res', res.data);
   }
 

@@ -48,7 +48,7 @@ export default function GroupDiscussions({saving,batch, action, setAction}) {
 
     useEffect(()=>{
         getGroupDiscussions();
-    },[saving])
+    },[saving, open])
 
     let columns = [
         { Header: "View Candidates", accessor: "candidates", align: "center" },
