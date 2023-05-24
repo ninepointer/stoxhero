@@ -108,7 +108,7 @@ router.get("/getliveprice", async (req, res)=>{
   
     let arr = [];
       try{
-        console.log(url, authOptions)
+        // console.log(url, authOptions)
         const response = await axios.get(url, authOptions);
         // console.log(response.data)
         for (let instrument in response.data.data) {

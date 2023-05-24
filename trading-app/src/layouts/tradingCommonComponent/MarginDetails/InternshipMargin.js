@@ -40,7 +40,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
       
   }, [render, BatchId]);
 
-  console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail?.openingBalance)
+  console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail)
 
   let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
 

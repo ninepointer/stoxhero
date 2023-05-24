@@ -65,7 +65,7 @@ export default function TenXTrading({socket, BatchId}) {
   }, [handleSetIsGetStartedClicked, isGetStartedClicked, BatchId]);
 
   // let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
-  let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
+  let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData?.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;
 
   console.log("fundDetail", fundChangePer, openingBalance)
