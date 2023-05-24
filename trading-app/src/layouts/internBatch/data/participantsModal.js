@@ -20,6 +20,7 @@ import MDSnackbar from '../../../components/MDSnackbar';
 
 const ParticipantsModal = ( {open, handleClose, gd, action, setAction}) => {
   const [colleges, setColleges] = useState([]); 
+  const [currentPage, setCurrentPage] = useState(0);
   const [gds, setGds] = useState([]); 
   const [college, setCollege] = useState();
   const [participants, setParticipants] = useState();
@@ -194,9 +195,12 @@ participants?.map((elem, index)=>{
         <DataTable  
           table={{ columns, rows }}
           showTotalEntries={false}
+          initialPage={currentPage}
           isSorted={false}
           // noEndBorder
           entriesPerPage={false}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
         />
       </MDBox>
     </Box>
