@@ -27,6 +27,7 @@ import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId}) {
@@ -34,6 +35,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   //console.log("socket print", socket)
   console.log("rendering : InstrumentDetails")
   let styleTD = {
@@ -59,6 +61,9 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
       marketDetails.setMarketData(res.data);
+      setTimeout(() => {
+        setIsLoading(false); // Set loading state to false when data is fetched
+      }, 2000);
     }).catch((err) => {
         return new Error(err);
     })
@@ -268,6 +273,10 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
 
   return (
+    <>
+    { isLoading ? <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px"}} /> </MDBox>
+
+:
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
         <MDBox display="flex">
@@ -372,6 +381,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       )}
       {renderSuccessSB}
     </Card>
+}
+    </>
   );
 }
 

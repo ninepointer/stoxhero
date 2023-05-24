@@ -45,6 +45,7 @@ const tooltip = {
       borderRadius: borderRadius.md,
       opacity: 0.7,
       padding: `${pxToRem(5)} ${pxToRem(8)} ${pxToRem(4)}`,
+      
     },
 
     arrow: {

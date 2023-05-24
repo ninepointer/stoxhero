@@ -19,6 +19,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import { IoMdAddCircle } from 'react-icons/io';
 
+
+
 const CollegeEdit = () => {
 
     const location = useLocation();
@@ -68,45 +70,9 @@ const CollegeEdit = () => {
                 return new Error(err);
             })
 
-    }, [isLoading,editing])
+    }, [])
 
-    async function onSubmit(e, formState) {
-        e.preventDefault()
-        console.log(formState)
-        if (!formState.collegeName || !formState.zone) {
-
-            setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-            return openErrorSB("Missing Field", "Please fill all the mandatory fields")
-        }
-        // console.log("Is Submitted before State Update: ",isSubmitted)
-        setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-        const { collegeName, zone } = formState;
-        const res = await fetch(`${baseUrl}api/v1/college/create`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "content-type": "application/json",
-                "Access-Control-Allow-Credentials": true
-            },
-            body: JSON.stringify({
-                collegeName, zone
-            })
-        });
-
-
-        const data = await res.json();
-        console.log(data);
-        if (data.status === 400 || data.info) {
-            setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-            openErrorSB("Campaign not created", data?.info)
-        } else {
-            openSuccessSB("Campaign Created", data?.message)
-            setNewObjectId(data?.data?._id)
-            console.log("New Object Id: ", data?.data?._id, newObjectId)
-            setIsSubmitted(true)
-            setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-        }
-    }
+    
 
     async function onEdit(e, formState) {
         e.preventDefault()
@@ -114,11 +80,11 @@ const CollegeEdit = () => {
         setSaving(true)
         console.log(formState)
         if (!formState.collegeName || !formState.zone) {
-            setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+            setTimeout(() => { setSaving(false) ; setEditing(true)}, 500)
             return openErrorSB("Missing Field", "Please fill all the mandatory fields")
         }
         const { collegeName, zone } = formState;
-
+    
         const res = await fetch(`${baseUrl}api/v1/college/${id._id}`, {
             method: "PATCH",
             credentials: "include",
@@ -130,17 +96,60 @@ const CollegeEdit = () => {
                 collegeName, zone
             })
         });
-
+    
         const data = await res.json();
         console.log(data);
         if (data.status === 422 || data.error || !data) {
             openErrorSB("Error", data.error)
         } else {
             openSuccessSB("Campaign Edited", "Edited Successfully")
-            setTimeout(() => { setSaving(false); setEditing(false) }, 500)
+            setTimeout(() => {setSaving(false); setEditing(false)}, 500)
             console.log("entry succesfull");
         }
     }
+
+
+
+
+    async function onSubmit(e,formState){
+        e.preventDefault()
+        console.log(formState)
+        if(!formState.collegeName || !formState.zone){
+        
+            setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+            return openErrorSB("Missing Field","Please fill all the mandatory fields")
+        }
+        // console.log("Is Submitted before State Update: ",isSubmitted)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+        const {collegeName, zone } = formState;
+        const res = await fetch(`${baseUrl}api/v1/college`, {
+            method: "POST",
+            credentials:"include",
+            headers: {
+                "content-type" : "application/json",
+                "Access-Control-Allow-Credentials": true
+            },
+            body: JSON.stringify({
+              collegeName, zone
+            })
+        });
+        
+        
+        const data = await res.json();
+        console.log(data);
+        if (data.status === 400 || data.info) {
+            setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+            openErrorSB("Campaign not created",data?.info)
+        } else {
+            openSuccessSB("Campaign Created",data?.message)
+            setNewObjectId(data?.data?._id)
+            console.log("New Object Id: ",data?.data?._id,newObjectId)
+            setIsSubmitted(true)
+            setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+          }
+      }
+
+    
 
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
@@ -329,7 +338,7 @@ const CollegeEdit = () => {
                                                     disabled={saving}
                                                     onClick={(e) => { onEdit(e, formState) }}
                                                 >
-                                                    {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
+                                                    {saving ? <CircularProgress size={20} color="inherit"/> : "Save"}
                                                 </MDButton>
                                                 <MDButton
                                                     variant="contained"
@@ -364,3 +373,6 @@ const CollegeEdit = () => {
 }
 
 export default CollegeEdit
+
+
+

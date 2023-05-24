@@ -180,10 +180,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
               </Tooltip>
               {renderMenu()}
               <Link to="/profile">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <img src={getDetails.userDetails?.profilePhoto?.url?getDetails.userDetails?.profilePhoto?.url:accountIcon} width={30} height={30} style={{borderRadius:'50%'}}/>
+              <Tooltip title='Profile' placement="top">
+                <IconButton sx={navbarIconButton} sx={{height:30,width:30}} size="small" >
+                  <img src={getDetails.userDetails?.profilePhoto?.url?getDetails.userDetails?.profilePhoto?.url:accountIcon} width={30} height={30}  style={{borderRadius:'50%'}}/>
                 </IconButton>
+              </Tooltip>
               </Link>
+
               
             </MDBox>
           </MDBox>

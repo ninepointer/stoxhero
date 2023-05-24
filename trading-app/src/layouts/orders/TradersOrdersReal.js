@@ -53,7 +53,7 @@ function Tabletwo() {
               coloredShadow="info"
             >
               <MDTypography variant="h6" color="white">
-                Today's Traders Orders(Real)
+              Today's Traders Orders(Real)
               </MDTypography>
             </MDBox>
             <MDBox pt={3}>

@@ -31,6 +31,7 @@ import { marketDataContext } from "../../../MarketDataContext";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
 import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const initialState = {
   instrumentsData: [],
@@ -87,6 +88,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
   const [state, dispatch] = useReducer(reducer, initialState);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const openSuccessSB = () => {
     return dispatch({ type: 'openSuccess', payload: true });
@@ -119,6 +121,9 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
     .then((res) => {
         ////console.log("live price data", res)
         dispatch({ type: 'setUserInstrumentData', payload: (res.data.data) });
+        setTimeout(() => {
+          setIsLoading(false); // Set loading state to false when data is fetched
+        }, 2000);
         // setUserInstrumentData(res.data);
         // setDetails.setMarketData(data);
     }).catch((err) => {
@@ -327,6 +332,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
               return suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
             } 
             return(
+
               
               <>
               {state.text && (
@@ -396,6 +402,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
                 )}
                 {renderSuccessSB}
               </>
+          
             )
           }))
         }

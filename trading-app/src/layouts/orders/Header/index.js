@@ -64,6 +64,7 @@ function Header({ children }) {
         position="relative"
         minHeight="10rem"
         borderRadius="x1"
+        b
         sx={{
           backgroundImage: ({ functions: { rgba, linearGradient }, palette: { gradients } }) =>
             `${linearGradient(

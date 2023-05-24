@@ -18,6 +18,7 @@ import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import { paperTrader, infinityTrader, tenxTrader } from "../../../variables";
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
@@ -38,6 +39,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
@@ -69,7 +71,12 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
                "Access-Control-Allow-Credentials": true
            },
            signal: signal }
-           );
+           )
+           .then(()=>{
+            setTimeout(() => {
+              setIsLoading(false); // Set loading state to false when data is fetched
+            }, 2000);
+           })
 
            if(data?.data?.length === 0){
             updateNetPnl(0, 0, 0, 0);
@@ -230,7 +237,14 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
     };
 
   return (
-    <Card>
+
+    <>
+    {
+      isLoading ? <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px"}} /> </MDBox>
+:
+    
+
+    <Card>     
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
         <MDBox>
           <MDTypography variant="h6" gutterBottom>
@@ -245,8 +259,10 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
         <Typography mb={2} fontSize={15} color="grey">Add instruments and start trading.</Typography>
         <MDButton variant="outlined" size="small" color="info" onClick={()=>{setIsGetStartedClicked(true)}}>Get Started</MDButton>
       </MDBox>)
-      :
 
+
+      :
+      
       (<MDBox>
         <TableContainer component={Paper}>
           <table style={{ borderCollapse: "collapse", width: "100%", borderSpacing: "10px 5px"}}>
@@ -342,11 +358,14 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
           </Grid>
           </Grid>
         </TableContainer>
+        
 
       </MDBox>
       )
       }
     </Card>
+}
+    </>
   );
 
 }

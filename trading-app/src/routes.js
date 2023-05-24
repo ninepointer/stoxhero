@@ -102,6 +102,7 @@ import Contact from "./layouts/HomePage/pages/Contact";
 import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
+import CreateCollege from "./layouts/college/createCollege";
 import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
@@ -636,7 +637,14 @@ const routes = [
     route: "/collegeEdit",
     component: <CollegeEdit/>,
   },
-  
+  {
+    // type: "collapse",
+    // name: "Wallet",
+    key: "collegeEdit",
+    // icon: <AccountBalanceWalletIcon/>,
+    route: "/createcollege",
+    component: <CreateCollege/>,
+  },
   
 
 

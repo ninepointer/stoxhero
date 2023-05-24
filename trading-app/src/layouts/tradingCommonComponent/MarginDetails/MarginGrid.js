@@ -11,6 +11,8 @@ import downicon from '../../../assets/images/down.png'
 import marginicon from '../../../assets/images/marginicon.png'
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
+import { renderContext } from '../../../renderContext';
+import CircularProgress from "@mui/material/CircularProgress";
 
 const MarginGrid = () => {
   console.log("rendering : papermargin")
@@ -18,6 +20,9 @@ const MarginGrid = () => {
   const { netPnl, totalRunningLots } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [marginDetails, setMarginDetails] = useState([]);
+  const [fundDetail, setFundDetail] = useState({});
+  const {render} = useContext(renderContext);
+  const [isLoading, setIsLoading] = useState(true);
   // const { columns, rows } = MarginDetails();
 //   const { columns: pColumns, rows: pRows } = MarginDetails();
   // const [lifetimePNL, setLifetimePNL] = useState([]);
@@ -42,10 +47,15 @@ const MarginGrid = () => {
         // setUserInstrumentData(res.data);
         // setDetails.setMarketData(data);
         setMarginDetails(res.data.data)
+        setFundDetail(res.data.data);
+        setTimeout(() => {
+          setIsLoading(false); 
+        }, 2000);
+        console.log(fundDetail)
     }).catch((err) => {
         return new Error(err);
     })
-  }, []);
+  }, [render]);
   
 
   console.log("marginDetails", marginDetails)
@@ -74,7 +84,12 @@ const MarginGrid = () => {
   // let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount).toLocaleString() : "-₹" + (-Number(payInAmount)).toLocaleString()
   let availableMargin = totalCredit + Number(totalPnl);
   //console.log("availableMargin", totalCredit , Number(totalPnl))
-  let availableMarginString = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
+  let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
+  
+  let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
+  // let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)+runningPnl-todayAmount) : fundDetail?.totalFund;
+  // let availableMarginString = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
+  let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
 
   
   // //console.log("runningPnl", runningPnl, openingBalance)
@@ -84,18 +99,47 @@ const MarginGrid = () => {
     return (
     <>
       <MDBox mt={0.5}>
-        <MDBox mb={3}>
+        { isLoading ? 
+        <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px"}} /> </MDBox>
+        :
+        <MDBox  mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={16} lg={12}>
-              <Grid container spacing={3}>
+              <Grid container spacing={3}  borderRadius="20px" >
 
-                <Grid item xs={16} >
+              <Grid sx={{height:"30px"}} item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
-                    title={`Portfolio Details(${portfolioName})`}
-                    description="Below is a summary of the total funds and their intended uses"
-                    value={`Total Credit: ${totalCreditString} | Available Margin: ${availableMarginString}  | Used Margin Today: ${usedMarginString}`}
+                    // icon={<CreditCardIcon/>}
+                    title="total credit"
+                    description="Total funds added by StoxHero in your Account"
+                    value={totalCreditString}
                   />
                 </Grid>
+                <Grid item xs={16} md={8} xl={3}>
+                  <DefaultInfoCard
+                    // icon={<AvailableIcon/>}
+                    title="available margin"
+                    description="Funds that you can used to trade today"
+                    value={availableMarginpnlstring}
+                  />
+                </Grid>
+                <Grid item xs={16} md={8} xl={3}>
+                  <DefaultInfoCard
+                    // icon={<ShoppingCartIcon/>}
+                    title="used margin"
+                    description="Net funds utilized for your executed trades"
+                    value={usedMarginString}
+                  />
+                </Grid>
+
+                <Grid item xs={16} md={8} xl={3}>
+                  <DefaultInfoCard
+                    // icon={<AccountBalanceWalletIcon/>}
+                    title="opening balance"
+                    description="Cash available at the beginning of the day"
+                    value={openingBalanceString}
+                  />
+                  </Grid>
                 {/* <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     title="available margin"
@@ -128,6 +172,7 @@ const MarginGrid = () => {
             </Grid>
           </Grid>
         </MDBox>
+        }
       </MDBox>
           {/* <Grid item xs={12} md={6} lg={12}>
             <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">

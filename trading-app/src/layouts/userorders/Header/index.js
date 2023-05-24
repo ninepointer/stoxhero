@@ -503,7 +503,7 @@ function Header({ children }) {
       <Grid container>
           <Grid item xs={12} md={6} lg={12}>
             <MDBox border='1px solid white' bgColor='light' borderRadius={5} mb={2} p={0.5} display='flex' justifyContent='center' alignItems='center'>
-            <MDTypography color="dark" fontSize={15} fontWeight='bold'>Paper Trading Orders</MDTypography>
+            <MDTypography color="dark" fontSize={15} fontWeight='bold'>Virtual Trading Orders</MDTypography>
             </MDBox>
 
             <MDBox display="flex" justifyContent="space-between" mb={2}>

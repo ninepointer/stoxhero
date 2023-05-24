@@ -27,8 +27,8 @@ import MDTypography from "../../../../components/MDTypography";
 
 function DefaultInfoCard({ color, icon, title, description, value }) {
   return (
-    <Card>
-      <MDBox p={2} mx={3} display="flex" justifyContent="center">
+    <Card sx={{height:"180px"}}>
+      <MDBox p={2} mx={3}  display="flex" justifyContent="center">
         {/* <MDBox
           display="grid"
           justifyContent="center"
@@ -81,3 +81,6 @@ DefaultInfoCard.propTypes = {
 };
 
 export default DefaultInfoCard;
+
+
+

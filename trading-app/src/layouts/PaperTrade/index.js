@@ -17,11 +17,13 @@ import { userContext } from "../../AuthContext";
 
 
 
+
 function UserPosition() {
   console.log("rendering: UserPosition");
   // const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
+  
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
 
 
