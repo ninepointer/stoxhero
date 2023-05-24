@@ -521,7 +521,7 @@ function Header({ children }) {
             )
             })}
             
-            {infinityCount !== 0 &&
+            {internshipCount !== 0 &&
             <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
                 <MDButton variant='outlined' size="small" color="light" onClick={infinityBackHandler}>Back</MDButton>
                 <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {infinityCount} | Page {(InfinitySkip+limitSetting)/limitSetting} of {Math.ceil(infinityCount/limitSetting)}</MDTypography>
