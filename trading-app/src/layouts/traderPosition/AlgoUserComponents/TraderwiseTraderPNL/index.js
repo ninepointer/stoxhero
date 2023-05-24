@@ -56,13 +56,6 @@ function TraderwiseTraderPNL(props) {
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
-  // const [lastestTradeTimearr, setLatestTradeTimearr] = useState([]);
-  // const [lastestTradeTime, setLatestTradeTime] = useState([]);
-  // const [lastestTradeBy, setLatestTradeBy] = useState([]);
-  // const [lastestTradeSymbol, setLatestTradeSymbol] = useState([]);
-  // const [lastestTradeType, setLatestTradeType] = useState([]);
-  // const [lastestTradeQunaity, setLatestTradeQuantity] = useState([]);
-  // const [lastestTradeStatus, setLatestTradeStatus] = useState([]);
 
   useEffect(()=>{
 
@@ -90,14 +83,14 @@ function TraderwiseTraderPNL(props) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/gettraderwisepnlmocktradetradertoday`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/mock/traderwiseAllTrader`)
     .then((res) => {
-        setAllTrade(res.data);
+        setAllTrade(res.data.data);
     }).catch((err)=>{
         return new Error(err);
     })
 
-  }, [marketData]) 
+  }, []) 
 
   useEffect(() => {
     return () => {
@@ -253,12 +246,12 @@ finalTraderPnl.map((subelem, index)=>{
       {((subelem.totalPnl)-(subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
     </MDTypography>
   );
-  obj.view = (
-    <ViewTradeDetail socket={props.socket} userId={subelem.userId}/>
-  );
-  obj.orders = (
-    <ViewOrderDetail userId={subelem.userId}/>
-  );
+  // obj.view = (
+  //   <ViewTradeDetail socket={props.socket} userId={subelem.userId}/>
+  // );
+  // obj.orders = (
+  //   <ViewOrderDetail userId={subelem.userId}/>
+  // );
 
 
   rows.push(obj);
