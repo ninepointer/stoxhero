@@ -16,7 +16,7 @@ function TradeViewTenX() {
   const getDetails = useContext(userContext);
   const location = useLocation();
   const subscriptionId = getDetails?.userDetails.internshipBatch||'123';
-  console.log("subscriptionId", subscriptionId)
+  console.log("subscriptionId", getDetails?.userDetails)
 
   let socket;
   try {
