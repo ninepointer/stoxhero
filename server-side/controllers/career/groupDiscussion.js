@@ -503,12 +503,13 @@ exports.getGdsByCareer = async(req, res, next) => {
     const batchIds = batches.map((batch)=>batch._id);
     console.log('batchIds', batchIds);
   
-    const gds = await GroupDiscussion.find({batch: {$in:batchIds}, gdStartDate:{$gte:new Date()} });
+    const gds = await GroupDiscussion.find({batch: {$in:batchIds}});
     console.log('gds', gds);
     if(gds.length == 0){
       return res.status(200).json({status: 'success', message:'No gds found with this career'});
     }
 
+    console.log(gds)
     res.status(200).json({status:'success', data: gds, results:gds.count});
 
   }catch(e){

@@ -19,7 +19,7 @@ import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { internshipTrader } from '../../../variables';
 import InternshipMargin from '../../tradingCommonComponent/MarginDetails/InternshipMargin';
 
-export default function TenXTrading({socket, subscriptionId}) {
+export default function TenXTrading({socket, BatchId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [yesterdayData, setyesterdayData] = useState({});
   const pnl = useContext(NetPnlContext);
@@ -40,9 +40,9 @@ export default function TenXTrading({socket, subscriptionId}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={internshipTrader}
-      subscriptionId={subscriptionId}
+      subscriptionId={BatchId}
     />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked, subscriptionId]);
+  }, [ isGetStartedClicked, handleSetIsGetStartedClicked, BatchId]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -50,19 +50,19 @@ export default function TenXTrading({socket, subscriptionId}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={internshipTrader}
-      subscriptionId={subscriptionId}
+      subscriptionId={BatchId}
     />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
+  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked, BatchId]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={internshipTrader}
-      subscriptionId={subscriptionId}
+      subscriptionId={BatchId}
       setAvailbleMargin={setAvailbleMargin}
     />;
-  }, [handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
+  }, [handleSetIsGetStartedClicked, isGetStartedClicked, BatchId]);
 
   // let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
@@ -146,7 +146,7 @@ export default function TenXTrading({socket, subscriptionId}) {
           {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
-          <InternshipMargin availbaleMargin={availbaleMargin} BatchId={subscriptionId} setyesterdayData={setyesterdayData}/>
+          <InternshipMargin availbaleMargin={availbaleMargin} BatchId={BatchId} setyesterdayData={setyesterdayData}/>
         </Grid>
       </Grid>
 

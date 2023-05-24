@@ -14,9 +14,10 @@ function TradeViewTenX() {
   console.log("rendering in userPosition: infinity")
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const getDetails = useContext(userContext);
-  const location = useLocation();
-  const subscriptionId = getDetails?.userDetails.internshipBatch||'123';
-  console.log("subscriptionId", getDetails?.userDetails)
+  // const location = useLocation();
+  const batchArr = getDetails?.userDetails?.internshipBatch
+  const BatchId = getDetails?.userDetails.internshipBatch[batchArr.length - 1]||'123';
+  console.log("BatchId", getDetails?.userDetails)
 
   let socket;
   try {
@@ -31,12 +32,12 @@ function TradeViewTenX() {
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
   }, []);
-  console.log("subscriptionId", subscriptionId)
+  console.log("BatchId", BatchId)
   return (
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <InternshipTrading socket={socket} BatchId={subscriptionId}/>
+      <InternshipTrading socket={socket} BatchId={BatchId}/>
       <Footer />
     </DashboardLayout>
     </>

@@ -10,7 +10,7 @@ const { ObjectId } = require("mongodb");
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
     const userId = req.user._id;
-    const batch = req.params.id;
+    const batch = req.params.batch;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -145,7 +145,7 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
-  let batch = req.params.id;
+  let batch = req.params.batch;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
