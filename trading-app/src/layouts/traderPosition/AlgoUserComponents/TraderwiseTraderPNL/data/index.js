@@ -10,8 +10,8 @@ export default function data() {
       { Header: "Lots Used", accessor: "lotUsed", width: "12.5%", align: "center" },
       { Header: "Brokegrage", accessor: "brokerage", width: "12.5%", align: "center" },
       { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
-      { Header: "Details", accessor: "view", width: "3%", align: "center" },
-      { Header: "Orders", accessor: "orders", width: "3%", align: "center" },
+      // { Header: "Details", accessor: "view", width: "3%", align: "center" },
+      // { Header: "Orders", accessor: "orders", width: "3%", align: "center" },
       // { Header: "Mock/Real", accessor: "realOrMock", width: "4%", align: "center" },
     ],
 
