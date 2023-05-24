@@ -12,7 +12,8 @@ const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany"
 const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
 const ObjectId = require('mongodb').ObjectId;
-
+const InternshipTrade = require("../models/mock-trade/internshipTrade");
+const InternBatch = require("../models/Careers/internBatch");
 const { v4: uuidv4 } = require('uuid');
  
 
@@ -848,4 +849,221 @@ exports.contestFundCheck = async(req, res, next) => {
     });
     
    
+}
+
+exports.fundCheckInternship = async(req, res, next) => {
+
+    console.log("in fundCheckTenxTrader")
+    const {exchange, symbol, buyOrSell, variety,
+           Product, OrderType, Quantity, subscriptionId} = req.body;
+    
+
+    getKiteCred.getAccess().then(async (data)=>{
+
+        let userFunds;
+        let runningLots;
+        let date = new Date();
+        let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        todayDate = todayDate + "T00:00:00.000Z";
+        const today = new Date(todayDate);
+
+        let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
+        let headers = {
+            'X-Kite-Version':'3',
+            'Authorization': auth,
+            "content-type" : "application/json"
+        }
+        let orderData = [{
+            "exchange": exchange,
+            "tradingsymbol": symbol,
+            "transaction_type": buyOrSell,
+            "variety": variety,
+            "product": Product,
+            "order_type": OrderType,
+            "quantity": Quantity,
+            "price": 0,
+            "trigger_price": 0
+        }]
+
+        try{
+            runningLots = await InternshipTrade.aggregate([
+                {
+                $match:
+                    {
+                        trade_time:{
+                            $gte: today
+                        },
+                        symbol: symbol,
+                        trader: req.user._id,
+                        status: "COMPLETE",
+                        batch: new ObjectId(subscriptionId)
+                    }
+                },
+                {
+                $group:
+                    {
+                    _id: {symbol: "$symbol"},
+                    runningLots: {
+                        $sum: {$toInt: "$Quantity"}
+                    }
+                    }
+                },
+            ])
+        } catch(e){
+            console.log("errro fetching pnl", e);
+        }
+
+        let transactionTypeRunningLot = runningLots[0]?.runningLots > 0 ? "BUY" : "SELL";
+        if(runningLots[0]?._id?.symbol !== symbol){
+            isSymbolMatch = false;
+        } 
+        if(Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots)){
+            isLesserQuantity = true;
+        }
+        if(transactionTypeRunningLot !== buyOrSell){
+            isOpposite = true;
+        }
+
+        const portfolioValue = await InternBatch.aggregate([
+            {
+              $match: {
+                _id: new ObjectId(subscriptionId),
+              },
+            },
+            {
+              $lookup: {
+                from: "user-portfolios",
+                localField: "portfolio",
+                foreignField: "_id",
+                as: "portfolioData",
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  subscriptionId: "$_id",
+                  totalFund: {
+                    $arrayElemAt: [
+                      "$portfolioData.portfolioValue",
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                subscriptionId: "$_id.subscriptionId",
+                totalFund: "$_id.totalFund",
+              },
+            },
+        ])
+        console.log(portfolioValue)
+        userFunds = portfolioValue[0]?.totalFund;
+        // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
+        // req.body.portfolioId = myPortfolios[0]._id;
+        console.log(runningLots, userFunds)
+        console.log((runningLots[0]?._id?.symbol === symbol) , Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) , (transactionTypeRunningLot !== buyOrSell));
+        if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
+            return next();
+        }
+        let marginData;
+        let zerodhaMargin;
+
+        try{
+            marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, {headers : headers})
+            zerodhaMargin = marginData.data.data.orders[0].total;
+        }catch(e){
+            // console.log("error fetching zerodha margin", e);
+        } 
+
+        let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+        let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+        lastDayOfMonthDate = new Date(lastDayOfMonthDate);
+        firstDayOfMonthDate = new Date(firstDayOfMonthDate);
+
+        console.log(firstDayOfMonthDate, lastDayOfMonthDate);
+        let pnlDetails = await InternBatch.aggregate([
+            {
+            $match:
+                {
+                    // trade_time: {
+                    //     $gte: (firstDayOfMonthDate),
+                    //     $lte: (lastDayOfMonthDate)
+                    //     },
+                    trader: req.user._id,
+                    status: "COMPLETE",
+                    subscriptionId: new ObjectId(subscriptionId)
+                },
+            },
+            {
+            $group:
+                {
+                    _id: {
+                        trader: "$trader",
+                        // trader: "$createdBy",
+                    },
+                    gpnl: {
+                        $sum: {
+                        $multiply: ["$amount", -1],
+                        },
+                    },
+                    brokerage: {
+                        $sum: {
+                        $toDouble: "$brokerage",
+                        },
+                    },
+                },
+            },
+            {
+            $addFields:
+                {
+                npnl: {
+                    $subtract: ["$gpnl", "$brokerage"],
+                },
+                },
+            },
+        ])
+
+        let userNetPnl = pnlDetails[0]?.npnl;
+
+        console.log( userFunds , userNetPnl , zerodhaMargin)
+        console.log((userFunds + userNetPnl - zerodhaMargin))
+
+        if(Number(userFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
+            console.log("user wants square off")
+            return next();
+        } else{
+            console.log("in else")
+            if(userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0){
+                let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
+                     instrumentToken, trader, order_id} = req.body;
+                
+                try{
+
+                    const internshipTrade = new InternshipTrade({
+                        status:"REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
+                        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                        order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id, 
+                        trader: trader, amount: null, trade_time: new Date(), batch: subscriptionId
+                        
+                    });    
+                    console.log("margincall saving")
+                    await internshipTrade.save();
+                }catch(e){
+                    console.log("error saving margin call", e);
+                }
+
+                //console.log("sending response from authorise trade");
+                return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
+            } 
+            else{
+                console.log("if user have enough funds")
+                return next();
+            }
+        }     
+    });
 }

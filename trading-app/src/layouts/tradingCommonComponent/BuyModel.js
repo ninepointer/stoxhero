@@ -27,7 +27,7 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
-import { paperTrader, infinityTrader, tenxTrader } from "../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
 // import MDBox from '../../../../../components/MDBox';
@@ -173,11 +173,12 @@ console.log("buttonClicked", buttonClicked)
   }
 
   async function placeOrder() {
-    //console.log("caseStudy 2: place")
+    console.log("caseStudy 2: place", subscriptionId)
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
+    let internPath ;
     if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
@@ -187,6 +188,9 @@ console.log("buttonClicked", buttonClicked)
     } else if(from === tenxTrader){
       endPoint = 'tenxPlacingOrder';
       tenxTraderPath = true;
+    }else if(from === internshipTrader){
+      endPoint = 'internPlacingOrder';
+      internPath = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -198,7 +202,7 @@ console.log("buttonClicked", buttonClicked)
           exchange, symbol, buyOrSell, Quantity, Price, 
           Product, OrderType, TriggerPrice, stopLoss, uId,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
-          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
+          userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
 
         })
     });

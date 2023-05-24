@@ -49,7 +49,9 @@ import CareerForm from './layouts/HomePage/pages/CareerForm'
 import Contact from "./layouts/HomePage/pages/Contact";
 import TradeViewTenX from "./layouts/tenXTrading/TradeView/main";
 import TutorialVideo from './layouts/tutorials'
-import CategoryVideos from './layouts/tutorials/Header/categoryVideos'
+import CategoryVideos from './layouts/tutorials/Header/categoryVideos';
+import Internship from './layouts/internshipTrading';
+import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 // import logo from "../src/assets/images/logo1.jpeg"
 
 const routes = [
@@ -310,7 +312,32 @@ const routes = [
     route: "/terms",
     component: <Tnc />,
   },
-
+  {
+    // type: "collapse",
+    // name: "Terms",
+    // key: "terms",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <PersonPinIcon/>,
+    route: "/terms",
+    component: <Tnc />,
+  },
+  {
+    type: "collapse",
+    name: "Internship",
+    key: "internship",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <PersonPinIcon/>,
+    route: "/internship",
+    component: <Internship />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/internship/trade",
+    component: <InternshipTrade/>,
+  },
 ];
 
 // console.log(routes)

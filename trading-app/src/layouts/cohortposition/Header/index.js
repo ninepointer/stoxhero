@@ -33,9 +33,9 @@ function BatchPositionHeader({ children }) {
   const [batchDetails, setBatchDetails] = useState([]);
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/getmocktradebatchestoday`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/mock/cohortBatchToday`)
     .then((res)=>{
-        setBatchDetails(res.data)
+        setBatchDetails(res.data.data)
         // console.log(res.data);
     }).catch((err)=>{
         return new Error(err);
@@ -122,16 +122,9 @@ function BatchPositionHeader({ children }) {
                 <TabPanel value={tabValue} index={index}><AlgoBoxMain batchName={elem._id.cohort}/> </TabPanel>
               )
             })}
-            
-            {/* <TabPanel value={tabValue} index={1}><MockCompanyPNL /> </TabPanel>
-            <TabPanel value={tabValue} index={2}><TraderPNL /> </TabPanel>
-            <TabPanel value={tabValue} index={3}><TraderMatrix /> </TabPanel> */}
-            {/* <TabPaneltwo/> */}
           </Grid>
         </Grid>
       </Card>
-      {/* {children} */}
-
     </MDBox>
 
 
