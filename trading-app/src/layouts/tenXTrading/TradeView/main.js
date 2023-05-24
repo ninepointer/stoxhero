@@ -29,7 +29,7 @@ function TradeViewTenX() {
          let signal = abortController.signal;    
 
          // the signal is passed into the request(s) we want to abort using this controller
-         const { data } = await axios.get(`${baseUrl}api/v1/tenX/countTradingDays`,{
+         const { data } = await axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/countTradingDays`,{
          withCredentials: true,
          headers: {
              Accept: "application/json",
