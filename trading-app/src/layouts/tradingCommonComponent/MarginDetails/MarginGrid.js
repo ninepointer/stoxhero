@@ -11,13 +11,14 @@ import downicon from '../../../assets/images/down.png'
 import marginicon from '../../../assets/images/marginicon.png'
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
+import { renderContext } from '../../../renderContext';
 
 const MarginGrid = () => {
   console.log("rendering : papermargin")
   //console.log("rendering in userPosition: marginGrid")
-  const { netPnl, totalRunningLots } = useContext(NetPnlContext);
+  const { netPnl, totalRunningLots, pnlData  } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  const [marginDetails, setMarginDetails] = useState([]);
+  const [fundDetail, setFundDetail] = useState({});
   // const { columns, rows } = MarginDetails();
 //   const { columns: pColumns, rows: pRows } = MarginDetails();
   // const [lifetimePNL, setLifetimePNL] = useState([]);
@@ -25,8 +26,14 @@ const MarginGrid = () => {
   // const [payIn, setPayIn] = useState([]);
   // const getDetails = useContext(userContext);
   // const id = getDetails?.userDetails?._id
+  const {render} = useContext(renderContext);
 
-
+  const todayAmount = pnlData.reduce((total, acc) => {
+    if (acc.lots !== 0) {
+      return total + Math.abs(acc.amount);
+    }
+    return total; // return the accumulator if the condition is false
+  }, 0);
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/paperTrade/margin`,{
@@ -41,40 +48,29 @@ const MarginGrid = () => {
         ////console.log("live price data", res)
         // setUserInstrumentData(res.data);
         // setDetails.setMarketData(data);
-        setMarginDetails(res.data.data)
+        setFundDetail(res.data.data);
     }).catch((err) => {
         return new Error(err);
     })
   }, []);
   
 
-  console.log("marginDetails", marginDetails)
-  let totalCredit = marginDetails?.totalCredit?.totalFund?.valueSum;
-  let portfolioName = marginDetails?.totalCredit?.totalFund?.name
+  // console.log("marginDetails", marginDetails)
+  // let totalCredit = marginDetails?.totalCredit?.totalFund?.valueSum;
+  let portfolioName = fundDetail?.portfolioName
   // marginDetails?.map((elem)=>{
   //   totalCredit =+ totalCredit + elem.amount
   // })
 
-  let totalCreditString = totalCredit >= 0 ? "+₹" + totalCredit.toLocaleString() : "-₹" + ((-totalCredit).toLocaleString())
-  // let lifetimenetpnl = lifetimePNL[0] ? Number((lifetimePNL[0]?.npnl).toFixed(0)) : 0;
-  // //console.log(lifetimenetpnl)
-  // let runninglotnumber = totalRunningLots;
+  let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
+
   let runningPnl = Number(netPnl?.toFixed(0));
-  let totalPnl = marginDetails?.lifetimePnl?.npnl ? (marginDetails?.lifetimePnl?.npnl + runningPnl).toFixed(0) : runningPnl
-  // let totalPnlString = marginDetails?.lifetimePnl?.npnl ? totalPnl >= 0 ? "+₹" + Number(totalPnl).toLocaleString() : "-₹" + (-Number(totalPnl)).toLocaleString() : "+₹0"
-  //console.log("checking", runningPnl, totalPnl, marginDetails?.lifetimePnl?.npnl, Boolean(totalPnl))
-  // let availableMarginpnl = availableMarginPNL[0] ? Number((availableMarginPNL[0].npnl).toFixed(0)) : 0;
-  // let availableMargin = (Number(openingBalance) + runningPnl)
-  // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
-  // rows.OpeningBalance = openingBalance
+  let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
+  let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
+  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)+runningPnl-todayAmount) : fundDetail?.totalFund;
+  let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
-  // let usedMargin = runninglotnumber == 0 ? openingBalance - availableMargin : openingBalance - availableMargin + runningPnl
-  let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin).toLocaleString() : "₹" + (-Number(usedMargin)).toLocaleString()
-  // let payInAmount = payIn && (payIn[0] ? Number(payIn[0].totalCredit) : 0)
-  // let payInString = payInAmount >= 0 ? "+₹" + Number(payInAmount).toLocaleString() : "-₹" + (-Number(payInAmount)).toLocaleString()
-  let availableMargin = totalCredit + Number(totalPnl);
-  //console.log("availableMargin", totalCredit , Number(totalPnl))
-  let availableMarginString = availableMargin >= 0 ? "₹" + Number(availableMargin).toLocaleString() : "₹" + (-Number(availableMargin)).toLocaleString()
+  let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
 
   
   // //console.log("runningPnl", runningPnl, openingBalance)
@@ -93,7 +89,7 @@ const MarginGrid = () => {
                   <DefaultInfoCard
                     title={`Portfolio Details(${portfolioName})`}
                     description="Below is a summary of the total funds and their intended uses"
-                    value={`Total Credit: ${totalCreditString} | Available Margin: ${availableMarginString}  | Used Margin Today: ${usedMarginString}`}
+                    value={`Total Credit: ${totalCreditString} | Available Margin: ${availableMarginpnlstring}  | Used Margin Today: ${usedMarginString}`}
                   />
                 </Grid>
                 {/* <Grid item xs={16} md={8} xl={3}>

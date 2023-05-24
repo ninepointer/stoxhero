@@ -6,6 +6,7 @@ const singleLivePrice = require('../../marketData/sigleLivePrice');
 const { client, getValue } = require('../../marketData/redisClient');
 const InfinityTrader = require("../../models/mock-trade/infinityTrader");
 const PaperTrade = require("../../models/mock-trade/paperTrade");
+const InternshipTrade = require("../../models/mock-trade/internshipTrade");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany")
 const mongoose = require('mongoose')
 
@@ -178,6 +179,179 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
 }
 
+const takeAutoInternshipTrade = async (tradeDetails) => {
+  tradeDetails = JSON.parse(tradeDetails)
+  let isRedisConnected = getValue();
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T23:59:59.999Z";
+  const today = new Date(todayDate);
+  const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+
+  let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, batch,
+    validity, variety, order_id, instrumentToken, portfolioId, internPath,
+    trader, isAlgoTrader, paperTrade, autoTrade,
+    dontSendResp } = tradeDetails;
+
+  console.log("tradeDetails", tradeDetails)
+  let createdBy;
+  if (autoTrade) {
+    // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
+    let system = await User.findOne({ email: "system@ninepointer.in" })
+    createdBy = system._id
+    console.log("createdBy", createdBy)
+  } else {
+    createdBy = trader
+  }
+  //console.log("req.body", tradeDetails)
+
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+
+
+  if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
+    ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+    if (!dontSendResp) {
+      console.log("Please fill all fields, autotrade");
+      // return res.status(422).json({error : "please fill all the feilds..."})
+    } else {
+      return;
+    }
+  }
+
+  if (buyOrSell === "SELL") {
+    Quantity = "-" + Quantity;
+  }
+
+  //console.log("1st")
+  let originalLastPriceUser;
+  let newTimeStamp = "";
+  let trade_time = "";
+  try {
+
+    //console.log("above")
+    let liveData = await singleLivePrice(exchange, symbol)
+    console.log("liveData", liveData)
+    for (let elem of liveData) {
+      if (elem.instrument_token == instrumentToken) {
+        newTimeStamp = elem.timestamp;
+        originalLastPriceUser = elem.last_price;
+      }
+    }
+
+
+    trade_time = new Date(newTimeStamp);
+    console.log("trade_time", trade_time)
+  } catch (err) {
+    console.log(err)
+    return new Error(err);
+  }
+
+  //console.log("2nd")
+
+  function buyBrokerage(totalAmount) {
+    let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
+    let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
+    let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
+    let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
+    let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
+    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailBuy[0].gst) / 100);
+    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+    return finalCharge;
+  }
+
+  function sellBrokerage(totalAmount) {
+    let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
+    let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
+    let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
+    let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
+    let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
+    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailSell[0].gst) / 100);
+
+    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+    return finalCharge
+  }
+
+  let brokerageUser;
+
+  // //console.log("3st")
+  if (buyOrSell === "BUY") {
+    brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+  } else {
+    brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+  }
+
+  // console.log("brokerageUser", brokerageUser)
+  InternshipTrade.findOne({order_id : order_id})
+  .then((dataExist)=>{
+      if(dataExist){
+        console.log("data already exist in internship autotrade")
+        return ;
+  
+      }
+
+      const internship = new InternshipTrade({
+          status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+          order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch,
+          createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+          
+      });
+
+      // console.log("internship", internship, req.body)
+
+
+      //console.log("mockTradeDetails", paperTrade);
+      internship.save().then(async ()=>{
+          console.log("sending response");
+          if(isRedisConnected && await client.exists(`${trader.toString()}${batch.toString()}: overallpnlIntern`)){
+              //console.log("in the if condition")
+              let pnl = await client.get(`${trader.toString()}${batch.toString()}: overallpnlIntern`)
+              pnl = JSON.parse(pnl);
+              //console.log("before pnl", pnl)
+              const matchingElement = pnl.find((element) => (element._id.instrumentToken === internship.instrumentToken && element._id.product === internship.Product ));
+    
+              // if instrument is same then just updating value
+              if (matchingElement) {
+                // Update the values of the matching element with the values of the first document
+                matchingElement.amount += (internship.amount * -1);
+                matchingElement.brokerage += Number(internship.brokerage);
+                matchingElement.lastaverageprice = internship.average_price;
+                matchingElement.lots += Number(internship.Quantity);
+                //console.log("matchingElement", matchingElement)
+
+              } else {
+                // Create a new element if instrument is not matching
+                pnl.push({
+                  _id: {
+                    symbol: internship.symbol,
+                    product: internship.Product,
+                    instrumentToken: internship.instrumentToken,
+                    exchange: internship.exchange,
+                  },
+                  amount: (internship.amount * -1),
+                  brokerage: Number(internship.brokerage),
+                  lots: Number(internship.Quantity),
+                  lastaverageprice: internship.average_price,
+                });
+              }
+              
+              await client.set(`${trader.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(pnl))
+              
+          }
+
+          if(isRedisConnected){
+              await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
+          }
+          // res.status(201).json({status: 'Complete', message: 'COMPLETE'});
+      }).catch((err)=> {
+          console.log("in err", err)
+          // res.status(500).json({error:"Failed to enter data"})
+      });
+  }).catch(err => {console.log(err, "fail")});  
+
+}
+
 const takeAutoPaperTrade = async (tradeDetails) => {
   tradeDetails = JSON.parse(tradeDetails)
   let isRedisConnected = getValue();
@@ -284,7 +458,9 @@ const takeAutoPaperTrade = async (tradeDetails) => {
   PaperTrade.findOne({ order_id: order_id })
     .then((dateExist) => {
       if (dateExist) {
-        return res.status(422).json({ error: "date already exist..." })
+        console.log("data already exist in paper autotrade")
+        return ;
+  
       }
 
       const paperTrade = new PaperTrade({
@@ -462,8 +638,10 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
     const mockCompany = await InfinityTradeCompany.findOne({ order_id: order_id });
     const mockInfintyTrader = await InfinityTrader.findOne({ order_id: order_id });
-    if ((mockCompany || mockInfintyTrader) && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1) {
-      return res.status(422).json({ message: "data already exist", error: "Fail to trade" })
+    if ((mockCompany || mockInfintyTrader)) {
+      console.log("data already exist in infinity autotrade")
+      return ;
+      // res.status(422).json({ message: "data already exist", error: "Fail to trade" })
     }
 
 
@@ -553,4 +731,4 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
   }
 }
 
-module.exports = {takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade};
+module.exports = {takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade};
