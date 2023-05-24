@@ -122,6 +122,7 @@ const getXTSTicksForCompanySide = async (socket) => {
 
   await emitCompanyTicks(socket);
   xtsMarketDataWS.onLTPEvent((ticksObj) => {
+    console.log(ticksObj)
     ticksObj = JSON.parse(ticksObj);
     if (ticksObj?.ExchangeInstrumentID == marketDepth?.ExchangeInstrumentID) {
       ticksObj.last_price = ticksObj?.LastTradedPrice;
@@ -160,7 +161,7 @@ const getXTSTicksForUserPosition = async (socket) => {
   const userId = await client.get(socket.id)
   await emitTicks(userId);
   xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
-    // console.log(ticksObj)
+    console.log(ticksObj)
     ticksObj = JSON.parse(ticksObj);
 
     if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
