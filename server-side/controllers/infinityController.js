@@ -8,6 +8,7 @@ const User = require("../models/User/userDetailSchema");
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
     const userId = req.user._id;
+    // const userId = new ObjectId('642cedb5a7aa9b00ba1e4866');
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -320,10 +321,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
     {
       $group: {
         _id: {
-          // trader: "$trader",
-          // employeeId: {
-          //   $arrayElemAt: ["$result.employeeid", 0],
-          // },
+
           funds: {
             $arrayElemAt: ["$result.fund", 0],
           },
@@ -355,8 +353,6 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
       $project:
         {
           _id: 0,
-          // userId: "$_id.userId",
-          // employeeId: "$_id.employeeId",
           totalFund: "$_id.funds",
           gpnl: "$gpnl",
           brokerage: "$brokerage",
@@ -372,75 +368,6 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
   if(myPnlAndCreditData.length > 0){
     res.status(201).json({message: "data received", data: myPnlAndCreditData[0]});
   } else{
-    // let fundDetail = await InfinityTrader.aggregate([
-    //   {
-    //     $lookup: {
-    //       from: "user-personal-details",
-    //       localField: "trader",
-    //       foreignField: "_id",
-    //       as: "result",
-    //     },
-    //   },
-    //   // {
-    //   //   $match: {
-    //   //   status : "COMPLETE",
-    //   //   trader: new ObjectId(req.user._id),
-    //   //   trade_time: {
-    //   //       $lt: today
-    //   //     }
-    //   //   }
-    //   // },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         // trader: "$trader",
-    //         // employeeId: {
-    //         //   $arrayElemAt: ["$result.employeeid", 0],
-    //         // },
-    //         funds: {
-    //           $arrayElemAt: ["$result.fund", 0],
-    //         },
-    //       },
-    //       // gpnl: {
-    //       //   $sum: {
-    //       //     $multiply: ["$amount", -1],
-    //       //   },
-    //       // },
-    //       // brokerage: {
-    //       //   $sum: {
-    //       //     $toDouble: "$brokerage",
-    //       //   },
-    //       // },
-    //     },
-    //   },
-    //   // {
-    //   //   $addFields:
-    //   //     {
-    //   //       npnl: {
-    //   //         $subtract: ["$gpnl", "$brokerage"],
-    //   //       },
-    //   //       availableMargin : {
-    //   //         $add : ["$_id.funds", {$subtract :["$gpnl", "$brokerage"]}]
-    //   //       }
-    //   //     },
-    //   // },
-    //   {
-    //     $project:
-    //       {
-    //         _id: 0,
-    //         // userId: "$_id.userId",
-    //         // employeeId: "$_id.employeeId",
-    //         totalCredit: "$_id.funds",
-    //         // gpnl: "$gpnl",
-    //         // brokerage: "$brokerage",
-    //         // npnl: "$npnl",
-    //         // availableMargin: "$availableMargin"
-    //       },
-    //   },
-    //   // {
-    //   //   $sort : {npnl : 1}
-    //   // }
-    // ])
     const data = await User.findById(req.user._id).select('fund');
     const respData = {"totalFund": data.fund};
     //res.status(201).json({message: "data received", data: fundDetail[0]});
@@ -929,4 +856,402 @@ exports.traderwiseReport = async (req, res, next) => {
 
   let x = await InfinityTraderCompany.aggregate(pipeline)
   res.status(201).json({message: "data received", data: x});
+}
+
+exports.overallPnlAllTrader = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);    
+
+  const pipeline = [
+    {
+      $match: {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          product: "$Product",
+          instrumentToken: "$instrumentToken",
+        },
+        amount: {
+          $sum: {$multiply : ["$amount",-1]},
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+        lastaverageprice: {
+          $last: "$average_price",
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityTrader.aggregate(pipeline)
+  res.status(201).json({message: "data received", data: x});
+}
+
+exports.treaderWiseMockTrader = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);    
+
+  const pipeline = [
+    {
+      $match:
+      {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE"
+      }
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $group:
+      {
+        _id:
+        {
+          "traderId": "$trader",
+          "traderName": {
+            $arrayElemAt: ["$user.name", 0]
+          },
+          "symbol": "$instrumentToken",
+          // "algoId": {
+          //   $arrayElemAt: ["$algoBox._id", 0]
+          // },
+          // "algoName": {
+          //   $arrayElemAt: ["$algoBox.algoName", 0]
+          // }
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        lots: {
+          $sum: { $toInt: "$Quantity" }
+        },
+        trades: {
+          $count: {}
+        },
+        lotUsed: {
+          $sum: { $abs: { $toInt: "$Quantity" } }
+        }
+      }
+    },
+    { $sort: { _id: -1 } },
+
+  ]
+
+  let x = await InfinityTrader.aggregate(pipeline)
+  res.status(201).json({message: "data received", data: x});
+}
+
+exports.mockBatchToday = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);    
+
+  const pipeline = [
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    {
+      $project: {
+        trade_time: 1,
+        status: 1,
+        cohort: {
+          $arrayElemAt: ["$userDetails.cohort", 0],
+        },
+      },
+    },
+    {
+      $match: {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          cohort: "$cohort",
+        },
+        trades: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityTrader.aggregate(pipeline)
+  res.status(201).json({message: "data received", data: x});
+}
+
+exports.overallPnlBatchWiseMock = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate); 
+  const batchName = req.params.batchname;
+
+  const pipeline = [
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    {
+      $project:
+      {
+        symbol: 1,
+        Product: 1,
+        trade_time: 1,
+        status: 1,
+        instrumentToken: 1,
+        amount: 1,
+        buyOrSell: 1,
+        Quantity: 1,
+        brokerage: 1,
+        average_price: 1,
+        cohort: {
+          $arrayElemAt: [
+            "$userDetails.cohort",
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $match: {
+        trade_time: {
+          $gte: today,
+        },
+        status: "COMPLETE",
+        cohort: batchName,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          product: "$Product",
+          instrumentToken: "$instrumentToken",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+        lastaverageprice: {
+          $last: "$average_price",
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityTraderCompany.aggregate(pipeline)
+  res.status(201).json({message: "data received", data: x});
+}
+
+exports.traderwiseBatchMock = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate); 
+  const batchName = req.params.batchname;
+
+  const pipeline = [
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    {
+      $project: {
+        userId: 1,
+        createdBy: {
+          $concat: [
+            { $arrayElemAt: ["$userDetails.first_name", 0] },
+            " ",
+            { $arrayElemAt: ["$userDetails.last_name", 0] }
+          ]
+        },
+        trade_time: 1,
+        status: 1,
+        traderName: 1,
+        instrumentToken: 1,
+        amount: 1,
+        Quantity: 1,
+        brokerage: 1,
+        cohort: {
+          $arrayElemAt: ["$userDetails.cohort", 0],
+        },
+      },
+    },
+    {
+      $match: {
+        trade_time: {
+          $gte: today,
+        },
+        status: "COMPLETE",
+        cohort: batchName,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          traderId: "$userId",
+          traderName: "$createdBy",
+          symbol: "$instrumentToken",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        lotUsed: {
+          $sum: {
+            $abs: {
+              $toInt: "$Quantity",
+            },
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityTraderCompany.aggregate(pipeline)
+  res.status(201).json({message: "data received", data: x});
+}
+
+exports.getLetestMockTradeCompany = async(req, res, next)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);    
+
+  let pipeline = [
+      {
+        $match: {
+          trade_time: {
+            $gte: today
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'user-personal-details',
+          localField: 'trader',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $project: {
+          "_id": 0,
+          "trade_time": 1,
+          createdBy: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] }
+            ]
+          },
+          "buyOrSell": 1,
+          "Quantity": 1,
+          "symbol": {
+            $substr: ["$symbol", { $subtract: [{ $strLenCP: "$symbol" }, 7] }, 7]
+          },
+          "status": 1
+        }
+      },
+      { $sort: { "trade_time": -1 } },
+      { $limit: 1 }
+  ];
+    
+
+
+  let letestLive = await InfinityTraderCompany.aggregate(pipeline)
+
+  res.status(201).json({message: 'Letest Live Trade.', data: letestLive[0]});
 }
