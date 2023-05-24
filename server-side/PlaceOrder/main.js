@@ -19,9 +19,12 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
         return res.status(401).send({message: "App is not Live right now. Please wait."}) 
     }
     if(req.body.apiKey && req.body.accessToken){
-        if(setting[0]?.toggle?.liveOrder == zerodhaAccountType || setting[0]?.toggle?.complete == zerodhaAccountType){
+        if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){
+            console.log("in xts if")
             await liveTrade(req, res);
         } else{
+
+            
             await LiveTradeFunc.liveTrade(req.body, res);
         }
         //  TODO toggle

@@ -70,7 +70,7 @@ const placeOrder = async (obj, req, res)=>{
   }
   const response = await xtsInteractiveAPI.placeOrder({
     exchangeSegment: exchangeSegment,
-    exchangeInstrumentID: obj.instrumentToken,
+    exchangeInstrumentID: obj.exchangeInstrumentToken,
     productType: obj.Product,
     orderType: obj.OrderType,
     orderSide: obj.buyOrSell,
@@ -82,11 +82,12 @@ const placeOrder = async (obj, req, res)=>{
     clientID: process.env.XTS_CLIENTID,
   });
 
+  // console.log(response);
   await positions();
   await getPlacedOrderAndSave(false, req, res);
 
   return response;
-  // console.log(response);
+  // 
 }
 
 const getPlacedOrderAndSave = async (isDataSaved, req, res)=>{
@@ -301,6 +302,7 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res)=>{
                 });
             }
             settingRedis = await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))          
+            console.log("in chek if 3", settingRedis)
             console.log(settingRedis)
           }
 

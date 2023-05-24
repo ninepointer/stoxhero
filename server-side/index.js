@@ -64,10 +64,6 @@ Setting.find()
 
 
 
-// .select('toggle')
-
-
-// client.connect().then(()=>{})
 xtsMarketLogin()
   .then(() => { })
   .catch((err) => {

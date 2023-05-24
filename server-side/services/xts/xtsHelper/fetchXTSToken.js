@@ -9,18 +9,21 @@ const fetchXTSData = async () => {
 
   try{
 
-    const resp = await Instrument.find({status: "Active", accountType: xtsAccountType});
+    const resp = await Instrument.find({status: "Active"});
     const index = await StockIndex.find({status: "Active", accountType: xtsAccountType})
-    // const contest = await ContestInstrument.find({status: "Active"});
+    // const contest = await ContestInstrument.find({status: "Active"}); , accountType: xtsAccountType
     // const resp2 = await InstrumentMapping.find({Status: "Active"})
 
 
     let tokens = [];
     resp.forEach((elem)=>{
-      tokens.push({
-        exchangeSegment: elem.exchangeSegment,
-        exchangeInstrumentID: elem.instrumentToken,
-      })
+      if(elem.exchangeInstrumentToken){
+        tokens.push({
+          exchangeSegment: elem.exchangeSegment,
+          exchangeInstrumentID: elem.exchangeInstrumentToken,
+        })
+      }
+
     }) 
     index.forEach((elem)=>{
       tokens.push({

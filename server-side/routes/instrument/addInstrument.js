@@ -50,7 +50,11 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                     console.log((_id).toString(), instrumentToken)
                     // const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
                     if(isRedisConnected){
-                        const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
+                        let obj = {
+                            instrumentToken: instrumentToken,
+                            exchangeInstrumentToken: exchangeInstrumentToken
+                        }
+                        const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
                     }
                     // console.log("this is redis client", newredisClient);
 
@@ -67,7 +71,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                             maxLot: dataExist.maxLot ,
                             accountType: dataExist.accountType,
                             exchangeInstrumentToken: dataExist.exchangeInstrumentToken
-                          }))                
+                        }))                
                     }
     
                 } catch(err){
@@ -87,7 +91,11 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                 //  const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
 
                 if(isRedisConnected){
-                    const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
                 }
 
                 //  console.log("this is redis client", newredisClient)
@@ -195,7 +203,11 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
               }))
 
               console.log("redisClient", removeInstrument)
-              const redisClient = await client.SREM((_id).toString(), (instrumentToken).toString());
+              const obj = {
+                instrumentToken: instrumentToken,
+                exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
+              }
+              const redisClient = await client.SREM((_id).toString(), JSON.stringify(obj));
               user.watchlistInstruments.splice(index, 1); // remove the element at the index
 
              
@@ -233,20 +245,20 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
 
           let instrument = await client.LRANGE(`${req.user._id.toString()}: instrument`, 0, -1)
         //   instrument = JSON.parse(instrument);
-        //   console.log("instrument redis", instrument)
+          console.log("instrument redis", instrument)
           const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
 
-          res.status(201).json({message: "instrument received", data: instrumentJSONs});
+          res.status(201).json({message: "redis instrument received", data: instrumentJSONs});
   
         } else{
   
             const user = await User.findOne({_id: _id});
 
             const instrument = await Instrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                                .select('instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id')
+                                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
                                 .sort({$natural:-1})
 
-                                // console.log("instruments", instrument)
+                                console.log("instruments", instrument)
             const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
             console.log("instrumentJSONs", instrumentJSONs)
             if(instrumentJSONs.length > 0 && isRedisConnected){
