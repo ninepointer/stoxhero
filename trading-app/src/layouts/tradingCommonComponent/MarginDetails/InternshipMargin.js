@@ -26,7 +26,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
   console.log("margin", todayAmount)
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/internship/${BatchId}/marginDetail`,{
+    axios.get(`${baseUrl}api/v1/internship/marginDetail/${BatchId}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
