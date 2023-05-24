@@ -25,6 +25,7 @@ export default function LabTabs() {
   const [myPortfolio,setMyPortfolio] = useState([]);
   // const [portfolioPnl, setPortfolioPnl] = useState([]);
   const [tenX, setTenX] = useState([]);
+  const [isLoading,setIsLoading] = useState(true);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
@@ -55,25 +56,40 @@ export default function LabTabs() {
       })
       .then((res)=>{
         setMyPortfolio(res.data.data);
+        setTimeout(()=>{
+          setIsLoading(false)
+        },500)
       })
   }, [])
 
   return (
+    <>
+    {isLoading ? <MDBox bgColor="dark" mt={2} mb={2} p={2} height="80vh" borderRadius={10}> <MDBox display="flex" justifyContent="center" sx={{position:"absolute",right:{xs:"150px",md:"380px",lg:"600px"},top:"350px"}}> <CircularProgress style={{height:"90px",width:"90px", color:"#fff"}} /></MDBox></MDBox>
+    :
    
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
           
           <Grid container >
               <Grid item xs={12} md={6} lg={12} mb={2}>
                 <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>Virtual Trading Porfolio(s)</MDTypography>
+                
                 <MyPortfolio type="Virtual Trading" data={myPortfolio}/>
+
               </Grid>
+              
         
               <Grid item xs={12} md={6} lg={12}>
+                
                 <MDTypography mb={2} color="light" fontWeight="bold" style={{textDecoration: "underline"}}>TenX Trading Porfolio(s)</MDTypography>
+                 
                 <MyPortfolio type="TenX Trading" data={tenX}/>
+
               </Grid>
+
           </Grid>
 
     </MDBox>
+}
+    </>
   );
 }

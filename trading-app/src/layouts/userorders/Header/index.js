@@ -18,6 +18,7 @@ import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import {InfinityTraderRole, tenxTrader} from "../../../variables";
+import { CircularProgress } from "@mui/material";
 
 
 
@@ -34,7 +35,7 @@ function Header({ children }) {
   const [infinityFilterData, setInfinityFilteredData] = useState([]);
   const [infinityCount, setInfinityCount] = useState(0);
   const [infinityData, setInfinityData] = useState([]);
-
+  
   const [orders, setOrders] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
   let [skip, setSkip] = useState(0);
@@ -72,7 +73,9 @@ function Header({ children }) {
         setData(res.data.data)
         setCount(res.data.count)
         setFilteredData(res.data.data)
-        setIsLoading(false)
+        setTimeout(() => {
+          setIsLoading(false); 
+        }, 500);
     }).catch((err) => {
         console.log(err)
         return new Error(err);
@@ -100,7 +103,10 @@ function Header({ children }) {
         setData(res.data.data)
         setCount(res.data.count)
         setFilteredData(res.data.data)
-        setIsLoading(false)
+        setTimeout(() => {
+          setIsLoading(false); 
+        }, 500);
+        
     }).catch((err) => {
         console.log(err)
         return new Error(err);
@@ -128,7 +134,10 @@ function Header({ children }) {
         setData(res.data.data)
         setCount(res.data.count)
         setFilteredData(res.data.data)
-        setIsLoading(false)
+        setTimeout(() => {
+          setIsLoading(false); 
+        }, 500);
+        
     }).catch((err) => {
         console.log(err)
         return new Error(err);
@@ -152,7 +161,10 @@ function Header({ children }) {
         setInfinityData(res.data.data)
         setInfinityCount(res.data.count)
         setInfinityFilteredData(res.data.data)
-        setIsLoading(false)
+        setTimeout(() => {
+          setIsLoading(false); 
+        }, 500);
+        
     }).catch((err) => {
         console.log(err)
         return new Error(err);
@@ -179,7 +191,10 @@ function Header({ children }) {
       setInfinityData(res.data.data)
       setInfinityCount(res.data.count)
       setInfinityFilteredData(res.data.data)
-      setIsLoading(false)
+      setTimeout(() => {
+        setIsLoading(false); 
+      }, 500);
+      
     }).catch((err) => {
         console.log(err)
         return new Error(err);
@@ -207,7 +222,10 @@ function Header({ children }) {
         setInfinityData(res.data.data)
         setInfinityCount(res.data.count)
         setInfinityFilteredData(res.data.data)
-        setIsLoading(false)
+        setTimeout(() => {
+          setIsLoading(false); 
+        }, 500);
+        
     }).catch((err) => {
         console.log(err)
         return new Error(err);
@@ -220,10 +238,13 @@ function Header({ children }) {
 
   function handleClick(){
     console.log("HandleClick",rejectedFilter)
+    
     setFilteredData(data?.filter((item)=> {
        console.log(!buyFilter,!sellFilter)
        if(buyFilter && item.buyOrSell === 'BUY') {
+       
         return true;
+        
         }
        if(sellFilter && item.buyOrSell === 'SELL') {
         return true;
@@ -302,6 +323,11 @@ function Header({ children }) {
   console.log("infinityData", infinityData, infinityFilterData);
 
   return (
+
+    <>
+    {isLoading ? <MDBox bgColor="dark" mt={2} mb={2} p={2} height="80vh" borderRadius={10}> <MDBox display="flex" justifyContent="center" sx={{position:"absolute",right:{xs:"150px",md:"380px",lg:"600px"},top:"350px"}}> <CircularProgress style={{height:"90px",width:"90px", color:"#fff"}} /></MDBox></MDBox>
+    :
+    
     
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
       <Grid container>
@@ -332,14 +358,14 @@ function Header({ children }) {
             </MDBox>
 
             {infinityFilterData.length === 0 ? 
-            <>
+            
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={tradesicon} width={50} height={50}/>
                 <MDTypography color="light" fontSize={15}>{getDetails.userDetails.role.roleName === InfinityTraderRole ? "You do not have any Infinity trading orders!" : "You do not have any TenX trading orders!"}</MDTypography>
               </MDBox>
             </Grid>
-            </>
+            
             :
             
             getDetails.userDetails.role.roleName !== InfinityTraderRole ?
@@ -380,6 +406,7 @@ function Header({ children }) {
               let statuscolor = elem?.status === 'COMPLETE' ? 'success' : 'error'
            
             return (
+              
             <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
                 <Grid item xs={12} md={2} lg={2}>
                   <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
@@ -409,6 +436,7 @@ function Header({ children }) {
                   <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
+            
             )
             })}
             
@@ -456,6 +484,9 @@ function Header({ children }) {
               let statuscolor = elem?.status === 'COMPLETE' ? 'success' : 'error'
            
             return (
+              
+              
+              
             <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
                 <Grid item xs={12} md={2} lg={2}>
                   <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
@@ -481,8 +512,9 @@ function Header({ children }) {
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
-            </Grid>
-            )
+            </Grid>)
+          
+            
             })}
             
             {infinityCount !== 0 &&
@@ -528,15 +560,19 @@ function Header({ children }) {
 
             {filterData.length === 0 ?
             <>
+            { isLoading ? <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px",color:"#fff"}} /> </MDBox>
+            :
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={tradesicon} width={50} height={50}/>
                 <MDTypography color="light" fontSize={15}>You do not have any Paper trading orders!</MDTypography>
               </MDBox>
             </Grid>
+}
             </>
             :
             <>
+            
             
             <Grid mt={2} p={1} container style={{border:'1px solid white', borderRadius:5}}>
               <Grid item xs={12} md={2} lg={2}>
@@ -570,6 +606,9 @@ function Header({ children }) {
               let statuscolor = elem?.status === 'COMPLETE' ? 'success' : 'error'
            
             return (
+              <>
+              { isLoading ? <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px",color:"#fff"}}/> </MDBox>
+              :
             <Grid mt={1} p={1} container style={{border:'1px solid white', borderRadius:5}}>
                 <Grid item xs={12} md={2} lg={2}>
                   <MDTypography color="light" fontSize={13} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
@@ -596,6 +635,8 @@ function Header({ children }) {
                   <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
                 </Grid>
             </Grid>
+            }
+            </>
             )
             })}
 
@@ -614,6 +655,8 @@ function Header({ children }) {
       </MDBox>
     
     </MDBox>
+}
+    </>
   );
 }
 

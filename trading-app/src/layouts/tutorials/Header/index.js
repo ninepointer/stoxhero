@@ -65,7 +65,7 @@ function YouTubeVideo() {
         <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
             {isLoading ? 
               <MDBox display='flex' justifyContent='center' m={10}>
-                <CircularProgress color='info' size={80} />
+                <CircularProgress style={{color:"#fff"}} size={80} />
               </MDBox>
             :
             

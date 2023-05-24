@@ -34,6 +34,7 @@ export default function TenXSubscriptions() {
   // const [open, setOpen] = React.useState(false);
   // const [isLoading,setIsLoading] = useState(false);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
+  const [isLoading,setIsLoading] = useState(true);
   // const getDetails = React.useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -55,6 +56,9 @@ export default function TenXSubscriptions() {
         return total + transaction?.amount;
       }, 0);
       setCashBalance(totalCashAmount);
+      setTimeout(() => {
+        setIsLoading(false); // Set loading state to false when data is fetched
+      }, 500);
     })
   }, [])
 
@@ -63,10 +67,11 @@ export default function TenXSubscriptions() {
     return (
     <React.Fragment>
       <CardContent sx={{height: 'auto', flex:1 ,padding:2}} justifyContent="center">
+            
         <MDBox mb={-3}>
-        
-          <MDBox bgColor={props.color} p={1} mb={2} sx={{height:"auto",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"10px"}}>
   
+          <MDBox bgColor={props.color} p={1} mb={2} sx={{height:"auto",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"10px"}}>
+            
             <Grid  container spacing={1} justifyContent="center" alignItems="center">
               <Grid item xs={12} mt={1}>
                 <MDBox display="flex"  pl={2}justifyContent="left" alignItems="center" flexDirection='row'>
@@ -123,9 +128,11 @@ export default function TenXSubscriptions() {
                 />
                 <MDTypography fontSize={12} color='light' fontWeight='bold'> {props.plan5}</MDTypography>
               </MDTypography>
+
+            
             </MDBox>
-  
-          </MDBox>
+          
+       </MDBox>
   
   
           <MDBox p={1}  borderTop="1px dotted #1A73E8" display='flex' justifyContent="space-between" alignItems='center' flexDirection='row'>
@@ -153,7 +160,7 @@ export default function TenXSubscriptions() {
           </MDBox>
   
         </MDBox>
-         
+        
       </CardContent>
       
      
@@ -180,6 +187,9 @@ export default function TenXSubscriptions() {
       // Process the responses here
       console.log(api1Response.data.data);
       setActiveTenXSubs(api1Response.data.data)
+      setTimeout(() => {
+        setIsLoading(false); // Set loading state to false when data is fetched
+      }, 500);
     
     })
     .catch((error) => {
@@ -193,8 +203,14 @@ export default function TenXSubscriptions() {
   console.log("cashBalance", cashBalance)
 
   return (
+    <>
+    {
+      isLoading ?<MDBox bgColor="dark" mt={2} mb={2} p={2} height="80vh" borderRadius={10}> <MDBox display="flex" justifyContent="center" sx={{position:"absolute",right:{xs:"150px",md:"380px",lg:"600px"},top:"350px"}}> <CircularProgress style={{height:"90px",width:"90px", color:"#fff"}} /></MDBox></MDBox>
+      :
    
-    <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10}>
+    <MDBox bgColor="dark"  color="light" mt={2} mb={2} p={2} borderRadius={10}>
+
+      
 
     <MDBox display="flex" justifyContent='center' flexDirection='column' mb={2} mt={1}>
       <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is TenX Trading / TenX ट्रेडिंग क्या है?</MDTypography>
@@ -251,7 +267,11 @@ export default function TenXSubscriptions() {
           }
           
       </Grid>
+        
+      
 
     </MDBox>
+}
+    </>
   );
 }

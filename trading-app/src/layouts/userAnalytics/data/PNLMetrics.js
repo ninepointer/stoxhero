@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { CircularProgress, Grid } from '@mui/material';
 import axios from 'axios';
 import MDBox from '../../../components/MDBox';
@@ -15,12 +15,15 @@ export default function PNLMetrics({traderType, endpoint}) {
 
   const [overview, setOverview] = React.useState({});
   const todayPnl = useContext(NetPnlContext); 
+  const[isLoading,setIsLoading] = useState(true)
 
   console.log("todayPnl", todayPnl)
 
   const getOverview = async()=>{
     const res = await axios.get(`${apiUrl}analytics/${endpoint}/myoverview`, {withCredentials: true});
+   
     setOverview(prev=>res.data.data[0]);
+    setTimeout(()=>setIsLoading(false),2000)
   }
 
   useEffect(()=>{
@@ -30,10 +33,13 @@ export default function PNLMetrics({traderType, endpoint}) {
   console.log("overview", overview)
 
   return (
+    
+    
    
     <Grid container spacing={3} display="flex" justifyContent="space-between">
         
             <Grid item xs={12} md={6} lg={3}>
+              
             <MDButton variant="contained" color="light" size="small" style={{minWidth:"100%"}}>
                     <Grid  container spacing={1} display="flex" justifyContent="center" alignContent="center" alignItem="center">
                         <Grid item xs={12} md={6} lg={12}  display="flex" alignContent="center" alignItems="center">
@@ -48,7 +54,8 @@ export default function PNLMetrics({traderType, endpoint}) {
                             </MDBox>
                         </Grid>
                     </Grid>
-            </MDButton>   
+            </MDButton>  
+ 
             </Grid>        
 
         
@@ -106,5 +113,7 @@ export default function PNLMetrics({traderType, endpoint}) {
             </MDButton>   
             </Grid>        
     </Grid>
+
+        
   );
 }

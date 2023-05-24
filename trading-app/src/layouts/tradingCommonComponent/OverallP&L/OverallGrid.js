@@ -240,11 +240,6 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   return (
 
     <>
-    {
-      isLoading ? <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px"}} /> </MDBox>
-:
-    
-
     <Card>     
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
         <MDBox>
@@ -365,7 +360,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
       )
       }
     </Card>
-}
+
     </>
   );
 

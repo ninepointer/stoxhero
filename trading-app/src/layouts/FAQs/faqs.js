@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MDBox from "../../components/MDBox";
-import { Grid } from "@mui/material";
+import { CircularProgress, Grid } from "@mui/material";
 import MDTypography from "../../components/MDTypography";
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import MDButton from "../../components/MDButton";
+
 
 
 // Data
@@ -23,6 +24,13 @@ function FAQs() {
     4: false,
     5: false,
   });
+  const[isLoading,setIsLoading] = useState(true)
+
+  useEffect(()=>{
+    setTimeout(()=>{
+        setIsLoading(false)
+    },2000)
+  },[expanded])
   
   const expansion = (id) => {
     setExpanded(prevExpanded => ({
@@ -32,12 +40,14 @@ function FAQs() {
   };
 
   return (
-    <>
+    
+    
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10}>
         <MDBox>
             <MDTypography mt={2} fontSize={25} fontWeight="bold" color="light" align="center">Have questions about StoxHero?</MDTypography>
             <MDTypography fontSize={20} fontWeight="normal" color="light" align="center">Find your answers in the Frequently Asked Questions (FAQs)</MDTypography>
         </MDBox>
+        
         <Grid container spacing={2} xs={12} md={12} lg={12} mt={1}  mb={5} display="flex" justifyContent="center">
             <Grid item xs={12} md={12} lg={10}>
                 <MDBox bgColor="light" style={{border:'1px solid white', borderRadius:5}}>
@@ -449,11 +459,12 @@ function FAQs() {
             </Grid>
 
         </Grid>
+        
         <MDBox>
             <MDTypography mt={2} fontSize={20} mb={2} color="light" fontWeight="bold" align="center">For any additional queries, drop us an email @ team@stoxhero.com</MDTypography>
         </MDBox>
     </MDBox>
-    </>
+    
   );
 }
 

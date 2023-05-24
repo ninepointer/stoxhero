@@ -97,11 +97,9 @@ const MarginGrid = () => {
     // const { columns, rows } = authorsTableData();  md={8} xl={3}
     
     return (
-    <>
+    
       <MDBox mt={0.5}>
-        { isLoading ? 
-        <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px"}} /> </MDBox>
-        :
+        
         <MDBox  mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={16} lg={12}>
@@ -172,40 +170,40 @@ const MarginGrid = () => {
             </Grid>
           </Grid>
         </MDBox>
-        }
+        
       </MDBox>
-          {/* <Grid item xs={12} md={6} lg={12}>
-            <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
-              <Grid container display="flex" justifyContent="space-around">
+          // {/* <Grid item xs={12} md={6} lg={12}>
+          //   <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
+          //     <Grid container display="flex" justifyContent="space-around">
 
 
 
-                <Grid item xs={12} md={6} lg={4}>
-                  <MDAvatar src={marginicon} size="lg"/>
-                  <MDTypography fontSize={17} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Portfolio</MDTypography>
-                </Grid>
+          //       <Grid item xs={12} md={6} lg={4}>
+          //         <MDAvatar src={marginicon} size="lg"/>
+          //         <MDTypography fontSize={17} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Portfolio</MDTypography>
+          //       </Grid>
            
-                <Grid item xs={12} md={6} lg={4}>
-                  <MDBox display="flex">
-                    <MDTypography fontSize={10}>{totalPnlString}</MDTypography>
-                    <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
-                  </MDBox>
-                </Grid>
+          //       <Grid item xs={12} md={6} lg={4}>
+          //         <MDBox display="flex">
+          //           <MDTypography fontSize={10}>{totalPnlString}</MDTypography>
+          //           <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
+          //         </MDBox>
+          //       </Grid>
               
-                <Grid item xs={12} md={6} lg={4}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">{totalCreditString}</MDTypography>
-                  <MDBox display="flex" justifyContent="right">
-                    <MDTypography fontSize={10} display="flex" justifyContent="right">(-40.00%)</MDTypography>
-                    <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
-                  </MDBox>   
-                </Grid>
-              </Grid>
+          //       <Grid item xs={12} md={6} lg={4}>
+          //         <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">{totalCreditString}</MDTypography>
+          //         <MDBox display="flex" justifyContent="right">
+          //           <MDTypography fontSize={10} display="flex" justifyContent="right">(-40.00%)</MDTypography>
+          //           <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
+          //         </MDBox>   
+          //       </Grid>
+          //     </Grid>
             
-            </MDBox>
-          </Grid> */}
+          //   </MDBox>
+          // </Grid> */}
 
       
-    </>
+    
     )
 }
 

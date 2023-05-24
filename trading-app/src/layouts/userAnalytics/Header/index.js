@@ -34,7 +34,7 @@ export default function LabTabs() {
   const stoxheroTrading = "TenX Trading"
   const getDetails = useContext(userContext);
   const [value, setValue] = React.useState('1');
-  const [isLoading,setIsLoading] = useState(false);
+  const [isLoading,setIsLoading] = useState(true);
   const [alignment, setAlignment] = React.useState(getDetails.userDetails.role.roleName === InfinityTraderRole ? infinityTrading : paperTrading);
   const [textColor,setTextColor] = React.useState('info');
   const date = new Date();
@@ -79,6 +79,7 @@ export default function LabTabs() {
 
   useEffect(()=>{
     handleShowDetails();
+    
   },[endpoint])
 
   const handleShowDetails = async() => {
@@ -87,6 +88,7 @@ export default function LabTabs() {
     const res = await axios.get(`${apiUrl}analytics/${endpoint}/mystats?from=${from}&to=${to}`, {withCredentials: true});
     console.log(res.data.data);
     setDateWiseData(prev=>res.data.data);
+    setTimeout(()=>setIsLoading(false),500);
     
   }
   let totalgpnl =0 , totalnpnl =0, totalBrokerage =0, totalOrders=0, totalTradingDays =0, totalGreenDays =0, totalRedDays = 0;
@@ -109,7 +111,14 @@ export default function LabTabs() {
   console.log(totalgpnl, totalnpnl, totalBrokerage, totalOrders, totalTradingDays, totalGreenDays, totalRedDays);
   console.log("alignment", alignment)
 
+  
+
   return (
+    <>
+    {isLoading ? <MDBox bgColor="dark" mt={2} mb={2} p={2} height="80vh" borderRadius={10}> <MDBox display="flex" justifyContent="center" sx={{position:"absolute",right:{xs:"150px",md:"380px",lg:"600px"},top:"350px"}}> <CircularProgress style={{height:"90px",width:"90px", color:"#fff"}} /></MDBox></MDBox>
+    :
+    
+    
    
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
     
@@ -126,7 +135,7 @@ export default function LabTabs() {
       >
       <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={paperTrading}> {paperTrading}</ToggleButton>
       { getDetails.userDetails.role.roleName === InfinityTraderRole ?
-      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={infinityTrading}>{infinityTrading}</ToggleButton>
+      <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}}  value={infinityTrading}>{infinityTrading}</ToggleButton>
       :
       <ToggleButton style={{paddingLeft:14,paddingRight:14,fontSize:10,fontWeight:700}} value={stoxheroTrading}>{stoxheroTrading}</ToggleButton>
       }
@@ -140,12 +149,12 @@ export default function LabTabs() {
               <MDBox bgColor="light" borderRadius={5}>
 
               <MDBox>
+
                     <Grid container spacing={0} p={1} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
                     
                       <Grid item xs={12} md={6} lg={3} mt={1} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                           <MDTypography color="dark" fontSize={15} fontWeight="bold">Select Date Range</MDTypography>
                       </Grid>
-
                     <Grid item xs={12} md={6} lg={3} mb={1}>
                     <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center"  borderRadius={5}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -166,7 +175,6 @@ export default function LabTabs() {
                       </LocalizationProvider>
                     </MDBox>
                     </Grid>
-                    
 
                     <Grid item xs={12} md={6} lg={3} mb={1}>
                     <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={4}>
@@ -195,6 +203,7 @@ export default function LabTabs() {
                     </Grid>
 
                     </Grid>
+                
                 </MDBox>
 
               </MDBox>
@@ -206,6 +215,7 @@ export default function LabTabs() {
               <MDBox bgColor="light" borderRadius={5}>
 
               <MDBox>
+                
                     <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
 
                     {/* <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center"> */}
@@ -260,6 +270,7 @@ export default function LabTabs() {
                     {/* </MDBox> */}
 
                     </Grid>
+
                 </MDBox>
 
               </MDBox>
@@ -270,25 +281,32 @@ export default function LabTabs() {
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
-            <GrossPNLChart traderType={alignment} dateWiseData = {dateWiseData}/>
+            
+           <GrossPNLChart traderType={alignment} dateWiseData = {dateWiseData}/>
+            
           </MDBox>
           </Grid>
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
+            
             <NetPNLChart traderType={alignment} dateWiseData ={dateWiseData}/>
           </MDBox>
           </Grid>
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
+            
             <BrokerageChart traderType={alignment} dateWiseData={dateWiseData}/>
+
           </MDBox>
           </Grid>
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
+            
             <OrdersChart traderType={alignment} dateWiseData={dateWiseData}/>
+
           </MDBox>
           </Grid>
           
@@ -300,12 +318,16 @@ export default function LabTabs() {
 
           <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
+            
             <MonthLineChart traderType={alignment} monthWiseData ={monthWiseData}/>
+
           </MDBox>
           </Grid>
 
         </Grid>
 
     </MDBox>
+    }
+    </>
   );
 }

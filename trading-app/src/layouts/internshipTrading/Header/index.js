@@ -165,6 +165,7 @@ export default function TenXSubscriptions() {
   )}
 
 
+  const[isLoading,setIsLoading] = useState(true);
 
   useEffect(()=>{
   
@@ -183,6 +184,9 @@ export default function TenXSubscriptions() {
       // Process the responses here
       console.log(api1Response.data.data);
       setActiveTenXSubs(api1Response.data.data)
+      setTimeout(()=>{
+        setIsLoading(false)
+      },2000)
     
     })
     .catch((error) => {
@@ -197,8 +201,9 @@ export default function TenXSubscriptions() {
 
   return (
    
-    <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10} minHeight='65vh' >
-
+    <MDBox display="flex" justifyContent="center" flexDirection="column" bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10} minHeight='65vh' >
+      
+   <>
     <MDBox display="flex" justifyContent='center' flexDirection='column' mb={2} mt={1}>
       <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is StoxHero Internship?</MDTypography>
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
@@ -226,6 +231,9 @@ export default function TenXSubscriptions() {
         <MDButton variant="contained" color="success" sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} onClick={()=>{navigate(`/internship/trade`)}} size='small'>Start Trading</MDButton>
       </MDBox>               
     </Grid>
+    </>
+
+      
 
     </MDBox>
   );

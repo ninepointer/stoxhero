@@ -13,6 +13,7 @@ import MarginGrid from "../tradingCommonComponent/MarginDetails/MarginGrid";
 import TradableInstrument from "../tradingCommonComponent/TradableInstrument/TradableInstrument";
 import StockIndex from "../tradingCommonComponent/StockIndex/StockIndex";
 import { userContext } from "../../AuthContext";
+import { CircularProgress } from "@mui/material";
 
 
 
@@ -25,6 +26,7 @@ function UserPosition() {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  const[isLoading,setIsLoading] = useState(true);
 
 
   let socket;
@@ -39,6 +41,9 @@ function UserPosition() {
     socket.on("connect", () => {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id)
+      setTimeout(()=>{
+        setIsLoading(false)
+      },500)
     })
   }, []);
 
@@ -89,12 +94,19 @@ function UserPosition() {
     />;
   }, [ handleSetIsGetStartedClicked]);
 
+ 
+  
+
 
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={0} mt={1}>
+        {isLoading ?  <MDBox display="flex" justifyContent="center" sx={{position:"absolute",top:{xs:"250px",md:"380px"},right:{xs:"150px",md:"350px",lg:"680px"}}}> <CircularProgress style={{height:"90px",width:"90px", color:"blue"}}/></MDBox>
+        :
+        <>
+        
 
         {/* <StockIndex /> */}
         {/* <StockIndex socket={socket}/> */}
@@ -128,6 +140,8 @@ function UserPosition() {
             </Grid>
           </Grid>
         </MDBox>
+        </>
+}
       </MDBox>
     </DashboardLayout>
   );

@@ -45,6 +45,7 @@ function ReferralHomePage() {
   const [joinedCount,setJoinedCount] = useState([]);
   const [earnings, setEarnings] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [isLoading,setIsLoading] = useState(true);
   const[referralRanks, setReferralRanks] = useState([]);
   const[rank, setRank] = useState();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -58,6 +59,9 @@ function ReferralHomePage() {
     .then((res)=>{
     //    console.log('ye hai ref', res?.data?.data[0])
        setActiveReferralProgram(res?.data?.data[0]);
+       setTimeout(()=>{
+        setIsLoading(false)
+       },500)
     }).catch((err)=>{
         return new Error(err);
     });
@@ -303,6 +307,8 @@ function ReferralHomePage() {
   }
   return (
     <>
+    { isLoading ? <MDBox bgColor="dark" mt={2} mb={2} p={2} height="80vh" borderRadius={10}> <MDBox display="flex" justifyContent="center" sx={{position:"absolute",right:{xs:"150px",md:"380px",lg:"600px"},top:"350px"}}> <CircularProgress style={{height:"90px",width:"90px", color:"#fff"}} /></MDBox></MDBox>
+    :
         <MDBox width="100%" bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
             <MDBox>
                 <Grid container spacing={4}>
@@ -311,13 +317,16 @@ function ReferralHomePage() {
                         <MDBox color="light" pt={2.25} pb={2.25} display="flex" justifyContent="center">
                             StoxHero Referral Program - {activeReferralProgram?.referralProgramName}
                         </MDBox>
-                        <MDBox fontSize={15} display="flex" justifyContent="center">
+                        <MDBox fontSize={15} display="flex" justifyContent="center" alignItems="center">
+                            
                             <img alt="Referral Program" style={{ maxWidth: '100%', height: 'auto' }} src={ReferralImage}/>
+
                         </MDBox>
                     </Grid>
 
                     <Grid item xs={12} md={12} lg={4}>
                         <MDBox bgColor="light"  p={2} style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.6)' }}>
+                            
                             <Grid container>
                                 <Grid item xs={12} md={12} mt={2} lg={12} marginTop={0.5} display="flex" textAlign="center" justifyContent="center">
                                     <MDTypography fontSize={13}>Get {activeReferralProgram?.currency} {activeReferralProgram?.rewardPerReferral} for every referral in your StoxHero wallet</MDTypography>
@@ -387,7 +396,7 @@ function ReferralHomePage() {
                                         %0A%0A👉 Participate in free options trading contests to sharpen your trading skills.
                                         %0A%0A📲 Visit https://www.stoxhero.com/signup?referral=${referralCode}
                                         %0A%0AUse my below invitation code 👇 and get INR ₹10,00,000 in your wallet and start trading.
-                                        %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`}
+                                        %0A%0AMy Referral Code to join the StoxHero: *${getDetails.userDetails.myReferralCode}*`} 
                                         target="_blank">
                                         <MDTypography variant="contained">
                                            <IoLogoWhatsapp color="green" lineHeight={1} size={40} />
@@ -399,6 +408,7 @@ function ReferralHomePage() {
                                     <InviteFriendModal invited={invited} setInvited={setInvited} referralCode={referralCode} referralProgramId={activeReferralProgram?._id}/>
                                 </Grid> */}
                             </Grid>
+
                         </MDBox>
                     </Grid>
 
@@ -406,6 +416,7 @@ function ReferralHomePage() {
             </MDBox>
 
             <MDBox mt={3}>
+                
                 <Grid container >
                 <Grid items xs={12} md={6} lg={4}>
                     <MDBox 
@@ -513,7 +524,8 @@ function ReferralHomePage() {
                         </MDBox>
                     </MDBox>
                 </Grid>
-                </Grid>
+              </Grid>
+
             </MDBox>
 
             <MDBox pt={6} pb={3}>
@@ -538,6 +550,7 @@ function ReferralHomePage() {
                                 </MDTypography>
                             </MDBox>
                             <MDBox pt={2}>
+                                
                                 <DataTable
                                     table={{ columns, rows }}
                                     isSorted={false}
@@ -545,6 +558,7 @@ function ReferralHomePage() {
                                     showTotalEntries={false}
                                     noEndBorder
                                 />
+
                             </MDBox>
                         </Card>
                     </Grid>
@@ -573,6 +587,7 @@ function ReferralHomePage() {
                                 </MDTypography>
                             </MDBox>
                             <MDBox pt={2}>
+                               
                                 <DataTable
                                     table={{ columns : referralColumns, rows : referralRows }}
                                     isSorted={false}
@@ -580,6 +595,7 @@ function ReferralHomePage() {
                                     showTotalEntries={false}
                                     noEndBorder
                                 />
+
                             </MDBox>
                         </Card>
                     </Grid>
@@ -587,6 +603,7 @@ function ReferralHomePage() {
             </MDBox>
             {renderSuccessSB}
         </MDBox>
+        }
     </>
   );
 }

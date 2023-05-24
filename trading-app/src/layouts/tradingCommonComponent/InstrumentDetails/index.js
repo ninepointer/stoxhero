@@ -273,11 +273,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
 
   return (
-    <>
-    { isLoading ? <MDBox display="flex" justifyContent="center" > <CircularProgress style={{height:"25px",width:"25px"}} /> </MDBox>
-
-:
-    <Card>
+    
+       <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
         <MDBox display="flex">
           <MDTypography variant="h6" gutterBottom>
@@ -381,8 +378,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       )}
       {renderSuccessSB}
     </Card>
-}
-    </>
+
+    
   );
 }
 
