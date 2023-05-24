@@ -80,14 +80,14 @@ router.get("/getliveprice", async (req, res)=>{
       }
     });
 
-    contestInstrument.forEach((elem, index) => {
-      // if (index === 0) {
-      //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
-      // } else {
-      // }
-      addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+    // contestInstrument.forEach((elem, index) => {
+    //   // if (index === 0) {
+    //   //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
+    //   // } else {
+    //   // }
+    //   addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
 
-    });
+    // });
 
     // resp2.forEach((elem, index) => {
     //   // console.log(addUrl)
