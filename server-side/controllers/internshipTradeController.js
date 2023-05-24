@@ -235,6 +235,8 @@ exports.marginDetail = async (req, res, next) => {
     ])
 
     if(subscription.length > 0){
+      console.log("subs", subscription)
+
         res.status(200).json({status: 'success', data: subscription[0]});
     } else{
         const portfolioValue = await InternBatch.aggregate([
@@ -273,7 +275,7 @@ exports.marginDetail = async (req, res, next) => {
             },
         ])
 
-        console.log("portfolioValue", portfolioValue)
+        console.log("portfolioValue", portfolioValue, subscription)
         res.status(200).json({status: 'success', data: portfolioValue[0]});
     }
   } catch (e) {
