@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const {overallPnl,myTodaysTrade,myHistoryTrade, 
-    marginDetail, tradingDays} = require('../../controllers/tenXTradeController');
+    marginDetail, tradingDays} = require('../../controllers/internshipTradeController');
 const Authenticate = require('../../authentication/authentication');
 
 

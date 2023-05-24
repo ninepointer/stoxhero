@@ -203,9 +203,10 @@ export default function TenXSubscriptions() {
       <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is StoxHero Internship?</MDTypography>
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
-          <span style={{fontWeight:'bold', fontSize:20}}>StoxHero</span> internship program is for college going public <span style={{fontWeight:'bold', fontSize:20}}></span>
-          to start their career with derivatives trading using the virtual currency (i.e. margin money) provided by StoxHero. You'll be added in batches after selection
-          and upon completion of the internship period and meeting the criteria for completion, <span style={{fontWeight:'bold', fontSize:20}}>we'll be handing out an internship certificate</span> that can boost your career in finance.
+            Welcome to the StoxHero Derivatives Trader Internship Program!
+            At StoxHero, we believe in nurturing and developing the next generation of derivatives traders. Our internship program is designed to provide you with a comprehensive learning experience that will sharpen your skills, deepen your understanding of the financial markets, and prepare you for a successful career in derivatives trading. 
+            At the successful completion of your internship, you will receive a valuable internship certificate from StoxHero. This certificate recognizes your dedication, knowledge, and practical skills gained during your internship.
+            Best of luck, and let's make this internship experience remarkable together!
         </MDTypography>
       </MDBox>
     </MDBox>
