@@ -62,7 +62,7 @@ router.get("/getliveprice", async (req, res)=>{
 // }
 
 
-
+//, contractDate: new Date("2023-05-25T00:00:00.000Z")
 
     const ans = await Instrument.find({status: "Active"});
     const contestInstrument = await ContestInstrument.find({status: "Active"});
@@ -80,14 +80,14 @@ router.get("/getliveprice", async (req, res)=>{
       }
     });
 
-    contestInstrument.forEach((elem, index) => {
-      // if (index === 0) {
-      //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
-      // } else {
-      // }
-      addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+    // contestInstrument.forEach((elem, index) => {
+    //   // if (index === 0) {
+    //   //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
+    //   // } else {
+    //   // }
+    //   addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
 
-    });
+    // });
 
     // resp2.forEach((elem, index) => {
     //   // console.log(addUrl)
@@ -108,8 +108,9 @@ router.get("/getliveprice", async (req, res)=>{
   
     let arr = [];
       try{
-
+        console.log(url, authOptions)
         const response = await axios.get(url, authOptions);
+        // console.log(response.data)
         for (let instrument in response.data.data) {
             let obj = {};
             obj.last_price = response.data.data[instrument].last_price;
