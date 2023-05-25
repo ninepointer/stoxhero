@@ -147,67 +147,171 @@ exports.marginDetail = async (req, res, next) => {
   try {
     const portfoliosFund = await Portfolio.aggregate([
       {
-        $match: {
-          status: "Active",
-          "users.userId": new ObjectId(req.user._id),
-          portfolioType: "Virtual Trading"
-        },
+        $match:
+          {
+            status: "Active",
+            portfolioType: "Virtual Trading",
+          },
+      },
+      {
+        $lookup:
+          {
+            from: "paper-trades",
+            localField: "_id",
+            foreignField: "portfolioId",
+            as: "trades",
+          },
+      },
+      {
+        $unwind:
+          {
+            path: "$trades",
+          },
+      },
+      {
+        $match:
+          {
+            "trades.trade_time": {
+              $lt: today,
+            },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(
+              req.user._id
+            ),
+          },
       },
       {
         $group: {
           _id: {
-             valueSum : {$sum: "$portfolioValue"},
-             name: "$portfolioName"
-          }
-        }
+            portfolioId: "$_id",
+            portfolioName: "$portfolioName",
+            totalFund: "$portfolioValue",
+          },
+          totalAmount: {
+            $sum: {
+              $multiply: ["$trades.amount", -1],
+            },
+          },
+          totalBrokerage: {
+            $sum: "$trades.brokerage",
+          },
+        },
       },
       {
         $project: {
-          totalFund: "$_id",
-          _id: 0
-        }
-      }
+          _id: 0,
+          portfolioId: "$_id.portfolioId",
+          portfolioName: "$_id.portfolioName",
+          totalFund: "$_id.totalFund",
+          npnl: {
+            $subtract: [
+              "$totalAmount",
+              "$totalBrokerage",
+            ],
+          },
+          openingBalance: {
+            $sum: [
+              "$_id.totalFund",
+              {
+                $subtract: [
+                  "$totalAmount",
+                  "$totalBrokerage",
+                ],
+              },
+            ],
+          },
+        },
+      },
     ])
-  
-    let pnlDetails = await PaperTrade.aggregate([
+
+    if(portfoliosFund.length > 0){
+      res.status(200).json({status: 'success', data: portfoliosFund[0]});
+    } else{
+      const portfoliosFund = await Portfolio.aggregate([
         {
-            $match: {
-                trade_time:{
-                    $lt: today
-                },
-                status: "COMPLETE",
-                trader: new ObjectId(req.user._id)
+          $match:
+            {
+              status: "Active",
+              portfolioType: "Virtual Trading",
             },
         },
         {
           $group: {
             _id: {
-              trader: "$trader",
+              portfolioId: "$_id",
+              portfolioName: "$portfolioName",
+              totalFund: "$portfolioValue",
             },
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-
           },
         },
-
         {
           $project: {
             _id: 0,
-            npnl: {
-              $subtract: ["$amount", "$brokerage"]
-             },
-          }
+            portfolioId: "$_id.portfolioId",
+            portfolioName: "$_id.portfolioName",
+            totalFund: "$_id.totalFund",
+            // npnl: {
+            //   $subtract: [
+            //     "$totalAmount",
+            //     "$totalBrokerage",
+            //   ],
+            // },
+            // openingBalance: {
+            //   $sum: [
+            //     "$_id.totalFund",
+            //     {
+            //       $subtract: [
+            //         "$totalAmount",
+            //         "$totalBrokerage",
+            //       ],
+            //     },
+            //   ],
+            // },
+          },
         },
-    ])
+      ])
+      res.status(200).json({status: 'success', data: portfoliosFund[0]});
 
-    console.log("pnlDetails", pnlDetails, portfoliosFund)
-    res.status(200).json({status: 'success', data: {totalCredit: portfoliosFund[0], lifetimePnl: pnlDetails[0]}});
+    }
+  
+    // let pnlDetails = await PaperTrade.aggregate([
+    //     {
+    //         $match: {
+    //             trade_time:{
+    //                 $lt: today
+    //             },
+    //             status: "COMPLETE",
+    //             trader: new ObjectId(req.user._id)
+    //         },
+    //     },
+    //     {
+    //       $group: {
+    //         _id: {
+    //           trader: "$trader",
+    //         },
+    //         amount: {
+    //           $sum: {$multiply : ["$amount",-1]},
+    //         },
+    //         brokerage: {
+    //           $sum: {
+    //             $toDouble: "$brokerage",
+    //           },
+    //         },
+
+    //       },
+    //     },
+
+    //     {
+    //       $project: {
+    //         _id: 0,
+    //         npnl: {
+    //           $subtract: ["$amount", "$brokerage"]
+    //          },
+    //       }
+    //     },
+    // ])
+
+    console.log("pnlDetails", portfoliosFund)
   } catch (e) {
     console.log(e);
     res.status(500).json({status:'error', message: 'Something went wrong'});

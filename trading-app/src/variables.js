@@ -6,3 +6,4 @@ export const infinityTrader = "Infinity Trader";
 export const tenxTrader = "TenX Trader";
 export const zerodhaAccountType = "ZERODHA";
 export const xtsAccountType = "XTS";
+export const internshipTrader = "Internship Trader";
