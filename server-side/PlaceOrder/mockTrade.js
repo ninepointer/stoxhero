@@ -31,7 +31,7 @@ exports.mockTrade = async (req, res) => {
     // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
     // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
+    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken,
         validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
@@ -157,13 +157,13 @@ exports.mockTrade = async (req, res) => {
                 symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
                 instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
                 trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
-                trade_time:trade_time,
+                trade_time:trade_time, exchangeInstrumentToken
             }
     
             const traderDoc = {
                 status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, 
+                isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
             }
     
@@ -190,6 +190,7 @@ exports.mockTrade = async (req, res) => {
                       symbol: algoTrader[0].symbol,
                       product: algoTrader[0].Product,
                       instrumentToken: algoTrader[0].instrumentToken,
+                      exchangeInstrumentToken: algoTrader[0].exchangeInstrumentToken,
                       exchange: algoTrader[0].exchange,
                     },
                     amount: (algoTrader[0].amount * -1),
@@ -243,7 +244,7 @@ exports.mockTrade = async (req, res) => {
             const paperTrade = new PaperTrade({
                 status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                order_id, instrumentToken, brokerage: brokerageUser, portfolioId,
+                order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
@@ -274,6 +275,7 @@ exports.mockTrade = async (req, res) => {
                           symbol: paperTrade.symbol,
                           product: paperTrade.Product,
                           instrumentToken: paperTrade.instrumentToken,
+                          exchangeInstrumentToken: paperTrade.exchangeInstrumentToken,
                           exchange: paperTrade.exchange,
                         },
                         amount: (paperTrade.amount * -1),
@@ -309,7 +311,7 @@ exports.mockTrade = async (req, res) => {
             const tenx = new TenxTrader({
                 status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId,
+                order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId, exchangeInstrumentToken,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
@@ -343,6 +345,7 @@ exports.mockTrade = async (req, res) => {
                           symbol: tenx.symbol,
                           product: tenx.Product,
                           instrumentToken: tenx.instrumentToken,
+                          exchangeInstrumentToken: tenx.exchangeInstrumentToken,
                           exchange: tenx.exchange,
                         },
                         amount: (tenx.amount * -1),
@@ -378,7 +381,7 @@ exports.mockTrade = async (req, res) => {
             const internship = new InternshipTrade({
                 status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
                 variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: subscriptionId,
+                order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: subscriptionId, exchangeInstrumentToken,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
                 
             });
@@ -412,6 +415,7 @@ exports.mockTrade = async (req, res) => {
                           symbol: internship.symbol,
                           product: internship.Product,
                           instrumentToken: internship.instrumentToken,
+                          exchangeInstrumentToken: internship.exchangeInstrumentToken,
                           exchange: internship.exchange,
                         },
                         amount: (internship.amount * -1),

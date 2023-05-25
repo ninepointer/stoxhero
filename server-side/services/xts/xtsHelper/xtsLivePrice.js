@@ -9,27 +9,30 @@ const Instrument = require("../../../models/Instruments/instrumentSchema");
 // const ContestInstrument = require("../models/Instruments/contestInstrument");
 // const client = require("../marketData/redisClient")
 const {xtsAccountType} = require("../../../constant");
+const fetchXTSData = require("./fetchXTSToken");
 
 
 
 router.get("/getliveprice", async (req, res)=>{
 
+  
+
     const accessToken = await RequestToken.find({status: "Active", accountType: xtsAccountType});
 
-    const ans = await Instrument.find({status: "Active", accountType: xtsAccountType});
+    // const ans = await Instrument.find({status: "Active", accountType: xtsAccountType});
     
-    console.log("in live price 3", ans)
+    // console.log("in live price 3", ans)
 
 
-    let instruments = [];
-    ans.forEach((elem) => {
-        instruments.push({
-            exchangeSegment: elem.exchangeSegment,
-            exchangeInstrumentID: elem.instrumentToken
-        })
-    });
+    let instruments = await fetchXTSData();
+    // ans.forEach((elem) => {
+    //     instruments.push({
+    //         exchangeSegment: elem.exchangeSegment,
+    //         exchangeInstrumentID: elem.instrumentToken
+    //     })
+    // });
 
-    console.log("in live price", instruments)
+    // console.log("in live price", instruments)
     let url = `http://14.142.188.188:23000/apimarketdata/instruments/quotes`;
     let token = accessToken[0]?.accessToken;
   
