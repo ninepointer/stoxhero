@@ -26,7 +26,7 @@ import sound from "../../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
 
 
-function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
+function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -200,7 +200,7 @@ console.log("lotSize", lotSize, maxLot)
 
         exchange, symbol, buyOrSell, Quantity, Price,
         Product, OrderType, TriggerPrice, stopLoss, internPath,
-        validity, variety, order_id: dummyOrderId, subscriptionId,
+        validity, variety, order_id: dummyOrderId, subscriptionId, exchangeInstrumentToken,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
       })
