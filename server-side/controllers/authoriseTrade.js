@@ -354,12 +354,13 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
 
         let userNetPnl = pnlDetails[0]?.npnl;
 
-        
+
         // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         let addPortfolioFund = 0;
         let flag = false;
         for(let i = 0; i < myPortfolios.length; i++){
             let fund = myPortfolios[i].portfolioValue;
+            console.log("fund", fund, userNetPnl)
             if(!flag && userNetPnl ? Number(fund + userNetPnl - zerodhaMargin) > 0 : Number(fund - zerodhaMargin) > 0){
                 userFunds = fund;
                 req.body.portfolioId = myPortfolios[i]._id;
@@ -367,10 +368,10 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             } else if (fund > 0){
                 flag = true;
                 addPortfolioFund += fund;
-                if(userNetPnl ? Number(addPortfolioFund + userNetPnl - zerodhaMargin) > 0 : Number(addPortfolioFund - zerodhaMargin) > 0){
+                // if(userNetPnl ? Number(addPortfolioFund + userNetPnl - zerodhaMargin) > 0 : Number(addPortfolioFund - zerodhaMargin) > 0){
                     userFunds = addPortfolioFund;
                     req.body.portfolioId = myPortfolios[i-1]._id;
-                }
+                // }
             }
         }
 
