@@ -120,8 +120,14 @@ exports.addUserToGd = async(req, res, next) => {
     let user;
     const gd = await GroupDiscussion.findById(gdId);
     const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name');
-    console.log(career);
     user = await User.findOne({email: career.email}).select('_id');
+    if(user){
+      const existinggds = await GroupDiscussion.find({'participants.user': user._id});
+      if (existinggds.length >0){
+        return res.status(400).json({status:'error', message: 'User is already in another Group Discussion'});
+      }
+    }
+    console.log('existing gds');
     console.log('user is', user);
     console.log('college is', collegeId);
     const {campaignCode, mobileNo, email,first_name, last_name} = career;
@@ -359,6 +365,10 @@ exports.selectCandidate = async (req, res, next) => {
     const user = await User.findById(userId);
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
       return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
+    }
+    const existingUserBatches = await Batch.find({'participants.user': userId})
+    if(existingUserBatches.length >0){
+      return res.status(203).json({status:'error', message: 'User is already in an internship batch'});
     }
     let participants = gd.participants.map((item)=>{
       if(item.user == userId){
