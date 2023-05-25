@@ -526,4 +526,3 @@ const infinityTrade = async () => {
 }
 
 module.exports = { tenx, paperTrade, infinityTrade, internship };
-
