@@ -4,6 +4,7 @@ const User = require("../../models/User/userDetailSchema");
 const moment = require('moment');
 const GroupDiscussion = require('../../models/Careers/groupDiscussion');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
+const Portfolio = require('../../models/userPortfolio/UserPortfolio');
 
 
 exports.createBatch = async(req, res, next)=>{
@@ -171,7 +172,7 @@ exports.getBatchParticipants = async(req,res,next) => {
 exports.removeParticipantFromBatch = async(req, res, next) => {
     const {batchId, userId} = req.params;
     try{
-        const batch = await Batch.findOne({_id: batchId}).select('participants');
+        const batch = await Batch.findOne({_id: batchId}).select('participants portfolio');
         if(batch.participants.length == 0){
             return res.status(404).json({status:'error', message: 'No participants in this batch.'});
         }
@@ -208,6 +209,9 @@ exports.removeParticipantFromBatch = async(req, res, next) => {
         //Find the user in career application
         const user = await User.findById(userId).select('email internshipBatch');
         console.log('batchId', batchId);
+        const portfolio = Portfolio.findOne({_id: batch?.portfolio});
+        portfolio.users = portfolio.users.filter((user)=>user?.userId != userId);
+        await portfolio.save({validateBeforeSave: false});
         console.log(user.internshipBatch.filter((item)=>item!=batchId));
         user.internshipBatch = user.internshipBatch.filter((item)=>item!=batchId);
         console.log(user.internshipBatch);
