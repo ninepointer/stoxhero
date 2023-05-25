@@ -34,7 +34,12 @@ router.post("/addInstrument",authentication, async (req, res)=>{
             return res.status(422).json({error : "Any of one feild is incorrect..."})
         }
     
+        console.log("above infinityTrade adding", from, infinityTrader)
         if(from === infinityTrader){
+            console.log("in infinityTrade adding")
+            if(maxLot === 1800){
+                maxLot = 900;
+            }
             InfinityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
             .then(async (dataExist)=>{
                 if(dataExist){
@@ -290,7 +295,12 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
         const {_id} = req.user;
         console.log("in removing", instrumentToken, _id);
         const user = await User.findOne({_id: _id});
-        const removeFromWatchlist = await Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
+        let removeFromWatchlist ;
+        if(from === infinityTrader){
+            removeFromWatchlist = await InfinityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
+        } else{
+            removeFromWatchlist = await Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
+        }
         let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
         console.log("index", index)
         if (index !== -1 && isRedisConnected) {
@@ -353,7 +363,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
 
           let instrument = await client.LRANGE(`${req.user._id.toString()}: instrument`, 0, -1)
         //   instrument = JSON.parse(instrument);
-          console.log("instrument redis", instrument)
+        //   console.log("instrument redis", instrument)
           const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
 
           res.status(201).json({message: "redis instrument received", data: instrumentJSONs});
@@ -362,13 +372,21 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
   
             const user = await User.findOne({_id: _id});
 
-            const instrument = await Instrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
-                                .sort({$natural:-1})
+            let instrument ;
+            if(from === infinityTrader){
+                instrument = await InfinityInstrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
+                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
+                .sort({$natural:-1})
+            } else{
+                instrument = await Instrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
+                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
+                .sort({$natural:-1})
+            }
 
-                                console.log("instruments", instrument)
+
+                                // console.log("instruments", instrument)
             const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
-            console.log("instrumentJSONs", instrumentJSONs)
+            // console.log("instrumentJSONs", instrumentJSONs)
             if(instrumentJSONs.length > 0 && isRedisConnected){
                 await client.LPUSH(`${req.user._id.toString()}: instrument`, [...instrumentJSONs])
             }

@@ -2,6 +2,7 @@ const Instrument = require("../../../models/Instruments/instrumentSchema");
 const StockIndex = require("../../../models/StockIndex/stockIndexSchema");
 // const ContestInstrument = require("../../../models/Instruments/contestInstrument");
 const {xtsAccountType} = require("../../../constant");
+const InfinityInstrument = require("../../../models/Instruments/infinityInstrument");
 
 
 const fetchXTSData = async () => {
@@ -10,6 +11,7 @@ const fetchXTSData = async () => {
   try{
 
     const resp = await Instrument.find({status: "Active"});
+    const infinityInstrument = await InfinityInstrument.find({status: "Active"});
     const index = await StockIndex.find({status: "Active", accountType: xtsAccountType})
     // const contest = await ContestInstrument.find({status: "Active"}); , accountType: xtsAccountType
     // const resp2 = await InstrumentMapping.find({Status: "Active"})
@@ -23,8 +25,17 @@ const fetchXTSData = async () => {
           exchangeInstrumentID: elem.exchangeInstrumentToken,
         })
       }
-
     }) 
+
+    infinityInstrument.forEach((elem)=>{
+      if(elem.exchangeInstrumentToken){
+        tokens.push({
+          exchangeSegment: elem.exchangeSegment,
+          exchangeInstrumentID: elem.exchangeInstrumentToken,
+        })
+      }
+    }) 
+    
     index.forEach((elem)=>{
       tokens.push({
         exchangeSegment: elem.exchangeSegment,

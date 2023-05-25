@@ -58,20 +58,20 @@ async function test(){
     eachMessage: async ({ topic, partition, message }) => {
       const value = message.value.toString();
       if(topic == 'tenx'){
-        // console.log("tenx", value)
-        await takeAutoTenxTrade(value)
+        console.log("tenx", value)
+        // await takeAutoTenxTrade(value)
       }
       if(topic == 'paper'){
-        // console.log("paper", value)
-        await takeAutoPaperTrade(value)
+        console.log("paper", value)
+        // await takeAutoPaperTrade(value)
       }
       if(topic == 'infinity'){
-        // console.log("infinity", value)
-        await takeAutoInfinityTrade(value)
+        console.log("infinity", value)
+        // await takeAutoInfinityTrade(value)
       }
       if(topic == 'internship'){
-        // console.log("internship", value)
-        await takeAutoInternshipTrade(value)
+        console.log("internship", value)
+        // await takeAutoInternshipTrade(value)
       }
     },
   })

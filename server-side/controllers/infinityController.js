@@ -47,6 +47,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                 symbol: "$symbol",
                 product: "$Product",
                 instrumentToken: "$instrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchange: "$exchange"
               },
               amount: {
@@ -114,6 +115,7 @@ exports.overallPnlCompanySide = async (req, res, next) => {
             symbol: "$symbol",
             product: "$Product",
             instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
             exchange: "$exchange"
           },
           amount: {
@@ -879,6 +881,7 @@ exports.overallPnlAllTrader = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: {$multiply : ["$amount",-1]},
@@ -1080,6 +1083,7 @@ exports.overallPnlBatchWiseMock = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: {

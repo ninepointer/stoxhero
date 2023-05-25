@@ -58,8 +58,12 @@ const infinityTradeCompanySchema = new mongoose.Schema({
         type: Number,        
     },
     instrumentToken:{
-        type: String, 
+        type: Number, 
         required: true 
+    },
+    exchangeInstrumentToken:{
+        type: Number,
+        required : true
     },
     isRealTrade:{ 
         type: Boolean,

@@ -231,7 +231,8 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
             exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
             exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
             disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
-            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate), guid: `${ExchangeOrderID}${AppOrderID}`
+            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate), guid: `${ExchangeOrderID}${AppOrderID}`,
+            exchangeInstrumentToken: ExchangeInstrumentID
           };
 
           const companyDoc = {
@@ -241,7 +242,8 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
             variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
             algoBox: algoBoxId, order_id: AppOrderID, instrumentToken, brokerage: brokerageCompany,
             trader: trader, isRealTrade: true, amount: (Number(OrderQuantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
-            exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false
+            exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
+            exchangeInstrumentToken: ExchangeInstrumentID
           }
 
           const traderDoc = {
@@ -251,7 +253,8 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
             variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
             order_id: AppOrderID, instrumentToken, brokerage: brokerageUser, trader: trader,
             isRealTrade: true, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
-            exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false
+            exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
+            exchangeInstrumentToken: ExchangeInstrumentID
           }
 
           const companyDocMock = {
@@ -260,12 +263,12 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
             symbol, placed_by: ClientID, algoBox: algoBoxId, order_id: AppOrderID,
             instrumentToken, brokerage: brokerageCompany, createdBy: req.user._id,
             trader: trader, isRealTrade: false, amount: (Number(OrderQuantity) * OrderAverageTradedPrice),
-            trade_time: LastUpdateDateTime,
+            trade_time: LastUpdateDateTime, exchangeInstrumentToken: ExchangeInstrumentID
           }
 
           const traderDocMock = {
             status, average_price: OrderAverageTradedPrice, Quantity: Quantity,
-            Product: ProductType, buyOrSell,
+            Product: ProductType, buyOrSell, exchangeInstrumentToken: ExchangeInstrumentID,
             variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
             isRealTrade: false, order_id: AppOrderID, instrumentToken, brokerage: brokerageUser,
             createdBy: req.user._id, trader: trader, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
@@ -298,6 +301,7 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
                   symbol: algoTrader[0].symbol,
                   product: algoTrader[0].Product,
                   instrumentToken: algoTrader[0].instrumentToken,
+                  exchangeInstrumentToken: algoTrader[0].exchangeInstrumentToken,
                   exchange: algoTrader[0].exchange,
                 },
                 amount: (algoTrader[0].amount * -1),
@@ -361,7 +365,7 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
         });
 
         console.error('Transaction failed, documents not saved:', err, response);
-        return res.status(201).json({ message: "Trade Rejected Unexpexctedly. Please Trade Again.", err: "Error" })
+        return res.status(201).json({ message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", err: "Error" })
 
       } finally {
         // End the session
