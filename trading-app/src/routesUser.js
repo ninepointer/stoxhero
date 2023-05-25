@@ -14,6 +14,7 @@ import PersonPinIcon from '@mui/icons-material/PersonPin';
 import HelpIcon from '@mui/icons-material/Help';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import VideoChatIcon from '@mui/icons-material/VideoChat';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 
@@ -126,6 +127,15 @@ const routes = [
     icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
+  },
+  {
+    type: "collapse",
+    name: "Internship",
+    key: "internship",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <MenuBookIcon/>,
+    route: "/internship",
+    component: <Internship />,
   },
   {
     // type: "collapse",
@@ -320,15 +330,6 @@ const routes = [
     icon: <PersonPinIcon/>,
     route: "/terms",
     component: <Tnc />,
-  },
-  {
-    type: "collapse",
-    name: "Internship",
-    key: "internship",
-    // icon: <Icon fontSize="small">person</Icon>,
-    icon: <PersonPinIcon/>,
-    route: "/internship",
-    component: <Internship />,
   },
   {
     // type: "collapse",

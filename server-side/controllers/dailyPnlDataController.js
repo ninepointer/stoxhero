@@ -9,9 +9,9 @@ exports.dailyPnlCalculation = async(date) => {
   // let date = '2023-01-17';
   
   const dailyPnl = await DailyPnlData.find({timestamp: {$regex:date}})
-  console.log("in dailyPnlCalculation", dailyPnl)
+  // console.log("in dailyPnlCalculation", dailyPnl)
   if(dailyPnl.length === 0){
-    console.log("in dailyPnlCalculation in if")
+    // console.log("in dailyPnlCalculation in if")
     const instrumentData = await HistoryInstrumentData.find({timestamp : {$gte: `${date}T00:00:00+0530`,$lte:`${date}T23:59:59+0530`}}).select("timestamp symbol open").sort({timestamp: 1})
 
     //Extracting mock trade data for the particular date
@@ -22,7 +22,7 @@ exports.dailyPnlCalculation = async(date) => {
       let filteringTimestamp = elem.timestamp.split("T")[0] + " " + elem.timestamp.split("T")[1].split("+")[0]
       
       let pnlTimeTradeData = mockTradeData.filter((e)=> {
-          console.log("elem1")
+          // console.log("elem1")
           return filteringTimestamp >= e.trade_time && elem.symbol == e.symbol && e.status == "COMPLETE"
           
       })
@@ -41,7 +41,7 @@ exports.dailyPnlCalculation = async(date) => {
       totalTraders = uniqueTraders.size;
 
       pnlTimeTradeData.map((element)=>{
-          console.log("elem")
+          // console.log("elem")
           totalAmount += element.amount
           totalRunningLots += Number(-element.Quantity)
 
@@ -53,7 +53,7 @@ exports.dailyPnlCalculation = async(date) => {
       let x = await DailyPnlData.create({symbol:elem.symbol,timestamp:filteringTimestamp,calculatedGpnl:-finalPnlTimeData,noOfTrades:totalTrades,noOfTraders:totalTraders}, function (err, DailyPnlData){
           if (err) return console.log(err);
 
-          console.log("saved", DailyPnlData);
+          // console.log("saved", DailyPnlData);
           // saved!
       });
     

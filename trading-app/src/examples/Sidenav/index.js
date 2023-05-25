@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import axios from "axios";
 
 // react-router-dom components
@@ -36,6 +36,7 @@ import {
   setTransparentSidenav,
   setWhiteSidenav,
 } from "../../context";
+import { userContext } from "../../AuthContext";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -43,7 +44,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
-
+  const getDetails = useContext(userContext);
+  const batchInfo = getDetails.userDetails.internshipBatch
   let textColor = "white";
 
   if (transparentSidenav || (whiteSidenav && !darkMode)) {
@@ -91,31 +93,37 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
     let returnValue;
 
-    if (type === "collapse") {
-      returnValue = href ? (
-        <Link
-          href={href}
-          key={key}
-          target="_blank"
-          rel="noreferrer"
-          sx={{ textDecoration: "none" }}
-        >
-          <SidenavCollapse
-            name={name}
-            icon={icon}
-            active={key === collapseName}
-            noCollapse={noCollapse}
-          />
-        </Link>
-      ) : (
-        <NavLink key={key} to={route}>
-          <SidenavCollapse 
-            name={name} 
-            icon={icon} 
-            active={key === collapseName} 
+    if (type === "collapse" ) {
+      if(key=="internship" && batchInfo.length == 0){
+        // console.log("in route if", key)
+      } else{
+        // console.log("in route else", key, batchInfo.length)
+        returnValue = href ? (
+          <Link
+            href={href}
+            key={key}
+            target="_blank"
+            rel="noreferrer"
+            sx={{ textDecoration: "none" }}
+          >
+            <SidenavCollapse
+              name={name}
+              icon={icon}
+              active={key === collapseName}
+              noCollapse={noCollapse}
             />
-        </NavLink>
-      );
+          </Link>
+        ) : (
+          <NavLink key={key} to={route}>
+            <SidenavCollapse 
+              name={name} 
+              icon={icon} 
+              active={key === collapseName} 
+              />
+          </NavLink>
+        );
+      }
+
     } else if (type === "title") {
       returnValue = (
         <MDTypography

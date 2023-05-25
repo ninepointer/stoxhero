@@ -509,6 +509,7 @@ exports.getGdsByCareer = async(req, res, next) => {
       return res.status(200).json({status: 'success', message:'No gds found with this career'});
     }
 
+    console.log(gds)
     res.status(200).json({status:'success', data: gds, results:gds.count});
 
   }catch(e){
