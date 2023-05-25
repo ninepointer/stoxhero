@@ -27,7 +27,7 @@ const path = require('path');
 const {DummyMarketData} = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
-
+const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const hpp = require("hpp")
@@ -212,7 +212,17 @@ app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
 
 require('./db/conn');
 
+Setting.find().then((res) => {
+  const appStartTime = new Date(res[0].AppStartTime);
+  const appEndTime = new Date(res[0].AppEndTime);
 
+  const appStartHour = appStartTime.getHours();
+  const appStartMinute = appStartTime.getMinutes();
+  const appEndHour = appEndTime.getHours();
+  const appEndMinute = appEndTime.getMinutes();
+
+  console.log(appStartHour, appStartMinute, appEndHour, appEndMinute);
+});
 let date = new Date();
 let weekDay = date.getDay();
   if(process.env.PROD){
@@ -221,7 +231,7 @@ let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
-        const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
+        const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, appOffline);
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
         const autotrade = nodeCron.schedule('50 9 * * *', test);
     }
