@@ -17,7 +17,7 @@ exports.getPaperTradesOverview = async(req,res,next) => {
     getYesterdaydate = getYesterdaydate + "T00:00:00.000Z";
     const yesterday = new Date(getYesterdaydate);
 
-    console.log("in overview", yesterday, userId, pastMonth, pastYear)
+    // console.log("in overview", yesterday, userId, pastMonth, pastYear)
 
     let paperTradesOverview = await PaperTrade.aggregate([
       {
@@ -145,7 +145,7 @@ exports.getPaperTradesOverview = async(req,res,next) => {
         },
       }
     ]);
-        console.log(paperTradesOverview);
+        // console.log(paperTradesOverview);
 
     res.status(200).json({status:'success', data: paperTradesOverview});    
 
@@ -268,7 +268,7 @@ exports.getPaperTradesMonthlyPnlData= async(req,res,next) => {
     const today = new Date();
     const pastYear = new Date();
     pastYear.setFullYear(today.getFullYear()-1);
-    console.log(pastYear,today);
+    // console.log(pastYear,today);
     let pnlDetails = await PaperTrade.aggregate([
         { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         
@@ -329,7 +329,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
     getYesterdaydate = getYesterdaydate + "T00:00:00.000Z";
     const yesterday = new Date(getYesterdaydate);
     
-  console.log("in overview", yesterday, userId, pastMonth, pastYear)
+  // console.log("in overview", yesterday, userId, pastMonth, pastYear)
     let infinityTradesOverview = await InfinityTrade.aggregate([
         {
           $match: {
@@ -456,7 +456,7 @@ exports.getInfinityTradesOverview = async(req,res,next) => {
           },
         }
     ]);
-        console.log(infinityTradesOverview);
+        // console.log(infinityTradesOverview);
 
     res.status(200).json({status:'success', data: infinityTradesOverview});    
 
@@ -707,7 +707,7 @@ exports.getTenXTradersDateWiseStats = async(req, res)=>{
              { $sort: {date: 1}},
             ])
             
-                console.log(pnlDetails)
+                // console.log(pnlDetails)
 
         res.status(200).json({status:'success', data: pnlDetails});
  
@@ -718,7 +718,7 @@ exports.getInfinityTradesMonthlyPnlData= async(req,res,next) => {
     const today = new Date();
     const pastYear = new Date();
     pastYear.setFullYear(today.getFullYear()-1);
-    console.log(pastYear,today);
+    // console.log(pastYear,today);
     let pnlDetails = await InfinityTrade.aggregate([
         { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         
@@ -770,7 +770,7 @@ exports.getTenXTradersMonthlyPnlData= async(req,res,next) => {
     const today = new Date();
     const pastYear = new Date();
     pastYear.setFullYear(today.getFullYear()-1);
-    console.log(pastYear,today);
+    // console.log(pastYear,today);
     let pnlDetails = await TenXTrader.aggregate([
         { $match: { trade_time: {$gte : pastYear, $lte : today}, trader: new ObjectId(id), status: "COMPLETE"} },
         

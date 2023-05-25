@@ -96,7 +96,7 @@ exports.fundCheck = async(req, res, next) => {
             isOpposite = true;
         }
 
-        console.log(runningLots, userFunds)
+        // console.log(runningLots, userFunds)
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             //console.log("checking runninglot- reverse trade");
             return next();
@@ -117,7 +117,7 @@ exports.fundCheck = async(req, res, next) => {
         lastDayOfMonthDate = new Date(lastDayOfMonthDate);
         firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
-        console.log(firstDayOfMonthDate, lastDayOfMonthDate)
+        // console.log(firstDayOfMonthDate, lastDayOfMonthDate)
         let pnlDetails = await InfinityTrader.aggregate([
             {
             $match:
@@ -168,7 +168,7 @@ exports.fundCheck = async(req, res, next) => {
             console.log("user wants square off")
             return next();
         } else{
-            console.log("in else", Boolean(!userFunds))
+            // console.log("in else", Boolean(!userFunds))
             if(!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0 )){
                 let {exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
                     TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, realTrade,
@@ -205,7 +205,7 @@ exports.fundCheck = async(req, res, next) => {
             } 
             else{
                 console.log("if user have enough funds")
-                console.log("caseStudy 7: fund check")
+                // console.log("caseStudy 7: fund check")
                 return next();
             }
         }     
@@ -214,7 +214,7 @@ exports.fundCheck = async(req, res, next) => {
 
 exports.fundCheckPaperTrade = async(req, res, next) => {
 
-    console.log("in fundCheckPaperTrade")
+    // console.log("in fundCheckPaperTrade")
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity} = req.body;
     
@@ -289,7 +289,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
 
         const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         req.body.portfolioId = myPortfolios[0]._id;
-        console.log(runningLots, userFunds)
+        // console.log(runningLots, userFunds)
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             return next();
         }
@@ -310,7 +310,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
         lastDayOfMonthDate = new Date(lastDayOfMonthDate);
         firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
-        console.log(firstDayOfMonthDate, lastDayOfMonthDate);
+        // console.log(firstDayOfMonthDate, lastDayOfMonthDate);
         let pnlDetails = await PaperTrade.aggregate([
             {
             $match:
@@ -360,7 +360,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
         let flag = false;
         for(let i = 0; i < myPortfolios.length; i++){
             let fund = myPortfolios[i].portfolioValue;
-            console.log("fund", fund, userNetPnl)
+            // console.log("fund", fund, userNetPnl)
             if(!flag && userNetPnl ? Number(fund + userNetPnl - zerodhaMargin) > 0 : Number(fund - zerodhaMargin) > 0){
                 userFunds = fund;
                 req.body.portfolioId = myPortfolios[i]._id;
@@ -370,7 +370,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                 addPortfolioFund += fund;
                 // if(userNetPnl ? Number(addPortfolioFund + userNetPnl - zerodhaMargin) > 0 : Number(addPortfolioFund - zerodhaMargin) > 0){
                     userFunds = addPortfolioFund;
-                    req.body.portfolioId = myPortfolios[i-1]._id;
+                    req.body.portfolioId = myPortfolios[i]._id;
                 // }
             }
         }
@@ -378,7 +378,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
         // 20 15
         // 10 15 -->2nd 50
         // 0  15
-        console.log("portfolio", req.body.portfolioId)
+        // console.log("portfolio", req.body.portfolioId)
         console.log( userFunds , userNetPnl , zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
 
@@ -386,7 +386,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
             console.log("user wants square off")
             return next();
         } else{
-            console.log("in else")
+            // console.log("in else")
             if(userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0){
                 let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
                      instrumentToken, trader, order_id} = req.body;
@@ -419,7 +419,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
 
 exports.fundCheckTenxTrader = async(req, res, next) => {
 
-    console.log("in fundCheckTenxTrader")
+    // console.log("in fundCheckTenxTrader")
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity, subscriptionId} = req.body;
     
@@ -525,12 +525,12 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
               },
             },
         ])
-        console.log(portfolioValue)
+        // console.log(portfolioValue)
         userFunds = portfolioValue[0]?.totalFund;
         // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         // req.body.portfolioId = myPortfolios[0]._id;
-        console.log(runningLots, userFunds)
-        console.log((runningLots[0]?._id?.symbol === symbol) , Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) , (transactionTypeRunningLot !== buyOrSell));
+        // console.log(runningLots, userFunds)
+        // console.log((runningLots[0]?._id?.symbol === symbol) , Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) , (transactionTypeRunningLot !== buyOrSell));
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             return next();
         }
@@ -551,7 +551,7 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
         lastDayOfMonthDate = new Date(lastDayOfMonthDate);
         firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
-        console.log(firstDayOfMonthDate, lastDayOfMonthDate);
+        // console.log(firstDayOfMonthDate, lastDayOfMonthDate);
         let pnlDetails = await TenXTrader.aggregate([
             {
             $match:
@@ -603,7 +603,7 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
             console.log("user wants square off")
             return next();
         } else{
-            console.log("in else")
+            // console.log("in else")
             if(userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0){
                 let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
                      instrumentToken, trader, order_id} = req.body;
@@ -642,7 +642,7 @@ exports.contestFundCheck = async(req, res, next) => {
     const contestId = req.params.id;
     const userId = req.user._id;
 
-    console.log(contestId, userId)
+    // console.log(contestId, userId)
 
     getKiteCred.getAccess().then(async (data)=>{
     // console.log(data)
@@ -672,7 +672,7 @@ exports.contestFundCheck = async(req, res, next) => {
                 "trigger_price": 0
             }]
 
-            console.log(orderData);
+            // console.log(orderData);
             let contestFunds;
             try{
                 const portfolio = await Portfolio.findById({_id: portfolioId});
@@ -681,7 +681,7 @@ exports.contestFundCheck = async(req, res, next) => {
                     return (elem.userId).toString() == (userId).toString();
                 })   
 
-                console.log("users", users)
+                // console.log("users", users)
                 // (user => user.userId);
 
 
@@ -735,9 +735,9 @@ exports.contestFundCheck = async(req, res, next) => {
                 isOpposite = true;
             }
 
-            console.log("lots and fund", runningLots, contestFunds)
+            // console.log("lots and fund", runningLots, contestFunds)
             if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
-                console.log("checking runninglot- reverse trade");
+                // console.log("checking runninglot- reverse trade");
                 next();
                 return ;
             }
@@ -813,7 +813,7 @@ exports.contestFundCheck = async(req, res, next) => {
                 console.log("user wants square off")
                 return next();
             } else{
-                console.log("in else")
+                // console.log("in else")
                 if(userNetPnl !== undefined ? Number(contestFunds + userNetPnl - zerodhaMargin)  < 0 : Number(contestFunds - zerodhaMargin) < 0){
                     let uid = uuidv4();
                     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
@@ -830,7 +830,7 @@ exports.contestFundCheck = async(req, res, next) => {
                             
                         });
 
-                        console.log("margincall saving", mockTradeContest)
+                        // console.log("margincall saving", mockTradeContest)
                         await mockTradeContest.save();
 
                     }catch(e){
@@ -854,7 +854,7 @@ exports.contestFundCheck = async(req, res, next) => {
 
 exports.fundCheckInternship = async(req, res, next) => {
 
-    console.log("in fundCheckTenxTrader")
+    // console.log("in fundCheckTenxTrader")
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity, subscriptionId} = req.body;
     
@@ -960,12 +960,12 @@ exports.fundCheckInternship = async(req, res, next) => {
               },
             },
         ])
-        console.log(portfolioValue)
+        // console.log(portfolioValue)
         userFunds = portfolioValue[0]?.totalFund;
         // const myPortfolios = await Portfolio.find({status: "Active", "users.userId": req.user._id, portfolioType: "Virtual Trading"});
         // req.body.portfolioId = myPortfolios[0]._id;
-        console.log(runningLots, userFunds)
-        console.log((runningLots[0]?._id?.symbol === symbol) , Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) , (transactionTypeRunningLot !== buyOrSell));
+        // console.log(runningLots, userFunds)
+        // console.log((runningLots[0]?._id?.symbol === symbol) , Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) , (transactionTypeRunningLot !== buyOrSell));
         if(((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
             return next();
         }
@@ -986,7 +986,7 @@ exports.fundCheckInternship = async(req, res, next) => {
         lastDayOfMonthDate = new Date(lastDayOfMonthDate);
         firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
-        console.log(firstDayOfMonthDate, lastDayOfMonthDate);
+        // console.log(firstDayOfMonthDate, lastDayOfMonthDate);
         let pnlDetails = await InternBatch.aggregate([
             {
             $match:
@@ -1038,7 +1038,7 @@ exports.fundCheckInternship = async(req, res, next) => {
             console.log("user wants square off")
             return next();
         } else{
-            console.log("in else")
+            // console.log("in else")
             if(userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin)  < 0 : Number(userFunds - zerodhaMargin) < 0){
                 let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
                      instrumentToken, trader, order_id} = req.body;
@@ -1060,7 +1060,7 @@ exports.fundCheckInternship = async(req, res, next) => {
 
                 //console.log("sending response from authorise trade");
                 return res.status(401).json({status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.'});
-            } 
+            }
             else{
                 console.log("if user have enough funds")
                 return next();
