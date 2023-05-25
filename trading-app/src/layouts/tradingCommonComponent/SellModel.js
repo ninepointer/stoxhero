@@ -259,7 +259,7 @@ const SellModel = ({exchangeSegment, exchangeInstrumentToken, subscriptionId, se
   }
 
   async function removeInstrument(){
-    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}`, {
+    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}/${from}`, {
       method: "PATCH",
       credentials:"include",
       headers: {

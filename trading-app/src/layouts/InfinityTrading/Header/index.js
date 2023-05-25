@@ -24,25 +24,7 @@ export default function InfinityTrading({socket}) {
   const [availbaleMargin, setAvailbleMargin] = useState([]);
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
-  // const [availbaleMargin, setAvailbleMargin] = useState([]);
 
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-  // useEffect(() => {
-  //   console.log("fund details in useeffect")
-  //   axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
-  //     withCredentials: true,
-  //     headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //         "Access-Control-Allow-Credentials": true
-  //     }}
-  //     ).then((res)=>{
-  //       console.log("fund details", res.data.data)
-  //       setyesterdayData(res.data.data);
-  //     })
-      
-  // }, []);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;

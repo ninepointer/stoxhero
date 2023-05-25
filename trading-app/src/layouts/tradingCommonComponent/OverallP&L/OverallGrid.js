@@ -52,7 +52,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   let rows = [];
   let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader ? `tenX/${subscriptionId}/trade/pnl` : from === internshipTrader && `internship/pnl/${subscriptionId}`;
 
-  console.log("pnlEndPoint", pnlEndPoint, subscriptionId)
+  
 
     useEffect(()=>{
 
@@ -84,11 +84,13 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
     }, [render])
 
 
+    console.log("tradeData", tradeData, marketDetails.marketData)
+
     tradeData.map((subelem, index)=>{
       let obj = {};
       let liveDetail = marketDetails.marketData.filter((elem)=>{
         // //console.log("elem", elem, subelem)
-        return (elem.instrumentToken == subelem.instrument_token) || (elem.exchangeInstrumentToken == subelem.instrument_token)
+        return (subelem.instrumentToken == elem.instrument_token) || (subelem.exchangeInstrumentToken == elem.instrument_token)
       })
       totalRunningLots += Number(subelem.lots)
 

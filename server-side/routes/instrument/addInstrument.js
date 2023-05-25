@@ -285,12 +285,12 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
     }
 })
 
-router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req, res)=>{
+router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     let isRedisConnected = getValue();
     try{ 
-        const {instrumentToken} = req.params
+        const {instrumentToken, from} = req.params
         const {isAddedWatchlist} = req.body;
         const {_id} = req.user;
         console.log("in removing", instrumentToken, _id);
@@ -352,9 +352,10 @@ router.patch("/inactiveInstrument/:instrumentToken", authentication, async (req,
     }
 })
 
-router.get("/instrumentDetails", authentication, async (req, res)=>{
+router.get("/instrumentDetails/:from", authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user
+    const from = req.params.from;
 
     try{
 
