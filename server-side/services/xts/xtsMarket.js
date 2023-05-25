@@ -146,9 +146,9 @@ const getXTSTicksForUserPosition = async (socket, id) => {
 
   let ticks = [];
   let marketDepth = {};
-  let indecies = await client.get("index") || await StockIndex.find({status: "Active", accountType: xtsAccountType});
+  let indecies = await client.get("index")
   if(!indecies){
-    // indecies = 
+    indecies = await StockIndex.find({status: "Active", accountType: xtsAccountType});
     await client.set("index", JSON.stringify(indecies));
   } else{
     indecies = JSON.parse(indecies);  
@@ -215,9 +215,10 @@ const getXTSTicksForUserPosition = async (socket, id) => {
         });
         // instrumentTokenArr = new Set([parsedInstruments.instrumentToken, parsedInstruments.exchangeInstrumentToken])
 
-        console.log(instrumentTokenArr, parsedInstruments)
+        // console.log(instrumentTokenArr, parsedInstruments)
       } else{
         // console.log("in else part")
+        instrumentTokenArr = [];
         const user = await User.findById(new ObjectId(id))
         .populate('watchlistInstruments')
   
@@ -228,9 +229,12 @@ const getXTSTicksForUserPosition = async (socket, id) => {
         instrumentTokenArr = new Set(instrumentTokenArr)
       }
 
-      console.log("tick", ticks, instrumentTokenArr)
-      filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
-      console.log("filteredTicks", filteredTicks)
+      // console.log("tick", ticks.instrument_token)
+      filteredTicks = ticks.filter((tick) => {
+        // console.log("tick", tick.instrument_token)
+        return instrumentTokenArr.has(tick.instrument_token)
+      })
+      // console.log("filteredTicks", filteredTicks)
       if (indexData && indexData.length > 0) {
         socket.emit('index-tick', indexData);
       }

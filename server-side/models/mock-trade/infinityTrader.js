@@ -59,7 +59,11 @@ const infinityTrader = new Schema({
         // required: true  
     },
     instrumentToken:{
-        type: String,
+        type: Number,
+        // required: true        
+    },
+    exchangeInstrumentToken:{
+        type: Number,
         // required: true        
     },
     amount:{
