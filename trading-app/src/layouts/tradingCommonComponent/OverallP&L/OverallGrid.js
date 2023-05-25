@@ -88,7 +88,7 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
       let obj = {};
       let liveDetail = marketDetails.marketData.filter((elem)=>{
         // //console.log("elem", elem, subelem)
-        return subelem._id.instrumentToken == elem.instrument_token;
+        return (elem.instrumentToken == subelem.instrument_token) || (elem.exchangeInstrumentToken == subelem.instrument_token)
       })
       totalRunningLots += Number(subelem.lots)
 

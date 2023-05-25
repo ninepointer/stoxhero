@@ -197,7 +197,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
           instrument: name, exchange, status: "Active", 
           symbol: tradingsymbol, lotSize: lot_size, 
           instrumentToken: instrument_token, uId: uniqid(), 
-          contractDate: expiry, maxLot: lot_size*36, 
+          contractDate: expiry, maxLot: lot_size*36, from,
           accountType, exchangeSegment: segment, exchangeInstrumentToken: exchange_token
         })
       });
@@ -223,7 +223,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          isAddedWatchlist: false
+          isAddedWatchlist: false, from
         })
       });
   
@@ -358,7 +358,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
                       <Tooltip title="Buy" placement="top">
 
                         {!elem.buyState ?
-                          <BuyModel subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token}/>
+                          <BuyModel subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
                           :
                           <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
@@ -369,7 +369,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
 
                     <Grid>
                         {!elem.sellState ?
-                          <SellModel subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token}/>
+                          <SellModel subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
                           :
                           <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S

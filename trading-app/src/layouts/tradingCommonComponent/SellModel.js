@@ -31,7 +31,7 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
+const SellModel = ({exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
   // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -243,8 +243,9 @@ const SellModel = ({exchangeInstrumentToken, subscriptionId, sellState, exchange
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken, 
-        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true
+        symbol, lotSize, instrumentToken, from,
+        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true,
+        exchangeInstrumentToken, exchangeSegment
       })
     });
   
@@ -266,7 +267,7 @@ const SellModel = ({exchangeInstrumentToken, subscriptionId, sellState, exchange
           "content-type": "application/json"
       },
       body: JSON.stringify({
-        isAddedWatchlist: false
+        isAddedWatchlist: false, from
       })
     });
 
