@@ -242,6 +242,7 @@ app.use('/api/v1/paperTrade', require("./routes/mockTrade/paperTrade"));
 app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
 app.use('/api/v1/career', require("./routes/career/careerRoute"));
 app.use('/api/v1/tenX', require("./routes/tenXSubscription/tenXRoute"));
+app.use('/api/v1/internship', require("./routes/mockTrade/internshipTradeRoutes"));
 app.use('/api/v1/college', require("./routes/career/collegeRoute"));
 app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
@@ -258,23 +259,24 @@ require('./db/conn');
 
 let date = new Date();
 let weekDay = date.getDay();
-if (process.env.PROD) {
-  let date = new Date();
-  let weekDay = date.getDay();
-  if (weekDay > 0 && weekDay < 6) {
-    const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
-    const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
-    const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
-    const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-
+  if(process.env.PROD){
+    let date = new Date();
+    let weekDay = date.getDay();
+    if(weekDay > 0 && weekDay < 6){
+        const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
+        const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
+        const offlineApp = nodeCron.schedule(`0 10 * * ${weekDay}`, appOffline);
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+        const autotrade = nodeCron.schedule('50 9 * * *', test);
+    }
   }
-}
 
-try {
-  const autotrade = nodeCron.schedule(`0 0 10 * * *`, test);
-} catch (err) {
-  console.log("err from cronjob", err)
-}
+
+  try{
+    // const autotrade = nodeCron.schedule(`0 0 10 * * *`, test);
+  } catch(err){
+    console.log("err from cronjob", err)
+  }
 
 
 // (async () => {

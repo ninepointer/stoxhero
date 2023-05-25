@@ -14,7 +14,8 @@ router.route('/inactive').get(authentication, getInactiveTenXSubs);
 
 router.route('/my/todayorders').get(authentication, myTodaysTrade)
 router.route('/my/historyorders').get(authentication, myHistoryTrade)
-router.route('/countTradingDays').get(authentication, tradingDays)
+// router.route('/countTradingDays').get(authentication, tradingDays)
+
 router.route('/subscriptionpurchaseintent/:id').get(authentication, getTenXSubscriptionPurchaseIntent);
 router.route('/draft').get(authentication, getDraftTenXSubs);
 router.route('/:id').get(getTenXSubscription).patch(authentication, editTanx);

@@ -94,7 +94,7 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
   const getGroupDiscussionsByCareer = async () => {
     try{
       const res = await axios.get(`${apiUrl}gd/career/${career}`);
-      console.log(res.data.data);
+      console.log("in gd", res.data);
       setGds(prev=>res.data.data);
     }catch(e){
       console.log(e);

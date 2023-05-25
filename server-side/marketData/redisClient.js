@@ -54,6 +54,4 @@
     module.exports = {client, isRedisConnected, setValue, getValue}
 
 
-    // module.exports = client;
-
 // }

@@ -28,7 +28,7 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
-import { paperTrader, infinityTrader, tenxTrader } from "../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
 const SellModel = ({exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
@@ -175,6 +175,7 @@ const SellModel = ({exchangeInstrumentToken, subscriptionId, sellState, exchange
     let endPoint 
     let paperTrade = false;
     let tenxTraderPath;
+    let internPath ;
     if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
@@ -184,6 +185,9 @@ const SellModel = ({exchangeInstrumentToken, subscriptionId, sellState, exchange
     } else if(from === tenxTrader){
       endPoint = 'tenxPlacingOrder';
       tenxTraderPath = true;
+    } else if(from === internshipTrader){
+      endPoint = 'internPlacingOrder';
+      internPath = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -195,7 +199,7 @@ const SellModel = ({exchangeInstrumentToken, subscriptionId, sellState, exchange
             
           exchange, symbol, buyOrSell, Quantity, Price, subscriptionId,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken,
-          validity, variety, createdBy, order_id:dummyOrderId,
+          validity, variety, createdBy, order_id:dummyOrderId, internPath,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
         })

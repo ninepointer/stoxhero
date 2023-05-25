@@ -315,10 +315,11 @@ function Index() {
 console.log(id)
 
 const handleChange = (e) => {
-  if (!formState.batchName.includes(e.target.value)) {
+  const {name, value} = e.target;
+  if (!formState[name]?.includes(e.target.value)) {
     setFormState(prevState => ({
       ...prevState,
-      batchName: e.target.value,
+      [name]: value,
     }));
   }
 };
@@ -346,6 +347,7 @@ const handleChange = (e) => {
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
                 label='Batch Name *'
+                name='batchName'
                 fullWidth
                 // defaultValue={portfolioData?.portfolioName}
                 defaultValue={editing ? formState?.batchName : id?.batchName}
@@ -362,6 +364,7 @@ const handleChange = (e) => {
                 <DemoContainer components={['DatePicker']}>
                     <DatePicker
                     label="Batch Start Date"
+                    name='batchStartDate'
                     value={formState?.batchStartDate || dayjs(batch?.batchStartDate)}
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {
@@ -382,6 +385,7 @@ const handleChange = (e) => {
                     label="Batch End Date"
                     value={formState?.batchEndDate || dayjs(batch?.batchEndDate)}
                     disabled={((isSubmitted || id) && (!editing || saving))}
+                    name='batchEndDate'
                     onChange={(e) => {
                       const selectedDate = dayjs(e);
                       const endOfDay = selectedDate.set('hour', 23).set('minute', 59).set('second', 59);
@@ -399,6 +403,7 @@ const handleChange = (e) => {
                   <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
+                    name='portfolio'
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
                     value={formState?.portfolio?.name || batch?.portfolio?.portfolioName}
@@ -425,6 +430,7 @@ const handleChange = (e) => {
                   <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
+                    name='jobTitle'
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     // defaultValue={id ? portfolios?.portfolio : ''}
                     value={formState?.career?.name || batch?.career?.jobTitle}
@@ -451,6 +457,7 @@ const handleChange = (e) => {
                 <Select
                 labelId="demo-simple-select-autowidth-label"
                 id="demo-simple-select-autowidth"
+                name='batchStatus'
                 value={formState?.batchStatus || id?.batchStatus}
                 // value={oldObjectId ? contestData?.status : formState?.status}
                 disabled={((isSubmitted || id) && (!editing || saving))}
