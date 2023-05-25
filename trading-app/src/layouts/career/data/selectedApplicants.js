@@ -28,7 +28,7 @@ export default function Applicants({career}) {
       setOpen(true);
     };
     async function getCareerApplications(){
-        let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/${career}`,{
+        let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/selected/${career}`,{
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -54,7 +54,7 @@ export default function Applicants({career}) {
     },[open])
 
     let columns = [
-        { Header: "Action", accessor: "action", align: "center" },
+        // { Header: "Action", accessor: "action", align: "center" },
         { Header: "Full Name", accessor: "fullname", align: "center" },
         { Header: "Date of Birth", accessor: "dob", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
@@ -70,11 +70,11 @@ export default function Applicants({career}) {
 
   careerApplications?.map((elem, index)=>{
   let featureObj = {}
-  featureObj.action = (
-    <MDButton component="a" variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{handleOpen(elem._id, `${elem.first_name} ${elem.last_name}`)}}>
-      Assign GD
-    </MDButton>
-  );
+//   featureObj.action = (
+//     <MDButton component="a" variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{handleOpen(elem._id, `${elem.first_name} ${elem.last_name}`)}}>
+//       Assign GD
+//     </MDButton>
+//   );
   featureObj.fullname = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.first_name} {elem?.last_name}
@@ -131,7 +131,7 @@ export default function Applicants({career}) {
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Career Applications({applicationCount})
+            Shortlisted Applications({applicationCount})
           </MDTypography>
         </MDBox>
       </MDBox>

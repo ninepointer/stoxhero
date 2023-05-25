@@ -208,8 +208,9 @@ exports.removeParticipantFromBatch = async(req, res, next) => {
 
         //Find the user in career application
         const user = await User.findById(userId).select('email internshipBatch');
-        console.log('batchId', batchId);
-        const portfolio = Portfolio.findOne({_id: batch?.portfolio});
+        console.log('batchId', batchId, batch?.portfolio);
+        const portfolio = await Portfolio.findOne({_id: batch?.portfolio});
+        console.log(portfolio);
         portfolio.users = portfolio.users.filter((user)=>user?.userId != userId);
         await portfolio.save({validateBeforeSave: false});
         console.log(user.internshipBatch.filter((item)=>item!=batchId));
