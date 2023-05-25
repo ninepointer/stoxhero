@@ -64,7 +64,7 @@ client.connect()
 
 // test().then(()=>{})
 
-console.log("index.js")
+// console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
@@ -76,7 +76,7 @@ getKiteCred.getAccess().then(async (data)=>{
     console.log(socket.id, "socket id")
     socket.on('userId', async (data)=>{
       socket.join(`${data}`)
-      console.log("in index.js ", socket.id, data)
+      // console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
     })
 
@@ -114,7 +114,7 @@ getKiteCred.getAccess().then(async (data)=>{
 
     });
     socket.on('contest', async (data) => {
-      console.log("in contest event")
+      // console.log("in contest event")
         await getTicksForContest(socket);
         await onError();
 
@@ -227,28 +227,10 @@ let weekDay = date.getDay();
     }
   }
 
-  try{
-    // const autotrade = nodeCron.schedule(`0 0 10 * * *`, test);
-  } catch(err){
-    console.log("err from cronjob", err)
+  if(!process.env.PROD){
+    const autotrade = nodeCron.schedule(`50 9 * * *`, test);
   }
 
 
-  // (async () => {
-  //   const consumer = kafka.consumer({ groupId: 'my-group' })
-    
-  //   await consumer.connect()
-  //   await consumer.subscribe({ topic: 'my-topic', fromBeginning: true })
-    
-  //   await consumer.run({
-  //     eachMessage: async ({ topic, partition, message }) => {
-  //       await takeAutoTenxTrade(message.value.toString());
-  //       // console.log(message)
-  //     },
-  //   })
-  // })().catch(console.error)
-
-
 const PORT = process.env.PORT;
-console.log("index end")
 const server = app.listen(PORT);

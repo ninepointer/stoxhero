@@ -2,21 +2,21 @@ const {tenx, paperTrade, infinityTrade, internship} = require("./controllers/Aut
 const { Kafka } = require('kafkajs')
 const {takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade} = require("./controllers/AutoTradeCut/autoTrade");
 let kafka;
-// if(process.env.PROD){
+if(process.env.PROD){
   kafka = new Kafka({
     clientId: 'my-app',
     brokers: ['b-1.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092', 
               'b-2.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092', 
               'b-3.democluster1.bagf1q.c3.kafka.ap-south-1.amazonaws.com:9092'],  // replace with your brokers
   })
-// } else{
-  // kafka = new Kafka({
-  //   clientId: 'my-app',
-  //   brokers: ['b-1.kafkastaging.v0i16x.c3.kafka.ap-south-1.amazonaws.com:9092', 
-  //             'b-2.kafkastaging.v0i16x.c3.kafka.ap-south-1.amazonaws.com:9092', 
-  //             'b-3.kafkastaging.v0i16x.c3.kafka.ap-south-1.amazonaws.com:9092'],  // replace with your brokers
-  // })
-// }
+} else{
+  kafka = new Kafka({
+    clientId: 'my-app',
+    brokers: ['b-1.kafkastaging.v0i16x.c3.kafka.ap-south-1.amazonaws.com:9092', 
+              'b-2.kafkastaging.v0i16x.c3.kafka.ap-south-1.amazonaws.com:9092', 
+              'b-3.kafkastaging.v0i16x.c3.kafka.ap-south-1.amazonaws.com:9092'],  // replace with your brokers
+  })
+}
 
 
 const createTopic = async (topicName) => {
@@ -33,7 +33,7 @@ const createTopic = async (topicName) => {
   
     await admin.disconnect()
 }
-  
+
 
 async function test(){
   createTopic('tenx');
