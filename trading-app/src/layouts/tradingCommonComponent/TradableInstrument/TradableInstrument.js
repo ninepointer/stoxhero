@@ -108,7 +108,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
 
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
+    axios.get(`${baseUrl}api/v1/instrumentDetails/${from}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -215,7 +215,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
       dispatch({ type: 'setAddOrRemoveCheckFalse', payload: false });
 
       // setAddOrRemoveCheck(false);
-      const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrument_token}`, {
+      const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrument_token}/${from}`, {
         method: "PATCH",
         credentials:"include",
         headers: {
