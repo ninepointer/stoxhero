@@ -164,31 +164,33 @@ const getXTSTicksForUserPosition = async (socket, id) => {
     indecies = JSON.parse(indecies);  
   }
 
-  xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
-    marketDepth = marketDepthData;
-  });
+  // xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
+  //   marketDepth = marketDepthData;
+  // });
   // let timeoutId = null;
   const userId = await client.get(socket.id)
   await emitTicks(userId);
-  xtsMarketDataWS.onLTPEvent(async (ticksObj) => {
+  xtsMarketDataWS.onMarketDepthEvent(async (ticksObj) => {
     // console.log(ticksObj)
-    ticksObj = JSON.parse(ticksObj);
-
-    if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
+    // ticksObj = JSON.parse(ticksObj);
+    let Obj = {};
+    // if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
       // console.log("tick", ticksObj.ExchangeInstrumentID)
-      ticksObj.last_price = ticksObj.LastTradedPrice;
-      ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
-      ticksObj.change = marketDepth.Touchline.PercentChange;
+      Obj.last_price = ticksObj.Touchline.LastTradedPrice;
+      Obj.instrument_token = ticksObj.ExchangeInstrumentID;
+      Obj.change = ticksObj.Touchline.PercentChange;
+      Obj.ExchangeInstrumentID = ticksObj.ExchangeInstrumentID;
+      Obj.ExchangeSegment = ticksObj.ExchangeSegment;
     
       const instrumentMap = new Map(ticks.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
-      if (instrumentMap.has(ticksObj.ExchangeInstrumentID)) {
-        const existingInstrument = instrumentMap.get(ticksObj.ExchangeInstrumentID);
-        Object.assign(existingInstrument, ticksObj);
+      if (instrumentMap.has(Obj.ExchangeInstrumentID)) {
+        const existingInstrument = instrumentMap.get(Obj.ExchangeInstrumentID);
+        Object.assign(existingInstrument, Obj);
       } else {
-        instrumentMap.set(ticksObj.ExchangeInstrumentID, ticksObj);
+        instrumentMap.set(Obj.ExchangeInstrumentID, Obj);
       }
       ticks = Array.from(instrumentMap.values());
-    }
+    // }
 
 
     let indexObj = {};
@@ -201,11 +203,13 @@ const getXTSTicksForUserPosition = async (socket, id) => {
     //   return indexObj[item.ExchangeInstrumentID];
     // });
 
-    if(indexObj[ticksObj.ExchangeInstrumentID] && indexObj[marketDepth.ExchangeInstrumentID]){
-      ticksObj.last_price = ticksObj.LastTradedPrice;
-      ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
-      ticksObj.change = marketDepth.Touchline.PercentChange;
-      indexData.push(ticksObj)
+    if(indexObj[ticksObj.ExchangeInstrumentID]){
+      Obj.last_price = ticksObj.Touchline.LastTradedPrice;
+      Obj.instrument_token = ticksObj.ExchangeInstrumentID;
+      Obj.change = ticksObj.Touchline.PercentChange;
+      Obj.ExchangeInstrumentID = ticksObj.ExchangeInstrumentID;
+      Obj.ExchangeSegment = ticksObj.ExchangeSegment;
+      indexData.push(Obj)
     }
 
     // console.log("indexData", indexData)
