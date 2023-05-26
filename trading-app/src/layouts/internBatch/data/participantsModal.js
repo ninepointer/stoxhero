@@ -154,7 +154,7 @@ participants?.map((elem, index)=>{
       </MDButton>
       );
       featureObj.attendance = (
-        <Checkbox defaultChecked={elem?.attended} onChange={(e)=>{handleChecked(e, elem?.user?._id)}}></Checkbox>
+        <Checkbox defaultChecked={elem?.attended} disabled={elem?.status=='Selected'} onChange={(e)=>{handleChecked(e, elem?.user?._id)}}></Checkbox>
       );
     featureObj.fullname = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">

@@ -423,3 +423,126 @@ exports.autoExpireInternBatch = async()=>{
         }
     }
 }
+
+
+exports.overallPnlAllTrader = async (req, res, next) => {
+  const {batchId} = req.params;
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  console.log(today);
+
+  const pipeline = [
+    {
+      $match: {
+        trade_time: {
+          $gte: today
+        },
+        batch: new ObjectId(batchId),
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          product: "$Product",
+          instrumentToken: "$instrumentToken",
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+        lastaverageprice: {
+          $last: "$average_price",
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]
+
+  let x = await InternTrades.aggregate(pipeline)
+  res.status(201).json({ message: "data received", data: x });
+}
+
+exports.traderWiseMockTrader = async (req, res, next) => {
+  const{batchId} = req.params;
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const pipeline = [
+    {
+      $match:
+      {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE",
+        batch: new ObjectId(batchId)
+      }
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $group:
+      {
+        _id:
+        {
+          "traderId": "$trader",
+          "traderName": {
+            $arrayElemAt: ["$user.name", 0]
+          },
+          "symbol": "$instrumentToken",
+          "traderEmail": {
+            $arrayElemAt: ["$user.email", 0]
+          },
+          "traderMobile": {
+            $arrayElemAt: ["$user.mobile", 0]
+          }
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        lots: {
+          $sum: { $toInt: "$Quantity" }
+        },
+        trades: {
+          $count: {}
+        },
+        lotUsed: {
+          $sum: { $abs: { $toInt: "$Quantity" } }
+        }
+      }
+    },
+    { $sort: { _id: -1 } },
+
+  ]
+
+  let x = await InternTrades.aggregate(pipeline)
+  res.status(201).json({ message: "data received", data: x });
+}
