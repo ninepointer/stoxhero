@@ -22,6 +22,7 @@ import TradersReport from "./layouts/tradersReportMock";
 import AdminReport from "./layouts/adminreportMock";
 import DailyPNLData from "./layouts/dailyPnlDashboard";
 import TraderPosition from "./layouts/traderPosition"
+import InternPosition from "./layouts/internPosition"
 import AdminReportLive from "./layouts/adminreportLive"
 import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
@@ -53,6 +54,7 @@ import TutorialVideos from './layouts/tutorialVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
+import TryIcon from '@mui/icons-material/Try';
 
 
 
@@ -102,13 +104,17 @@ import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
 import TutorialCategoryForm from './layouts/tutorialVideos/tutorialCategoryDetails'
 import Contact from "./layouts/HomePage/pages/Contact";
-import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
+import VirtualPosition from "./layouts/virtualtradePosition";
+import TenxPosition from "./layouts/tenxPosition"
+import BadgeIcon from '@mui/icons-material/Badge';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+
 
 const routes = [
   {
@@ -318,6 +324,30 @@ const routes = [
     route: "/traderposition",
     component: <TraderPosition />,
   },
+  {
+    type: "collapse",
+    name: "Intern Position",
+    key: "internposition",
+    icon: <BadgeIcon/>,
+    route: "/internposition",
+    component: <InternPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Tenx Position",
+    key: "tenxposition",
+    icon: <SupervisorAccountIcon/>,
+    route: "/tenxposition",
+    component: <TenxPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Virtual Position",
+    key: "virtualposition",
+    icon: <TryIcon/>,
+    route: "/virtualposition",
+    component: <VirtualPosition />,
+  },
   // {
   //   type: "collapse",
   //   name: "Batch",
@@ -327,10 +357,10 @@ const routes = [
   //   component: < Batch />,
   // },
   {
-    type: "collapse",
-    name: "Margin Allocation",
+    // type: "collapse",
+    // name: "Margin Allocation",
     key: "tradersMarginAllocation",
-    icon: <WalletIcon/>,
+    // icon: <WalletIcon/>,
     route: "/tradersMarginAllocation",
     component: <TradersMarginAllocation />,
   },

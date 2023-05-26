@@ -141,7 +141,7 @@ export default function Applicants({career}) {
           showTotalEntries={false}
           isSorted={false}
           // noEndBorder
-          entriesPerPage={false}
+          entriesPerPage={true}
         />
       </MDBox>
       <AddApplicantModal open={open} handleClose={handleClose} applicant={selectedApplicant} applicantName={selectedApplicantName} career = {career}/>

@@ -452,6 +452,19 @@ export default function LabTabs() {
                                 App Settings
                             </MDButton>
                         </Grid>
+                        <Grid item>
+                            <MDButton 
+                                variant="contained" 
+                                color={"dark"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/tradersMarginAllocation`,
+                                  }}
+                            >
+                                Margin Allocation
+                            </MDButton>
+                        </Grid>
                     </Grid>
                 </MDBox>
                 

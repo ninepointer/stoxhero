@@ -22,10 +22,10 @@ const Authenticate = async (req, res, next)=>{
 
 
         try{
-            console.log("above authentication", isRedisConnected, getValue());
+            // console.log("above authentication", isRedisConnected, getValue());
             // console.log("check",  client.exists(`${verifyToken._id.toString()}authenticatedUser`))
             if(isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)){
-                console.log("in authentication if")
+                // console.log("in authentication if")
                 let user = await client.get(`${verifyToken._id.toString()}authenticatedUser`)
                 user = JSON.parse(user);
                 // await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 10);

@@ -149,7 +149,7 @@ function DataTable({
                 value={pageSize.toString()}
                 options={entries}
                 onChange={(event, newValue) => {
-                  setEntriesPerPage(parseInt(newValue, 20));
+                  setEntriesPerPage(parseInt(newValue, 10));
                 }}
                 size="small"
                 sx={{ width: "4rem" }}

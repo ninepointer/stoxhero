@@ -31,7 +31,7 @@ try {
     // resume: uploadedData[0].url,
     career: career
     });
-    console.log(data)
+    // console.log(data)
     res.status(201).json({message: "Your job application has been submitted successfully!"});
     } catch (error) {
     console.error(error);
@@ -41,7 +41,7 @@ try {
 });
 
 exports.createCareer = async(req, res, next)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const{
         jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation, campaign,
         status } = req.body;
@@ -49,14 +49,14 @@ exports.createCareer = async(req, res, next)=>{
 
     const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation, campaign,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
-    console.log("Career: ",career)
+    // console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});
 }
 
 exports.editCareer = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const career = await Career.findById(id);
 
     const filteredBody = filterObj(req.body, "jobTitle", "jobDescription", "jobType", "jobLocation", "campaign", "status");
@@ -65,7 +65,7 @@ exports.editCareer = async(req, res, next) => {
             description:req.body.rolesAndResponsibilities.description,}]
     filteredBody.lastModifiedBy = req.user._id;    
 
-    console.log(filteredBody)
+    // console.log(filteredBody)
     const updated = await Career.findByIdAndUpdate(id, filteredBody, { new: true });
 
     res.status(200).json({message: 'Successfully edited tenx.', data: updated});
@@ -105,13 +105,13 @@ exports.getCareers = async(req, res, next)=>{
 }
 
 exports.getCareer = async (req,res,next) => {
-  console.log("inside getCareer")
+  // console.log("inside getCareer")
   const {id} = req.params;
   try {
       const career = await Career.findOne({_id: id})
       .populate('campaign', 'campaignName campaignCode')
 
-      console.log("Career: ",career)
+      // console.log("Career: ",career)
       if (!career) {
         return res.status(200).json({ status: 'success', message: 'Career not found.', data: {} });
       }

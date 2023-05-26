@@ -45,7 +45,7 @@ function AlgoUser() {
         //console.log(socket);
         socket.on("connect", ()=>{
             //console.log(socket.id);
-            socket.emit("hi",true)
+            socket.emit("company-ticks", true)
         })
         socket.on("noToken", (data)=>{
             //console.log("no token");
