@@ -91,7 +91,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('hi', async (data) => {
       // getKiteCred.getAccess().then(async (data)=>{
       console.log("in hii event");
-        await getTicks(socket);
+        // await getTicks(socket);
         // await getDummyTicks(socket);
         // await DummyMarketData(socket);
         await onError();
