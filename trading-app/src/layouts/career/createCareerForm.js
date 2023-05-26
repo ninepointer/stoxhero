@@ -19,6 +19,7 @@ import RolesAndResponsibilities from './data/roleAndRespData';
 import CareerApplication from "./data/applicants";
 import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import SelectedApplication from './data/selectedApplicants';
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -472,6 +473,11 @@ const handleChange = (e) => {
                 {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
                         <CareerApplication career={newObjectId ? newObjectId : id?._id}/>
+                    </MDBox>
+                </Grid>}
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <SelectedApplication career={newObjectId ? newObjectId : id?._id}/>
                     </MDBox>
                 </Grid>}
 

@@ -4,7 +4,7 @@ const User = require("../models/User/userDetailSchema");
 
 
 exports.createBatch = async(req, res, next)=>{
-    console.log(req.body) // batchID
+    // console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, applicationStartDate, applicationEndDate, 
         batchStatus, participantRevenueSharing, batchLimit } = req.body;
 
@@ -34,7 +34,7 @@ exports.getBatch = async(req, res, next)=>{
 };
 
 exports.getActiveBatch = async(req, res, next)=>{
-    console.log("inside ActiveContest")
+    // console.log("inside ActiveContest")
     try {
         const batch = await Batch.find({ batchEndDate: { $gte: new Date() }, status: 'Live', applicationEndDate:{$gte: new Date()} }); 
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
@@ -66,7 +66,7 @@ exports.appliedBatch = async(req,res,next) => {
 exports.editBatch = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
 
     const batch = await Batch.findOneAndUpdate({_id : id}, {
         $set:{
@@ -90,7 +90,7 @@ exports.applyToBatch = async(req, res, next) => {
     const id = req.params.id;
     const userId = req.user._id
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     let applicationObj = {
         userId: userId,
         appliedOn: new Date(),
@@ -109,7 +109,7 @@ exports.getApplicant = async(req, res, next) => {
     const id = req.params.id;
     // const userId = req.user._id
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     try{
         const batch = await Batch.find({status: "Active"})
         .populate('applicants.userId', 'name employeeid')
@@ -125,7 +125,7 @@ exports.getApplicant = async(req, res, next) => {
 exports.approveUser = async (req, res, next) => {
     const id = req.params.id;
     const userId = req.body.userId;
-    console.log("id is,", id);
+    // console.log("id is,", id);
     try {
       const user = await User.findById(new ObjectId(userId));
       if (!user) {

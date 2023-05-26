@@ -22,6 +22,7 @@ import TradersReport from "./layouts/tradersReportMock";
 import AdminReport from "./layouts/adminreportMock";
 import DailyPNLData from "./layouts/dailyPnlDashboard";
 import TraderPosition from "./layouts/traderPosition"
+import InternPosition from "./layouts/internPosition"
 import AdminReportLive from "./layouts/adminreportLive"
 import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
@@ -319,6 +320,14 @@ const routes = [
     icon: <BusinessIcon/>,
     route: "/traderposition",
     component: <TraderPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Intern Position",
+    key: "internposition",
+    icon: <BusinessIcon/>,
+    route: "/internposition",
+    component: <InternPosition />,
   },
   {
     type: "collapse",

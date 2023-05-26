@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react'
+import React, { useContext, useState, memo , useEffect} from 'react'
 // import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -33,7 +33,7 @@ function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, qua
     src : [sound],
     html5 : true
   })
-  console.log("rendering : exit")
+  console.log("rendering : exit", quantity)
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -80,6 +80,12 @@ function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, qua
   })
 
   const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity));
+
+  useEffect(()=>{
+    setFilledQuantity((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity))
+  }, [quantity])
+
+  // console.log("filledQuantity", filledQuantity, quantity)
 
   function quantityChange(e) {
     setFilledQuantity(e.target.value)
