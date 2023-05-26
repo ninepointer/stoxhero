@@ -71,7 +71,7 @@ export default function Applicants({career}) {
   careerApplications?.map((elem, index)=>{
   let featureObj = {}
   featureObj.action = (
-    <MDButton component="a" variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{handleOpen(elem._id, `${elem.first_name} ${elem.last_name}`)}}>
+    <MDButton component="a" size='small' variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{handleOpen(elem._id, `${elem.first_name} ${elem.last_name}`)}}>
       Assign GD
     </MDButton>
   );

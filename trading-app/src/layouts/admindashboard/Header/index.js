@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
-import {Grid, CircularProgress} from '@mui/material';
+import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
 import man from '../../../assets/images/man.png'
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import { Link, useLocation } from "react-router-dom";
+import RunningPNLChart from '../data/runningpnlchart'
 
 //data
 
@@ -22,130 +24,439 @@ export default function LabTabs() {
   };
 
   return (
-    <MDBox bgColor="white" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
-        {/* <MDBox display='flex' justifyContent='center'>
-
-        
-            <MDBox bgColor='green' width={{ xs: '50%', sm: '45%', lg: '15%' }} ml={1} mr={1} borderRadius={4}>
-                <MDBox display='flex' justifyContent='left'>
-                    <MDTypography m={1} fontSize={15} fontWeight='bold' color="light">New User</MDTypography>
-                </MDBox>
-                <MDBox display='flex' alignContent='center' alignItems='center'>
-                    <MDBox width='25%' ml={2} display='flex' justifyContent='flex-start'>
-                        <PersonAddAltIcon color='white' fontSize='medium'/>
-                    </MDBox>
-                    <MDBox width='75%' display='flex' flexDirection='column' justifyContent='flex-end'>
-                        <MDTypography display='flex' justifyContent='center' fontSize={20} fontWeight='bold' color="light">NA</MDTypography>
-                    </MDBox>
-                </MDBox>
-                <MDBox mt={1} bgColor='lightgreen' display='flex' justifyContent='center'>
-                    <MDButton variant='text' color='dark' size='small' style={{ flex: 1 }}>
-                        View Details
-                    </MDButton>
-                </MDBox>
-            </MDBox>
-
-            <MDBox bgColor='info' width={{ xs: '50%', sm: '45%', lg: '15%' }} ml={1} mr={1} borderRadius={4}>
-                <MDBox display='flex' justifyContent='left'>
-                    <MDTypography m={1} fontSize={15} fontWeight='bold' color="light">Career App.</MDTypography>
-                </MDBox>
-                <MDBox display='flex' alignContent='center' alignItems='center'>
-                    <MDBox width='25%' ml={2} display='flex' justifyContent='flex-start'>
-                        <PersonAddAltIcon color='white' fontSize='medium'/>
-                    </MDBox>
-                    <MDBox width='75%' display='flex' flexDirection='column' justifyContent='flex-end'>
-                        <MDTypography display='flex' justifyContent='center' fontSize={20} fontWeight='bold' color="light">NA</MDTypography>
-                    </MDBox>
-                </MDBox>
-                <MDBox mt={1} bgColor='lightblue' display='flex' justifyContent='center'>
-                    <MDButton variant='text' color='dark' size='small' style={{ flex: 1 }}>
-                        View Details
-                    </MDButton>
-                </MDBox>
-            </MDBox>
-
-            <MDBox bgColor='green' width={{ xs: '50%', sm: '45%', lg: '15%' }} ml={1} mr={1} borderRadius={4}>
-                <MDBox display='flex' justifyContent='left'>
-                    <MDTypography m={1} fontSize={15} fontWeight='bold' color="light">New User</MDTypography>
-                </MDBox>
-                <MDBox display='flex' alignContent='center' alignItems='center'>
-                    <MDBox width='25%' ml={2} display='flex' justifyContent='flex-start'>
-                        <PersonAddAltIcon color='white' fontSize='medium'/>
-                    </MDBox>
-                    <MDBox width='75%' display='flex' flexDirection='column' justifyContent='flex-end'>
-                        <MDTypography display='flex' justifyContent='center' fontSize={20} fontWeight='bold' color="light">1,500</MDTypography>
-                    </MDBox>
-                </MDBox>
-                <MDBox mt={1} bgColor='lightgreen' display='flex' justifyContent='center'>
-                    <MDButton variant='text' color='dark' size='small' style={{ flex: 1 }}>
-                        View Details
-                    </MDButton>
-                </MDBox>
-            </MDBox>
-
-            <MDBox bgColor='green' width={{ xs: '50%', sm: '45%', lg: '15%' }} ml={1} mr={1} borderRadius={4}>
-                <MDBox display='flex' justifyContent='left'>
-                    <MDTypography m={1} fontSize={15} fontWeight='bold' color="light">New User</MDTypography>
-                </MDBox>
-                <MDBox display='flex' alignContent='center' alignItems='center'>
-                    <MDBox width='25%' ml={2} display='flex' justifyContent='flex-start'>
-                        <PersonAddAltIcon color='white' fontSize='medium'/>
-                    </MDBox>
-                    <MDBox width='75%' display='flex' flexDirection='column' justifyContent='flex-end'>
-                        <MDTypography display='flex' justifyContent='center' fontSize={20} fontWeight='bold' color="light">1,500</MDTypography>
-                    </MDBox>
-                </MDBox>
-                <MDBox mt={1} bgColor='lightgreen' display='flex' justifyContent='center'>
-                    <MDButton variant='text' color='dark' size='small' style={{ flex: 1 }}>
-                        View Details
-                    </MDButton>
-                </MDBox>
-            </MDBox>
-
-            <MDBox bgColor='green' width={{ xs: '50%', sm: '45%', lg: '15%' }} ml={1} mr={1} borderRadius={4}>
-                <MDBox display='flex' justifyContent='left'>
-                    <MDTypography m={1} fontSize={15} fontWeight='bold' color="light">New User</MDTypography>
-                </MDBox>
-                <MDBox display='flex' alignContent='center' alignItems='center'>
-                    <MDBox width='25%' ml={2} display='flex' justifyContent='flex-start'>
-                        <PersonAddAltIcon color='white' fontSize='medium'/>
-                    </MDBox>
-                    <MDBox width='75%' display='flex' flexDirection='column' justifyContent='flex-end'>
-                        <MDTypography display='flex' justifyContent='center' fontSize={20} fontWeight='bold' color="light">1,500</MDTypography>
-                    </MDBox>
-                </MDBox>
-                <MDBox mt={1} bgColor='lightgreen' display='flex' justifyContent='center'>
-                    <MDButton variant='text' color='dark' size='small' style={{ flex: 1 }}>
-                        View Details
-                    </MDButton>
-                </MDBox>
-            </MDBox>
-
-            <MDBox bgColor='green' width={{ xs: '50%', sm: '45%', lg: '15%' }} ml={1} mr={1} borderRadius={4}>
-                <MDBox display='flex' justifyContent='left'>
-                    <MDTypography m={1} fontSize={15} fontWeight='bold' color="light">New User</MDTypography>
-                </MDBox>
-                <MDBox display='flex' alignContent='center' alignItems='center'>
-                    <MDBox width='25%' ml={2} display='flex' justifyContent='flex-start'>
-                        <PersonAddAltIcon color='white' fontSize='medium'/>
-                    </MDBox>
-                    <MDBox width='75%' display='flex' flexDirection='column' justifyContent='flex-end'>
-                        <MDTypography display='flex' justifyContent='center' fontSize={20} fontWeight='bold' color="light">1,500</MDTypography>
-                    </MDBox>
-                </MDBox>
-                <MDBox mt={1} bgColor='lightgreen' display='flex' justifyContent='center'>
-                    <MDButton variant='text' color='dark' size='small' style={{ flex: 1 }}>
-                        View Details
-                    </MDButton>
-                </MDBox>
-            </MDBox>
-
-        </MDBox> */}
-
-        <MDBox minHeight='40vH' border='1px solid grey' borderRadius={4} display='flex' justifyContent='center' flexDirection='column' alignItems='center'>
+    <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
+        {/* <MDBox minHeight='40vH' border='1px solid grey' borderRadius={4} display='flex' justifyContent='center' flexDirection='column' alignItems='center'>
             <MDAvatar src={man}></MDAvatar>
             <MDTypography fontSize={20} fontWeight='bold'>Under Construction</MDTypography>
+        </MDBox> */}
+        <MDBox>
+            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Infinity Trading Dashboard</MDTypography>
         </MDBox>
+
+        <Grid container lg={12}>
+            <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
+                <Grid container>
+                    <Grid item p={2} xs={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (StoxHero)</MDTypography>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Open Lots</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                    <Grid item xs={true} lg={0.2} hidden={false}>
+                        <Divider orientation='vertical' color='black'/>
+                    </Grid>
+
+                    <Grid item p={2} xs={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (XTS)</MDTypography>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Open Lots</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid container spacing={2} mt={1}>
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"warning"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companyposition`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>StoxHero Position</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's company position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Type: <span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+                
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"success"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companyposition`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>XTS Position</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's XTS position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Type: <span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"primary"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/traderposition`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Trader's Position</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's traders position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Type: <span style={{fontSize:11,fontWeight:700}}>Trader Side</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    <MDButton 
+                        variant="contained" 
+                        color={"error"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/cohortposition`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Cohort Position</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's cohort position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Type: <span style={{fontSize:11,fontWeight:700}}>Trader Side</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+            </Grid>
+        </Grid>
+
+        <Grid container spacing={2} mt={1}>
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"primary"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/adminreport`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Company's Report(M)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check company side mock trades report here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+                
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"error"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/adminreportlive`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Company's Report(L)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check company side live trades report here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"warning"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/tradersReport`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(M)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check trader side mock trades report here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"success"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/tradersReportLive`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(L)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check trader side live trades report here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+            
+        </Grid>
+
+        <Grid container spacing={2} mt={1}>
+            <Grid item lg={3}>
+                <MDBox p={2} bgColor='text' borderRadius={5}>
+                    <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
+                    <Grid container spacing={1}>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"success"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/orders`,
+                                  }}
+                            >
+                                All Orders
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"light"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/algobox`,
+                                  }}
+                            >
+                                AlgoBox
+                            </MDButton>
+                        </Grid>
+                        <Grid item>
+                            <MDButton 
+                                variant="contained" 
+                                color={"primary"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/trading-accounts`,
+                                  }}
+                            >
+                                Trading Account
+                            </MDButton>
+                        </Grid>
+                        <Grid item>
+                            <MDButton 
+                                variant="contained" 
+                                color={"error"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/instruments`,
+                                  }}
+                            >
+                                Instruments
+                            </MDButton>
+                        </Grid>
+                        <Grid item>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/setting`,
+                                  }}
+                            >
+                                App Settings
+                            </MDButton>
+                        </Grid>
+                    </Grid>
+                </MDBox>
+                
+            </Grid>
+        </Grid>
 
     </MDBox>
   );
