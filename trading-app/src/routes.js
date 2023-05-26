@@ -52,6 +52,7 @@ import Campaigns from './layouts/campaign'
 import TutorialVideos from './layouts/tutorialVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
+import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 
 
 
@@ -109,16 +110,13 @@ import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
 
-
-
-
 const routes = [
   {
     type: "collapse",
-    name: "Company Dashboard",
-    key: "admindashboard",
-    icon: <DashboardIcon/>,
-    route: "/admindashboard",
+    name: "Infinty Dashboard",
+    key: "infinitydashboard",
+    icon: <AllInclusiveIcon/>,
+    route: "/infinitydashboard",
     component: <AdminDashboard />,
   },
 
@@ -296,38 +294,38 @@ const routes = [
   //   component: <DummyPage />,
   // },
   {
-    type: "collapse",
-    name: "Company Position",
+    // type: "collapse",
+    // name: "Company Position",
     key: "companyposition",
-    icon: <BusinessIcon/>,
+    // icon: <BusinessIcon/>,
     route: "/companyposition",
     component: <CompanyPosition />,
   },
   {
-    type: "collapse",
-    name: "Cohort Position",
+    // type: "collapse",
+    // name: "Cohort Position",
     key: "cohortposition",
-    icon: <BusinessIcon/>,
+    // icon: <BusinessIcon/>,
     route: "/cohortposition",
     component: <CohortPosition />,
   },
 
   {
-    type: "collapse",
-    name: "Trader Position",
+    // type: "collapse",
+    // name: "Trader Position",
     key: "traderposition",
-    icon: <BusinessIcon/>,
+    // icon: <BusinessIcon/>,
     route: "/traderposition",
     component: <TraderPosition />,
   },
-  {
-    type: "collapse",
-    name: "Batch",
-    key: "batch",
-    icon: <BatchIcon/>,
-    route: "/batch",
-    component: < Batch />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Batch",
+  //   key: "batch",
+  //   icon: <BatchIcon/>,
+  //   route: "/batch",
+  //   component: < Batch />,
+  // },
   {
     type: "collapse",
     name: "Margin Allocation",
@@ -418,74 +416,74 @@ const routes = [
   },
   
   {
-    type: "collapse",
-    name: "Admin Reports(M)",
+    // type: "collapse",
+    // name: "Admin Reports(M)",
     key: "adminreport",
-    icon: <SummarizeIcon/>,
+    // icon: <SummarizeIcon/>,
     route: "/adminreport",
     component: <AdminReport/>,
   },
   {
-    type: "collapse",
-    name: "Admin Reports(L)",
+    // type: "collapse",
+    // name: "Admin Reports(L)",
     key: "adminreportlive",
-    icon: <SummarizeIcon/>,
+    // icon: <SummarizeIcon/>,
     route: "/adminreportlive",
     component: <AdminReportLive/>,
   },
   {
-    type: "collapse",
-    name: "Trader Reports(M)",
+    // type: "collapse",
+    // name: "Trader Reports(M)",
     key: "tradersReport",
-    icon: <ReportIcon/>,
+    // icon: <ReportIcon/>,
     route: "/tradersReport",
     component: <TradersReport/>,
   },
   {
-    type: "collapse",
-    name: "Trader Reports(L)",
+    // type: "collapse",
+    // name: "Trader Reports(L)",
     key: "tradersReportlive",
-    icon: <ReportIcon/>,
+    // icon: <ReportIcon/>,
     route: "/tradersReportLive",
     component: <TradersReportLive/>,
   },
   {
-    type: "collapse",
-    name: "All Orders",
+    // type: "collapse",
+    // name: "All Orders",
     key: "orders",
-    icon: <TableViewIcon/>,
+    // icon: <TableViewIcon/>,
     route: "/orders",
     component: <Orders />,
   },
   {
-    type: "collapse",
-    name: "Instruments",
+    // type: "collapse",
+    // name: "Instruments",
     key: "instruments",
-    icon:<CandlestickChartIcon/>,
+    // icon:<CandlestickChartIcon/>,
     route: "/instruments",
     component: <Instruments />,
   },
   {
-    type: "collapse",
-    name: "Algo Box(s)",
+    // type: "collapse",
+    // name: "Algo Box(s)",
     key: "algobox",
-    icon: <ManageAccountsIcon/>,
+    // icon: <ManageAccountsIcon/>,
     route: "/algobox",
     component: <AlgoBox />,
   },
   {
-    type: "collapse",
-    name: "Trading Accounts",
+    // type: "collapse",
+    // name: "Trading Accounts",
     key: "trading-accounts",
-    icon: <AccountBalanceIcon/>,
+    // icon: <AccountBalanceIcon/>,
     route: "/trading-accounts",
     component: <TradingAccount />,
   },
   {
-    type: "collapse",
-    name: "App Settings",
+    // type: "collapse",
+    // name: "App Settings",
     key: "setting",
-    icon: <SettingsIcon/>,
+    // icon: <SettingsIcon/>,
     route: "/setting",
     component: <Setting />,
   },
