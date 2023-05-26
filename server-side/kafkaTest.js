@@ -46,6 +46,11 @@ async function test(){
   let infinityArr = await infinityTrade();
   let interArr = await internship();
 
+  console.log("tenx", tenXArr);
+  console.log("paperArr", paperArr);
+  console.log("infinityArr", infinityArr);
+  console.log("interArr", interArr);
+
   const producer = kafka.producer()
   
   await producer.connect()

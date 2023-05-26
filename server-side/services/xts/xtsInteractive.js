@@ -16,6 +16,7 @@ const { save } = require("./xtsHelper/saveXtsCred");
 
 let xtsInteractiveWS;
 let xtsInteractiveAPI;
+// let orderData ;
 const interactiveLogin = async () => {
   xtsInteractiveAPI = new XTSInteractive(
     process.env.INTERACTIVE_URL
@@ -51,6 +52,19 @@ const interactiveLogin = async () => {
         console.log("joinedData", joinedData);
       });
 
+      xtsInteractiveWS.onOrder(async (orderData) => {
+        orderData = orderData;
+        // if (response?.result?.AppOrderID === orderData.AppOrderID) {
+        //   console.log("in place order order_id", response?.result?.AppOrderID)
+        //   await getPlacedOrderAndSave(false, req, res, response?.result?.AppOrderID, orderData);
+        // } 
+        // else{
+        //   return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
+        // }
+      
+      
+      })
+
       await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
     })();
@@ -82,27 +96,33 @@ const placeOrder = async (obj, req, res) => {
     clientID: process.env.XTS_CLIENTID,
   });
 
-  // console.log(response);
 
   if (response?.result?.AppOrderID) {
+    console.log("in place order order_id", response?.result?.AppOrderID)
     await getPlacedOrderAndSave(false, req, res, response?.result?.AppOrderID);
+  } else{
+    return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
   }
-  // await positions();
+
 
 
   return response;
-  // 
 }
-// wrap in if condition, placeorder orderid and orderData orderid must be equal
-const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
-  console.log("first", isDataSaved)
-  xtsInteractiveWS.onOrder(async (orderData) => {
-    console.log("second", isDataSaved)
-    if (isDataSaved) {
-      return;
-    }
 
+
+
+const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId, orderData) => {
+  console.log("first isDataSaved", isDataSaved)
+  // xtsInteractiveWS.onOrder(async (orderData) => {
+    console.log("inside socket", isDataSaved)
+
+
+    console.log("order_id and status", orderData.AppOrderID, orderId, orderData.OrderStatus)
     if (orderId === orderData.AppOrderID) {
+      if (isDataSaved) {
+        console.log("return running")
+        return;
+      }
       let date = new Date();
       let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
       todayDate = todayDate + "T23:59:59.999Z";
@@ -120,7 +140,7 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
       const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: xtsAccountType });
 
 
-      console.log("order data", orderData.OrderStatus);
+      // console.log("order data", orderData.OrderStatus);
       let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
         TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
         ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
@@ -133,14 +153,15 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
 
       const utcDate = new Date(date3).toUTCString();
 
-      console.log("exchange timming", new Date(utcDate));
+      // console.log("exchange timming", new Date(utcDate));
 
       const session = await mongoose.startSession();
 
-      console.log("session")
+      // console.log("session")
 
       try {
         if (OrderStatus === "Rejected" || OrderStatus === "Filled") {
+          console.log("inside order save")
           let status, transaction_type;
           session.startTransaction();
           if (OrderStatus === "Rejected") {
@@ -182,7 +203,7 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
             console.log("after if", Quantity);
           }
 
-          console.log("in check")
+          // console.log("in check")
           function buyBrokerage(totalAmount) {
             let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
             let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
@@ -221,7 +242,7 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
             brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice);
           }
 
-          console.log("in check 2")
+          // console.log("in check 2")
 
 
 
@@ -318,16 +339,17 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
           await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
           // Commit the transaction
 
-          console.log("in chek 3", settingRedis)
+          console.log("redis setting chaeck", settingRedis)
           if (settingRedis === "OK") {
             await session.commitTransaction();
+            isDataSaved = true;
           } else {
             throw new Error();
           }
 
 
           console.log("data saved in retreive order for", AppOrderID)
-          isDataSaved = true;
+          
           if (!dontSendResp) {
             io.emit("updatePnl", liveCompanyTrade)
             return res.status(201).json({ message: responseMsg, err: responseErr })
@@ -372,7 +394,9 @@ const getPlacedOrderAndSave = async (isDataSaved, req, res, orderId) => {
         session.endSession();
       }
     }
-  });
+  // });
+
+  return;
 }
 
 const positions = async () => {
