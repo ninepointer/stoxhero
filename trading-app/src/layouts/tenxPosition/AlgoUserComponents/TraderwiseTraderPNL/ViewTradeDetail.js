@@ -5,127 +5,145 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
+import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+// import MDButton from '../../../components/MDButton';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+import { Box, Typography } from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+// import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import ViewTradeDetailData from "./ViewTradeDetailData";
 
+ 
 // Data
-import data from "./data";
+// import data from "./data";
 
-// function OverallCompantPNL({socket}) {
-function LiveOverallCompantPNL({socket, batchName}) {
-  const { columns, rows } = data();
+
+function ViewTradeDetail({userId, socket}) {
+  const {columns, rows} = ViewTradeDetailData();
+  const [open, setOpen] = useState(false);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [menu, setMenu] = useState(null);
 
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
   const closeMenu = () => setMenu(null);
 
+
+  const [regularSwitch, setRegularSwitch] = useState(true);
+  const handleClickOpen = () => {
+
+    setOpen(true);
+
+  }; 
+
+  const handleClose = (e) => {
+    setOpen(false);
+  };
+
+
+
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let date = new Date();
-  let totalTransactionCost = 0;
   const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
-  const [lastestTradeTimearr, setLatestTradeTimearr] = useState([]);
-  // const [lastestTradeTime, setLatestTradeTime] = useState([]);
-  // const [lastestTradeBy, setLatestTradeBy] = useState([]);
-  // const [lastestTradeSymbol, setLatestTradeSymbol] = useState([]);
-  // const [lastestTradeType, setLatestTradeType] = useState([]);
-  // const [lastestTradeQunaity, setLatestTradeQuantity] = useState([]);
-  // const [lastestTradeStatus, setLatestTradeStatus] = useState([]);
 
   let liveDetailsArr = [];
+  let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
-  
-  useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/getliveprice`)
-    .then((res) => {
-        //console.log("live price data", res)
-        setMarketData(res.data);
-        // setDetails.setMarketData(data);
-    }).catch((err) => {
-        return new Error(err);
-    })
 
-    socket.on("tick", (data) => {
-      //console.log("this is live market data", data);
-      setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
-          instrumentMap.set(instrument.instrument_token, instrument);
+    useEffect(()=>{
+
+      axios.get(`${baseUrl}api/v1/getliveprice`)
+      .then((res) => {
+          //console.log("live price data", res)
+          setMarketData(res.data);
+          // setDetails.setMarketData(data);
+      }).catch((err) => {
+          return new Error(err);
+      })
+
+      socket.on("tick", (data) => {
+        //console.log("this is live market data", data);
+        setMarketData(prevInstruments => {
+          const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+          data.forEach(instrument => {
+            instrumentMap.set(instrument.instrument_token, instrument);
+          });
+          return Array.from(instrumentMap.values());
         });
-        return Array.from(instrumentMap.values());
-      });
-      // setDetails.setMarketData(data);
+        // setDetails.setMarketData(data);
+      })
+    }, [])
+
+    useEffect(()=>{
+
+      axios.get(`${baseUrl}api/v1/getoverallpnlmocktradeparticularusertodaytraderside/${userId}`)
+      .then((res) => {
+          setTradeData(res.data);
+          res.data.map((elem)=>{
+            marketData.map((subElem)=>{
+                if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
+                    liveDetailsArr.push(subElem)
+                }
+            })
+          })
+
+        setLiveDetail(liveDetailsArr);
+
+                 
+
+      }).catch((err) => {
+          return new Error(err);
+      })
+
+
+    }, [marketData])
+
+
+    useEffect(() => {
+      return () => {
+          socket.close();
+      }
+    }, [])
+
+    tradeData.map((elem)=>{
+        totalTransactionCost += Number(elem.brokerage);
     })
-  }, [])
-
-  useEffect(()=>{
-
-    axios.get(`${baseUrl}api/v1/infinityTrade/live/mockPnlBatchWise/${batchName}`)
-    .then((res) => {
-        setTradeData(res.data.data);
-        // res.data.map((elem)=>{
-        //   marketData.map((subElem)=>{
-        //       if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-        //           liveDetailsArr.push(subElem)
-        //       }
-        //   })
-        // })
-
-      // setLiveDetail(liveDetailsArr);
-    }).catch((err) => {
-        return new Error(err);
-    })
-
-      // Get Lastest Trade timestamp
-      // axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`)
-      // .then((res)=>{
-      //     console.log("Latest Live Trade:",res.data);
-      //     setLatestTradeTimearr(res.data);
-      //     setLatestTradeTime(res.data.trade_time) ;
-      //     setLatestTradeBy(res.data.createdBy) ;
-      //     setLatestTradeType(res.data.buyOrSell) ;
-      //     setLatestTradeQuantity(res.data.Quantity) ;
-      //     setLatestTradeSymbol(res.data.symbol) ;
-      //     setLatestTradeStatus(res.data.status)
-      //     console.log(lastestTradeTimearr);
-      // }).catch((err) => { 
-      //   return new Error(err);
-      // })
-
-  }, [])
-
-
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
-
-  tradeData.map((elem)=>{
-      totalTransactionCost += Number(elem.brokerage);
-  })
 
     tradeData.map((subelem, index)=>{
       let obj = {};
       totalRunningLots += Number(subelem.lots)
-      const liveDetail = marketData.filter((elem) => {
-        return elem !== undefined && elem.instrument_token == subelem._id.instrumentToken
-      })
-      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+
+      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[index]?.last_price);
       totalGrossPnl += updatedValue;
 
       const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
       const quantitycolor = subelem.lots >= 0 ? "success" : "error"
       const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-      const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+      const pchangecolor = (liveDetail[index]?.change) >= 0 ? "success" : "error"
       const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
 
       obj.Product = (
@@ -152,16 +170,16 @@ function LiveOverallCompantPNL({socket, batchName}) {
         </MDTypography>
       );
 
-      if((liveDetail[0]?.last_price)){
+      if((liveDetail[index]?.last_price)){
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {"₹"+(liveDetail[0]?.last_price).toFixed(2)}
+            {"₹"+(liveDetail[index]?.last_price).toFixed(2)}
           </MDTypography>
         );
       } else{
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="dark" fontWeight="medium">
-            {"₹"+(liveDetail[0]?.last_price)}
+            {"₹"+(liveDetail[index]?.last_price)}
           </MDTypography>
         );
       }
@@ -172,19 +190,20 @@ function LiveOverallCompantPNL({socket, batchName}) {
         </MDTypography>
       );
 
-      if((liveDetail[0]?.change)){
+      if((liveDetail[index]?.change)){
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(liveDetail[0]?.change).toFixed(2)+"%"}
+            {(liveDetail[index]?.change).toFixed(2)+"%"}
           </MDTypography>
         );
       } else{
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%"}
+            {(((liveDetail[index]?.last_price-liveDetail[index]?.average_price)/liveDetail[index]?.average_price)*100).toFixed(2)+"%"}
           </MDTypography>
         );
       }
+      
       //console.log(obj)
       rows.push(obj);
     })
@@ -231,6 +250,7 @@ function LiveOverallCompantPNL({socket, batchName}) {
         Net P&L : {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}
       </MDTypography>
     );
+    
   
     rows.push(obj);
   
@@ -258,46 +278,51 @@ function LiveOverallCompantPNL({socket, batchName}) {
   );
 
 
+  console.log("mock live view", rows)
 
-  return (
-    <Card>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center" p={0} ml={2}>
-        <MDBox>
-          <MDTypography variant="h6" gutterBottom>
-            Overall Company P&L(Live) - {batchName}
-          </MDTypography>
-          {/* <MDBox display="flex" alignItems="center" lineHeight={0}>
-            <Icon
-              sx={{
-                fontWeight: "bold",
-                color: ({ palette: { info } }) => info.main,
-                mt: -0.5,
-              }}
-            >
-              done
-            </Icon>
-            <MDTypography variant="button" fontWeight="regular" color="text">
-            &nbsp;<strong>last trade</strong> {lastestTradeBy} {lastestTradeType === "BUY" ? "bought" : "sold"} {Math.abs(lastestTradeQunaity)} quantity of {lastestTradeSymbol} at {lastestTradeTime} - {lastestTradeStatus}
-            </MDTypography>
-          </MDBox> */}
-        </MDBox>
-        <MDBox color="text" px={2}>
-          <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
-            more_vert
-          </Icon>
-        </MDBox>
-        {renderMenu}
-      </MDBox>
-      <MDBox>
-        <DataTable
-          table={{ columns, rows }}
-          showTotalEntries={false}
-          isSorted={false}
-          noEndBorder
-          entriesPerPage={false}
-        />
-      </MDBox>
-    </Card>
-  );
+return (
+  <div>
+
+
+  <Button variant="" color="black" onClick={handleClickOpen} width="10px">
+      <RemoveRedEyeIcon/>
+  </Button>
+  <div>
+    <Dialog
+      fullScreen={fullScreen}
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="responsive-dialog-title">
+      <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
+        {"Regular"}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2, width: "500px" }}>
+
+          <MDBox>
+            <DataTable
+              table={{ columns, rows }}
+              showTotalEntries={false}
+              isSorted={false}
+              noEndBorder
+            />
+          </MDBox>
+
+        </DialogContentText>
+      </DialogContent>
+      {/* <DialogActions>
+        <MDButton autoFocus variant="contained" color="info" onClick={(e) => { exitPosition(e) }}>
+          EXIT
+        </MDButton>
+        <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
+          Close
+        </MDButton>
+      </DialogActions> */}
+    </Dialog>
+  </div >
+
+</div >
+);
+
 }
-export default LiveOverallCompantPNL;
+export default ViewTradeDetail;

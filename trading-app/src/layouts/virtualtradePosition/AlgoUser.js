@@ -1,6 +1,5 @@
 
 import React from "react";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 // @mui material components
@@ -13,11 +12,6 @@ import MDBox from "../../components/MDBox";
 
 
 
-// Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
-import Header from "./Header";
 
 // Data
 
@@ -25,16 +19,14 @@ import Header from "./Header";
 
 // Dashboard components
 
-import OverallTraderPnl from "./AlgoUserComponents/overallTraderPnl";
+// import OverallTraderPnl from "./AlgoUserComponents/overallTraderPnl";
 import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
 
 function AlgoUser() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   let socket;
-  const[batches,setBatches] = useState([]);
-  const [selectedBatch, setSelectedBatch] = useState();
   try{
       socket = io.connect(`${baseUrl1}`)
   } catch(err){
@@ -46,16 +38,7 @@ function AlgoUser() {
 
         //console.log(socket);
         socket.on("connect", ()=>{
-            //console.log(socket.id);
             socket.emit("company-ticks", true)
-        })
-        socket.on("noToken", (data)=>{
-            //console.log("no token");
-            window.alert(data);
-        })
-        socket.on("wrongToken", (data)=>{
-            //console.log("wrong Token");
-            window.alert(data);
         })
 
     }, []);
@@ -65,18 +48,19 @@ function AlgoUser() {
 
        <MDBox py={3}>
 
-        <MDBox mt={2}>
+        {/* <MDBox mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
               <OverallTraderPnl socket={socket} batches={batches} setBatches={setBatches} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch}/>
             </Grid>
           </Grid>
-        </MDBox>
+        </MDBox> */}
+
 
         <MDBox mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
-              <TraderwiseTraderPnl socket={socket} batches={batches} setBatches={setBatches} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch}/>
+              <TraderwiseTraderPnl socket={socket} />
             </Grid>
           </Grid>
         </MDBox>
