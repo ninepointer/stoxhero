@@ -31,7 +31,7 @@ const s3 = new AWS.S3({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-console.log(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY);
+// console.log(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY);
 
 exports.uploadMulter = upload;
 
@@ -81,8 +81,8 @@ exports.uploadToS3 = async(req, res, next) => {
     
     s3.upload((params)).promise()
       .then((s3Data) => {
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).uploadUrl = s3Data.Location;
         next();
       })
@@ -113,7 +113,7 @@ exports.uploadToS3 = async(req, res, next) => {
     const{carouselName, description, carouselStartDate, carouselEndDate, objectType, objectId, status,} = req.body;
     const carouselImage = (req).uploadUrl;
 
-    console.log(req.body);
+    // console.log(req.body);
     //Check for required fields 
     if(!(carouselName))return res.status(400).json({status: 'error', message: 'Enter all mandatory fields.'})
     try{
@@ -191,7 +191,7 @@ exports.editCarousel = async (req, res, next) => {
       'status', 'ObjectType', 'ObjectId', 'carouselStartDate','lastModifiedBy');
       
       filteredBody.lastModifiedBy = id;
-      console.log((req).uploadUrl);
+      // console.log((req).uploadUrl);
       if ((req).file) filteredBody.carouselImage = (req).uploadUrl;
   
       

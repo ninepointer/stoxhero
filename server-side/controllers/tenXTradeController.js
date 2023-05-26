@@ -284,9 +284,8 @@ exports.marginDetail = async (req, res, next) => {
 exports.tradingDays = async (req, res, next) => {
   let subscriptionId = req.params.id;
   let userId = req.user._id;
-  // req.user._id
-  // req.user._id;
-  console.log("subscriptionId", subscriptionId)
+
+  console.log("subscriptionId", subscriptionId, userId)
   const today = new Date();
 
   const tradingDays = await TenXTrader.aggregate(
@@ -294,10 +293,10 @@ exports.tradingDays = async (req, res, next) => {
     {
       $match: {
         trader: new ObjectId(
-          req.user._id
+          userId
         ),
         status: "COMPLETE",
-        subscriptionId: subscriptionId
+        subscriptionId: new ObjectId(subscriptionId)
       },
     },
     {
@@ -352,7 +351,7 @@ exports.tradingDays = async (req, res, next) => {
   
         {
           "_id.users.userId": new ObjectId(
-          req.user._id
+          userId
         ),
         },
     },
@@ -423,6 +422,7 @@ exports.tradingDays = async (req, res, next) => {
     },
   ])
 
+  console.log("tradingDays ", tradingDays)
   if(tradingDays.length> 0){
     console.log("tradingDays in if", tradingDays)
     res.status(200).json({ status: 'success', data: tradingDays });
@@ -448,7 +448,7 @@ exports.tradingDays = async (req, res, next) => {
         },
       },
     ])
-    console.log("tradingDays in else", tradingDays)
+    console.log("tradingDays in else", tradingDay)
     res.status(200).json({ status: 'success', data: tradingDay });
   }
 }
@@ -462,7 +462,7 @@ exports.autoExpireSubscription = async () => {
     for (let j = 0; j < users.length; j++) {
       let userId = users[j].userId;
 
-      const todayDate = new Date();  // Get the current date
+      const today = new Date();  // Get the current date
 
       const tradingDays = await TenXTrader.aggregate(
         [

@@ -385,6 +385,15 @@ exports.getCareer = async (req,res,next) => {
 
 exports.getCareerApplicantions = async(req, res, next)=>{
   const {id} = req.params;
-  const careerApplications = await CareerApplication.find({career: id}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus')
+  const careerApplications = await CareerApplication.find({career: id, applicationStatus:'Applied'}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus')
+  res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
+}
+
+exports.getSelectedCareerApplicantions = async(req, res, next)=>{
+  const {id} = req.params;
+  const careerApplications = await CareerApplication.find({career: id, $or:[
+    {applicationStatus: 'Shortlisted'}, 
+    {applicationStatus: 'Selected'}
+  ]}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }

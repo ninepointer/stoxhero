@@ -98,6 +98,16 @@ const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
     ],
     xtsMessageCode: 1512,
   });
+
+  let response4 = await xtsMarketDataAPI.subscription({
+    instruments: [
+      {
+        exchangeSegment: exchangeSegment,
+        exchangeInstrumentID: instrumentToken,
+      }
+    ],
+    xtsMessageCode: 1502,
+  });
   console.log(response3)
 }
 
@@ -165,6 +175,7 @@ const getXTSTicksForUserPosition = async (socket, id) => {
     ticksObj = JSON.parse(ticksObj);
 
     if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
+      // console.log("tick", ticksObj.ExchangeInstrumentID)
       ticksObj.last_price = ticksObj.LastTradedPrice;
       ticksObj.instrument_token = ticksObj.ExchangeInstrumentID;
       ticksObj.change = marketDepth.Touchline.PercentChange;
@@ -231,7 +242,7 @@ const getXTSTicksForUserPosition = async (socket, id) => {
 
       // console.log("tick", ticks.instrument_token)
       filteredTicks = ticks.filter((tick) => {
-        // console.log("tick", tick.instrument_token)
+        
         return instrumentTokenArr.has(tick.instrument_token)
       })
       // console.log("filteredTicks", filteredTicks)
