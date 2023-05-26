@@ -109,6 +109,7 @@ import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
+import TenxPosition from "./layouts/tenXPosition";
 
 
 
@@ -328,6 +329,14 @@ const routes = [
     icon: <BusinessIcon/>,
     route: "/internposition",
     component: <InternPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Tenx Position",
+    key: "tenxposition",
+    icon: <BusinessIcon/>,
+    route: "/tenxposition",
+    component: <TenxPosition />,
   },
   {
     type: "collapse",
