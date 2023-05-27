@@ -3,7 +3,7 @@ import React from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import MDTypography from '../../../components/MDTypography';
-import {CircularProgress} from '@mui/material';
+import {CircularProgress, Tooltip} from '@mui/material';
 // import CreateCollege from "./createCollege";
 import {useState, useEffect} from 'react';
 // import CollegeComponent from '../../../assets/theme/components/collegeComponent/CollegeComponent';
@@ -11,6 +11,7 @@ import axios from "axios";
 // import EditIcon from '@mui/icons-material/Edit';
 import { Link} from "react-router-dom";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const College = () => {
 
@@ -26,11 +27,11 @@ const College = () => {
 
 useEffect(()=>{
   let call1 = axios.get((`${baseUrl}api/v1/college/north`),{
-              withCredentials: false,
+              withCredentials: true,
               headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json",
-                  "Access-Control-Allow-Credentials": false
+                  "Access-Control-Allow-Credentials": true
                 },
               })
   Promise.all([call1])
@@ -54,11 +55,11 @@ function backHandler(){
   setCollegeData([]);
   setIsLoading(true)
   axios.get(`${baseUrl}api/v1/college/north?skip=${skip-limitSetting}&limit=${limitSetting}`,{
-      withCredentials: false,
+      withCredentials: true,
       headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": false
+          "Access-Control-Allow-Credentials": true
       },
   })
   .then((res) => {
@@ -82,11 +83,11 @@ function nextHandler(){
   setCollegeData([]);
   setIsLoading(true)
   axios.get(`${baseUrl}api/v1/college/north?skip=${skip+limitSetting}&limit=${limitSetting}`,{
-      withCredentials: false,
+      withCredentials: true,
       headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": false
+          "Access-Control-Allow-Credentials": true
       },
   })
   .then((res) => {
@@ -101,10 +102,30 @@ function nextHandler(){
   })
 }
 
+function Delete(id){
+  console.log(id)
+  axios.get(`${baseUrl}api/v1/college/delete/${id}`,{
+    withCredentials: true,
+    headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+    },
+  })
+  .then((res) => {
+      setTimeout(()=>{
+          setIsLoading(false)
+        },500)
+  }).catch((err) => {
+      setIsLoading(false)
+      return new Error(err);
+  })
+}
+
   return (
     <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minWidth='100%' minHeight='auto'>
       <Grid container spacing={1}>
-        <Grid container p={1} backgroundColor='green' style={{border:'1px solid white', borderRadius:5}}>
+        <Grid container p={1} backgroundColor='#7b809a' style={{border:'1px solid white', borderRadius:5}}>
               <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <MDTypography color="light" fontSize={13} fontWeight="bold">Action</MDTypography>
               </Grid>
@@ -126,6 +147,7 @@ function nextHandler(){
                     
                     <Grid container backgroundColor={ index % 2 === 0 ? 'grey' : 'lightgrey'} mt={1} p={1} style={{border:'1px solid white', borderRadius:5}}>
                         <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                        <Tooltip title="View">
                           <MDButton 
                             variant="a" 
                             // color={index % 2 === 0 ? 'success' : 'warning'}
@@ -138,6 +160,18 @@ function nextHandler(){
                           >
                           <RemoveRedEyeIcon color='black'/>
                           </MDButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                          <MDButton 
+                              variant="a" 
+                              // color={index % 2 === 0 ? 'success' : 'warning'}
+                              size="small" 
+                              component = {Link}
+                              onClick={(e)=>{Delete(elem?._id)}}
+                            >
+                              <DeleteIcon color='black'/>
+                            </MDButton>
+                          </Tooltip>
                         </Grid>
                         <Grid item xs={12} md={2} lg={5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                             <MDTypography color={index % 2 === 0 ? 'white' : 'black'} fontSize={13} fontWeight="bold">{elem?.collegeName.slice(0, 60) + (elem?.collegeName.length > 60 ? '...' : '')}</MDTypography>
