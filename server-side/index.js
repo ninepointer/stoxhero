@@ -63,7 +63,6 @@ Setting.find()
 })
 
 
-
 xtsMarketLogin()
   .then(() => { })
   .catch((err) => {
@@ -76,9 +75,12 @@ interactiveLogin()
   })
 
 client.connect()
-  .then((res) => {
+  .then(async (res) => {
     // isRedisConnected = true ; 
     setValue(true);
+    await client.HSET('user:1', 'name', 'John');
+    const name = await client.HGET('user:1', 'name');
+    console.log('Name:', name);
     console.log("redis connected", res)
   })
   .catch((err) => {
@@ -87,6 +89,7 @@ client.connect()
     console.log("redis not connected", err)
   })
 
+  
 
 // test().then(()=>{})
 

@@ -31,7 +31,7 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
+const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
   // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -67,6 +67,11 @@ const SellModel = ({exchangeSegment, exchangeInstrumentToken, subscriptionId, se
       
   }
 
+  useEffect(()=>{
+    socket.on('sendResponse', (data)=>{
+      openSuccessSB(data.status, data.message)
+    })
+  }, [])
 
 
   const [open, setOpen] = React.useState(sellState);
