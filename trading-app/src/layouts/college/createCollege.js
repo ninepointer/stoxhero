@@ -13,80 +13,41 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import dayjs from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-// import { DesktopDateTimePicker } from '@mui/x-date-pickers/DesktopDateTimePicker';
-// import { IoMdAddCircle } from 'react-icons/io';
-import { useTheme } from '@mui/material/styles';
-// import OutlinedInput from '@mui/material/OutlinedInput';
 import { useLocation, useNavigate } from "react-router-dom";
+ 
 
-
-function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
+function CreateCollege() {
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  const navigate = useNavigate();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const getDetails = useContext(userContext);
-  const [batchData, setBatchData] = useState([]);
-
-  const [id, setId] = useState(oldObjectId ? oldObjectId : '');
+  const location = useLocation();
+  const  id  = location?.state?.data;
+  const [collegeData, setCollegeData] = useState(id ? id : '');
   const [isObjectNew, setIsObjectNew] = useState(id ? true : false)
-  const [isLoading, setIsLoading] = useState(id ? true : false)
+  const [isLoading, setIsLoading] = useState(false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
-  const [newObjectId, setNewObjectId] = useState(oldObjectId)
-  const [contestRules, setContestRules] = useState([])
-  const location = useLocation();
-  const [updatedDocument, setUpdatedDocument] = useState([]);
   const [formState, setFormState] = useState({
     collegeName: '',
     zone: '',
 
   });
 
-  // const [addRewardObject,setAddRewardObject] = useState(false);
-
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  const navigate = useNavigate();
-
-
-
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      id && setUpdatedDocument(id)
-      setIsLoading(false);
-    }, 500)
-    // setCampaignUserCount(id?.users?.length);
-
-  }, [])
-
-
-
-
-
-
-
-
-
-
+console.log(id)
   async function onSubmit(e, formState) {
     e.preventDefault()
     console.log(formState)
 
     setCreating(true)
 
-    if (
-      !formState?.collegeName || !formState?.zone) {
+    if (!formState?.collegeName || !formState?.zone) {
 
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
 
     }
-    // console.log("Is Submitted before State Update: ",isSubmitted)
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
     const { collegeName, zone } = formState;
@@ -104,13 +65,12 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
 
 
     const data = await res.json();
-    // console.log(data);
+
     if (data.batchStatus === 422 || data.error || !data) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      // console.log("invalid entry");
+      
     } else {
       openSuccessSB("Contest Created", data.message)
-      setNewObjectId(data.data._id)
       setIsSubmitted(true)
       // setLinkedContestRule(data?.data?.contestRule)
       // console.log(data.data)
@@ -170,7 +130,6 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  console.log("contestRules", contestRules)
 
 
   const renderSuccessSB = (
@@ -207,8 +166,6 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
     />
   );
 
-  console.log("Old Object Id: ", oldObjectId)
-
 
   return (
     <>
@@ -219,7 +176,7 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
       )
         :
         (
-          <MDBox pl={2} pr={2} pt={4} mt={3}>
+          <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
             <MDBox display="flex" justifyContent="space-between" alignItems="center">
               <MDTypography variant="caption" fontWeight="bold" color="white" textTransform="uppercase">
                 College Details
@@ -232,7 +189,7 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
                   disabled={((isSubmitted || id) && (!editing || saving))}
                   id="outlined-required"
                   label='College Name *'
-                  value={formState?.collegeName || oldObjectId?.collegeName}
+                  value={formState?.collegeName || collegeData?.collegeName}
                   fullWidth
                   // defaultValue={batchData?.displayName}
                   // defaultValue={oldObjectId ? batchData?.batchName : formState?.batchName}
@@ -245,35 +202,6 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
                   sx={{ input: { color: '#ffffff' }, label: { color: '#ffffff' }, outline: { color: '#ffffff' } }}
                 />
               </Grid>
-
-
-              {/* <Grid item xs={12} md={6} xl={6}>
-              <FormControl sx={{width: "100%"}}>
-                <InputLabel id="demo-simple-select-autowidth-label">Zone*</InputLabel>
-                <Select
-                labelId="demo-simple-select-autowidth-label"
-                id="demo-simple-select-autowidth"
-                // value={oldObjectId ? newObjectId.zone : formState?.zone}
-                
-
-                disabled={((isSubmitted || id) && (!editing || saving))}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    zone: e.target.value
-                }))}}
-                label="Zone*"
-                sx={{ input: { color: '#ffffff' }, label: {color: '#ffffff'}, outline: {color: '#ffffff'},  minHeight:43,color:"#fff" }} 
-                
-                >
-                <MenuItem value="North">North</MenuItem>
-                <MenuItem value="South">South</MenuItem>
-                <MenuItem value="East">East</MenuItem>
-                <MenuItem value="West">West</MenuItem>
-                <MenuItem value="Central">Central</MenuItem>
-                </Select>
-              </FormControl>
-          </Grid> */}
-
 
               <Grid item xs={12} md={6} xl={6}>
                 <FormControl sx={{ width: '100%' }}>
@@ -316,7 +244,7 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
                     <MDButton variant="contained" color="success" size="small" sx={{ mr: 1, ml: 2 }} disabled={creating} onClick={(e) => { onSubmit(e, formState) }}>
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Submit"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { setCreateCollegeForm(false) }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/college")}}>
                       Cancel
                     </MDButton>
                   </>
@@ -324,10 +252,7 @@ function CreateCollege({ setCreateCollegeForm, oldObjectId }) {
 
                 {(isSubmitted || id) && !editing && (
                   <>
-                    {/* <MDButton variant="contained" color="success" size="small" sx={{mr:1, ml:2}}  onClick={(e)=>{setEditing(true)}}>
-                    {editing ? <CircularProgress size={20} color="inherit" /> : "Edit"}
-                </MDButton> */}
-                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={() => setCreateCollegeForm(false)}>
+                    <MDButton variant="contained" color="error" size="small" disabled={editing} onClick={()=>{navigate("/college")}}>
                       Back
                     </MDButton>
 

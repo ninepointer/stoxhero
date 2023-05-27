@@ -66,6 +66,20 @@ export default function LabTabs() {
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
                             </Grid>
                         </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Active Traders</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                            </Grid>
+                        </Grid>
                     </Grid>
 
                     <Grid item xs={true} lg={0.2} hidden={false}>
@@ -99,6 +113,20 @@ export default function LabTabs() {
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Active Traders</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
                             </Grid>
                         </Grid>

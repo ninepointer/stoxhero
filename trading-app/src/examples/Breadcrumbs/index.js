@@ -56,6 +56,20 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Career Details"
   } else if(title === "campaigndetails"){
     title = "Campaign Details"
+  } else if(title === "careerdashboard"){
+    title = "Career Dashboard"
+  } else if(title === "infinitydashboard"){
+    title = "Infinity Dashboard"
+  } else if(title === "internposition"){
+    title = "Intern Position"
+  } else if(title === "tenxposition"){
+    title = "TenX Position"
+  } else if(title === "virtualposition"){
+    title = "Virtual Position"
+  } else if(title === "internshipbatch"){
+    title = "Internship Batches"
+  } else if(title === "tutorialvideos"){
+    title = "Tutorial Videos"
   }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';

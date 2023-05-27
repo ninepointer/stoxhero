@@ -62,3 +62,89 @@ exports.deleteCollege = async(req, res, next) => {
 
     res.status(200).json({ message: "College deleted successfully" });
 }
+
+exports.getEastZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'East'})
+    try{
+        const eastzonecolleges = await College.find({zone:'East'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: eastzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getNorthZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'North'})
+    try{
+        const northzonecolleges = await College.find({zone:'North'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: northzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getSouthZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'South'})
+    try{
+        const southzonecolleges = await College.find({zone:'South'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: southzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getWestZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'West'})
+    try{
+        const westzonecolleges = await College.find({zone:'West'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: westzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getCentralZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'Central'})
+    try{
+        const centralzonecolleges = await College.find({zone:'Central'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: centralzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+

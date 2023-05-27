@@ -1,7 +1,7 @@
 // Material Dashboard 2 React layouts
 import CompanyPosition from "./layouts/companyposition";
 import CohortPosition from "./layouts/cohortposition";
-import AdminDashboard from "./layouts/admindashboard";
+import InfinityDashboard from "./layouts/infinitydashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/orders";
 import Instruments from "./layouts/instruments";
@@ -55,6 +55,8 @@ import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import TryIcon from '@mui/icons-material/Try';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import CollegeDetails from './layouts/college/collegeDetails'
 
 
 
@@ -114,6 +116,9 @@ import VirtualPosition from "./layouts/virtualtradePosition";
 import TenxPosition from "./layouts/tenxPosition"
 import BadgeIcon from '@mui/icons-material/Badge';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import CareerDashboard from './layouts/careerdashboard'
+import InternshipOrders from './layouts/internshipOrders'
+// import SchoolIcon from '@mui/icons-material/School';
 
 
 const routes = [
@@ -123,9 +128,24 @@ const routes = [
     key: "infinitydashboard",
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
-    component: <AdminDashboard />,
+    component: <InfinityDashboard />,
   },
-
+  {
+    type: "collapse",
+    name: "Career Dashboard",
+    key: "careerdashboard",
+    icon: <SchoolIcon/>,
+    route: "/careerdashboard",
+    component: <CareerDashboard />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "internshiporders",
+    // icon: <DashboardIcon/>,
+    route: "/internshiporders",
+    component: <InternshipOrders />,
+  },
   {
     // type: "collapse",
     // name: "Company Dashboard",
@@ -198,6 +218,10 @@ const routes = [
   {
     route: "/careerdetails",
     component: <CareerDetails />,
+  },
+  {
+    route: "/collegedetails",
+    component: <CollegeDetails />,
   },
   {
     route: "/batchdetails",
@@ -325,10 +349,10 @@ const routes = [
     component: <TraderPosition />,
   },
   {
-    type: "collapse",
-    name: "Intern Position",
+    // type: "collapse",
+    // name: "Intern Position",
     key: "internposition",
-    icon: <BadgeIcon/>,
+    // icon: <BadgeIcon/>,
     route: "/internposition",
     component: <InternPosition />,
   },
@@ -381,26 +405,26 @@ const routes = [
   //   component: <Carousel />,
   // },
   {
-    type: "collapse",
-    name: "Careers",
+    // type: "collapse",
+    // name: "Careers",
     key: "careerlist",
-    icon: <WorkIcon/>,
+    // icon: <WorkIcon/>,
     route: "/careerlist",
     component: <CareerList />,
   },
   {
-    type: "collapse",
-    name: "College",
+    // type: "collapse",
+    // name: "College",
     key: "college",
-    icon: <SchoolIcon/>,
+    // icon: <SchoolIcon/>,
     route: "/college",
     component: <College />,
   },
   {
-    type: "collapse",
-    name: "Internship Batch",
+    // type: "collapse",
+    // name: "Internship Batch",
     key: "internshipbatch",
-    icon: <BatchIcon/>,
+    // icon: <BatchIcon/>,
     route: "/internshipbatch",
     component: <InternBatch />,
   },
@@ -575,6 +599,23 @@ const routes = [
     route: "/tenxtrading",
     component: <TenXTrading />,
   },
+  {
+    type: "collapse",
+    name: "Internship",
+    key: "internship",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <MenuBookIcon/>,
+    route: "/internship",
+    component: <Internship />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/internship/trade",
+    component: <InternshipTrade/>,
+  },
   // {
   //   type: "collapse",
   //   name: "Battle Street",
@@ -666,24 +707,6 @@ const routes = [
     route: "/collegeEdit",
     component: <CollegeEdit/>,
   },
-  
-  {
-    type: "collapse",
-    name: "Internship",
-    key: "internship",
-    icon: <AccountBalanceIcon/>,
-    route: "/internship",
-    component: <Internship/>,
-  },
-  {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
-    route: "/internship/trade",
-    component: <InternshipTrade/>,
-  },
-
 
 ];
 

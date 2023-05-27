@@ -8,9 +8,11 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-import ActiveBatches from '../data/activeBatches';
-import CompletedBatches from '../data/completedBatches';
-import InactiveBatches from '../data/inactiveBatches'
+// import ActiveBatches from '../data/activeBatches';
+// import CompletedBatches from '../data/completedBatches';
+// import InactiveBatches from '../data/inactiveBatches'
+import TodayOrder from '../data/todaysOrders'
+import AllOrder from '../data/allOrders'
 
 //data
 
@@ -28,32 +30,22 @@ export default function LabTabs() {
 
   return (
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
-    <MDBox mb={2} display="flex" justifyContent="space-between">
-    <MDButton 
-    variant="outlined" 
-    color="warning" 
-    size="small"
-    component={Link}
-    to='/careerdashboard'
-    >
-        Back to Career Dashboard
-    </MDButton>
-    <MDButton 
-    variant="outlined" 
-    color="warning" 
-    size="small"
-    component={Link}
-    to='/batchdetails'
-    >
-        Create Batch
-    </MDButton>
+    <MDBox mb={1} display="flex" justifyContent="left">
+        <MDButton 
+        variant="outlined" 
+        color="warning" 
+        size="small"
+        component={Link}
+        to='/careerdashboard'
+        >
+            Back to Career Dashboard
+        </MDButton>
     </MDBox>
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Active Batches" value="1" />
-            <Tab label="Completed Batches" value="2" />
-            <Tab label="Inactive Batches" value="3" />
+            <Tab label="Today's Orders" value="1" />
+            <Tab label="All Orders" value="2" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -64,7 +56,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <ActiveBatches/>
+            <TodayOrder/>
           </MDBox>
    
           }
@@ -75,16 +67,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <CompletedBatches/>
-          }
-        </TabPanel>
-        <TabPanel value="3">
-          {isLoading ? 
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <InactiveBatches/>
+          <AllOrder/>
           }
         </TabPanel>
       </TabContext>
