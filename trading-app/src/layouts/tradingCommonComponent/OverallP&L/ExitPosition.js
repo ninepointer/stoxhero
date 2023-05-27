@@ -109,7 +109,7 @@ function ExitPosition({socket, subscriptionId, from, isFromHistory, product, sym
   };
 
   useEffect(()=>{
-    socket.on('sendResponse', (data)=>{
+    socket.on(`sendResponse${trader.toString()}`, (data)=>{
       openSuccessSB(data.status, data.message)
     })
   }, [])

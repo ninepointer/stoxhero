@@ -129,7 +129,6 @@ const placeOrder = async (obj, req, res) => {
     clientID: process.env.XTS_CLIENTID,
   });
 
-  // redis data
 
   let backupObj = {
     order_id: response?.result?.AppOrderID,
@@ -145,6 +144,7 @@ const placeOrder = async (obj, req, res) => {
     tradedBy: req.user._id
   }
 
+  //check status, if status is 400 then send below error response.
   if (response?.result?.AppOrderID) {
     if(isRedisConnected){
       await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(backupObj));
@@ -153,9 +153,7 @@ const placeOrder = async (obj, req, res) => {
   } else{
     return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
   }
-
-
-  return response;
+  // return response;
 }
 
 
@@ -212,6 +210,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     } else {
       buyOrSell = "BUY"
     }
+
     const response = await xtsInteractiveAPI.placeOrder({
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
@@ -225,8 +224,13 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
     });
+
+    io.emit(`sendResponse${trader.toString()}`, { message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", status: "Error" })
     return; // Terminate recursion
   }
+
+
+
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T23:59:59.999Z";
@@ -267,8 +271,8 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       OrderAverageTradedPrice = 0;
     }
 
-    let responseMsg = status;
-    let responseErr = CancelRejectReason;
+    // let responseMsg = status;
+    // let responseErr = CancelRejectReason;
 
     if (transaction_type == "SELL") {
       OrderQuantity = 0 - OrderQuantity;
@@ -412,7 +416,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       await client.expire(`liveOrderBackupKey`, 600);
       await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
       io.emit("updatePnl", liveCompanyTrade)
-      io.emit("sendResponse", { message: {Quantity: Quantity, symbol: symbol}, status: "complete" })
+      io.emit(`sendResponse${trader.toString()}`, { message: {Quantity: Quantity, symbol: symbol}, status: "complete" })
       // return res.status(201).json({ message: responseMsg, err: responseErr })
     }
     // }
@@ -424,7 +428,6 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
     await getPlacedOrderAndSave(orderData, traderData, startTime);
     // return res.status(201).json({ message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", err: "Error" })
-    io.emit("sendResponse", { message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", status: "Error" })
 
   } finally {
     session.endSession();

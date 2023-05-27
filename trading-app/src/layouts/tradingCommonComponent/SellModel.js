@@ -68,7 +68,7 @@ const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscripti
   }
 
   useEffect(()=>{
-    socket.on('sendResponse', (data)=>{
+    socket.on(`sendResponse${trader.toString()}`, (data)=>{
       openSuccessSB(data.status, data.message)
     })
   }, [])
