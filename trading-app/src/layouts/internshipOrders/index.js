@@ -2,7 +2,6 @@
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-import College from "./College";
 
 
 // Data
@@ -19,7 +18,6 @@ function Tables() {
     <DashboardLayout>
       <DashboardNavbar />
       <Header/>
-      {/* <College/> */}
       <Footer />
     </DashboardLayout>
     </>

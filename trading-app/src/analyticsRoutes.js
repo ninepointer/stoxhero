@@ -1,7 +1,7 @@
 // Material Dashboard 2 React layouts
 import CompanyPosition from "./layouts/companyposition";
 import CohortPosition from "./layouts/cohortposition";
-import AdminDashboard from "./layouts/admindashboard";
+import AdminDashboard from "./layouts/infinitydashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/orders";
 import Instruments from "./layouts/instruments";

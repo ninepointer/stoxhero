@@ -2,13 +2,12 @@
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-import College from "./College";
 
 
 // Data
 // import authorsTableData from "./data/authorsTableData";
 // import projectsTableData from "./data/projectsTableData";
-import Header from "./Header";
+import CreateCollegeForm from "./createCollege";
 
 function Tables() {
   // const { columns, rows } = authorsTableData();
@@ -18,8 +17,7 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <Header/>
-      {/* <College/> */}
+      <CreateCollegeForm/>
       <Footer />
     </DashboardLayout>
     </>
