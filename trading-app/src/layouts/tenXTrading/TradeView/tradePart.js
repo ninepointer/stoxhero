@@ -58,13 +58,14 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
+      socket={socket}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={tenxTrader}
       subscriptionId={subscriptionId}
       setAvailbleMargin={setAvailbleMargin}
     />;
-  }, [handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
+  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
 
   // let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
