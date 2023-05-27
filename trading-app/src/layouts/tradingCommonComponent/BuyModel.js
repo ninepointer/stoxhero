@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {  memo } from 'react';
 // import axios from "axios"
 import uniqid from "uniqid"
@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../..
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken}) => {
+const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken}) => {
   console.log("rendering : buy", subscriptionId)
   const tradeSound = new Howl({
     src : [sound],
@@ -89,7 +89,11 @@ const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, 
     validity: "",
   })
 
-
+  useEffect(()=>{
+    socket.on('sendResponse', (data)=>{
+      openSuccessSB(data.status, data.message)
+    })
+  }, [])
 
 
   const [value, setValue] = React.useState('NRML');
@@ -133,7 +137,6 @@ const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, 
     setButtonClicked(false);
   };
 
-console.log("buttonClicked", buttonClicked)
   async function buyFunction(e, uId) {
     //console.log("caseStudy 1: buy")
     console.log("buttonClicked inside", buttonClicked)
@@ -145,14 +148,6 @@ console.log("buttonClicked", buttonClicked)
     e.preventDefault()
     setOpen(false);
     setBuyState(false);
-
-
-    // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
-    //   // window.alert("App is not Live right now. Please wait.");
-    //   openSuccessSB('error', 'App is not live right now. Please wait.')
-    //   return;
-    // }
-
 
     buyFormDetails.buyOrSell = "BUY";
 

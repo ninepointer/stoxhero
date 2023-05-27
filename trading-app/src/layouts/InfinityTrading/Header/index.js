@@ -36,11 +36,12 @@ export default function InfinityTrading({socket}) {
 
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
+      socket={socket}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
     />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -53,12 +54,13 @@ export default function InfinityTrading({socket}) {
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
+      socket={socket}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
       setAvailbleMargin={setAvailbleMargin}
     />;
-  }, [handleSetIsGetStartedClicked, isGetStartedClicked]);
+  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
 
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;

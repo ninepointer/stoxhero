@@ -26,7 +26,7 @@ import sound from "../../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
 
 
-function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
+function ExitPosition({socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -107,6 +107,12 @@ function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, qua
     setValidity(event.target.value);
     exitPositionFormDetails.validity = event.target.value;
   };
+
+  useEffect(()=>{
+    socket.on('sendResponse', (data)=>{
+      openSuccessSB(data.status, data.message)
+    })
+  }, [])
 
   const handleClickOpen = () => {
     if (Math.abs(quantity) === 0) {

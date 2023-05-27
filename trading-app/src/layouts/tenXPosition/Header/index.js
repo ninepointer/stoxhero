@@ -21,7 +21,7 @@ import breakpoints from "../../../assets/theme/base/breakpoints";
 // Images
 import backgroundImage from "../../../assets/images/trading.jpg";
 import AlgoUser from "../AlgoUser";
-import NonAlgoUser from "../NonAlgoUser";
+// import NonAlgoUser from "../NonAlgoUser";
 // import Accounts from "../ApiKey/Accounts";
 // import Brokerage from "../Brokerage";
 // import TradingARToken from "../AccessToken/TradingARToken";
