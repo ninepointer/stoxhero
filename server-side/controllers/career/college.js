@@ -49,18 +49,17 @@ exports.editCollege = async(req, res, next) => {
         }
     }, {new: true})
 
-    res.status(200).json({message: 'Successfully edited group discussion.', data: college});
+    res.status(200).json({message: 'Successfully edited college.', data: college});
 }
 
 exports.deleteCollege = async(req, res, next) => {
     const id = req.params.id;
 
-    const result = await College.deleteOne({ _id: id });
-    if (result.deletedCount === 0) {
-    return res.status(404).json({ message: "College not found" });
-    }
+    console.log("id is ,", id)
 
-    res.status(200).json({ message: "College deleted successfully" });
+    const college = await College.findByIdAndUpdate(id, { isDeleted: true })
+
+    res.status(200).json({message: 'Successfully deleted college.', data: college});
 }
 
 exports.getEastZoneColleges = async(req, res, next)=>{
@@ -83,9 +82,9 @@ exports.getEastZoneColleges = async(req, res, next)=>{
 exports.getNorthZoneColleges = async(req, res, next)=>{
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
-    const count = await College.countDocuments({zone:'North'})
+    const count = await College.countDocuments({zone:'North', isDeleted:'false'})
     try{
-        const northzonecolleges = await College.find({zone:'North'})
+        const northzonecolleges = await College.find({zone:'North', isDeleted:'false'})
         .populate('createdBy','first_name last_name')
         .sort({collegeName: 1})
         .skip(skip)
@@ -100,9 +99,9 @@ exports.getNorthZoneColleges = async(req, res, next)=>{
 exports.getSouthZoneColleges = async(req, res, next)=>{
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
-    const count = await College.countDocuments({zone:'South'})
+    const count = await College.countDocuments({zone:'South', isDeleted:'false'})
     try{
-        const southzonecolleges = await College.find({zone:'South'})
+        const southzonecolleges = await College.find({zone:'South', isDeleted:'false'})
         .populate('createdBy','first_name last_name')
         .sort({collegeName: 1})
         .skip(skip)
@@ -117,9 +116,9 @@ exports.getSouthZoneColleges = async(req, res, next)=>{
 exports.getWestZoneColleges = async(req, res, next)=>{
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
-    const count = await College.countDocuments({zone:'West'})
+    const count = await College.countDocuments({zone:'West', isDeleted:'false'})
     try{
-        const westzonecolleges = await College.find({zone:'West'})
+        const westzonecolleges = await College.find({zone:'West', isDeleted:'false'})
         .populate('createdBy','first_name last_name')
         .sort({collegeName: 1})
         .skip(skip)
@@ -134,9 +133,9 @@ exports.getWestZoneColleges = async(req, res, next)=>{
 exports.getCentralZoneColleges = async(req, res, next)=>{
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
-    const count = await College.countDocuments({zone:'Central'})
+    const count = await College.countDocuments({zone:'Central', isDeleted:'false'})
     try{
-        const centralzonecolleges = await College.find({zone:'Central'})
+        const centralzonecolleges = await College.find({zone:'Central', isDeleted:'false'})
         .populate('createdBy','first_name last_name')
         .sort({collegeName: 1})
         .skip(skip)
