@@ -158,12 +158,14 @@ router.patch("/inactiveRequestToken/:id", async (req, res)=>{
         const {id} = req.params
         const account = await RequestToken.findOneAndUpdate({_id : id}, {
             $set:{
-                status: req.body.status,
-                lastModified: req.body.lastModified
+                status: "Inactive",
+                lastModified: new Date()
             }
-        })
-        //console.log("this is role", account);
-        res.send(account)
+        },{new: true})
+
+        // res.status(500).json({"Failed to edit data"});
+        console.log("this is role", account);
+        // res.send(account)
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
     }
