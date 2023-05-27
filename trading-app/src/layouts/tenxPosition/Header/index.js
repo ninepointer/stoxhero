@@ -52,39 +52,9 @@ function TradingAccountHeader() {
         <Grid container spacing={6} alignItems="center">
           <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }}>
             <AlgoUser/>
-            {/* <AppBar position="static"> */}
-              {/* <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}> */}
-              {/* <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
-                <Tab
-                  label="Algo User"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25}}>
-                      home
-                    </Icon>
-                  }
-                />
-                <Tab
-                  label="Non Algo User"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25}}>
-                      home
-                    </Icon>
-                     }
-                />
-
-                
-                
-              </Tabs> */}
-            {/* </AppBar> */}
-            {/* <TabPanel value={tabValue} index={0}><AlgoUser/> </TabPanel> */}
-            {/* <TabPanel value={tabValue} index={1}><NonAlgoUser /> </TabPanel> */}
-            {/* <TabPanel value={tabValue} index={2}></> </TabPanel> */}
-            {/* <TabPaneltwo/> */}
           </Grid>
         </Grid>
-        </Card>
-        {/* {children} */}
-     
+        </Card>     
      </MDBox>
    
     
