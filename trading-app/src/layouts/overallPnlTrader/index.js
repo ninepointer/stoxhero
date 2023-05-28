@@ -7,21 +7,18 @@ import Grid from "@mui/material/Grid";
 import MDBox from "../../components/MDBox";
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import InstrumentDetails from "../tradingCommonComponent/InstrumentDetails";
+// import InstrumentDetails from "../tradingCommonComponent/InstrumentDetails";
 import OverallGrid from "./OverallP&L/OverallGrid";
-import MarginGrid from "../tradingCommonComponent/MarginDetails/MarginGrid";
-import TradableInstrument from "../tradingCommonComponent/TradableInstrument/TradableInstrument";
-import StockIndex from "../tradingCommonComponent/StockIndex/StockIndex";
-import { userContext } from "../../AuthContext";
+// import MarginGrid from "../tradingCommonComponent/MarginDetails/MarginGrid";
+// import TradableInstrument from "../tradingCommonComponent/TradableInstrument/TradableInstrument";
+// import StockIndex from "../tradingCommonComponent/StockIndex/StockIndex";
+// import { userContext } from "../../AuthContext";
+import { infinityTrader } from "../../variables";
 
 
 
 
 function UserPosition() {
-  console.log("rendering: UserPosition");
-  // const [reRender, setReRender] = useState(true);
-  const getDetails = useContext(userContext);
-  const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
 
 
@@ -40,45 +37,19 @@ function UserPosition() {
 
   }, []);
 
-  // const memoizedStockIndex = useMemo(() => {
-  //   return <StockIndex socket={socket} />;
-  // }, [socket]);
-
-  const handleSetIsGetStartedClicked = useCallback((value) => {
-    setIsGetStartedClicked(value);
-  }, []);
-
-  // const memoizedSetReRender = useCallback((value) => {
-  //   setReRender(value);
+  // const handleSetIsGetStartedClicked = useCallback((value) => {
+  //   setIsGetStartedClicked(value);
   // }, []);
 
-  // const memoizedTradableInstrument = useMemo(() => {
-  //   return <TradableInstrument
-      
-  //     // reRender={reRender}
-  //     // setReRender={memoizedSetReRender}
-  //     isGetStartedClicked={isGetStartedClicked}
-  //     setIsGetStartedClicked={handleSetIsGetStartedClicked}
-  //     from={'paperTrade'}
-  //   />;
-  // }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
-
-  // const memoizedInstrumentDetails = useMemo(() => {
-  //   return <InstrumentDetails
-  //     socket={socket}
-  //     setIsGetStartedClicked={handleSetIsGetStartedClicked}
-  //     from={"paperTrade"}
-  //   />;
-  // }, [socket, handleSetIsGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallGrid
       
       socket={socket}
-      setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      // from={"paperTrade"}
+      // setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={"Admin"}
     />;
-  }, [ handleSetIsGetStartedClicked, socket]);
+  }, [ socket]);
 
 
 

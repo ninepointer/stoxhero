@@ -26,7 +26,7 @@ import sound from "../../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
 
 
-function ExitPosition({subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
+function ExitPosition({traderId, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -183,6 +183,7 @@ console.log("lotSize", lotSize, maxLot)
     let paperTrade = false;
     let tenxTraderPath;
     let internPath ;
+    let fromAdmin;
     if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
@@ -195,6 +196,11 @@ console.log("lotSize", lotSize, maxLot)
     } else if(from === internshipTrader){
       endPoint = 'internPlacingOrder';
       internPath = true;
+    }else if(from === "Admin"){
+      endPoint = 'placingOrder'
+      paperTrade = false;
+      trader = traderId;
+      fromAdmin = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
       method: "POST",
@@ -206,7 +212,7 @@ console.log("lotSize", lotSize, maxLot)
 
         exchange, symbol, buyOrSell, Quantity, Price,
         Product, OrderType, TriggerPrice, stopLoss, internPath,
-        validity, variety, order_id: dummyOrderId, subscriptionId,
+        validity, variety, order_id: dummyOrderId, subscriptionId, fromAdmin,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
       })
