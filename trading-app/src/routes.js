@@ -2,6 +2,7 @@
 import CompanyPosition from "./layouts/companyposition";
 import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
+import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/orders";
 import Instruments from "./layouts/instruments";
@@ -57,6 +58,7 @@ import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import TryIcon from '@mui/icons-material/Try';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CollegeDetails from './layouts/college/collegeDetails'
+import Forward10Icon from '@mui/icons-material/Forward10';
 
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 
@@ -130,6 +132,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
     component: <InfinityDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "TenX Dashboard",
+    key: "tenxdashboard",
+    icon: <Forward10Icon/>,
+    route: "/tenxdashboard",
+    component: <TenXDashboard />,
   },
   {
     type: "collapse",
@@ -366,10 +376,10 @@ const routes = [
     component: <InternPosition />,
   },
   {
-    type: "collapse",
-    name: "Tenx Position",
+    // type: "collapse",
+    // name: "Tenx Position",
     key: "tenxposition",
-    icon: <SupervisorAccountIcon/>,
+    // icon: <SupervisorAccountIcon/>,
     route: "/tenxposition",
     component: <TenxPosition />,
   },
@@ -462,10 +472,10 @@ const routes = [
     component: <Campaigns />,
   },
   {
-    type: "collapse",
-    name: "TenX Subscriptions",
+    // type: "collapse",
+    // name: "TenX Subscriptions",
     key: "tenxsubscriptions",
-    icon: <CardMembershipIcon/>,
+    // icon: <CardMembershipIcon/>,
     route: "/tenxsubscriptions",
     component: <TenXSubscription />,
   },
@@ -600,11 +610,11 @@ const routes = [
     component: <InfinityTrader />,
   },
   {
-    type: "collapse",
-    name: "TenX Trading",
+    // type: "collapse",
+    // name: "TenX Trading",
     key: "tenxtrading",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <CurrencyRupeeIcon/>,
+    // icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
   },
