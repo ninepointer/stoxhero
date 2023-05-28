@@ -515,12 +515,12 @@ exports.traderWiseMockTrader = async (req, res, next) => {
             $arrayElemAt: ["$user.name", 0]
           },
           "symbol": "$instrumentToken",
-          // "algoId": {
-          //   $arrayElemAt: ["$algoBox._id", 0]
-          // },
-          // "algoName": {
-          //   $arrayElemAt: ["$algoBox.algoName", 0]
-          // }
+          "traderEmail": {
+            $arrayElemAt: ["$user.email", 0]
+          },
+          "traderMobile": {
+            $arrayElemAt: ["$user.mobile", 0]
+          }
         },
         amount: {
           $sum: { $multiply: ["$amount", -1] }

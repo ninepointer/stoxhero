@@ -26,7 +26,9 @@ const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
 const {DummyMarketData} = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
-const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
+// const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
+const {autoCutMainManually} = require("./controllers/AutoTradeCut/mainManually");
+
 const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
@@ -91,7 +93,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('hi', async (data) => {
       // getKiteCred.getAccess().then(async (data)=>{
       console.log("in hii event");
-        await getTicks(socket);
+        // await getTicks(socket);
         // await getDummyTicks(socket);
         // await DummyMarketData(socket);
         await onError();
@@ -238,7 +240,8 @@ let weekDay = date.getDay();
   }
 
   if(!process.env.PROD){
-    const autotrade = nodeCron.schedule(`50 9 * * *`, test);
+    // const autotrade = nodeCron.schedule(`50 9 * * *`, test);
+    const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
   }
 
 

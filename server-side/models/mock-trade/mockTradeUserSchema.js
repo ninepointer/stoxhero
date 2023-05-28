@@ -79,7 +79,7 @@ const mockTradeSchema = new mongoose.Schema({
         required: true  
     },
     instrumentToken:{
-        type: String,
+        type: Number,
         required: true        
     },
     tradeBy:{

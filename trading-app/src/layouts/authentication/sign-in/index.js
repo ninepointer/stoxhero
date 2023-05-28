@@ -147,7 +147,7 @@ function Basic() {
             let userData = await userDetail();
 
             if(userData.role?.roleName === adminRole){
-              navigate("/companyposition");
+              navigate("/infinitydashboard");
             }
             else if(userData.role?.roleName === "data"){
               navigate("/analytics");
