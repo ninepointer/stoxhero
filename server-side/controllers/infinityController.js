@@ -96,8 +96,7 @@ exports.overallPnlTraderWise = async (req, res, next) => {
   const userId = req.user._id;
   // const userId = new ObjectId('642cedb5a7aa9b00ba1e4866');
   let date = new Date();
-  let todayDate = "2023-05-25"
-  // `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 

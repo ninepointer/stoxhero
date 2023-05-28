@@ -359,14 +359,14 @@ const routes = [
     route: "/traderposition",
     component: <TraderPosition />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "OverallPnl Trader",
-  //   key: "overalltraderpnl",
-  //   icon: <BusinessIcon/>,
-  //   route: "/overalltraderpnl",
-  //   component: <OverallPnlTrader />,
-  // },
+  {
+    type: "collapse",
+    name: "OverallPnl Trader",
+    key: "overalltraderpnl",
+    icon: <BusinessIcon/>,
+    route: "/overalltraderpnl",
+    component: <OverallPnlTrader />,
+  },
   {
     // type: "collapse",
     // name: "Intern Position",

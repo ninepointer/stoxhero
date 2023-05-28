@@ -10,13 +10,13 @@ const authoizeTrade = require('../controllers/authoriseTrade');
 
 
 const ApplyAlgo = async (req, res, next)=>{
-    console.log("caseStudy 5: applyalgo")
-    // console.log(req.body, "in apply algo")
-    // console.log(req.user)
-    // console.log("in if", req.user.isAlgoTrader)
+    // console.log("caseStudy 5: applyalgo")
+    console.log(req.body, "in apply algo")
+    console.log(req.user)
+    console.log("in if", req.user.isAlgoTrader)
 
     if(!req.user.isAlgoTrader){
-        // console.log("in if")
+        console.log("in if")
         return res.status(401).send({message: "Your profile is not authorised."})  
     }
     const {symbol, instrumentToken, Quantity, buyOrSell} = req.body;
@@ -28,7 +28,7 @@ const ApplyAlgo = async (req, res, next)=>{
     let userPermission = await UserPermission.find({userId: userId}).populate('algoId', 'algoName')
     let instrumentMapping = await InstrumentMapping.find({Status: "Active"});
 
-    console.log("userPermission", userPermission)
+    // console.log("userPermission", userPermission)
 
     let companyTrade = {};
 
@@ -52,7 +52,7 @@ const ApplyAlgo = async (req, res, next)=>{
         }
     }
 
-    console.log("userPermissionAlgo", userPermissionAlgo, tradingAlgoArr)
+    // console.log("userPermissionAlgo", userPermissionAlgo, tradingAlgoArr)
 
     function instrumentMappingFunc(){
         let flag = true;
@@ -106,7 +106,7 @@ const ApplyAlgo = async (req, res, next)=>{
             let apiKeyParticular = apiKeyDetails.filter((element) => {
                 return elem.tradingAccount === element.accountId
             })
-            // console.log("userPermission", userPermission)
+            console.log("userPermission", userPermission)
     
             userPermission.map((subElem)=>{
                 if(subElem.algoId.algoName === elem.algoName){
@@ -150,7 +150,7 @@ const ApplyAlgo = async (req, res, next)=>{
         }
     }
     await tradingAlgo();
-    console.log("caseStudy 6: end apply aplgo")
+    // console.log("caseStudy 6: end apply aplgo")
 
     next();
 
