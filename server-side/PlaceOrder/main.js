@@ -10,7 +10,7 @@ const Setting = require("../models/settings/setting");
 
 
 router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
-    console.log("caseStudy 4: placing")
+    console.log("caseStudy 4: placing", req.body)
     const setting = await Setting.find();
     // console.log("settings", setting, req.user?.role?.roleName )
     if(!setting[0].isAppLive && req.user?.role?.roleName != 'Admin'){

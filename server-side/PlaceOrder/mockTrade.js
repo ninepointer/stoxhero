@@ -27,7 +27,7 @@ exports.mockTrade = async (req, res) => {
     // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
     // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
+    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
 
@@ -148,8 +148,8 @@ exports.mockTrade = async (req, res) => {
             const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
             const algoTrader = await InfinityTrader.create([traderDoc], { session });
             console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
-            if(isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)){
-                let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
+            if(isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)){
+                let pnl = await client.get(`${trader.toString()} overallpnl`)
                 pnl = JSON.parse(pnl);
                 console.log("redis pnl", pnl)
                 const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product ));
@@ -176,16 +176,20 @@ exports.mockTrade = async (req, res) => {
                     lastaverageprice: algoTrader[0].average_price,
                   });
                 }
-                settingRedis = await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnl))
+                settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
                 console.log("settingRedis", settingRedis)
             }
 
             if(isRedisConnected){
-                await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
+                await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
             }
             // Commit the transaction
             
             io.emit("updatePnl", mockTradeDetails)
+            if(fromAdmin){
+                console.log("in admin side")
+                io.emit(`${trader.toString()}autoCut`, algoTrader)
+            }
 
             if(settingRedis === "OK"){
                 await session.commitTransaction();
@@ -199,7 +203,7 @@ exports.mockTrade = async (req, res) => {
 
         } catch(err){
             if(isRedisConnected){
-                const del = await client.del(`${req.user._id.toString()} overallpnl`)
+                const del = await client.del(`${trader.toString()} overallpnl`)
             }
             await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);
