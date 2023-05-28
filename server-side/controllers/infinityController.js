@@ -90,6 +90,94 @@ exports.overallPnlTrader = async (req, res, next) => {
   }
 }
 
+exports.overallPnlTraderWise = async (req, res, next) => {
+  const traderId = req.params.trader
+  let isRedisConnected = getValue();
+  const userId = req.user._id;
+  // const userId = new ObjectId('642cedb5a7aa9b00ba1e4866');
+  let date = new Date();
+  let todayDate = "2023-05-25"
+  // `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+  console.log(traderId)
+
+  try {
+
+    // if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
+    //   let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
+    //   pnl = JSON.parse(pnl);
+    //   // console.log("pnl redis", pnl)
+
+    //   res.status(201).json({ message: "pnl received", data: pnl });
+
+    // } else {
+
+      let pnlDetails = await InfinityTrader.aggregate([
+        {
+          $match: {
+            trade_time: {
+              $gte: today
+            },
+            status: "COMPLETE",
+            trader: new ObjectId(traderId)
+          },
+        },
+        {
+          $group: {
+            _id: {
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+              exchange: "$exchange"
+            },
+            amount: {
+              $sum: { $multiply: ["$amount", -1] },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            lastaverageprice: {
+              $last: "$average_price",
+            },
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ])
+      // console.log("pnlDetails in else", pnlDetails)
+
+      // if (isRedisConnected) {
+      //   await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnlDetails))
+      //   await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
+      // }
+
+      // console.log("pnlDetails", pnlDetails)
+      res.status(201).json({ message: "pnl received", data: pnlDetails });
+    // }
+
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+  }
+}
+
 exports.overallPnlCompanySide = async (req, res, next) => {
 
   const userId = req.params.id;
