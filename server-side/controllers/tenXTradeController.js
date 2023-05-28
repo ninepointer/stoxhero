@@ -283,9 +283,8 @@ exports.marginDetail = async (req, res, next) => {
 exports.tradingDays = async (req, res, next) => {
   let subscriptionId = req.params.id;
   let userId = req.user._id;
-  // req.user._id
-  // req.user._id;
-  console.log("subscriptionId", subscriptionId)
+
+  console.log("subscriptionId", subscriptionId, userId)
   const today = new Date();
 
   const tradingDays = await TenXTrader.aggregate(
@@ -293,10 +292,10 @@ exports.tradingDays = async (req, res, next) => {
     {
       $match: {
         trader: new ObjectId(
-          req.user._id
+          userId
         ),
         status: "COMPLETE",
-        subscriptionId: subscriptionId
+        subscriptionId: new ObjectId(subscriptionId)
       },
     },
     {
@@ -351,7 +350,7 @@ exports.tradingDays = async (req, res, next) => {
   
         {
           "_id.users.userId": new ObjectId(
-          req.user._id
+          userId
         ),
         },
     },
@@ -422,6 +421,7 @@ exports.tradingDays = async (req, res, next) => {
     },
   ])
 
+  console.log("tradingDays ", tradingDays)
   if(tradingDays.length> 0){
     console.log("tradingDays in if", tradingDays)
     res.status(200).json({ status: 'success', data: tradingDays });
@@ -447,7 +447,7 @@ exports.tradingDays = async (req, res, next) => {
         },
       },
     ])
-    console.log("tradingDays in else", tradingDays)
+    console.log("tradingDays in else", tradingDay)
     res.status(200).json({ status: 'success', data: tradingDay });
   }
 }
@@ -461,7 +461,7 @@ exports.autoExpireSubscription = async () => {
     for (let j = 0; j < users.length; j++) {
       let userId = users[j].userId;
 
-      const todayDate = new Date();  // Get the current date
+      const today = new Date();  // Get the current date
 
       const tradingDays = await TenXTrader.aggregate(
         [
@@ -621,4 +621,75 @@ exports.autoExpireSubscription = async () => {
       }
     }
   }
+}
+
+exports.traderWiseMockTrader = async (req, res, next) => {
+  const{id} = req.params;
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const pipeline = [
+    {
+      $match:
+      {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE",
+        subscriptionId: new ObjectId(id)
+      }
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $group:
+      {
+        _id:
+        {
+          "traderId": "$trader",
+          "traderName": {
+            $arrayElemAt: ["$user.name", 0]
+          },
+          "symbol": "$instrumentToken",
+          "traderEmail": {
+            $arrayElemAt: ["$user.email", 0]
+          },
+                    "traderMobile": {
+            $arrayElemAt: ["$user.mobile", 0]
+          }
+
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        lots: {
+          $sum: { $toInt: "$Quantity" }
+        },
+        trades: {
+          $count: {}
+        },
+        lotUsed: {
+          $sum: { $abs: { $toInt: "$Quantity" } }
+        }
+      }
+    },
+    { $sort: { _id: -1 } },
+
+  ]
+
+  
+  let x = await TenXTrader.aggregate(pipeline)
+  console.log(id, x)
+  res.status(201).json({ message: "data received", data: x });
 }

@@ -250,23 +250,6 @@ exports.marginDetail = async (req, res, next) => {
             portfolioId: "$_id.portfolioId",
             portfolioName: "$_id.portfolioName",
             totalFund: "$_id.totalFund",
-            // npnl: {
-            //   $subtract: [
-            //     "$totalAmount",
-            //     "$totalBrokerage",
-            //   ],
-            // },
-            // openingBalance: {
-            //   $sum: [
-            //     "$_id.totalFund",
-            //     {
-            //       $subtract: [
-            //         "$totalAmount",
-            //         "$totalBrokerage",
-            //       ],
-            //     },
-            //   ],
-            // },
           },
         },
       ])
@@ -274,42 +257,6 @@ exports.marginDetail = async (req, res, next) => {
 
     }
   
-    // let pnlDetails = await PaperTrade.aggregate([
-    //     {
-    //         $match: {
-    //             trade_time:{
-    //                 $lt: today
-    //             },
-    //             status: "COMPLETE",
-    //             trader: new ObjectId(req.user._id)
-    //         },
-    //     },
-    //     {
-    //       $group: {
-    //         _id: {
-    //           trader: "$trader",
-    //         },
-    //         amount: {
-    //           $sum: {$multiply : ["$amount",-1]},
-    //         },
-    //         brokerage: {
-    //           $sum: {
-    //             $toDouble: "$brokerage",
-    //           },
-    //         },
-
-    //       },
-    //     },
-
-    //     {
-    //       $project: {
-    //         _id: 0,
-    //         npnl: {
-    //           $subtract: ["$amount", "$brokerage"]
-    //          },
-    //       }
-    //     },
-    // ])
 
     console.log("pnlDetails", portfoliosFund)
   } catch (e) {
@@ -318,3 +265,68 @@ exports.marginDetail = async (req, res, next) => {
   }
 }
 
+exports.treaderWiseMockTrader = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const pipeline = [
+    {
+      $match:
+      {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE"
+      }
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $group:
+      {
+        _id:
+        {
+          "traderId": "$trader",
+          "traderName": {
+            $arrayElemAt: ["$user.name", 0]
+          },
+          "symbol": "$instrumentToken",
+          "traderEmail": {
+            $arrayElemAt: ["$user.email", 0]
+          },
+          "traderMobile": {
+            $arrayElemAt: ["$user.mobile", 0]
+          }
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        lots: {
+          $sum: { $toInt: "$Quantity" }
+        },
+        trades: {
+          $count: {}
+        },
+        lotUsed: {
+          $sum: { $abs: { $toInt: "$Quantity" } }
+        }
+      }
+    },
+    { $sort: { _id: -1 } },
+
+  ]
+
+  let x = await PaperTrade.aggregate(pipeline)
+  res.status(201).json({ message: "data received", data: x });
+}

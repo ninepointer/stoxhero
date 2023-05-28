@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const {overallPnl,myTodaysTrade,myHistoryTrade, 
-    marginDetail, tradingDays} = require('../../controllers/internshipTradeController');
+    marginDetail, tradingDays, overallPnlAllTrader, traderWiseMockTrader} = require('../../controllers/internshipTradeController');
 const Authenticate = require('../../authentication/authentication');
 
 
@@ -11,6 +11,8 @@ router.route('/my/historyorders').get(Authenticate, myHistoryTrade)
 
 router.route('/countTradingDays').get(Authenticate, tradingDays)
 router.route('/pnl/:batch').get(Authenticate, overallPnl);
+router.route('/pnlAllTrader/:batchId').get(Authenticate, overallPnlAllTrader);
+router.route('/traderwiseAllTrader/:batchId').get(Authenticate, traderWiseMockTrader);
 router.route('/marginDetail/:batch').get(Authenticate, marginDetail)
 // router.route('/myPnlandCreditData').get(Authenticate, getMyPnlAndCreditData)
 // router.route('/myOpening').get(Authenticate, openingBalance)

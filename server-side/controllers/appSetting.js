@@ -11,9 +11,9 @@ exports.appLive = async()=>{
 }
 
 exports.appOffline = async()=>{
-    console.log("in appoffline")
+    // console.log("in appoffline")
     const timming = await Setting.find().select('AppEndTime AppStartTime _id');
-    console.log(timming)
+    // console.log(timming)
     const setting = await Setting.findOneAndUpdate({_id : timming[0]._id}, {
         $set:{ 
             modifiedOn: new Date(),

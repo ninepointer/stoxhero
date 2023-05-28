@@ -23,6 +23,7 @@ import TradersReport from "./layouts/tradersReportMock";
 import AdminReport from "./layouts/adminreportMock";
 import DailyPNLData from "./layouts/dailyPnlDashboard";
 import TraderPosition from "./layouts/traderPosition"
+import InternPosition from "./layouts/internPosition"
 import AdminReportLive from "./layouts/adminreportLive"
 import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
@@ -102,7 +103,6 @@ import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
 import TutorialCategoryForm from './layouts/tutorialVideos/tutorialCategoryDetails'
 import Contact from "./layouts/HomePage/pages/Contact";
-import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import CreateCollege from "./layouts/college/createCollege";
@@ -110,8 +110,8 @@ import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
-
-
+import VirtualPosition from "./layouts/virtualtradePosition";
+import TenxPosition from "./layouts/tenxPosition"
 
 
 
@@ -322,6 +322,30 @@ const routes = [
     icon: <BusinessIcon/>,
     route: "/traderposition",
     component: <TraderPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Intern Position",
+    key: "internposition",
+    icon: <BusinessIcon/>,
+    route: "/internposition",
+    component: <InternPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Tenx Position",
+    key: "tenxposition",
+    icon: <BusinessIcon/>,
+    route: "/tenxposition",
+    component: <TenxPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Virtual Position",
+    key: "virtualposition",
+    icon: <BusinessIcon/>,
+    route: "/virtualposition",
+    component: <VirtualPosition />,
   },
   {
     type: "collapse",
