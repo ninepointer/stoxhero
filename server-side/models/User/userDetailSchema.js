@@ -179,6 +179,10 @@ const userDetailSchema = new mongoose.Schema({
     resetPasswordExpires:{
         type: Date,
     },
+    profilePhoto: {
+        url: String, // URL of the profile photo
+        name: String // Name of the profile photo
+    },
     passwordChangedAt:{
         type: String,
         // required: true
@@ -260,6 +264,7 @@ const userDetailSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    
     referrals:[{
         referredUserId: {
             type: Schema.Types.ObjectId,
@@ -276,7 +281,13 @@ const userDetailSchema = new mongoose.Schema({
         referralCurrency: String
     }],
     subscription:[{
-        subscriptionId:{type:Schema.Types.ObjectId, ref: 'tenx-subscription'},
+        // subscriptionId:{type:Schema.Types.ObjectId, ref: 'tenx-subscription'},
+        subscriptionId: {
+            type: Schema.Types.ObjectId,
+            ref: 'tenx-subscription',
+            
+          },
+        
         subscribedOn:{type:Date},
         status: {
             type: String, 
@@ -287,7 +298,7 @@ const userDetailSchema = new mongoose.Schema({
     internshipBatch:[{
         type: Schema.Types.ObjectId,
         ref: "intern-batch"
-    }]
+    }],
 })
 
 //Adding the ninepointer id before saving
@@ -296,8 +307,8 @@ userDetailSchema.pre('save', async function(next){
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();
         console.log("Count of Documents: ",count)
-        const userId = this.email.split('@')[0]
-        const userIds = await userPersonalDetail.find({employeeid:userId})
+        let userId = this.email.split('@')[0]
+        let userIds = await userPersonalDetail.find({employeeid:userId})
         if(userIds.length > 0)
         {
              userId = userId.toString()+(userIds.length+1).toString()

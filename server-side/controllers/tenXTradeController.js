@@ -281,10 +281,11 @@ exports.marginDetail = async (req, res, next) => {
 }
 
 exports.tradingDays = async (req, res, next) => {
-  // let subscriptionId = req.params.id;
+  let subscriptionId = req.params.id;
   let userId = req.user._id;
   // req.user._id
   // req.user._id;
+  console.log("subscriptionId", subscriptionId)
   const today = new Date();
 
   const tradingDays = await TenXTrader.aggregate(
@@ -295,6 +296,7 @@ exports.tradingDays = async (req, res, next) => {
           req.user._id
         ),
         status: "COMPLETE",
+        subscriptionId: subscriptionId
       },
     },
     {
@@ -420,9 +422,34 @@ exports.tradingDays = async (req, res, next) => {
     },
   ])
 
-  console.log("tradingDays", tradingDays)
-  res.status(200).json({ status: 'success', data: tradingDays });
-  // res.send(tradingDays);
+  if(tradingDays.length> 0){
+    console.log("tradingDays in if", tradingDays)
+    res.status(200).json({ status: 'success', data: tradingDays });
+  } else{
+    const tradingDay = await Subscription.aggregate(
+    [
+      {
+        $match: {
+          _id: new ObjectId(subscriptionId)
+        },
+      },
+      {
+        $addFields: {
+          totalTradingDays: 0
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalTradingDays: 1,
+          subscriptionId: "$_id",
+          actualRemainingDay: "$validity",
+        },
+      },
+    ])
+    console.log("tradingDays in else", tradingDays)
+    res.status(200).json({ status: 'success', data: tradingDay });
+  }
 }
 
 exports.autoExpireSubscription = async () => {

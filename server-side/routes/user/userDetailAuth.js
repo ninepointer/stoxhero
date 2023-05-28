@@ -264,9 +264,9 @@ const uploadToS3 = async (req, res, next) => {
 
 
 router.post("/userdetail", authController.protect, (req, res)=>{
-    const {status, uId, createdOn, lastModified, createdBy, name, cohort, designation, email, mobile, degree, dob, gender, trading_exp, location, last_occupation, joining_date, role, userId, password, employeeId} = req.body;
+    const {status, uId, createdOn, lastModified, createdBy, name, cohort, designation, email, mobile, degree, dob, gender, trading_exp, location, last_occupation, joining_date, role, userId, password, employeeId,profilePhoto} = req.body;
     console.log(req.body)
-    if(!status || !uId || !createdOn || !lastModified || !createdBy || !name || !cohort || !designation || !email || !mobile || !degree || !dob || !gender || !trading_exp || !location || !last_occupation || !joining_date || !role){
+    if(!status || !uId || !createdOn || !lastModified || !createdBy || !name || !cohort || !designation || !email || !mobile || !degree || !dob || !gender || !trading_exp || !location || !last_occupation || !joining_date || !role || !profilePhoto || !profilePhoto.url || !profilePhoto.name){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "plz filled the field..."})
     }
@@ -277,7 +277,7 @@ router.post("/userdetail", authController.protect, (req, res)=>{
             //console.log("data already");
             return res.status(422).json({error : "data already exist..."})
         }
-        const userDetail = new UserDetail({status, uId, createdOn, lastModified, createdBy, name, cohort, designation, email, mobile, degree, dob, gender, trading_exp, location, last_occupation, joining_date, role, userId, password, employeeid: employeeId});
+        const userDetail = new UserDetail({status, uId, createdOn, lastModified, createdBy, name, cohort, designation, email, mobile, degree, dob, gender, trading_exp, location, last_occupation, joining_date, role, userId, password, employeeid: employeeId,profilePhoto:{url:profilePhoto.url,name:profilePhoto.name}});
         //console.log(userDetail)
         userDetail.save().then(()=>{
             res.status(201).json({massage : "data enter succesfully"});
@@ -344,6 +344,8 @@ router.patch("/generateOTP", async (req, res)=>{
 router.get("/readuserdetails", (req, res) => {
   UserDetail.find()
     .populate("role","roleName") // Populate the "role" field
+    
+    
     .sort({ joining_date: -1 })
     .exec((err, data) => {
       if (err) {
@@ -354,10 +356,14 @@ router.get("/readuserdetails", (req, res) => {
     });
 });
 
+
 router.get("/readuserdetails/:id", (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     UserDetail.findOne({_id : id})
+    .populate("role","roleName")
+    
+    
     .then((data)=>{
         return res.status(200).send(data);
     })
@@ -366,9 +372,12 @@ router.get("/readuserdetails/:id", (req, res)=>{
     })
 })
 
+
+
+
 router.put("/readuserdetails/:id", async (req, res)=>{
     //console.log(req.params)
-    //console.log("this is body", req.body);
+    // console.log("this is body", req.body);
 
     try{
         const {id} = req.params
@@ -396,6 +405,7 @@ router.put("/readuserdetails/:id", async (req, res)=>{
             user.password = req.body.userPassword,
             user.employeeid = req.body.employeeId,
             user.isAlgoTrader = req.body.isalgoTrader
+            
         } else{
             user.lastModified = req.body.lastModified,
             user.name = req.body.Name,
@@ -414,6 +424,7 @@ router.put("/readuserdetails/:id", async (req, res)=>{
             user.status = req.body.Status,
             user.employeeid = req.body.employeeId,
             user.isAlgoTrader = req.body.isalgoTrader
+            
         }
 
         await user.save();
@@ -424,6 +435,30 @@ router.put("/readuserdetails/:id", async (req, res)=>{
         res.status(500).json({error:"Failed to edit data"});
     }
 })
+
+router.patch("/readuserdetails/:id", async (req, res) => {
+  console.log("this is body",req.body)
+  try {
+    const { id } = req.params;
+    const updatedFields = req.body;
+
+    const user = await UserDetail.findOne({ _id: id });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    Object.assign(user, updatedFields);
+
+    await user.save();
+
+    return res.status(200).json({ message: "User updated successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Failed to update user" });
+  }
+});
+
 
 router.delete("/readuserdetails/:id", async (req, res)=>{
     //console.log(req.params)

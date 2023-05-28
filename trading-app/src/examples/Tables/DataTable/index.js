@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useContext } from "react";
 
 // prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
@@ -24,6 +24,8 @@ import MDPagination from "../../../components/MDPagination";
 import DataTableHeadCell from "./DataTableHeadCell";
 import DataTableBodyCell from "./DataTableBodyCell";
 import MDButton from "../../../components/MDButton";
+import { Link,useLocation } from 'react-router-dom';
+
 
 function DataTable({
   entriesPerPage,
@@ -34,6 +36,9 @@ function DataTable({
   isSorted,
   noEndBorder,
   addButton,
+  initialPage,
+  currentPage,
+  setCurrentPage,
 }) {
   const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 10;
   const entries = entriesPerPage.entries
@@ -41,9 +46,10 @@ function DataTable({
     : ["10", "20", "30", "40", "50"];
   const columns = useMemo(() => table.columns, [table]);
   const data = useMemo(() => table.rows, [table]);
+  const location = useLocation();
 
   const tableInstance = useTable(
-    { columns, data, initialState: { pageIndex: 0 } },
+    { columns, data, initialState: { pageIndex: initialPage || 0 } },
     useGlobalFilter,
     useSortBy,
     usePagination
@@ -69,6 +75,7 @@ function DataTable({
 
   // Set the default value for the entries per page when component mounts
   useEffect(() => setPageSize(defaultValue || 20), [defaultValue]);
+  console.log('current',currentPage);
 
   // Set the entries per page value based on the select value
   const setEntriesPerPage = (value) => setPageSize(value);
@@ -78,7 +85,7 @@ function DataTable({
     <MDPagination
       item
       key={option}
-      onClick={() => gotoPage(Number(option))}
+      onClick={() => {gotoPage(Number(option)); setCurrentPage(option)}}
       active={pageIndex === option}
     >
       {option + 1}
@@ -133,6 +140,10 @@ function DataTable({
   } else {
     entriesEnd = pageSize * (pageIndex + 1);
   }
+  
+
+  
+  
 
   return (
     <TableContainer sx={{ boxShadow: "none" }}>
@@ -192,18 +203,27 @@ function DataTable({
         <TableBody {...getTableBodyProps()}>
           {page.map((row, key, index) => {
             prepareRow(row);
+            
             return (
-              <TableRow {...row.getRowProps()}>
+              <TableRow  {...row.getRowProps()}>
                 {row.cells.map((cell) => (
+                  <>
                   <DataTableBodyCell
                     noBorder={noEndBorder && rows.length - 1 === key}
                     align={cell.column.align ? cell.column.align : "left"}
+                    
                     {...cell.getCellProps()}
+                    
                   >
                     {cell.render("Cell")}
                   </DataTableBodyCell>
+                  
+                  </>
                 ))}
+                
               </TableRow>
+
+              
               
             );
             
@@ -211,6 +231,9 @@ function DataTable({
          
         </TableBody>
       </Table>
+          
+
+
 
       <MDBox
         display="flex"
@@ -232,7 +255,7 @@ function DataTable({
             color={pagination.color ? pagination.color : "info"}
           >
             {canPreviousPage && (
-              <MDPagination item onClick={() => previousPage()}>
+              <MDPagination item onClick={() => {previousPage(); setCurrentPage(prev=>prev>=0?prev-1:prev)}}>
                 <Icon sx={{ fontWeight: "bold" }}>chevron_left</Icon>
               </MDPagination>
             )}
@@ -248,7 +271,7 @@ function DataTable({
               renderPagination
             )}
             {canNextPage && (
-              <MDPagination item onClick={() => nextPage()}>
+              <MDPagination item onClick={() => {nextPage();setCurrentPage(prev=>prev+1)}}>
                 <Icon sx={{ fontWeight: "bold" }}>chevron_right</Icon>
               </MDPagination>
             )}
@@ -265,6 +288,7 @@ function DataTable({
                 fullWidth
                 variant="contained"
                 color="info"
+                onClick={()=>{setCurrentPage(prev=>prev-1)}}
               >
                 Prev
               </MDButton>
@@ -272,6 +296,7 @@ function DataTable({
                 fullWidth
                 variant="contained"
                 color="info"
+                onClick={()=>{setCurrentPage(prev=>prev+1)}}
               >
                 Next
               </MDButton>

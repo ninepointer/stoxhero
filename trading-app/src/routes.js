@@ -8,6 +8,7 @@ import Instruments from "./layouts/instruments";
 import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";
 import Users from "./layouts/users";
+import UserEdit from "./layouts/users/UserEdit";
 import AlgoBox from "./layouts/algobox";
 import Funds from "./layouts/funds";
 import Notifications from "./layouts/notifications";
@@ -109,6 +110,7 @@ import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
+
 
 
 
@@ -665,6 +667,15 @@ const routes = [
     route: "/internship/trade",
     component: <InternshipTrade/>,
   },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "userdetails",
+    component: <UserEdit/>,
+  },
+  
 
 
 ];

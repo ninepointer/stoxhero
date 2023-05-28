@@ -10,7 +10,7 @@ const { ObjectId } = require("mongodb");
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
     const userId = req.user._id;
-    const batch = req.params.id;
+    const batch = req.params.batch;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -108,7 +108,7 @@ exports.myTodaysTrade = async (req, res, next) => {
   const count = await InternTrades.countDocuments({trader: userId, trade_time: {$gte:today}})
   console.log("Under my today orders",userId, today)
   try {
-    const myTodaysTrade = await InternTrades.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'batch': 1}).populate('batch', 'plan_name')
+    const myTodaysTrade = await InternTrades.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'batch': 1}).populate('batch', 'batchName')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
@@ -132,7 +132,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const count = await InternTrades.countDocuments({trader: userId, trade_time: {$lt:today}})
   console.log("Under my today orders",userId, today)
   try {
-    const myHistoryTrade = await InternTrades.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'batch': 1}).populate('batch', 'plan_name')
+    const myHistoryTrade = await InternTrades.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'batch': 1}).populate('batch', 'batchName')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
@@ -145,7 +145,7 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
-  let batch = req.params.id;
+  let batch = req.params.batch;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -235,6 +235,8 @@ exports.marginDetail = async (req, res, next) => {
     ])
 
     if(subscription.length > 0){
+      console.log("subs", subscription)
+
         res.status(200).json({status: 'success', data: subscription[0]});
     } else{
         const portfolioValue = await InternBatch.aggregate([
@@ -273,7 +275,7 @@ exports.marginDetail = async (req, res, next) => {
             },
         ])
 
-        console.log("portfolioValue", portfolioValue)
+        console.log("portfolioValue", portfolioValue, subscription)
         res.status(200).json({status: 'success', data: portfolioValue[0]});
     }
   } catch (e) {

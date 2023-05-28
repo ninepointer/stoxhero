@@ -200,7 +200,8 @@ function PlatformSettings() {
               label="Trading Start Time"
               value={AppStartTime}
               disabled={!editable}
-              onChange={(e) => {setAppStartTime(e)}}
+              // onChange={(e) => {setAppStartTime(e)}}
+              onChange={(newValue) => { setAppStartTime(newValue); }}
               // onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppStartTime: e})}}
               renderInput={(params) => <TextField {...params} />}
             />
@@ -218,7 +219,8 @@ function PlatformSettings() {
               value={AppEndTime}
               disabled={!editable}
               // onChange={(e) => {setAppEndTime(e)}}
-              onChange={(e) => {setAppStartTime(e)}}
+              // onChange={(e) => {setAppStartTime(e)}}
+              onChange={(newValue) => { setAppEndTime(newValue); }}
               // onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppEndTime: e})}}
               renderInput={(params) => <TextField {...params} />}
             />

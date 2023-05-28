@@ -30,7 +30,7 @@ import breakpoints from "../../../../assets/theme/base/breakpoints";
 
 // Images
 import DefaultProfilePic from "../../../../assets/images/default-profile.png";
-import backgroundImage from "../../../../assets/images/trading.jpg";
+import backgroundImage from "../../../../../src/assets/images/trading.jpg";
 
 
 function Header({ children }) {

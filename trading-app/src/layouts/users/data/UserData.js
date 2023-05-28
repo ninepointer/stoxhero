@@ -8,6 +8,7 @@ export default function AllActiveUsers() {
   return {
     columns: [
       // { Header: "Edit", accessor: "edit",align: "center" },
+      {Header: "Edit", accessor: "edit",align: "center"},
       { Header: "User ID", accessor: "employeeid",align: "center" },
       { Header: "Full Name", accessor: "name",align: "center" },
       // { Header: "Cohort", accessor: "cohort", align: "center"},

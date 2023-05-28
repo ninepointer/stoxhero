@@ -11,6 +11,8 @@ import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 import MDButton from "../../components/MDBox";
 
+import { Link,useLocation } from 'react-router-dom';
+
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
@@ -18,6 +20,7 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 import EditSharpIcon from '@mui/icons-material/EditSharp';
+import EditIcon from '@mui/icons-material/Edit';
 
 
 // Data
@@ -27,6 +30,7 @@ import UserModel from './UserModel';
 import UserData from './data/UserData';
 import InactiveUserData from './data/InactiveUserData';
 import UserEditModel from "./UserEditModel";
+import { Button } from '@mui/material';
 
 
 
@@ -42,7 +46,14 @@ const User = () => {
   
     useEffect(()=>{
   
-        axios.get(`${baseUrl}api/v1/readuserdetails`)
+        axios.get(`${baseUrl}api/v1/readuserdetails`,{
+          withCredentials: true,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Credentials': true
+        }
+        })
         .then((res)=>{
           let data = res.data;
                   let active = data.filter((elem) => {
@@ -78,11 +89,17 @@ const User = () => {
       const dojWeekNumber = getWeekNumber(new Date(elem.joining_date))[1];
       const statuscolor = elem.status == "Active" ? "success" : "error"
   
-      // activeusers.edit = (
-      //     <MDButton variant="Contained" color="info" fontWeight="medium">
-      //       <UserEditModel data={activeData} id={elem._id} Render={{setReRender, reRender}}/>
-      //     </MDButton>
-      //   );
+      activeusers.edit = (
+        <Button
+        size="small"
+        style={{ color: '#fff', fontSize: '13px', fontWeight: '500', width: '60px', background: 'rgb(88, 115, 196)' }}
+        component={Link}
+        to={{ pathname: '/userdetails' }}
+        state={{ data: elem }}
+      >
+        <EditIcon />
+      </Button>
+        );
         activeusers.employeeid = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
             {elem.employeeid}

@@ -25,6 +25,7 @@ const CollegeEdit = () => {
 
     const location = useLocation();
     const id = location?.state?.data;
+    console.log(id)
     console.log("Campaign Users: ", id?.users?.length)
     const [campaignUserCount, setCampaignUserCount] = useState(id?.users?.length);
     const [isSubmitted, setIsSubmitted] = useState(false);
