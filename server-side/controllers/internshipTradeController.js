@@ -649,7 +649,7 @@ exports.liveTotalTradersCount = async (req, res, next) => {
 
 exports.overallInternshipPnlYesterday = async (req, res, next) => {
   let yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 2);
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
   console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
@@ -705,7 +705,7 @@ exports.overallInternshipPnlYesterday = async (req, res, next) => {
 
 exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     let yesterdayDate = new Date();
-    yesterdayDate.setDate(yesterdayDate.getDate() - 2);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
     console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
