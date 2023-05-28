@@ -1363,6 +1363,9 @@ router.get("/getoverallpnlmocktradecompanytoday", async(req, res)=>{
                 $toInt: "$Quantity",
               },
             },
+            trades: {
+              $count:{}
+            },
             lastaverageprice: {
               $last: "$average_price",
             },

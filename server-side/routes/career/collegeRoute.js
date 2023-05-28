@@ -12,8 +12,9 @@ router.route('/north').get(Authenticate, getNorthZoneColleges);
 router.route('/south').get(Authenticate, getSouthZoneColleges);
 router.route('/east').get(Authenticate, getEastZoneColleges);
 router.route('/west').get(Authenticate, getWestZoneColleges);
-router.route('/delete/:id').patch(Authenticate, deleteCollege);
+
 router.route('/:id').patch(Authenticate, editCollege).get(getCollege);
+router.route('/delete/:id').patch(Authenticate, deleteCollege);
 
 // router.route('/:id/approve').patch(Authenticate, approveUser)
 
