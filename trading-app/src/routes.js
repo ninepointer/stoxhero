@@ -1,7 +1,7 @@
 // Material Dashboard 2 React layouts
 import CompanyPosition from "./layouts/companyposition";
 import CohortPosition from "./layouts/cohortposition";
-import AdminDashboard from "./layouts/admindashboard";
+import InfinityDashboard from "./layouts/infinitydashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/orders";
 import Instruments from "./layouts/instruments";
@@ -53,7 +53,12 @@ import Campaigns from './layouts/campaign'
 import TutorialVideos from './layouts/tutorialVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
+import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
+import TryIcon from '@mui/icons-material/Try';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import CollegeDetails from './layouts/college/collegeDetails'
 
+import OverallPnlTrader from "./layouts/overallPnlTrader";
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -102,27 +107,46 @@ import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
 import TutorialCategoryForm from './layouts/tutorialVideos/tutorialCategoryDetails'
 import Contact from "./layouts/HomePage/pages/Contact";
-import Payment from "./layouts/Payment";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
-
-
+import VirtualPosition from "./layouts/virtualtradePosition";
+import TenxPosition from "./layouts/tenxPosition"
+import BadgeIcon from '@mui/icons-material/Badge';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import CareerDashboard from './layouts/careerdashboard'
+import InternshipOrders from './layouts/internshipOrders'
+// import SchoolIcon from '@mui/icons-material/School';
 
 
 const routes = [
   {
     type: "collapse",
-    name: "Company Dashboard",
-    key: "admindashboard",
-    icon: <DashboardIcon/>,
-    route: "/admindashboard",
-    component: <AdminDashboard />,
+    name: "Infinty Dashboard",
+    key: "infinitydashboard",
+    icon: <AllInclusiveIcon/>,
+    route: "/infinitydashboard",
+    component: <InfinityDashboard />,
   },
-
+  {
+    type: "collapse",
+    name: "Career Dashboard",
+    key: "careerdashboard",
+    icon: <SchoolIcon/>,
+    route: "/careerdashboard",
+    component: <CareerDashboard />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "internshiporders",
+    // icon: <DashboardIcon/>,
+    route: "/internshiporders",
+    component: <InternshipOrders />,
+  },
   {
     // type: "collapse",
     // name: "Company Dashboard",
@@ -195,6 +219,10 @@ const routes = [
   {
     route: "/careerdetails",
     component: <CareerDetails />,
+  },
+  {
+    route: "/collegedetails",
+    component: <CollegeDetails />,
   },
   {
     route: "/batchdetails",
@@ -297,51 +325,75 @@ const routes = [
   //   component: <DummyPage />,
   // },
   {
-    type: "collapse",
-    name: "Company Position",
+    // type: "collapse",
+    // name: "Company Position",
     key: "companyposition",
-    icon: <BusinessIcon/>,
+    // icon: <BusinessIcon/>,
     route: "/companyposition",
     component: <CompanyPosition />,
   },
   {
-    type: "collapse",
-    name: "Cohort Position",
+    // type: "collapse",
+    // name: "Cohort Position",
     key: "cohortposition",
-    icon: <BusinessIcon/>,
+    // icon: <BusinessIcon/>,
     route: "/cohortposition",
     component: <CohortPosition />,
   },
 
   {
-    type: "collapse",
-    name: "Trader Position",
+    // type: "collapse",
+    // name: "Trader Position",
     key: "traderposition",
-    icon: <BusinessIcon/>,
+    // icon: <BusinessIcon/>,
     route: "/traderposition",
     component: <TraderPosition />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "OverallPnl Trader",
+  //   key: "overalltraderpnl",
+  //   icon: <BusinessIcon/>,
+  //   route: "/overalltraderpnl",
+  //   component: <OverallPnlTrader />,
+  // },
   {
-    type: "collapse",
-    name: "Intern Position",
+    // type: "collapse",
+    // name: "Intern Position",
     key: "internposition",
-    icon: <BusinessIcon/>,
+    // icon: <BadgeIcon/>,
     route: "/internposition",
     component: <InternPosition />,
   },
   {
     type: "collapse",
-    name: "Batch",
-    key: "batch",
-    icon: <BatchIcon/>,
-    route: "/batch",
-    component: < Batch />,
+    name: "Tenx Position",
+    key: "tenxposition",
+    icon: <SupervisorAccountIcon/>,
+    route: "/tenxposition",
+    component: <TenxPosition />,
   },
   {
     type: "collapse",
-    name: "Margin Allocation",
+    name: "Virtual Position",
+    key: "virtualposition",
+    icon: <TryIcon/>,
+    route: "/virtualposition",
+    component: <VirtualPosition />,
+  },
+  // {
+  //   type: "collapse",
+  //   name: "Batch",
+  //   key: "batch",
+  //   icon: <BatchIcon/>,
+  //   route: "/batch",
+  //   component: < Batch />,
+  // },
+  {
+    // type: "collapse",
+    // name: "Margin Allocation",
     key: "tradersMarginAllocation",
-    icon: <WalletIcon/>,
+    // icon: <WalletIcon/>,
     route: "/tradersMarginAllocation",
     component: <TradersMarginAllocation />,
   },
@@ -362,26 +414,26 @@ const routes = [
   //   component: <Carousel />,
   // },
   {
-    type: "collapse",
-    name: "Careers",
+    // type: "collapse",
+    // name: "Careers",
     key: "careerlist",
-    icon: <WorkIcon/>,
+    // icon: <WorkIcon/>,
     route: "/careerlist",
     component: <CareerList />,
   },
   {
-    type: "collapse",
-    name: "College",
+    // type: "collapse",
+    // name: "College",
     key: "college",
-    icon: <SchoolIcon/>,
+    // icon: <SchoolIcon/>,
     route: "/college",
     component: <College />,
   },
   {
-    type: "collapse",
-    name: "Internship Batch",
+    // type: "collapse",
+    // name: "Internship Batch",
     key: "internshipbatch",
-    icon: <BatchIcon/>,
+    // icon: <BatchIcon/>,
     route: "/internshipbatch",
     component: <InternBatch />,
   },
@@ -427,74 +479,74 @@ const routes = [
   },
   
   {
-    type: "collapse",
-    name: "Admin Reports(M)",
+    // type: "collapse",
+    // name: "Admin Reports(M)",
     key: "adminreport",
-    icon: <SummarizeIcon/>,
+    // icon: <SummarizeIcon/>,
     route: "/adminreport",
     component: <AdminReport/>,
   },
   {
-    type: "collapse",
-    name: "Admin Reports(L)",
+    // type: "collapse",
+    // name: "Admin Reports(L)",
     key: "adminreportlive",
-    icon: <SummarizeIcon/>,
+    // icon: <SummarizeIcon/>,
     route: "/adminreportlive",
     component: <AdminReportLive/>,
   },
   {
-    type: "collapse",
-    name: "Trader Reports(M)",
+    // type: "collapse",
+    // name: "Trader Reports(M)",
     key: "tradersReport",
-    icon: <ReportIcon/>,
+    // icon: <ReportIcon/>,
     route: "/tradersReport",
     component: <TradersReport/>,
   },
   {
-    type: "collapse",
-    name: "Trader Reports(L)",
+    // type: "collapse",
+    // name: "Trader Reports(L)",
     key: "tradersReportlive",
-    icon: <ReportIcon/>,
+    // icon: <ReportIcon/>,
     route: "/tradersReportLive",
     component: <TradersReportLive/>,
   },
   {
-    type: "collapse",
-    name: "All Orders",
+    // type: "collapse",
+    // name: "All Orders",
     key: "orders",
-    icon: <TableViewIcon/>,
+    // icon: <TableViewIcon/>,
     route: "/orders",
     component: <Orders />,
   },
   {
-    type: "collapse",
-    name: "Instruments",
+    // type: "collapse",
+    // name: "Instruments",
     key: "instruments",
-    icon:<CandlestickChartIcon/>,
+    // icon:<CandlestickChartIcon/>,
     route: "/instruments",
     component: <Instruments />,
   },
   {
-    type: "collapse",
-    name: "Algo Box(s)",
+    // type: "collapse",
+    // name: "Algo Box(s)",
     key: "algobox",
-    icon: <ManageAccountsIcon/>,
+    // icon: <ManageAccountsIcon/>,
     route: "/algobox",
     component: <AlgoBox />,
   },
   {
-    type: "collapse",
-    name: "Trading Accounts",
+    // type: "collapse",
+    // name: "Trading Accounts",
     key: "trading-accounts",
-    icon: <AccountBalanceIcon/>,
+    // icon: <AccountBalanceIcon/>,
     route: "/trading-accounts",
     component: <TradingAccount />,
   },
   {
-    type: "collapse",
-    name: "App Settings",
+    // type: "collapse",
+    // name: "App Settings",
     key: "setting",
-    icon: <SettingsIcon/>,
+    // icon: <SettingsIcon/>,
     route: "/setting",
     component: <Setting />,
   },
@@ -555,6 +607,23 @@ const routes = [
     icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
+  },
+  {
+    type: "collapse",
+    name: "Internship",
+    key: "internship",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <MenuBookIcon/>,
+    route: "/internship",
+    component: <Internship />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/internship/trade",
+    component: <InternshipTrade/>,
   },
   // {
   //   type: "collapse",
@@ -647,24 +716,6 @@ const routes = [
     route: "/collegeEdit",
     component: <CollegeEdit/>,
   },
-  
-  {
-    type: "collapse",
-    name: "Internship",
-    key: "internship",
-    icon: <AccountBalanceIcon/>,
-    route: "/internship",
-    component: <Internship/>,
-  },
-  {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
-    route: "/internship/trade",
-    component: <InternshipTrade/>,
-  },
-
 
 ];
 

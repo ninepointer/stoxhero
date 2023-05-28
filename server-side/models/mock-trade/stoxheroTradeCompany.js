@@ -58,7 +58,7 @@ const stoxheroTradeCompanySchema = new mongoose.Schema({
         type: Number,        
     },
     instrumentToken:{
-        type: String, 
+        type: Number, 
         required: true 
     },
     isRealTrade:{ 

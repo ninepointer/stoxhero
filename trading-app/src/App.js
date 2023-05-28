@@ -199,7 +199,7 @@ export default function App() {
       <CacheProvider value={rtlCache}>
         <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
           <CssBaseline />
-          {layout === "companyposition" && (
+          {layout === "infinitydashboard" && (
             <>
               {
                 (getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName == InfinityTraderRole || getDetails?.userDetails?.role?.roleName === "data") &&
@@ -265,7 +265,7 @@ export default function App() {
             {/* {configsButton} */}
           </>
         )}
-        {layout === "companyposition" && <Configurator />}
+        {layout === "infinitydashboard" && <Configurator />}
         {/* {layout === "analytics" && <Configurator />} */}
         <Routes>
         {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 

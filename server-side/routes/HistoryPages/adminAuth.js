@@ -36,6 +36,7 @@ const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
+const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually");
 
 
 
@@ -49,15 +50,20 @@ router.get("/deleteMatching", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
   const del = await InfinityTrader.aggregate([
     {
-      $match: {
+      $match:
+      {
+        trade_time: {
+          $gte: new Date("2023-05-26")
+        },
         status: "COMPLETE",
-        // instrumentToken: "18845698",
       },
     },
     {
-      $group: {
+      $group:
+      {
         _id: {
           id: "$_id",
+          orderId: "$order_id",
           userId: "$trader",
           // subscriptionId: "$subscriptionId",
           exchange: "$exchange",
@@ -67,7 +73,7 @@ router.get("/deleteMatching", async (req, res) => {
           validity: "$validity",
           order_type: "$order_type",
           Product: "$Product",
-          algoBoxId: "$algoBox",
+          algoBoxId: "$algoBox"
         },
         runningLots: {
           $sum: "$Quantity",
@@ -79,22 +85,12 @@ router.get("/deleteMatching", async (req, res) => {
         },
       },
     },
-    // {
-    //   $match:
-    //     /**
-    //      * query: The query in MQL.
-    //      */
-    //     {
-    //       runningLots: {
-    //         $gt: 0,
-    //       },
-    //     },
-    // }
     {
-      $project: {
+      $project:
+      {
         _id: "$_id.id",
         userId: "$_id.userId",
-        // subscriptionId: "$_id.subscriptionId",
+        subscriptionId: "$_id.orderId",
         exchange: "$_id.exchange",
         symbol: "$_id.symbol",
         instrumentToken: "$_id.instrumentToken",
@@ -104,16 +100,17 @@ router.get("/deleteMatching", async (req, res) => {
         Product: "$_id.Product",
         runningLots: "$runningLots",
         takeTradeQuantity: "$takeTradeQuantity",
-        algoBoxId: "$_id.algoBoxId",
+        algoBoxId: "$_id.algoBoxId"
       },
     },
     {
       $match: {
         runningLots: {
-          $ne: 0,
+          $ne: 0
         },
-      },
-    },
+      }
+    }
+
   ])
 
   // const result = await del.aggregate(pipeline).toArray();
@@ -123,11 +120,12 @@ router.get("/deleteMatching", async (req, res) => {
 });
 
 router.get("/autotrade", async (req, res) => {
-  // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
-  let arr = await tenx();
-  let arr1 = await paperTrade();
-  let arr2 = await infinityTrade();
-  console.log(arr, arr1, arr2);
+  // let arr = await tenx();
+  // let arr1 = await paperTrade();
+  // let arr2 = await infinityTrade();
+  // console.log(arr, arr1, arr2);
+  await autoCutMainManually();
+  res.send("ok")
 });
 
 router.get("/deletePnlKey", async (req, res) => {

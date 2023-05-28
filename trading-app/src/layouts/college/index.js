@@ -18,8 +18,8 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      {/* <Header/> */}
-      <College/>
+      <Header/>
+      {/* <College/> */}
       <Footer />
     </DashboardLayout>
     </>

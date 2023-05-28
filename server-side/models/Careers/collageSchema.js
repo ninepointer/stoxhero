@@ -11,6 +11,10 @@ const collegeSchema = new mongoose.Schema({
         required: true,
         enum: ['North', 'South', 'East', 'West', 'Central']
     },
+    isDeleted:{
+        type: Boolean,
+        default: false,
+    },
     createdOn:{
         type: Date,
         required : true,

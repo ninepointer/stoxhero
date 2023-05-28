@@ -18,12 +18,12 @@ import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+import { userContext } from '../../../AuthContext';
 
 
-function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
+function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
   const {render, setRender} = useContext(renderContext);
-
-  console.log("rendering : overallgrid")
+  const getDetails = useContext(userContext);
   let styleTD = {
     textAlign: "center",
     fontSize: "9px",
@@ -32,7 +32,6 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
     opacity: 0.7,
   }
 
-  
   const { updateNetPnl , setPnlData} = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const [exitState, setExitState] = useState(false);
@@ -50,8 +49,8 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
   let totalRunningLots = 0;
   let rows = [];
   let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader ? `tenX/${subscriptionId}/trade/pnl` : from === internshipTrader && `internship/pnl/${subscriptionId}`;
+  const [trackEvent, setTrackEvent] = useState({});
 
-  console.log("pnlEndPoint", pnlEndPoint, subscriptionId)
 
     useEffect(()=>{
 
@@ -80,7 +79,16 @@ function OverallGrid({ setIsGetStartedClicked, from, subscriptionId}) {
       })();
 
       return () => abortController.abort();
-    }, [render])
+    }, [render, trackEvent])
+
+    useEffect(()=>{
+      socket.on(`${(getDetails.userDetails._id).toString()}autoCut`, (data)=>{
+        console.log("in the pnl event", data)
+        setTimeout(()=>{
+          setTrackEvent(data);
+        })
+      })
+    }, [])
 
 
     tradeData.map((subelem, index)=>{

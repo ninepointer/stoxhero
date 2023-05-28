@@ -25,6 +25,9 @@ export default function LabTabs() {
   const [campaignCountYesterday, setCampaignCountYesterday] = React.useState(0);
   const [campaignCountThisMonth, setCampaignCountThisMonth] = React.useState(0);
   const [campaignCountAll, setCampaignCountAll] = React.useState(0);
+  const [beginnerCount, setBeginnerCount] = React.useState(0);
+  const [intermediateCount, setIntermediateCount] = React.useState(0);
+  const [proCount, setProCount] = React.useState(0);
   
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -141,12 +144,39 @@ export default function LabTabs() {
           },
       })
 
-    Promise.all([call1, call2, call3, call4, call5, call6, call7, call8, call9, call10, call11, call12])
-    .then(([api1Response, api2Response, api3Response, api4Response, api5Response, api6Response, api7Response, api8Response, api9Response, api10Response, api11Response, api12Response]) => {
+    let call13 = axios.get(`${baseUrl}api/v1/tenx/beginner`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+          },
+      })
+
+    let call14 = axios.get(`${baseUrl}api/v1/tenx/intermediate`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+          },
+      })
+
+    let call15 = axios.get(`${baseUrl}api/v1/tenx/pro`,{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+          },
+      })
+
+    Promise.all([call1, call2, call3, call4, call5, call6, call7, call8, call9, call10, call11, call12, call13, call14, call15])
+    .then(([api1Response, api2Response, api3Response, api4Response, api5Response, api6Response, api7Response, api8Response, api9Response, api10Response, api11Response, api12Response, api13Response, api14Response, api15Response]) => {
       // Process the responses here
       setIsLoading(true)
-      console.log(api1Response.data);
-      console.log(api2Response.data);
+      console.log(api13Response.data);
+      console.log(api14Response.data);
       setToday(api1Response.data.data)
       setTodayCount(api1Response.data.count);
       setYesterday(api2Response.data.data);
@@ -163,6 +193,9 @@ export default function LabTabs() {
       setCampaignCountYesterday(api10Response.data.count);
       setCampaignCountThisMonth(api11Response.data.count);
       setCampaignCountAll(api12Response.data.count);
+      setBeginnerCount(api13Response.data.results);
+      setIntermediateCount(api14Response.data.results);
+      setProCount(api15Response.data.results);
       setIsLoading(false);
     })
     .catch((error) => {
@@ -174,6 +207,8 @@ export default function LabTabs() {
 
   // console.log(thisMonth)
   console.log("IsLoading: ",isLoading)
+  console.log("Beginner: ",beginnerCount)
+  console.log("Intermediate: ",intermediateCount)
   return (
     <>
     {isLoading ?
@@ -184,7 +219,7 @@ export default function LabTabs() {
       :
     
         <>
-      <Grid container spacing={3} mb={1}>
+      <Grid container spacing={2} mb={1}>
           
           <Grid item xs={12} md={6} lg={3}>
             <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
@@ -407,6 +442,82 @@ export default function LabTabs() {
                     <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Campaigns (Total)</MDTypography>
                     <MDBox display="flex">
                       <MDTypography fontWeight='bold' fontSize={15}>{campaignCountAll}</MDTypography>
+                    </MDBox>
+                  </Grid>
+
+                </Grid>
+            </MDBox>
+          </Grid> 
+
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+                <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                  <Grid item xs={12} md={6} lg={3}>
+                    <MDAvatar src={todaysignup} size="sm"/>
+                  </Grid>
+            
+                  <Grid item xs={12} md={6} lg={9}>
+                    <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Subscription (B)</MDTypography>
+                    <MDBox display="flex">
+                      <MDTypography fontWeight='bold' fontSize={15}>{beginnerCount}</MDTypography>
+                    </MDBox>
+                  </Grid>
+
+                </Grid>
+            </MDBox>
+          </Grid> 
+
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+                <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                  <Grid item xs={12} md={6} lg={3}>
+                    <MDAvatar src={todaysignup} size="sm"/>
+                  </Grid>
+            
+                  <Grid item xs={12} md={6} lg={9}>
+                    <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Subscription (I)</MDTypography>
+                    <MDBox display="flex">
+                      <MDTypography fontWeight='bold' fontSize={15}>{intermediateCount}</MDTypography>
+                    </MDBox>
+                  </Grid>
+
+                </Grid>
+            </MDBox>
+          </Grid> 
+
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+                <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                  <Grid item xs={12} md={6} lg={3}>
+                    <MDAvatar src={todaysignup} size="sm"/>
+                  </Grid>
+            
+                  <Grid item xs={12} md={6} lg={9}>
+                    <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Subscription (P)</MDTypography>
+                    <MDBox display="flex">
+                      <MDTypography fontWeight='bold' fontSize={15}>{proCount}</MDTypography>
+                    </MDBox>
+                  </Grid>
+
+                </Grid>
+            </MDBox>
+          </Grid> 
+
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+                <Grid container display="flex" justifyContent="space-between" alignContent='center' alignItems='center'>
+
+                  <Grid item xs={12} md={6} lg={3}>
+                    <MDAvatar src={todaysignup} size="sm"/>
+                  </Grid>
+            
+                  <Grid item xs={12} md={6} lg={9}>
+                    <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Subscriptions (Total)</MDTypography>
+                    <MDBox display="flex">
+                      <MDTypography fontWeight='bold' fontSize={15}>{beginnerCount + intermediateCount + proCount}</MDTypography>
                     </MDBox>
                   </Grid>
 
