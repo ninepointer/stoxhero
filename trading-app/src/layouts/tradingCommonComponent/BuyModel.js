@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../..
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
+const BuyModel = ({traderId, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
   console.log("rendering : buy", subscriptionId)
   const tradeSound = new Howl({
     src : [sound],
@@ -179,6 +179,7 @@ console.log("buttonClicked", buttonClicked)
     let paperTrade = false;
     let tenxTraderPath;
     let internPath ;
+    let fromAdmin ;
     if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
@@ -191,6 +192,11 @@ console.log("buttonClicked", buttonClicked)
     }else if(from === internshipTrader){
       endPoint = 'internPlacingOrder';
       internPath = true;
+    }else if(from === "Admin"){
+      endPoint = 'placingOrder'
+      paperTrade = false;
+      trader = traderId;
+      fromAdmin = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -200,7 +206,7 @@ console.log("buttonClicked", buttonClicked)
         },
         body: JSON.stringify({
           exchange, symbol, buyOrSell, Quantity, Price, 
-          Product, OrderType, TriggerPrice, stopLoss, uId,
+          Product, OrderType, TriggerPrice, stopLoss, uId, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
 

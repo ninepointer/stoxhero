@@ -48,7 +48,7 @@ router.get("/orderData", async (req, res) => {
 
 router.get("/deleteMatching", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
-  const del = await InfinityTrader.aggregate([
+  const del = await InfinityTraderCompany.aggregate([
     {
       $match:
       {
@@ -115,7 +115,7 @@ router.get("/deleteMatching", async (req, res) => {
 
   // const result = await del.aggregate(pipeline).toArray();
 
-  const deleteResult = await InfinityTrader.deleteMany({ _id: { $in: del.map(doc => doc._id) } });
+  const deleteResult = await InfinityTraderCompany.deleteMany({ _id: { $in: del.map(doc => doc._id) } });
   console.log(deleteResult)
 });
 
