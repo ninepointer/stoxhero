@@ -58,6 +58,7 @@ import TryIcon from '@mui/icons-material/Try';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CollegeDetails from './layouts/college/collegeDetails'
 
+import OverallPnlTrader from "./layouts/overallPnlTrader";
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -348,6 +349,14 @@ const routes = [
     route: "/traderposition",
     component: <TraderPosition />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "OverallPnl Trader",
+  //   key: "overalltraderpnl",
+  //   icon: <BusinessIcon/>,
+  //   route: "/overalltraderpnl",
+  //   component: <OverallPnlTrader />,
+  // },
   {
     // type: "collapse",
     // name: "Intern Position",

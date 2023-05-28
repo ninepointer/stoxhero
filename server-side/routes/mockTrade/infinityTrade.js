@@ -3,7 +3,7 @@ const router = express.Router({mergeParams: true});
 const {overallPnlBatchWiseMock, treaderWiseMockTrader, overallPnlAllTrader, overallPnlTrader,myTodaysTrade,myHistoryTrade, 
     getPnlAndCreditData, getMyPnlAndCreditData, openingBalance, traderwiseBatchMock,
     myAllTodaysTrade, overallPnlCompanySide, batchWisePnl, mockBatchToday, getLetestMockTradeCompany,
-    companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl} = require('../../controllers/infinityController');
+    companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl, overallPnlTraderWise} = require('../../controllers/infinityController');
 
 // const {pnlTraderCompany, overallLivePnlToday, getLetestLiveTradeCompany, 
 //     traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive} = require("../../controllers/infinityTrading/infinityLiveCompany")
@@ -28,6 +28,7 @@ router.route('/mock/letestTradeCompany').get(getLetestMockTradeCompany)
 
 router.route('/userMockTrade/:id').get(myAllTodaysTrade)
 router.route('/pnlCompnaySide/:id').get(overallPnlCompanySide)
+router.route('/pnl/traderWise/:trader').get(Authenticate, overallPnlTraderWise)
 // router.route('/live/traderPnlCompany/:id').get(pnlTraderCompany)
 router.route('/traderwisecompanypnlreport/:startDate/:endDate').get(companyDailyPnlTWise)
 router.route('/companypnlreport/:startDate/:endDate').get(companyPnlReport)
