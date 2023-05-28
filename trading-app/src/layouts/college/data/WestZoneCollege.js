@@ -45,7 +45,7 @@ useEffect(()=>{
     console.error(error);
   });
   
-},[])
+},[isLoading])
 
 function backHandler(){
   if(skip <= 0){
@@ -101,22 +101,22 @@ function nextHandler(){
       return new Error(err);
   })
 }
-
-function Delete(id){
+ 
+async function Delete(id){
   console.log(id)
-  axios.get(`${baseUrl}api/v1/college/delete/${id}`,{
-    withCredentials: true,
+  setIsLoading(true)
+  const res = await fetch(`${baseUrl}api/v1/college/delete/${id}`, {
+    method: "PATCH",
+    credentials: "include",
     headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-    },
+      "content-type": "application/json",
+      "Access-Control-Allow-Credentials": true
+    }
   })
-  .then((res) => {
-      setTimeout(()=>{
-          setIsLoading(false)
-        },500)
-  }).catch((err) => {
+  .then(()=>{
+    setIsLoading(false)
+  })
+  .catch((err) => {
       setIsLoading(false)
       return new Error(err);
   })

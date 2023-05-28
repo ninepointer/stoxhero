@@ -129,6 +129,9 @@ exports.overallPnlCompanySide = async (req, res, next) => {
             $toInt: "$Quantity",
           },
         },
+        trades: {
+          $count: {}
+        },
         lastaverageprice: {
           $last: "$average_price",
         },
@@ -141,6 +144,118 @@ exports.overallPnlCompanySide = async (req, res, next) => {
     },
   ])
   res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallCompanySidePnl = async (req, res, next) => {
+  let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);    
+    let pnlDetails = await InfinityTraderCompany.aggregate([
+      {
+        $lookup: {
+          from: 'algo-tradings',
+          localField: 'algoBox',
+          foreignField: '_id',
+          as: 'result'
+        }
+      },
+      {
+        $match: {
+          trade_time: {
+            $gte: today
+            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+          },
+          status: "COMPLETE",
+          "result.isDefault": true
+        },
+      },
+        {
+          $group: {
+            _id: {
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+            },
+            amount: {
+              $sum: {$multiply : ["$amount",-1]},
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            trades: {
+              $count:{}
+            },
+            lastaverageprice: {
+              $last: "$average_price",
+            },
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ])
+      res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.mockLiveTotalTradersCount = async (req, res, next) => {
+  let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);    
+    let pnlDetails = await InfinityTraderCompany.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: today
+            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+          },
+          status: "COMPLETE"
+        }
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader"
+          },
+          runninglots: {
+            $sum: "$Quantity"
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          zeroLotsTraderCount: {
+            $sum: {
+              $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+            }
+          },
+          nonZeroLotsTraderCount: {
+            $sum: {
+              $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          zeroLotsTraderCount: 1,
+          nonZeroLotsTraderCount: 1
+        }
+      }
+      ])
+      res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
 
