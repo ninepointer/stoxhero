@@ -53,7 +53,7 @@ import Campaigns from './layouts/campaign'
 import TutorialVideos from './layouts/tutorialVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
-
+import OverallPnlTrader from "./layouts/overallPnlTrader";
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -320,6 +320,14 @@ const routes = [
     route: "/traderposition",
     component: <TraderPosition />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "OverallPnl Trader",
+  //   key: "overalltraderpnl",
+  //   icon: <BusinessIcon/>,
+  //   route: "/overalltraderpnl",
+  //   component: <OverallPnlTrader />,
+  // },
   {
     type: "collapse",
     name: "Intern Position",
