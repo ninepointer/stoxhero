@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import axios from "axios"
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
@@ -11,9 +12,32 @@ import RunningPNLChart from '../data/runningpnlchart'
 
 //data
 
-export default function LabTabs() {
+export default function LabTabs({socket}) {
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
+  const [trackEvent, setTrackEvent] = useState({});
+  const [liveDetail, setLiveDetail] = useState([]);
+  const [marketData, setMarketData] = useState([]);
+  const [tradeData, setTradeData] = useState([]);
+  const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
+  const [liveTraderCount, setLiveTraderCount] = useState(0);
+  const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
+  const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
+  const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let liveDetailsArr = [];
+  let totalTransactionCost = 0;
+  let totalGrossPnl = 0;
+  let totalRunningLots = 0;
+  let totalTurnover = 0;
+  let totalLots = 0;
+  let totalTrades = 0;
+  let ytotalTransactionCost = 0;
+  let ytotalGrossPnl = 0;
+  let ytotalRunningLots = 0;
+  let ytotalTurnover = 0;
+  let ytotalLots = 0;
+  let ytotalTrades = 0;
 
   const handleChange = (event, newValue) => {
     setIsLoading(true)
@@ -23,61 +47,211 @@ export default function LabTabs() {
     }, 500);
   };
 
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/getliveprice`)
+    .then((res) => {
+        //console.log("live price data", res)
+        setMarketData(res.data);
+        // setDetails.setMarketData(data);
+    }).catch((err) => {
+        return new Error(err);
+    })
+
+    socket.on('tick', (data) => {
+    //   console.log("data from socket in instrument in parent in  mock", data);
+      setMarketData(prevInstruments => {
+        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+        data.forEach(instrument => {
+          instrumentMap.set(instrument.instrument_token, instrument);
+        });
+        return Array.from(instrumentMap.values());
+      });
+    })
+  }, [])
+
+  useEffect(()=>{
+    socket.on('updatePnl', (data)=>{
+      // console.log("in the pnl event", data)
+      setTimeout(()=>{
+        setTrackEvent(data);
+      })
+    })
+  }, [])
+
+  useEffect(()=>{
+    setIsLoading(true)
+    axios.get(`${baseUrl}api/v1/internship/overallinternshippnltoday`)
+    .then((res) => {
+        setTradeData(res.data.data);
+        setTimeout(()=>{
+            setIsLoading(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/internship/liveandtotaltradercounttoday`)
+    .then((res) => {
+        console.log(res.data.data)
+        setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
+        setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
+        setTimeout(()=>{
+            setIsLoading(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/internship/overallinternshippnlyesterday`)
+    .then((res) => {
+        console.log("Yesterday's Data:",res.data.data)
+        setTradeDataYesterday(res.data.data);
+        setTimeout(()=>{
+            setIsLoading(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/internship/liveandtotaltradercountyesterday`)
+    .then((res) => {
+        console.log(res.data.data)
+        setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
+        setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
+        setTimeout(()=>{
+            setIsLoading(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+  
+    
+  }, [trackEvent])
+
+
+  useEffect(() => {
+    return () => {
+        socket.close();
+    }
+  }, [])
+
+  console.log(tradeDataYesterday)
+  tradeData.map((subelem, index)=>{
+    let obj = {};
+    totalRunningLots += Number(subelem.lots)
+    totalTransactionCost += Number(subelem.brokerage);
+    totalTurnover += Number(Math.abs(subelem.amount));
+    totalLots += Number(Math.abs(subelem.totallots))
+    totalTrades += Number(subelem.trades)
+
+    let liveDetail = marketData.filter((elem)=>{
+        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+    })
+    let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+    totalGrossPnl += updatedValue;
+
+    const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+    const quantitycolor = subelem.lots >= 0 ? "success" : "error"
+    const gpnlcolor = updatedValue >= 0 ? "success" : "error"
+    const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+    const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+  })
+
+  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
+  const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
+  const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
+
+  tradeDataYesterday?.map((subelem, index)=>{
+    let obj = {};
+    ytotalRunningLots += Number(subelem.lots)
+    ytotalTransactionCost += Number(subelem.brokerage);
+    ytotalTurnover += Number(Math.abs(subelem.amount));
+    ytotalLots += Number(Math.abs(subelem.lots))
+    ytotalTrades += Number(subelem.trades)
+
+    let yliveDetail = marketData.filter((elem)=>{
+        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+    })
+    let yupdatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+    ytotalGrossPnl += yupdatedValue;
+
+    const yinstrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+    const yquantitycolor = subelem.lots >= 0 ? "success" : "error"
+    const ygpnlcolor = yupdatedValue >= 0 ? "success" : "error"
+    const ypchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+    const yproductcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+  })
+
+  const ytotalGrossPnlcolor = ytotalGrossPnl >= 0 ? "success" : "error"
+  const ytotalnetPnlcolor = (ytotalGrossPnl-ytotalTransactionCost) >= 0 ? "success" : "error"
+  const ytotalquantitycolor = ytotalRunningLots >= 0 ? "success" : "error"
+
+
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
-        {/* <MDBox minHeight='40vH' border='1px solid grey' borderRadius={4} display='flex' justifyContent='center' flexDirection='column' alignItems='center'>
-            <MDAvatar src={man}></MDAvatar>
-            <MDTypography fontSize={20} fontWeight='bold'>Under Construction</MDTypography>
-        </MDBox> */}
         <MDBox>
             <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Career Dashboard</MDTypography>
         </MDBox>
 
         <Grid container lg={12}>
             <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
+                {isLoading ? 
+                    <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+                        <CircularProgress color='info'/>
+                    </MDBox>
+                :
+                <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Position (Internship) - All Batches</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Internship Position - All Batches</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                                <MDTypography color={totalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (totalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalGrossPnl))}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTransactionCost)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (totalGrossPnl - totalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl - totalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTransactionCost - totalGrossPnl))}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Open Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{totalLots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                                <MDTypography color={totalquantitycolor} fontSize={12} display='flex' justifyContent='center'>{totalRunningLots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTurnover)}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{totalTrades}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Attended/Total</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value/Value</MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCount}/{notliveTraderCount + liveTraderCount}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -87,51 +261,53 @@ export default function LabTabs() {
                     </Grid>
 
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's Position (Internship) - All Batches</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's Internship Position - All Batches</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ (ytotalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-ytotalGrossPnl))}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTransactionCost)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ (ytotalGrossPnl - ytotalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalGrossPnl - ytotalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTransactionCost - ytotalGrossPnl))}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Open Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday?.lots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday?.lots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹0</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>0</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Attended/Total</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>Value/Value</MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>0/0</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>Value</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>0</MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
+                </>
+                }
             </Grid>
         </Grid>
 
@@ -326,17 +502,17 @@ export default function LabTabs() {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Company's Report(L)</MDTypography>
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Internship Leader Board</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check company side live trades report here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check internship leaderboard here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Green Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -358,17 +534,17 @@ export default function LabTabs() {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(M)</MDTypography>
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Internship Certificates</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check trader side mock trades report here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check IC of candidates here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}># of Certificated Issued: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -390,17 +566,17 @@ export default function LabTabs() {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(L)</MDTypography>
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Queries</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check trader side live trades report here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check queries form candidates here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Queries: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -435,68 +611,56 @@ export default function LabTabs() {
                                 size="small" 
                                 component = {Link}
                                 to={{
-                                    pathname: `/algobox`,
+                                    pathname: `/campaigns`,
                                   }}
                             >
-                                AlgoBox
+                                Campaigns
                             </MDButton>
                         </Grid>
-                        <Grid item>
-                            <MDButton 
-                                variant="contained" 
-                                color={"primary"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/trading-accounts`,
-                                  }}
-                            >
-                                Trading Account
-                            </MDButton>
-                        </Grid>
-                        <Grid item>
-                            <MDButton 
-                                variant="contained" 
-                                color={"error"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/instruments`,
-                                  }}
-                            >
-                                Instruments
-                            </MDButton>
-                        </Grid>
-                        <Grid item>
+                        <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
                                 color={"warning"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
-                                    pathname: `/setting`,
+                                    pathname: `/portfolio`,
                                   }}
                             >
-                                App Settings
+                                Portfolio
                             </MDButton>
                         </Grid>
-                        <Grid item>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"error"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/referralprogram`,
+                                  }}
+                            >
+                                Referral Program
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
                                 color={"dark"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
-                                    pathname: `/tradersMarginAllocation`,
+                                    pathname: `/tutorialvideos`,
                                   }}
                             >
-                                Margin Allocation
+                                Tutorial Videos
                             </MDButton>
                         </Grid>
                     </Grid>
                 </MDBox>
                 
             </Grid>
+
         </Grid>
 
     </MDBox>

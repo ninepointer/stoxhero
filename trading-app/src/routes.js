@@ -2,7 +2,8 @@
 import CompanyPosition from "./layouts/companyposition";
 import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
-// import TraderDashboard from "./layouts/traderdashboard";
+import TenXDashboard from "./layouts/tenxdashboard";
+import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/orders";
 import Instruments from "./layouts/instruments";
 // import Contests from "./layouts/contests";
@@ -57,6 +58,8 @@ import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import TryIcon from '@mui/icons-material/Try';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CollegeDetails from './layouts/college/collegeDetails'
+import Forward10Icon from '@mui/icons-material/Forward10';
+import MyPortfolio from './layouts/UserPortfolio'
 
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 
@@ -79,22 +82,22 @@ import PersonIcon from '@mui/icons-material/Person';
 // import DashboardIcon from '@mui/icons-material/Dashboard';
 // import TableViewIcon from '@mui/icons-material/TableView';
 import BusinessIcon from '@mui/icons-material/Business';
-import CampaignIcon from '@mui/icons-material/Campaign';
-import FolderSharedIcon from '@mui/icons-material/FolderShared';
+// import CampaignIcon from '@mui/icons-material/Campaign';
+// import FolderSharedIcon from '@mui/icons-material/FolderShared';
 // import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
 // import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 // import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
+// import AccountBoxIcon from '@mui/icons-material/AccountBox';
 // import WalletIcon from '@mui/icons-material/Wallet';
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+// import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 // import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
 // import BatchIcon from '@mui/icons-material/Diversity3';
-import CardMembershipIcon from '@mui/icons-material/CardMembership';
+// import CardMembershipIcon from '@mui/icons-material/CardMembership';
 // import UserContest from "./layouts/UserContest"
 // import Batch from "./layouts/batch";
 // import WorkIcon from '@mui/icons-material/Work';
-import { GiNinjaHeroicStance } from 'react-icons/gi';
+// import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
@@ -114,9 +117,9 @@ import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
 import VirtualPosition from "./layouts/virtualtradePosition";
-import TenxPosition from "./layouts/ten"
+import TenxPosition from "./layouts/tenXPosition"
 // import BadgeIcon from '@mui/icons-material/Badge';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+// import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
 import InternshipOrders from './layouts/internshipOrders'
 // import SchoolIcon from '@mui/icons-material/School';
@@ -130,6 +133,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
     component: <InfinityDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "TenX Dashboard",
+    key: "tenxdashboard",
+    icon: <Forward10Icon/>,
+    route: "/tenxdashboard",
+    component: <TenXDashboard />,
   },
   {
     type: "collapse",
@@ -366,10 +377,10 @@ const routes = [
     component: <InternPosition />,
   },
   {
-    type: "collapse",
-    name: "Tenx Position",
+    // type: "collapse",
+    // name: "Tenx Position",
     key: "tenxposition",
-    icon: <SupervisorAccountIcon/>,
+    // icon: <SupervisorAccountIcon/>,
     route: "/tenxposition",
     component: <TenxPosition />,
   },
@@ -446,34 +457,34 @@ const routes = [
   //   component: <AlgoPosition />,
   // },
   {
-    type: "collapse",
-    name: "Referral Program",
+    // type: "collapse",
+    // name: "Referral Program",
     key: "referralprogram",
-    icon: <FolderSharedIcon/>,
+    // icon: <FolderSharedIcon/>,
     route: "/referralprogram",
     component: <Referral />,
   },
   {
-    type: "collapse",
-    name: "Campaigns",
+    // type: "collapse",
+    // name: "Campaigns",
     key: "campaigns",
-    icon: <CampaignIcon/>,
+    // icon: <CampaignIcon/>,
     route: "/campaigns",
     component: <Campaigns />,
   },
   {
-    type: "collapse",
-    name: "TenX Subscriptions",
+    // type: "collapse",
+    // name: "TenX Subscriptions",
     key: "tenxsubscriptions",
-    icon: <CardMembershipIcon/>,
+    // icon: <CardMembershipIcon/>,
     route: "/tenxsubscriptions",
     component: <TenXSubscription />,
   },
   {
-    type: "collapse",
-    name: "Tutorial Videos",
+    // type: "collapse",
+    // name: "Tutorial Videos",
     key: "tutorialvideos",
-    icon: <CardMembershipIcon/>,
+    // icon: <CardMembershipIcon/>,
     route: "/tutorialvideos",
     component: <TutorialVideos />,
   },
@@ -551,10 +562,10 @@ const routes = [
     component: <Setting />,
   },
   {
-    type: "collapse",
-    name: "Portfolio",
+    // type: "collapse",
+    // name: "Portfolio",
     key: "portfolio",
-    icon: <Shop2Icon/>,
+    // icon: <Shop2Icon/>,
     route: "/portfolio",
     component: <Portfolio />,
   },
@@ -591,20 +602,20 @@ const routes = [
     component: <UserPosition />,
   },
   {
-    type: "collapse",
-    name: "Infinity Trading",
+    // type: "collapse",
+    // name: "Infinity Trading",
     key: "infinitytrading",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <GiNinjaHeroicStance/>,
+    // icon: <GiNinjaHeroicStance/>,
     route: "/infinitytrading",
     component: <InfinityTrader />,
   },
   {
-    type: "collapse",
-    name: "TenX Trading",
+    // type: "collapse",
+    // name: "TenX Trading",
     key: "tenxtrading",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <CurrencyRupeeIcon/>,
+    // icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
   },
@@ -658,44 +669,44 @@ const routes = [
     component: <ContestTradePage />,
   },
   {
-    type: "collapse",
-    name: "Orders",
+    // type: "collapse",
+    // name: "Orders",
     key: "userorders",
-    icon: <InventoryIcon/>,
+    // icon: <InventoryIcon/>,
     route: "/userorders",
     component: <UserOrders />,
   },
   {
-    type: "collapse",
-    name: "Referrals",
+    // type: "collapse",
+    // name: "Referrals",
     key: "myreferrals",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <PersonIcon/>,
+    // icon: <PersonIcon/>,
     route: "/myreferrals",
     component: <MyReferrals />,
   },
   {
-    type: "collapse",
-    name: "Analytics",
+    // type: "collapse",
+    // name: "Analytics",
     key: "analytics",
     // icon: <Icon fontSize="small">person</Icon>,
-    icon: <AnalyticsIcon/>,
+    // icon: <AnalyticsIcon/>,
     route: "/analytics",
     component: <UserAnalytics />,
   },
   {
-    type: "collapse",
-    name: "Funds",
+    // type: "collapse",
+    // name: "Funds",
     key: "funds",
-    icon: <CurrencyRupeeIcon/>,
+    // icon: <CurrencyRupeeIcon/>,
     route: "/funds",
     component: <Funds />,
   },
   {
-    type: "collapse",
-    name: "Profile",
+    // type: "collapse",
+    // name: "Profile",
     key: "profile",
-    icon: <AccountBoxIcon/>,
+    // icon: <AccountBoxIcon/>,
     route: "/profile",
     component: <Profile />,
   },
@@ -715,6 +726,14 @@ const routes = [
     // icon: <AccountBalanceWalletIcon/>,
     route: "/collegeEdit",
     component: <CollegeEdit/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Portfolio",
+    key: "portfolio",
+    // icon: <BusinessCenterIcon/>,
+    route: "/myportfolio",
+    component: <MyPortfolio />,
   },
 
 ];

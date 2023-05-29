@@ -70,6 +70,8 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Internship Batches"
   } else if(title === "tutorialvideos"){
     title = "Tutorial Videos"
+  } else if(title === "companyposition"){
+    title = "Company Position"
   }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
