@@ -47,7 +47,8 @@ const redisBackup = new Schema({
     },
     dontSendResp:{
         type: Boolean,
-        required: true
+        default: false
+        // required: true
     },
 })
 

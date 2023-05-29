@@ -90,7 +90,8 @@ const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumen
   })
 
   useEffect(()=>{
-    socket.on(`sendResponse${trader.toString()}`, (data)=>{
+    socket?.on(`sendResponse${trader.toString()}`, (data)=>{
+      render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
   }, [])
@@ -202,13 +203,14 @@ const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumen
         })
     });
     const dataResp = await res.json();
-    ////console.log("dataResp", dataResp)
+    console.log("dataResp", dataResp, res)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        ////console.log(dataResp.error)
+        console.log("dataResp if")
         // window.alert(dataResp.error);
         openSuccessSB('error', dataResp.error)
         //////console.log("Failed to Trade");
     } else {
+      console.log("dataResp else")
       //console.log("caseStudy 3: place resp")
       tradeSound.play();
         if(dataResp.message === "COMPLETE"){
@@ -223,9 +225,10 @@ const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumen
             // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
             // window.alert("AMO Request Recieved");
+        } else if(dataResp.message === "Live"){
         } else{
-          openSuccessSB('else', dataResp.message)
-          // window.alert(dataResp.message);
+            openSuccessSB('else', dataResp.message)
+
         }
     }
     setBuyFormDetails({});

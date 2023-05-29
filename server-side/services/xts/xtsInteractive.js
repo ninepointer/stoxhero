@@ -12,12 +12,13 @@ const BrokerageDetail = require("../../models/Trading Account/brokerageSchema");
 const RedisBackup = require("../../models/TradeDetails/orderIdKeyBackup");
 const mongoose = require('mongoose');
 const { save } = require("./xtsHelper/saveXtsCred");
+const { ObjectId } = require('mongodb');
 
 
 
 let xtsInteractiveWS;
 let xtsInteractiveAPI;
-// let orderData ;
+let isReverseTrade = false;
 const interactiveLogin = async () => {
   xtsInteractiveAPI = new XTSInteractive(
     process.env.INTERACTIVE_URL
@@ -26,7 +27,7 @@ const interactiveLogin = async () => {
   xtsInteractiveWS = new XTSInteractiveWS(
     process.env.INTERACTIVE_URL
   );
-  console.log("xtsInteractiveAPI", xtsInteractiveAPI)
+  // console.log("xtsInteractiveAPI", xtsInteractiveAPI)
   let loginRequest = {
     secretKey: process.env.INTERACTIVE_SECRET_KEY,
     appKey: process.env.INTERACTIVE_APP_KEY,
@@ -34,7 +35,7 @@ const interactiveLogin = async () => {
 
   try {
     (async () => {
-      console.log(loginRequest, process.env.INTERACTIVE_URL)
+      // console.log(loginRequest, process.env.INTERACTIVE_URL)
       let logIn = await xtsInteractiveAPI.logIn(loginRequest);
       console.log(logIn)
       let socketInitRequest = {
@@ -46,7 +47,7 @@ const interactiveLogin = async () => {
       xtsInteractiveWS.init(socketInitRequest);
 
       xtsInteractiveWS.onConnect((connectData) => {
-        console.log("socket connection", connectData);
+        // console.log("socket connection", connectData);
       });
 
       xtsInteractiveWS.onJoined((joinedData) => {
@@ -64,8 +65,9 @@ const interactiveLogin = async () => {
 }
 
 const placedOrderData = async () => {
+  let isRedisConnected = getValue();
   xtsInteractiveWS.onOrder(async (orderData) => {
-    let traderData = {};
+    
     if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
 
       let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
@@ -90,24 +92,82 @@ const placedOrderData = async () => {
 
         const saveOrder = await RetrieveOrder.updateOne({order_id: AppOrderID}, { $setOnInsert: retreiveObj }, { upsert: true });
 
-      
+        const initialTime = Date.now();
+        if(!isReverseTrade){
+          console.log("isReverseTrade", isReverseTrade)
+          await placedOrderDataHelper(initialTime, orderData);
+        }
+        
 
-      if(isRedisConnected && await client.exists(`liveOrderBackupKey`)){
-        let data = await client.HGET('liveOrderBackupKey', `${(orderData?.AppOrderID).toString()}`);
-        traderData = JSON.parse(data);
-      } else{
-        traderData = await RedisBackup.findOne({order_id: orderData?.AppOrderID})
-      }
-
-      const startTime = Date.now();
-      await getPlacedOrderAndSave(orderData, traderData, startTime);
 
     }
   })
 }
 
+const placedOrderDataHelper = async(initialTime, orderData) => {
+  let isRedisConnected = getValue();
+
+  let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
+        OrderType, TimeInForce, OrderQuantity} = orderData;
+  let traderData = {};
+  if (Date.now() - initialTime >= 2000) {
+    let exchangeSegment;
+    let exchange = "NFO";
+    if (exchange === "NFO") {
+      exchangeSegment = 'NSEFO'
+    }
+    if (exchange === "NSE") {
+      exchangeSegment = 'NSECM'
+    }
+    if (OrderSide === "Buy") {
+      buyOrSell = "SELL"
+    } else {
+      buyOrSell = "BUY"
+    }
+
+    const response = await xtsInteractiveAPI.placeOrder({
+      exchangeSegment: exchangeSegment,
+      exchangeInstrumentID: ExchangeInstrumentID,
+      productType: ProductType,
+      orderType: OrderType,
+      orderSide: buyOrSell,
+      timeInForce: TimeInForce,
+      disclosedQuantity: 0,
+      orderQuantity: Math.abs(OrderQuantity),
+      limitPrice: 0,
+      stopPrice: 0,
+      clientID: process.env.XTS_CLIENTID,
+    });
+
+    isReverseTrade = true;
+    // await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
+    // io.emit(`sendResponse${trader.toString()}`, { message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", status: "Error" })
+    return; // Terminate recursion
+  }
+
+  if(isRedisConnected && await client.exists(`liveOrderBackupKey`)){
+    let data = await client.HGET('liveOrderBackupKey', `${(orderData?.AppOrderID).toString()}`);
+    traderData = JSON.parse(data);
+  } else{
+    traderData = await RedisBackup.findOne({order_id: orderData?.AppOrderID})
+  }
+
+  const startTime = Date.now();
+
+  if(!traderData?.trader){
+    console.log("running recursively")
+   await placedOrderDataHelper(initialTime, orderData); 
+  }
+
+  if(traderData?.trader){
+    await getPlacedOrderAndSave(orderData, traderData, startTime);
+    return;
+  }
+}
+
 const placeOrder = async (obj, req, res) => {
   let isRedisConnected = getValue();
+  isReverseTrade = false;
   let exchangeSegment;
   if (obj.exchange === "NFO") {
     exchangeSegment = 'NSEFO'
@@ -145,15 +205,20 @@ const placeOrder = async (obj, req, res) => {
   }
 
   //check status, if status is 400 then send below error response.
-  if (response?.result?.AppOrderID) {
-    if(isRedisConnected){
-      await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(backupObj));
+
+  console.log("app order id", response?.result?.AppOrderID, response)
+  // setTimeout(async ()=>{
+    if (response?.result?.AppOrderID) {
+      if(isRedisConnected){
+        await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(backupObj));
+      }
+      const redisBackup = await RedisBackup.create(backupObj);  
+      res.status(200).json({message: "Live"})
+    } else{
+      return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
     }
-    const redisBackup = await RedisBackup.create(backupObj);  
-  } else{
-    return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
-  }
-  // return response;
+  // }, 4000)
+
 }
 
 
@@ -184,18 +249,18 @@ if transaction is unsuccessful
 */
 
 const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
-
-  if (exchange === "NFO") {
-    exchangeSegment = 2;
-  }
+  
 
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-    instrumentToken, dontSendResp } = traderData
+    instrumentToken, dontSendResp, tradedBy } = traderData
 
   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
 
+    if (exchange === "NFO") {
+      exchangeSegment = 2;
+    }
 
   if (Date.now() - startTime >= 10000) {
     let exchangeSegment;
@@ -224,7 +289,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
     });
-
+    // await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
     io.emit(`sendResponse${trader.toString()}`, { message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", status: "Error" })
     return; // Terminate recursion
   }
@@ -270,9 +335,6 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     if (!OrderAverageTradedPrice) {
       OrderAverageTradedPrice = 0;
     }
-
-    // let responseMsg = status;
-    // let responseErr = CancelRejectReason;
 
     if (transaction_type == "SELL") {
       OrderQuantity = 0 - OrderQuantity;
@@ -361,42 +423,98 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: AppOrderID }, { $setOnInsert: companyDoc }, { upsert: true, session });
     const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: AppOrderID }, { $setOnInsert: traderDoc }, { upsert: true, session });
     const mockCompany = await InfinityMockCompany.updateOne({ order_id: AppOrderID }, { $setOnInsert: companyDocMock }, { upsert: true, session });
-    const algoTrader = await InfinityMockTrader.updateOne({ order_id: AppOrderID }, { $setOnInsert: traderDocMock }, { upsert: true, session })
-
+    const algoTrader = await InfinityMockTrader.updateOne({ order_id: AppOrderID }, { $setOnInsert: traderDocMock }, { upsert: true, session });
+    // const traderDocMock = await InfinityMockTrader.findOne({ _id: algoTrader.upsertedId });
+    // console.log("algoTrader", algoTrader)
+    // console.log("algoTraderLive", algoTraderLive)
+    // console.log("mockCompany", mockCompany)
+    // console.log("traderDocMock", traderDocMock)
     let settingRedis;
     if (await client.exists(`${trader.toString()} overallpnl`)) {
       let pnl = await client.get(`${trader.toString()} overallpnl`)
       pnl = JSON.parse(pnl);
-      console.log("redis pnl", pnl)
-      const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product));
+      // console.log("redis pnl", pnl)
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === traderDocMock.instrumentToken && element._id.product === traderDocMock.Product));
       // if instrument is same then just updating value
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
-        matchingElement.amount += (algoTrader[0].amount * -1);
-        matchingElement.brokerage += Number(algoTrader[0].brokerage);
-        matchingElement.lastaverageprice = algoTrader[0].average_price;
-        matchingElement.lots += Number(algoTrader[0].Quantity);
+        matchingElement.amount += (traderDocMock.amount * -1);
+        matchingElement.brokerage += Number(traderDocMock.brokerage);
+        matchingElement.lastaverageprice = traderDocMock.average_price;
+        matchingElement.lots += Number(traderDocMock.Quantity);
 
       } else {
         // Create a new element if instrument is not matching
         pnl.push({
           _id: {
-            symbol: algoTrader[0].symbol,
-            product: algoTrader[0].Product,
-            instrumentToken: algoTrader[0].instrumentToken,
-            exchangeInstrumentToken: algoTrader[0].exchangeInstrumentToken,
-            exchange: algoTrader[0].exchange,
+            symbol: traderDocMock.symbol,
+            product: traderDocMock.Product,
+            instrumentToken: traderDocMock.instrumentToken,
+            exchangeInstrumentToken: traderDocMock.exchangeInstrumentToken,
+            exchange: traderDocMock.exchange,
           },
-          amount: (algoTrader[0].amount * -1),
-          brokerage: Number(algoTrader[0].brokerage),
-          lots: Number(algoTrader[0].Quantity),
-          lastaverageprice: algoTrader[0].average_price,
+          amount: (traderDocMock.amount * -1),
+          brokerage: Number(traderDocMock.brokerage),
+          lots: Number(traderDocMock.Quantity),
+          lastaverageprice: traderDocMock.average_price,
         });
       }
       settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
-      console.log("in chek if 3", settingRedis)
+      // console.log("in chek if 3", settingRedis)
       console.log(settingRedis)
-    }
+    } 
+    // else{
+    //   let date = new Date();
+    //   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    //   todayDate = todayDate + "T00:00:00.000Z";
+    //   const today = new Date(todayDate);
+
+    //   let pnlDetails = await InfinityMockTrader.aggregate([
+    //     {
+    //       $match: {
+    //         trade_time: {
+    //           $gte: today
+    //         },
+    //         status: "COMPLETE",
+    //         trader: new ObjectId(trader)
+    //       },
+    //     },
+    //     {
+    //       $group: {
+    //         _id: {
+    //           symbol: "$symbol",
+    //           product: "$Product",
+    //           instrumentToken: "$instrumentToken",
+    //           exchangeInstrumentToken: "$exchangeInstrumentToken",
+    //           exchange: "$exchange"
+    //         },
+    //         amount: {
+    //           $sum: { $multiply: ["$amount", -1] },
+    //         },
+    //         brokerage: {
+    //           $sum: {
+    //             $toDouble: "$brokerage",
+    //           },
+    //         },
+    //         lots: {
+    //           $sum: {
+    //             $toInt: "$Quantity",
+    //           },
+    //         },
+    //         lastaverageprice: {
+    //           $last: "$average_price",
+    //         },
+    //       },
+    //     },
+    //     {
+    //       $sort: {
+    //         _id: -1,
+    //       },
+    //     },
+    //   ])
+    //   console.log("pnlDetails", pnlDetails)
+    //   settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnlDetails))
+    // }
 
     await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
     // Commit the transaction
@@ -415,7 +533,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     if (!dontSendResp) {
       await client.expire(`liveOrderBackupKey`, 600);
       await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
-      io.emit("updatePnl", liveCompanyTrade)
+      io.emit("updatePnl", traderDocMock)
       io.emit(`sendResponse${trader.toString()}`, { message: {Quantity: Quantity, symbol: symbol}, status: "complete" })
       // return res.status(201).json({ message: responseMsg, err: responseErr })
     }
@@ -424,8 +542,8 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     await client.del(`${trader.toString()} overallpnl`)
     await session.abortTransaction();
 
-    console.error('Transaction failed, documents not saved:', err, response);
-
+    console.error('Transaction failed, documents not saved:', err);
+    console.log(traderData, startTime);
     await getPlacedOrderAndSave(orderData, traderData, startTime);
     // return res.status(201).json({ message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", err: "Error" })
 

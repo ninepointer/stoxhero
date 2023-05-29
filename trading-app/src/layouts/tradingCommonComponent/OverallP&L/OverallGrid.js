@@ -19,11 +19,12 @@ import { marketDataContext } from '../../../MarketDataContext';
 import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+import { userContext } from '../../../AuthContext';
 
 
 function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
   const {render, setRender} = useContext(renderContext);
-
+  const getDetails = useContext(userContext);
   console.log("rendering : overallgrid")
   let styleTD = {
     textAlign: "center",
@@ -33,7 +34,11 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
     opacity: 0.7,
   }
 
-  
+  // useEffect(()=>{
+  //   socket.on(`sendResponse${getDetails.userDetails._id.toString()}`, (data)=>{
+      
+  //   })
+  // }, [])
   const { updateNetPnl , setPnlData} = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const [exitState, setExitState] = useState(false);
@@ -134,7 +139,7 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
 
       obj.avgPrice = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {"₹"+subelem.lastaverageprice?.toFixed(2)}
+          {"₹"+subelem?.lastaverageprice}
         </MDTypography>
       );
 
