@@ -261,6 +261,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     console.log("Under today orders", today)
     try {
       const todaysinternshiporders = await InternshipOrders.find({trade_time: {$gte:today}}, {'trader':1,'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+        .populate('trader','employeeid first_name last_name')
         .sort({_id: -1})
         .skip(skip)
         .limit(limit);

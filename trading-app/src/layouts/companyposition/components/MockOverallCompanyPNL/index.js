@@ -88,18 +88,6 @@ function MockOverallCompantPNL({socket}) {
       axios.get(`${baseUrl}api/v1/getoverallpnlmocktradecompanytoday`)
       .then((res) => {
           setTradeData(res.data);
-        //   res.data.map((elem)=>{
-        //     marketData.map((subElem)=>{
-        //         if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-        //             liveDetailsArr.push(subElem)
-        //         }
-        //     })
-        //   })
-
-        // setLiveDetail(liveDetailsArr);
-
-                 
-
       }).catch((err) => {
           return new Error(err);
       })

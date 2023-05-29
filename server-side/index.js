@@ -202,6 +202,7 @@ app.use('/api/v1/paperTrade', require("./routes/mockTrade/paperTrade"));
 app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
 app.use('/api/v1/career', require("./routes/career/careerRoute"));
 app.use('/api/v1/tenX', require("./routes/tenXSubscription/tenXRoute"));
+app.use('/api/v1/tenxtrade', require("./routes/mockTrade/tenXTradeRoute"));
 app.use('/api/v1/internship', require("./routes/mockTrade/internshipTradeRoutes"));
 app.use('/api/v1/college', require("./routes/career/collegeRoute"));
 app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
@@ -235,7 +236,9 @@ let weekDay = date.getDay();
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, appOffline);
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-        const autotrade = nodeCron.schedule('50 9 * * *', test);
+        // const autotrade = nodeCron.schedule('50 9 * * *', test);
+        const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
+
     }
   }
 
@@ -245,5 +248,5 @@ let weekDay = date.getDay();
   }
 
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT||5002;
 const server = app.listen(PORT);

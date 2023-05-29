@@ -65,7 +65,8 @@ import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 
 export default function App() {
-  const cookieValue = Cookies.get("jwt");
+  const cookieValue = Cookies.get("jwtoken");
+  console.log(cookieValue,Cookies.get("jwtoken"))
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -193,6 +194,7 @@ export default function App() {
   );
 
   console.log("Path Name: ",pathname)
+  console.log(detailUser.role?.roleName, adminRole, cookieValue)
 
   return direction === "rtl" ? (
     
@@ -222,16 +224,6 @@ export default function App() {
               {configsButton}
             </>
           )}
-          {/* {layout === "vr" && <Configurator />}
-          <Routes>
-          {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
-            ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 
-            ? getRoutes(routesInfinityTrader) : (detailUser.role?.roleName === userRole || getDetails?.userDetails?.role?.roleName === userRole) 
-            ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
-            ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
-            }
-            <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
-          </Routes> */}
         </ThemeProvider>
       </CacheProvider>
     
@@ -274,9 +266,9 @@ export default function App() {
         ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }
-
+       
           {!cookieValue  ?  
-
+          
           pathname == "/login" ?
           <Route path="/login" element={<SignIn />} />
           :
@@ -286,13 +278,17 @@ export default function App() {
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :
-          <Route path="/" element={<SignIn />} />
+          <Route path="/" element={<Home />} />
           :
           pathname == "/" || !pathname ?
-          <Route path="/" element={<Navigate to="/virtualtrading" />} />
-          :
+          <Route path="/" element={<Navigate 
+            to={detailUser.role?.roleName === adminRole ? "/infinitydashboard" : '/tenxtrading'} 
+            />} />
+            :
+            ''
           // <Route path="/" element={<Navigate to={pathname} />} />
-          <Route path="/" element={<Navigate to={pathname} />} />
+          // <Route path="/" element={<Navigate to="/virtualtrading" />} />
+          
           }
           <Route path='/resetpassword' element={<ResetPassword/>}/>
           <Route path='/careers' element={<Careers/>}/>
