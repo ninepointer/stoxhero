@@ -277,6 +277,11 @@ exports.overallCompanySidePnl = async (req, res, next) => {
                 $toInt: "$Quantity",
               },
             },
+            totallots: {
+              $sum: {
+                $toInt: { $abs : "$Quantity"},
+              },
+            },
             trades: {
               $count:{}
             },

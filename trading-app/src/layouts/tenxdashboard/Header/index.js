@@ -39,14 +39,6 @@ export default function LabTabs({socket}) {
   let ytotalLots = 0;
   let ytotalTrades = 0;
 
-  const handleChange = (event, newValue) => {
-    setIsLoading(true)
-    setValue(newValue);
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500);
-  };
-
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
@@ -79,29 +71,29 @@ export default function LabTabs({socket}) {
   }, [])
 
   useEffect(()=>{
-    console.log("Inside UseEffect")
+    console.log("Loading: ",isLoading)
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnltoday`)
     .then((res) => {
         console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data);
-        setTimeout(()=>{
-            setIsLoading(false)
-        },500)
+        // setTimeout(()=>{
+        //     setIsLoading(false)
+        // },500)
         
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
     })
-
+    console.log("Loading: ",isLoading)
     axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercounttoday`)
     .then((res) => {
         console.log("TenX Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
-        setTimeout(()=>{
-            setIsLoading(false)
-        },500)
+        // setTimeout(()=>{
+        //     setIsLoading(false)
+        // },500)
         
     }).catch((err) => {
         setIsLoading(false)
@@ -112,9 +104,9 @@ export default function LabTabs({socket}) {
     .then((res) => {
         console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
-        setTimeout(()=>{
-            setIsLoading(false)
-        },500)
+        // setTimeout(()=>{
+        //     setIsLoading(false)
+        // },500)
         
     }).catch((err) => {
         setIsLoading(false)
@@ -138,7 +130,7 @@ export default function LabTabs({socket}) {
     
   }, [trackEvent])
 
-
+  console.log("Loading: ",isLoading)
   useEffect(() => {
     return () => {
         socket.close();
@@ -151,7 +143,7 @@ export default function LabTabs({socket}) {
     totalRunningLots += Number(subelem.lots)
     totalTransactionCost += Number(subelem.brokerage);
     totalTurnover += Number(Math.abs(subelem.amount));
-    totalLots += Number(Math.abs(subelem.lots))
+    totalLots += Number(Math.abs(subelem.totallots))
     totalTrades += Number(subelem.trades)
 
     let liveDetail = marketData.filter((elem)=>{

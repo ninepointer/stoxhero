@@ -64,7 +64,7 @@ export default function LabTabs({socket}) {
 
   useEffect(()=>{
     socket.on('updatePnl', (data)=>{
-      // console.log("in the pnl event", data)
+      console.log("in the pnl event", data)
       setTimeout(()=>{
         setTrackEvent(data);
       })
@@ -114,7 +114,7 @@ export default function LabTabs({socket}) {
     totalRunningLots += Number(subelem.lots)
     totalTransactionCost += Number(subelem.brokerage);
     totalTurnover += Number(Math.abs(subelem.amount));
-    totalLots += Number(Math.abs(subelem.lots))
+    totalLots += Number(Math.abs(subelem.totallots))
     totalTrades += Number(subelem.trades)
 
     let liveDetail = marketData.filter((elem)=>{
