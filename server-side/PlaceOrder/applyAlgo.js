@@ -28,7 +28,7 @@ const ApplyAlgo = async (req, res, next)=>{
     let userPermission = await UserPermission.find({userId: userId}).populate('algoId', 'algoName')
     let instrumentMapping = await InstrumentMapping.find({Status: "Active"});
 
-    //console.log("userPermission", userPermission)
+    // console.log("userPermission", userPermission)
 
     let companyTrade = {};
 
@@ -52,7 +52,7 @@ const ApplyAlgo = async (req, res, next)=>{
         }
     }
 
-    //console.log("userPermissionAlgo", userPermissionAlgo, tradingAlgoArr)
+    // console.log("userPermissionAlgo", userPermissionAlgo, tradingAlgoArr)
 
     function instrumentMappingFunc(){
         let flag = true;

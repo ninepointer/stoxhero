@@ -18,6 +18,7 @@ const Authenticate = async (req, res, next)=>{
     if (req.cookies) {
         if(req.cookies.jwtoken) token = req.cookies.jwtoken;
     }
+        // console.log("Token: ",req.cookies.jwtoken)
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
 
 

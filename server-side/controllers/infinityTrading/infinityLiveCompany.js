@@ -30,6 +30,7 @@ exports.overallLivePnlToday = async(req, res, next)=>{
                 symbol: "$symbol",
                 product: "$Product",
                 instrumentToken: "$instrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
                 $sum: {$multiply : ["$amount",-1]},
@@ -57,6 +58,7 @@ exports.overallLivePnlToday = async(req, res, next)=>{
                 amount: 1,
                 brokerage: 1,
                 instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
                 npnl: {
                     $subtract: ["$amount", "$brokerage"]
                 },
@@ -162,7 +164,8 @@ exports.traderLiveComapny = async(req, res, next)=>{
                 "traderId": "$trader",
                 "traderName": {
                     $arrayElemAt:[ "$user.name", 0]},
-                "symbol": "$instrumentToken",
+                          "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
                 "algoId": {
                     $arrayElemAt:["$algoBox._id", 0]},
                 "algoName": {
@@ -191,6 +194,7 @@ exports.traderLiveComapny = async(req, res, next)=>{
         traderId: "$_id.traderId", 
         traderName: "$_id.traderName", 
         symbol: "$_id.symbol", 
+        exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
         algoId: "$_id.algoId", 
         algoName: "$_id.algoName",
         amount: 1,
@@ -229,6 +233,7 @@ exports.pnlTraderCompany = async(req, res, next)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -313,6 +318,7 @@ exports.overallPnlBatchWiseLive = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: {
@@ -435,4 +441,122 @@ exports.traderwiseBatchLive = async (req, res, next) => {
 
   let x = await InfinityLiveCompany.aggregate(pipeline)
   res.status(201).json({message: "data received", data: x});
+}
+
+exports.mockLiveTotalTradersCountLiveSide = async (req, res, next) => {
+  let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);    
+    let pnlDetails = await InfinityLiveCompany.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: today
+            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+          },
+          status: "COMPLETE"
+        }
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader"
+          },
+          runninglots: {
+            $sum: "$Quantity"
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          zeroLotsTraderCount: {
+            $sum: {
+              $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+            }
+          },
+          nonZeroLotsTraderCount: {
+            $sum: {
+              $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          zeroLotsTraderCount: 1,
+          nonZeroLotsTraderCount: 1
+        }
+      }
+      ])
+      res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallCompanySidePnlLive = async (req, res, next) => {
+  let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);    
+    let pnlDetails = await InfinityLiveCompany.aggregate([
+      {
+        $lookup: {
+          from: 'algo-tradings',
+          localField: 'algoBox',
+          foreignField: '_id',
+          as: 'result'
+        }
+      },
+      {
+        $match: {
+          trade_time: {
+            $gte: today
+            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+          },
+          status: "COMPLETE",
+          "result.isDefault": true
+        },
+      },
+        {
+          $group: {
+            _id: {
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
+            },
+            amount: {
+              $sum: {$multiply : ["$amount",-1]},
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            totallots: {
+              $sum: {
+                $toInt: { $abs : "$Quantity"},
+              },
+            },
+            trades: {
+              $count:{}
+            },
+            lastaverageprice: {
+              $last: "$average_price",
+            },
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ])
+      res.status(201).json({ message: "pnl received", data: pnlDetails });
 }

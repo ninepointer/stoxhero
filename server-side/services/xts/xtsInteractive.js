@@ -485,6 +485,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     //           symbol: "$symbol",
     //           product: "$Product",
     //           instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
     //           exchangeInstrumentToken: "$exchangeInstrumentToken",
     //           exchange: "$exchange"
     //         },

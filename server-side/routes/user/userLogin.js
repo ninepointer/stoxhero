@@ -30,7 +30,7 @@ router.post("/login", async (req, res)=>{
         
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
-            httpOnly: true
+            // httpOnly: true
         });
         // res.json(token);
         res.status(201).json({status:'success', message : "user logged in succesfully", token: token});
@@ -85,7 +85,7 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
 
         res.cookie("jwtoken", token, {
             expires: new Date(Date.now() + 25892000000),
-            httpOnly: true
+            // httpOnly: true
         });
         // res.json(token);
         res.status(200).json({status: 'success', message : "User login successful", token: token});

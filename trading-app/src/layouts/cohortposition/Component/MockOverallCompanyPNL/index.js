@@ -66,17 +66,6 @@ function MockOverallCompantPNL({ socket, batchName }) {
     axios.get(`${baseUrl}api/v1/infinityTrade/mock/mockPnlBatchWise/${batchName}`)
       .then((res) => {
         setTradeData(res.data.data);
-        //   res.data.map((elem)=>{
-        //     marketData.map((subElem)=>{
-        //         if(subElem !== undefined && subElem.instrument_token == elem._id.instrumentToken){
-        //             liveDetailsArr.push(subElem)
-        //         }
-        //     })
-        //   })
-
-        // setLiveDetail(liveDetailsArr);
-
-
 
       }).catch((err) => {
         return new Error(err);
@@ -84,6 +73,7 @@ function MockOverallCompantPNL({ socket, batchName }) {
 
   }, [])
 
+  console.log("trade cohort", tradeData)
 
   useEffect(() => {
     return () => {
@@ -100,7 +90,8 @@ function MockOverallCompantPNL({ socket, batchName }) {
     totalRunningLots += Number(subelem.lots)
 
     const liveDetail = marketData.filter((elem) => {
-      return elem !== undefined && elem.instrument_token == subelem.instrumentToken
+      console.log("cohort pos", elem.instrument_token , subelem.instrumentToken)
+      return elem !== undefined && elem.instrument_token == subelem?._id?.instrumentToken
     })
     let updatedValue = (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;

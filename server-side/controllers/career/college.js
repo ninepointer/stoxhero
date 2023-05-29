@@ -49,16 +49,101 @@ exports.editCollege = async(req, res, next) => {
         }
     }, {new: true})
 
-    res.status(200).json({message: 'Successfully edited group discussion.', data: college});
+    res.status(200).json({message: 'Successfully edited college.', data: college});
 }
 
 exports.deleteCollege = async(req, res, next) => {
     const id = req.params.id;
 
-    const result = await College.deleteOne({ _id: id });
-    if (result.deletedCount === 0) {
-    return res.status(404).json({ message: "College not found" });
-    }
+    console.log("id is ,", id)
 
-    res.status(200).json({ message: "College deleted successfully" });
+    const college = await College.findByIdAndUpdate(id, { isDeleted: true })
+
+    res.status(200).json({message: 'Successfully deleted college.', data: college});
 }
+
+exports.getEastZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'East'})
+    try{
+        const eastzonecolleges = await College.find({zone:'East'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: eastzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getNorthZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'North', isDeleted:'false'})
+    try{
+        const northzonecolleges = await College.find({zone:'North', isDeleted:'false'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: northzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getSouthZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'South', isDeleted:'false'})
+    try{
+        const southzonecolleges = await College.find({zone:'South', isDeleted:'false'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: southzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getWestZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'West', isDeleted:'false'})
+    try{
+        const westzonecolleges = await College.find({zone:'West', isDeleted:'false'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: westzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getCentralZoneColleges = async(req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await College.countDocuments({zone:'Central', isDeleted:'false'})
+    try{
+        const centralzonecolleges = await College.find({zone:'Central', isDeleted:'false'})
+        .populate('createdBy','first_name last_name')
+        .sort({collegeName: 1})
+        .skip(skip)
+        .limit(limit);
+        res.status(201).json({status: 'success', data: centralzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+

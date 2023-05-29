@@ -39,6 +39,7 @@ const getInstrumentTicksHistoryData = async () => {
           _id: {
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
           },
           
         },

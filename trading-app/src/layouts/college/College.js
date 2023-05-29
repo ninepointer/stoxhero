@@ -10,10 +10,6 @@ import axios from "axios";
 import EditIcon from '@mui/icons-material/Edit';
 import { Link} from "react-router-dom";
 
-
-
-
-
 const College = () => {
 
 
@@ -47,8 +43,6 @@ useEffect(()=>{
   });
   
 },[])
-
-
 
   const [isLoading,setIsLoading] = useState(false);
   const [createCollegeForm,setCreateCollegeForm] = useState(false);

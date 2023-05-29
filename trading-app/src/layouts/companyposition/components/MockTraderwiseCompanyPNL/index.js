@@ -17,8 +17,8 @@ import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-import ViewTradeDetail from "./ViewTradeDetail";
-import ViewOrderDetail from "./MockTraderwiseOrders";
+// import ViewTradeDetail from "./ViewTradeDetail";
+// import ViewOrderDetail from "./MockTraderwiseOrders";
 
 function MockTraderwiseCompantPNL(props) {
   const { columns, rows } = data();
@@ -143,7 +143,7 @@ function MockTraderwiseCompantPNL(props) {
         //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
           //console.log("market Data Instrument",elem.instrument_token)
-          return elem.instrument_token == Number(allTrade[i]._id.symbol)
+          return (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
         })
 
         let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
@@ -159,7 +159,7 @@ function MockTraderwiseCompantPNL(props) {
         //console.log(marketData, "marketData")
         //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && elem.instrument_token === Number(allTrade[i]._id.symbol)
+          return elem !== undefined && (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
         })
         ////console.log(marketDataInstrument)
         //console.log(marketDataInstrument, "marketDataInstrument")

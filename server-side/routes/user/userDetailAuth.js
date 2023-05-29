@@ -11,6 +11,7 @@ const sharp = require('sharp');
 const Authenticate = require("../../authentication/authentication");
 const Wallet = require('../../models/UserWallet/userWalletSchema');
 const { ObjectId } = require("mongodb");
+const Role = require("../../models/User/everyoneRoleSchema");
 
 
 const storage = multer.memoryStorage();
@@ -839,6 +840,23 @@ router.get("/allcampaignusers", (req, res)=>{
       console.log("Error:",err)
       return res.status(422).json({error : err})
   })
+});
+
+router.get("/infinityUsers", Authenticate, async (req, res)=>{
+
+  const role = await Role.findOne({roleName: "Infinity Trader"})
+
+  // console.log(role)
+  const newuser = await UserDetail.find({role : role._id}).select('first_name last_name email _id name')
+  return res.status(200).json({data : newuser, count: newuser.length});
+  // .then((data)=>{
+  //     console.log(data)
+      
+  // })
+  // .catch((err)=>{
+  //     console.log("Error:",err)
+  //     return res.status(422).json({error : err})
+  // })
 });
 
 module.exports = router;

@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../..
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken}) => {
+const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken}) => {
   console.log("rendering : buy", subscriptionId)
   const tradeSound = new Howl({
     src : [sound],
@@ -175,6 +175,7 @@ const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumen
     let paperTrade = false;
     let tenxTraderPath;
     let internPath ;
+    let fromAdmin ;
     if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
@@ -187,6 +188,11 @@ const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumen
     }else if(from === internshipTrader){
       endPoint = 'internPlacingOrder';
       internPath = true;
+    }else if(from === "Admin"){
+      endPoint = 'placingOrder'
+      paperTrade = false;
+      trader = traderId;
+      fromAdmin = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -196,7 +202,7 @@ const BuyModel = ({socket, subscriptionId, buyState, exchange, symbol, instrumen
         },
         body: JSON.stringify({
           exchange, symbol, buyOrSell, Quantity, Price, 
-          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken,
+          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
 

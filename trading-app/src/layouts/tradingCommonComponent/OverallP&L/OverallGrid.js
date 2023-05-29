@@ -25,7 +25,6 @@ import { userContext } from '../../../AuthContext';
 function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
   const {render, setRender} = useContext(renderContext);
   const getDetails = useContext(userContext);
-  console.log("rendering : overallgrid")
   let styleTD = {
     textAlign: "center",
     fontSize: "9px",
@@ -34,11 +33,6 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
     opacity: 0.7,
   }
 
-  // useEffect(()=>{
-  //   socket.on(`sendResponse${getDetails.userDetails._id.toString()}`, (data)=>{
-      
-  //   })
-  // }, [])
   const { updateNetPnl , setPnlData} = useContext(NetPnlContext);
   const marketDetails = useContext(marketDataContext)
   const [exitState, setExitState] = useState(false);
@@ -56,8 +50,8 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
   let totalRunningLots = 0;
   let rows = [];
   let pnlEndPoint = from === paperTrader ? `paperTrade/pnl` : from === infinityTrader ? "infinityTrade/pnl" : from === tenxTrader ? `tenX/${subscriptionId}/trade/pnl` : from === internshipTrader && `internship/pnl/${subscriptionId}`;
+  const [trackEvent, setTrackEvent] = useState({});
 
-  
 
     useEffect(()=>{
 
@@ -86,7 +80,16 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
       })();
 
       return () => abortController.abort();
-    }, [render])
+    }, [render, trackEvent])
+
+    useEffect(()=>{
+      socket.on(`${(getDetails.userDetails._id).toString()}autoCut`, (data)=>{
+        console.log("in the pnl event", data)
+        setTimeout(()=>{
+          setTrackEvent(data);
+        })
+      })
+    }, [])
 
 
     console.log("tradeData", tradeData, marketDetails.marketData)

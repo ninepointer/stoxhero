@@ -124,7 +124,7 @@ if(allTrade.length !== 0)
         //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
           //console.log("market Data Instrument",elem.instrument_token)
-          return elem.instrument_token == Number(allTrade[i].symbol)
+          return (elem.instrument_token == Number(allTrade[i].symbol) || elem.instrument_token == Number(allTrade[i].exchangeInstrumentToken))
         })
 
         let obj = mapForParticularUser.get(allTrade[i].traderId)
@@ -140,7 +140,8 @@ if(allTrade.length !== 0)
         //console.log(marketData, "marketData")
         //console.log(Number(allTrade[i].symbol) ,Number(allTrade[i].symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && elem.instrument_token === Number(allTrade[i].symbol)
+          return elem !== undefined && (elem.instrument_token == Number(allTrade[i].symbol) || elem.instrument_token == Number(allTrade[i].exchangeInstrumentToken))
+
         })
         ////console.log(marketDataInstrument)
         //console.log(marketDataInstrument, "marketDataInstrument")

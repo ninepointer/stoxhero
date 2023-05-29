@@ -191,7 +191,7 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
             </FormControl>
             </Grid>
             <Grid sx={{marginTop: '12px', alignSelf: 'center' }}>
-              <MDButton variant='contained' color='info' onClick={()=>{addApplicant()}}>
+              <MDButton variant='contained' size='small' color='info' onClick={()=>{addApplicant()}}>
                 Add to GD
               </MDButton>
             </Grid>

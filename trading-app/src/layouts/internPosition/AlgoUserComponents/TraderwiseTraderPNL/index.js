@@ -2,53 +2,53 @@ import {useState, useEffect} from "react"
 import axios from "axios";
 // @mui material components
 import Card from "@mui/material/Card";
-import Icon from "@mui/material/Icon";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import ViewOrders from '@mui/icons-material/ViewList';
+// import Icon from "@mui/material/Icon";
+// import Menu from "@mui/material/Menu";
+// import MenuItem from "@mui/material/MenuItem";
+// import ViewOrders from '@mui/icons-material/ViewList';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
-import MDButton from "../../../../components/MDButton";
+// import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-import ViewTradeDetail from "./ViewTradeDetail";
-import ViewOrderDetail from "./MockTraderwiseOrders";
+// import ViewTradeDetail from "./ViewTradeDetail";
+// import ViewOrderDetail from "./MockTraderwiseOrders";
 
 function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, setBatches }) {
   const { columns, rows } = data();
-  const [menu, setMenu] = useState(null);
+  // const [menu, setMenu] = useState(null);
 
   // const {render, setRender} = Render
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
-  const closeMenu = () => setMenu(null);
+  // const openMenu = ({ currentTarget }) => setMenu(currentTarget);
+  // const closeMenu = () => setMenu(null);
 
-  const renderMenu = (
-    <Menu
-      id="simple-menu"
-      anchorEl={menu}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "left",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={Boolean(menu)}
-      onClose={closeMenu}
-    >
-      <MenuItem onClick={closeMenu}>Action</MenuItem>
-      <MenuItem onClick={closeMenu}>Another action</MenuItem>
-      <MenuItem onClick={closeMenu}>Something else</MenuItem>
-    </Menu>
-  );
+  // const renderMenu = (
+  //   <Menu
+  //     id="simple-menu"
+  //     anchorEl={menu}
+  //     anchorOrigin={{
+  //       vertical: "top",
+  //       horizontal: "left",
+  //     }}
+  //     transformOrigin={{
+  //       vertical: "top",
+  //       horizontal: "right",
+  //     }}
+  //     open={Boolean(menu)}
+  //     onClose={closeMenu}
+  //   >
+  //     <MenuItem onClick={closeMenu}>Action</MenuItem>
+  //     <MenuItem onClick={closeMenu}>Another action</MenuItem>
+  //     <MenuItem onClick={closeMenu}>Something else</MenuItem>
+  //   </Menu>
+  // );
 
 
 
@@ -156,6 +156,8 @@ function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, 
           brokerage: allTrade[i].brokerage,
           noOfTrade: allTrade[i].trades,
           userId: allTrade[i]._id.traderId,
+          email: allTrade[i]._id.traderEmail,
+          mobile: allTrade[i]._id.traderMobile
         }) 
       }
 
@@ -248,12 +250,18 @@ finalTraderPnl.map((subelem, index)=>{
       {((subelem.totalPnl)-(subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
     </MDTypography>
   );
-  // obj.view = (
-  //   <ViewTradeDetail socket={props.socket} userId={subelem.userId}/>
-  // );
-  // obj.orders = (
-  //   <ViewOrderDetail userId={subelem.userId}/>
-  // );
+  obj.email = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {(subelem?.email)}
+    </MDTypography>
+  );
+
+  obj.mobile = (
+    <MDTypography component="a" variant="caption" fontWeight="medium">
+      {(subelem.mobile)}
+    </MDTypography>
+  );
+
 
 
   rows.push(obj);

@@ -31,7 +31,7 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
+const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
   // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -182,6 +182,7 @@ const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscripti
     let paperTrade = false;
     let tenxTraderPath;
     let internPath ;
+    let fromAdmin ;
     if(from === paperTrader){
       endPoint = 'paperTrade';
       paperTrade = true;
@@ -194,6 +195,11 @@ const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscripti
     } else if(from === internshipTrader){
       endPoint = 'internPlacingOrder';
       internPath = true;
+    }else if(from === "Admin"){
+      endPoint = 'placingOrder'
+      paperTrade = false;
+      trader = traderId;
+      fromAdmin = true;
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -204,7 +210,7 @@ const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscripti
         body: JSON.stringify({
             
           exchange, symbol, buyOrSell, Quantity, Price, subscriptionId,
-          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken,
+          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, internPath,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
