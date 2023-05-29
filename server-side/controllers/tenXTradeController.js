@@ -731,6 +731,11 @@ exports.overallTenXPnl = async (req, res, next) => {
                 $toInt: "$Quantity",
               },
             },
+            totallots: {
+              $sum: {
+                $toInt: { $abs : "$Quantity"},
+              },
+            },
             trades: {
               $count:{}
             },
