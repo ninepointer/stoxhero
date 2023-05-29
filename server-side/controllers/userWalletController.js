@@ -4,7 +4,7 @@ const User = require('../models/User/userDetailSchema');
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const ObjectId = require('mongodb').ObjectId;
 const uuid = require('uuid');
-const {client, getValue} = require("../marketData/redisClient")
+const {client, getValue} = require("../marketData/redisClient");
 
 
 
@@ -83,7 +83,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             {
               $push: {
                 subscription: {
-                  subscriptionId: subscribedId,
+                  subscriptionId: new ObjectId(subscribedId),
                   subscribedOn: new Date()
                 }
               }
@@ -96,7 +96,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         {
             $push: {
             users: {
-                userId: userId,
+                userId: new ObjectId(userId),
                 subscribedOn: new Date()
             }
             }
