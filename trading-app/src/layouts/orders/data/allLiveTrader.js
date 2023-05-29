@@ -28,7 +28,7 @@ export default function AllTraderOrdersLive() {
   useEffect(()=>{
 
       // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
-      axios.get(`${baseUrl}api/v1/readlivetradeuseragg`)
+      axios.get(`${baseUrl}api/v1/live/userorders`)
       .then((res)=>{
 
           setData(res.data);

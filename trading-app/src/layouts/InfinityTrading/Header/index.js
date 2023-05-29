@@ -60,7 +60,7 @@ export default function InfinityTrading({socket}) {
       from={infinityTrader}
       setAvailbleMargin={setAvailbleMargin}
     />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+  }, [handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
 
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;

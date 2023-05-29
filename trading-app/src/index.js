@@ -11,6 +11,8 @@ import {NetPnlProvider} from './PnlContext';
 import MarketDataContext from './MarketDataContext';
 import RenderContext from "./renderContext";
 
+// equity trader's
+// pnl trader wise
 
 ReactDOM.render(
   

@@ -69,7 +69,7 @@ const otmSchema = new mongoose.Schema({
         type: String,        
     },
     instrumentToken:{
-        type: String, 
+        type: Number, 
         required: true 
     },
     tradeBy:{

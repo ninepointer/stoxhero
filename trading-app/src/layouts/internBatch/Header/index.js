@@ -28,10 +28,19 @@ export default function LabTabs() {
 
   return (
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
-    <MDBox mb={1} display="flex" justifyContent="right">
+    <MDBox mb={2} display="flex" justifyContent="space-between">
     <MDButton 
-    variant="contained" 
-    color="success" 
+    variant="outlined" 
+    color="warning" 
+    size="small"
+    component={Link}
+    to='/careerdashboard'
+    >
+        Back to Career Dashboard
+    </MDButton>
+    <MDButton 
+    variant="outlined" 
+    color="warning" 
     size="small"
     component={Link}
     to='/batchdetails'

@@ -88,8 +88,7 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
-    }
-        
+    }     
 };
 
 exports.getInactiveTenXSubs = async(req, res, next)=>{
@@ -153,7 +152,38 @@ exports.getTenXSubscriptionPurchaseIntent = async(req, res, next)=>{
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});
-  }
-      
+  }   
 };
 
+exports.getBeginnerSubscription = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.findOne({plan_name: "Beginner"})
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs?.users?.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.getIntermediateSubscription = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.findOne({plan_name: "Intermediate"})
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs?.users?.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.getProSubscription = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.findOne({plan_name: "Pro"})
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs?.users?.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};

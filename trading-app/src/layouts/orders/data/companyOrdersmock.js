@@ -29,7 +29,7 @@ export default function CompanyOrdersMock() {
   useEffect(()=>{
 
       // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
-      axios.get(`${baseUrl}api/v1/readmocktradecompanytodayagg`)
+      axios.get(`${baseUrl}api/v1/infinityTrade/mock/companyorderstoday`)
       .then((res)=>{
 
           setData(res.data);

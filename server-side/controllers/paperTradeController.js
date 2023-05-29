@@ -2,6 +2,8 @@ const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const {client, getValue} = require('../marketData/redisClient');
 const { ObjectId } = require("mongodb");
+const InfinityTrade = require('../models/mock-trade/infinityTrader');
+const InfinityTradeCompany = require('../models/mock-trade/infinityTradeCompany');
 
 exports.overallPnl = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -46,6 +48,7 @@ exports.overallPnl = async (req, res, next) => {
                 symbol: "$symbol",
                 product: "$Product",
                 instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchange: "$exchange"
               },
@@ -253,23 +256,6 @@ exports.marginDetail = async (req, res, next) => {
             portfolioId: "$_id.portfolioId",
             portfolioName: "$_id.portfolioName",
             totalFund: "$_id.totalFund",
-            // npnl: {
-            //   $subtract: [
-            //     "$totalAmount",
-            //     "$totalBrokerage",
-            //   ],
-            // },
-            // openingBalance: {
-            //   $sum: [
-            //     "$_id.totalFund",
-            //     {
-            //       $subtract: [
-            //         "$totalAmount",
-            //         "$totalBrokerage",
-            //       ],
-            //     },
-            //   ],
-            // },
           },
         },
       ])
@@ -277,42 +263,6 @@ exports.marginDetail = async (req, res, next) => {
 
     }
   
-    // let pnlDetails = await PaperTrade.aggregate([
-    //     {
-    //         $match: {
-    //             trade_time:{
-    //                 $lt: today
-    //             },
-    //             status: "COMPLETE",
-    //             trader: new ObjectId(req.user._id)
-    //         },
-    //     },
-    //     {
-    //       $group: {
-    //         _id: {
-    //           trader: "$trader",
-    //         },
-    //         amount: {
-    //           $sum: {$multiply : ["$amount",-1]},
-    //         },
-    //         brokerage: {
-    //           $sum: {
-    //             $toDouble: "$brokerage",
-    //           },
-    //         },
-
-    //       },
-    //     },
-
-    //     {
-    //       $project: {
-    //         _id: 0,
-    //         npnl: {
-    //           $subtract: ["$amount", "$brokerage"]
-    //          },
-    //       }
-    //     },
-    // ])
 
     console.log("pnlDetails", portfoliosFund)
   } catch (e) {
@@ -321,3 +271,102 @@ exports.marginDetail = async (req, res, next) => {
   }
 }
 
+exports.findOpenLots = async (req,res,next) =>{
+  console.log(new Date('2023-05-26'));
+  const pipeline = [
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $gt: new Date("2023-05-26"),
+          },
+          status:'COMPLETE'
+        },
+    },
+    
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {trader: "$trader", symbol: "$symbol"},
+          lots: {
+            $sum: "$Quantity",
+          },
+        },
+    },
+  ];
+  const lots = await InfinityTradeCompany.aggregate(pipeline);
+  console.log('open',lots, lots.length);
+}
+exports.treaderWiseMockTrader = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const pipeline = [
+    {
+      $match:
+      {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE"
+      }
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $group:
+      {
+        _id:
+        {
+          "traderId": "$trader",
+          "traderName": {
+            $arrayElemAt: ["$user.name", 0]
+          },
+                    "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
+          "traderEmail": {
+            $arrayElemAt: ["$user.email", 0]
+          },
+          "traderMobile": {
+            $arrayElemAt: ["$user.mobile", 0]
+          }
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        lots: {
+          $sum: { $toInt: "$Quantity" }
+        },
+        trades: {
+          $count: {}
+        },
+        lotUsed: {
+          $sum: { $abs: { $toInt: "$Quantity" } }
+        }
+      }
+    },
+    { $sort: { _id: -1 } },
+
+  ]
+
+  let x = await PaperTrade.aggregate(pipeline)
+  res.status(201).json({ message: "data received", data: x });
+}

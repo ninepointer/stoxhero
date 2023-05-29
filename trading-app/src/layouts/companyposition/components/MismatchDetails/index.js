@@ -2,9 +2,9 @@ import { useState } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
+// import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+// import Menu from "@mui/material/Menu";
+// import MenuItem from "@mui/material/MenuItem";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -93,7 +93,7 @@ function MismatchDetails({socket}) {
     OpenPositionData.map((elem)=>{
       let XTSPnl = Number(elem.NetAmount);
       let appPnlData = tradeData.filter((element)=>{
-        return element.instrumentToken == elem.ExchangeInstrumentId && elem.ProductType == element.product;
+        return element.exchangeInstrumentToken == elem.ExchangeInstrumentId && elem.ProductType == element.product;
       })
 
       console.log("appdata", appPnlData)

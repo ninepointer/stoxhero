@@ -5,6 +5,7 @@ const moment = require('moment');
 const GroupDiscussion = require('../../models/Careers/groupDiscussion');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const Portfolio = require('../../models/userPortfolio/UserPortfolio');
+const InternshipOrders = require('../../models/mock-trade/internshipTrade')
 
 
 exports.createBatch = async(req, res, next)=>{
@@ -228,3 +229,46 @@ exports.removeParticipantFromBatch = async(req, res, next) => {
         return res.status(500).json({status:'error', message:'Something went wrong'})
     }
 }
+
+exports.getAllInternshipOrders = async(req, res, next)=>{
+    console.log("Inside Internship all orders API")
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await InternshipOrders.countDocuments()
+    try{
+        const allinternshiporders = await InternshipOrders.find()
+        .populate('trader','employeeid first_name last_name')
+        .sort({_id: -1})
+        .skip(skip)
+        .limit(limit);
+        console.log("All Internship Orders",allinternshiporders)
+        res.status(201).json({status: 'success', data: allinternshiporders, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getTodaysInternshipOrders = async (req, res, next) => {
+  
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10
+    const count = await InternshipOrders.countDocuments({trade_time: {$gte:today}})
+    console.log("Under today orders", today)
+    try {
+      const todaysinternshiporders = await InternshipOrders.find({trade_time: {$gte:today}}, {'trader':1,'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
+        .populate('trader','employeeid first_name last_name')
+        .sort({_id: -1})
+        .skip(skip)
+        .limit(limit);
+      console.log(todaysinternshiporders)
+      res.status(200).json({status: 'success', data: todaysinternshiporders, count:count});
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({status:'error', message: 'Something went wrong'});
+    }
+  }
