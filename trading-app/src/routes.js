@@ -2,22 +2,22 @@
 import CompanyPosition from "./layouts/companyposition";
 import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
-import TraderDashboard from "./layouts/traderdashboard";
+// import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/orders";
 import Instruments from "./layouts/instruments";
-import Contests from "./layouts/contests";
+// import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";
 import Users from "./layouts/users";
 import AlgoBox from "./layouts/algobox";
 import Funds from "./layouts/funds";
-import Notifications from "./layouts/notifications";
+// import Notifications from "./layouts/notifications";
 import Profile from "./layouts/profile";
 import Setting from "./layouts/settings/Setting";
-import Expense from "./layouts/expenses/";
-import AlgoPosition from "./layouts/algo position";
+// import Expense from "./layouts/expenses/";
+// import AlgoPosition from "./layouts/algo position";
 import UserOrders from "./layouts/userorders";
 import UserPosition from "./layouts/PaperTrade";
-import UserReport from "./layouts/userreports";
+// import UserReport from "./layouts/userreports";
 import TradersReport from "./layouts/tradersReportMock";
 import AdminReport from "./layouts/adminreportMock";
 import DailyPNLData from "./layouts/dailyPnlDashboard";
@@ -26,7 +26,7 @@ import InternPosition from "./layouts/internPosition"
 import AdminReportLive from "./layouts/adminreportLive"
 import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
-import AnalyticsRoutes from './analyticsRoutes'
+// import AnalyticsRoutes from './analyticsRoutes'
 import SignUp from './layouts/authentication/sign-up'
 import SignIn from './layouts/authentication/sign-in'
 import ResetPassword from './layouts/authentication/reset-password/cover'
@@ -43,12 +43,12 @@ import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDe
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
-import Carousel from './layouts/carousel'
+// import Carousel from './layouts/carousel'
 // import Home from './layouts/UserHome'
-import HomeIcon from '@mui/icons-material/OtherHouses';
+// import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import UserSignupDashboard from './layouts/userSignupDashboard'
-import CareerDetailsForm from './layouts/career/createCareerForm'
+// import CareerDetailsForm from './layouts/career/createCareerForm'
 import Campaigns from './layouts/campaign'
 import TutorialVideos from './layouts/tutorialVideos';
 import Internship from './layouts/internshipTrading';
@@ -65,35 +65,35 @@ import OverallPnlTrader from "./layouts/overallPnlTrader";
 
 
 // @mui icons
-import StadiumIcon from '@mui/icons-material/Stadium';
+// import StadiumIcon from '@mui/icons-material/Stadium';
 import Shop2Icon from '@mui/icons-material/Shop2';
-import ReportIcon from '@mui/icons-material/Assessment';
+// import ReportIcon from '@mui/icons-material/Assessment';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import SummarizeIcon from '@mui/icons-material/Summarize';
+// import SummarizeIcon from '@mui/icons-material/Summarize';
 import InventoryIcon from '@mui/icons-material/Inventory'; 
-import SettingsIcon from '@mui/icons-material/Settings';
-import EngineeringIcon from '@mui/icons-material/Engineering';
+// import SettingsIcon from '@mui/icons-material/Settings';
+// import EngineeringIcon from '@mui/icons-material/Engineering';
 import PersonIcon from '@mui/icons-material/Person';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import TableViewIcon from '@mui/icons-material/TableView';
+// import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+// import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+// import DashboardIcon from '@mui/icons-material/Dashboard';
+// import TableViewIcon from '@mui/icons-material/TableView';
 import BusinessIcon from '@mui/icons-material/Business';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
-import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+// import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
+// import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+// import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import WalletIcon from '@mui/icons-material/Wallet';
+// import WalletIcon from '@mui/icons-material/Wallet';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
-import DBEntry from "./layouts/InsertData/DBEntry";
+// import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
-import BatchIcon from '@mui/icons-material/Diversity3';
+// import BatchIcon from '@mui/icons-material/Diversity3';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
-import UserContest from "./layouts/UserContest"
-import Batch from "./layouts/batch";
-import WorkIcon from '@mui/icons-material/Work';
+// import UserContest from "./layouts/UserContest"
+// import Batch from "./layouts/batch";
+// import WorkIcon from '@mui/icons-material/Work';
 import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
 import UserAnalytics from "./layouts/userAnalytics";
@@ -114,8 +114,8 @@ import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
 import VirtualPosition from "./layouts/virtualtradePosition";
-import TenxPosition from "./layouts/tenxPosition"
-import BadgeIcon from '@mui/icons-material/Badge';
+import TenxPosition from "./layouts/ten"
+// import BadgeIcon from '@mui/icons-material/Badge';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
 import InternshipOrders from './layouts/internshipOrders'
