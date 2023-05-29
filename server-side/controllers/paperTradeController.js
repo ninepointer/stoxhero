@@ -2,6 +2,8 @@ const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const {client, getValue} = require('../marketData/redisClient');
 const { ObjectId } = require("mongodb");
+const InfinityTrade = require('../models/mock-trade/infinityTrader');
+const InfinityTradeCompany = require('../models/mock-trade/infinityTradeCompany');
 
 exports.overallPnl = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -265,6 +267,39 @@ exports.marginDetail = async (req, res, next) => {
   }
 }
 
+exports.findOpenLots = async (req,res,next) =>{
+  console.log(new Date('2023-05-26'));
+  const pipeline = [
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $gt: new Date("2023-05-26"),
+          },
+          status:'COMPLETE'
+        },
+    },
+    
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {trader: "$trader", symbol: "$symbol"},
+          lots: {
+            $sum: "$Quantity",
+          },
+        },
+    },
+  ];
+  const lots = await InfinityTradeCompany.aggregate(pipeline);
+  console.log('open',lots, lots.length);
+}
 exports.treaderWiseMockTrader = async (req, res, next) => {
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
