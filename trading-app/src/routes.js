@@ -117,7 +117,7 @@ import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
 import VirtualPosition from "./layouts/virtualtradePosition";
-import TenxPosition from "./layouts/tenXPosition"
+import TenxPosition from "./layouts/tenxPosition"
 // import BadgeIcon from '@mui/icons-material/Badge';
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
