@@ -587,6 +587,137 @@ export default function LabTabs({socket}) {
             </Grid>
             
         </Grid>
+        
+        <Grid container spacing={2} mt={1} height='15vH'>
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"error"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/wallet`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Wallet</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your wallet transacrions here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+                
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"warning"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/analytics`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Analytics</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your trading analytics here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"success"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/myportfolio`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Portfolio</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your funds details here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"primary"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/myreferrals`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Referrals</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your referrals here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+            
+        </Grid>
 
         <Grid container spacing={2} mt={1}>
             <Grid item lg={3}>
@@ -604,6 +735,71 @@ export default function LabTabs({socket}) {
                                   }}
                             >
                                 TenX Orders
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"dark"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/userorders`,
+                                  }}
+                            >
+                                My Orders
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"light"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/campaigns`,
+                                  }}
+                            >
+                                Campaigns
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/portfolio`,
+                                  }}
+                            >
+                                Portfolio
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"error"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/referralprogram`,
+                                  }}
+                            >
+                                Referral Program
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"dark"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/tutorialvideos`,
+                                  }}
+                            >
+                                Tutorial Videos
                             </MDButton>
                         </Grid>
                     </Grid>
