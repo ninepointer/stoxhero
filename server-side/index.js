@@ -191,6 +191,7 @@ app.use('/api/v1', require("./models/TradeDetails/retreiveOrderAuth"));
 app.use('/api/v1', require("./routes/HistoryPages/adminAuth"));
 app.use('/api/v1', require("./routes/marginAllocation/marginAllocationAuth"));
 app.use('/api/v1/contest', require("./routes/contest/contestRoutes"));
+app.use('/api/v1/contactus', require("./routes/contactUs/contactRoutes"));
 app.use('/api/v1/batch', require("./routes/stoxheroTrading/batchRoutes"));
 app.use('/api/v1/referrals', require("./routes/campaigns/referralRoutes"));
 app.use('/api/v1/campaign', require("./routes/campaigns/campaignRoute"));

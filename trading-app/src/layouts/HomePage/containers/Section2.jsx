@@ -5,7 +5,7 @@ import CountUp from "react-countup";
 import Title  from '../components/Title';
 
 const {items} = section2Content
-
+// const countUpRef = React.useRef(null);
 const CustomCounter = ({
   before = "",
   after = "",
@@ -14,7 +14,7 @@ const CustomCounter = ({
   decimals = false,
 }) => (
   <Stack textAlign="center" spacing={{ xs: 1, md: 2 }} alignItems="center">
-    <CountUp prefix={before} suffix={after} end={counter} decimals={decimals}>
+    <CountUp start={0} prefix={before} suffix={after} end={counter} decimals={decimals} duration={2} redraw>
       {({ countUpRef }) => (
         <Title variant={{ xs: "h4", md: "h2" }} style={{color:"white"}} sx={{ fontWeight: 400 }}>
           <span sx={{color:"white"}} ref={countUpRef} />

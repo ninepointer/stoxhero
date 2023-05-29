@@ -87,16 +87,16 @@ export const section1Content = {
   CliffImage,
   HorseImage,
   ShootingStarImage,
-  title: "One-stop access",
-  subtitle: "to decentralized finance",
+  title: "Learn, Earn and Grow",
+  subtitle: "with realtime virtual options trading",
 };
 
 export const section2Content = {
   items: [
-    { counter: 0, subtitle: "Total Signups" },
-    { counter: 0, before: "₹", after: "", subtitle: "Total Traded Volume" },
-    { counter: 0, before: "₹", after: "", subtitle: "Total Wallets Transactions", decimals: false },
-    { counter: 0, after: "", subtitle: "Total Trades", decimals: false },
+    { counter: 12409, subtitle: "Total Signups" },
+    { counter: 541164, before: "₹", after: "", subtitle: "Total Traded Volume" },
+    { counter: 35390, before: "₹", after: "", subtitle: "Total Wallets Transactions", decimals: false },
+    { counter: 894014, after: "", subtitle: "Total Trades", decimals: false },
   ],
 };
 
@@ -118,30 +118,30 @@ export const section3Content = {
 
 export const section4Content = {
   top: {
-    title: "Never-ending trust",
+    title: "StoxHero Platform",
     subtitle:
-      "StoxHero instantly analyzes thousands of trades price  across multiple markets to provide users with the best rates.",
+      "StoxHero provides an intuitive virtual options trading platform for the new age derivaties traders. Our platforms enable our users to learn, earn and grow at the same time solidifying their positions in the ocean of options trading.",
     image: NewsImg,
   },
   bottom: {
     title: "StoxHero Wallet",
     TABS: [
       {
-        name: "Buy",
+        name: "Transact",
         image: Phone1Img,
         subtitle:
-          "Buy your trades with the most trusted platform and unlock upcoming rewards",
+          "Easily top-up your wallet from your preferred method of payment, get your rewards added as wallet balance.",
       },
       {
         name: "Store",
         image: Phone3Img,
         subtitle:
-          "Your Trades is protected with the most sophisticated security measures.",
+          "Redeem your wallet money through in-app purchases and buying store items.",
       },
       {
         name: "Transfer",
         image: Phone5Img,
-        subtitle: "Easy transfer methods",
+        subtitle: "Transfer your profits to your bank account seamlessly and securely.",
       },
       
     ],

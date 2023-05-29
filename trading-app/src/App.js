@@ -282,10 +282,10 @@ export default function App() {
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={detailUser.role?.roleName === adminRole ? "/infinitydashboard" : '/tenxtrading'} 
+            to={detailUser?.role?.roleName === adminRole ? "/infinitydashboard" : detailUser?.designation == 'Equity Trader' ? '/infinitytrading':'/virtualtrading'} 
             />} />
             :
-            ''
+            <Route path="/" element={<Home />} />
           // <Route path="/" element={<Navigate to={pathname} />} />
           // <Route path="/" element={<Navigate to="/virtualtrading" />} />
           

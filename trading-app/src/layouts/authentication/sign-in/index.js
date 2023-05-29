@@ -24,6 +24,7 @@ import BasicLayout from "../components/BasicLayout";
 
 // Images
 import bgImage from "../../../assets/images/trading.jpg";
+import backgroundImage from "../../../layouts/HomePage/assets/images/section1/backgroud.jpg";
 import { userContext } from '../../../AuthContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -38,7 +39,7 @@ function Basic() {
   const [pass, setPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   let [invalidDetail, setInvalidDetail] = useState();
-  const [formType, setFormType] = useState('email');
+  const [formType, setFormType] = useState('mobile');
   const[mobile, setMobile] = useState('');
   const[otpGen, setOtpGen] = useState(false);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
@@ -322,7 +323,7 @@ function Basic() {
   );
 
   return ( 
-    <BasicLayout image={bgImage}>
+    <BasicLayout image={backgroundImage}>
       <Card>
         <MDBox
           variant="gradient"
