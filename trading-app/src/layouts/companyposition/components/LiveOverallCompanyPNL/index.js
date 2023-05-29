@@ -88,15 +88,6 @@ function LiveOverallCompantPNL({socket}) {
     axios.get(`${baseUrl}api/v1/infinityTrade/livePnlCompany`)
     .then((res) => {
         setTradeData(res.data.data);
-      //   (res.data.data).map((elem)=>{
-      //     marketData.map((subElem)=>{
-      //         if(){
-      //             liveDetailsArr.push(subElem)
-      //         }
-      //     })
-      //   })
-
-      // setLiveDetail(liveDetailsArr);
     }).catch((err) => {
         return new Error(err);
     })
@@ -137,10 +128,11 @@ function LiveOverallCompantPNL({socket}) {
       totalRunningLots += Number(subelem.lots)
 
       const liveDetail = marketData.filter((elem)=>{
-        return elem !== undefined && elem.instrument_token == subelem.instrumentToken
+        console.log("liveDetail2", elem.instrument_token, subelem.exchangeInstrumentToken, ( subelem.exchangeInstrumentToken == elem.instrument_token))
+        return elem !== undefined && (subelem.instrumentToken == elem.instrument_token || subelem.exchangeInstrumentToken == elem.instrument_token)
       })
 
-      console.log("liveDetail", liveDetail[0]?.instrument_token, subelem?.instrumentToken)
+      console.log("liveDetail", liveDetail[0]?.instrument_token, subelem?.instrumentToken )
       let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
       totalGrossPnl += updatedValue;
 

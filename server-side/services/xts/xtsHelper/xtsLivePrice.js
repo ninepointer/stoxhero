@@ -56,7 +56,7 @@ router.get("/getliveprice", async (req, res)=>{
 
         for (let instrument of marketData) {
             instrument = JSON.parse(instrument);
-            console.log(instrument.Touchline, instrument)
+            // console.log(instrument.Touchline, instrument)
             let obj = {};
             obj.last_price = instrument.Touchline.LastTradedPrice;
             obj.instrument_token = instrument.ExchangeInstrumentID;

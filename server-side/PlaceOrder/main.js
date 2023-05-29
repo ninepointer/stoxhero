@@ -12,7 +12,7 @@ const { xtsAccountType, zerodhaAccountType } = require("../constant");
 
 
 router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
-    console.log("caseStudy 4: placing")
+    // console.log("caseStudy 4: placing")
     const setting = await Setting.find();
     // console.log("settings", setting, req.user?.role?.roleName )
     if(!setting[0].isAppLive && req.user?.role?.roleName != 'Admin'){
@@ -20,7 +20,7 @@ router.post("/placingOrder", authentication, ApplyAlgo, authoizeTrade.fundCheck,
     }
     if(req.body.apiKey && req.body.accessToken){
         if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){
-            console.log("in xts if")
+            // console.log("in xts if")
             await liveTrade(req, res);
         } else{
 

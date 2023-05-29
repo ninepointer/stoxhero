@@ -110,6 +110,7 @@ function ExitPosition({socket, subscriptionId, from, isFromHistory, product, sym
 
   useEffect(()=>{
     socket.on(`sendResponse${trader.toString()}`, (data)=>{
+      render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
   }, [])
@@ -238,9 +239,10 @@ console.log("lotSize", lotSize, maxLot)
         // //console.log(dataResp);
         openSuccessSB('amo', "AMO Request Recieved")
         // window.alert("AMO Request Recieved");
-      } else {
-        openSuccessSB('else', dataResp.message)
-        // window.alert(dataResp.message);
+      } else if(dataResp.message === "Live"){
+      }else {
+          openSuccessSB('else', dataResp.message)
+        
       }
       render ? setRender(false) : setRender(true)
     }

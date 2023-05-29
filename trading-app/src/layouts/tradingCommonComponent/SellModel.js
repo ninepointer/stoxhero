@@ -68,7 +68,8 @@ const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscripti
   }
 
   useEffect(()=>{
-    socket.on(`sendResponse${trader.toString()}`, (data)=>{
+    socket?.on(`sendResponse${trader.toString()}`, (data)=>{
+      render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
   }, [])
@@ -230,9 +231,9 @@ const SellModel = ({socket, exchangeSegment, exchangeInstrumentToken, subscripti
             // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
             // window.alert("AMO Request Recieved");
-        } else{
-          openSuccessSB('else', dataResp.message)
-          // window.alert(dataResp.message);
+        } else if(dataResp.message === "Live"){
+        }else{
+            openSuccessSB('else', dataResp.message)
         }
     }
     render ? setRender(false) : setRender(true)

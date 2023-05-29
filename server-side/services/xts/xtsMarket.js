@@ -121,33 +121,40 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
     ],
     xtsMessageCode: 1502,
   });
+
+  let response3 = await xtsMarketDataAPI.subscription({
+    instruments: [
+      {
+        exchangeSegment: exchangeSegment,
+        exchangeInstrumentID: instrumentToken,
+      }
+    ],
+    xtsMessageCode: 1512,
+  });
 }
 
 const getXTSTicksForCompanySide = async (socket) => {
-  let marketDepth;
-  
-  xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
-    marketDepth = marketDepthData;
-  });
 
   await emitCompanyTicks(socket);
-  xtsMarketDataWS.onLTPEvent((ticksObj) => {
+  xtsMarketDataWS.onMarketDepthEvent((ticksObj) => {
     // console.log(ticksObj)
-    ticksObj = JSON.parse(ticksObj);
-    if (ticksObj?.ExchangeInstrumentID == marketDepth?.ExchangeInstrumentID) {
-      ticksObj.last_price = ticksObj?.LastTradedPrice;
-      ticksObj.instrument_token = ticksObj?.ExchangeInstrumentID;
-      ticksObj.change = marketDepth?.Touchline?.PercentChange;
+    let Obj = {};
+    // if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
+      // console.log("tick", ticksObj.ExchangeInstrumentID)
+      Obj.last_price = ticksObj.Touchline.LastTradedPrice;
+      Obj.instrument_token = ticksObj.ExchangeInstrumentID;
+      Obj.change = ticksObj.Touchline.PercentChange;
+      Obj.ExchangeInstrumentID = ticksObj.ExchangeInstrumentID;
+      Obj.ExchangeSegment = ticksObj.ExchangeSegment;
     
-      const instrumentMap = new Map(companyTicks?.map(instrument => [instrument?.ExchangeInstrumentID, instrument]));
-      if (instrumentMap?.has(ticksObj.ExchangeInstrumentID)) {
-        const existingInstrument = instrumentMap?.get(ticksObj.ExchangeInstrumentID);
-        Object.assign(existingInstrument, ticksObj);
+      const instrumentMap = new Map(companyTicks?.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
+      if (instrumentMap.has(Obj.ExchangeInstrumentID)) {
+        const existingInstrument = instrumentMap.get(Obj.ExchangeInstrumentID);
+        Object.assign(existingInstrument, Obj);
       } else {
-        instrumentMap.set(ticksObj.ExchangeInstrumentID, ticksObj);
+        instrumentMap.set(Obj.ExchangeInstrumentID, Obj);
       }
-      companyTicks = Array.from(instrumentMap?.values());
-    }
+      companyTicks = Array.from(instrumentMap.values());
   });
 
 }
@@ -155,7 +162,7 @@ const getXTSTicksForCompanySide = async (socket) => {
 const getXTSTicksForUserPosition = async (socket, id) => {
 
   let ticks = [];
-  let marketDepth = {};
+  // let marketDepth = {};
   let indecies = await client.get("index")
   if(!indecies){
     indecies = await StockIndex.find({status: "Active", accountType: xtsAccountType});
@@ -182,7 +189,7 @@ const getXTSTicksForUserPosition = async (socket, id) => {
       Obj.ExchangeInstrumentID = ticksObj.ExchangeInstrumentID;
       Obj.ExchangeSegment = ticksObj.ExchangeSegment;
     
-      const instrumentMap = new Map(ticks.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
+      const instrumentMap = new Map(ticks?.map(instrument => [instrument.ExchangeInstrumentID, instrument]));
       if (instrumentMap.has(Obj.ExchangeInstrumentID)) {
         const existingInstrument = instrumentMap.get(Obj.ExchangeInstrumentID);
         Object.assign(existingInstrument, Obj);
@@ -289,7 +296,7 @@ const emitCompanyTicks = async(socket)=>{
   timeoutId = setInterval(() => {
     if (companyTicks && companyTicks.length > 0) {
       socket.emit('tick', companyTicks);
-      companyTicks = null;
+      companyTicks = [];
     }
   }, 1000);
 }
