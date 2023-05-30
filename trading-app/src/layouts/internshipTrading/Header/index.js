@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import moment from 'moment';
+import _ from 'lodash';
 import { userContext } from '../../../AuthContext';
 import { useContext } from 'react';
 import { NetPnlContext } from '../../../PnlContext';
@@ -16,44 +17,124 @@ import beginner from '../../../assets/images/beginner.png'
 import intermediate from '../../../assets/images/intermediate.png'
 import pro from '../../../assets/images/pro.png'
 import checklist from '../../../assets/images/checklist.png'
-// import Dialog from '@mui/material/Dialog';
-// import DialogActions from '@mui/material/DialogActions';
-// import DialogContent from '@mui/material/DialogContent';
-// import DialogContentText from '@mui/material/DialogContentText';
-// import DialogTitle from '@mui/material/DialogTitle';
 
 // import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-// import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-// import Button from '@mui/material/Button';
-// import Typography from '@mui/material/Typography';
-// import CheckIcon from '@mui/icons-material/Check';
-// import CloseIcon from '@mui/icons-material/Close';
-// import Subs from '../../../assets/images/subs.png';
 import Dialogue from './dialogueBox';
 import MDButton from '../../../components/MDButton';
 import { useNavigate } from 'react-router-dom';
 import GaugeChartReferrals from '../data/GaugeChartReferrals'
 import GaugeChartAttendance from '../data/GaugeChartAttendance'
 import GaugeChartReturns from '../data/GaugeChartReturns'
+import { renderContext } from '../../../renderContext';
+import { marketDataContext } from '../../../MarketDataContext';
+// import { myInternshipTradingDays, myOverallInternshipPnl } from '../../../../../server-side/controllers/internshipTradeController';
 
 
-export default function TenXSubscriptions() {
+export default function TenXSubscriptions({myInternshipTradingDays,myOverallInternshipPnl, socket}) {
   const [cashBalance, setCashBalance] = React.useState(0);
-  const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
+  const { netPnl, totalRunningLotss, pnlData } = useContext(NetPnlContext);
   const [myOverallIntenrshipPNL, setMyOverallInternshipPNL] = React.useState([])
+  const marketDetails = useContext(marketDataContext)
   const [myTradingDays, setMyTradingDays] = React.useState(0);
+  const {render, setRender} = useContext(renderContext);
   const [totalTradingDays, setTotalTradingDays] = React.useState(4);
   const getDetails = useContext(userContext);
   const batchId = getDetails?.userDetails?.internshipBatch[0]?._id
   const navigate = useNavigate();
+  const { updateNetPnl , setPnlData} = useContext(NetPnlContext);
+  const [trackEvent, setTrackEvent] = useState({});
+  const [tradeData, setTradeData] = useState([]);
   const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
+  let totalTransactionCost = 0;
+  let totalGrossPnl = 0;
+  let totalRunningLots = 0;
   // const [open, setOpen] = React.useState(false);
   // const [isLoading,setIsLoading] = useState(false);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   // const getDetails = React.useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+
+  function calculateWorkingDays(startDate, endDate) {
+    const start = moment(startDate);
+    const end = moment(endDate);
+  
+    // Check if the start date is after the end date
+    if (start.isAfter(end)) {
+      return 0;
+    }
+  
+    let workingDays = 0;
+    let currentDate = start;
+  
+    // Iterate over each day between the start and end dates
+    while (currentDate.isSameOrBefore(end)) {
+      // Check if the current day is a weekday (Monday to Friday)
+      if (currentDate.isoWeekday() <= 5) {
+        workingDays++;
+      }
+  
+      // Move to the next day
+      currentDate = currentDate.add(1, 'day');
+    }
+  
+    return workingDays;
+  }
+
+  const startDate = (getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).toString().split('T')[0]
+  const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
+  console.log(startDate)
+  console.log(endDate)
+  const workingDays = calculateWorkingDays(startDate, endDate);
+
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/getliveprice`)
+    .then((res) => {
+      marketDetails.setMarketData(res.data);
+    }).catch((err) => {
+        return new Error(err);
+    })
+    socket?.on("tick-room", (data) => {
+
+      marketDetails.setMarketData(prevInstruments => {
+        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+        data.forEach(instrument => {
+          instrumentMap.set(instrument.instrument_token, instrument);
+        });
+        return Array.from(instrumentMap.values());
+      });
+    })
+  }, [])
+
+  useEffect(()=>{
+
+    let abortController;
+    (async () => {
+         abortController = new AbortController();
+         let signal = abortController.signal;    
+
+         // the signal is passed into the request(s) we want to abort using this controller
+         const { data } = await axios.get(`${baseUrl}api/v1/internship/pnl/${batchId}`,{
+         withCredentials: true,
+         headers: {
+             Accept: "application/json",
+             "Content-Type": "application/json",
+             "Access-Control-Allow-Credentials": true
+         },
+         signal: signal }
+         );
+
+         if(data?.data?.length === 0){
+          updateNetPnl(0, 0, 0, 0);
+         }
+         setPnlData(data.data);
+         setTradeData(data.data);
+
+    })();
+
+    return () => abortController.abort();
+  }, [render, trackEvent])
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/userwallet/my`,{
@@ -86,6 +167,7 @@ export default function TenXSubscriptions() {
         },
       })
     .then((api1Response)=>{
+      console.log(api1Response.data.data)
       setMyOverallInternshipPNL(api1Response.data.data)  
     })
   }, [])
@@ -100,11 +182,33 @@ export default function TenXSubscriptions() {
         },
       })
     .then((api1Response)=>{
+      console.log(api1Response.data.data)
       setMyTradingDays(api1Response.data.data.length)  
     })
   }, [])
-  // console.log(portfolioValue,netPnl, myOverallIntenrshipPNL?.amount, myOverallIntenrshipPNL?.brokerage );
-  let availableMargin = portfolioValue + netPnl + (myOverallIntenrshipPNL.length > 0 ? (myOverallIntenrshipPNL?.amount - myOverallIntenrshipPNL?.brokerage) : 0)
+
+  tradeData.map((subelem, index)=>{
+    let obj = {};
+    let liveDetail = marketDetails.marketData.filter((elem)=>{
+      // //console.log("elem", elem, subelem)
+      return subelem._id.instrumentToken == elem.instrument_token;
+    })
+    totalRunningLots += Number(subelem.lots)
+    console.log(subelem.amount,subelem.lots,liveDetail[0])
+    let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+    let netupdatedValue = updatedValue - Number(subelem.brokerage);
+    totalGrossPnl += updatedValue;
+
+    totalTransactionCost += Number(subelem.brokerage);
+    let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
+
+    // from === paperTrader ? 
+    updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
+    
+  })
+  console.log(portfolioValue, myOverallIntenrshipPNL[0]?.amount, myOverallIntenrshipPNL[0]?.brokerage, totalGrossPnl, totalTransactionCost );
+  console.log(myOverallInternshipPnl)
+  let availableMargin = portfolioValue + (totalGrossPnl-totalTransactionCost) + (myOverallIntenrshipPNL.length > 0 ? (myOverallIntenrshipPNL[0]?.amount - myOverallIntenrshipPNL[0]?.brokerage) : 0)
 
   const batchParticipants = getDetails?.userDetails?.internshipBatch[0]?.participants
   const user_id = getDetails?.userDetails?._id
@@ -296,7 +400,7 @@ export default function TenXSubscriptions() {
                       <GaugeChartReturns availableMargin={availableMargin} portfolioValue={portfolioValue}/>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <GaugeChartAttendance myTradingDays={myTradingDays} totalTradingDays={totalTradingDays}/>
+                      <GaugeChartAttendance myTradingDays={myTradingDays} totalTradingDays={workingDays} />
                   </Grid>
             </Grid>
 
