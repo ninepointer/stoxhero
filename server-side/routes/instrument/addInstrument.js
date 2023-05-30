@@ -320,14 +320,17 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
                 maxLot: removeFromWatchlist.maxLot,
                 accountType: removeFromWatchlist.accountType,
                 exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
-              }
+            }
             
             let removeInstrument;
             if(role.roleName === infinityTrader){
                 removeInstrument = await client.LREM(`${(_id).toString()}: infinityInstrument`, 1, JSON.stringify(removeInstrumentObject))
+                console.log("in if removeInstrument", removeInstrument)
             } else{
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
+                console.log("in else removeInstrument", removeInstrument)
             }
+
 
             //   console.log("redisClient", removeInstrument)
               const obj = {
