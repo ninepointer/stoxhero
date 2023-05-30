@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config({path: "./config.env"});
 
 // STAGINGDB
-const DB = process.env.PRODDB;
+const DB = process.env.DATABASE;
     const devDB = process.env.DEVDATABASE;
     const stagingDB = process.env.STAGINGDB;
 // mongoose.connect(devDB, {
