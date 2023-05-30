@@ -987,7 +987,7 @@ exports.fundCheckInternship = async(req, res, next) => {
         firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
         // console.log(firstDayOfMonthDate, lastDayOfMonthDate);
-        let pnlDetails = await InternBatch.aggregate([
+        let pnlDetails = await InternshipTrade.aggregate([
             {
             $match:
                 {
@@ -997,7 +997,7 @@ exports.fundCheckInternship = async(req, res, next) => {
                     //     },
                     trader: req.user._id,
                     status: "COMPLETE",
-                    subscriptionId: new ObjectId(subscriptionId)
+                    batch: new ObjectId(subscriptionId)
                 },
             },
             {
