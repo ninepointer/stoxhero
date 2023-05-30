@@ -30,6 +30,7 @@ function MismatchDetails({socket}) {
   const [marketData, setMarketData] = useState([]);
   const [OpenPositionData, setOpenPositionData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
+  const [trackEvent, setTrackEvent] = useState({});
 
   let apprunninglotsTotal = 0;
   let zerodharunninglotsTotal = 0;
@@ -76,6 +77,15 @@ function MismatchDetails({socket}) {
 
     }).catch((err) => {
         return new Error(err);
+    })
+  }, [trackEvent])
+
+  useEffect(()=>{
+    socket.on('updatePnl', (data)=>{
+      // console.log("in the pnl event", data)
+      setTimeout(()=>{
+        setTrackEvent(data);
+      })
     })
   }, [])
 

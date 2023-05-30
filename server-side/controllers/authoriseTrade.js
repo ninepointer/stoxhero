@@ -51,6 +51,8 @@ exports.fundCheck = async(req, res, next) => {
         try{
             const user = await UserDetail.findOne({_id: new ObjectId(req.user._id)});
             userFunds = user.fund;
+            // 100000000;
+            // 
 
         }catch(e){
             console.log("errro fetching user", e);

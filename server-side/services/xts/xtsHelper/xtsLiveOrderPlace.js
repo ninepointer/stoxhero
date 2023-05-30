@@ -31,9 +31,9 @@ exports.liveTrade = async (req, res) => {
         uId, instrumentToken, realBuyOrSell, realQuantity, 
         dontSendResp, exchangeInstrumentToken} = req.body
 
-        // console.log(req.body)
+        console.log(req.body)
 
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
+    if(!exchange || !symbol || !buyOrSell || !realQuantity || !Product || !OrderType || !validity || !variety || !exchangeInstrumentToken){
         return res.status(422).json({error : "please fill all the feilds..."})
     }
 

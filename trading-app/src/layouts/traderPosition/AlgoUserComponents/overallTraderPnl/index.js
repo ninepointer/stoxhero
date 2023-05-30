@@ -26,13 +26,13 @@ function OverallTraderPNL({socket}) {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const [overallPnlArr, setOverallPnlArr] = useState([]);
-  const [liveDetail, setLiveDetail] = useState([]);
+  // const [liveDetail, setLiveDetail] = useState([]);
   // const [avgPrice, setAvgPrice] = useState([]);
   const [marketData, setMarketData] = useState([]);
   // const [instrumentData, setInstrumentData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
 
-  let liveDetailsArr = [];
+  // let liveDetailsArr = [];
   // let overallPnl = [];
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
@@ -94,7 +94,7 @@ function OverallTraderPNL({socket}) {
       totalRunningLots += Number(subelem.lots)
 
       const liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
       })
 
       let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);

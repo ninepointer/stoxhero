@@ -18,6 +18,7 @@ const InfinityInstrument = require("../../models/Instruments/infinityInstrument"
 router.post("/addInstrument",authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user;
+    const {role} = req.user;
 
     try{
         let {from, exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment} = req.body;
@@ -35,7 +36,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
         }
     
         console.log("above infinityTrade adding", from, infinityTrader)
-        if(from === infinityTrader){
+        if(role.roleName === infinityTrader){
             console.log("in infinityTrade adding")
             if(maxLot === 1800){
                 maxLot = 900;
@@ -288,6 +289,7 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
 router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
+    const {role} = req.user;
     let isRedisConnected = getValue();
     try{ 
         const {instrumentToken, from} = req.params
@@ -296,7 +298,7 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
         console.log("in removing ", instrumentToken, _id);
         const user = await User.findOne({_id: _id});
         let removeFromWatchlist ;
-        if(from === infinityTrader){
+        if(role.roleName === infinityTrader){
             removeFromWatchlist = await InfinityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
         } else{
             removeFromWatchlist = await Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
@@ -321,7 +323,7 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
               }
             
             let removeInstrument;
-            if(from === infinityTrader){
+            if(role.roleName === infinityTrader){
                 removeInstrument = await client.LREM(`${(_id).toString()}: infinityInstrument`, 1, JSON.stringify(removeInstrumentObject))
             } else{
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
@@ -363,10 +365,11 @@ router.get("/instrumentDetails/:from", authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user
     const from = req.params.from;
+    const {role} = req.user;
 
     try{
 
-        if(from === infinityTrader){
+        if(role.roleName === infinityTrader){
             if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
                 // console.log("inif", infinityTrader)
                 let instrument = await client.LRANGE(`${req.user._id.toString()}: infinityInstrument`, 0, -1)

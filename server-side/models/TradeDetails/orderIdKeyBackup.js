@@ -6,6 +6,10 @@ const redisBackup = new Schema({
         type: String,
         required: true
     },
+    appOrderId:{
+        type: String,
+        required: true
+    },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
