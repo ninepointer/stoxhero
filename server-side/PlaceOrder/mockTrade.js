@@ -51,7 +51,6 @@ exports.mockTrade = async (req, res) => {
       const brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
       const brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
     
-    //   console.log("req body", req.body)
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
         //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
@@ -75,8 +74,10 @@ exports.mockTrade = async (req, res) => {
         // let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
         let liveData;
         if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
+            console.log("inside setting")
             liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
         } else{
+            console.log("inside setting else case")
             liveData = await singleLivePrice(exchange, symbol)
         }
         console.log("live data", liveData)
@@ -101,8 +102,9 @@ exports.mockTrade = async (req, res) => {
     function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
         let brokerage = Number(buyBrokerData.brokerageCharge);
         let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
-        let gst = (brokerage + exchangeCharge) * (Number(buyBrokerData.gst) / 100);
         let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+        let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
+        
         let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
         let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
         let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
@@ -112,8 +114,9 @@ exports.mockTrade = async (req, res) => {
     function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
         let brokerage = Number(sellBrokerData.brokerageCharge);
         let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
-        let gst = (brokerage + exchangeCharge) * (Number(sellBrokerData.gst) / 100);
         let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+
+        let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
         let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
         let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
         let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;

@@ -80,7 +80,7 @@ async function fetchToken (exchange, symbol){
     // console.log(authOptions)
     try{
     const resp = await axios.get(url, authOptions);
-    console.log(resp)
+    // console.log(resp)
     for (let elem in resp.data.data) {
         instrumentToken = (resp.data.data[elem].instrument_token);
         // console.log(resp.data.data[elem])

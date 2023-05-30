@@ -5,6 +5,8 @@ const Instrument = require("../models/Instruments/instrumentSchema");
 const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
+const InfinityInstrument = require("../models/Instruments/infinityInstrument");
+const {xtsAccountType, zerodhaAccountType} = require("../constant");
 
 
 const fetchData = async () => {
@@ -15,8 +17,9 @@ const fetchData = async () => {
     // for (instrument in res.data.data) {
     //   arr.push(res.data.data[instrument].instrument_token);
     // }
+    const infinityInstrument = await InfinityInstrument.find({status: "Active"});
     const resp = await Instrument.find({status: "Active"});
-    const index = await StockIndex.find({status: "Active"})
+    const index = await StockIndex.find({status: "Active", accountType: zerodhaAccountType})
     const contest = await ContestInstrument.find({status: "Active"});
     // const resp2 = await InstrumentMapping.find({Status: "Active"})
 
@@ -29,6 +32,9 @@ const fetchData = async () => {
       tokens.push(elem.instrumentToken);
     }) 
     contest.forEach((elem)=>{
+      tokens.push(elem.instrumentToken);
+    }) 
+    infinityInstrument.forEach((elem)=>{
       tokens.push(elem.instrumentToken);
     }) 
   

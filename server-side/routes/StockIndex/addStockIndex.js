@@ -16,7 +16,7 @@ router.post("/stockindex",authentication, async (req, res)=>{
     // const id = req.user;
 
     try{
-        let {accountType, displayName, exchange, instrumentSymbol, status} = req.body;
+        let {exchangeSegment, accountType, displayName, exchange, instrumentSymbol, status} = req.body;
         console.log(req.body)
         const id = req.user._id;
         let instrumentToken = await fetchToken(exchange, instrumentSymbol);
@@ -43,10 +43,14 @@ router.post("/stockindex",authentication, async (req, res)=>{
         index.save().then(async(data)=>{
              await subscribeSingleToken(instrumentToken);
             res.status(201).json({message : "Index Added",data : data._id});
-        }).catch((err)=> res.status(500).json({error:err}));
+        }).catch((err)=> {
+            console.log(err)
+            res.status(500).json({error:err})
+        });
 
 
     } catch(err) {
+        console.log(err)
         // res.status(500).json({error:"Failed to enter data Check access token"});
         res.status(500).json({error:err});
         return new Error(err);
