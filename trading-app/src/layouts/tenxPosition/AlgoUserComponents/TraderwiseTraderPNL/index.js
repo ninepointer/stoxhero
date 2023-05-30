@@ -2,36 +2,60 @@ import {useState, useEffect} from "react"
 import axios from "axios";
 // @mui material components
 import Card from "@mui/material/Card";
+import Icon from "@mui/material/Icon";
+import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import ViewOrders from '@mui/icons-material/ViewList';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
+import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
+import Button from '@mui/material/Button';
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-import { TextField } from "@mui/material";
+import ViewTradeDetail from "./ViewTradeDetail";
+import ViewOrderDetail from "./MockTraderwiseOrders";
 
-function TraderwiseTraderPNL({socket }) {
+function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, setBatches }) {
   const { columns, rows } = data();
+  const [menu, setMenu] = useState(null);
+
+  // const {render, setRender} = Render
+  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
+  const closeMenu = () => setMenu(null);
+
+  const renderMenu = (
+    <Menu
+      id="simple-menu"
+      anchorEl={menu}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "left",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      open={Boolean(menu)}
+      onClose={closeMenu}
+    >
+      <MenuItem onClick={closeMenu}>Action</MenuItem>
+      <MenuItem onClick={closeMenu}>Another action</MenuItem>
+      <MenuItem onClick={closeMenu}>Something else</MenuItem>
+    </Menu>
+  );
+
+
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
-  const[subscriptions,setSubscription] = useState([]);
-  const [selectedSubscription, setselectedSubscription] = useState();
-
-  useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/tenX/active`, {withCredentials: true})
-    .then((res)=>{
-      setSubscription(res.data.data);
-      setselectedSubscription(res.data.data[0]?._id)
-    }).catch(e => console.log(e));
-  },[])
 
   useEffect(()=>{
 
@@ -58,17 +82,17 @@ function TraderwiseTraderPNL({socket }) {
   }, [])
 
   useEffect(()=>{
-    if(!selectedSubscription){
+    if(!selectedBatch){
       return;
     }
-    axios.get(`${baseUrl}api/v1/tenX/${selectedSubscription}/trade/traderWisePnl`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/internship/traderwiseAllTrader/${selectedBatch}`, {withCredentials: true})
     .then((res) => {
         setAllTrade(res.data.data);
     }).catch((err)=>{
         return new Error(err);
     })
 
-  }, [selectedSubscription]) 
+  }, [selectedBatch]) 
 
   useEffect(() => {
     return () => {
@@ -76,6 +100,25 @@ function TraderwiseTraderPNL({socket }) {
         socket.close();
     }
   }, [])
+
+  // useEffect(()=>{
+  //         // Get Lastest Trade timestamp
+  //         axios.get(`${baseUrl}api/v1/getlastestmocktradecompany`)
+  //         // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
+  //         .then((res)=>{
+  //             //console.log(res.data);
+  //             setLatestTradeTimearr(res.data);
+  //             setLatestTradeTime(res.data.trade_time) ;
+  //             setLatestTradeBy(res.data.createdBy) ;
+  //             setLatestTradeType(res.data.buyOrSell) ;
+  //             setLatestTradeQuantity(res.data.Quantity) ;
+  //             setLatestTradeSymbol(res.data.symbol) ;
+  //             setLatestTradeStatus(res.data.status);
+  //               //console.log(lastestTradeTimearr);
+  //         }).catch((err) => {
+  //           return new Error(err);
+  //         })
+  // }, [marketData])
 
   let mapForParticularUser = new Map();
     //console.log("Length of All Trade Array:",allTrade.length);
@@ -113,13 +156,12 @@ function TraderwiseTraderPNL({socket }) {
           brokerage: allTrade[i].brokerage,
           noOfTrade: allTrade[i].trades,
           userId: allTrade[i]._id.traderId,
-          email: allTrade[i]._id.traderEmail,
-          mobile: allTrade[i]._id.traderMobile
         }) 
       }
 
     }
 
+    //console.log("mapForParticularUser", mapForParticularUser)
 
     let finalTraderPnl = [];
     for (let value of mapForParticularUser.values()){
@@ -129,6 +171,9 @@ function TraderwiseTraderPNL({socket }) {
     finalTraderPnl.sort((a, b)=> {
       return (b.totalPnl-b.brokerage)-(a.totalPnl-a.brokerage)
     });
+
+    //console.log("finalTraderPnl", finalTraderPnl)
+
 
 
 let totalGrossPnl = 0;
@@ -155,6 +200,12 @@ finalTraderPnl.map((subelem, index)=>{
   totalLotsUsed += (subelem.lotUsed);
   totalTrades += (subelem.noOfTrade);
   totalTraders += 1;
+
+  obj.userId = (
+    <MDTypography component="a" variant="caption" fontWeight="medium">
+      {subelem.userId}
+    </MDTypography>
+  );
 
   obj.traderName = (
     <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
@@ -197,18 +248,13 @@ finalTraderPnl.map((subelem, index)=>{
       {((subelem.totalPnl)-(subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
     </MDTypography>
   );
+  // obj.view = (
+  //   <ViewTradeDetail socket={props.socket} userId={subelem.userId}/>
+  // );
+  // obj.orders = (
+  //   <ViewOrderDetail userId={subelem.userId}/>
+  // );
 
-  obj.email = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-      {(subelem?.email)}
-    </MDTypography>
-  );
-
-  obj.mobile = (
-    <MDTypography component="a" variant="caption" fontWeight="medium">
-      {(subelem.mobile)}
-    </MDTypography>
-  );
 
   rows.push(obj);
 })
@@ -263,8 +309,6 @@ obj.netPnl = (
   </MDTypography>
 );
 
-
-
 rows.push(obj);
 
 //console.log("traderwise row", rows)
@@ -277,30 +321,28 @@ rows.push(obj);
           <MDTypography variant="h6" gutterBottom>
             Traderwise Trader P&L
           </MDTypography>
+          <MDBox display="flex" alignItems="center" lineHeight={0}>
+            {/* <Icon
+              sx={{
+                fontWeight: "bold",
+                color: ({ palette: { info } }) => info.main,
+                mt: -0.5,
+              }}
+            >
+              done
+            </Icon>
+            <MDTypography variant="button" fontWeight="regular" color="text">
+            &nbsp;<strong>last trade</strong> {lastestTradeBy} {lastestTradeType === "BUY" ? "bought" : "sold"} {Math.abs(lastestTradeQunaity)} quantity of {lastestTradeSymbol} at {lastestTradeTime} - {lastestTradeStatus}
+            </MDTypography> */}
+          </MDBox>
         </MDBox>
-
+        {/* <MDBox color="text" px={2}>
+          <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
+            more_vert
+          </Icon>
+        </MDBox>
+        {renderMenu} */}
       </MDBox>
-
-      <MDBox sx={{display: 'flex', alignItems: 'center', marginLeft:'24px'}}>
-        <MDTypography fontSize={15}>Select Batch</MDTypography>
-        <TextField
-                select
-                label=""
-                value={subscriptions[0]?.plan_name}
-                minHeight="4em"
-                //helperText="Please select the body condition"
-                variant="outlined"
-                sx={{margin: 1, padding: 1, width: "200px"}}
-                onChange={(e)=>{setselectedSubscription(subscriptions.filter((item)=>item.plan_name == e.target.value)[0]._id)}}
-        >
-          {subscriptions?.map((option) => (
-                <MenuItem key={option.plan_name} value={option.plan_name} minHeight="4em">
-                  {option.plan_name}
-                </MenuItem>
-              ))}
-        </TextField>          
-      </MDBox>
-
       <MDBox>
         <DataTable
           table={{ columns, rows }}
