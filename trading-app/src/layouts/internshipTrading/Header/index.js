@@ -199,7 +199,7 @@ export default function TenXSubscriptions() {
    
     <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10} minHeight='65vh' >
 
-    <MDBox display="flex" justifyContent='center' flexDirection='column' mb={2} mt={1}>
+    <MDBox display="flex" justifyContent='center' flexDirection='column' mb={1} mt={1}>
       <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is StoxHero Internship?</MDTypography>
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
@@ -211,7 +211,7 @@ export default function TenXSubscriptions() {
       </MDBox>
     </MDBox>
           
-    <Grid container spacing={3} mb={1} mt={2}>
+    <Grid container spacing={3} mb={1} mt={0}>
       <MDBox bgColor="white" p={2} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)" mb={2} mt={1} ml={3} width='100%'>
         <MDTypography fontSize={18} fontWeight='bold' color="dark">
           Rules for completion of Internship
