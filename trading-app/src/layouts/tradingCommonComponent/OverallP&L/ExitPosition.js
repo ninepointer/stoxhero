@@ -26,7 +26,7 @@ import sound from "../../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
 
 
-function ExitPosition({traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
+function ExitPosition({lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -79,10 +79,10 @@ function ExitPosition({traderId, socket, subscriptionId, from, isFromHistory, pr
     validity: "",
   })
 
-  const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity));
+  const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > lotSize*36) ? lotSize*36 : Math.abs(quantity));
 
   useEffect(()=>{
-    setFilledQuantity((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity))
+    setFilledQuantity((Math.abs(quantity) > lotSize*36) ? lotSize*36 : Math.abs(quantity))
   }, [quantity])
 
   // console.log("filledQuantity", filledQuantity, quantity)
@@ -110,7 +110,7 @@ function ExitPosition({traderId, socket, subscriptionId, from, isFromHistory, pr
 
   useEffect(()=>{
     socket.on(`sendResponse${trader.toString()}`, (data)=>{
-      render ? setRender(false) : setRender(true);
+      // render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
   }, [])
@@ -133,7 +133,7 @@ function ExitPosition({traderId, socket, subscriptionId, from, isFromHistory, pr
 
 
 
-  let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
+  // let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
   // tradeData[0]?.lotSize;
   let maxLot = lotSize*36;
   let finalLot = maxLot / lotSize;

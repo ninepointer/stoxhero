@@ -2,7 +2,7 @@ const XTSInteractive = require('xts-interactive-api').Interactive;
 const XTSInteractiveWS = require('xts-interactive-api').WS;
 const RetrieveOrder = require("../../models/TradeDetails/retreiveOrder")
 const io = require('../../marketData/socketio');
-const { xtsAccountType } = require("../../constant");
+const { xtsAccountType, zerodhaAccountType} = require("../../constant");
 const { client, getValue } = require('../../marketData/redisClient');
 const InfinityLiveTrader = require("../../models/TradeDetails/infinityLiveUser");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
@@ -79,9 +79,11 @@ const placedOrderData = async () => {
         const date2 = date1[0].split("-");
         const date3 = `${date2[2]}-${date2[1]}-${date2[0]} ${date1[1]}`
         const utcDate = new Date(date3).toUTCString();
+
+        let date = new Date();
   
         const retreiveObj = {
-          order_id: AppOrderID, status: (OrderStatus === "Filled" ? "COMPLETE" : "REJECTED"), average_price: OrderAverageTradedPrice,
+          appOrderId: AppOrderID, order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`, status: (OrderStatus === "Filled" ? "COMPLETE" : "REJECTED"), average_price: OrderAverageTradedPrice,
           quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
           exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
           exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
@@ -106,6 +108,7 @@ const placedOrderData = async () => {
 
 const placedOrderDataHelper = async(initialTime, orderData) => {
   let isRedisConnected = getValue();
+  let date = new Date();
 
   let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
         OrderType, TimeInForce, OrderQuantity} = orderData;
@@ -149,9 +152,8 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
     let data = await client.HGET('liveOrderBackupKey', `${(orderData?.AppOrderID).toString()}`);
     traderData = JSON.parse(data);
   } else{
-    traderData = await RedisBackup.findOne({order_id: orderData?.AppOrderID})
+    traderData = await RedisBackup.findOne({order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${orderData?.AppOrderID}`})
   }
-
   const startTime = Date.now();
 
   if(!traderData?.trader){
@@ -189,9 +191,11 @@ const placeOrder = async (obj, req, res) => {
     clientID: process.env.XTS_CLIENTID,
   });
 
+  let date = new Date();
 
   let backupObj = {
-    order_id: response?.result?.AppOrderID,
+    appOrderId: response?.result?.AppOrderID,
+    order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
     trader: req.body.trader,
     algoBoxId: req.body.algoBoxId,
     exchange: req.body.exchange,
@@ -202,6 +206,64 @@ const placeOrder = async (obj, req, res) => {
     instrumentToken: req.body.instrumentToken,
     dontSendResp: req.body.dontSendResp,
     tradedBy: req.user._id
+  }
+
+  //check status, if status is 400 then send below error response.
+
+  console.log("app order id", response?.result?.AppOrderID, response)
+  // setTimeout(async ()=>{
+    if (response?.result?.AppOrderID) {
+      if(isRedisConnected){
+        await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(backupObj));
+      }
+      const redisBackup = await RedisBackup.create(backupObj);  
+      res.status(200).json({message: "Live"})
+    } else{
+      return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
+    }
+  // }, 4000)
+
+}
+
+const autoPlaceOrder = async (obj) => {
+  let isRedisConnected = getValue();
+  isReverseTrade = false;
+  let exchangeSegment;
+  if (obj.exchange === "NFO") {
+    exchangeSegment = 'NSEFO'
+  }
+  if (obj.exchange === "NSE") {
+    exchangeSegment = 'NSECM'
+  }
+  const response = await xtsInteractiveAPI.placeOrder({
+    exchangeSegment: exchangeSegment,
+    exchangeInstrumentID: obj.exchangeInstrumentToken,
+    productType: obj.Product,
+    orderType: obj.OrderType,
+    orderSide: obj.realBuyOrSell,
+    timeInForce: obj.validity,
+    disclosedQuantity: 0,
+    orderQuantity: obj.Quantity,
+    limitPrice: 0,
+    stopPrice: 0,
+    clientID: process.env.XTS_CLIENTID,
+  });
+
+  let date = new Date();
+
+  let backupObj = {
+    appOrderId: response?.result?.AppOrderID,
+    order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
+    trader: obj.trader,
+    algoBoxId: obj.algoBoxId,
+    exchange: obj.exchange,
+    symbol: obj.symbol,
+    buyOrSell: obj.buyOrSell,
+    Quantity: obj.userQuantity,
+    variety: obj.variety,
+    instrumentToken: obj.instrumentToken,
+    dontSendResp: obj.dontSendResp,
+    tradedBy: obj.createdBy
   }
 
   //check status, if status is 400 then send below error response.
@@ -305,6 +367,9 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
   const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: xtsAccountType });
   const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: xtsAccountType });
+  const brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+  const brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
+
   const session = await mongoose.startSession();
 
 
@@ -343,24 +408,24 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       Quantity = 0 - Quantity;
     }
 
-    function buyBrokerage(totalAmount) {
-      let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
-      let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
-      let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailBuy[0].gst) / 100);
-      let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
-      let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
-      let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
+    function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
+      let brokerage = Number(buyBrokerData.brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
+      let gst = (brokerage + exchangeCharge) * (Number(buyBrokerData.gst) / 100);
+      let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+      let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
+      let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
       let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
       return finalCharge;
     }
 
-    function sellBrokerage(totalAmount) {
-      let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
-      let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
-      let gst = (brokerage + exchangeCharge) * (Number(brokerageDetailSell[0].gst) / 100);
-      let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
-      let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
-      let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
+    function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+      let brokerage = Number(sellBrokerData.brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+      let gst = (brokerage + exchangeCharge) * (Number(sellBrokerData.gst) / 100);
+      let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+      let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+      let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
       let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
       return finalCharge
@@ -370,65 +435,73 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     let brokerageUser;
 
     if (transaction_type === "BUY") {
-      brokerageCompany = buyBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice);
+      brokerageCompany = buyBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice, brokerageDetailBuy[0]);
     } else {
-      brokerageCompany = sellBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice);
+      brokerageCompany = sellBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice, brokerageDetailSell[0]);
     }
 
     if (buyOrSell === "BUY") {
-      brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice);
+      brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice, brokerageDetailBuyUser[0]);
     } else {
-      brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice);
+      brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice, brokerageDetailSellUser[0]);
     }
 
+    let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
+
     const companyDoc = {
+      appOrderId: AppOrderID, order_id: order_id,
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
       status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
       Product: ProductType, buyOrSell: transaction_type,
       variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
-      algoBox: algoBoxId, order_id: AppOrderID, instrumentToken, brokerage: brokerageCompany,
+      algoBox: algoBoxId, instrumentToken, brokerage: brokerageCompany,
       trader: trader, isRealTrade: true, amount: (Number(OrderQuantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
       exchangeInstrumentToken: ExchangeInstrumentID
     }
 
     const traderDoc = {
+      appOrderId: AppOrderID, order_id: order_id,
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
       status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: Quantity,
       Product: ProductType, buyOrSell: buyOrSell,
       variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
-      order_id: AppOrderID, instrumentToken, brokerage: brokerageUser, trader: trader,
+      instrumentToken, brokerage: brokerageUser, trader: trader,
       isRealTrade: true, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
       exchangeInstrumentToken: ExchangeInstrumentID
     }
 
     const companyDocMock = {
+      appOrderId: AppOrderID, order_id: order_id,
       status, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
       Product: ProductType, buyOrSell: transaction_type, variety, validity: TimeInForce, exchange, order_type: OrderType,
-      symbol, placed_by: ClientID, algoBox: algoBoxId, order_id: AppOrderID,
+      symbol, placed_by: ClientID, algoBox: algoBoxId,
       instrumentToken, brokerage: brokerageCompany, createdBy: tradedBy,
       trader: trader, isRealTrade: false, amount: (Number(OrderQuantity) * OrderAverageTradedPrice),
       trade_time: LastUpdateDateTime, exchangeInstrumentToken: ExchangeInstrumentID
     }
 
     const traderDocMock = {
+      appOrderId: AppOrderID, order_id: order_id,
       status, average_price: OrderAverageTradedPrice, Quantity: Quantity,
       Product: ProductType, buyOrSell, exchangeInstrumentToken: ExchangeInstrumentID,
       variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
-      isRealTrade: false, order_id: AppOrderID, instrumentToken, brokerage: brokerageUser,
+      isRealTrade: false, instrumentToken, brokerage: brokerageUser,
       createdBy: tradedBy, trader: trader, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
     }
 
-    const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: AppOrderID }, { $setOnInsert: companyDoc }, { upsert: true, session });
-    const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: AppOrderID }, { $setOnInsert: traderDoc }, { upsert: true, session });
-    const mockCompany = await InfinityMockCompany.updateOne({ order_id: AppOrderID }, { $setOnInsert: companyDocMock }, { upsert: true, session });
-    const algoTrader = await InfinityMockTrader.updateOne({ order_id: AppOrderID }, { $setOnInsert: traderDocMock }, { upsert: true, session });
+    const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
+    const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
+    const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
+
+    const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
     // const traderDocMock = await InfinityMockTrader.findOne({ _id: algoTrader.upsertedId });
-    // console.log("algoTrader", algoTrader)
-    // console.log("algoTraderLive", algoTraderLive)
-    // console.log("mockCompany", mockCompany)
-    // console.log("traderDocMock", traderDocMock)
+    console.log("algoTrader", algoTrader)
+    console.log("algoTraderLive", algoTraderLive)
+    console.log("mockCompany", mockCompany)
+    console.log("liveCompanyTrade", liveCompanyTrade)
+
     let settingRedis;
     if (await client.exists(`${trader.toString()} overallpnl`)) {
       let pnl = await client.get(`${trader.toString()} overallpnl`)
@@ -485,7 +558,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     //           symbol: "$symbol",
     //           product: "$Product",
     //           instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+// exchangeInstrumentToken: "$exchangeInstrumentToken",
     //           exchangeInstrumentToken: "$exchangeInstrumentToken",
     //           exchange: "$exchange"
     //         },

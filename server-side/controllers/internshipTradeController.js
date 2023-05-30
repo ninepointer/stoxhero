@@ -51,7 +51,7 @@ exports.overallPnl = async (req, res, next) => {
                 symbol: "$symbol",
                 product: "$Product",
                 instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchange: "$exchange"
               },

@@ -36,9 +36,74 @@ const {overallPnlTrader} = require("../../controllers/infinityController");
 const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
+const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
 const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually");
+const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
+const InternTrade = require("../../models/mock-trade/internshipTrade")
+const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
 
 
+
+
+router.get("/insertInfinityTrader", async (req, res) => {
+  const users = await UserDetail.find({ designation: "Equity Trader" }).select('watchlistInstruments');
+
+  for (let i = 0; i < users.length; i++) {
+    for (let j = 0; j < users[i].watchlistInstruments.length; j++) {
+      console.log(users[i].watchlistInstruments[j])
+      const instrument = await Instrument.findOne({ _id: users[i].watchlistInstruments[j], status: "Active" });
+  
+      console.log(instrument)
+  
+      // Create a new document in InfinityInstrument excluding the _id field
+      if (instrument) {
+        const instrumentData = { ...instrument.toObject() };
+        delete instrumentData._id;
+        await InfinityInstrument.create(instrumentData);
+      }
+    }
+  }
+  res.send("ok")
+});
+
+router.get("/updateInstrument", async (req, res) => {
+  const collections = [Instrument ];
+
+  for (let i = 0; i < collections.length; i++) {
+    const data = await collections[i].find({ status: "Active" });
+  
+    for (let j = 0; j < data.length; j++) {
+      const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+  
+      // Update the document with the exchangeToken field
+      console.log(exchangeToken)
+      await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token, exchangeSegment: 2 });
+    }
+  }
+  res.send("ok")
+});
+
+router.get("/updateExchabgeToken", async (req, res) => {
+  const collections = [InfinityTrader, InfinityTraderCompany, PaperTrade, TenXTrade, InternTrade ];
+
+  for (let i = 0; i < collections.length; i++) {
+    const data = await collections[i].find({ trade_time: { $gte: new Date("2023-05-30T00:00:00.000Z") } });
+  
+    for (let j = 0; j < data.length; j++) {
+      const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+  
+      // Update the document with the exchangeToken field
+      await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
+    }
+  }
+
+});
+
+router.get("/infinityAuto", async (req, res) => {
+  // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
+  const data = await infinityTradeLive()
+  res.send(data);
+});
 
 router.get("/orderData", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
@@ -441,8 +506,8 @@ router.get("/dbbackup", async (req, res)=>{
   // const targetUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
 
   // const sourceUri = "mongodb+srv://vvv201214:5VPljkBBPd4Kg9bJ@cluster0.j7ieec6.mongodb.net/admin-data?retryWrites=true&w=majority"
-  // const sourceUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority"
-  // const targetUri = "mongodb+srv://anshuman:ninepointerdev@cluster1.iwqmp4g.mongodb.net/?retryWrites=true&w=majority";
+  const sourceUri = "mongodb+srv://staging-database:staging1234@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority"
+  const targetUri = "mongodb+srv://vvv201214:vvv201214@development.tqykp6n.mongodb.net/?retryWrites=true&w=majority";
 
   await dbBackup.backupDatabase(sourceUri, targetUri, res);
 

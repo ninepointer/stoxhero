@@ -91,7 +91,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
 
   useEffect(()=>{
     socket?.on(`sendResponse${trader.toString()}`, (data)=>{
-      render ? setRender(false) : setRender(true);
+      // render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
   }, [])

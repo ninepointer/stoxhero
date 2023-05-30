@@ -91,6 +91,16 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
       })
     }, [])
 
+    useEffect(()=>{
+      socket?.on(`sendResponse${(getDetails.userDetails._id).toString()}`, (data)=>{
+        // render ? setRender(false) : setRender(true);
+        // openSuccessSB(data.status, data.message)
+        setTimeout(()=>{
+          setTrackEvent(data);
+        })
+      })
+    }, [])
+
 
     console.log("tradeData", tradeData, marketDetails.marketData)
 
@@ -108,12 +118,9 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
 
       totalTransactionCost += Number(subelem.brokerage);
       let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
+      lotSize = (getDetails?.userDetails?.role?.roleName === infinityTrader) ? 25 : lotSize;
 
-      // from === paperTrader ? 
       updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
-      // :
-      // (from === infinityTrader || from === tenxTrader) &&
-      // updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
       const instrumentcolor = subelem._id.symbol?.slice(-2) == "CE" ? "success" : "error"
@@ -187,7 +194,7 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
         );
       }
       obj.exit = (
-        < ExitPosition socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
+        < ExitPosition lotSize={lotSize} socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity= {subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState}/>
       );
       obj.buy = (
         <Buy socket={socket} exchangeInstrumentToken={subelem._id.exchangeInstrumentToken} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize*36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState}/>

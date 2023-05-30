@@ -31,6 +31,7 @@ import { marketDataContext } from "../../../MarketDataContext";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+import { userContext } from "../../../AuthContext";
 
 const initialState = {
   instrumentsData: [],
@@ -87,6 +88,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   const [state, dispatch] = useReducer(reducer, initialState);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
+  const getDetails = useContext(userContext);
 
   const openSuccessSB = () => {
     return dispatch({ type: 'openSuccess', payload: true });
@@ -302,6 +304,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
         <MDBox>
         { state.instrumentsData?.length > 0 &&
           (state.instrumentsData.map((elem, index)=>{
+            elem.lot_size = (getDetails?.userDetails?.role?.roleName==infinityTrader) ? 25 : elem.lot_size
             elem.sellState = false;
             elem.buyState = false;
             let perticularInstrumentData = state.userInstrumentData.filter((subElem)=>{

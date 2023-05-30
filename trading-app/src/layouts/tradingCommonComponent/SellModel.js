@@ -32,7 +32,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../..
 
 
 const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
-  // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
+  console.log("rendering in userPosition: sellModel", exchange)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
   console.log("rendering : sell");
@@ -69,7 +69,7 @@ const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, 
 
   useEffect(()=>{
     socket?.on(`sendResponse${trader.toString()}`, (data)=>{
-      render ? setRender(false) : setRender(true);
+      // render ? setRender(false) : setRender(true);
       openSuccessSB(data.status, data.message)
     })
   }, [])

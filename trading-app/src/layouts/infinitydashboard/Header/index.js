@@ -4,12 +4,12 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
-import MDAvatar from '../../../components/MDAvatar';
-import man from '../../../assets/images/man.png'
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import { Link, useLocation } from "react-router-dom";
-import RunningPNLChart from '../data/runningpnlchart'
-import data from "../data";
+// import MDAvatar from '../../../components/MDAvatar';
+// import man from '../../../assets/images/man.png'
+// import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import { Link } from "react-router-dom";
+// import RunningPNLChart from '../data/runningpnlchart'
+// import data from "../data";
  
 //data
 
@@ -147,7 +147,7 @@ export default function LabTabs({socket}) {
 
   console.log(tradeData)
   tradeData.map((subelem, index)=>{
-    let obj = {};
+    // let obj = {};
     totalRunningLots += Number(subelem.lots)
     totalTransactionCost += Number(subelem.brokerage);
     totalTurnover += Number(Math.abs(subelem.amount));
@@ -167,7 +167,7 @@ export default function LabTabs({socket}) {
 
 
   liveTradeData.map((subelem, index)=>{
-    let obj = {};
+    // let obj = {};
     liveTotalRunningLots += Number(subelem.lots)
     liveTotalTransactionCost += Number(subelem.brokerage);
     liveTotalTurnover += Number(Math.abs(subelem.amount));
