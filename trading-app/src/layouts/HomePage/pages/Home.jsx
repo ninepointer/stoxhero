@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import theme from '../utils/theme/index';
 import Navbar from '../components/Navbars/Navbar'
 import Footer from '../components/Footers/Footer'
@@ -15,10 +15,20 @@ import Section10 from '../containers/Section10'
 import Section11 from '../containers/Section11'
 import { Box } from '@mui/material'
 import { ThemeProvider } from 'styled-components';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/constants';
 
 const Home = () => {
-  console.log(theme)
-  console.log(theme.background)
+  const [data, setData] = useState();
+  const getMetrics = async()=>{
+    const res = await axios.get(`${apiUrl}appmetrics`);
+    console.log(res.data.data);
+    setData(res.data.data);
+  }
+  useEffect(()=>{
+    getMetrics();
+  },[])
+
   return (
     <div>
 
@@ -28,7 +38,7 @@ const Home = () => {
 
       {/* Section */}
       <Section1/>
-      <Section2/>
+      <Section2 data ={data}/>
       <Box sx={{ height:{sx:"4000px"},width:"100%", bgcolor:"#06070A", position: "relative" }}>
       
       <Section4/>

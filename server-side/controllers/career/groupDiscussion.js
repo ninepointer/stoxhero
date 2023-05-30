@@ -13,7 +13,7 @@ exports.createGroupDiscussion = async(req, res, next)=>{
 
     if(await GroupDiscussion.findOne({gdStartDate : gdStartDate, batch: batch})) return res.status(400).json({message:'This group discussion already exists.'});
 
-    const gd = await GroupDiscussion.create({gdTitle, gdTopic, gdStartDate, gdEndDate, meetLink, 
+    const gd = await GroupDiscussion.create({gdTitle: gdTitle.trim(), gdTopic:gdTopic.trim(), gdStartDate, gdEndDate, meetLink: meetLink.trim(), 
         createdBy: req.user._id, lastModifiedBy: req.user._id, batch});
     
     res.status(201).json({message: 'GroupDiscussion successfully created.', data:gd});
@@ -175,13 +175,13 @@ exports.addUserToGd = async(req, res, next) => {
     
       try{
         let obj = {
-            first_name : first_name, 
-            last_name : last_name, 
+            first_name : first_name.trim(), 
+            last_name : last_name.trim(), 
             designation: 'Trader', 
-            email : email, 
-            mobile : mobileNo,
-            name: first_name + ' ' + last_name.substring(0,1), 
-            password: 'sh' + last_name.trim() + '@123' + mobileNo.slice(1,3), 
+            email : email.trim(), 
+            mobile : mobileNo.trim(),
+            name: first_name.trim() + ' ' + last_name.trim().substring(0,1), 
+            password: 'sh' + last_name.trim() + '@123' + mobileNo.trim().slice(1,3), 
             status: 'Active', 
             employeeid: userId, 
             creationProcess: 'Career SignUp',

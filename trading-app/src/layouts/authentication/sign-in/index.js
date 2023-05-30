@@ -24,6 +24,8 @@ import BasicLayout from "../components/BasicLayout";
 
 // Images
 import bgImage from "../../../assets/images/trading.jpg";
+import bgImage1 from "../../../assets/images/bgBanner1.jpg";
+import backgroundImage from "../../../layouts/HomePage/assets/images/section1/backgroud.jpg";
 import { userContext } from '../../../AuthContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -38,7 +40,7 @@ function Basic() {
   const [pass, setPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   let [invalidDetail, setInvalidDetail] = useState();
-  const [formType, setFormType] = useState('email');
+  const [formType, setFormType] = useState('mobile');
   const[mobile, setMobile] = useState('');
   const[otpGen, setOtpGen] = useState(false);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
@@ -322,11 +324,11 @@ function Basic() {
   );
 
   return ( 
-    <BasicLayout image={bgImage}>
+    <BasicLayout image={bgImage1}>
       <Card>
         <MDBox
           variant="gradient"
-          bgColor="info"
+          bgColor="dark"
           borderRadius="lg"
           coloredShadow="info"
           mx={2}
@@ -374,10 +376,10 @@ function Basic() {
               </MDTypography>
             </MDBox>
             <MDBox mt={2} mb={1}>
-              <MDButton variant="gradient" color="info" onClick={logInButton} fullWidth>
+              <MDButton variant="gradient" color="dark" onClick={logInButton} fullWidth>
                 sign in
               </MDButton>
-              <MDButton variant="text" color="info" onClick={forgotPasswordButton} fullWidth>
+              <MDButton variant="text" color="dark" onClick={forgotPasswordButton} fullWidth>
                 forgot password?
               </MDButton>
             </MDBox></>:
@@ -385,7 +387,7 @@ function Basic() {
           <MDBox mb={2}>
             <MDInput type="text" label="Mobile Number" onChange={handleMobileChange} fullWidth />
           </MDBox>
-          {!otpGen&&<MDButton variant="gradient" color="info" onClick={phoneLogin} fullWidth>
+          {!otpGen&&<MDButton variant="gradient" color="dark" onClick={phoneLogin} fullWidth>
           Send OTP
         </MDButton>}
         {otpGen && <><Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
@@ -412,12 +414,12 @@ function Basic() {
                   </MDBox>
                   </Grid>
                   <Grid item xs={12} md={6} xl={12} mt={1} display="flex" justifyContent="flex-start">
-                  <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '40%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="info" fullWidth onClick={()=>{resendOTP('mobile')}}>
+                  <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '40%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="dark" fullWidth onClick={()=>{resendOTP('mobile')}}>
                     {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
                   </MDButton>
                   </Grid>
                   <MDBox mt={2.5} mb={1} display="flex" justifyContent="space-around">
-                    <MDButton variant="gradient" color="info" fullWidth onClick={otpConfirmation}>
+                    <MDButton variant="gradient" color="dark" fullWidth onClick={otpConfirmation}>
                       Confirm
                     </MDButton>
                   </MDBox>
@@ -425,20 +427,20 @@ function Basic() {
           </> 
             }
             {formType == 'email' && <MDBox mt={-1}>
-              <MDTypography style={{
-                width:'fit-content', margin: 'auto', color:'#1A73E8', fontSize:14, cursor:'pointer', fontWeight:700
+              <MDTypography color = 'dark' style={{
+                width:'fit-content', margin: 'auto', fontSize:14, cursor:'pointer', fontWeight:700
                 }} onClick={()=>{setFormType('mobile')}}>Login with Mobile</MDTypography>
             </MDBox>}
-            {formType == 'mobile' && <MDBox mt={0}>
-              <MDTypography style={{
-                width:'fit-content', margin: 'auto', color:'#1A73E8', fontSize:14, cursor:'pointer', fontWeight:700
+            {formType == 'mobile' && <MDBox mt={1}>
+              <MDTypography color = 'dark'  style={{
+                width:'fit-content', margin: 'auto', fontSize:14, cursor:'pointer', fontWeight:700
                 }} onClick={()=>{setFormType('email')}}>Login with Email</MDTypography>
             </MDBox>}
             <MDBox mt={2} mb={1}>
               <MDTypography variant="h6" fontWeight="medium" color="black" mt={1} mb={1} textAlign="center">
                 Learn and earn from stock market trading. Claim your free account now!
               </MDTypography>
-              <MDButton variant="gradient" color="error" onClick={signUpButton} fullWidth>
+              <MDButton variant="gradient" sx={{backgroundColor: '#afafaf', color:'#ffffff'}} onClick={signUpButton} fullWidth>
                 sign up
               </MDButton>
             </MDBox>

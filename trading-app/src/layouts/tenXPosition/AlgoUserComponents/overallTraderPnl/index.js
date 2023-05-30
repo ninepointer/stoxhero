@@ -105,7 +105,7 @@ function OverallTraderPNL({socket, batches, setBatches, selectedBatch, setSelect
       totalRunningLots += Number(subelem.lots)
 
       const liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
       })
 
       let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);

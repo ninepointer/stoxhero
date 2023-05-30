@@ -126,14 +126,14 @@ const Navbar = () => {
           >
             < img src ="https://icon-library.com/images/x-button-icon/x-button-icon-3.jpg" style={{height:"40px",position:"absolute",top:"8px",color:"#fff", right:"14px",}} sx={{fontSize:"100px"}} onClick={()=>setOpen(false)}/>
             
-            <a href="/Login">
+            <a href="/login">
             <LinkButton>
               <Typography variant="body2">Login</Typography>
               
             </LinkButton>
             </a>
 
-            <a href="/Signup">
+            <a href="/signup">
             <LinkButton>
               <Typography variant="body2">Signup</Typography>
               

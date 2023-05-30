@@ -44,7 +44,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId }) {
   const [trader, setTrader] = useState([])
   const [value, setValue] = useState(null);
   // const [value, setValue] = React.useState<FilmOptionType | null>(null);
-  const [selectedTrader, setSelectedTrader] = useState("");
+  // const [selectedTrader, setSelectedTrader] = useState("");
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
@@ -144,7 +144,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId }) {
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem) => {
       // //console.log("elem", elem, subelem)
-      return subelem._id.instrumentToken == elem.instrument_token;
+      return (subelem._id.instrumentToken == elem.instrument_token || subelem._id.exchangeInstrumentToken == elem.instrument_token)
     })
     totalRunningLots += Number(subelem.lots)
 

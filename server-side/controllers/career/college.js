@@ -7,7 +7,7 @@ exports.createCollege = async(req, res, next)=>{
 
     if(await College.findOne({collegeName})) return res.status(400).json({message:'This college exists.'});
 
-    const college = await College.create({collegeName, zone, createdBy: req.user._id, lastModifiedBy: req.user._id});
+    const college = await College.create({collegeName: collegeName.trim(), zone, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
     res.status(201).json({status: 'success', message: 'College successfully created.', data: college});
 

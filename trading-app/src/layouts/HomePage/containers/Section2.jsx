@@ -5,16 +5,18 @@ import CountUp from "react-countup";
 import Title  from '../components/Title';
 
 const {items} = section2Content
-
+// const countUpRef = React.useRef(null);
 const CustomCounter = ({
   before = "",
   after = "",
   counter,
   subtitle,
   decimals = false,
+  name,
+  data
 }) => (
   <Stack textAlign="center" spacing={{ xs: 1, md: 2 }} alignItems="center">
-    <CountUp prefix={before} suffix={after} end={counter} decimals={decimals}>
+    <CountUp start={0} prefix={before} suffix={after} end={counter + data?.[name]} decimals={decimals} duration={3} useEasing={true} redraw>
       {({ countUpRef }) => (
         <Title variant={{ xs: "h4", md: "h2" }} style={{color:"white"}} sx={{ fontWeight: 400 }}>
           <span sx={{color:"white"}} ref={countUpRef} />
@@ -28,8 +30,8 @@ const CustomCounter = ({
   </Stack>
 );
 
-const Section2 = () => {
-
+const Section2 = ({data}) => {
+  console.log(data);
   return (
     <Container sx={{ mt:{xs:"-12px"} }}>
      <Box
@@ -56,9 +58,9 @@ const Section2 = () => {
         })}
       >
         <Grid container spacing={3} justifyContent="space-between">
-          {items.map(item=>(
+          {items.map((item, index)=>(
             <Grid item xs={6} md={4} lg={3} key={item.subtitle}>
-              <CustomCounter  {...item} />
+              <CustomCounter  {...item} data={data} />
             </Grid>
             
           ))}
