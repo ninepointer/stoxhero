@@ -327,7 +327,7 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
             }
 
-              console.log("redisClient", removeInstrument)
+            //   console.log("redisClient", removeInstrument)
               const obj = {
                 instrumentToken: instrumentToken,
                 exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
@@ -368,9 +368,9 @@ router.get("/instrumentDetails/:from", authentication, async (req, res)=>{
 
         if(from === infinityTrader){
             if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
-                console.log("inif", infinityTrader)
+                // console.log("inif", infinityTrader)
                 let instrument = await client.LRANGE(`${req.user._id.toString()}: infinityInstrument`, 0, -1)
-                console.log(instrument)
+                // console.log(instrument)
                 const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
       
                 res.status(201).json({message: "redis instrument received", data: instrumentJSONs});      
