@@ -18,37 +18,37 @@ import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-// import ViewTradeDetail from "./ViewTradeDetail";
-// import ViewOrderDetail from "./MockTraderwiseOrders";
+import ViewTradeDetail from "./ViewTradeDetail";
+import ViewOrderDetail from "./MockTraderwiseOrders";
 
-function TraderwiseTraderPNL({socket, selectedBatch }) {
+function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, setBatches }) {
   const { columns, rows } = data();
-  // const [menu, setMenu] = useState(null);
+  const [menu, setMenu] = useState(null);
 
   // const {render, setRender} = Render
-  // const openMenu = ({ currentTarget }) => setMenu(currentTarget);
-  // const closeMenu = () => setMenu(null);
+  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
+  const closeMenu = () => setMenu(null);
 
-  // const renderMenu = (
-  //   <Menu
-  //     id="simple-menu"
-  //     anchorEl={menu}
-  //     anchorOrigin={{
-  //       vertical: "top",
-  //       horizontal: "left",
-  //     }}
-  //     transformOrigin={{
-  //       vertical: "top",
-  //       horizontal: "right",
-  //     }}
-  //     open={Boolean(menu)}
-  //     onClose={closeMenu}
-  //   >
-  //     <MenuItem onClick={closeMenu}>Action</MenuItem>
-  //     <MenuItem onClick={closeMenu}>Another action</MenuItem>
-  //     <MenuItem onClick={closeMenu}>Something else</MenuItem>
-  //   </Menu>
-  // );
+  const renderMenu = (
+    <Menu
+      id="simple-menu"
+      anchorEl={menu}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "left",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      open={Boolean(menu)}
+      onClose={closeMenu}
+    >
+      <MenuItem onClick={closeMenu}>Action</MenuItem>
+      <MenuItem onClick={closeMenu}>Another action</MenuItem>
+      <MenuItem onClick={closeMenu}>Something else</MenuItem>
+    </Menu>
+  );
 
 
 
@@ -128,7 +128,7 @@ function TraderwiseTraderPNL({socket, selectedBatch }) {
         //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
           //console.log("market Data Instrument",elem.instrument_token)
-          return (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
+          return elem.instrument_token == Number(allTrade[i]._id.symbol)
         })
 
         let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
@@ -144,7 +144,7 @@ function TraderwiseTraderPNL({socket, selectedBatch }) {
         //console.log(marketData, "marketData")
         //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
+          return elem !== undefined && elem.instrument_token === Number(allTrade[i]._id.symbol)
         })
         ////console.log(marketDataInstrument)
         //console.log(marketDataInstrument, "marketDataInstrument")
