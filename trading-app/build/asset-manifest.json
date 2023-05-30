@@ -1,14 +1,13 @@
 {
   "files": {
     "main.css": "/static/css/main.39dfa471.css",
-    "main.js": "/static/js/main.9cb5f059.js",
+    "main.js": "/static/js/main.bc3839d1.js",
     "static/js/498.e7cb86be.chunk.js": "/static/js/498.e7cb86be.chunk.js",
     "static/js/703.e5427e5c.chunk.js": "/static/js/703.e5427e5c.chunk.js",
     "static/js/513.b6f7d00e.chunk.js": "/static/js/513.b6f7d00e.chunk.js",
     "static/media/main-bg-3.png": "/static/media/main-bg-3.c46dd2d7751431a8e006.png",
     "static/media/pattern-tree.svg": "/static/media/pattern-tree.e9679eedc33e0ad94e028761165fa9d4.svg",
     "static/media/trading.jpg": "/static/media/trading.37a53048ea613a761226.jpg",
-    "static/media/contest.gif": "/static/media/contest.84314953ca66e6b72292.gif",
     "static/media/home-decor-3.jpg": "/static/media/home-decor-3.74d13fcbd3c631fc7908.jpg",
     "static/media/lost.jpg": "/static/media/lost.7ffb8c9046181398f3a4.jpg",
     "static/media/home-decor-2.jpg": "/static/media/home-decor-2.b4e5397c9846645ba275.jpg",
@@ -131,13 +130,13 @@
     "static/media/mew.svg": "/static/media/mew.abd579786274219a78079f023ed7b335.svg",
     "index.html": "/index.html",
     "main.39dfa471.css.map": "/static/css/main.39dfa471.css.map",
-    "main.9cb5f059.js.map": "/static/js/main.9cb5f059.js.map",
+    "main.bc3839d1.js.map": "/static/js/main.bc3839d1.js.map",
     "498.e7cb86be.chunk.js.map": "/static/js/498.e7cb86be.chunk.js.map",
     "703.e5427e5c.chunk.js.map": "/static/js/703.e5427e5c.chunk.js.map",
     "513.b6f7d00e.chunk.js.map": "/static/js/513.b6f7d00e.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.39dfa471.css",
-    "static/js/main.9cb5f059.js"
+    "static/js/main.bc3839d1.js"
   ]
 }
