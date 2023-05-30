@@ -128,7 +128,7 @@ const Footer = () => {
                  </IconButton>
 
                 <IconButton>
-                <a href="https://m.facebook.com/people/STOCK-HERO/100071091021180/" target="_blank"><FacebookIcon color="white"/></a>
+                <a href="https://www.facebook.com/profile.php?id=100091564856087" target="_blank"><FacebookIcon color="white"/></a>
                 </IconButton>
 
 

@@ -4,7 +4,7 @@ const Contact = require('../models/contactus/contactInfo');
 exports.createContact = async (req, res) => {
     const {first_name, last_name, email, phone, message } = req.body;
     try {
-        const contact = await Contact.create({first_name, last_name, email, phone, message});
+        const contact = await Contact.create({first_name: first_name.trim(), last_name: last_name.trim(), email:email.trim(), phone:phone.trim(), message});
         res.status(201).json({status:'success', message:'Submitted'});
     } catch (error) {
         console.log('error', error);

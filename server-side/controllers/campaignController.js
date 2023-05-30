@@ -19,7 +19,7 @@ exports.createCampaign = async(req, res, next)=>{
         status } = req.body;
     try{
         if(await Campaign.findOne({campaignCode: campaignCode })) return res.status(400).json({info:'This campaign code already exists.'});
-        const campaign = await Campaign.create({campaignName, description, campaignFor, campaignLink, campaignCost, campaignCode,
+        const campaign = await Campaign.create({campaignName:campaignName.trim(), description, campaignFor, campaignLink, campaignCost, campaignCode:campaignCode.trim(),
             status, createdBy: req.user._id, lastModifiedBy: req.user._id});
         // console.log("Campaign: ",campaign)
         res.status(201).json({message: 'Campaign created successfully.', data:campaign, count:campaign.length});

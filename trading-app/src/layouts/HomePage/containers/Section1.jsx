@@ -8,7 +8,7 @@ import useMeasure from 'react-use-measure';
 import Title from '../components/Title/index'
 import { useTheme } from 'styled-components';
 import { section1Content } from '../utils/content';
-import back from '../assets/images/section1/backgroud.jpg'
+import back from '../../../assets/images/bgBanner2.jpg'
 
 
 

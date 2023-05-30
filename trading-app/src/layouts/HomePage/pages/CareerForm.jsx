@@ -126,10 +126,23 @@ const CareerForm = () => {
       campaignCode,
     } = detail;
 
+    // if(mobile.length !== 10){
+
+    //     setOTPGenerated(false)
+    //     return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
+    //   }
     if(mobile.length !== 10){
+
+      if(mobile.length === 12 && mobile.startsWith('91')){
+        
+      }else if(mobile.length === 11 && mobile.startsWith('0')){
+
+      }
+       else{
         setOTPGenerated(false)
         return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
       }
+    }
     
     const res = await fetch(`${baseUrl}api/v1/career/generateotp`, {
       method: "POST",

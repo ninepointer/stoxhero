@@ -27,17 +27,17 @@ try {
   const { firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career, campaignCode } = req.body;
 
   const data = await CareerApplication.create({
-    first_name: firstName,
-    last_name: lastName,
-    email: email,
-    mobileNo: mobile,
+    first_name: firstName.trim(),
+    last_name: lastName.trim(),
+    email: email.trim(),
+    mobileNo: mobile.trim(),
     dob: dob,
     collegeName: collegeName,
     priorTradingExperience: priorTradingExperience,
     source: source,
     // resume: uploadedData[0].url,
     career: career,
-    campaignCode: campaignCode,
+    campaignCode: campaignCode.trim(),
     });
     console.log(data)
     res.status(201).json({message: "Your application has been submitted successfully!"});
@@ -63,16 +63,16 @@ exports.generateOTP = async(req, res, next)=>{
   let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
   try {
       const data = await CareerApplication.create({
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      mobileNo: mobile,
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      email: email.trim(),
+      mobileNo: mobile.trim(),
       dob: dob,
       collegeName: collegeName,
       priorTradingExperience: priorTradingExperience,
-      source: source,
+      source: source.trim(),
       career: career,
-      campaignCode: campaignCode,
+      campaignCode: campaignCode.trim(),
       mobile_otp: mobile_otp,
       status: 'OTP Verification Pending',
       applicationStatus: 'Applied'
@@ -152,13 +152,13 @@ exports.confirmOTP = async(req, res, next)=>{
 
   try{
     let obj = {
-        first_name : firstName, 
-        last_name : lastName, 
+        first_name : firstName.trim(), 
+        last_name : lastName.trim(), 
         designation: 'Trader', 
         email : email, 
         mobile : mobile,
-        name: firstName + ' ' + lastName.substring(0,1), 
-        password: 'sh' + lastName.trim() + '@123' + mobile.slice(1,3), 
+        name: firstName.trim() + ' ' + lastName.trim().substring(0,1), 
+        password: 'sh' + lastName.trim() + '@123' + mobile.trim().slice(1,3), 
         status: 'Active', 
         employeeid: userId, 
         creationProcess: 'Career SignUp',
@@ -310,7 +310,7 @@ exports.createCareer = async(req, res, next)=>{
         status } = req.body;
     if(await Career.findOne({jobTitle, status: "Live" })) return res.status(400).json({info:'This job post is already live.'});
 
-    const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
+    const career = await Career.create({jobTitle: jobTitle.trim(), jobDescription, rolesAndResponsibilities, jobType, jobLocation,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});

@@ -20,10 +20,10 @@ try {
   const { firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career } = req.body;
 
   const data = await CareerApplication.create({
-    first_name: firstName,
-    last_name: lastName,
-    email: email,
-    mobileNo: mobile,
+    first_name: firstName.trim(),
+    last_name: lastName.trim(),
+    email: email.trim(),
+    mobileNo: mobile.trim(),
     dob: dob,
     collegeName: collegeName,
     priorTradingExperience: priorTradingExperience,
@@ -47,7 +47,7 @@ exports.createCareer = async(req, res, next)=>{
         status } = req.body;
     if(await Career.findOne({jobTitle, status: "Live" })) return res.status(400).json({info:'This job post is already live.'});
 
-    const career = await Career.create({jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation, campaign,
+    const career = await Career.create({jobTitle:jobTitle.trim(), jobDescription, rolesAndResponsibilities, jobType, jobLocation, campaign,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     // console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});

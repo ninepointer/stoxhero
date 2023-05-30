@@ -15,7 +15,7 @@ exports.createBatch = async(req, res, next)=>{
     // console.log(month.toUpperCase());
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
-    const batch = await Batch.create({batchID, batchName, batchStartDate, batchEndDate, applicationStartDate, applicationEndDate, 
+    const batch = await Batch.create({batchID, batchName: batchName.trim(), batchStartDate, batchEndDate, applicationStartDate, applicationEndDate, 
         batchStatus, participantRevenueSharing, batchLimit, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});    
