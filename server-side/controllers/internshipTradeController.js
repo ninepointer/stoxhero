@@ -764,3 +764,89 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
       ])
       res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
+
+exports.myOverallInternshipPnl = async (req, res, next) => {
+  const {batchId} = req.params;
+  const userId = req.user._id;
+  let date = new Date();
+  date.setDate(new Date(date) - 1)
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T23:59:59.000Z";
+  const today = new Date(todayDate);
+  const pipeline = [
+    {
+      $match: {
+        trade_time: {$lte : today},
+        batch: new ObjectId(batchId),
+        trader: new ObjectId(userId),
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          product: "$Product",
+          instrumentToken: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken"
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ]
+
+  let x = await InternTrades.aggregate(pipeline)
+  res.status(201).json({ message: "data received", data: x });
+}
+
+exports.myInternshipTradingDays = async (req, res, next) => {
+  const {batchId} = req.params;
+  const userId = req.user._id;
+  // let date = new Date();
+  // date.setDate(new Date(date) - 1)
+  // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  // todayDate = todayDate + "T23:59:59.000Z";
+  // const today = new Date(todayDate);
+  const pipeline = 
+  [
+    {
+      $match: {
+        batch: new ObjectId(batchId),
+        trader: new ObjectId(userId),
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        count: {
+          $count: {},
+        },
+      },
+    },
+  ]
+
+  let x = await InternTrades.aggregate(pipeline)
+  res.status(201).json({ message: "data received", data: x });
+}
