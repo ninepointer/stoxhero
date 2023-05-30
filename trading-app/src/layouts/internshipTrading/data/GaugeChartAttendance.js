@@ -3,6 +3,7 @@ import * as echarts from 'echarts';
 
 const GaugeChart = ({myTradingDays,totalTradingDays}) => {
   const chartRef = useRef(null);
+  console.log(myTradingDays,totalTradingDays)
 
   useEffect(() => {
     const chartDom = chartRef.current;
@@ -14,7 +15,7 @@ const GaugeChart = ({myTradingDays,totalTradingDays}) => {
               startAngle: 180,
               endAngle: 0,
               min: 0,
-              max: totalTradingDays,
+              max: 100,
               splitNumber: 2,
               itemStyle: {
                 color: '#1A73E8',
@@ -73,7 +74,7 @@ const GaugeChart = ({myTradingDays,totalTradingDays}) => {
                 offsetCenter: [0, '35%'],
                 valueAnimation: true,
                 formatter: function (value) {
-                  return '{value|' + value.toFixed(0) + '%' + ' Attendance' + '}';
+                  return '{value|' + (value).toFixed(0) + '%' + ' Attendance' + '}';
                 },
                 rich: {
                   value: {
@@ -90,7 +91,7 @@ const GaugeChart = ({myTradingDays,totalTradingDays}) => {
               },
               data: [
                 {
-                  value: myTradingDays
+                  value: ((Number(myTradingDays)/Number(totalTradingDays))*100).toFixed(0)
                 }
               ]
             }
