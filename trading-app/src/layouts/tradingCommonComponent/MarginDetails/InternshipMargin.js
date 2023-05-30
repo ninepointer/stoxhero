@@ -65,7 +65,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
                     // icon={<CreditCardIcon/>}
-                    title="Portfolio Value"
+                    title="Portfolio value"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
                   />

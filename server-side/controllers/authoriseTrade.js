@@ -83,7 +83,7 @@ exports.fundCheck = async(req, res, next) => {
                 },
             ])
         } catch(e){
-            console.log("errro fetching pnl", e);
+            console.log("errro fetching pnl 1", e);
         }
 
 
@@ -272,7 +272,7 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
                 },
             ])
         } catch(e){
-            console.log("errro fetching pnl", e);
+            console.log("errro fetching pnl 2", e);
         }
 
         let isSymbolMatch = true;
@@ -478,7 +478,7 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
                 },
             ])
         } catch(e){
-            console.log("errro fetching pnl", e);
+            console.log("errro fetching pnl 3", e);
         }
 
         let transactionTypeRunningLot = runningLots[0]?.runningLots > 0 ? "BUY" : "SELL";
@@ -719,7 +719,7 @@ exports.contestFundCheck = async(req, res, next) => {
                     },
                 ])
             } catch(e){
-                console.log("errro fetching pnl", e);
+                console.log("errro fetching pnl 4", e);
 
             }
 
@@ -859,7 +859,7 @@ exports.fundCheckInternship = async(req, res, next) => {
     // console.log("in fundCheckTenxTrader")
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity, subscriptionId} = req.body;
-    
+    console.log("Batch: ",subscriptionId)
 
     getKiteCred.getAccess().then(async (data)=>{
 
@@ -897,7 +897,7 @@ exports.fundCheckInternship = async(req, res, next) => {
                             $gte: today
                         },
                         symbol: symbol,
-                        trader: req.user._id,
+                        trader: new ObjectId(req.user._id),
                         status: "COMPLETE",
                         batch: new ObjectId(subscriptionId)
                     }
@@ -913,7 +913,7 @@ exports.fundCheckInternship = async(req, res, next) => {
                 },
             ])
         } catch(e){
-            console.log("errro fetching pnl", e);
+            console.log("errro fetching pnl 5", e);
         }
 
         let transactionTypeRunningLot = runningLots[0]?.runningLots > 0 ? "BUY" : "SELL";
