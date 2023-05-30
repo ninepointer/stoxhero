@@ -92,10 +92,10 @@ import BusinessIcon from '@mui/icons-material/Business';
 // import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 // import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
-// import BatchIcon from '@mui/icons-material/Diversity3';
+import BatchIcon from '@mui/icons-material/Diversity3';
 // import CardMembershipIcon from '@mui/icons-material/CardMembership';
 // import UserContest from "./layouts/UserContest"
-// import Batch from "./layouts/batch";
+import Batch from "./layouts/batch";
 // import WorkIcon from '@mui/icons-material/Work';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 import InfinityTrader from "./layouts/InfinityTrading"
