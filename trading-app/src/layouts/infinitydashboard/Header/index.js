@@ -250,7 +250,7 @@ export default function LabTabs({socket}) {
             </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={1} height='15vH'>
+        <Grid container spacing={2} mt={1} >
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -394,7 +394,7 @@ export default function LabTabs({socket}) {
             </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={1} height='15vH'>
+        <Grid container spacing={2} mt={1} >
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -525,7 +525,7 @@ export default function LabTabs({socket}) {
             
         </Grid>
 
-        <Grid container spacing={2} mt={1} height='15vH'>
+        <Grid container spacing={2} mt={1} >
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -657,10 +657,10 @@ export default function LabTabs({socket}) {
         </Grid>
 
         <Grid container spacing={2} mt={1}>
-            <Grid item lg={3}>
+            <Grid item lg={3} mt={1}>
                 <MDBox p={2} bgColor='text' borderRadius={5}>
                     <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
-                    <Grid container spacing={1}>
+                    <Grid container spacing={1} >
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
@@ -670,10 +670,13 @@ export default function LabTabs({socket}) {
                                 to={{
                                     pathname: `/orders`,
                                   }}
+
+                                  
                             >
                                 SroxHero Orders
                             </MDButton>
                         </Grid>
+
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
