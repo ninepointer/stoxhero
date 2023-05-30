@@ -122,6 +122,7 @@ import TenxPosition from "./layouts/tenxPosition"
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
 import InternshipOrders from './layouts/internshipOrders'
+import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
 
 
@@ -608,6 +609,14 @@ const routes = [
     icon: <BusinessIcon/>,
     route: "/virtualtrading",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Contact Info",
+    key: "contactinfo",
+    icon: <BusinessIcon/>,
+    route: "/contactinfo",
+    component: <ContactInfo />,
   },
   {
     // type: "collapse",

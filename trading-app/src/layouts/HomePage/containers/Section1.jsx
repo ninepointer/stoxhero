@@ -8,7 +8,7 @@ import useMeasure from 'react-use-measure';
 import Title from '../components/Title/index'
 import { useTheme } from 'styled-components';
 import { section1Content } from '../utils/content';
-import back from '../assets/images/section1/backgroud.jpg'
+import back from '../../../assets/images/bgBanner2.jpg'
 
 
 
@@ -82,7 +82,7 @@ const Section1 = () => {
           <Title variant={{xs:'h4',sm:'h3',md:"h2"}} sx={{ fontWeight:500, letterSpacing:"0.05em", mb:6}} style={{color:"white"}} >{subtitle}</Title>
 
           <Stack direction={{ xs: "column", md: "row" }} alignItems="center" spacing={4}>
-            <a href="/Login"><LaunchButton fullWidth={isSmallScreen} sx={{ height: '55px' }} /></a>
+            <a href="/login"><LaunchButton fullWidth={isSmallScreen} sx={{ height: '55px' }} /></a>
             {/* <CustomButton fullWidth={isSmallScreen} >
               <Apple sx={{ml:-2,}} style={{color:"red",fontSize:"55px"}} />
               <Stack sx={{ textAlign: 'left', ml: 1 }}>

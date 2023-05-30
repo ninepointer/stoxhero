@@ -89,7 +89,7 @@ router.post("/invite",authentication, async (req, res)=>{
             
             // }
 
-            await Lead.create({name:name, email:email ? email : undefined, mobile:mobile ? mobile : undefined, 
+            await Lead.create({name:name.trim(), email:email ? email.trim() : undefined, mobile:mobile ? mobile : undefined, 
                 invitedBy:req.user._id, status:'Invited', referralProgram:referralProgram});
             
 

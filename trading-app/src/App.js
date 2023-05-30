@@ -103,7 +103,7 @@ export default function App() {
         },
     })
     .then((res)=>{
-      console.log(res.data.role)
+      console.log(res.data.role, res.data.designation);
       setDetails.setUserDetail(res.data);
       setDetailUser((res.data));
 
@@ -282,10 +282,10 @@ export default function App() {
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={detailUser.role?.roleName === adminRole ? "/infinitydashboard" : '/tenxtrading'} 
+            to={getDetails?.userDetails.role?.roleName === adminRole ? "/infinitydashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/virtualtrading'} 
             />} />
             :
-            ''
+            <Route path="/" element={<Home />} />
           // <Route path="/" element={<Navigate to={pathname} />} />
           // <Route path="/" element={<Navigate to="/virtualtrading" />} />
           

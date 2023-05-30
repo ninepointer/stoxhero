@@ -119,7 +119,7 @@ exports.uploadToS3 = async(req, res, next) => {
     try{
       //Check if user exists
       // if(await carousel.findOne({isDeleted: false, email})) return res.json({})('User with this email already exists. Please login with existing email.', 401));
-      const carousel = await Carousel.create({carouselName, description, carouselStartDate, carouselEndDate, objectType, status,
+      const carousel = await Carousel.create({carouselName: carouselName.trim(), description, carouselStartDate, carouselEndDate, objectType, status,
         objectId, createdBy: (req).user._id, carouselImage});
   
       if(!carousel) return res.status(400).json({status: 'error', message: 'Couldn\'t create carousel'});

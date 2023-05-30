@@ -18,10 +18,13 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import TextField from '@mui/material/TextField';
 
 // Authentication layout components
-import CoverLayout from "../components/CoverLayout";
+import BasicLayout from "../components/BasicLayoutSignup";
 
 // Images
 import bgImage from "../../../assets/images/trading.jpg";
+import bgImage1 from "../../../assets/images/bgBanner1.jpg";
+import bgImage2 from "../../../assets/images/bgBanner2.jpg";
+import backgroundImage from "../../../layouts/HomePage/assets/images/section1/backgroud.jpg";
 
 
 
@@ -111,9 +114,12 @@ function Cover(props) {
 
     if(mobile.length !== 10){
 
-      if(mobile.length === 13 && mobile.startsWith('+91')){
+      if(mobile.length === 12 && mobile.startsWith('91')){
         
-      } else{
+      }else if(mobile.length === 11 && mobile.startsWith('0')){
+
+      } 
+      else{
         return openInfoSB("Mobile number invalid","Please Check Your Number Again")
       }
     }
@@ -129,9 +135,9 @@ function Cover(props) {
             "Access-Control-Allow-Credentials": false
         },
         body: JSON.stringify({
-          first_name:first_name, 
-          last_name:last_name,
-          email:email, 
+          first_name:first_name.trim(), 
+          last_name:last_name.trim(),
+          email:email.trim(), 
           mobile:mobile, 
           dob:dob, 
           gender:gender, 
@@ -284,16 +290,16 @@ function Cover(props) {
 
   return (
 
-    <CoverLayout image={bgImage}>
-      <Card>
+    <BasicLayout image={bgImage1}>
+      <Card minWidth="100%">
         <MDBox
           variant="gradient"
-          bgColor="info"
+          bgColor="dark"
           borderRadius="lg"
           coloredShadow="info"
-          mx={2}
+          mx={1}
           mt={-5}
-          p={3} 
+          p={2} 
           mb={1}
           textAlign="center"
         >
@@ -363,7 +369,7 @@ function Cover(props) {
 
             {!showEmailOTP && (
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth onClick={formSubmit} >
+              <MDButton variant="gradient" color="dark" fullWidth onClick={formSubmit} >
                 Submit
               </MDButton>
             </MDBox>)}
@@ -442,7 +448,7 @@ function Cover(props) {
                   </MDBox>
                   </Grid>
                   <Grid item xs={12} md={6} xl={12} mt={-1} display="flex" justifyContent="flex-start">
-                  <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '40%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="info" fullWidth onClick={()=>{resendOTP('mobile')}}>
+                  <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '40%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="dark" fullWidth onClick={()=>{resendOTP('mobile')}}>
                     {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
                     </MDButton>
                   </Grid>
@@ -453,7 +459,7 @@ function Cover(props) {
             </MDBox>
 
             <MDBox mt={2.5} mb={1} display="flex" justifyContent="space-around">
-              <MDButton variant="gradient" color="info" fullWidth onClick={otpConfirmation}>
+              <MDButton variant="gradient" color="dark" fullWidth onClick={otpConfirmation}>
                 Confirm
               </MDButton>
             </MDBox>
@@ -465,9 +471,9 @@ function Cover(props) {
                 Already have an account?{" "}
                 <MDTypography
                   component={Link}
-                  to="/"
+                  to="/login"
                   variant="button"
-                  color="info"
+                  color="dark"
                   fontWeight="medium"
                   textGradient
                 >
@@ -483,7 +489,7 @@ function Cover(props) {
           <>
         <MDTypography fontSize={15} display="flex" flexDirection="column" variant="text" p={3} fontWeight="medium" textAlign="center" color="secondary" mt={5}>
             <span>Your account has been created and your userid and password has been sent to your email id.</span>
-            <span>Please <Link to='/'>Login</Link> to your account using the userid and password.</span>
+            <span>Please <Link to='/signin'>Login</Link> to your account using the userid and password.</span>
         </MDTypography>
         <MDTypography
                   component={Link}
@@ -501,7 +507,7 @@ function Cover(props) {
         {renderSuccessSB}
         {renderInfoSB}
       </Card>
-    </CoverLayout>
+    </BasicLayout>
   );
 }
 
