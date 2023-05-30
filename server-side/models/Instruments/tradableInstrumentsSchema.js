@@ -63,12 +63,12 @@ const tradableInstrumentSchema = new mongoose.Schema({
     lastModifiedOn:{
         type: Date,
         required : true,
-        default: new Date()
+        default: ()=>new Date()
     },
     createdOn:{
         type: Date,
         required : true,
-        default: new Date()
+        default: ()=>new Date()
     },
     status: {
         type: String,

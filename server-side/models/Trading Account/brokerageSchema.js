@@ -43,12 +43,12 @@ const brokerageSchema = new mongoose.Schema({
     },
     createdOn:{
         type: Date,
-        default: new Date(),
+        default: ()=>new Date(),
         required : true
     },
     modifiedOn:{
         type: Date,
-        default: new Date(),
+        default: ()=>new Date(),
         required : true
     },
     lastModifiedBy:{
