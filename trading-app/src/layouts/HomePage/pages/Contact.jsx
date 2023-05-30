@@ -36,7 +36,7 @@ const Contact = () => {
     if(value === "submitted"){
         messageObj.color = 'info'
         messageObj.icon = 'check'
-        messageObj.title = "OTP Sent";
+        messageObj.title = "Success";
         messageObj.content = content;
 
     };
@@ -104,10 +104,13 @@ const Contact = () => {
         }
         if(phone.length !== 10){
 
-            if(phone.length === 13 && phone.startsWith('+91')){
+            if(phone.length === 12 && phone.startsWith('91')){
               
-            } else{
-              return openSuccessSB("error","Please Check Your Number Again");
+            }else if(phone.length === 11 && phone.startsWith('0')){
+
+            }
+             else{
+              return openSuccessSB("error", `Please Check Your Number Again${phone}`);
             }
           }
         try{
@@ -183,7 +186,7 @@ const Contact = () => {
 
                             <Grid item xs={12}  >
 
-                                <TextField value={data.phone} name='phone' type='number' label="Phone" placeholder='Enter phone number' variant='outlined' fullWidth required onChange={HandleChange} />
+                                <TextField value={data.phone} name='phone' type='number' label="Phone" placeholder='Enter 10 digit phone number' variant='outlined' fullWidth required onChange={HandleChange} />
 
                             </Grid>
                              <Grid item xs={12}  >

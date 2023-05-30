@@ -20,7 +20,7 @@ const Authenticate = async (req, res, next)=>{
     }
         // console.log("Token: ",req.cookies.jwtoken)
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
-
+        console.log('verify token',verifyToken);
 
         try{
             // console.log("above authentication", isRedisConnected, getValue());
@@ -35,7 +35,7 @@ const Authenticate = async (req, res, next)=>{
             }
             else{
 
-                // console.log("in else authentication")
+                console.log("in else authentication")
                 const user = await User.findOne({_id: verifyToken._id, status: "Active"}).populate('role', 'roleName').populate('')
                 .select(' aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
                 if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}

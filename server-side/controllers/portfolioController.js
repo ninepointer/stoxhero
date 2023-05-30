@@ -21,7 +21,7 @@ exports.createPortfolio = async(req, res, next)=>{
     } = req.body;
     if(await Portfolio.findOne({portfolioName})) return res.status(400).json({message:'This portfolio already exists.'});
 
-    const portfolio = await Portfolio.create({portfolioName, portfolioValue, portfolioType, portfolioAccount, status, createdBy: req.user._id, lastModifiedBy: req.user._id});
+    const portfolio = await Portfolio.create({portfolioName:portfolioName.trim(), portfolioValue, portfolioType, portfolioAccount, status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
     res.status(201).json({message: 'Portfolio successfully created.', data:portfolio});    
         

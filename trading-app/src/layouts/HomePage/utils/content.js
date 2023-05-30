@@ -1,6 +1,7 @@
 // Section1
 import ShootingStarImage from "../assets/images/section1/main-bg-0-0.png";
 import MainBG from "../assets/images/section1/main-bg-0_1.webp";
+import bgImage1 from "../../../assets/images/bgBanner1.jpg";
 import TreesImage from "../assets/images/section1/main-bg-1_1.webp";
 import CliffImage from "../assets/images/section1/main-bg-2_1.webp";
 import HorseImage from "../assets/images/section1/main-bg-3.png";
@@ -82,7 +83,7 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import Logo from "../assets/images/Logo.png";
 
 export const section1Content = {
-  MainBG,
+  bgImage1,
   TreesImage,
   CliffImage,
   HorseImage,
@@ -149,8 +150,8 @@ export const section4Content = {
 };
 
 export const section5Content = {
-  BannerBgImage,
-  BannerBgImageMobile,
+  bgImage1,
+  bgImage1,
   title: "1inch Fusion",
   subtitle:
     "The Fusion upgrade makes swaps on 1inch yet more efficient and secure, combining liquidity from the entire crypto market in one place.",

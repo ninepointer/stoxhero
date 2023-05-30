@@ -24,7 +24,7 @@ exports.createReferral = async(req, res, next)=>{
     if(status == 'Live' && (await Referral.find({referralProgramEndDate:{$gte: referralProgramEndDate}})).length == 0){
       return res.status(400).json({status: 'error',message:'There is a referral program that is active in the same time.'});
     }
-    const referral = await Referral.create({referralProgramName, referralProgramStartDate, 
+    const referral = await Referral.create({referralProgramName: referralProgramName.trim(), referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency, 
         description, lastModifiedOn: new Date(), 
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});

@@ -16,7 +16,7 @@ const CustomCounter = ({
   data
 }) => (
   <Stack textAlign="center" spacing={{ xs: 1, md: 2 }} alignItems="center">
-    <CountUp start={0} prefix={before} suffix={after} end={counter + data?.[name]} decimals={decimals} duration={2} redraw>
+    <CountUp start={0} prefix={before} suffix={after} end={counter + data?.[name]} decimals={decimals} duration={3} useEasing={true} redraw>
       {({ countUpRef }) => (
         <Title variant={{ xs: "h4", md: "h2" }} style={{color:"white"}} sx={{ fontWeight: 400 }}>
           <span sx={{color:"white"}} ref={countUpRef} />
@@ -25,7 +25,7 @@ const CustomCounter = ({
     </CountUp>
 
     <Typography variant="body2" color="gray">
-      {subtitle}{data?.[name]}
+      {subtitle}
     </Typography>
   </Stack>
 );

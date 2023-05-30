@@ -58,13 +58,13 @@ exports.createUser = async({email, mobile})=>{
   
     try{
       let obj = {
-          first_name : firstName, 
-          last_name : lastName, 
+          first_name : firstName.trim(), 
+          last_name : lastName.trim(), 
           designation: 'Trader', 
-          email : email, 
-          mobile : mobile,
-          name: firstName + ' ' + lastName.substring(0,1), 
-          password: 'sh' + lastName.trim() + '@123' + mobile.slice(1,3), 
+          email : email.trim(), 
+          mobile : mobile.trim(),
+          name: firstName.trim() + ' ' + lastName.trim().substring(0,1), 
+          password: 'sh' + lastName.trim() + '@123' + mobile.trim().slice(1,3), 
           status: 'Active', 
           employeeid: userId, 
           creationProcess: 'Career SignUp',

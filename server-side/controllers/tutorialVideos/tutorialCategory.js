@@ -17,7 +17,7 @@ exports.createTutorialCategory = async(req, res, next)=>{
 
     if(await tutorialCategory.findOne({categoryName})) return res.status(400).json({message:'This category already exists.'});
 
-    const videoCategory = await tutorialCategory.create({categoryName, description, status, createdBy: req.user._id, lastModifiedBy: req.user._id});
+    const videoCategory = await tutorialCategory.create({categoryName:categoryName.trim(), description, status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
     res.status(201).json({status: 'success', message: 'Category successfully created.', data: videoCategory});
 

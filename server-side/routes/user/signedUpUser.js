@@ -47,8 +47,8 @@ router.post("/signup", async (req, res)=>{
     }
     else{
         //removed emailotp
-        await SignedUpUser.create({first_name:first_name, last_name:last_name, email:email, 
-            mobile:mobile, mobile_otp: mobile_otp});
+        await SignedUpUser.create({first_name:first_name.trim(), last_name:last_name.trim(), email:email.trim(), 
+            mobile:mobile.trim(), mobile_otp: mobile_otp});
     }
 
     res.status(201).json({message : "OTP has been sent. Check your messages. OTP expires in 30 minutes.", 
@@ -160,10 +160,10 @@ router.patch("/verifyotp", async (req, res)=>{
 
         try{
         let obj = {
-            first_name, last_name, designation: 'Trader', email, 
-            mobile,
-            name: first_name + ' ' + last_name.substring(0,1), 
-            password: 'sh' + last_name.trim() + '@123' + mobile.slice(1,3), 
+            first_name: first_name.trim(), last_name:last_name.trim(), designation: 'Trader', email:email.trim(), 
+            mobile:mobile.trim(),
+            name: first_name.trim() + ' ' + last_name.trim().substring(0,1), 
+            password: 'sh' + last_name.trim() + '@123' + mobile.trim().slice(1,3), 
             status: 'Active', 
             employeeid: userId, creationProcess: 'Auto SignUp',
             joining_date:user.last_modifiedOn,
