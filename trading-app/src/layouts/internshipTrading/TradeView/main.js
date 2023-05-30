@@ -16,8 +16,8 @@ function TradeViewTenX() {
   const getDetails = useContext(userContext);
   // const location = useLocation();
   const batchArr = getDetails?.userDetails?.internshipBatch
-  const BatchId = getDetails?.userDetails.internshipBatch[batchArr.length - 1]||'123';
-  console.log("BatchId", getDetails?.userDetails)
+  const BatchId = getDetails?.userDetails.internshipBatch[batchArr.length - 1]?._id||'123';
+  console.log("BatchId", getDetails?.userDetails.internshipBatch[batchArr.length - 1]?._id)
 
   let socket;
   try {
