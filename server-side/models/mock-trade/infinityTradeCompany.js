@@ -85,7 +85,7 @@ const infinityTradeCompanySchema = new mongoose.Schema({
     },
     createdOn:{
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
     },
     createdBy:{
         type: Schema.Types.ObjectId,

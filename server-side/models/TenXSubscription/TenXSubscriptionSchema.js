@@ -57,7 +57,7 @@ const TenXSubscription = new mongoose.Schema({
     },
     createdOn: {
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
     },
     createdBy:{
         type: Schema.Types.ObjectId,
@@ -65,7 +65,7 @@ const TenXSubscription = new mongoose.Schema({
     },
     lastModifiedOn: {
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
     },
     lastModifiedBy:{
         type: Schema.Types.ObjectId,

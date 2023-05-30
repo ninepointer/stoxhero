@@ -11,7 +11,7 @@ const marginSchema = new mongoose.Schema({
     },
     createdOn:{
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
         // required : true
     },
     createdBy:{
@@ -21,7 +21,7 @@ const marginSchema = new mongoose.Schema({
     },
     lastModifiedOn:{
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
         // required : true
     },
     lastModifiedBy:{
@@ -46,7 +46,7 @@ const marginSchema = new mongoose.Schema({
     },
     creditedOn:{
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
         // required : true
     },
     creditedBy:{

@@ -212,7 +212,7 @@ app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
 app.use('/api/v1', require("./PlaceOrder/switching"));
 app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
-app.use('/api/v1/appmetrics', require("./routes/appmetrics/appMetricsRoutes"))
+app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"))
 
 
 require('./db/conn');
