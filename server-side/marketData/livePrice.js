@@ -8,6 +8,7 @@ const Instrument = require("../models/Instruments/instrumentSchema");
 const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
 const {client, getValue} = require("../marketData/redisClient")
+const InfinityInstrument = require("../models/Instruments/infinityInstrument");
 
 
 
@@ -63,7 +64,7 @@ router.get("/getliveprice", async (req, res)=>{
 
 
 //, contractDate: new Date("2023-05-25T00:00:00.000Z")
-
+    const infinityInstrument = await InfinityInstrument.find({status: "Active"});
     const ans = await Instrument.find({status: "Active"});
     const contestInstrument = await ContestInstrument.find({status: "Active"});
     const resp2 = await InstrumentMapping.find({Status: "Active"})
@@ -80,14 +81,15 @@ router.get("/getliveprice", async (req, res)=>{
       }
     });
 
-    // contestInstrument.forEach((elem, index) => {
-    //   // if (index === 0) {
-    //   //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
-    //   // } else {
-    //   // }
-    //   addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
 
-    // });
+    infinityInstrument.forEach((elem, index) => {
+      // if (index === 0) {
+      //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
+      // } else {
+      // }
+      addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+
+    });
 
     // resp2.forEach((elem, index) => {
     //   // console.log(addUrl)

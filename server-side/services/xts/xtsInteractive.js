@@ -411,25 +411,25 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
       let brokerage = Number(buyBrokerData.brokerageCharge);
       let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
-      let gst = (brokerage + exchangeCharge) * (Number(buyBrokerData.gst) / 100);
       let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
       let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
       let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
       let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
       return finalCharge;
-    }
+  }
 
-    function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+  function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
       let brokerage = Number(sellBrokerData.brokerageCharge);
       let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
-      let gst = (brokerage + exchangeCharge) * (Number(sellBrokerData.gst) / 100);
       let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
       let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
       let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
       let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
       return finalCharge
-    }
+  }
 
     let brokerageCompany;
     let brokerageUser;

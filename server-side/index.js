@@ -56,6 +56,17 @@ app.use(xssClean());
 app.use(hpp());
 
 
+let newCors = process.env.NODE_ENV === "production" ? "http://3.110.187.5/" : "http://localhost:3000"
+app.use(cors({
+  credentials: true,
+
+  // origin: "http://3.7.187.183/"  // staging
+  // origin: "http://3.108.76.71/"  // production
+  origin: "http://localhost:3000"
+
+}));
+
+
 let setting ;
 Setting.find()
 .then((res)=>{
@@ -97,7 +108,7 @@ client.connect()
 
 // console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
-  // console.log(data)
+  console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
   io.on("connection", async (socket) => {
     console.log(socket.id, "socket id")
@@ -167,22 +178,14 @@ getKiteCred.getAccess().then(async (data)=>{
   io.on('disconnection', () => {disconnectTicker()}); //TODO toggle
   io.on('disconnection', () => { onDisconnect() });
 
+  if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
+    app.use('/api/v1', require("./marketData/livePrice"));
+  } else{
+    app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
+  }
+
 });
 
-
-
-
-// app.get('/api/v1/data', fetch);
-
-let newCors = process.env.NODE_ENV === "production" ? "http://3.110.187.5/" : "http://localhost:3000"
-app.use(cors({
-  credentials: true,
-
-  // origin: "http://3.7.187.183/"  // staging
-  // origin: "http://3.108.76.71/"  // production
-  origin: "http://localhost:3000"
-
-}));
 
 app.use(express.json({ limit: "20kb" }));
 
@@ -194,11 +197,7 @@ app.use('/api/v1', require("./routes/user/signedUpUser"))
 app.use('/api/v1', require("./routes/expense/categoryAuth"))
 app.use('/api/v1', require("./routes/setting/settingAuth"))
 app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
-if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
-  app.use('/api/v1', require("./marketData/livePrice"));
-} else{
-  app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
-}
+
 //  TODO toggle
 app.use('/api/v1', require("./marketData/Margin"));
 app.use('/api/v1', require("./routes/user/userLogin"));
@@ -253,12 +252,11 @@ app.use('/api/v1/college', require("./routes/career/collegeRoute"));
 app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
-
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
 app.use('/api/v1', require("./PlaceOrder/switching"));
 app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
-app.use('/api/v1/appmetrics', require("./routes/appmetrics/appMetricsRoutes"))
+app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"))
 
 
 require('./db/conn');

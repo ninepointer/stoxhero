@@ -9,6 +9,7 @@ const User = require("../models/User/userDetailSchema")
 const io = require('../marketData/socketio');
 const {client, getValue} = require("./redisClient");
 const { ObjectId } = require('mongodb');
+const {xtsAccountType, zerodhaAccountType} = require("../constant");
 
 
 
@@ -154,7 +155,7 @@ const getTicksForUserPosition = async (socket, id) => {
   }
   
   if(!indecies){
-    indecies = await StockIndex.find({status: "Active"});
+    indecies = await StockIndex.find({status: "Active", accountType: zerodhaAccountType});
     if(isRedisConnected){
       await client.set("index", JSON.stringify(indecies));
     }

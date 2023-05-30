@@ -43,7 +43,16 @@ const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
 
 
+router.get("/updateLot", async (req, res) => {
 
+  let x = await InfinityInstrument.updateMany({}, {
+    $set: {
+      maxLot: 900
+    }
+  })
+console.log(x)
+  res.send("ok")
+});
 
 router.get("/insertInfinityTrader", async (req, res) => {
   const users = await UserDetail.find({ designation: "Equity Trader" }).select('watchlistInstruments');
@@ -92,6 +101,7 @@ router.get("/updateExchabgeToken", async (req, res) => {
     for (let j = 0; j < data.length; j++) {
       const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
   
+      console.log(exchangeToken)
       // Update the document with the exchangeToken field
       await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
     }
