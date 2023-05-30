@@ -250,7 +250,7 @@ export default function LabTabs({socket}) {
             </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={2} height='15vH'>
+        <Grid container spacing={2} mt={1} >
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -394,7 +394,7 @@ export default function LabTabs({socket}) {
             </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={2} height='15vH'>
+        <Grid container spacing={2} mt={1} >
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -525,7 +525,7 @@ export default function LabTabs({socket}) {
             
         </Grid>
 
-        <Grid container spacing={2} mt={2} height='15vH'>
+        <Grid container spacing={2} mt={1} >
             <Grid item lg={3}>
                     
                     <MDButton 
