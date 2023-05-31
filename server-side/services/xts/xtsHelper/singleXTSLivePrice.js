@@ -11,7 +11,7 @@ async function singleXTSLivePrice (exchangeSegment, instrumentToken){
     // const apiKey = await Account.find({status: "Active"});
     const accessToken = await RequestToken.find({status: "Active", accountType: xtsAccountType});
 
-    let url = `http://14.142.188.188:23000/apimarketdata/instruments/quotes`;
+    let url = `${process.env.MARKETDATA_URL}/instruments/quotes`;
     let token = accessToken[0].accessToken;
   
     let authOptions = {

@@ -13,12 +13,13 @@ const RedisBackup = require("../../models/TradeDetails/orderIdKeyBackup");
 const mongoose = require('mongoose');
 const { save } = require("./xtsHelper/saveXtsCred");
 const { ObjectId } = require('mongodb');
+const RequestToken = require("../../models/Trading Account/requestTokenSchema")
 
 
 
 let xtsInteractiveWS;
 let xtsInteractiveAPI;
-let isReverseTrade = false;
+// let isReverseTrade = false;
 const interactiveLogin = async () => {
   xtsInteractiveAPI = new XTSInteractive(
     process.env.INTERACTIVE_URL
@@ -35,7 +36,7 @@ const interactiveLogin = async () => {
 
   try {
     (async () => {
-      // console.log(loginRequest, process.env.INTERACTIVE_URL)
+      console.log(loginRequest, process.env.INTERACTIVE_URL)
       let logIn = await xtsInteractiveAPI.logIn(loginRequest);
       console.log(logIn)
       let socketInitRequest = {
@@ -55,6 +56,7 @@ const interactiveLogin = async () => {
       });
 
       await placedOrderData();
+      await ifServerCrashAfterOrder();
       await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
     })();
@@ -65,164 +67,265 @@ const interactiveLogin = async () => {
 }
 
 const placedOrderData = async () => {
-  let isRedisConnected = getValue();
+  // let isRedisConnected = getValue();
   xtsInteractiveWS.onOrder(async (orderData) => {
-    
-    if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
+    try{
+      if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
 
-      let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
-        TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
-        ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
-
-        const exchangeTime = ExchangeTransactTimeAPI;
-        const date1 = exchangeTime.split(" ");
-        const date2 = date1[0].split("-");
-        const date3 = `${date2[2]}-${date2[1]}-${date2[0]} ${date1[1]}`
-        const utcDate = new Date(date3).toUTCString();
-
-        let date = new Date();
+        let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+          TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
+          ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI, OrderUniqueIdentifier } = orderData;
   
-        const retreiveObj = {
-          appOrderId: AppOrderID, order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`, status: (OrderStatus === "Filled" ? "COMPLETE" : "REJECTED"), average_price: OrderAverageTradedPrice,
-          quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
-          exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
-          exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
-          disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
-          instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate), guid: `${ExchangeOrderID}${AppOrderID}`,
-          exchangeInstrumentToken: ExchangeInstrumentID
-        };
+          const exchangeTime = ExchangeTransactTimeAPI;
+          const date1 = exchangeTime.split(" ");
+          const date2 = date1[0].split("-");
+          const date3 = `${date2[2]}-${date2[1]}-${date2[0]} ${date1[1]}`
+          const utcDate = new Date(date3).toUTCString();
+  
+          let date = new Date();
+    
+          const retreiveObj = {
+            appOrderId: AppOrderID, order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`, status: (OrderStatus === "Filled" ? "COMPLETE" : "REJECTED"), average_price: OrderAverageTradedPrice,
+            quantity: OrderQuantity, product: ProductType, transaction_type: OrderSide,
+            exchange_order_id: ExchangeOrderID, order_timestamp: LastUpdateDateTime, validity: TimeInForce,
+            exchange_timestamp: ExchangeTransactTime, order_type: OrderType, price: OrderPrice,
+            disclosed_quantity: OrderDisclosedQuantity, placed_by: ClientID, status_message: CancelRejectReason,
+            instrument_token: ExchangeInstrumentID, exchange_update_timestamp: new Date(utcDate), guid: `${ExchangeOrderID}${AppOrderID}`,
+            exchangeInstrumentToken: ExchangeInstrumentID, orderUniqueIdentifier: OrderUniqueIdentifier
+          };
+  
+          const saveOrder = await RetrieveOrder.updateOne({order_id: AppOrderID}, { $setOnInsert: retreiveObj }, { upsert: true });
+  
+          let traderData = JSON.parse(OrderUniqueIdentifier);
+          const startTime = Date.now();
 
-        const saveOrder = await RetrieveOrder.updateOne({order_id: AppOrderID}, { $setOnInsert: retreiveObj }, { upsert: true });
-
-        const initialTime = Date.now();
-        if(!isReverseTrade){
-          console.log("isReverseTrade", isReverseTrade)
-          await placedOrderDataHelper(initialTime, orderData);
-        }
-        
-
-
+          if(traderData?.trader){
+            await getPlacedOrderAndSave(orderData, traderData, startTime);
+            return;
+          }
+      }
+    } catch(err){
+      console.log(err);
     }
   })
 }
 
-const placedOrderDataHelper = async(initialTime, orderData) => {
-  let isRedisConnected = getValue();
-  let date = new Date();
+// const placedOrderDataHelper = async(initialTime, orderData) => {
+//   let isRedisConnected = getValue();
+//   let date = new Date();
 
-  let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
-        OrderType, TimeInForce, OrderQuantity} = orderData;
-  let traderData = {};
-  if (Date.now() - initialTime >= 2000) {
+//   let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
+//         OrderType, TimeInForce, OrderQuantity} = orderData;
+//   let traderData = {};
+//   if (Date.now() - initialTime >= 2000) {
+//     let exchangeSegment;
+//     let exchange = "NFO";
+//     if (exchange === "NFO") {
+//       exchangeSegment = 'NSEFO'
+//     }
+//     if (exchange === "NSE") {
+//       exchangeSegment = 'NSECM'
+//     }
+//     if (OrderSide === "Buy") {
+//       buyOrSell = "SELL"
+//     } else {
+//       buyOrSell = "BUY"
+//     }
+
+//     const response = await xtsInteractiveAPI.placeOrder({
+//       exchangeSegment: exchangeSegment,
+//       exchangeInstrumentID: ExchangeInstrumentID,
+//       productType: ProductType,
+//       orderType: OrderType,
+//       orderSide: buyOrSell,
+//       timeInForce: TimeInForce,
+//       disclosedQuantity: 0,
+//       orderQuantity: Math.abs(OrderQuantity),
+//       limitPrice: 0,
+//       stopPrice: 0,
+//       clientID: process.env.XTS_CLIENTID,
+//     });
+
+//     isReverseTrade = true;
+//     // await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
+//     // io.emit(`sendResponse${trader.toString()}`, { message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", status: "Error" })
+//     return; // Terminate recursion
+//   }
+
+//   if(isRedisConnected && await client.exists(`liveOrderBackupKey`)){
+//     let data = await client.HGET('liveOrderBackupKey', `${(orderData?.AppOrderID).toString()}`);
+//     traderData = JSON.parse(data);
+//   } else{
+//     traderData = await RedisBackup.findOne({order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${orderData?.AppOrderID}`})
+//   }
+//   const startTime = Date.now();
+
+//   if(!traderData?.trader){
+//     console.log("running recursively")
+//    await placedOrderDataHelper(initialTime, orderData); 
+//   }
+
+//   if(traderData?.trader){
+//     await getPlacedOrderAndSave(orderData, traderData, startTime);
+//     return;
+//   }
+// }
+
+const placeOrder = async (obj, req, res) => {
+
+  try{
+    let isRedisConnected = getValue();
     let exchangeSegment;
-    let exchange = "NFO";
-    if (exchange === "NFO") {
+    if (obj.exchange === "NFO") {
       exchangeSegment = 'NSEFO'
     }
-    if (exchange === "NSE") {
+    if (obj.exchange === "NSE") {
       exchangeSegment = 'NSECM'
     }
-    if (OrderSide === "Buy") {
-      buyOrSell = "SELL"
-    } else {
-      buyOrSell = "BUY"
+  
+    let traderDataObj = {
+      trader: req.body.trader,
+      algoBoxId: req.body.algoBoxId,
+      exchange: req.body.exchange,
+      symbol: req.body.symbol,
+      buyOrSell: req.body.buyOrSell,
+      Quantity: req.body.Quantity,
+      variety: req.body.variety,
+      instrumentToken: req.body.instrumentToken,
+      dontSendResp: req.body.dontSendResp,
+      tradedBy: req.user._id,
+      name: req.user.first_name,
+      uniqueId: `${req.user.first_name}${Date.now()}`
     }
-
+  
     const response = await xtsInteractiveAPI.placeOrder({
       exchangeSegment: exchangeSegment,
-      exchangeInstrumentID: ExchangeInstrumentID,
-      productType: ProductType,
-      orderType: OrderType,
-      orderSide: buyOrSell,
-      timeInForce: TimeInForce,
+      exchangeInstrumentID: obj.exchangeInstrumentToken,
+      productType: obj.Product,
+      orderType: obj.OrderType,
+      orderSide: obj.buyOrSell,
+      timeInForce: obj.validity,
       disclosedQuantity: 0,
-      orderQuantity: Math.abs(OrderQuantity),
+      orderQuantity: obj.Quantity,
       limitPrice: 0,
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
+      orderUniqueIdentifier: JSON.stringify(traderDataObj)
     });
-
-    isReverseTrade = true;
-    // await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
-    // io.emit(`sendResponse${trader.toString()}`, { message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", status: "Error" })
-    return; // Terminate recursion
-  }
-
-  if(isRedisConnected && await client.exists(`liveOrderBackupKey`)){
-    let data = await client.HGET('liveOrderBackupKey', `${(orderData?.AppOrderID).toString()}`);
-    traderData = JSON.parse(data);
-  } else{
-    traderData = await RedisBackup.findOne({order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${orderData?.AppOrderID}`})
-  }
-  const startTime = Date.now();
-
-  if(!traderData?.trader){
-    console.log("running recursively")
-   await placedOrderDataHelper(initialTime, orderData); 
-  }
-
-  if(traderData?.trader){
-    await getPlacedOrderAndSave(orderData, traderData, startTime);
-    return;
+  
+    //check status, if status is 400 then send below error response.
+  
+    if(!response?.result?.AppOrderID){
+      res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"});
+      await ifNoResponseFromXTS(traderDataObj.uniqueId);
+      return;
+    }
+  
+  } catch(err){
+    console.log(err);
   }
 }
 
-const placeOrder = async (obj, req, res) => {
-  let isRedisConnected = getValue();
-  isReverseTrade = false;
-  let exchangeSegment;
-  if (obj.exchange === "NFO") {
-    exchangeSegment = 'NSEFO'
-  }
-  if (obj.exchange === "NSE") {
-    exchangeSegment = 'NSECM'
-  }
-  const response = await xtsInteractiveAPI.placeOrder({
-    exchangeSegment: exchangeSegment,
-    exchangeInstrumentID: obj.exchangeInstrumentToken,
-    productType: obj.Product,
-    orderType: obj.OrderType,
-    orderSide: obj.buyOrSell,
-    timeInForce: obj.validity,
-    disclosedQuantity: 0,
-    orderQuantity: obj.Quantity,
-    limitPrice: 0,
-    stopPrice: 0,
-    clientID: process.env.XTS_CLIENTID,
-  });
+const ifNoResponseFromXTS = async (uniqueId) => {
 
-  let date = new Date();
+  
+  let url = `${process.env.INTERACTIVE_URL}/interactive/orders`;
+  const accessToken = await RequestToken.find({status: "Active", accountType: xtsAccountType, xtsType: "Interactive"});
+  let token = accessToken[0]?.accessToken;
 
-  let backupObj = {
-    appOrderId: response?.result?.AppOrderID,
-    order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
-    trader: req.body.trader,
-    algoBoxId: req.body.algoBoxId,
-    exchange: req.body.exchange,
-    symbol: req.body.symbol,
-    buyOrSell: req.body.buyOrSell,
-    Quantity: req.body.Quantity,
-    variety: req.body.variety,
-    instrumentToken: req.body.instrumentToken,
-    dontSendResp: req.body.dontSendResp,
-    tradedBy: req.user._id
-  }
+  let authOptions = {
+    headers: {
+      Authorization: token,
+    },
+  };
 
-  //check status, if status is 400 then send below error response.
+  try {
+    const response = await axios.get(url, authOptions)
+    let orders = response.data?.result;
+    for(let i = 0; i < orders.length; i++){
 
-  console.log("app order id", response?.result?.AppOrderID, response)
-  // setTimeout(async ()=>{
-    if (response?.result?.AppOrderID) {
-      if(isRedisConnected){
-        await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(backupObj));
+      let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+        TimeInForce, OrderQuantity, ExchangeSegment } = orders[i];
+    
+      let uniqueIdentifier = JSON.parse(orders[i].OrderUniqueIdentifier);
+      if(uniqueIdentifier.uniqueId === uniqueId && orders[i].OrderStatus === "Filled"){
+        if(OrderSide === "Buy"){
+          OrderSide = "SELL";
+        } else{
+          OrderSide = "BUY"
+        }
+        const response = await xtsInteractiveAPI.placeOrder({
+          exchangeSegment: ExchangeSegment,
+          exchangeInstrumentID: ExchangeInstrumentID,
+          productType: ProductType,
+          orderType: OrderType,
+          orderSide: OrderSide,
+          timeInForce: TimeInForce,
+          disclosedQuantity: 0,
+          orderQuantity: Math.abs(OrderQuantity),
+          limitPrice: 0,
+          stopPrice: 0,
+          clientID: process.env.XTS_CLIENTID,
+        });
       }
-      const redisBackup = await RedisBackup.create(backupObj);  
-      res.status(200).json({message: "Live"})
-    } else{
-      return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
     }
-  // }, 4000)
+  } catch (err) {
+    console.log(err)
+  }
+}
 
+const ifServerCrashAfterOrder = async () => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+
+  let liveCompany = await InfinityLiveCompany.find({trade_time: {$gte: today }});
+
+  let url = `${process.env.INTERACTIVE_URL}/interactive/orders`;
+  const accessToken = await RequestToken.find({status: "Active", accountType: xtsAccountType, xtsType: "Interactive"});
+  let token = accessToken[0]?.accessToken;
+
+  let authOptions = {
+    headers: {
+      Authorization: token,
+    },
+  };
+
+  try {
+    const response = await axios.get(url, authOptions)
+    let orders = response.data?.result;
+    for(let i = 0; i < orders.length; i++){
+      let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+        TimeInForce, OrderQuantity, ExchangeSegment } = orders[i];
+
+      for(let j = 0; j < liveCompany.length; j++){
+        if(liveCompany[j].appOrderId !== orders[i].AppOrderID && orders[i].OrderStatus === "Filled"){
+          if(OrderSide === "Buy"){
+            OrderSide = "SELL";
+          } else{
+            OrderSide = "BUY"
+          }
+          const response = await xtsInteractiveAPI.placeOrder({
+            exchangeSegment: ExchangeSegment,
+            exchangeInstrumentID: ExchangeInstrumentID,
+            productType: ProductType,
+            orderType: OrderType,
+            orderSide: OrderSide,
+            timeInForce: TimeInForce,
+            disclosedQuantity: 0,
+            orderQuantity: Math.abs(OrderQuantity),
+            limitPrice: 0,
+            stopPrice: 0,
+            clientID: process.env.XTS_CLIENTID,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 const autoPlaceOrder = async (obj) => {
@@ -312,6 +415,7 @@ if transaction is unsuccessful
 
 const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   
+  let isRedisConnected = getValue();
 
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy } = traderData
@@ -352,7 +456,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       clientID: process.env.XTS_CLIENTID,
     });
     // await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
-    io.emit(`sendResponse${trader.toString()}`, { message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", status: "Error" })
+    io.emit(`sendResponse${trader.toString()}`, { message: "Something went wrong. Please try again.", status: "Error" })
     return; // Terminate recursion
   }
 
@@ -417,19 +521,19 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
       let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
       return finalCharge;
-  }
+    }
 
-  function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
-      let brokerage = Number(sellBrokerData.brokerageCharge);
-      let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
-      let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
-      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
-      let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
-      let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
-      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+    function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+        let brokerage = Number(sellBrokerData.brokerageCharge);
+        let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+        let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+        let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
+        let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+        let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
+        let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
-      return finalCharge
-  }
+        return finalCharge
+    }
 
     let brokerageCompany;
     let brokerageUser;
@@ -494,16 +598,17 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
     const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
     const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
-
     const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
     // const traderDocMock = await InfinityMockTrader.findOne({ _id: algoTrader.upsertedId });
-    console.log("algoTrader", algoTrader)
-    console.log("algoTraderLive", algoTraderLive)
-    console.log("mockCompany", mockCompany)
-    console.log("liveCompanyTrade", liveCompanyTrade)
+    // console.log("algoTrader", algoTrader)
+    // console.log("algoTraderLive", algoTraderLive)
+    // console.log("mockCompany", mockCompany)
+    // console.log("liveCompanyTrade", liveCompanyTrade)
+
+    let isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
 
     let settingRedis;
-    if (await client.exists(`${trader.toString()} overallpnl`)) {
+    if (isInsertedAllDB && status == "COMPLETE" && await client.exists(`${trader.toString()} overallpnl`)) {
       let pnl = await client.get(`${trader.toString()} overallpnl`)
       pnl = JSON.parse(pnl);
       // console.log("redis pnl", pnl)
@@ -535,8 +640,109 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
       // console.log("in chek if 3", settingRedis)
       console.log(settingRedis)
-    } 
-    // else{
+    }
+
+    await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+    // Commit the transaction
+
+    // console.log("redis setting chaeck", settingRedis)
+
+
+    if (settingRedis === "OK") {
+      await session.commitTransaction();
+    } else if(status == "REJECTED"){
+      await session.commitTransaction();
+      io.emit(`sendResponse${trader.toString()}`, { message: "Trade rejected due to insufficient balance", status: "Error" })
+      return; //check return statement
+    } else if(!isRedisConnected){
+      await session.commitTransaction();
+    } else {
+      throw new Error();
+    }
+
+
+    console.log("data saved in retreive order for", AppOrderID)
+
+    if (!dontSendResp) {
+      // await client.expire(`liveOrderBackupKey`, 600);
+      // await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
+      io.emit("updatePnl", traderDocMock)
+      io.emit(`sendResponse${trader.toString()}`, { message: {Quantity: Quantity, symbol: symbol}, status: "complete" })
+      // return res.status(201).json({ message: responseMsg, err: responseErr })
+    }
+    // }
+  } catch (err) {
+    await client.del(`${trader.toString()} overallpnl`)
+    await session.abortTransaction();
+
+    console.error('Transaction failed, documents not saved:', err);
+    console.log(traderData, startTime);
+    await getPlacedOrderAndSave(orderData, traderData, startTime);
+    // return res.status(201).json({ message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", err: "Error" })
+
+  } finally {
+    session.endSession();
+  }
+
+  return;
+}
+
+// const positions = async () => {
+//   xtsInteractiveWS.onPosition((positionData) => {
+//     io.emit('positions', positionData);
+//     // console.log(positionData);
+//   });
+// }
+
+
+module.exports = { interactiveLogin, placeOrder };
+
+
+// {
+//   "type": "success",
+//   "code": "s-user-0001",
+//   "description": "Success order book",
+//   "result": [
+//     {
+//       "LoginID": "SYMP1",
+//       "ClientID": "SYMP1",
+//       "AppOrderID": 648468730,
+//       "OrderReferenceID": "",
+//       "GeneratedBy": "TWSAPI",
+//       "ExchangeOrderID": "1005239196374108",
+//       "OrderCategoryType": "NORMAL",
+//       "ExchangeSegment": "NSECM",
+//       "ExchangeInstrumentID": 16921,
+//       "OrderSide": "BUY",
+//       "OrderType": "Limit",
+//       "ProductType": "NRML",
+//       "TimeInForce": "DAY",
+//       "OrderPrice": 254.55,
+//       "OrderQuantity": 15,
+//       "OrderStopPrice": 0,
+//       "OrderStatus": "New",
+//       "OrderAverageTradedPrice": 250.4,
+//       "LeavesQuantity": 1,
+//       "CumulativeQuantity": 0,
+//       "OrderDisclosedQuantity": 0,
+//       "OrderGeneratedDateTime": "14-05-2021 11:17:29",
+//       "ExchangeTransactTime": "14-05-2021 11:17:30",
+//       "LastUpdateDateTime": "14-05-2021 11:17:29",
+//       "OrderExpiryDate": "01-01-1980 00:00:00",
+//       "CancelRejectReason": "",
+//       "OrderUniqueIdentifier": "123abc",
+//       "OrderLegStatus": "SingleOrderLeg",
+//       "BoLegDetails": 0,
+//       "IsSpread": false,
+//       "BoEntryOrderId": "",
+//       "MessageCode": 9004,
+//       "MessageVersion": 4,
+//       "TokenID": 0,
+//       "ApplicationType": 0,
+//       "SequenceNumber": 0
+//     }
+//   ]
+// }    // else{
     //   let date = new Date();
     //   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     //   todayDate = todayDate + "T00:00:00.000Z";
@@ -590,97 +796,4 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     //   settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnlDetails))
     // }
 
-    await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-    // Commit the transaction
 
-    // console.log("redis setting chaeck", settingRedis)
-    if (settingRedis === "OK") {
-      await session.commitTransaction();
-      // isDataSaved = true;
-    } else {
-      throw new Error();
-    }
-
-
-    console.log("data saved in retreive order for", AppOrderID)
-
-    if (!dontSendResp) {
-      await client.expire(`liveOrderBackupKey`, 600);
-      await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
-      io.emit("updatePnl", traderDocMock)
-      io.emit(`sendResponse${trader.toString()}`, { message: {Quantity: Quantity, symbol: symbol}, status: "complete" })
-      // return res.status(201).json({ message: responseMsg, err: responseErr })
-    }
-    // }
-  } catch (err) {
-    await client.del(`${trader.toString()} overallpnl`)
-    await session.abortTransaction();
-
-    console.error('Transaction failed, documents not saved:', err);
-    console.log(traderData, startTime);
-    await getPlacedOrderAndSave(orderData, traderData, startTime);
-    // return res.status(201).json({ message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", err: "Error" })
-
-  } finally {
-    session.endSession();
-  }
-
-  return;
-}
-
-const positions = async () => {
-  xtsInteractiveWS.onPosition((positionData) => {
-    io.emit('positions', positionData);
-    // console.log(positionData);
-  });
-}
-
-
-module.exports = { interactiveLogin, placeOrder, positions };
-
-
-// {
-//   "type": "success",
-//   "code": "s-user-0001",
-//   "description": "Success order history",
-//   "result": [
-//     {
-//       "LoginID": "SYMP1",
-//       "ClientID": "SYMP1",
-//       "AppOrderID": 648468730,
-//       "OrderReferenceID": "",
-//       "GeneratedBy": "TWSAPI",
-//       "ExchangeOrderID": "1005239196374108",
-//       "OrderCategoryType": "NORMAL",
-//       "ExchangeSegment": "NSECM",
-//       "ExchangeInstrumentID": 16921,
-//       "OrderSide": "BUY",
-//       "OrderType": "Limit",
-//       "ProductType": "NRML",
-//       "TimeInForce": "DAY",
-//       "OrderPrice": 254.55,
-//       "OrderQuantity": 15,
-//       "OrderStopPrice": 0,
-//       "OrderStatus": "New",
-//       "OrderAverageTradedPrice": 250.4,
-//       "LeavesQuantity": 1,
-//       "CumulativeQuantity": 0,
-//       "OrderDisclosedQuantity": 0,
-//       "OrderGeneratedDateTime": "14-05-2021 11:17:29",
-//       "ExchangeTransactTime": "14-05-2021 11:17:30",
-//       "LastUpdateDateTime": "14-05-2021 11:17:29",
-//       "OrderExpiryDate": "01-01-1980 00:00:00",
-//       "CancelRejectReason": "",
-//       "OrderUniqueIdentifier": "123abc",
-//       "OrderLegStatus": "SingleOrderLeg",
-//       "BoLegDetails": 0,
-//       "IsSpread": false,
-//       "BoEntryOrderId": "",
-//       "MessageCode": 9004,
-//       "MessageVersion": 4,
-//       "TokenID": 0,
-//       "ApplicationType": 0,
-//       "SequenceNumber": 0
-//     }
-//   ]
-// }
