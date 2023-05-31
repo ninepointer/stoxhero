@@ -76,16 +76,16 @@ Setting.find()
 })
 
 
-// xtsMarketLogin()
-//   .then(() => { })
-//   .catch((err) => {
-//     console.log(err, "xts market login")
-//   })
-// interactiveLogin()
-//   .then(() => { })
-//   .catch((err) => {
-//     console.log(err, "xts interactive login")
-//   })
+xtsMarketLogin()
+  .then(() => { })
+  .catch((err) => {
+    console.log(err, "xts market login")
+  })
+interactiveLogin()
+  .then(() => { })
+  .catch((err) => {
+    console.log(err, "xts interactive login")
+  })
 
 client.connect()
   .then(async (res) => {
@@ -174,7 +174,7 @@ getKiteCred.getAccess().then(async (data)=>{
   });
 
   
-  // await subscribeInstrument();
+  await subscribeInstrument();
   io.on('disconnection', () => {disconnectTicker()}); //TODO toggle
   io.on('disconnection', () => { onDisconnect() });
 
