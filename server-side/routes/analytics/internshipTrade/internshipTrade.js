@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const Authenticate = require('../../../authentication/authentication');
-const { getTenXTradersOverview, setCurrentUser, getTenXTradersDateWiseStats, getPaperTradesDailyPnlData, getTenXTradersMonthlyPnlData } = require('../../../controllers/analyticsController');
+const { getTenXTradersOverview, setCurrentUser, getTenXTradersDateWiseStats, getPaperTradesDailyPnlData,getInternshipTradersMonthlyPnlData ,getTenXTradersMonthlyPnlData, getInternshipTradersOverview, getInternshipTradersDateWiseStats } = require('../../../controllers/analyticsController');
 
-router.route('/myoverview').get(Authenticate, setCurrentUser, getTenXTradersOverview);
-router.route('/mystats').get(Authenticate, setCurrentUser, getTenXTradersDateWiseStats);
+router.route('/myoverview/:batchId').get(Authenticate, setCurrentUser, getInternshipTradersOverview);
+router.route('/mystats/:batchId').get(Authenticate, setCurrentUser, getInternshipTradersDateWiseStats);
 // router.route('/mydailypnl').get(Authenticate, setCurrentUser, getPaperTradesDailyPnlData);
-router.route('/mymonthlypnl').get(Authenticate, setCurrentUser, getTenXTradersMonthlyPnlData);
-router.route('/stats/:id').get(Authenticate, getTenXTradersDateWiseStats);
-router.route('/overview/:id').get(Authenticate, getTenXTradersOverview);
+router.route('/mymonthlypnl/:batchId').get(Authenticate, setCurrentUser, getInternshipTradersMonthlyPnlData);
+router.route('/stats/:id').get(Authenticate, getInternshipTradersDateWiseStats);
+router.route('/overview/:id').get(Authenticate, getInternshipTradersOverview);
 
 
 module.exports = router;

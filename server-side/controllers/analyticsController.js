@@ -1,5 +1,6 @@
 const PaperTrade = require('../models/mock-trade/paperTrade');
 const InfinityTrade = require('../models/mock-trade/infinityTrader');
+const InternshipTrader = require('../models/mock-trade/internshipTrade');
 const TraderDailyPnlData = require('../models/InstrumentHistoricalData/TraderDailyPnlDataSchema');
 const TenXTrader = require('../models/mock-trade/tenXTraderSchema');
 const { ObjectId } = require('mongodb');
