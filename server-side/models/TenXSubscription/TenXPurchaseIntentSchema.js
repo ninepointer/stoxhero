@@ -13,7 +13,7 @@ const TenXPurchaseIntent = new mongoose.Schema({
     },
     clicked_On: {
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
     },
 });
 

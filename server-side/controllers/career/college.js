@@ -5,7 +5,7 @@ exports.createCollege = async(req, res, next)=>{
     console.log(req.body) // batchID
     const{collegeName, zone } = req.body;
 
-    if(await College.findOne({collegeName})) return res.status(400).json({message:'This college exists.'});
+    if(await College.findOne({collegeName: collegeName.trim()})) return res.status(400).json({message:'This college exists.'});
 
     const college = await College.create({collegeName: collegeName.trim(), zone, createdBy: req.user._id, lastModifiedBy: req.user._id});
     

@@ -5,7 +5,7 @@ const permissionSchema = new mongoose.Schema({
 
     modifiedOn:{
         type: Date,
-        default: new Date(),
+        default: ()=>new Date(),
         required : true
     },
     modifiedBy:{

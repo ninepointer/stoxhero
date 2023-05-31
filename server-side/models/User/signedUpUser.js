@@ -9,12 +9,12 @@ const signedUpUserSchema = new mongoose.Schema({
     createdOn:{
         type: Date,
         required: true,
-        default: new Date(),
+        default: ()=>new Date(),
     },
     last_modifiedOn:{
         type: Date,
         required: true,
-        default: new Date(),
+        default: ()=>new Date(),
     },
     last_name:{
         type: String,

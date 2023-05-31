@@ -32,12 +32,12 @@ const accountSchema = new mongoose.Schema({
     },
     createdOn:{
         type: Date,
-        default: new Date(),
+        default: ()=>new Date(),
         required : true
     },
     lastModified:{
         type: Date,
-        default: new Date(),
+        default: ()=>new Date(),
         required : true
     },
     createdBy:{
