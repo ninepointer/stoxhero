@@ -173,7 +173,7 @@ getKiteCred.getAccess().then(async (data)=>{
 
   });
 
-  
+
   await subscribeInstrument();
   io.on('disconnection', () => {disconnectTicker()}); //TODO toggle
   io.on('disconnection', () => { onDisconnect() });

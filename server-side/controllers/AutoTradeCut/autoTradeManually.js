@@ -26,7 +26,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
   let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
     validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
     realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
-    dontSendResp } = tradeDetails;
+    dontSendResp, exchangeInstrumentToken } = tradeDetails;
 
   console.log("tradeDetails", tradeDetails)
   let createdBy;
@@ -130,7 +130,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
       const tenx = new TenxTrader({
         status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-        order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId,
+        order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId, exchangeInstrumentToken,
         createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
       });
 
@@ -199,7 +199,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
   let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, batch,
     validity, variety, order_id, instrumentToken, portfolioId, internPath,
     trader, isAlgoTrader, paperTrade, autoTrade,
-    dontSendResp } = tradeDetails;
+    dontSendResp, exchangeInstrumentToken } = tradeDetails;
 
   console.log("tradeDetails", tradeDetails)
   let createdBy;
@@ -300,7 +300,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
       const internship = new InternshipTrade({
           status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
           variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-          order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch,
+          order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
           createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
       });
 
@@ -368,7 +368,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
   let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
     validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
     realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
-    dontSendResp } = tradeDetails;
+    dontSendResp, exchangeInstrumentToken } = tradeDetails;
 
   console.log("tradeDetails", tradeDetails)
   let createdBy;
@@ -468,7 +468,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
       const paperTrade = new PaperTrade({
         status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-        order_id, instrumentToken, brokerage: brokerageUser, portfolioId,
+        order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
         createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
 
       });
@@ -538,7 +538,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
   let { exchange, symbol, buyOrSell, userQuantity, Product, OrderType, subscriptionId,
     validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
     realBuyOrSell, Quantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
-    dontSendResp } = tradeDetails;
+    dontSendResp, exchangeInstrumentToken } = tradeDetails;
 
   console.log("tradeDetails", tradeDetails)
   let createdBy;
@@ -657,13 +657,13 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
       symbol, placed_by: "stoxhero", algoBox: algoBoxId, order_id,
       instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy,
       trader: trader, isRealTrade: false, amount: (Number(Quantity) * originalLastPriceCompany),
-      trade_time: trade_time,
+      trade_time: trade_time, exchangeInstrumentToken
     }
 
     const traderDoc = {
       status: "COMPLETE", average_price: originalLastPriceUser, Quantity: userQuantity, Product, buyOrSell,
       variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-      isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser,
+      isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
       createdBy, trader: trader, amount: (Number(userQuantity) * originalLastPriceUser), trade_time: trade_time,
     }
 
