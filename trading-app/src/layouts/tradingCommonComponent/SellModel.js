@@ -31,8 +31,8 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({traderId, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
-  // //console.log("rendering in userPosition: sellModel", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, render, setRender, fromSearchInstrument, expiry, from)
+const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
+  console.log("rendering in userPosition: sellModel", exchange)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
   console.log("rendering : sell");
@@ -67,6 +67,12 @@ const SellModel = ({traderId, subscriptionId, sellState, exchange, symbol, instr
       
   }
 
+  useEffect(()=>{
+    socket?.on(`sendResponse${trader.toString()}`, (data)=>{
+      // render ? setRender(false) : setRender(true);
+      openSuccessSB(data.status, data.message)
+    })
+  }, [])
 
 
   const [open, setOpen] = React.useState(sellState);
@@ -204,7 +210,7 @@ const SellModel = ({traderId, subscriptionId, sellState, exchange, symbol, instr
         body: JSON.stringify({
             
           exchange, symbol, buyOrSell, Quantity, Price, subscriptionId,
-          Product, OrderType, TriggerPrice, stopLoss, uId, fromAdmin,
+          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, internPath,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
@@ -231,9 +237,9 @@ const SellModel = ({traderId, subscriptionId, sellState, exchange, symbol, instr
             // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
             // window.alert("AMO Request Recieved");
-        } else{
-          openSuccessSB('else', dataResp.message)
-          // window.alert(dataResp.message);
+        } else if(dataResp.message === "Live"){
+        }else{
+            openSuccessSB('else', dataResp.message)
         }
     }
     render ? setRender(false) : setRender(true)
@@ -249,8 +255,9 @@ const SellModel = ({traderId, subscriptionId, sellState, exchange, symbol, instr
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken, 
-        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true
+        symbol, lotSize, instrumentToken, from,
+        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true,
+        exchangeInstrumentToken, exchangeSegment
       })
     });
   
@@ -264,7 +271,7 @@ const SellModel = ({traderId, subscriptionId, sellState, exchange, symbol, instr
   }
 
   async function removeInstrument(){
-    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}`, {
+    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}/${from}`, {
       method: "PATCH",
       credentials:"include",
       headers: {
@@ -272,7 +279,7 @@ const SellModel = ({traderId, subscriptionId, sellState, exchange, symbol, instr
           "content-type": "application/json"
       },
       body: JSON.stringify({
-        isAddedWatchlist: false
+        isAddedWatchlist: false, from
       })
     });
 

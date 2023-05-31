@@ -48,6 +48,7 @@
         return isRedisConnected;
     }
     const redis = require('redis');
+
     const client = redis.createClient(6379, 'http://127.0.0.1:8081/');
 
     module.exports = {client, isRedisConnected, setValue, getValue}

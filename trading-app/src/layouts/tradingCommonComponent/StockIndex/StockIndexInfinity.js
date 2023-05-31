@@ -36,6 +36,7 @@ function StockIndex({socket}) {
 
     useEffect(()=>{
         socket.on("index-tick", (data) => {
+            console.log("index ticks", data)
             setIndexLiveData(prevInstruments => {
               const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
               data.forEach(instrument => {

@@ -13,7 +13,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Icon from "@mui/material/Icon";
 import StoreIcon from '@mui/icons-material/Store';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+// import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";

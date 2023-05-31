@@ -6,6 +6,10 @@ const infinityTrader = new Schema({
         type: String,
         required: true
     },
+    appOrderId:{
+        type: String,
+        // required: true
+    },
     status:{
         type: String,
         required: true
@@ -59,8 +63,12 @@ const infinityTrader = new Schema({
         // required: true  
     },
     instrumentToken:{
-        type: String,
-        // required: true        
+        type: Number, 
+        required: true 
+    },
+    exchangeInstrumentToken:{
+        type: Number,
+        required : true
     },
     amount:{
         type: Number,

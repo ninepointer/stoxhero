@@ -512,6 +512,7 @@ router.get("/getoverallpnlmocktradeparticularusertoday/:email", async(req, res)=
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -1136,6 +1137,7 @@ router.get("/getoverallpnlmocktradetradertoday", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
@@ -1177,7 +1179,8 @@ router.get("/gettraderwisepnlmocktradetradertoday", async(req, res)=>{
         { $group: { _id: {
                                 "traderId": "$userId",
                                 "traderName": "$createdBy",
-                                "symbol": "$instrumentToken",
+                                          "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken"
                             },
                     amount: {
                         $sum: {$multiply : ["$amount", -1]}
@@ -1226,6 +1229,7 @@ router.get("/getoverallpnlmocktradeparticularusertodaytraderside/:email", async(
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {

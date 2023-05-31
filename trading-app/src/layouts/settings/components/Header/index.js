@@ -24,6 +24,7 @@ import breakpoints from "../../../../assets/theme/base/breakpoints";
 
 // Images
 import backgroundImage from "../../../../assets/images/trading.jpg";
+import Toggle from "../Toggle/toggle";
 // import TraderSetting from "../../TraderSetting";
 
 function Header({ children, setShowSetting, showSetting }) {
@@ -146,6 +147,11 @@ function Header({ children, setShowSetting, showSetting }) {
                 />
               </Tabs>
             </AppBar>
+
+            {/* <TabPanel value={tabValue} index={0}><Toggle/> </TabPanel> */}
+            <TabPanel value={tabValue} index={1}><Toggle/> </TabPanel>
+            {/* <TabPanel value={tabValue} index={2}><Toggle/> </TabPanel> */}
+
           </Grid>
         </Grid>
         {children}
@@ -163,5 +169,19 @@ Header.defaultProps = {
 Header.propTypes = {
   children: PropTypes.node,
 };
+
+function TabPanel(props) {
+  const { children, value, index } = props;
+  return (
+    <>
+      {
+        value === index &&
+        <h1>{children}</h1>
+      }
+      {/* <TableOne/> */}
+    </>
+
+  )
+}
 
 export default Header;

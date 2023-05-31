@@ -29,7 +29,7 @@ const allTradeSchema = new mongoose.Schema({
         type: String,
     },
     order_timestamp:{
-        type: String,
+        type: Date,
         required: true
     },
     variety:{
@@ -45,7 +45,7 @@ const allTradeSchema = new mongoose.Schema({
         required: true
     },
     exchange_timestamp:{
-        type: String,
+        type: Date,
     },
     order_type:{
         type: String,
