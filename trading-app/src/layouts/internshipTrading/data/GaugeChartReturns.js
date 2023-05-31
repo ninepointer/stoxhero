@@ -14,7 +14,7 @@ const GaugeChart = ({availableMargin, portfolioValue}) => {
               startAngle: 180,
               endAngle: 0,
               min: 0,
-              max: (portfolioValue/100000),
+              max: 100,
               splitNumber: 4,
               itemStyle: {
                 color: '#1A73E8',
@@ -73,7 +73,7 @@ const GaugeChart = ({availableMargin, portfolioValue}) => {
                 offsetCenter: [0, '35%'],
                 valueAnimation: true,
                 formatter: function (value) {
-                  return '{value|' + value.toFixed(0) + '%' + ' Return(in Lakhs)' + '}';
+                  return '{value|' + value.toFixed(0) + '%' + ' Return' + '}';
                 },
                 rich: {
                   value: {
@@ -90,7 +90,7 @@ const GaugeChart = ({availableMargin, portfolioValue}) => {
               },
               data: [
                 {
-                  value: ((availableMargin-portfolioValue)/100000)
+                  value: ((availableMargin >= portfolioValue) ? ((availableMargin-portfolioValue)/portfolioValue*100) : 0)
                 }
               ]
             }
@@ -101,7 +101,7 @@ const GaugeChart = ({availableMargin, portfolioValue}) => {
     return () => {
       myChart.dispose();
     };
-  }, []);
+  }, [availableMargin, portfolioValue]);
 
   return <div ref={chartRef} style={{ width: '100%', height: '200px', padding:0 }} />;
 };
