@@ -489,7 +489,7 @@ function Cover(props) {
           <>
         <MDTypography fontSize={15} display="flex" flexDirection="column" variant="text" p={3} fontWeight="medium" textAlign="center" color="secondary" mt={5}>
             <span>Your account has been created and your userid and password has been sent to your email id.</span>
-            <span>Please <Link to='/signin'>Login</Link> to your account using the userid and password.</span>
+            <span>Please <Link to='/login'>Login</Link> to your account using the userid and password.</span>
         </MDTypography>
         <MDTypography
                   component={Link}

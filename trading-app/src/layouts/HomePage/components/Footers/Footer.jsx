@@ -62,7 +62,7 @@ const Footer = () => {
             <Grid container justifyContent="center" spacing={2} ml={1} >
               {/* Protocols */}
               <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={3}>
-                <a style={{color:"#fff"}} href="/contact">Contact us</a>
+                <a style={{color:"#fff"}} href="/privacy">Privacy</a>
               </Grid>
 
               {/* Governance */}
@@ -91,6 +91,7 @@ const Footer = () => {
             <Stack color={'rgba(255, 255, 255, 0.6)'}>
               <Title  ml={8} sx={{ mb: 1 }}>{subscribe.title}</Title>
 
+
               <Typography ml={8} variant="body2" color="rgba(255, 255, 255, 0.6)">
                 {subscribe.subtitle}
               </Typography>
@@ -100,6 +101,10 @@ const Footer = () => {
                 Contact us!
               </OutlinedButton>
               </a>
+              <Typography ml={1} variant="body2" color="rgba(255, 255, 255, 0.6)" marginBottom={2}>
+                Stoxhero Games Technologies Private Limited
+                S-77, NRI Colony, Sec-24, Pratap Nagar, Sanganer, Pratap Nagar Housing Board, Jaipur-302033
+              </Typography>
 
               <Stack
                 direction="row"
@@ -108,10 +113,10 @@ const Footer = () => {
                 justifyContent="space-between"
                 flexWrap="wrap"
                 color="#fff"
-              >
+                >
                 {/* {socials.map((item, i) => (
                   <IconButton key={i}>
-                   <item.icon sx={{color:"#fff"}} />
+                  <item.icon sx={{color:"#fff"}} />
                   </IconButton>
                 ))} */}
 
