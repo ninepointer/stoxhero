@@ -8,6 +8,8 @@ const InfinityTradeCompany = require('../models/mock-trade/infinityTradeCompany'
 exports.overallPnl = async (req, res, next) => {
     let isRedisConnected = getValue();
     const userId = req.user._id;
+    // "646497d2a09e4677cb550906"
+    // 
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -46,6 +48,8 @@ exports.overallPnl = async (req, res, next) => {
                 symbol: "$symbol",
                 product: "$Product",
                 instrumentToken: "$instrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchange: "$exchange"
               },
               amount: {
@@ -333,7 +337,8 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
           "traderName": {
             $arrayElemAt: ["$user.name", 0]
           },
-          "symbol": "$instrumentToken",
+                    "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
           "traderEmail": {
             $arrayElemAt: ["$user.email", 0]
           },

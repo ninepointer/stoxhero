@@ -13,7 +13,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-
+import { zerodhaAccountType, xtsAccountType} from '../../variables';
 
 const BrokerageModel = () => {
   const [open, setOpen] = React.useState(false);
@@ -31,7 +31,8 @@ const BrokerageModel = () => {
     stampDutyCharge: "",
     sst: "",
     ctt: "",
-    dpCharge: ""
+    dpCharge: "",
+    accountType: ""
   });
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -48,7 +49,7 @@ const BrokerageModel = () => {
     console.log("formstate", formstate)
     setOpen(false);
 
-    const {name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDutyCharge, sst, ctt, dpCharge} = formstate;
+    const {accountType, name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDutyCharge, sst, ctt, dpCharge} = formstate;
 
     const res = await fetch(`${baseUrl}api/v1/brokerage`, {
         method: "POST",
@@ -57,7 +58,7 @@ const BrokerageModel = () => {
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          brokerName: name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty: stampDutyCharge, sst, ctt, dpCharge
+          accountType, brokerName: name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty: stampDutyCharge, sst, ctt, dpCharge
         })
     });
 
@@ -104,6 +105,20 @@ const BrokerageModel = () => {
               >
                 <MenuItem value="BUY">BUY</MenuItem>
                 <MenuItem value="SELL">SELL</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">Account Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                label="Account Type"
+                sx={{ margin: 1, padding: 1, width: "300px" }}
+                onChange={(e)=>{ formstate.accountType = e.target.value}}
+              >
+                <MenuItem value={zerodhaAccountType}>ZERODHA</MenuItem>
+                <MenuItem value={xtsAccountType}>XTS</MenuItem>
               </Select>
             </FormControl>
 

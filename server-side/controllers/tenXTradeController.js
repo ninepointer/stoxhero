@@ -51,6 +51,7 @@ exports.overallPnl = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -279,7 +280,7 @@ exports.marginDetail = async (req, res, next) => {
     res.status(500).json({ status: 'error', message: 'Something went wrong' });
   }
 }
-
+// TODO remove hardcode of 60 days
 exports.tradingDays = async (req, res, next) => {
   let subscriptionId = req.params.id;
   let userId = req.user._id;
@@ -531,7 +532,7 @@ exports.autoExpireSubscription = async () => {
         {
           $project: {
             _id: 0,
-            subscriptionId: "$_id.id",
+            // subscriptionId: "$_id.id",
             totalTradingDays: "$count",
             firstMatchedDate: 1,
             remainingDays: {
@@ -658,7 +659,8 @@ exports.traderWiseMockTrader = async (req, res, next) => {
           "traderName": {
             $arrayElemAt: ["$user.name", 0]
           },
-          "symbol": "$instrumentToken",
+                    "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
           "traderEmail": {
             $arrayElemAt: ["$user.email", 0]
           },
@@ -717,6 +719,7 @@ exports.overallTenXPnl = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
@@ -828,6 +831,7 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
 
             amount: {

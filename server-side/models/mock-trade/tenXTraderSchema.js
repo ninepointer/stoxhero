@@ -55,8 +55,12 @@ const tenXTraderSchema = new mongoose.Schema({
         type: Number,     
     },
     instrumentToken:{
-        type: String,
-        // required: true        
+        type: Number, 
+        required: true 
+    },
+    exchangeInstrumentToken:{
+        type: Number,
+        required : true
     },
     amount:{
         type: Number,

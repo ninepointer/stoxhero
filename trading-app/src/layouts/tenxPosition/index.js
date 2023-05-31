@@ -45,7 +45,7 @@ function TraderPosition() {
         //console.log(socket);
         socket.on("connect", ()=>{
             //console.log(socket.id);
-            socket.emit("company-ticks", true)
+            socket.emit("hi",true)
         })
         socket.on("noToken", (data)=>{
             //console.log("no token");

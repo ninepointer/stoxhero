@@ -51,6 +51,8 @@ exports.overallPnl = async (req, res, next) => {
                 symbol: "$symbol",
                 product: "$Product",
                 instrumentToken: "$instrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
+                exchangeInstrumentToken: "$exchangeInstrumentToken",
                 exchange: "$exchange"
               },
               amount: {
@@ -152,6 +154,8 @@ exports.marginDetail = async (req, res, next) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
+  console.log(batch, req.user._id)
+
   try {
     const subscription = await InternBatch.aggregate([
         {
@@ -169,7 +173,7 @@ exports.marginDetail = async (req, res, next) => {
         },
         {
           $lookup: {
-            from: "tenx-trade-users",
+            from: "intern-trades",
             localField: "_id",
             foreignField: "batch",
             as: "trades",
@@ -450,6 +454,7 @@ exports.overallPnlAllTrader = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: { $multiply: ["$amount", -1] },
@@ -515,7 +520,8 @@ exports.traderWiseMockTrader = async (req, res, next) => {
           "traderName": {
             $arrayElemAt: ["$user.name", 0]
           },
-          "symbol": "$instrumentToken",
+                    "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
           "traderEmail": {
             $arrayElemAt: ["$user.email", 0]
           },
@@ -569,6 +575,7 @@ exports.overallInternshipPnl = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
@@ -680,6 +687,7 @@ exports.overallInternshipPnlYesterday = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
 
             amount: {

@@ -36,11 +36,12 @@ export default function InfinityTrading({socket}) {
 
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
+      socket={socket}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
     />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList

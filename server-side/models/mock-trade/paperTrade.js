@@ -71,8 +71,12 @@ const paperTrade = new mongoose.Schema({
         type: Number,        
     },
     instrumentToken:{
+        type: Number, 
+        required: true 
+    },
+    exchangeInstrumentToken:{
         type: Number,
-        required: true        
+        required : true
     },
     // tradeBy:{
     //     type: Schema.Types.ObjectId,

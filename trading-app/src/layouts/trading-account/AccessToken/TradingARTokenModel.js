@@ -9,13 +9,15 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import MDButton from '../../../components/MDButton';
 import TextField from '@mui/material/TextField';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import {useState, useContext} from "react";
-import { userContext } from '../../../AuthContext';
-import uniqid from "uniqid"
+import {useState} from "react";
+// import { userContext } from '../../../AuthContext';
+// import uniqid from "uniqid"
+import {zerodhaAccountType} from "../../../constants/constants";
+
 
 const TradingARTokenModel = ({Render}) => {
   const {reRender, setReRender} = Render
@@ -32,12 +34,12 @@ const TradingARTokenModel = ({Render}) => {
   };
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  const getDetails = useContext(userContext);
-  let uId = uniqid();
-  let date = new Date();
-  let generatedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
-  let lastModified = generatedOn;
-  let createdBy = getDetails.userDetails.name
+  // const getDetails = useContext(userContext);
+  // let uId = uniqid();
+  // let date = new Date();
+  // let generatedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+  // let lastModified = generatedOn;
+  // let createdBy = getDetails.userDetails.name
 
   const [formstate, setformstate] = useState({
       AccountID: "",
@@ -59,7 +61,7 @@ const TradingARTokenModel = ({Render}) => {
               "content-type": "application/json"
           },
           body: JSON.stringify({
-              accountId: AccountID, accessToken: AccesToken, requestToken: RequestToken, status: Status, uId, createdBy, generatedOn, lastModified
+              accountId: AccountID, accessToken: AccesToken, requestToken: RequestToken, status: Status, accountType: zerodhaAccountType
           })
       });
 

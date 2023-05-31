@@ -31,6 +31,7 @@ import { marketDataContext } from "../../../MarketDataContext";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+import { userContext } from "../../../AuthContext";
 
 const initialState = {
   instrumentsData: [],
@@ -74,7 +75,7 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId}) {
+function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId}) {
 
   console.log("rendering : tradable instrument", from)
   //console.log("rendering in userPosition: TradableInstrument", from)
@@ -87,6 +88,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
   const [state, dispatch] = useReducer(reducer, initialState);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
+  const getDetails = useContext(userContext);
 
   const openSuccessSB = () => {
     return dispatch({ type: 'openSuccess', payload: true });
@@ -108,7 +110,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
 
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
+    axios.get(`${baseUrl}api/v1/instrumentDetails/${from}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -179,15 +181,13 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
 
   async function subscribeInstrument(instrumentData, addOrRemove){
 
-    const {instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry} = instrumentData
-
+    const {exchange_token, instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry, accountType, segment} = instrumentData
+    console.log("instrumentData", instrumentData, segment)
     // socket.emit("subscribeToken", instrument_token);
     dispatch({ type: 'setInstrumentName', payload: `${strike} ${instrument_type}` });
-    // instrumentName = `${strike} ${instrument_type}`
     if(addOrRemove === "Add"){
       dispatch({ type: 'setAddOrRemoveCheckTrue', payload: true });
-      // setAddOrRemoveCheck(true);
-      //console.log(instrumentData)
+
       const res = await fetch(`${baseUrl}api/v1/addInstrument`, {
         method: "POST",
         credentials:"include",
@@ -196,7 +196,11 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          instrument: `${strike} ${instrument_type}`, exchange, status: "Active", symbol: tradingsymbol, lotSize: lot_size, instrumentToken: instrument_token, uId: uniqid(), contractDate: expiry, maxLot: lot_size*36
+          instrument: name, exchange, status: "Active", 
+          symbol: tradingsymbol, lotSize: lot_size, 
+          instrumentToken: instrument_token, uId: uniqid(), 
+          contractDate: expiry, maxLot: lot_size*36, from,
+          accountType, exchangeSegment: segment, exchangeInstrumentToken: exchange_token
         })
       });
     
@@ -205,10 +209,6 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
       if(data.status === 422 || data.error || !data){
           window.alert(data.error);
       }else{
-        // let instrumentTokenArr = [];
-        // instrumentTokenArr.push(instrument_token)
-        // socket.emit("subscribeToken", instrumentTokenArr);
-        //console.log("instrument_token data from socket", instrument_token)
         openSuccessSB();
         //console.log(data.message)
       }
@@ -217,7 +217,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
       dispatch({ type: 'setAddOrRemoveCheckFalse', payload: false });
 
       // setAddOrRemoveCheck(false);
-      const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrument_token}`, {
+      const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrument_token}/${from}`, {
         method: "PATCH",
         credentials:"include",
         headers: {
@@ -225,7 +225,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          isAddedWatchlist: false
+          isAddedWatchlist: false, from
         })
       });
   
@@ -304,6 +304,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
         <MDBox>
         { state.instrumentsData?.length > 0 &&
           (state.instrumentsData.map((elem, index)=>{
+            let maxLot = (getDetails?.userDetails?.role?.roleName==infinityTrader) ? 900 : elem.lot_size*36
             elem.sellState = false;
             elem.buyState = false;
             let perticularInstrumentData = state.userInstrumentData.filter((subElem)=>{
@@ -360,7 +361,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
                       <Tooltip title="Buy" placement="top">
 
                         {!elem.buyState ?
-                          <BuyModel subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} />
+                          <BuyModel socket={socket} subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
                           :
                           <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
@@ -371,7 +372,7 @@ function TradableInstrument({ isGetStartedClicked, setIsGetStartedClicked, from,
 
                     <Grid>
                         {!elem.sellState ?
-                          <SellModel subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={elem.lot_size*36} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry}/>
+                          <SellModel socket={socket} subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
                           :
                           <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S
