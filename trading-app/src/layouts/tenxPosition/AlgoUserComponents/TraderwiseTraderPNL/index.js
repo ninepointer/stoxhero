@@ -9,17 +9,17 @@ import ViewOrders from '@mui/icons-material/ViewList';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
-// import MDButton from "../../../../components/MDButton";
+import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
-// import Button from '@mui/material/Button';
+import Button from '@mui/material/Button';
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-// import ViewTradeDetail from "./ViewTradeDetail";
-// import ViewOrderDetail from "./MockTraderwiseOrders";
+import ViewTradeDetail from "./ViewTradeDetail";
+import ViewOrderDetail from "./MockTraderwiseOrders";
 
 function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, setBatches }) {
   const { columns, rows } = data();
