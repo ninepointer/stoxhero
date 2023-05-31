@@ -25,7 +25,7 @@ const { deletePnlKey } = require("./controllers/deletePnlKey");
 const { subscribeInstrument, getXTSTicksForUserPosition,
   onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
-const { interactiveLogin, positions } = require("./services/xts/xtsInteractive");
+const { interactiveLogin } = require("./services/xts/xtsInteractive");
 const { autoExpireSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
@@ -151,7 +151,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
       // await getTicksForUserPosition(socket, data);
-      await positions();
+      // await positions();
       if(setting.ltp == zerodhaAccountType || setting.complete == zerodhaAccountType){
         await getTicksForUserPosition(socket, data);
       } else{
