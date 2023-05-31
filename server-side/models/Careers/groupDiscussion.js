@@ -47,7 +47,7 @@ const gdSchema = new Schema({
     },
     createdOn: {
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
     },
     createdBy:{
         type: Schema.Types.ObjectId,
@@ -55,7 +55,7 @@ const gdSchema = new Schema({
     },
     lastModifiedOn: {
         type: Date,
-        default: new Date()
+        default: ()=>new Date()
     },
     lastModifiedBy:{
         type: Schema.Types.ObjectId,

@@ -60,12 +60,12 @@ const instrumentSchema = new mongoose.Schema({
     },
     createdOn:{
         type: Date,
-        default: new Date(),
+        default: ()=>new Date(),
         required : true
     },
     lastModifiedOn:{
         type: Date,
-        default: new Date(),
+        default: ()=>new Date(),
         required : true
     },
     createdBy:{

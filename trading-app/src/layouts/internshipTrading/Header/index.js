@@ -435,7 +435,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                         variant="contained" 
                         color="info" 
                         sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                        onClick={()=>{navigate(`/internship/trade`)}} size='small'
+                        onClick={()=>{navigate(`/orders`)}} size='small'
                       >
                         View Orders
                       </MDButton>
@@ -455,7 +455,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       variant="contained" 
                       color="info" 
                       sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
-                      onClick={()=>{navigate(`/internship/trade`)}} size='small'
+                      onClick={()=>{navigate(`/internship/analytics`)}} size='small'
                     >
                       View Analytics
                     </MDButton>

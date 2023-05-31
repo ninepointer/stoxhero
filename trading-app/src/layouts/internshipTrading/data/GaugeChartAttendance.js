@@ -102,7 +102,7 @@ const GaugeChart = ({myTradingDays,totalTradingDays}) => {
     return () => {
       myChart.dispose();
     };
-  }, []);
+  }, [myTradingDays]);
 
   return <div ref={chartRef} style={{ width: '100%', height: '200px', padding:0 }} />;
 };

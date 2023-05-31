@@ -12,12 +12,12 @@ const roleSchema = new mongoose.Schema({
     createdOn:{
         type: Date,
         required : true,
-        default: new Date(),
+        default: ()=>new Date(),
     },
     lastModifiedOn:{
         type: Date,
         required : true,
-        default: new Date(),
+        default: ()=>new Date(),
     },
     createdBy:{
         type: Schema.Types.ObjectId,
