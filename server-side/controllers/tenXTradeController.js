@@ -842,6 +842,11 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
             amount: {
               $sum: {$multiply : ["$amount",-1]},
             },
+            turnover: {
+              $sum: {
+                $toInt: {$abs : "$amount"},
+              },
+            },
             brokerage: {
               $sum: {
                 $toDouble: "$brokerage",
@@ -850,6 +855,11 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
             lots: {
               $sum: {
                 $toInt: "$Quantity",
+              },
+            },
+            totallots: {
+              $sum: {
+                $toInt: {$abs : "$Quantity"},
               },
             },
             trades: {

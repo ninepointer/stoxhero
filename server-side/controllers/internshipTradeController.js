@@ -692,11 +692,16 @@ exports.overallInternshipPnlYesterday = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
 
             amount: {
               $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: {$abs : "$amount"},
+              },
             },
             brokerage: {
               $sum: {
@@ -706,6 +711,11 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
             lots: {
               $sum: {
                 $toInt: "$Quantity",
+              },
+            },
+            totallots: {
+              $sum: {
+                $toInt: {$abs : "$Quantity"},
               },
             },
             trades: {
