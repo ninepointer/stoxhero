@@ -167,8 +167,8 @@ export default function LabTabs({socket}) {
     let obj = {};
     ytotalRunningLots += Number(subelem.lots)
     ytotalTransactionCost += Number(subelem.brokerage);
-    ytotalTurnover += Number(Math.abs(subelem.amount));
-    ytotalLots += Number(Math.abs(subelem.lots))
+    ytotalTurnover += Number(Math.abs(subelem.turnover));
+    ytotalLots += Number(Math.abs(subelem.totallots))
     ytotalTrades += Number(subelem.trades)
 
     let liveDetail = marketData.filter((elem)=>{
@@ -223,7 +223,7 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{totalLots}</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalLots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
@@ -273,29 +273,29 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday?.lots}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalLots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday?.lots}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{ytotalRunningLots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTurnover)}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ytotalTrades}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>0/0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCountYesterday}/{notliveTraderCountYesterday}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
