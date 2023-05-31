@@ -63,6 +63,7 @@ import { adminRole } from "./variables";
 import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
+import Privacy from "./layouts/HomePage/pages/Privacy";
 
 export default function App() {
   const cookieValue = Cookies.get("jwtoken");
@@ -292,6 +293,7 @@ export default function App() {
           }
           <Route path='/resetpassword' element={<ResetPassword/>}/>
           <Route path='/careers' element={<Careers/>}/>
+          <Route path='/privacy' element={<Privacy/>}/>
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
           <Route path='/home' element={<Home/>}/>
