@@ -62,7 +62,8 @@ export default function LabTabs() {
     setAlignment(newAlignment);
   };
   const getMonthWiseStats = async() => {
-    const res = await axios.get(`${apiUrl}analytics/${endpoint}/mymonthlypnl/${getDetails?.userDetails?.internshipBatch?._id}`,{withCredentials:true});
+    console.log('user details', getDetails?.userDetails?.internshipBatch);
+    const res = await axios.get(`${apiUrl}analytics/${endpoint}/mymonthlypnl/${getDetails?.userDetails?.internshipBatch[0]?._id}`,{withCredentials:true});
     // console.log('res data', res.data.data);
     setMonthWiseData(res.data.data);
   } 
@@ -85,7 +86,7 @@ export default function LabTabs() {
   const handleShowDetails = async() => {
     const from = startDate.format('YYYY-MM-DD');
     const to = endDate.format('YYYY-MM-DD');
-    const res = await axios.get(`${apiUrl}analytics/${endpoint}/mystats/${getDetails.userDetails?.internshipBatch._id}?from=${from}&to=${to}`, {withCredentials: true});
+    const res = await axios.get(`${apiUrl}analytics/${endpoint}/mystats/${getDetails.userDetails?.internshipBatch[0]._id}?from=${from}&to=${to}`, {withCredentials: true});
     console.log(res.data.data);
     setDateWiseData(prev=>res.data.data);
     
@@ -134,7 +135,7 @@ export default function LabTabs() {
       </ToggleButtonGroup>
     </MDBox> */}
 
-        <PNLMetrics traderType={alignment} endpoint={endpoint} batchId={getDetails?.userDetails?.internshipBatch?._id}/>
+        <PNLMetrics traderType={alignment} endpoint={endpoint} batchId={getDetails?.userDetails?.internshipBatch[0]?._id}/>
 
         <Grid mt={3} container>
           <Grid item xs={12} md={6} lg={12}>

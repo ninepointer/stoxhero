@@ -53,6 +53,7 @@ import TutorialVideo from './layouts/tutorials'
 import CategoryVideos from './layouts/tutorials/Header/categoryVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
+import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
 
 const routes = [
@@ -338,6 +339,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/internship/trade",
     component: <InternshipTrade/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/internship/analytics",
+    component: <InternshipAnalytics/>,
   },
 ];
 
