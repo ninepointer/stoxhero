@@ -220,7 +220,7 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{totalLots}</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalLots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
@@ -270,7 +270,7 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{liveTotalLots}</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTotalLots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
