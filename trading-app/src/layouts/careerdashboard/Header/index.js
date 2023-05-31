@@ -148,7 +148,7 @@ export default function LabTabs({socket}) {
     let obj = {};
     totalRunningLots += Number(subelem.lots)
     totalTransactionCost += Number(subelem.brokerage);
-    totalTurnover += Number(Math.abs(subelem.amount));
+    totalTurnover += Number(Math.abs(subelem.turnover));
     totalLots += Number(Math.abs(subelem.totallots))
     totalTrades += Number(subelem.trades)
 

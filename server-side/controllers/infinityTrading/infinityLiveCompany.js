@@ -524,10 +524,15 @@ exports.overallCompanySidePnlLive = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: { $abs : "$amount"},
+              },
             },
             brokerage: {
               $sum: {

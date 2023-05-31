@@ -272,6 +272,11 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
             amount: {
               $sum: {$multiply : ["$amount",-1]},
             },
+            turnover: {
+              $sum: {
+                $toInt: { $abs : "$amount"},
+              },
+            },
             brokerage: {
               $sum: {
                 $toDouble: "$brokerage",

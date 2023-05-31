@@ -575,10 +575,15 @@ exports.overallInternshipPnl = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: { $abs : "$amount"},
+              },
             },
             brokerage: {
               $sum: {
@@ -663,14 +668,14 @@ exports.liveTotalTradersCount = async (req, res, next) => {
 exports.overallInternshipPnlYesterday = async (req, res, next) => {
   let yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  console.log(yesterdayDate)
+  // console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(yesterdayStartTime); 
     const endTime = new Date(yesterdayEndTime); 
-    console.log("Query Timing: ", startTime, endTime)
+    // console.log("Query Timing: ", startTime, endTime)
     let pnlDetails = await InternTrades.aggregate([
       {
         $match: {
@@ -720,14 +725,14 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
 exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     let yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    console.log(yesterdayDate)
+    // console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(yesterdayStartTime); 
     const endTime = new Date(yesterdayEndTime); 
-    console.log("Query Timing: ", startTime, endTime)  
+    // console.log("Query Timing: ", startTime, endTime)  
     let pnlDetails = await InternTrades.aggregate([
       {
         $match: {
