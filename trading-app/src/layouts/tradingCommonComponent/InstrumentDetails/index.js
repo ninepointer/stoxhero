@@ -7,7 +7,7 @@ import { RiStockFill } from "react-icons/ri";
 import { TiMediaRecord } from "react-icons/ti";
 import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+// import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Tooltip } from '@mui/material';
 
 
@@ -91,7 +91,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const [instrumentData, setInstrumentData] = useState([]);
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
+    axios.get(`${baseUrl}api/v1/instrumentDetails/${from}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -109,7 +109,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   const instrumentDetailArr = [];
   instrumentData.map((elem)=>{
-    // //console.log("instrument date", new Date(elem.contractDate))
+    console.log("instrument date", elem)
     const date = new Date(elem.contractDate);
     const day = date.getDate(); // returns the day of the month (4 in this case)
     const month = date.toLocaleString('default', { month: 'long' }); // returns the full month name (May in this case)
@@ -119,9 +119,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     let instrumentDetailObj = {}
     const instrumentcolor = elem.symbol.slice(-2) == "CE" ? "success" : "error"
     let perticularInstrumentMarketData = marketDetails.marketData.filter((subelem)=>{
-      return elem.instrumentToken === subelem.instrument_token
+      // console.log("perticularInstrumentMarketData", elem.instrumentToken , subelem.instrument_token, elem.exchangeInstrumentToken)
+      return (elem.instrumentToken == subelem.instrument_token) || (elem.exchangeInstrumentToken == subelem.instrument_token)
     })
     
+    console.log("perticularInstrumentMarketData", perticularInstrumentMarketData)
     const percentagechangecolor = perticularInstrumentMarketData[0]?.change >= 0 ? "success" : "error"
     const percentagechangecolor1 = (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "success" : "error"
 
@@ -166,11 +168,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
+      <BuyModel socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (
@@ -212,7 +214,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   async function removeInstrument(instrumentToken, instrument){
     setInstrumentName(instrument)
-    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}`, {
+    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}/${from}`, {
       method: "PATCH",
       credentials:"include",
       headers: {

@@ -46,6 +46,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const { updateNetPnl , setPnlData} = useContext(NetPnlContext);
   const [trackEvent, setTrackEvent] = useState({});
   const [tradeData, setTradeData] = useState([]);
+  const [myReferralCount, setMyReferralCount] = useState(getDetails?.userDetails?.referrals?.length);
   const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
@@ -84,8 +85,8 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
   const startDate = (getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).toString().split('T')[0]
   const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
-  console.log(startDate)
-  console.log(endDate)
+  // console.log(startDate)
+  // console.log(endDate)
   const workingDays = calculateWorkingDays(startDate, endDate);
 
   useEffect(()=>{
@@ -167,7 +168,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         },
       })
     .then((api1Response)=>{
-      console.log(api1Response.data.data)
+      // console.log(api1Response.data.data)
       setMyOverallInternshipPNL(api1Response.data.data)  
     })
   }, [])
@@ -182,7 +183,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         },
       })
     .then((api1Response)=>{
-      console.log(api1Response.data.data)
+      // console.log(api1Response.data.data)
       setMyTradingDays(api1Response.data.data.length)  
     })
   }, [])
@@ -194,7 +195,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       return subelem._id.instrumentToken == elem.instrument_token;
     })
     totalRunningLots += Number(subelem.lots)
-    console.log(subelem.amount,subelem.lots,liveDetail[0])
+    // console.log(subelem.amount,subelem.lots,liveDetail[0])
     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
     let netupdatedValue = updatedValue - Number(subelem.brokerage);
     totalGrossPnl += updatedValue;
@@ -206,8 +207,8 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
     
   })
-  console.log(portfolioValue, myOverallIntenrshipPNL[0]?.amount, myOverallIntenrshipPNL[0]?.brokerage, totalGrossPnl, totalTransactionCost );
-  console.log(myOverallInternshipPnl)
+  // console.log(portfolioValue, myOverallIntenrshipPNL[0]?.amount, myOverallIntenrshipPNL[0]?.brokerage, totalGrossPnl, totalTransactionCost );
+  // console.log(myOverallInternshipPnl)
   let availableMargin = portfolioValue + (totalGrossPnl-totalTransactionCost) + (myOverallIntenrshipPNL.length > 0 ? (myOverallIntenrshipPNL[0]?.amount - myOverallIntenrshipPNL[0]?.brokerage) : 0)
 
   const batchParticipants = getDetails?.userDetails?.internshipBatch[0]?.participants
@@ -216,7 +217,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const particpants = batchParticipants?.filter((elem)=>
       elem.user === user_id
   )
-  console.log("Participants: ",particpants)
+  // console.log("Participants: ",particpants)
   const college_id = particpants[0]?.college
 
   const card = (props)=> {
@@ -339,20 +340,20 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     Promise.all([call1])
     .then(([api1Response]) => {
       // Process the responses here
-      console.log(api1Response.data.data);
+      // console.log(api1Response.data.data);
       setActiveTenXSubs(api1Response.data.data)
     
     })
     .catch((error) => {
       // Handle errors here
-      console.error(error);
+      // console.error(error);
     });
 
 
   },[])
 
-  console.log("cashBalance", cashBalance)
-  console.log("User Details: ",getDetails?.userDetails?.internshipBatch[0]?.batchName)
+  // console.log("cashBalance", cashBalance)
+  // console.log("User Details: ",getDetails?.userDetails?.internshipBatch[0]?.batchName)
 
   return (
    
@@ -394,7 +395,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         
             <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                   <Grid style={{width:'100%'}} item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <GaugeChartReferrals />
+                      <GaugeChartReferrals myReferralCount={myReferralCount}/>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
                       <GaugeChartReturns availableMargin={availableMargin} portfolioValue={portfolioValue}/>

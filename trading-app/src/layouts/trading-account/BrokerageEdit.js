@@ -15,6 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import EditSharpIcon from '@mui/icons-material/EditSharp';
+import { zerodhaAccountType, xtsAccountType} from '../../variables';
 
 
 
@@ -36,7 +37,7 @@ const BrokerageEdit = ({data, id, Render}) => {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   let date = new Date();
-  let lastModified = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
+  // let lastModified = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
 
 //   const { reRender, setReRender } = Render;
   const [editData, setEditData] = useState(data);
@@ -53,6 +54,7 @@ const BrokerageEdit = ({data, id, Render}) => {
   const [Sst, setsst] = useState();
   const [Ctt, setctt] = useState();
   const [DpCharge, setdpCharge] = useState();
+  const [AccountType, setAccountType] = useState();
  
 //   useEffect(() => {
 //       let updatedData = data.filter((elem) => {
@@ -75,6 +77,7 @@ const BrokerageEdit = ({data, id, Render}) => {
       setsst(editData?.sst);
       setctt(editData?.ctt);
       setdpCharge(editData?.dpCharge);
+      setAccountType(editData?.accountType);
 
   }, [editData,])
 
@@ -90,7 +93,8 @@ const BrokerageEdit = ({data, id, Render}) => {
     stampDutyCharge: "",
     sst: "",
     ctt: "",
-    dpCharge: ""
+    dpCharge: "",
+    accountType: ""
   });
 
   //console.log(formstate);
@@ -110,11 +114,12 @@ const BrokerageEdit = ({data, id, Render}) => {
       formstate.sst = Sst;
       formstate.ctt = Ctt;
       formstate.dpCharge = DpCharge;
+      formstate.accountType = AccountType;
        
       setformstate(formstate);
 
 
-      const {name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDutyCharge, sst, ctt, dpCharge} = formstate;
+      const {accountType, name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDutyCharge, sst, ctt, dpCharge} = formstate;
                                       
       const res = await fetch(`${baseUrl}api/v1/readBrokerage/${id}`, {
           method: "PUT",
@@ -124,7 +129,7 @@ const BrokerageEdit = ({data, id, Render}) => {
               "content-type": "application/json"
           },
           body: JSON.stringify({
-            brokerName: name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty: stampDutyCharge, sst, ctt, dpCharge
+            accountType, brokerName: name, transaction, type, exchange, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty: stampDutyCharge, sst, ctt, dpCharge
         })
       });
       const dataResp = await res.json();
@@ -198,6 +203,20 @@ const BrokerageEdit = ({data, id, Render}) => {
               >
                 <MenuItem value="BUY">BUY</MenuItem>
                 <MenuItem value="SELL">SELL</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">Account Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                label="Account Type"
+                sx={{ margin: 1, padding: 1, width: "300px" }}
+                value={AccountType} onChange={(e)=>{ setAccountType(e.target.value)}}
+              >
+                <MenuItem value={zerodhaAccountType}>ZERODHA</MenuItem>
+                <MenuItem value={xtsAccountType}>XTS</MenuItem>
               </Select>
             </FormControl>
 

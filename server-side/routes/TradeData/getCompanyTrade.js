@@ -348,6 +348,7 @@ router.get("/getoverallpnllivetradecompanytoday", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
@@ -391,7 +392,8 @@ router.get("/gettraderwisepnllivetradecompanytoday", async(req, res)=>{
                                 "traderName": "$createdBy",
                                 // "buyOrSell": "$buyOrSell",
                                 // "traderName": "$createdBy",
-                                "symbol": "$instrumentToken",
+                                          "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
                                 "algoName": "$algoBox.algoName"
                             },
                     amount: {
@@ -430,7 +432,8 @@ router.get("/gettraderwisepnllivetradecompanytoday", async(req, res)=>{
         { $group: { _id: {
                                 "traderId": "$userId",
                                 "traderName": "$createdBy",
-                                "symbol": "$instrumentToken",
+                                          "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
                                 "algoId": "$algoBox._id",
                                 "algoName": "$algoBox.algoName"
                             },
@@ -635,6 +638,7 @@ router.get("/getoverallpnllivetradeparticularusertodaycompanyside/:email", async
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -689,6 +693,7 @@ router.get("/getLiveTradeDetailsUser/:email", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange",
               validity: "$validity",
               order_type: "$order_type",
@@ -728,6 +733,7 @@ router.get("/getLiveTradeDetailsAllUser", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange",
               validity: "$validity",
               order_type: "$order_type",
@@ -768,6 +774,7 @@ router.get("/getoverallpnllivetradecompanytoday/algowisedata/:id", async(req, re
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
@@ -1004,6 +1011,7 @@ router.get("/getoverallpnllivetradecompanytoday/batchwisedata/:batchName", async
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {

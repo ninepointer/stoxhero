@@ -4,7 +4,11 @@ const AccessAndRequestToken = require("../models/Trading Account/requestTokenSch
 const {disconnectTicker, createNewTicker}  = require('../marketData/kiteTicker');
 const getKiteCred = require('../marketData/getKiteCred');
 const totp = require("totp-generator");
-const {client, getValue} = require("../marketData/redisClient");
+// const {client, isRedisConnected} = require("../marketData/redisClient");
+const { ObjectId } = require("mongodb");
+const {zerodhaAccountType} = require("../constant");
+
+// const {client, getValue} = require("../marketData/redisClient");
 
 
 function sleep(ms) {
@@ -12,9 +16,10 @@ function sleep(ms) {
 }
 
 
-async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, resp) {
+async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
 
-    const {accountId, status, createdBy, uId} = otherCredentials;
+    const {accountId, status} = req.body;
+    const {userId} = req.user;
     (async () => {
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
@@ -43,26 +48,28 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, otherCredentials, 
           const accessToken = response.access_token;
           console.log("Access Token: ",accessToken);
 
-          AccessAndRequestToken.findOne({uId : uId})
-          .then((accountIdExist)=>{
-              if(accountIdExist){
-                  //console.log("accountId already");
-                  return resp.status(422).json({error : "account Id already exist..."})
-              }
-              const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, uId});//TODO : createdBy add
+          // AccessAndRequestToken.findOne({_id : _id})
+          // .then((accountIdExist)=>{
+          //     if(accountIdExist){
+          //         //console.log("accountId already");
+          //         return resp.status(422).json({error : "account Id already exist..."})
+          //     }
+          // }).catch(err => {console.log("fail in accesstoken auth")});
+
+          const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, createdBy: new ObjectId(userId), lastModifiedBy: new ObjectId(userId), accountType: zerodhaAccountType});
       
-              requestTokens.save().then(async ()=>{
-                
-                  // await client.del(`kiteCredToday:${process.env.PROD}`);
-                  disconnectTicker();
-                  getKiteCred.getAccess().then((data) => {
-                      //console.log(data);
-                      createNewTicker(data.getApiKey, data.getAccessToken);
-                  });
-                  
-                  resp.status(201).json({massage : "data enter succesfully"});
-              }).catch((err)=> {console.log(err); resp.status(500).json({error:"Failed to enter data"})});
-          }).catch(err => {console.log("fail in accesstoken auth")});
+          requestTokens.save().then(async ()=>{
+            
+              // await client.del(`kiteCredToday:${process.env.PROD}`);
+              disconnectTicker();
+              getKiteCred.getAccess().then((data) => {
+                  //console.log(data);
+                  createNewTicker(data.getApiKey, data.getAccessToken);
+              });
+              
+              resp.status(201).json({massage : "data enter succesfully"});
+          }).catch((err)=> {console.log(err); resp.status(500).json({error:"Failed to enter data"})});
+
       
         //   return [requestToken, accessToken]
         }catch (e){

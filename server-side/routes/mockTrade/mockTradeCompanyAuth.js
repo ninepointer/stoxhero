@@ -1351,6 +1351,7 @@ router.get("/getoverallpnlmocktradecompanytoday", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
@@ -1422,7 +1423,8 @@ router.get("/gettraderwisepnlmocktradecompanytoday", async(req, res)=>{
         { $group: { _id: {
                           "traderId": "$trader",
                           "traderName": "$user.name",
-                          "symbol": "$instrumentToken",
+                                    "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
                           "algoId": "$algoBox._id",
                           "algoName": "$algoBox.algoName"
                             },
@@ -1739,6 +1741,7 @@ router.get("/getoverallpnlmocktradeparticularusertodaycompanyside/:email", async
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -1794,6 +1797,7 @@ router.get("/getMockTradeDetailsUser/:email", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange",
               validity: "$validity",
               order_type: "$order_type",
@@ -1834,6 +1838,7 @@ router.get("/getoverallpnlmocktradecompanytoday/algowisedata/:algoId", async(req
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
@@ -1885,6 +1890,7 @@ router.get("/getMockTradeDetailsAllUser", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange",
               validity: "$validity",
               order_type: "$order_type",
@@ -2021,6 +2027,7 @@ router.get("/updatealgoid", async(req, res)=>{
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {
@@ -2047,7 +2054,7 @@ router.get("/updatealgoid", async(req, res)=>{
             _id: -1,
           },
         },
-      ])
+    ])
             
 
         res.status(201).json(pnlDetails);
@@ -2185,9 +2192,7 @@ router.get("/getmocktradebatchestoday", async(req, res)=>{
         },
       ])
             
-                // //console.log(pnlDetails)
-
-        res.status(201).json(batchDetails);
+      res.status(201).json(batchDetails);
  
 })
 
@@ -2556,6 +2561,7 @@ router.get("/getDayWiseTradersTradeDetailsCompanySide/:startDay/:endDay/:traderN
             _id: {
               symbol: "$symbol",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             
           },

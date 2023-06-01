@@ -495,6 +495,7 @@ exports.getContestPnl = async(req, res, next) => {
                   symbol: "$symbol",
                   product: "$Product",
                   instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
                   exchange: "$exchange"
                 },
                 amount: {
@@ -811,6 +812,7 @@ exports.autoTradeContest = async(req, res, next) => {
                 portfolioId: "$portfolioId",
                 symbol: "$symbol",
                 instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
                 trader: "$trader",
                 product: "$Product",
                 exchange: "$exchange",
@@ -1068,6 +1070,7 @@ exports.getRedisLeaderBoard = async(req,res,next) => {
                 trader: "$trader",
                 // employeeid: "$employeeid",
                 instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
                 symbol: "$symbol",
                 product: "$Product",
               },

@@ -23,6 +23,7 @@ import backgroundImage from "../../../assets/images/trading.jpg";
 import Accounts from "../ApiKey/Accounts";
 import Brokerage from "../Brokerage";
 import TradingARToken from "../AccessToken/TradingARToken";
+import XTSToken from "../xtsToken/XTSToken";
 
 
 
@@ -114,6 +115,14 @@ function TradingAccountHeader({ children }) {
                     </Icon>
                   }
                 />
+                <Tab
+                  label="XTS Token"
+                  icon={
+                    <Icon fontSize="small" sx={{ mt: -0.25}}>
+                      home
+                    </Icon>
+                  }
+                />
                 
                 
               </Tabs>
@@ -121,6 +130,7 @@ function TradingAccountHeader({ children }) {
             <TabPanel value={tabValue} index={0}><Accounts/> </TabPanel>
             <TabPanel value={tabValue} index={1}><Brokerage/> </TabPanel>
             <TabPanel value={tabValue} index={2}><TradingARToken/> </TabPanel>
+            <TabPanel value={tabValue} index={3}><XTSToken/> </TabPanel>
             {/* <TabPaneltwo/> */}
           </Grid>
         </Grid>

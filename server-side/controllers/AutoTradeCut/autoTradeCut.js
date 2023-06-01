@@ -33,6 +33,7 @@ const tenx = async () => {
             exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             variety: "$variety",
             validity: "$validity",
             order_type: "$order_type",
@@ -57,6 +58,7 @@ const tenx = async () => {
           exchange: "$_id.exchange",
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
           variety: "$_id.variety",
           validity: "$_id.validity",
           order_type: "$_id.order_type",
@@ -158,6 +160,7 @@ const internship = async () => {
             exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             variety: "$variety",
             validity: "$validity",
             order_type: "$order_type",
@@ -182,6 +185,7 @@ const internship = async () => {
           exchange: "$_id.exchange",
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
           variety: "$_id.variety",
           validity: "$_id.validity",
           order_type: "$_id.order_type",
@@ -283,6 +287,7 @@ const paperTrade = async () => {
             exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             variety: "$variety",
             validity: "$validity",
             order_type: "$order_type",
@@ -307,6 +312,7 @@ const paperTrade = async () => {
           exchange: "$_id.exchange",
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
           variety: "$_id.variety",
           validity: "$_id.validity",
           order_type: "$_id.order_type",
@@ -407,6 +413,7 @@ const infinityTrade = async () => {
             exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             variety: "$variety",
             validity: "$validity",
             order_type: "$order_type",
@@ -432,6 +439,7 @@ const infinityTrade = async () => {
           exchange: "$_id.exchange",
           symbol: "$_id.symbol",
           instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
           variety: "$_id.variety",
           validity: "$_id.validity",
           order_type: "$_id.order_type",
@@ -526,4 +534,3 @@ const infinityTrade = async () => {
 }
 
 module.exports = { tenx, paperTrade, infinityTrade, internship };
-

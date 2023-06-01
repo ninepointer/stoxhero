@@ -5,8 +5,9 @@ const {overallPnlBatchWiseMock, mockLiveTotalTradersCount, overallCompanySidePnl
     myAllTodaysTrade, overallPnlCompanySide, batchWisePnl, mockBatchToday, getLetestMockTradeCompany,
     companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl, overallPnlTraderWise, getAllOrders, getAllOrdersForToday, getAllTradersMockOrders, getAllMockOrdersForToday, getAllMockOrders, getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, getAllTradersLiveOrdersForToday} = require('../../controllers/infinityController');
 
-// const {pnlTraderCompany, overallLivePnlToday, getLetestLiveTradeCompany, 
-//     traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive} = require("../../controllers/infinityTrading/infinityLiveCompany")
+const {pnlTraderCompany, overallLivePnlToday, getLetestLiveTradeCompany, 
+    traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive, 
+    overallCompanySidePnlLive, mockLiveTotalTradersCountLiveSide} = require("../../controllers/infinityTrading/infinityLiveCompany")
 const Authenticate = require('../../authentication/authentication');
 
 
@@ -20,16 +21,19 @@ router.route('/myOpening').get(Authenticate, openingBalance)
 router.route('/mock/pnlAllTrader').get(overallPnlAllTrader)
 router.route('/mock/cohortBatchToday').get(mockBatchToday)
 router.route('/mock/overallcompanypnltoday').get(overallCompanySidePnl)
+router.route('/live/overallcompanypnltoday').get(overallCompanySidePnlLive)
 router.route('/mock/liveandtotaltradercounttoday').get(mockLiveTotalTradersCount)
+router.route('/live/liveandtotaltradercounttoday').get(mockLiveTotalTradersCountLiveSide)
 router.route('/mock/traderwiseAllTrader').get(treaderWiseMockTrader)
-// router.route('/livePnlCompany').get(overallLivePnlToday)
-// router.route('/live/letestTradeCompany').get(getLetestLiveTradeCompany)
+router.route('/livePnlCompany').get(overallLivePnlToday)
+router.route('/live/letestTradeCompany').get(getLetestLiveTradeCompany)
 router.route('/mock/letestTradeCompany').get(getLetestMockTradeCompany)
 
-// router.route('/live/traderWiseCompany').get(traderLiveComapny)
+router.route('/live/traderWiseCompany').get(traderLiveComapny)
 
 router.route('/userMockTrade/:id').get(myAllTodaysTrade)
 router.route('/pnlCompnaySide/:id').get(overallPnlCompanySide)
+router.route('/live/traderPnlCompany/:id').get(pnlTraderCompany)
 router.route('/pnl/traderWise/:trader').get(Authenticate, overallPnlTraderWise)
 router.route('mock/companyorders').get(getAllMockOrders);
 router.route('mock/userorders').get(getAllTradersMockOrders);
@@ -46,8 +50,8 @@ router.route('/traderwisetraderpnlreport/:startDate/:endDate').get(traderPnlTWis
 router.route('/tradermatrixpnlreport/:startDate/:endDate').get(traderMatrixPnl)
 router.route('/mock/mockPnlBatchWise/:batchname').get(overallPnlBatchWiseMock)
 router.route('/mock/traderwiseBatchWise/:batchname').get(traderwiseBatchMock)
-// router.route('/live/mockPnlBatchWise/:batchname').get(overallPnlBatchWiseLive)
-// router.route('/live/traderwiseBatchWise/:batchname').get(traderwiseBatchLive)
+router.route('/live/mockPnlBatchWise/:batchname').get(overallPnlBatchWiseLive)
+router.route('/live/traderwiseBatchWise/:batchname').get(traderwiseBatchLive)
 
 
 module.exports = router;

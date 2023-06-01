@@ -8,6 +8,7 @@ const Instrument = require("../models/Instruments/instrumentSchema");
 const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
 const {client, getValue} = require("../marketData/redisClient")
+const InfinityInstrument = require("../models/Instruments/infinityInstrument");
 
 
 
@@ -63,7 +64,7 @@ router.get("/getliveprice", async (req, res)=>{
 
 
 //, contractDate: new Date("2023-05-25T00:00:00.000Z")
-
+    const infinityInstrument = await InfinityInstrument.find({status: "Active"});
     const ans = await Instrument.find({status: "Active"});
     const contestInstrument = await ContestInstrument.find({status: "Active"});
     const resp2 = await InstrumentMapping.find({Status: "Active"})
@@ -80,14 +81,15 @@ router.get("/getliveprice", async (req, res)=>{
       }
     });
 
-    // contestInstrument.forEach((elem, index) => {
-    //   // if (index === 0) {
-    //   //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
-    //   // } else {
-    //   // }
-    //   addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
 
-    // });
+    infinityInstrument.forEach((elem, index) => {
+      // if (index === 0) {
+      //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
+      // } else {
+      // }
+      addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+
+    });
 
     // resp2.forEach((elem, index) => {
     //   // console.log(addUrl)
@@ -130,3 +132,19 @@ router.get("/getliveprice", async (req, res)=>{
 
 module.exports = router;
 
+
+[
+  {
+    "type": "success",
+    "code": "s-quotes-0001",
+    "description": "Get quotes successfully!",
+    "result": {
+      "mdp": 1502,
+      "quoteList": {
+        "exchangeSegment": 1,
+        "exchangeInstrumentID": 2885
+      },
+      "listQuotes": "{\"MessageCode\":1502,\"MessageVersion\":4,\"ApplicationType\":0,\"TokenID\":0,\"ExchangeSegment\":1,\"ExchangeInstrumentID\":2885,\"ExchangeTimeStamp\":1317900958,\"Bids\":[{\"Size\":120,\"Price\":2558.9,\"TotalOrders\":3,\"BuyBackMarketMaker\":0},{\"Size\":21,\"Price\":2558.8,\"TotalOrders\":1,\"BuyBackMarketMaker\":0},{\"Size\":25,\"Price\":2558.7,\"TotalOrders\":1,\"BuyBackMarketMaker\":0},{\"Size\":2,\"Price\":2558.65,\"TotalOrders\":2,\"BuyBackMarketMaker\":0},{\"Size\":25,\"Price\":2558.55,\"TotalOrders\":1,\"BuyBackMarketMaker\":0}],\"Asks\":[{\"Size\":42,\"Price\":2559,\"TotalOrders\":1,\"BuyBackMarketMaker\":0},{\"Size\":154,\"Price\":2559.25,\"TotalOrders\":4,\"BuyBackMarketMaker\":0},{\"Size\":5,\"Price\":2559.3,\"TotalOrders\":1,\"BuyBackMarketMaker\":0},{\"Size\":33,\"Price\":2559.4,\"TotalOrders\":2,\"BuyBackMarketMaker\":0},{\"Size\":198,\"Price\":2559.45,\"TotalOrders\":1,\"BuyBackMarketMaker\":0}],\"Touchline\":{\"BidInfo\":{\"Size\":120,\"Price\":2558.9,\"TotalOrders\":3,\"BuyBackMarketMaker\":0},\"AskInfo\":{\"Size\":42,\"Price\":2559,\"TotalOrders\":1,\"BuyBackMarketMaker\":0},\"LastTradedPrice\":2559,\"LastTradedQunatity\":3,\"TotalBuyQuantity\":150573,\"TotalSellQuantity\":356995,\"TotalTradedQuantity\":1458511,\"AverageTradedPrice\":2560.5,\"LastTradedTime\":1317900958,\"LastUpdateTime\":1317900958,\"PercentChange\":0.11149580423683858,\"Open\":2555.1,\"High\":2573.15,\"Low\":2551.1,\"Close\":2556.15,\"TotalValueTraded\":null,\"BuyBackTotalBuy\":0,\"BuyBackTotalSell\":0},\"BookType\":1,\"XMarketType\":1,\"SequenceNumber\":555886964773282}"
+    }
+  }
+]

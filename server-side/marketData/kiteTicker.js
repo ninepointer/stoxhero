@@ -9,6 +9,7 @@ const User = require("../models/User/userDetailSchema")
 const io = require('../marketData/socketio');
 const {client, getValue} = require("./redisClient");
 const { ObjectId } = require('mongodb');
+const {xtsAccountType, zerodhaAccountType} = require("../constant");
 
 
 
@@ -71,8 +72,6 @@ const getTicks = async (socket) => {
   }
 
   ticker.on('ticks', async (ticks) => {
-    // console.log(ticks)
-
     socket.emit('tick', ticks);
 
     // socket.emit('check', ticks);
@@ -146,6 +145,7 @@ const getDummyTicks = async(socket) => {
   let filteredTicks = await DummyMarketData();
   io.to(userId).emit('contest-ticks', filteredTicks);
 }
+
 const getTicksForUserPosition = async (socket, id) => {
   let isRedisConnected = getValue();
   console.log("this is getter1", getValue());
@@ -155,7 +155,7 @@ const getTicksForUserPosition = async (socket, id) => {
   }
   
   if(!indecies){
-    indecies = await StockIndex.find({status: "Active"});
+    indecies = await StockIndex.find({status: "Active", accountType: zerodhaAccountType});
     if(isRedisConnected){
       await client.set("index", JSON.stringify(indecies));
     }
@@ -164,7 +164,7 @@ const getTicksForUserPosition = async (socket, id) => {
   }
   // console.log("indecies", indecies)
   ticker.on('ticks', async (ticks) => {
-
+// console.log("tick", ticks)
     let indexObj = {};
     let now = performance.now();
     // populate hash table with indexObj from indecies
@@ -179,7 +179,7 @@ const getTicksForUserPosition = async (socket, id) => {
     // console.log("indexdata", indexData)
 
     try{
-      let instrumentTokenArr = [];
+      let instrumentTokenArr ;
       let userId ;
       if(isRedisConnected){
         userId = await client.get(socket.id);
@@ -187,7 +187,14 @@ const getTicksForUserPosition = async (socket, id) => {
       // console.log(isRedisConnected)
       if(isRedisConnected && await client.exists((userId)?.toString())){
         let instruments = await client.SMEMBERS((userId)?.toString())
-        instrumentTokenArr = new Set(instruments)
+        // instrumentTokenArr = new Set(instruments)
+        const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
+        instrumentTokenArr = new Set();
+
+        parsedInstruments.forEach(obj => {
+          instrumentTokenArr.add(obj.instrumentToken);
+          instrumentTokenArr.add(obj.exchangeInstrumentToken);
+        });
       } else{
         // console.log("in else part")
         const user = await User.findById(new ObjectId(id))
@@ -196,6 +203,8 @@ const getTicksForUserPosition = async (socket, id) => {
         userId = user._id;
         for(let i = 0; i < user.watchlistInstruments.length; i++){
           instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
+          instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
+
         }
         instrumentTokenArr = new Set(instrumentTokenArr)
       }
@@ -204,7 +213,7 @@ const getTicksForUserPosition = async (socket, id) => {
       // let userId = await client.get(socket.id)
       // let instruments = await client.SMEMBERS(userId)
       // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
       if(indexData?.length > 0){
         socket.emit('index-tick', indexData)
       }

@@ -11,36 +11,39 @@ const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
 const authentication = require("../../authentication/authentication");
 const {client, getValue} = require("../../marketData/redisClient");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
+const {xtsInteractive} = require("../../services/xts/xtsInteractive");
+const {xtsAccountType, zerodhaAccountType} = require("../../constant");
+const { ObjectId } = require("mongodb");
 
 router.post("/requestToken", authentication, (req, res)=>{
 
-    const {accountId, accessToken, requestToken, status, createdBy, uId} = req.body;
+    const {accountId, accessToken, requestToken, status, accountType} = req.body;
 
-    if(!accountId || !accessToken || !requestToken || !status || !uId){
-        //console.log("data nhi h pura");
-        return res.status(422).json({error : "plz filled the field..."})
+    if(!accountId || !accessToken || !status || !accountType){
+        return res.status(422).json({error : "Please fill all fields"})
     }
 
-    RequestToken.findOne({uId : uId})
-    .then((accountIdExist)=>{
-        if(accountIdExist){
-            //console.log("accountId already");
-            return res.status(422).json({error : "account Id already exist..."})
-        }
-        const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, createdBy: req.user._id, uId});
+    // RequestToken.findOne({accessToken : accessToken})
+    // .then((accountIdExist)=>{
+    //     if(accountIdExist){
+    //         //console.log("accountId already");
+    //         return res.status(422).json({error : "Access Token already exist..."})
+    //     }
+    // }).catch(err => {console.log("fail in accesstoken auth")});
+    const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, lastModifiedBy: req.user._id, createdBy: req.user._id, accountType});
 
-        requestTokens.save().then(async ()=>{
+    requestTokens.save().then(async ()=>{
 
-            // await client.del(`kiteCredToday:${process.env.PROD}`);
-            disconnectTicker();
-            getKiteCred.getAccess().then((data) => {
-                //console.log(data);
-                createNewTicker(data.getApiKey, data.getAccessToken);
-            });
-            
-            res.status(201).json({massage : "data enter succesfully"});
-        }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
-    }).catch(err => {console.log("fail in accesstoken auth")});
+        await client.del(`kiteCredToday:${process.env.PROD}`);
+        disconnectTicker();
+        getKiteCred.getAccess().then((data) => {
+            //console.log(data);
+            createNewTicker(data.getApiKey, data.getAccessToken);
+        });
+        
+        res.status(201).json({massage : "data enter succesfully"});
+    }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
+
     
 })
 
@@ -57,44 +60,59 @@ router.post("/autologin", authentication, async (req, res)=>{
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please Fill all Fields."})
     }
+    let password = accountId === process.env.KUSH_ACCOUNT_ID && process.env.KUSH_PASS
 
-    
+    try{
 
-// Keys provided must be base32 strings, ie. only containing characters matching (A-Z, 2-7, =).
-// const token = totp(process.env.KUSH_ACCOUNT_HASH_CODE);
-// console.log("otp", token)
-let password = accountId === process.env.KUSH_ACCOUNT_ID && process.env.KUSH_PASS
+        const login = zerodhaLogin(
+            apiKey,
+            apiSecret,
+            accountId,
+            password,
+            // `${token}`,
+            req,
+            res
+            )
 
-try{
+    } catch(err){
+        return new Error(err);
+    }
+})
 
-    const login = zerodhaLogin(
-        apiKey,
-        apiSecret,
-        accountId,
-        password,
-        // `${token}`,
-        req.body,
-        res
-        )
+router.get("/autoLoginXTS", authentication, async (req, res)=>{
 
-} catch(err){
-    return new Error(err);
-}
+    const data = await xtsInteractive();
 
+    const token = data.result.token;
+    const accountId = data.result.userID;
+    const accountType = xtsAccountType;
 
-  // console.log("these is tokens: ", login)
+    const requestTokens = new RequestToken({accountId, accessToken: token, status: "Active", lastModifiedBy: new ObjectId(req.user._id), createdBy: new ObjectId(req.user._id), accountType});
 
-    
+    requestTokens.save().then(async ()=>{
+        res.status(201).json({massage : "xts-Token enter succesfully"});
+    }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
 })
 
 router.get("/readRequestToken", (req, res)=>{
-    RequestToken.find((err, data)=>{
+    RequestToken.find({accountType: zerodhaAccountType}, (err, data)=>{
         if(err){
             return res.status(500).send(err);
         }else{
             return res.status(200).send(data);
         }
     }).sort({$natural:-1})
+})
+
+router.get("/xtsTokenActive", async (req, res)=>{
+    const token = await RequestToken.find({status: "Active", accountType: xtsAccountType}).sort({$natural: -1})
+    res.status(200).send({status: "success", data: token, result: token.length});
+})
+
+router.get("/xtsTokenInactive", async (req, res)=>{
+    const token = await RequestToken.find({status: "Inactive", accountType: xtsAccountType}).sort({$natural: -1})
+    res.status(200).send({status: "success", data: token, result: token.length});
+
 })
 
 router.get("/readRequestToken/:id", (req, res)=>{
@@ -166,6 +184,24 @@ router.patch("/inactiveRequestToken/:id", async (req, res)=>{
         // res.status(500).json({"Failed to edit data"});
         console.log("this is role", account);
         // res.send(account)
+    } catch (e){
+        res.status(500).json({error:"Failed to edit data"});
+    }
+})
+
+router.patch("/changeStatus/:id", authentication, async (req, res)=>{
+    try{
+        const {id} = req.params
+
+        const account = await RequestToken.findOneAndUpdate({_id : id}, {
+            $set:{
+                status: req.body.status,
+                lastModifiedOn: new Date(),
+                lastModifiedBy: new ObjectId(req.user._id)
+            }
+        })
+        //console.log("this is role", account);
+        res.send(account)
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
     }
