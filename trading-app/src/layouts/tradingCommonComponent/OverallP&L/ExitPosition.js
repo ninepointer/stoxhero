@@ -26,7 +26,7 @@ import sound from "../../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
 
 
-function ExitPosition({traderId, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState }) {
+function ExitPosition({maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -79,10 +79,10 @@ function ExitPosition({traderId, subscriptionId, from, isFromHistory, product, s
     validity: "",
   })
 
-  const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity));
+  const [filledQuantity, setFilledQuantity] = useState((Math.abs(quantity) > maxLot) ? maxLot : Math.abs(quantity));
 
   useEffect(()=>{
-    setFilledQuantity((Math.abs(quantity) > 1800) ? 1800 : Math.abs(quantity))
+    setFilledQuantity((Math.abs(quantity) > maxLot) ? maxLot : Math.abs(quantity))
   }, [quantity])
 
   // console.log("filledQuantity", filledQuantity, quantity)
@@ -108,6 +108,13 @@ function ExitPosition({traderId, subscriptionId, from, isFromHistory, product, s
     exitPositionFormDetails.validity = event.target.value;
   };
 
+  useEffect(()=>{
+    socket?.on(`sendResponse${trader.toString()}`, (data)=>{
+      // render ? setRender(false) : setRender(true);
+      openSuccessSB(data.status, data.message)
+    })
+  }, [])
+
   const handleClickOpen = () => {
     if (Math.abs(quantity) === 0) {
       openSuccessSB('error', "You do not have any open position for this symbol.")
@@ -126,9 +133,9 @@ function ExitPosition({traderId, subscriptionId, from, isFromHistory, product, s
 
 
 
-  let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
+  // let lotSize = symbol.includes("BANKNIFTY") ? 25 : 50;
   // tradeData[0]?.lotSize;
-  let maxLot = lotSize*36;
+  // let maxLot = maxLot;
   let finalLot = maxLot / lotSize;
   let optionData = [];
   for (let i = 1; i <= finalLot; i++) {
@@ -212,7 +219,7 @@ console.log("lotSize", lotSize, maxLot)
 
         exchange, symbol, buyOrSell, Quantity, Price,
         Product, OrderType, TriggerPrice, stopLoss, internPath,
-        validity, variety, order_id: dummyOrderId, subscriptionId, fromAdmin,
+        validity, variety, order_id: dummyOrderId, subscriptionId, exchangeInstrumentToken, fromAdmin,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
 
       })
@@ -238,9 +245,10 @@ console.log("lotSize", lotSize, maxLot)
         // //console.log(dataResp);
         openSuccessSB('amo', "AMO Request Recieved")
         // window.alert("AMO Request Recieved");
-      } else {
-        openSuccessSB('else', dataResp.message)
-        // window.alert(dataResp.message);
+      } else if(dataResp.message === "Live"){
+      }else {
+          openSuccessSB('else', dataResp.message)
+        
       }
       render ? setRender(false) : setRender(true)
     }

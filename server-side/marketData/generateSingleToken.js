@@ -83,7 +83,8 @@ async function fetchToken (exchange, symbol){
     // console.log(resp)
     for (let elem in resp.data.data) {
         instrumentToken = (resp.data.data[elem].instrument_token);
-        console.log(instrumentToken)
+        // console.log(resp.data.data[elem])
+
     }
     return instrumentToken;
     }

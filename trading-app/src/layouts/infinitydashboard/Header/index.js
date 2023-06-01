@@ -4,27 +4,31 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
-import MDAvatar from '../../../components/MDAvatar';
-import man from '../../../assets/images/man.png'
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import { Link, useLocation } from "react-router-dom";
-import RunningPNLChart from '../data/runningpnlchart'
-import data from "../data";
+// import MDAvatar from '../../../components/MDAvatar';
+// import man from '../../../assets/images/man.png'
+// import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import { Link } from "react-router-dom";
+// import RunningPNLChart from '../data/runningpnlchart'
+// import data from "../data";
  
 //data
 
 export default function LabTabs({socket}) {
-  const { columns, rows } = data();
-  const [value, setValue] = React.useState('1');
+//   const { columns, rows } = data();
+//   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
-  const [liveDetail, setLiveDetail] = useState([]);
+//   const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
+  const [liveTradeData, setLiveTradeData] = useState([]);
   const [liveTraderCount, setLiveTraderCount] = useState(0);
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
+  const [liveTraderCountRealTrade, setLiveTraderCountRealTrade] = useState(0);
+  const [notliveTraderCountRealTrade, setNotLiveTraderCountRealTrade] = useState(0);
+
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let liveDetailsArr = [];
+//   let liveDetailsArr = [];
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -32,13 +36,20 @@ export default function LabTabs({socket}) {
   let totalLots = 0;
   let totalTrades = 0;
 
-  const handleChange = (event, newValue) => {
-    setIsLoading(true)
-    setValue(newValue);
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500);
-  };
+  let liveTotalTransactionCost = 0;
+  let liveTotalGrossPnl = 0;
+  let liveTotalRunningLots = 0;
+  let liveTotalTurnover = 0;
+  let liveTotalLots = 0;
+  let liveTotalTrades = 0;
+
+//   const handleChange = (event, newValue) => {
+//     setIsLoading(true)
+//     setValue(newValue);
+//     setTimeout(() => {
+//       setIsLoading(false)
+//     }, 500);
+//   };
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -85,11 +96,37 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/overallcompanypnltoday`)
+    .then((res) => {
+        setLiveTradeData(res.data.data);
+        setTimeout(()=>{
+            setIsLoading(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
     axios.get(`${baseUrl}api/v1/infinityTrade/mock/liveandtotaltradercounttoday`)
     .then((res) => {
         console.log(res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
+        setTimeout(()=>{
+            setIsLoading(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/liveandtotaltradercounttoday`)
+    .then((res) => {
+        console.log(res.data.data)
+        setNotLiveTraderCountRealTrade(res.data.data[0].zeroLotsTraderCount)
+        setLiveTraderCountRealTrade(res.data.data[0].nonZeroLotsTraderCount)
         setTimeout(()=>{
             setIsLoading(false)
         },500)
@@ -110,29 +147,44 @@ export default function LabTabs({socket}) {
 
   console.log(tradeData)
   tradeData.map((subelem, index)=>{
-    let obj = {};
+    // let obj = {};
     totalRunningLots += Number(subelem.lots)
     totalTransactionCost += Number(subelem.brokerage);
-    totalTurnover += Number(Math.abs(subelem.amount));
+    totalTurnover += Number(Math.abs(subelem.turnover));
     totalLots += Number(Math.abs(subelem.totallots))
     totalTrades += Number(subelem.trades)
 
     let liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+        return elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken)
     })
     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;
-
-    const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    const quantitycolor = subelem.lots >= 0 ? "success" : "error"
-    const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-    const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
   })
 
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
   const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
   const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
+
+
+  liveTradeData.map((subelem, index)=>{
+    // let obj = {};
+    liveTotalRunningLots += Number(subelem.lots)
+    liveTotalTransactionCost += Number(subelem.brokerage);
+    liveTotalTurnover += Number(Math.abs(subelem.turnover));
+    liveTotalLots += Number(Math.abs(subelem.totallots))
+    liveTotalTrades += Number(subelem.trades)
+
+    let liveDetail = marketData.filter((elem)=>{
+        return elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken)
+    })
+    let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+    liveTotalGrossPnl += updatedValue;
+  })
+
+  const liveTotalGrossPnlcolor = liveTotalGrossPnl >= 0 ? "success" : "error"
+  const liveTotalnetPnlcolor = (liveTotalGrossPnl-liveTotalTransactionCost) >= 0 ? "success" : "error"
+  const liveTotalquantitycolor = liveTotalRunningLots >= 0 ? "success" : "error"
+
 
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
@@ -198,49 +250,49 @@ export default function LabTabs({socket}) {
                     <Grid item xs={true} lg={0.2} hidden={false}>
                         <Divider orientation='vertical' color='black'/>
                     </Grid>
-
+                    
                     <Grid item p={2} xs={12} lg={5.9}>
                         <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (XTS)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>+₹0</MDTypography>
+                                <MDTypography color={liveTotalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (liveTotalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTotalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-liveTotalGrossPnl))}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹0</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTotalTransactionCost)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>+₹0</MDTypography>
+                                <MDTypography color={liveTotalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (liveTotalGrossPnl - liveTotalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTotalGrossPnl - liveTotalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTotalTransactionCost - liveTotalGrossPnl))}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>0</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{liveTotalLots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>0</MDTypography>
+                                <MDTypography color={liveTotalquantitycolor} fontSize={12} display='flex' justifyContent='center'>{liveTotalRunningLots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹0</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTotalTurnover)}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{liveTotalTrades}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>0/0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCountRealTrade}/{notliveTraderCountRealTrade + liveTraderCountRealTrade}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -297,6 +349,7 @@ export default function LabTabs({socket}) {
                         to={{
                             pathname: `/companyposition`,
                           }}
+                          state= {{xts: true}}
                       >
                           <Grid container>
                               

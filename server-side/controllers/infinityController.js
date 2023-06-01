@@ -48,6 +48,7 @@ exports.overallPnlTrader = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -135,6 +136,7 @@ exports.overallPnlTraderWise = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -202,6 +204,7 @@ exports.overallPnlCompanySide = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
           exchange: "$exchange"
         },
         amount: {
@@ -264,9 +267,15 @@ exports.overallCompanySidePnl = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: { $abs : "$amount"},
+              },
             },
             brokerage: {
               $sum: {
@@ -1109,6 +1118,7 @@ exports.overallPnlAllTrader = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: { $multiply: ["$amount", -1] },
@@ -1172,7 +1182,8 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
           "traderName": {
             $arrayElemAt: ["$user.name", 0]
           },
-          "symbol": "$instrumentToken",
+                    "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken"
           // "algoId": {
           //   $arrayElemAt: ["$algoBox._id", 0]
           // },
@@ -1310,6 +1321,7 @@ exports.overallPnlBatchWiseMock = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: {

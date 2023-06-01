@@ -17,8 +17,8 @@ import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-import ViewTradeDetail from "./ViewTradeDetail";
-import ViewOrderDetail from "./MockTraderwiseOrders";
+// import ViewTradeDetail from "./ViewTradeDetail";
+// import ViewOrderDetail from "./MockTraderwiseOrders";
 
 function MockTraderwiseCompantPNL(props) {
   const { columns, rows } = data();
@@ -119,15 +119,15 @@ function MockTraderwiseCompantPNL(props) {
 
   useEffect(()=>{
           // Get Lastest Trade timestamp
-          axios.get(`${baseUrl}api/v1/getlastestmocktradecompany`)
+          axios.get(`${baseUrl}api/v1/infinityTrade/mock/letestTradeCompany`)
           // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
           .then((res)=>{
-            latestLive.tradeTime = (res.data.trade_time) ;
-            latestLive.tradeBy = (res.data.createdBy) ;
-            latestLive.tradeType = (res.data.buyOrSell) ;
-            latestLive.tradeQuantity = (res.data.Quantity) ;
-            latestLive.tradeSymbol = (res.data.symbol) ;
-            latestLive.tradeStatus = (res.data.status)
+            latestLive.tradeTime = (res.data.data.trade_time) ;
+            latestLive.tradeBy = (res.data.data.createdBy) ;
+            latestLive.tradeType = (res.data.data.buyOrSell) ;
+            latestLive.tradeQuantity = (res.data.data.Quantity) ;
+            latestLive.tradeSymbol = (res.data.data.symbol) ;
+            latestLive.tradeStatus = (res.data.data.status)
       
             setLatestLive(latestLive)
           }).catch((err) => {
@@ -143,7 +143,7 @@ function MockTraderwiseCompantPNL(props) {
         //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
           //console.log("market Data Instrument",elem.instrument_token)
-          return elem.instrument_token == Number(allTrade[i]._id.symbol)
+          return (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
         })
 
         let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
@@ -159,7 +159,7 @@ function MockTraderwiseCompantPNL(props) {
         //console.log(marketData, "marketData")
         //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && elem.instrument_token === Number(allTrade[i]._id.symbol)
+          return elem !== undefined && (elem.instrument_token == Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
         })
         ////console.log(marketDataInstrument)
         //console.log(marketDataInstrument, "marketDataInstrument")
@@ -198,10 +198,6 @@ let totalNoRunningLots = 0;
 let totalTrades = 0;
 let totalLotsUsed = 0;
 let totalTraders = 0;
-
-
-
-console.log("re rendering index mock")
 
 finalTraderPnl.map((subelem, index)=>{
   let obj = {};
@@ -266,13 +262,6 @@ finalTraderPnl.map((subelem, index)=>{
       {((subelem.totalPnl)-(subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
     </MDTypography>
   );
-  obj.view = (
-    <ViewTradeDetail socket={props.socket} userId={subelem.userId}/>
-  );
-  obj.orders = (
-    <ViewOrderDetail userId={subelem.userId}/>
-  );
-
   rows.push(obj);
 })
 
@@ -354,10 +343,9 @@ rows.push(obj);
               <span>
                 <strong> last trade </strong>
                 {latestLive.tradeBy} {latestLive.tradeType === "BUY" ? "bought " : "sold "}  
-                {Math.abs(latestLive.tradeQuantity)} quantity of 
-                {latestLive.tradeSymbol} at {latestLive.tradeTime} - {latestLive.tradeStatus}
+                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(new Date(latestLive.tradeTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())} - {latestLive.tradeStatus}
               </span>
-              : "No trades today"
+              : "No real trades today"
             }
             </MDTypography>
           </MDBox>

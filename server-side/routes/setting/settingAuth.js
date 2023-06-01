@@ -41,51 +41,6 @@ router.get("/readsetting/:id", (req, res)=>{
     })
 })
 
-// router.put("/readpermission/:id", async (req, res)=>{
-//     //console.log(req.params)
-//     //console.log("this is body", req.body);
-//     try{
-//         const {id} = req.params
-//         const permission = await Permission.findOneAndUpdate({_id : id}, {
-//             $set:{ 
-//                 modifiedOn: req.body.modifiedOn,
-//                 modifiedBy: req.body.modifiedBy,
-//                 userName: req.body.userName,
-//                 userId: req.body.userId,
-//                 isTradeEnable: req.body.isTradeEnable,
-//                 algoName: req.body.algoName,
-//                 isRealTradeEnable: req.body.isRealTradeEnable,
-//             }
-//         })
-//         //console.log("this is role", permission);
-//         res.send(permission)
-//         // res.status(201).json({massage : "data edit succesfully"});
-//     } catch (e){
-//         res.status(500).json({error:"Failed to edit data"});
-//     }
-// })
-
-// router.patch("/applive/:id", async (req, res)=>{
-//     //console.log(req.params)
-//     console.log("this is body", req.body);
-//     try{ 
-//         const {id} = req.params
-//         const setting = await Setting.findOneAndUpdate({_id : id}, {
-//             $set:{ 
-//                 modifiedOn: req.body.modifiedOn,
-//                 modifiedBy: req.body.modifiedBy,
-//                 isAppLive: req.body.isAppLive,
-//                 AppStartTime: req.body.AppStartTime,
-//                 AppEndTime: req.body.AppEndTime,
-//             }
-//         })
-//         //console.log("this is role", setting);
-//         res.send(setting)
-//         // res.status(201).json({message : "data edit succesfully"});
-//     } catch (e){
-//         res.status(500).json({error:"Failed to edit data"});
-//     }
-// })
 
 router.patch("/applive/:id", Authentication, async (req, res)=>{
     //console.log(req.params)
@@ -133,20 +88,71 @@ router.patch("/settings/:id", Authentication, async (req, res)=>{
     }
 })
 
+router.patch("/toggleLTP/:id", Authentication, async (req, res)=>{
+    //console.log(req.params)
 
-// router.delete("/readpermission/:id", async (req, res)=>{
-//     //console.log(req.params)
-//     try{
-//         const {id} = req.params
-//         const permission = await Permission.deleteOne({_id : id})
-//         //console.log("this is userdetail", permission);
-//         // res.send(userDetail)
-//         res.status(201).json({massage : "data delete succesfully"});
-//     } catch (e){
-//         res.status(500).json({error:"Failed to delete data"});
-//     }
-// })
+    try{ 
+        const {id} = req.params
+        console.log(id, req.body)
+        const setting = await Setting.findOneAndUpdate({_id : id}, {
+            $set:{ 
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
+                "toggle.ltp": req.body.ltp,
+            }
+        })
+        console.log("this is role", setting);
+        // res.send(setting)
+        res.status(201).json({message : "Timming updated succesfully"});
+    } catch (e){
+        console.log(e)
+        res.status(500).json({error:"Failed to edit data"});
+    }
+})
 
+router.patch("/toggleLiveOrder/:id", Authentication, async (req, res)=>{
+    //console.log(req.params)
+
+    try{ 
+        const {id} = req.params
+        console.log(id, req.body)
+        const setting = await Setting.findOneAndUpdate({_id : id}, {
+            $set:{ 
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
+                "toggle.liveOrder": req.body.liveOrder,
+            }
+        })
+        console.log("this is role", setting);
+        // res.send(setting)
+        res.status(201).json({message : "Timming updated succesfully"});
+    } catch (e){
+        console.log(e)
+        res.status(500).json({error:"Failed to edit data"});
+    }
+})
+
+router.patch("/toggleComplete/:id", Authentication, async (req, res)=>{
+    //console.log(req.params)
+
+    try{ 
+        const {id} = req.params
+        console.log(id, req.body)
+        const setting = await Setting.findOneAndUpdate({_id : id}, {
+            $set:{ 
+                modifiedOn: new Date(),
+                modifiedBy: req.user._id,
+                "toggle.complete": req.body.complete,
+            }
+        }, {new: true})
+        console.log("this is role", setting);
+        // res.send(setting)
+        res.status(201).json({message : "Timming updated succesfully", data: setting});
+    } catch (e){
+        console.log(e)
+        res.status(500).json({error:"Failed to edit data"});
+    }
+})
 
 
 

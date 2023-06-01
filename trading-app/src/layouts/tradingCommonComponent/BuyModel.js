@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {  memo } from 'react';
 // import axios from "axios"
 import uniqid from "uniqid"
@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../..
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({traderId, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState}) => {
+const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken}) => {
   console.log("rendering : buy", subscriptionId)
   const tradeSound = new Howl({
     src : [sound],
@@ -89,7 +89,12 @@ const BuyModel = ({traderId, subscriptionId, buyState, exchange, symbol, instrum
     validity: "",
   })
 
-
+  useEffect(()=>{
+    socket?.on(`sendResponse${trader.toString()}`, (data)=>{
+      // render ? setRender(false) : setRender(true);
+      openSuccessSB(data.status, data.message)
+    })
+  }, [])
 
 
   const [value, setValue] = React.useState('NRML');
@@ -133,7 +138,6 @@ const BuyModel = ({traderId, subscriptionId, buyState, exchange, symbol, instrum
     setButtonClicked(false);
   };
 
-console.log("buttonClicked", buttonClicked)
   async function buyFunction(e, uId) {
     //console.log("caseStudy 1: buy")
     console.log("buttonClicked inside", buttonClicked)
@@ -145,14 +149,6 @@ console.log("buttonClicked", buttonClicked)
     e.preventDefault()
     setOpen(false);
     setBuyState(false);
-
-
-    // if(!appLive[0].isAppLive && getDetails?.userDetails?.role?.roleName != 'Admin'){
-    //   // window.alert("App is not Live right now. Please wait.");
-    //   openSuccessSB('error', 'App is not live right now. Please wait.')
-    //   return;
-    // }
-
 
     buyFormDetails.buyOrSell = "BUY";
 
@@ -173,7 +169,7 @@ console.log("buttonClicked", buttonClicked)
   }
 
   async function placeOrder() {
-    console.log("caseStudy 2: place", subscriptionId)
+    console.log("exchangeInstrumentToken", exchangeInstrumentToken)
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
@@ -206,20 +202,21 @@ console.log("buttonClicked", buttonClicked)
         },
         body: JSON.stringify({
           exchange, symbol, buyOrSell, Quantity, Price, 
-          Product, OrderType, TriggerPrice, stopLoss, uId, fromAdmin,
+          Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
 
         })
     });
     const dataResp = await res.json();
-    ////console.log("dataResp", dataResp)
+    console.log("dataResp", dataResp, res)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        ////console.log(dataResp.error)
+        console.log("dataResp if")
         // window.alert(dataResp.error);
         openSuccessSB('error', dataResp.error)
         //////console.log("Failed to Trade");
     } else {
+      console.log("dataResp else")
       //console.log("caseStudy 3: place resp")
       tradeSound.play();
         if(dataResp.message === "COMPLETE"){
@@ -234,9 +231,10 @@ console.log("buttonClicked", buttonClicked)
             // //console.log(dataResp);
             openSuccessSB('amo', "AMO Request Recieved")
             // window.alert("AMO Request Recieved");
+        } else if(dataResp.message === "Live"){
         } else{
-          openSuccessSB('else', dataResp.message)
-          // window.alert(dataResp.message);
+            openSuccessSB('else', dataResp.message)
+
         }
     }
     setBuyFormDetails({});
@@ -253,8 +251,9 @@ console.log("buttonClicked", buttonClicked)
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken,
-        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true
+        symbol, lotSize, instrumentToken, from,
+        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true,
+        exchangeSegment, exchangeInstrumentToken
       })
     });
   
@@ -268,7 +267,7 @@ console.log("buttonClicked", buttonClicked)
   }
 
   async function removeInstrument(){
-    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}`, {
+    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}/${from}`, {
       method: "PATCH",
       credentials:"include",
       headers: {
@@ -276,7 +275,7 @@ console.log("buttonClicked", buttonClicked)
           "content-type": "application/json"
       },
       body: JSON.stringify({
-        isAddedWatchlist: false
+        isAddedWatchlist: false, from
       })
     });
 

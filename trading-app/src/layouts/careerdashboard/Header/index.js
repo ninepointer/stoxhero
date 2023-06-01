@@ -148,21 +148,21 @@ export default function LabTabs({socket}) {
     let obj = {};
     totalRunningLots += Number(subelem.lots)
     totalTransactionCost += Number(subelem.brokerage);
-    totalTurnover += Number(Math.abs(subelem.amount));
+    totalTurnover += Number(Math.abs(subelem.turnover));
     totalLots += Number(Math.abs(subelem.totallots))
     totalTrades += Number(subelem.trades)
 
     let liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken);
     })
     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;
 
-    const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    const quantitycolor = subelem.lots >= 0 ? "success" : "error"
-    const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-    const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+    // const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+    // const quantitycolor = subelem.lots >= 0 ? "success" : "error"
+    // const gpnlcolor = updatedValue >= 0 ? "success" : "error"
+    // const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+    // const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
   })
 
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
@@ -177,22 +177,22 @@ export default function LabTabs({socket}) {
     ytotalLots += Number(Math.abs(subelem.lots))
     ytotalTrades += Number(subelem.trades)
 
-    let yliveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken);
+    let liveDetail = marketData.filter((elem)=>{
+        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
     })
     let yupdatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
     ytotalGrossPnl += yupdatedValue;
 
-    const yinstrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    const yquantitycolor = subelem.lots >= 0 ? "success" : "error"
-    const ygpnlcolor = yupdatedValue >= 0 ? "success" : "error"
-    const ypchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    const yproductcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+    // const yinstrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+    // const yquantitycolor = subelem.lots >= 0 ? "success" : "error"
+    // const ygpnlcolor = yupdatedValue >= 0 ? "success" : "error"
+    // const ypchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+    // const yproductcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
   })
 
-  const ytotalGrossPnlcolor = ytotalGrossPnl >= 0 ? "success" : "error"
-  const ytotalnetPnlcolor = (ytotalGrossPnl-ytotalTransactionCost) >= 0 ? "success" : "error"
-  const ytotalquantitycolor = ytotalRunningLots >= 0 ? "success" : "error"
+//   const ytotalGrossPnlcolor = ytotalGrossPnl >= 0 ? "success" : "error"
+//   const ytotalnetPnlcolor = (ytotalGrossPnl-ytotalTransactionCost) >= 0 ? "success" : "error"
+//   const ytotalquantitycolor = ytotalRunningLots >= 0 ? "success" : "error"
 
 
   return (

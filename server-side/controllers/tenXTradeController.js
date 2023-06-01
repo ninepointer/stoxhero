@@ -51,6 +51,7 @@ exports.overallPnl = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
               exchange: "$exchange"
             },
             amount: {
@@ -279,7 +280,7 @@ exports.marginDetail = async (req, res, next) => {
     res.status(500).json({ status: 'error', message: 'Something went wrong' });
   }
 }
-
+// TODO remove hardcode of 60 days
 exports.tradingDays = async (req, res, next) => {
   let subscriptionId = req.params.id;
   let userId = req.user._id;
@@ -531,7 +532,7 @@ exports.autoExpireSubscription = async () => {
         {
           $project: {
             _id: 0,
-            subscriptionId: "$_id.id",
+            // subscriptionId: "$_id.id",
             totalTradingDays: "$count",
             firstMatchedDate: 1,
             remainingDays: {
@@ -658,7 +659,8 @@ exports.traderWiseMockTrader = async (req, res, next) => {
           "traderName": {
             $arrayElemAt: ["$user.name", 0]
           },
-          "symbol": "$instrumentToken",
+                    "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
           "traderEmail": {
             $arrayElemAt: ["$user.email", 0]
           },
@@ -717,9 +719,15 @@ exports.overallTenXPnl = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: { $abs : "$amount"},
+              },
             },
             brokerage: {
               $sum: {
@@ -804,14 +812,14 @@ exports.liveTotalTradersCount = async (req, res, next) => {
 exports.overallTenXPnlYesterday = async (req, res, next) => {
   let yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 2);
-  console.log(yesterdayDate)
+  // console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(yesterdayStartTime); 
     const endTime = new Date(yesterdayEndTime); 
-    console.log("Query Timing: ", startTime, endTime)
+    // console.log("Query Timing: ", startTime, endTime)
     let pnlDetails = await TenXTrader.aggregate([
       {
         $match: {
@@ -828,6 +836,7 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
               symbol: "$symbol",
               product: "$Product",
               instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
             },
 
             amount: {
@@ -860,14 +869,14 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
 exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     let yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 2);
-    console.log(yesterdayDate)
+    // console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(yesterdayStartTime); 
     const endTime = new Date(yesterdayEndTime); 
-    console.log("Query Timing: ", startTime, endTime)  
+    // console.log("Query Timing: ", startTime, endTime)  
     let pnlDetails = await TenXTrader.aggregate([
       {
         $match: {

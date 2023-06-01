@@ -10,6 +10,8 @@ const InternshipTrade = require("../../models/mock-trade/internshipTrade");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany")
 const mongoose = require('mongoose');
 const io = require('../../marketData/socketio');
+const { xtsAccountType, zerodhaAccountType} = require("../../constant");
+
 
 
 const takeAutoTenxTrade = async (tradeDetails) => {
@@ -38,8 +40,10 @@ const takeAutoTenxTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  // const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: xtsAccountType });
+  // const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: xtsAccountType });
+  const brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+  const brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
 
 
   if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
@@ -82,36 +86,36 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
   //console.log("2nd")
 
-  function buyBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailBuy[0].gst) / 100);
+  function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
+    let brokerage = Number(buyBrokerData.brokerageCharge);
+    let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
+    let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
+    let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
+    let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
     let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
     return finalCharge;
   }
 
-  function sellBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailSell[0].gst) / 100);
+  function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+      let brokerage = Number(sellBrokerData.brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+      let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
+      let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+      let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
+      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
-    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
-    return finalCharge
+      return finalCharge
   }
 
   let brokerageUser;
 
   // //console.log("3st")
   if (buyOrSell === "BUY") {
-    brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+    brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser,  brokerageDetailBuyUser[0]);
   } else {
-    brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+    brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
   }
 
   console.log("brokerageUser", brokerageUser)
@@ -209,8 +213,8 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+  const brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
 
 
   if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
@@ -253,36 +257,36 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
   //console.log("2nd")
 
-  function buyBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailBuy[0].gst) / 100);
+  function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
+    let brokerage = Number(buyBrokerData.brokerageCharge);
+    let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
+    let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
+    let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
+    let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
     let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
     return finalCharge;
   }
 
-  function sellBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailSell[0].gst) / 100);
+  function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+      let brokerage = Number(sellBrokerData.brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+      let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
+      let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+      let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
+      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
-    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
-    return finalCharge
+      return finalCharge
   }
 
   let brokerageUser;
 
   // //console.log("3st")
   if (buyOrSell === "BUY") {
-    brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+    brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser,  brokerageDetailBuyUser[0]);
   } else {
-    brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+    brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
   }
 
   // console.log("brokerageUser", brokerageUser)
@@ -378,8 +382,8 @@ const takeAutoPaperTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+  const brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
 
 
   if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
@@ -420,38 +424,36 @@ const takeAutoPaperTrade = async (tradeDetails) => {
     return new Error(err);
   }
 
-  //console.log("2nd")
-
-  function buyBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailBuy[0].gst) / 100);
+  function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
+    let brokerage = Number(buyBrokerData.brokerageCharge);
+    let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
+    let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
+    let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
+    let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
     let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
     return finalCharge;
   }
 
-  function sellBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailSell[0].gst) / 100);
+  function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+      let brokerage = Number(sellBrokerData.brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+      let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
+      let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+      let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
+      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
-    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
-    return finalCharge
+      return finalCharge
   }
 
   let brokerageUser;
 
   // //console.log("3st")
   if (buyOrSell === "BUY") {
-    brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+    brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser,  brokerageDetailBuyUser[0]);
   } else {
-    brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
+    brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
   }
 
   console.log("brokerageUser", brokerageUser)
@@ -550,8 +552,10 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: xtsAccountType });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: xtsAccountType });
+  const brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+  const brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
 
 
   if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !OrderType || !validity || !variety) {
@@ -594,44 +598,42 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
     return new Error(err);
   }
 
-  //console.log("2nd")
-
-  function buyBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailBuy[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailBuy[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailBuy[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailBuy[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailBuy[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailBuy[0].gst) / 100);
+  function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
+    let brokerage = Number(buyBrokerData.brokerageCharge);
+    let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
+    let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
+    let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
+    let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
     let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
     return finalCharge;
   }
 
-  function sellBrokerage(totalAmount) {
-    let brokerage = Number(brokerageDetailSell[0].brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(brokerageDetailSell[0].exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(brokerageDetailSell[0].sebiCharge) / 100);
-    let stampDuty = totalAmount * (Number(brokerageDetailSell[0].stampDuty) / 100);
-    let sst = totalAmount * (Number(brokerageDetailSell[0].sst) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(brokerageDetailSell[0].gst) / 100);
+  function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+      let brokerage = Number(sellBrokerData.brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+      let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
+      let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+      let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
+      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
-    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
-    return finalCharge
+      return finalCharge
   }
 
   let brokerageUser;
   let brokerageCompany;
 
   if(realBuyOrSell === "BUY"){
-      brokerageCompany = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceCompany);
+      brokerageCompany = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceCompany, brokerageDetailBuy[0]);
   } else{
-      brokerageCompany = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceCompany);
+      brokerageCompany = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceCompany, brokerageDetailSell[0]);
   }
 
   if(buyOrSell === "BUY"){
-      brokerageUser = buyBrokerage(Math.abs(Number(userQuantity)) * originalLastPriceUser);
+      brokerageUser = buyBrokerage(Math.abs(Number(userQuantity)) * originalLastPriceUser, brokerageDetailBuyUser[0]);
   } else{
-      brokerageUser = sellBrokerage(Math.abs(Number(userQuantity)) * originalLastPriceUser);
+      brokerageUser = sellBrokerage(Math.abs(Number(userQuantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
   }
 
   let settingRedis;
