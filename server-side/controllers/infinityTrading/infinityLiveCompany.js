@@ -290,6 +290,7 @@ exports.overallPnlBatchWiseLive = async (req, res, next) => {
         trade_time: 1,
         status: 1,
         instrumentToken: 1,
+        exchangeInstrumentToken: 1,
         amount: 1,
         buyOrSell: 1,
         Quantity: 1,
@@ -318,7 +319,7 @@ exports.overallPnlBatchWiseLive = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: {
@@ -369,7 +370,12 @@ exports.traderwiseBatchLive = async (req, res, next) => {
     },
     {
       $project: {
-        userId: 1,
+        userId: {
+          $arrayElemAt: [
+            "$userDetails._id",
+            0,
+          ],
+        },
         createdBy: {
           $concat: [
             { $arrayElemAt: ["$userDetails.first_name", 0] },
@@ -381,6 +387,7 @@ exports.traderwiseBatchLive = async (req, res, next) => {
         status: 1,
         traderName: 1,
         instrumentToken: 1,
+        exchangeInstrumentToken: 1,
         amount: 1,
         Quantity: 1,
         brokerage: 1,
@@ -404,6 +411,7 @@ exports.traderwiseBatchLive = async (req, res, next) => {
           traderId: "$userId",
           traderName: "$createdBy",
           symbol: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken"
         },
         amount: {
           $sum: {

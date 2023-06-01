@@ -1293,6 +1293,7 @@ exports.overallPnlBatchWiseMock = async (req, res, next) => {
         trade_time: 1,
         status: 1,
         instrumentToken: 1,
+        exchangeInstrumentToken: 1,
         amount: 1,
         buyOrSell: 1,
         Quantity: 1,
@@ -1321,7 +1322,7 @@ exports.overallPnlBatchWiseMock = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: {
@@ -1372,7 +1373,12 @@ exports.traderwiseBatchMock = async (req, res, next) => {
     },
     {
       $project: {
-        userId: 1,
+        userId: {
+          $arrayElemAt: [
+            "$userDetails._id",
+            0,
+          ],
+        },
         createdBy: {
           $concat: [
             { $arrayElemAt: ["$userDetails.first_name", 0] },
@@ -1384,6 +1390,7 @@ exports.traderwiseBatchMock = async (req, res, next) => {
         status: 1,
         traderName: 1,
         instrumentToken: 1,
+        exchangeInstrumentToken: 1,
         amount: 1,
         Quantity: 1,
         brokerage: 1,
@@ -1407,6 +1414,7 @@ exports.traderwiseBatchMock = async (req, res, next) => {
           traderId: "$userId",
           traderName: "$createdBy",
           symbol: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken"
         },
         amount: {
           $sum: {
@@ -1670,29 +1678,45 @@ exports.getAllTradersLiveOrders = async (req, res)=>{
 //$gte : `${todayDate} 00:00:00`, 
   try{
     let x = await InfinityTrader.aggregate([
-         { $match: { trade_time: {$lte : new Date(yesterdayDate)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
+      { $match: { trade_time: { $lte: new Date(yesterdayDate) } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "result",
+        }
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "created",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$created.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$created.last_name", 0],
+            }]
+          },
+          "trader": {
+            $concat: [{
+              $arrayElemAt: ["$result.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$result.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } }
+    ]);
          res.status(201).json(x);
   }catch(e){
     console.log(e);
