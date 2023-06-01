@@ -60,6 +60,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CollegeDetails from './layouts/college/collegeDetails'
 import Forward10Icon from '@mui/icons-material/Forward10';
 import MyPortfolio from './layouts/UserPortfolio'
+import VpnLockIcon from '@mui/icons-material/VpnLock';
 
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 
@@ -121,6 +122,7 @@ import TenxPosition from "./layouts/tenxPosition"
 // import BadgeIcon from '@mui/icons-material/Badge';
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
+import VirtualDashboard from './layouts/virtualdashboard'
 import InternshipOrders from './layouts/internshipOrders'
 import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
@@ -150,6 +152,14 @@ const routes = [
     icon: <SchoolIcon/>,
     route: "/careerdashboard",
     component: <CareerDashboard />,
+  },
+   {
+    type: "collapse",
+    name: "Virtual Dashboard",
+    key: "virtualdashboard",
+    icon: <VpnLockIcon/>,
+    route: "/virtualdashboard",
+    component: <VirtualDashboard />,
   },
   {
     // type: "collapse",
@@ -385,19 +395,19 @@ const routes = [
     route: "/tenxposition",
     component: <TenxPosition />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Batch",
+  //   key: "batch",
+  //   icon: <BatchIcon/>,
+  //   route: "/batch",
+  //   component: < Batch />,
+  // },
   {
-    type: "collapse",
-    name: "Batch",
-    key: "batch",
-    icon: <BatchIcon/>,
-    route: "/batch",
-    component: < Batch />,
-  },
-  {
-    type: "collapse",
-    name: "Virtual Position",
+    // type: "collapse",
+    // name: "Virtual Position",
     key: "virtualposition",
-    icon: <TryIcon/>,
+    // icon: <TryIcon/>,
     route: "/virtualposition",
     component: <VirtualPosition />,
   },
@@ -603,10 +613,10 @@ const routes = [
     component: <UserSignupDashboard />,
   },
   {
-    type: "collapse",
-    name: "Virtual Trading",
+    // type: "collapse",
+    // name: "Virtual Trading",
     key: "virtualtrading",
-    icon: <BusinessIcon/>,
+    // icon: <BusinessIcon/>,
     route: "/virtualtrading",
     component: <UserPosition />,
   },
