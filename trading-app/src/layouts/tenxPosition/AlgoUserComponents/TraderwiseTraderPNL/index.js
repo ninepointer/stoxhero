@@ -18,7 +18,7 @@ import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-// import ViewTradeDetail from "./ViewTradeDetail";
+// import ViewTradeDetail from "./ViewTradeDetail";localhost:5000
 // import ViewOrderDetail from "./MockTraderwiseOrders";
 
 function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, setBatches }) {
