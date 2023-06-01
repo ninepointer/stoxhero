@@ -91,7 +91,7 @@ function LiveTraderwiseCompantPNL(props) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/infinityTrade/mock/traderwiseBatchWise/${props.batchName}`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/traderwiseBatchWise/${props.batchName}`)
     .then((res) => {
         setAllTrade(res.data.data);
     }).catch((err)=>{

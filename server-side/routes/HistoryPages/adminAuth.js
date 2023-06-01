@@ -118,7 +118,7 @@ router.get("/updateExchabgeToken", async (req, res) => {
 
 });
 
-router.get("/infinityAuto", async (req, res) => {
+router.get("/infinityAutoLive", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
   const data = await infinityTradeLive()
   res.send(data);
@@ -461,16 +461,16 @@ router.get("/referralCode", async (req, res) => {
   res.send('Referral codes generated and inserted');
 });
 
-router.get("/tradableInstrument", authentication, async (req, res, next)=>{
-  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
-  await tradableInstrument(req,res,next);
-})
+// router.get("/tradableInstrument", authentication, async (req, res, next)=>{
+//   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
+//   await tradableInstrument(req,res,next);
+// })
 
-router.get("/xtsTradable", authentication, async (req, res, next)=>{
+router.get("/Tradable", authentication, async (req, res, next)=>{
   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
   // await TradableInstrument.tradableInstrument(req,res,next);
-  await tradableInstrument(req, res);
-  await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
+  // await tradableInstrument(req, res);
+  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
   await TradableInstrument.tradableInstrument(req,res,next);
 })
 

@@ -25,12 +25,12 @@ function LiveOverallCompantPNL({socket, batchName}) {
   const closeMenu = () => setMenu(null);
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let date = new Date();
+  // let date = new Date();
   let totalTransactionCost = 0;
-  const [liveDetail, setLiveDetail] = useState([]);
+  // const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
-  const [lastestTradeTimearr, setLatestTradeTimearr] = useState([]);
+  // const [lastestTradeTimearr, setLatestTradeTimearr] = useState([]);
   // const [lastestTradeTime, setLatestTradeTime] = useState([]);
   // const [lastestTradeBy, setLatestTradeBy] = useState([]);
   // const [lastestTradeSymbol, setLatestTradeSymbol] = useState([]);
@@ -38,7 +38,7 @@ function LiveOverallCompantPNL({socket, batchName}) {
   // const [lastestTradeQunaity, setLatestTradeQuantity] = useState([]);
   // const [lastestTradeStatus, setLatestTradeStatus] = useState([]);
 
-  let liveDetailsArr = [];
+  // let liveDetailsArr = [];
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   
