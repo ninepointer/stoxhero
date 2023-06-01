@@ -26,6 +26,9 @@ const retireivSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    orderUniqueIdentifier:{
+        type: String,
+    },
     exchange_order_id:{
         type: String,
     },
