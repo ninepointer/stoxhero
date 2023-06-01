@@ -29,7 +29,6 @@ import LiveTraderwiseCompanyPNL from "./components/LiveTraderwiseCompanyPNL";
 import { useLocation } from "react-router-dom"
 
 function CompanyPosition() {
-
   let location = useLocation();
   console.log("location", location)
   let isXts = location?.state?.xts;

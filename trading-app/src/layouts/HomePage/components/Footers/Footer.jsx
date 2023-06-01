@@ -102,7 +102,7 @@ const Footer = () => {
               </OutlinedButton>
               </a>
               <Typography ml={1} variant="body2" color="rgba(255, 255, 255, 0.6)" marginBottom={2}>
-                Stoxhero Games Technologies Private Limited<br/>
+                <strong>Stoxhero Games Technologies Private Limited<br/></strong>
                 S-77, NRI Colony, Sec-24, Pratap Nagar, Sanganer, Pratap Nagar Housing Board, Jaipur-302033
               </Typography>
 
