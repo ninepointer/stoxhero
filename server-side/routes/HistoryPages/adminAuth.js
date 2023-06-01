@@ -41,7 +41,16 @@ const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManual
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
+const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
+const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
+const {placeOrder} = require("../../services/xts/xtsInteractive");
+const fetchToken = require("../../marketData/generateSingleToken");
+const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken")
 
+
+router.get("/gettoken", async (req, res) => {
+  res.send(await fetchXTSData())
+});
 
 router.get("/updateLot", async (req, res) => {
 
@@ -205,10 +214,6 @@ router.get("/autotrade", async (req, res) => {
   res.send("ok")
 });
 
-const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
-const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
-const {placeOrder} = require("../../services/xts/xtsInteractive");
-const fetchToken = require("../../marketData/generateSingleToken");
 
 router.get("/placeOrder", async (req, res) => {
   let obj = {

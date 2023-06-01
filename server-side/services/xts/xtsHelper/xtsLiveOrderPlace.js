@@ -46,6 +46,7 @@ exports.liveTrade = async (req, res) => {
         validity: validity,
         disclosedQuantity: 0,
         Quantity: realQuantity,
+        // orderUniqueIdentifier: `${req.user.first_name}${req.user.mobile}`
     }
     const placeorder = await placeOrder(obj, req, res);
 
