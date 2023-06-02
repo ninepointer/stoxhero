@@ -688,12 +688,7 @@ exports.overallInternshipPnlYesterday = async (req, res, next) => {
       },
         {
           $group: {
-            _id: {
-              symbol: "$symbol",
-              product: "$Product",
-              instrumentToken: "$instrumentToken",
-              exchangeInstrumentToken: "$exchangeInstrumentToken",
-            },
+            _id: null,
 
             amount: {
               $sum: {$multiply : ["$amount",-1]},

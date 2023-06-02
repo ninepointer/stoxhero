@@ -32,12 +32,6 @@ export default function LabTabs({socket}) {
   let totalTurnover = 0;
   let totalLots = 0;
   let totalTrades = 0;
-  let ytotalTransactionCost = 0;
-  let ytotalGrossPnl = 0;
-  let ytotalRunningLots = 0;
-  let ytotalTurnover = 0;
-  let ytotalLots = 0;
-  let ytotalTrades = 0;
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -73,7 +67,7 @@ export default function LabTabs({socket}) {
   useEffect(()=>{
     console.log("Loading: ",isLoading)
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnltoday`)
+    axios.get(`${baseUrl}api/v1/papertrade/virtualoveralltraderpnltoday`)
     .then((res) => {
         console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data);
@@ -86,9 +80,9 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
     console.log("Loading: ",isLoading)
-    axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercounttoday`)
+    axios.get(`${baseUrl}api/v1/papertrade/liveandtotaltradercounttoday`)
     .then((res) => {
-        console.log("TenX Count: ",res.data.data)
+        console.log("Virtual Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
         // setTimeout(()=>{
@@ -100,7 +94,7 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnlyesterday`)
+    axios.get(`${baseUrl}api/v1/papertrade/virtualoveralltraderpnlyesterday`)
     .then((res) => {
         console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
@@ -113,9 +107,9 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercountyesterday`)
+    axios.get(`${baseUrl}api/v1/papertrade/liveandtotaltradercountyesterday`)
     .then((res) => {
-        console.log("TenX Count Yesterday: ",res.data.data)
+        console.log("virtual Count Yesterday: ",res.data.data)
         setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
         setTimeout(()=>{
@@ -162,27 +156,6 @@ export default function LabTabs({socket}) {
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
   const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
   const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
-
-  tradeDataYesterday?.map((subelem, index)=>{
-    let obj = {};
-    ytotalRunningLots += Number(subelem.lots)
-    ytotalTransactionCost += Number(subelem.brokerage);
-    ytotalTurnover += Number(Math.abs(subelem.turnover));
-    ytotalLots += Number(Math.abs(subelem.totallots))
-    ytotalTrades += Number(subelem.trades)
-
-    let liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
-    })
-    let yupdatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
-    ytotalGrossPnl += yupdatedValue;
-
-    // const yinstrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    // const yquantitycolor = subelem.lots >= 0 ? "success" : "error"
-    // const ygpnlcolor = yupdatedValue >= 0 ? "success" : "error"
-    // const ypchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    // const yproductcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
-  })
 
 //   const ytotalGrossPnlcolor = ytotalGrossPnl >= 0 ? "success" : "error"
 //   const ytotalnetPnlcolor = (ytotalGrossPnl-ytotalTransactionCost) >= 0 ? "success" : "error"
@@ -259,35 +232,35 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ (ytotalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-ytotalGrossPnl))}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0]?.amount >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeDataYesterday[0]?.amount))}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTransactionCost)}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ (ytotalGrossPnl - ytotalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalGrossPnl - ytotalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTransactionCost - ytotalGrossPnl))}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ (tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage - tradeDataYesterday[0]?.amount))}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalLots)}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.totallots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{ytotalRunningLots}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday[0]?.lots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTurnover)}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.turnover)}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ytotalTrades}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0]?.trades}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
