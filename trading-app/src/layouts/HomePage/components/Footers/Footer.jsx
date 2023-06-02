@@ -67,7 +67,7 @@ const Footer = () => {
 
               {/* Governance */}
               <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={3}>
-              <a style={{color:"#fff"}} href="/Careers">Careers</a>
+              <a style={{color:"#fff"}} href="/careers">Careers</a>
               </Grid>
 
               {/* Support */}
@@ -102,7 +102,7 @@ const Footer = () => {
               </OutlinedButton>
               </a>
               <Typography ml={1} variant="body2" color="rgba(255, 255, 255, 0.6)" marginBottom={2}>
-                Stoxhero Games Technologies Private Limited
+                <strong>Stoxhero Games Technologies Private Limited<br/></strong>
                 S-77, NRI Colony, Sec-24, Pratap Nagar, Sanganer, Pratap Nagar Housing Board, Jaipur-302033
               </Typography>
 

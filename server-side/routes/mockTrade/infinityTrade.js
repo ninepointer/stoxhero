@@ -3,7 +3,10 @@ const router = express.Router({mergeParams: true});
 const {overallPnlBatchWiseMock, mockLiveTotalTradersCount, overallCompanySidePnl, treaderWiseMockTrader, overallPnlAllTrader, overallPnlTrader,myTodaysTrade,myHistoryTrade, 
     getPnlAndCreditData, getMyPnlAndCreditData, openingBalance, traderwiseBatchMock,
     myAllTodaysTrade, overallPnlCompanySide, batchWisePnl, mockBatchToday, getLetestMockTradeCompany,
-    companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl, overallPnlTraderWise, getAllOrders, getAllOrdersForToday, getAllTradersMockOrders, getAllMockOrdersForToday, getAllMockOrders, getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, getAllTradersLiveOrdersForToday} = require('../../controllers/infinityController');
+    companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl, overallPnlTraderWise
+    , getAllOrders, getAllOrdersForToday, getAllTradersMockOrders, getAllMockOrdersForToday, getAllMockOrders,
+     getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, getAllTradersLiveOrdersForToday,
+      getUserReportMockDateWise, getAllTraderReportDateWise} = require('../../controllers/infinityController');
 
 const {pnlTraderCompany, overallLivePnlToday, getLetestLiveTradeCompany, 
     traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive, 
@@ -43,6 +46,8 @@ router.route('live/companyorders').get(getAllLiveOrders);
 router.route('live/userorders').get(getAllTradersLiveOrders);
 router.route('live/companyorderstoday').get(getAllLiveOrdersForToday);
 router.route('live/userorderstoday').get(getAllTradersLiveOrdersForToday);
+router.route('/mock/traderwisepnl/:id/:startDate/:endDate').get(getUserReportMockDateWise);
+router.route('/mock/alltraderpnl/:startDate/:endDate').get(getAllTraderReportDateWise);
 // router.route('/live/traderPnlCompany/:id').get(pnlTraderCompany)
 router.route('/traderwisecompanypnlreport/:startDate/:endDate').get(companyDailyPnlTWise)
 router.route('/companypnlreport/:startDate/:endDate').get(companyPnlReport)
