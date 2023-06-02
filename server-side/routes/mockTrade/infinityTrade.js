@@ -5,7 +5,7 @@ const {overallPnlBatchWiseMock, mockLiveTotalTradersCount, overallCompanySidePnl
         myAllTodaysTrade, overallPnlCompanySide, batchWisePnl, mockBatchToday, getLetestMockTradeCompany,
         companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl, overallPnlTraderWise, 
         getAllOrders, getAllOrdersForToday, getAllTradersMockOrders, getAllMockOrdersForToday, 
-        getAllMockOrders, getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, overallInfinityMockCompanyPnlMTD,
+        getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, overallInfinityMockCompanyPnlMTD,
         getAllTradersLiveOrdersForToday,overallInfinityMockCompanyPnlYesterday,
         getAllMockOrders,getUserReportMockDateWise, getAllTraderReportDateWise} = require('../../controllers/infinityController');
 
