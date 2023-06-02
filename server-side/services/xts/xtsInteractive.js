@@ -55,8 +55,8 @@ const interactiveLogin = async () => {
         console.log("joinedData", joinedData);
       });
 
-      await placedOrderData();
-      await ifServerCrashAfterOrder();
+      // await placedOrderData();
+      // await ifServerCrashAfterOrder();
       await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
     })();
@@ -578,18 +578,18 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
         return finalCharge
     }
 
-    let brokerageCompany;
-    let brokerageUser;
+    let brokerageCompany = 0;
+    let brokerageUser = 0;
 
-    if (transaction_type === "BUY") {
+    if (transaction_type === "BUY" && status == "COMPLETE") {
       brokerageCompany = buyBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice, brokerageDetailBuy[0]);
-    } else {
+    } else if (transaction_type === "SELL" && status == "COMPLETE")  {
       brokerageCompany = sellBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice, brokerageDetailSell[0]);
     }
 
-    if (buyOrSell === "BUY") {
+    if (buyOrSell === "BUY" && status == "COMPLETE") {
       brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice, brokerageDetailBuyUser[0]);
-    } else {
+    } else if (buyOrSell === "SELL" && status == "COMPLETE") {
       brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice, brokerageDetailSellUser[0]);
     }
 

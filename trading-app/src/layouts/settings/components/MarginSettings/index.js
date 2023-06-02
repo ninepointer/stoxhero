@@ -1,10 +1,10 @@
 // @mui material components
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
-import Icon from "@mui/material/Icon";
-import Tooltip from "@mui/material/Tooltip";
-import masterCardLogo from "../../../../assets/images/logos/mastercard.png";
-import visaLogo from "../../../../assets/images/logos/visa.png";
+// import Icon from "@mui/material/Icon";
+// import Tooltip from "@mui/material/Tooltip";
+// import masterCardLogo from "../../../../assets/images/logos/mastercard.png";
+// import visaLogo from "../../../../assets/images/logos/visa.png";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -13,18 +13,18 @@ import MDButton from "../../../../components/MDButton";
 
 import React, {useState, useEffect, useContext} from 'react'
 
-import Grid from "@mui/material/Grid";
-import { useMaterialUIController } from "../../../../context";
+// import Grid from "@mui/material/Grid";
+// import { useMaterialUIController } from "../../../../context";
 
 // Material Dashboard 2 React components
-import axios from "axios";
+// import axios from "axios";
 import { userContext } from '../../../../AuthContext';
 
-function MarginSettings() {
-  const [controller] = useMaterialUIController();
-  const { darkMode } = controller;
+function MarginSettings({settingData}) {
+  // const [controller] = useMaterialUIController();
+  // const { darkMode } = controller;
   const [reRender, setReRender] = useState(true);
-  const [settingData, setSettingData] = useState([]);
+  // const [settingData, setSettingData] = useState([]);
   let date = new Date();
   let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
 
@@ -34,16 +34,16 @@ function MarginSettings() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
 
-  useEffect(()=>{
-  axios.get(`${baseUrl}api/v1/readsetting`)
-  .then((res)=>{
-      setSettingData(res.data)
-      console.log(res.data);
-  }).catch((err)=>{
-      //window.alert("Server Down");
-      return new Error(err);
-  })
-  },[])
+  // useEffect(()=>{
+  // axios.get(`${baseUrl}api/v1/readsetting`)
+  // .then((res)=>{
+  //     setSettingData(res.data)
+  //     console.log(res.data);
+  // }).catch((err)=>{
+  //     //window.alert("Server Down");
+  //     return new Error(err);
+  // })
+  // },[])
 
 
 
