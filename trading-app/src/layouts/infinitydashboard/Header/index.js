@@ -948,7 +948,7 @@ export default function LabTabs({socket}) {
         </Grid>
 
         <Grid container spacing={2} mt={1}>
-            <Grid item lg={3}>
+            {/* <Grid item lg={3}>
                     
                 <MDButton 
                     variant="contained" 
@@ -970,15 +970,11 @@ export default function LabTabs({socket}) {
                                 <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Back order of XTS!</MDTypography>
                                 </MDBox>
                             </Grid>
-
-                            {/* <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                            </Grid> */}
     
                         </Grid>
                 </MDButton>
 
-            </Grid>
+            </Grid> */}
 
             <Grid item lg={3} mt={1}>
                 <MDBox p={2} bgColor='text' borderRadius={5}>

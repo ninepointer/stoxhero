@@ -21,10 +21,12 @@ import Header from "./Header";
 
 // Data
 
+
+
 // Dashboard components
 
-import OverallTraderPnl from "./AlgoUserComponents/overallTraderPnl";
-import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
+// import OverallTraderPnl from "./components/overallTraderPnl";
+// import TraderwiseTraderPnl from "./components/TraderwiseTraderPNL";
 
 function TraderPosition() {
 
@@ -43,7 +45,7 @@ function TraderPosition() {
         //console.log(socket);
         socket.on("connect", ()=>{
             //console.log(socket.id);
-            socket.emit("hi",true)
+            socket.emit("company-ticks", true)
         })
         socket.on("noToken", (data)=>{
             //console.log("no token");
