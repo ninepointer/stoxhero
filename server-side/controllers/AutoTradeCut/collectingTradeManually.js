@@ -267,9 +267,9 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     }
   }
 
-  if(data.length > 0){
-    await internship();
-  }
+  // if(data.length > 0){
+  //   await internship();
+  // }
 
   return ;
 }
@@ -554,7 +554,7 @@ const infinityTrade = async () => {
   if(data.length > 0){
     await infinityTrade();
   }
-
+//2306022200026054  1100000111395801  
   return ;
 }
 
@@ -736,9 +736,9 @@ const infinityTradeLive = async () => {
     }, 300);
   }
 
-  if(data.length > 0){
-    await infinityTradeLive();
-  }
+  // if(data.length > 0){
+  //   await infinityTradeLive();
+  // }
 
   return ;
 }

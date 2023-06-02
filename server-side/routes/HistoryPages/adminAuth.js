@@ -28,6 +28,7 @@ const ObjectId = require('mongodb').ObjectId;
 const TradableInstrumentSchema = require("../../models/Instruments/tradableInstrumentsSchema")
 const authentication = require("../../authentication/authentication");
 const Instrument = require("../../models/Instruments/instrumentSchema");
+
 // const Instrument = require('../')
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
@@ -47,9 +48,9 @@ const {placeOrder} = require("../../services/xts/xtsInteractive");
 const fetchToken = require("../../marketData/generateSingleToken");
 const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken")
 
-
 router.get("/gettoken", async (req, res) => {
-  res.send(await fetchXTSData())
+  await UserDetail.updateMany({}, { $unset: { "watchlistInstruments": "" } })
+
 });
 
 router.get("/updateLot", async (req, res) => {
@@ -309,12 +310,17 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-05-26T00:00:00.000+00:00"
+  let expiryDate = "2023-06-02T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
   // res.send(instrument)
   let instrument = await Instrument.updateMany(
+    {contractDate: {$lte: expiryDate}, status: "Active"},
+    { $set: { status: "Inactive" } }
+  )
+
+  let infinityInstrument = await InfinityInstrument.updateMany(
     {contractDate: {$lte: expiryDate}, status: "Active"},
     { $set: { status: "Inactive" } }
   )
