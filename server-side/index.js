@@ -212,6 +212,7 @@ app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
 app.use('/api/v1', require("./marketData/getRetrieveOrder"));
 // app.use('/api/v1', require('./marketData/placeOrder'));
 app.use('/api/v1', require('./marketData/switchToRealTrade'));
+app.use('/api/v1', require('./services/xts/xtsHelper/xtsMarginDetails'));
 app.use('/api/v1/internbatch', require('./routes/career/internBatchRoute'));
 app.use('/api/v1/gd', require('./routes/career/groupDiscussionRoute'));
 app.use('/api/v1/tutorialcategory', require('./routes/tutorialVideos/tutorialCategory'));
