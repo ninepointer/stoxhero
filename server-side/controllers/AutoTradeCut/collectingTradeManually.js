@@ -6,6 +6,7 @@ const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 const Internship = require("../../models/mock-trade/internshipTrade");
 const PaperTrader = require("../../models/mock-trade/paperTrade");
 const User = require("../../models/User/userDetailSchema");
+const {autoPlaceOrder} = require("../../services/xts/xtsInteractive")
 
 const { takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade } = require("./autoTradeManually");
 
@@ -134,7 +135,11 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     }
   }
 
-  // return tradeArr;
+  if(data.length > 0){
+    await tenx();
+  }
+
+  return ;
 }
 
 const internship = async () => {
@@ -262,7 +267,11 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     }
   }
 
-  // return tradeArr;
+  if(data.length > 0){
+    await internship();
+  }
+
+  return ;
 }
 
 const paperTrade = async () => {
@@ -389,7 +398,11 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     }
   }
 
-  // return tradeArr;
+  if(data.length > 0){
+    await paperTrade();
+  }
+
+  return ;
 }
 
 const infinityTrade = async () => {
@@ -408,6 +421,7 @@ const infinityTrade = async () => {
             $gte: today
           },
           status: "COMPLETE",
+          appOrderId: null
         },
       },
       {
@@ -419,7 +433,7 @@ const infinityTrade = async () => {
             exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
             variety: "$variety",
             validity: "$validity",
             order_type: "$order_type",
@@ -537,7 +551,11 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     }
   }
 
-  // return tradeArr;
+  if(data.length > 0){
+    await infinityTrade();
+  }
+
+  return ;
 }
 
 const infinityTradeLive = async () => {
@@ -546,7 +564,7 @@ const infinityTradeLive = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  let tradeArr = [];
+  // let tradeArr = [];
   const data = await InfinityLiveTradeCompany.aggregate(
     [
       {
@@ -614,6 +632,7 @@ const infinityTradeLive = async () => {
     ]
   );
 
+  console.log(data)
   for (let i = 0; i < data.length; i++) {
     let date = new Date();
     let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
@@ -659,43 +678,69 @@ const infinityTradeLive = async () => {
     Obj.trader = data[i].userId;
     Obj.algoBoxId = data[i].algoBoxId;
     Obj.autoTrade = true;
-    Obj.dontSendResp = (i !== (data.length - 1));
+    Obj.dontSendResp = true;
     Obj.createdBy = createdBy
 
-    await recursiveFunction(quantity)
+    // await recursiveFunction(quantity)
 
-    async function recursiveFunction(quantity) {
+    // async function recursiveFunction(quantity) {
+    //   const now = performance.now();
+    //   if (quantity == 0) {
+    //     return;
+    //   } else if (quantity < 1800) {
+    //     Obj.Quantity = quantity;
+    //     Obj.userQuantity = quantity / algoBox.lotMultipler;
+    //     Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+    //     // tradeArr.push({ value: JSON.stringify(Obj) });
+    //     // await takeAutoInfinityTrade(Obj);
+    //     console.log("now in if", performance.now()-now);
+    //     await delay(1300);
+    //     return;
+    //   } else {
+    //     Obj.Quantity = 1800;
+    //     Obj.userQuantity = 1800 / algoBox.lotMultipler;
+    //     Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+    //     // tradeArr.push({ value: JSON.stringify(Obj) });
+    //     // await takeAutoInfinityTrade(Obj);
+    //     console.log("now in else", performance.now()-now)
+    //     await delay(1300); // Delay for 300 milliseconds
+    
+    //     return recursiveFunction(quantity - 1800);
+    //   }
+    // }
+
+    // function delay(ms) {
+    //   return new Promise(resolve => setTimeout(resolve, ms));
+    // }
+    let interval = setInterval(async () => {
       const now = performance.now();
-      if (quantity == 0) {
+      if(quantity == 0){
         return;
-      } else if (quantity < 1800) {
-        Obj.Quantity = quantity;
-        Obj.userQuantity = quantity / algoBox.lotMultipler;
-        Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
-        // tradeArr.push({ value: JSON.stringify(Obj) });
-        // await takeAutoInfinityTrade(Obj);
-        console.log("now in if", performance.now()-now);
-        await delay(1300);
-        return;
-      } else {
+      } else if (quantity > 1800) {
+
         Obj.Quantity = 1800;
         Obj.userQuantity = 1800 / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
-        // tradeArr.push({ value: JSON.stringify(Obj) });
-        // await takeAutoInfinityTrade(Obj);
-        console.log("now in else", performance.now()-now)
-        await delay(1300); // Delay for 300 milliseconds
-    
-        return recursiveFunction(quantity - 1800);
-      }
-    }
+        await autoPlaceOrder(Obj);
+        //console.log("now in if", performance.now()-now, quantity);
+        quantity = quantity - 1800;
+      } else {
 
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
+        Obj.Quantity = quantity;
+        Obj.userQuantity = quantity / algoBox.lotMultipler;
+        Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+        //console.log("now in else", performance.now()-now, quantity);
+        await autoPlaceOrder(Obj);
+        clearInterval(interval);
+      }
+    }, 300);
   }
 
-  // return tradeArr;
+  if(data.length > 0){
+    await infinityTradeLive();
+  }
+
+  return ;
 }
 
 module.exports = { tenx, paperTrade, infinityTrade, internship, infinityTradeLive };

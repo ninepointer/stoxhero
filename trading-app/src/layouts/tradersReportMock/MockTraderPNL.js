@@ -24,8 +24,8 @@ const TableOne = () => {
     const [traderpnldata, setTraderPNLData] = useState([]);
     const { columns, rows } = MockTraderPNLData();
     let date = new Date();
-    let valueInDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
-    let valueInStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    let valueInDate = `${(date.getFullYear())}-${String(date.getMonth()+1).padStart(2, '0')}-${String(date.getDate()).padStart('2',0)}`
+    let valueInStartDate = `${(date.getFullYear())}-${String(date.getMonth()+1).padStart(2, '0')}-01`
     const [firstDate, setFirstDate] = useState(valueInStartDate);
     const [secondDate, setSecondDate] = useState(valueInDate);
     let [totalPnl, setPnl] = useState(0);
@@ -42,7 +42,7 @@ const TableOne = () => {
     let [overallPnl, setOverallPnl] = useState([]);
    
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/traderpnlreport/${firstDate}/${secondDate}`)
+        axios.get(`${baseUrl}api/v1/infinityTrade/mock/alltraderpnl/${firstDate}/${secondDate}`)
         .then((res)=>{
           //console.log(res.data)
           setTraderPNLData(res.data);

@@ -33,7 +33,6 @@ const BrokerageEdit = ({data, id, Render}) => {
   };
 
 
-
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   let date = new Date();

@@ -36,13 +36,14 @@ import MenuItem from '@mui/material/MenuItem';
 function TradersReport() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [traders, setTraders] = useState([]);
-  let valueInTraderName = 'Praveen K'
+  let valueInTraderName = '639877c0223c3fc0746818c2'
   let [traderName, setTraderName] = useState(valueInTraderName);
   const { columns, rows } = UserReportData();
 
   let date = new Date();
-  let valueInDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
-  let valueInStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+  let valueInDate = `${(date.getFullYear())}-${String(date.getMonth()+1).padStart(2, '0')}-${String(date.getDate()).padStart('2',0)}`
+  let valueInStartDate = `${(date.getFullYear())}-${String(date.getMonth()+1).padStart(2, '0')}-01`
+  console.log('dates', valueInDate, valueInStartDate);
   const [firstDate, setFirstDate] = useState(valueInStartDate);
   const [secondDate, setSecondDate] = useState(valueInDate);
   let [totalPnl, setPnl] = useState(0);
@@ -50,6 +51,7 @@ function TradersReport() {
   let [totalTrade, setTrade] = useState(0);
   let [totalTradingDays, setTradingDay] = useState(0);
   let [overallPnl, setOverallPnl] = useState([]);
+  console.log('dates state', firstDate, secondDate);
 
   useEffect(()=>{
     pnlCalculation(valueInStartDate, valueInDate, traderName)
@@ -107,8 +109,8 @@ function TradersReport() {
 
   function TraderName(e){
     e.preventDefault();
-    console.log("Changed Trader Name: ",e.target.value)
-    setTraderName(e.target.value)
+    console.log("Changed Trader Name: ",e.target.value, e.target.name, e)
+    setTraderName(e.target.value);
     pnlCalculation(firstDate, secondDate,e.target.value)
     console.log(firstDate,secondDate,e.target.value)
     totalPnl = 0;
@@ -120,8 +122,8 @@ function TradersReport() {
 
 
   function pnlCalculation(firstDate, secondDate,traderName){
-    console.log(firstDate,secondDate,traderName)
-    axios.get(`${baseUrl}api/v1/getuserreportdatewisename/${traderName}/${firstDate}/${secondDate}`)
+
+    axios.get(`${baseUrl}api/v1/infinityTrade/mock/traderwisepnl/${traderName}/${firstDate}/${secondDate}`)
     .then((res) => {
       let data = res.data;
       console.log(res.data);
@@ -242,11 +244,11 @@ function TradersReport() {
     let newDate = (elem.date).split("-");
     const gpnlcolor = -(elem.totalBuy+elem.totalSell) >= 0 ? "success" : "error"
     const npnlcolor = -((elem.totalBuy+elem.totalSell)-(elem.brokerage)) >= 0 ? "success" : "error"
-    obj.name = (
-      <MDTypography component="a" variant="caption"  fontWeight="medium">
-        {elem.trader}
-      </MDTypography>
-    );
+    // obj.name = (
+    //   <MDTypography component="a" variant="caption"  fontWeight="medium">
+    //     {elem._id}
+    //   </MDTypography>
+    // );
     obj.date = (
       <MDTypography component="a" variant="caption"  fontWeight="medium">
         {`${newDate[2]}-${newDate[1]}-${newDate[0]}`}
@@ -321,7 +323,7 @@ function TradersReport() {
                 id="outlined-basic"
                 select
                 label=""
-                defaultValue="Praveen K"
+                defaultValue="639877c0223c3fc0746818c2"
                 minHeight="4em"
                 //helperText="Please select the body condition"
                 variant="outlined"
@@ -329,8 +331,8 @@ function TradersReport() {
                 onChange={(e)=>{TraderName(e)}}
               >
                 {traders.map((option) => (
-                  <MenuItem key={option.name} value={option.name} minHeight="4em">
-                    {option.name}
+                  <MenuItem key={option.name} value={option._id} minHeight="4em">
+                    {option.first_name + ' ' + option.last_name}
                   </MenuItem>
                 ))}
               </TextField>
