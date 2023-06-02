@@ -55,8 +55,8 @@ const interactiveLogin = async () => {
         console.log("joinedData", joinedData);
       });
 
-      // await placedOrderData();
-      // await ifServerCrashAfterOrder();
+      await placedOrderData();
+      await ifServerCrashAfterOrder();
       await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
     })();
@@ -427,32 +427,6 @@ const autoPlaceOrder = async (obj) => {
 }
 
 
-/*
-liveTradeKey
-
-order_id ---> trader
-
-we have order_id
-trader fetched
-
-
-1. redis map --> order_id - {tarder_id, .....}
-2. a collection in which i save data of redis keys
-3. in listener save retrieve order collection.
-3. in orderData listner i fetch data from redis + database conditionally
-4. if orderStatus is filled or rejected then i call getPlacedOrderAndSave function.
-5. i have orderData in arguement, and req.body data from redis.
-6. save data in db collection from orderData and redis.
-7. expire redis key in 10 min and remove child key
-
-if transaction is unsuccessful
-
-1. Then i call this function again in catch, recursively
-2. Keep timming wise recursively
-
-
-*/
-
 const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   
   let isRedisConnected = getValue();
@@ -737,7 +711,8 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
 //
 
-module.exports = { interactiveLogin, placeOrder, autoPlaceOrder };
+module.exports = { interactiveLogin, }
+  // placeOrder, autoPlaceOrder };
 
 
 // {
