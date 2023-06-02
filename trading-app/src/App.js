@@ -229,7 +229,6 @@ export default function App() {
       </CacheProvider>
     
   ) : (
-    
       <ThemeProvider theme={darkMode ? themeDark : theme}>
         <CssBaseline />
         {layout === "dashboard" && (
@@ -304,7 +303,6 @@ export default function App() {
             
         </Routes>
       </ThemeProvider>
-    
   );
 } // 
 
