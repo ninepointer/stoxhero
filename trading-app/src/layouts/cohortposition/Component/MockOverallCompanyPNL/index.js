@@ -90,8 +90,7 @@ function MockOverallCompantPNL({ socket, batchName }) {
     totalRunningLots += Number(subelem.lots)
 
     const liveDetail = marketData.filter((elem) => {
-      console.log("cohort pos", elem.instrument_token , subelem.instrumentToken)
-      return elem !== undefined && elem.instrument_token == subelem?._id?.instrumentToken
+      return elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken)
     })
     let updatedValue = (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;

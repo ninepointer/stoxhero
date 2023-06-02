@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 
 import useScrollPosition from '../../hooks/useScrollPosition'
 
-import logo from '../../assets/images/Logo.png'
+import logo from '../../../../assets/images/logos/fullLogo.png'
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { CallMade, Language, Menu } from '@mui/icons-material'
 import LaunchButton from '../Buttons/LaunchButton'
@@ -68,7 +68,7 @@ const Navbar = () => {
         <Stack direction='row' justifyContent='space-between' alignItems="center" flexWrap="wrap"  alignContent='center' >
           {/* Logo */}
 
-          <a href="/home"><img src={logo} style={{ objectFit: "contain", height: "100%", marginTop: "8px" }} /></a>
+          <a href="/home"><img src={logo} style={{ objectFit: "contain", height: "40px", marginTop: "8px" }} /></a>
 
 
           {!isMobile && (<Stack
