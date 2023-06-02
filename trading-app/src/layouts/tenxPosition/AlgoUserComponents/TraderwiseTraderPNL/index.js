@@ -18,8 +18,8 @@ import DataTable from "../../../../examples/Tables/DataTable";
  
 // Data
 import data from "./data";
-// import ViewTradeDetail from "./ViewTradeDetail";
-// import ViewOrderDetail from "./MockTraderwiseOrders";
+import ViewTradeDetail from "./ViewTradeDetail";
+import ViewOrderDetail from "./MockTraderwiseOrders";
 
 function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, setBatches }) {
   const { columns, rows } = data();
