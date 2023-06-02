@@ -4,16 +4,16 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
-import MDAvatar from '../../../components/MDAvatar';
-import man from '../../../assets/images/man.png'
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+// import MDAvatar from '../../../components/MDAvatar';
+// import man from '../../../assets/images/man.png'
+// import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { Link, useLocation } from "react-router-dom";
-import RunningPNLChart from '../data/runningpnlchart'
+// import RunningPNLChart from '../data/runningpnlchart'
 
 //data
 
 export default function LabTabs({socket}) {
-  const [value, setValue] = React.useState('1');
+//   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [liveDetail, setLiveDetail] = useState([]);
@@ -38,14 +38,6 @@ export default function LabTabs({socket}) {
   let ytotalTurnover = 0;
   let ytotalLots = 0;
   let ytotalTrades = 0;
-
-  const handleChange = (event, newValue) => {
-    setIsLoading(true)
-    setValue(newValue);
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500);
-  };
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -79,49 +71,51 @@ export default function LabTabs({socket}) {
   }, [])
 
   useEffect(()=>{
+    console.log("Loading: ",isLoading)
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/internship/overallinternshippnltoday`)
+    axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnltoday`)
     .then((res) => {
+        console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data);
-        setTimeout(()=>{
-            setIsLoading(false)
-        },500)
+        // setTimeout(()=>{
+        //     setIsLoading(false)
+        // },500)
         
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
     })
-
-    axios.get(`${baseUrl}api/v1/internship/liveandtotaltradercounttoday`)
+    console.log("Loading: ",isLoading)
+    axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercounttoday`)
     .then((res) => {
-        console.log(res.data.data)
+        console.log("TenX Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
-        setTimeout(()=>{
-            setIsLoading(false)
-        },500)
+        // setTimeout(()=>{
+        //     setIsLoading(false)
+        // },500)
         
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/internship/overallinternshippnlyesterday`)
+    axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnlyesterday`)
     .then((res) => {
         console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
-        setTimeout(()=>{
-            setIsLoading(false)
-        },500)
+        // setTimeout(()=>{
+        //     setIsLoading(false)
+        // },500)
         
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/internship/liveandtotaltradercountyesterday`)
+    axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercountyesterday`)
     .then((res) => {
-        console.log(res.data.data)
+        console.log("TenX Count Yesterday: ",res.data.data)
         setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
         setTimeout(()=>{
@@ -136,7 +130,7 @@ export default function LabTabs({socket}) {
     
   }, [trackEvent])
 
-
+  console.log("Loading: ",isLoading)
   useEffect(() => {
     return () => {
         socket.close();
@@ -153,7 +147,7 @@ export default function LabTabs({socket}) {
     totalTrades += Number(subelem.trades)
 
     let liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken);
+        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
     })
     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;
@@ -198,7 +192,7 @@ export default function LabTabs({socket}) {
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
         <MDBox>
-            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Career Dashboard</MDTypography>
+            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Virtual Trading Dashboard</MDTypography>
         </MDBox>
 
         <Grid container lg={12}>
@@ -211,7 +205,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Internship Position - All Batches</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Virtual Trading Position</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -261,7 +255,7 @@ export default function LabTabs({socket}) {
                     </Grid>
 
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's Internship Position - All Batches</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's Virtual Trading Position</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -312,7 +306,7 @@ export default function LabTabs({socket}) {
         </Grid>
 
         <Grid container spacing={2} mt={1}>
-            <Grid item lg={3}>
+            <Grid item xs={12} md={6} lg={3}>
                     
                     <MDButton 
                         variant="contained" 
@@ -320,18 +314,18 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/internposition`,
+                            pathname: `/virtualtrading`,
                           }}
                       >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Intern Position</MDTypography>
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Virtual Trading</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's internship trades position here!</MDTypography>
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's virtual trading position here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -348,7 +342,7 @@ export default function LabTabs({socket}) {
                 
             </Grid>
 
-            <Grid item lg={3}>
+            <Grid item xs={12} md={6} lg={3}>
                     
                     <MDButton 
                         variant="contained" 
@@ -356,18 +350,18 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/internshipbatch`,
+                            pathname: `/virtualposition`,
                           }}
                       >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Internship Batches</MDTypography>
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Virtual Position</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all internship batches here!</MDTypography>
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all trader's virtual position here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -384,7 +378,7 @@ export default function LabTabs({socket}) {
 
             </Grid>
 
-            <Grid item lg={3}>
+            <Grid item xs={12} md={6} lg={3}>
                     
                     <MDButton 
                         variant="contained" 
@@ -392,18 +386,18 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/college`,
+                            pathname: `/tenxsubscriptions`,
                           }}
                       >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>College List</MDTypography>
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Virtual Report</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all college list here!</MDTypography>
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all virtual trading reports here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -420,7 +414,7 @@ export default function LabTabs({socket}) {
 
             </Grid>
 
-            <Grid item lg={3}>
+            <Grid item xs={12} md={6} lg={3}>
                     <MDButton 
                         variant="contained" 
                         color={"error"} 
@@ -433,12 +427,12 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Careers</MDTypography>
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Queries</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all career openings here!</MDTypography>
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all virtual trader's queries here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -454,28 +448,28 @@ export default function LabTabs({socket}) {
                     </MDButton>
             </Grid>
         </Grid>
-
-        <Grid container spacing={2} mt={1}>
+        
+        <Grid container spacing={2} mt={1} height='15vH'>
             <Grid item lg={3}>
                     
                     <MDButton 
                         variant="contained" 
-                        color={"primary"} 
+                        color={"error"} 
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/adminreport`,
+                            pathname: `/wallet`,
                           }}
                       >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Internship Report</MDTypography>
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Wallet</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check interns pnl report here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your wallet transacrions here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -492,59 +486,27 @@ export default function LabTabs({socket}) {
                     
                     <MDButton 
                         variant="contained" 
-                        color={"error"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/adminreportlive`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Internship Leader Board</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check internship leaderboard here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Green Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
                         color={"warning"} 
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/tradersReport`,
+                            pathname: `/analytics`,
                           }}
                       >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Internship Certificates</MDTypography>
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Analytics</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check IC of candidates here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your trading analytics here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}># of Certificated Issued: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -560,23 +522,55 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/tradersReportLive`,
+                            pathname: `/myportfolio`,
                           }}
                       >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Queries</MDTypography>
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Portfolio</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check queries form candidates here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your funds details here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Queries: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"primary"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/myreferrals`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Referrals</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                  <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your referrals here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -601,20 +595,20 @@ export default function LabTabs({socket}) {
                                     pathname: `/internshiporders`,
                                   }}
                             >
-                                Internship Orders
+                                Virtual Trade Orders
                             </MDButton>
                         </Grid>
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
-                                color={"light"} 
+                                color={"dark"} 
                                 size="small" 
                                 component = {Link}
                                 to={{
-                                    pathname: `/campaigns`,
+                                    pathname: `/userorders`,
                                   }}
                             >
-                                Campaigns
+                                My Orders
                             </MDButton>
                         </Grid>
                         <Grid item fullWidth>
@@ -660,7 +654,6 @@ export default function LabTabs({socket}) {
                 </MDBox>
                 
             </Grid>
-
         </Grid>
 
     </MDBox>

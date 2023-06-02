@@ -17,11 +17,16 @@ export default function LabTabs({socket}) {
 //   const { columns, rows } = data();
 //   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
+  const [isLoadingData,setIsLoadingData] = useState(false)
   const [trackEvent, setTrackEvent] = useState({});
 //   const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
+  const [tradeDataYesterday,setTradeDataYesterday] = useState([]);
   const [liveTradeData, setLiveTradeData] = useState([]);
+  const [liveTradeYesterdayData, setLiveTradeYesterdayData] = useState([]);
+  const [liveTradeMTDData, setLiveTradeMTDData] = useState([]);
+  const [mockTradeMTDData, setMockTradeMTDData] = useState([]);
   const [liveTraderCount, setLiveTraderCount] = useState(0);
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
   const [liveTraderCountRealTrade, setLiveTraderCountRealTrade] = useState(0);
@@ -138,6 +143,59 @@ export default function LabTabs({socket}) {
     
   }, [trackEvent])
 
+  useEffect(()=>{
+    setIsLoadingData(true)
+    axios.get(`${baseUrl}api/v1/infinityTrade/mock/overallinfinitymockcompanypnlyesterday`)
+    .then((res) => {
+        setTradeDataYesterday(res.data.data);
+        setTimeout(()=>{
+            setIsLoadingData(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoadingData(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlyesterday`)
+    .then((res) => {
+        setLiveTradeYesterdayData(res.data.data);
+        setTimeout(()=>{
+            setIsLoadingData(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoadingData(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlMTD`)
+    .then((res) => {
+        console.log(res.data.data)
+        setLiveTradeMTDData(res.data.data);
+        setTimeout(()=>{
+            setIsLoadingData(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoadingData(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/infinityTrade/mock/overallinfinitymockcompanypnlMTD`)
+    .then((res) => {
+        console.log(res.data.data)
+        setMockTradeMTDData(res.data.data);
+        setTimeout(()=>{
+            setIsLoadingData(false)
+        },500)
+        
+    }).catch((err) => {
+        setIsLoadingData(false)
+        return new Error(err);
+    })
+    
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -220,7 +278,7 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{totalLots}</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalLots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
@@ -270,7 +328,7 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{liveTotalLots}</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTotalLots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
@@ -293,6 +351,170 @@ export default function LabTabs({socket}) {
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                </>
+                }
+            </Grid>
+        </Grid>
+
+        <Grid container lg={12} mt={2}>
+            <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'#ECECEC'}} borderRadius={1}>
+                {isLoadingData ? 
+                    <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+                        <CircularProgress color='info'/>
+                    </MDBox>
+                :
+                <>
+                <Grid container>
+                    <Grid item p={2} xs={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (StoxHero)</MDTypography>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color={totalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (tradeDataYesterday[0]?.amount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeDataYesterday[0]?.amount))}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage - tradeDataYesterday[0]?.amount))}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.totalLots)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Turnover</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.turnover)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{tradeDataYesterday[0]?.trades}</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                    <Grid item xs={true} lg={0.2} hidden={false}>
+                        <Divider orientation='vertical' color='black'/>
+                    </Grid>
+                    
+                    <Grid item p={2} xs={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (XTS)</MDTypography>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color={totalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (liveTradeYesterdayData[0]?.amount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeYesterdayData[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-liveTradeYesterdayData[0]?.amount))}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeYesterdayData[0]?.brokerage)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (liveTradeYesterdayData[0]?.amount - liveTradeYesterdayData[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeYesterdayData[0]?.amount - liveTradeYesterdayData[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeYesterdayData[0]?.brokerage - liveTradeYesterdayData[0]?.amount))}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeYesterdayData[0]?.totalLots)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Turnover</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeYesterdayData[0]?.turnover)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{liveTradeYesterdayData[0]?.trades}</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                </>
+                }
+            </Grid>
+        </Grid>
+
+        <Grid container lg={12} mt={2}>
+            <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'#ECECEC'}} borderRadius={1}>
+                {isLoadingData ? 
+                    <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+                        <CircularProgress color='info'/>
+                    </MDBox>
+                :
+                <>
+                <Grid container>
+                    <Grid item p={2} xs={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till yesterday (StoxHero)</MDTypography>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color={totalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (mockTradeMTDData[0]?.amount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-mockTradeMTDData[0]?.amount))}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.brokerage)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (mockTradeMTDData[0]?.amount - mockTradeMTDData[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.amount - mockTradeMTDData[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.brokerage - mockTradeMTDData[0]?.amount))}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.totalLots)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Turnover</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.turnover)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{mockTradeMTDData[0]?.trades}</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                    <Grid item xs={true} lg={0.2} hidden={false}>
+                        <Divider orientation='vertical' color='black'/>
+                    </Grid>
+                    
+                    <Grid item p={2} xs={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till yesterday (XTS)</MDTypography>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color={totalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (liveTradeMTDData[0]?.amount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-liveTradeMTDData[0]?.amount))}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.brokerage)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (liveTradeMTDData[0]?.amount - liveTradeMTDData[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.amount - liveTradeMTDData[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.brokerage - liveTradeMTDData[0]?.amount))}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container mt={1}>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.totalLots)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Turnover</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.turnover)}</MDTypography>
+                            </Grid>
+                            <Grid item lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{liveTradeMTDData[0]?.trades}</MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
