@@ -8,6 +8,8 @@ import MDTypography from '../../../components/MDTypography';
 // import man from '../../../assets/images/man.png'
 // import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { Link } from "react-router-dom";
+import CachedIcon from '@mui/icons-material/Cached';
+
 // import RunningPNLChart from '../data/runningpnlchart'
 // import data from "../data";
  
@@ -31,7 +33,8 @@ export default function LabTabs({socket}) {
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
   const [liveTraderCountRealTrade, setLiveTraderCountRealTrade] = useState(0);
   const [notliveTraderCountRealTrade, setNotLiveTraderCountRealTrade] = useState(0);
-
+  let [refreshMargin, setRefreshMargin] = useState(true);
+  const [marginData, setMarginData] = useState();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 //   let liveDetailsArr = [];
   let totalTransactionCost = 0;
@@ -55,6 +58,16 @@ export default function LabTabs({socket}) {
 //       setIsLoading(false)
 //     }, 500);
 //   };
+
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/${"xtsMargin"}`)
+      .then((res) => {
+        console.log(res.data);
+        setMarginData(res.data.data)
+      }).catch((err) => {
+        return new Error(err);
+      })
+  }, [refreshMargin])
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -348,10 +361,13 @@ export default function LabTabs({socket}) {
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCountRealTrade}/{notliveTraderCountRealTrade + liveTraderCountRealTrade}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
-                            </Grid>
+                                <Grid item lg={4}>
+                                    <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                         <span style={{ marginRight: '10px' }}>Used Margin</span>
+                                         <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMargin(!refreshMargin) }} />
+                                    </MDTypography>
+                                    <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(marginData?.marginUtilized)}</MDTypography>
+                                </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -932,6 +948,38 @@ export default function LabTabs({socket}) {
         </Grid>
 
         <Grid container spacing={2} mt={1}>
+            <Grid item lg={3}>
+                    
+                <MDButton 
+                    variant="contained" 
+                    color={"primary"} 
+                    size="small" 
+                    component = {Link}
+                    to={{
+                        pathname: `/xtsbackorder`,
+                        }}
+                    >
+                        <Grid container>
+                            
+                            <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>XTS Back Report</MDTypography>
+                            </Grid>
+                            
+                            <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
+                                <MDBox display='flex' justifyContent='left'>
+                                <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Back order of XTS!</MDTypography>
+                                </MDBox>
+                            </Grid>
+
+                            {/* <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                                <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                            </Grid> */}
+    
+                        </Grid>
+                </MDButton>
+
+            </Grid>
+
             <Grid item lg={3} mt={1}>
                 <MDBox p={2} bgColor='text' borderRadius={5}>
                     <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
