@@ -146,11 +146,6 @@ export default function LabTabs({socket}) {
     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;
 
-    // const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    // const quantitycolor = subelem.lots >= 0 ? "success" : "error"
-    // const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-    // const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    // const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
   })
 
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
