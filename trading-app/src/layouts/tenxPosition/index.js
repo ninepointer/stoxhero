@@ -23,8 +23,8 @@ import Header from "./Header";
 
 // Dashboard components
 
-import OverallTraderPnl from "./components/overallTraderPnl";
-import TraderwiseTraderPnl from "./components/TraderwiseTraderPNL";
+import OverallTraderPnl from "./AlgoUserComponents/overallTraderPnl";
+import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
 
 function TraderPosition() {
 

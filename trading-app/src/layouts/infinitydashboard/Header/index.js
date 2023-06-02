@@ -948,7 +948,7 @@ export default function LabTabs({socket}) {
 
                                   
                             >
-                                SroxHero Orders
+                                StoxHero Orders
                             </MDButton>
                         </Grid>
 

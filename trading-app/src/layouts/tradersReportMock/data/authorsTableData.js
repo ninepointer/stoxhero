@@ -59,7 +59,7 @@ export default function UserReportData() {
 
   return {
     columns: [
-      { Header: "Trader Name", accessor: "name", align: "center" },
+      // { Header: "Trader Name", accessor: "name", align: "center" },
       { Header: "Date", accessor: "date", align: "center" },
       { Header: "Gross P&L", accessor: "grossPnl", align: "center" },
       { Header: "Transaction Cost", accessor: "brokerage", align: "center" },
