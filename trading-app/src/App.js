@@ -67,7 +67,6 @@ import Privacy from "./layouts/HomePage/pages/Privacy";
 
 export default function App() {
   const cookieValue = Cookies.get("jwtoken");
-  console.log(cookieValue,Cookies.get("jwtoken"))
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -88,7 +87,6 @@ export default function App() {
   const { pathname } = useLocation();
   let noCookie = false;
 
-  // console.log("pathname", pathname)
 
   //get userdetail who is loggedin
   const setDetails = useContext(userContext);
@@ -106,7 +104,6 @@ export default function App() {
         },
     })
     .then((res)=>{
-      console.log(res.data.role, res.data.designation);
       setDetails.setUserDetail(res.data);
       setDetailUser((res.data));
       setIsLoading(false);
@@ -115,7 +112,6 @@ export default function App() {
       console.log("Fail to fetch data of user");
       noCookie = true;
       console.log(err);
-      console.log("Inside API: ",pathname)
       pathname === '/login' ? navigate("/login") : navigate(pathname);
       setIsLoading(false);
     })
@@ -198,8 +194,6 @@ export default function App() {
     </MDBox>
   );
   
-  console.log("Path Name: ",pathname)
-  console.log(detailUser.role?.roleName, adminRole, cookieValue)
   if (isLoading) {
     return <div></div>; // Replace this with your actual loading component or spinner
   }
