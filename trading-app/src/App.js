@@ -39,7 +39,7 @@ import analyticsRoutes from "./analyticsRoutes"
 import routesInfinityTrader from "./routesInfinityTrader";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "./context";
+import { useMaterialUIController, setMiniSidenav, setOpenConfigurator, setLayout } from "./context";
 
 // Images
 import brandWhite from "./assets/images/logo-ct.png";
@@ -83,6 +83,8 @@ export default function App() {
   const [rtlCache, setRtlCache] = useState(null);
   // const [routes1, setRoutes] = useState();
   const [detailUser, setDetailUser] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
   const { pathname } = useLocation();
   let noCookie = false;
 
@@ -107,6 +109,7 @@ export default function App() {
       console.log(res.data.role, res.data.designation);
       setDetails.setUserDetail(res.data);
       setDetailUser((res.data));
+      setIsLoading(false);
 
     }).catch((err)=>{
       console.log("Fail to fetch data of user");
@@ -114,6 +117,7 @@ export default function App() {
       console.log(err);
       console.log("Inside API: ",pathname)
       pathname === '/login' ? navigate("/login") : navigate(pathname);
+      setIsLoading(false);
     })
   }, [])
 
@@ -189,13 +193,16 @@ export default function App() {
       color="dark"
       sx={{ cursor: "pointer" }}
       onClick={handleConfiguratorOpen}
-    >
+      >
       <SettingsIcon/>
     </MDBox>
   );
-
+  
   console.log("Path Name: ",pathname)
   console.log(detailUser.role?.roleName, adminRole, cookieValue)
+  if (isLoading) {
+    return <div></div>; // Replace this with your actual loading component or spinner
+  }
 
   return direction === "rtl" ? (
     
