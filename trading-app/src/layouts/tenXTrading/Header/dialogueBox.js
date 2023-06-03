@@ -203,12 +203,12 @@ export default function Dialogue({amount, name, id, walletCash}) {
     <>
         {isSubscribed ?
         <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
         :
         messege.thanksMessege ?
         <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "10x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
         :
         <MDBox>
