@@ -23,34 +23,6 @@ import data from "./data";
 
 function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, setBatches }) {
   const { columns, rows } = data();
-  const [menu, setMenu] = useState(null);
-
-  // const {render, setRender} = Render
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
-  const closeMenu = () => setMenu(null);
-
-  const renderMenu = (
-    <Menu
-      id="simple-menu"
-      anchorEl={menu}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "left",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={Boolean(menu)}
-      onClose={closeMenu}
-    >
-      <MenuItem onClick={closeMenu}>Action</MenuItem>
-      <MenuItem onClick={closeMenu}>Another action</MenuItem>
-      <MenuItem onClick={closeMenu}>Something else</MenuItem>
-    </Menu>
-  );
-
-
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     
@@ -101,24 +73,6 @@ function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, 
     }
   }, [])
 
-  // useEffect(()=>{
-  //         // Get Lastest Trade timestamp
-  //         axios.get(`${baseUrl}api/v1/getlastestmocktradecompany`)
-  //         // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
-  //         .then((res)=>{
-  //             //console.log(res.data);
-  //             setLatestTradeTimearr(res.data);
-  //             setLatestTradeTime(res.data.trade_time) ;
-  //             setLatestTradeBy(res.data.createdBy) ;
-  //             setLatestTradeType(res.data.buyOrSell) ;
-  //             setLatestTradeQuantity(res.data.Quantity) ;
-  //             setLatestTradeSymbol(res.data.symbol) ;
-  //             setLatestTradeStatus(res.data.status);
-  //               //console.log(lastestTradeTimearr);
-  //         }).catch((err) => {
-  //           return new Error(err);
-  //         })
-  // }, [marketData])
 
   let mapForParticularUser = new Map();
     //console.log("Length of All Trade Array:",allTrade.length);

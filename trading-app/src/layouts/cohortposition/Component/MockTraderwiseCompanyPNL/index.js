@@ -98,7 +98,7 @@ function MockTraderwiseCompantPNL(props) {
         return new Error(err);
       })
 
-  }, [])
+  }, [props.batchName])
 
   useEffect(() => {
     return () => {
