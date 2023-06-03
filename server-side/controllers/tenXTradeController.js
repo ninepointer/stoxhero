@@ -715,12 +715,7 @@ exports.overallTenXPnl = async (req, res, next) => {
       },
         {
           $group: {
-            _id: {
-              symbol: "$symbol",
-              product: "$Product",
-              instrumentToken: "$instrumentToken",
-              exchangeInstrumentToken: "$exchangeInstrumentToken",
-            },
+            _id: null,
             amount: {
               $sum: {$multiply : ["$amount",-1]},
             },
@@ -811,7 +806,7 @@ exports.liveTotalTradersCount = async (req, res, next) => {
 
 exports.overallTenXPnlYesterday = async (req, res, next) => {
   let yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 2);
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
   // console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
@@ -832,15 +827,15 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
       },
         {
           $group: {
-            _id: {
-              symbol: "$symbol",
-              product: "$Product",
-              instrumentToken: "$instrumentToken",
-              exchangeInstrumentToken: "$exchangeInstrumentToken",
-            },
+            _id: null,
 
             amount: {
               $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: {$abs : "$amount"},
+              },
             },
             brokerage: {
               $sum: {
@@ -850,6 +845,11 @@ exports.overallTenXPnlYesterday = async (req, res, next) => {
             lots: {
               $sum: {
                 $toInt: "$Quantity",
+              },
+            },
+            totallots: {
+              $sum: {
+                $toInt: {$abs : "$Quantity"},
               },
             },
             trades: {

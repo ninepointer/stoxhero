@@ -9,7 +9,7 @@ const {xtsAccountType} = require("../../../constant");
 router.get("/getPositions", async (req, res)=>{
     const accessToken = await RequestToken.find({status: "Active", accountType: xtsAccountType, xtsType: "Interactive"});
 
-    let url = `http://14.142.188.188:23000/interactive/portfolio/dealerpositions?dayOrNet=DayWise`;
+    let url = `${process.env.INTERACTIVE_URL}/interactive/portfolio/dealerpositions?dayOrNet=DayWise`;
     let token = accessToken[0]?.accessToken;
 
     // console.log("token", token)

@@ -54,7 +54,7 @@ const tradableInstrumentSchema = new mongoose.Schema({
     },
     accountType:{
         type: String,
-        required : true,
+        // required : true,
         enum : [zerodhaAccountType, xtsAccountType]
     },
     lastModifiedBy:{
@@ -84,7 +84,7 @@ const tradableInstrumentSchema = new mongoose.Schema({
     }
 })
 
-const tradableInstrumentDetail = mongoose.model("tradable-instrument", tradableInstrumentSchema);
-module.exports = tradableInstrumentDetail;
+const TradableInstrumentDetail = mongoose.model("tradable-instrument", tradableInstrumentSchema);
+module.exports = TradableInstrumentDetail;
 
 

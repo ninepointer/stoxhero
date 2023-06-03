@@ -25,7 +25,7 @@ const { deletePnlKey } = require("./controllers/deletePnlKey");
 const { subscribeInstrument, getXTSTicksForUserPosition,
   onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
-const { interactiveLogin, positions } = require("./services/xts/xtsInteractive");
+const { interactiveLogin } = require("./services/xts/xtsInteractive");
 const { autoExpireSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
@@ -151,7 +151,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
       // await getTicksForUserPosition(socket, data);
-      await positions();
+      // await positions();
       if(setting.ltp == zerodhaAccountType || setting.complete == zerodhaAccountType){
         await getTicksForUserPosition(socket, data);
       } else{
@@ -173,7 +173,7 @@ getKiteCred.getAccess().then(async (data)=>{
 
   });
 
-  
+
   await subscribeInstrument();
   io.on('disconnection', () => {disconnectTicker()}); //TODO toggle
   io.on('disconnection', () => { onDisconnect() });
@@ -212,6 +212,7 @@ app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
 app.use('/api/v1', require("./marketData/getRetrieveOrder"));
 // app.use('/api/v1', require('./marketData/placeOrder'));
 app.use('/api/v1', require('./marketData/switchToRealTrade'));
+app.use('/api/v1', require('./services/xts/xtsHelper/xtsMarginDetails'));
 app.use('/api/v1/internbatch', require('./routes/career/internBatchRoute'));
 app.use('/api/v1/gd', require('./routes/career/groupDiscussionRoute'));
 app.use('/api/v1/tutorialcategory', require('./routes/tutorialVideos/tutorialCategory'));

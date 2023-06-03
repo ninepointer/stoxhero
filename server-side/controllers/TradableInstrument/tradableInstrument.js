@@ -56,14 +56,15 @@ exports.tradableInstrument = async (req,res,next) => {
                 const existingInstrument = await TradableInstrument.findOne({ tradingsymbol: row.tradingsymbol, status: "Active" });
                 if (!existingInstrument) {
                   if((row.name == "NIFTY" || row.name == "BANKNIFTY") && row.segment == "NFO-OPT"){
-                    console.log("getting row", row);
+                    // 
                     if(row.name === "NIFTY"){
                       row.name = row.name+"50"
                     }
                     row.lastModifiedBy = userId;
                     row.createdBy = userId;
-                
-                    await TradableInstrument.create(row);
+                    console.log("getting row", row);
+                    const x = await TradableInstrument.create(row);
+                    console.log(x)
                   }
                 }
             })

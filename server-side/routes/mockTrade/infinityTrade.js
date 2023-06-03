@@ -1,16 +1,17 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const {overallPnlBatchWiseMock, mockLiveTotalTradersCount, overallCompanySidePnl, treaderWiseMockTrader, overallPnlAllTrader, overallPnlTrader,myTodaysTrade,myHistoryTrade, 
-    getPnlAndCreditData, getMyPnlAndCreditData, openingBalance, traderwiseBatchMock,
-    myAllTodaysTrade, overallPnlCompanySide, batchWisePnl, mockBatchToday, getLetestMockTradeCompany,
-    companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl, overallPnlTraderWise
-    , getAllOrders, getAllOrdersForToday, getAllTradersMockOrders, getAllMockOrdersForToday, getAllMockOrders,
-     getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, getAllTradersLiveOrdersForToday,
-      getUserReportMockDateWise, getAllTraderReportDateWise} = require('../../controllers/infinityController');
+        getPnlAndCreditData, getMyPnlAndCreditData, openingBalance, traderwiseBatchMock,
+        myAllTodaysTrade, overallPnlCompanySide, batchWisePnl, mockBatchToday, getLetestMockTradeCompany,
+        companyDailyPnlTWise, companyPnlReport, traderPnlTWise, traderMatrixPnl, overallPnlTraderWise, 
+        getAllMockOrders, getAllOrders, getAllOrdersForToday, getAllTradersMockOrders, getAllMockOrdersForToday, 
+        getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, overallInfinityMockCompanyPnlMTD,
+        getAllTradersLiveOrdersForToday,overallInfinityMockCompanyPnlYesterday,
+        getUserReportMockDateWise, getAllTraderReportDateWise} = require('../../controllers/infinityController');
 
-const {pnlTraderCompany, overallLivePnlToday, getLetestLiveTradeCompany, 
-    traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive, 
-    overallCompanySidePnlLive, mockLiveTotalTradersCountLiveSide} = require("../../controllers/infinityTrading/infinityLiveCompany")
+const {pnlTraderCompany, overallLivePnlToday, getLetestLiveTradeCompany, overallInfinityLiveCompanyPnlYesterday,
+        traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive,overallInfinityLiveCompanyPnlMTD, 
+        overallCompanySidePnlLive, mockLiveTotalTradersCountLiveSide} = require("../../controllers/infinityTrading/infinityLiveCompany")
 const Authenticate = require('../../authentication/authentication');
 
 
@@ -22,9 +23,13 @@ router.route('/pnlandCreditData').get(getPnlAndCreditData)
 router.route('/myPnlandCreditData').get(Authenticate, getMyPnlAndCreditData)
 router.route('/myOpening').get(Authenticate, openingBalance)
 router.route('/mock/pnlAllTrader').get(overallPnlAllTrader)
+router.route('/mock/overallinfinitymockcompanypnlyesterday').get(overallInfinityMockCompanyPnlYesterday)
 router.route('/mock/cohortBatchToday').get(mockBatchToday)
 router.route('/mock/overallcompanypnltoday').get(overallCompanySidePnl)
 router.route('/live/overallcompanypnltoday').get(overallCompanySidePnlLive)
+router.route('/live/overallinfinitylivecompanypnlyesterday').get(overallInfinityLiveCompanyPnlYesterday)
+router.route('/live/overallinfinitylivecompanypnlMTD').get(overallInfinityLiveCompanyPnlMTD)
+router.route('/mock/overallinfinitymockcompanypnlMTD').get(overallInfinityMockCompanyPnlMTD)
 router.route('/mock/liveandtotaltradercounttoday').get(mockLiveTotalTradersCount)
 router.route('/live/liveandtotaltradercounttoday').get(mockLiveTotalTradersCountLiveSide)
 router.route('/mock/traderwiseAllTrader').get(treaderWiseMockTrader)
