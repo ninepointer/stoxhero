@@ -64,7 +64,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
       setUpdatedUser(res.data);
       console.log("subscribed", res.data)
       let subscribed = (res.data?.subscription)?.filter((elem)=>{
-        return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
+        return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
       })
 
       console.log("subscribed", subscribed)
@@ -79,7 +79,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   useEffect(()=>{
     let subscribed = (updatedUser?.subscription)?.filter((elem)=>{
-      return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
+      return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
     })
     if(subscribed?.length > 0){
       setIsSubscribed(true);
