@@ -1,6 +1,7 @@
 import { React, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { userContext } from '../../../AuthContext';
+import moment from 'moment'
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
@@ -515,13 +516,13 @@ function Header({ children }) {
                   <MDTypography color={"light"} fontSize={13}>{elem?.subscriptionId?.plan_name}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{moment.utc(elem?.trade_time).format('DD-MMM-YY HH:mm:ss')}</MDTypography>
                 </Grid>
             </Grid>
             )
             })}
             
-            {internshipCount !== 0 &&
+            {infinityCount !== 0 &&
             <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
                 <MDButton variant='outlined' size="small" color="light" onClick={infinityBackHandler}>Back</MDButton>
                 <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {infinityCount} | Page {(InfinitySkip+limitSetting)/limitSetting} of {Math.ceil(infinityCount/limitSetting)}</MDTypography>
@@ -588,7 +589,7 @@ function Header({ children }) {
                   <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{moment.utc(elem?.trade_time).format('DD-MMM-YY HH:mm:ss')}</MDTypography>
                 </Grid>
             </Grid>
             )
@@ -702,7 +703,7 @@ function Header({ children }) {
                   <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{moment.utc(elem?.trade_time).format('DD-MMM-YY HH:mm:ss')}</MDTypography>
                 </Grid>
             </Grid>
             )
@@ -816,7 +817,7 @@ function Header({ children }) {
                   <MDTypography color={statuscolor} fontSize={13}>{elem?.status}</MDTypography>
                 </Grid>
                 <Grid item xs={12} md={2} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDTypography color="light" fontSize={13}>{new Date(elem?.trade_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.trade_time).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color="light" fontSize={13}>{moment.utc(elem?.trade_time).format('DD-MMM-YY HH:mm:ss')}</MDTypography>
                 </Grid>
             </Grid>
             )
