@@ -97,7 +97,7 @@ function LiveTraderwiseCompantPNL(props) {
     }).catch((err)=>{
         return new Error(err);
     })
-  }, [])
+  }, [props.batchName])
 
   useEffect(() => {
     return () => {

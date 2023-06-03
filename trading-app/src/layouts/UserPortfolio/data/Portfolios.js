@@ -7,96 +7,34 @@ import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import money from "../../../assets/images/money.png"
+import tradesicon from '../../../assets/images/portfolioicon.png'
 // import link from "../../../assets/images/link.png"
 
 
-const MyPortfolioCard = ({type, data}) => {
+const MyPortfolioCard = ({virtualPortfolio, marginDetails}) => {
   
-  // const [myPortfolio,setMyPortfolio] = useState([]);
-  // const [portfolioPnl, setPortfolioPnl] = useState([]);
-  // const [tenX, setTenX] = useState([]);
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-
-  // useEffect(()=>{
-  
-
-  //   let call1 = axios.get(`${baseUrl}api/v1/portfolio/my`,{
-  //               withCredentials: true,
-  //               headers: {
-  //                   Accept: "application/json",
-  //                   "Content-Type": "application/json",
-  //                   "Access-Control-Allow-Credentials": true
-  //                 },
-  //               })
-
-  //   let call2 = axios.get(`${baseUrl}api/v1/portfolio/pnl`,{
-  //               withCredentials: true,
-  //               headers: {
-  //                   Accept: "application/json",
-  //                   "Content-Type": "application/json",
-  //                   "Access-Control-Allow-Credentials": true
-  //                 },
-  //               })
-  //   Promise.all([call1, call2])
-  //   .then(([api1Response, api2Response]) => {
-  //     // Process the responses here
-  //     console.log(api1Response.data.data);
-  //     console.log(api2Response.data);
-  //     setMyPortfolio(api1Response.data.data)
-  //     setPortfolioPnl(api2Response.data.data)
-    
-  //   })
-  //   .catch((error) => {
-  //     // Handle errors here
-  //     console.error(error);
-  //   });
-
-
-  // },[])
-
-  // useEffect(()=>{
-  //   axios.get(`${baseUrl}api/v1/portfolio/myTenx`,{
-  //     withCredentials: true,
-  //     headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //         "Access-Control-Allow-Credentials": true
-  //       },
-  //     })
-  //     .then((res)=>{
-  //       setMyPortfolio(res.data.data);
-  //     })
-  // }, [])
-
     return (
       <>
-      {data.length > 0 ?
+      {virtualPortfolio?.length > 0 ?
           <MDBox>
             <Grid container spacing={2}>
-              {data?.map((e)=>{
+              {virtualPortfolio?.map((e)=>{
                   // let portfolio = portfolioPnl.filter((elem)=>{
                   //   return e?._id === elem?._id?.portfolioId
                   // })
 
                   // let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
-                  if(e?.portfolioType === type){
+                  if(e?.portfolioId){
                     return (
                       
-                      <Grid key={e._id} item xs={12} md={6} lg={6} >
+                      <Grid key={e?.portfolioId?._id} item xs={12} md={6} lg={6} >
                       <MDBox padding={0} style={{borderRadius:4}}>
                       <MDButton variant="contained" color={"light"} size="small" >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
                                   <MDBox>
-                                    <MDTypography fontSize={20} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>{e?.portfolioName}</MDTypography>
-                                    {/* {e?.portfolioType === 'Battle' ? <MDBox display="flex" alignContent="center" alignItems="center" size="small">
-                                    <MDAvatar src={link} size="sm" display="flex" justifyContent="left"/>
-                                    <MDTypography fontSize={10} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio linked to Battle: 'Add Battle Name Here'</MDTypography>
-                                    </MDBox>
-                                    :
-                                    ''} */}
+                                    <MDTypography fontSize={20} display="flex" justifyContent="left" style={{color:"black",backgroundColor:"whitesmoke",borderRadius:3,paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>{e?.portfolioId?.portfolioName}</MDTypography>
                                   </MDBox>
                               </Grid>
                               
@@ -104,32 +42,32 @@ const MyPortfolioCard = ({type, data}) => {
                                   <MDAvatar src={money} size="xl" display="flex" justifyContent="left"/>
                                   <MDBox ml={2} display="flex" flexDirection="column">
                                   <MDTypography fontSize={15} display="flex" justifyContent="left" style={{color:"black"}}>Portfolio Value</MDTypography>
-                                  <MDTypography fontSize={15} display="flex" justifyContent="left" style={{color:"black"}}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.portfolioValue)}</MDTypography>
+                                  <MDTypography fontSize={15} display="flex" justifyContent="left" style={{color:"black"}}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.portfolioId?.portfolioValue)}</MDTypography>
                                   </MDBox>
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="left" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>Invested Amount</MDTypography>
-                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(e?.investedAmount))}</MDTypography>
+                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>Opening Balance</MDTypography>
+                                  <MDTypography fontSize={12} display="flex" justifyContent="left" style={{color:"black"}}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(marginDetails?.openingBalance))}</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="right" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>Cash Balance</MDTypography>
+                                  <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>Available Margin</MDTypography>
                                   <MDTypography fontSize={12} display="flex" justifyContent="right" style={{color:"black"}}>
-                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.cashBalance)}
+                                    ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(e?.portfolioId?.portfolioValue + marginDetails?.npnl)}
                                   </MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Type <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioType}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Type <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioId?.portfolioType}</span></MDTypography>
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Account <span style={{fontSize:11,fontWeight:700}}>{e.portfolioAccount}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Account <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioId?.portfolioAccount}</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -145,11 +83,12 @@ const MyPortfolioCard = ({type, data}) => {
             </Grid>
           </MDBox>
           :
-         <Grid container spacing={1} xs={12} md={6} lg={12}>
-          <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">You do not have any portfolio to join the contest</MDTypography>
+          <Grid item xs={12} md={6} lg={12}>
+          <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+            <img src={tradesicon} width={50} height={50}/>
+            <MDTypography color="light" fontSize={15}>You do not have any active Virtual Trading Portfolio!</MDTypography>
+          </MDBox>
           </Grid>
-         </Grid>
          } 
 
       </>

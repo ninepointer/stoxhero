@@ -37,7 +37,18 @@ const Authenticate = async (req, res, next)=>{
             else{
 
                 // console.log("in else authentication")
-                const user = await User.findOne({_id: verifyToken._id, status: "Active"}).populate('role', 'roleName')
+                const user = await User.findOne({_id: verifyToken._id, status: "Active"})
+                .populate('role', 'roleName')
+                .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
+                .populate({
+                    path : 'subscription.subscriptionId',
+                    select: 'portfolio',
+                    populate: [{
+                        path: 'portfolio',
+                        select: 'portfolioName portfolioValue portfolioType portfolioAccount'
+                    },
+                    ]
+                })
                 .populate({
                     path: 'internshipBatch',
                     select: 'batchName batchStartDate batchEndDate career portfolio participants',

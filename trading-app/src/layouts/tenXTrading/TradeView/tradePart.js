@@ -78,31 +78,15 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
         <Grid container spacing={3} mb={2}>
 
           <Grid item xs={12} md={6} lg={3}>
-            <MDButton onClick={()=>{navigate("/tenxtrading")}} bgColor="light" borderRadius={2} p={1} display="flex" justifyContent="space-between">
+            <MDButton sx={{width:'100%'}} onClick={()=>{navigate("/tenxtrading")}} bgColor="light" borderRadius={2} p={1} display="flex" justifyContent="space-between">
                 Back To Subscriptions
             </MDButton>
           </Grid>
 
           <Grid item xs={12} md={6} lg={9}>
-            <MDBox bgColor="light" borderRadius={5} p={1} display="flex" justifyContent="space-between">
+            <MDBox bgColor="light" borderRadius={7} p={1} display="flex" justifyContent="space-between">
               <Grid container display="flex" justifyContent="space-around">
-
-                <MDTypography fontSize={22} fontWeight="bold">{`Total Trading Days: ${tradingDayData[0]?.totalTradingDays} | Total Remaining Days: ${Math.floor(tradingDayData[0]?.actualRemainingDay)}`}</MDTypography>
-
-                {/* <Grid item xs={12} md={6} lg={2.5}>
-                  <MDAvatar src={netpnlicon} size="sm" />
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={11} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">NET P&L</MDTypography>
-                  <MDBox display="flex">
-                    <MDTypography fontSize={10}>Today</MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)) : "-₹" + ((-pnl.netPnl).toFixed(2))}</MDTypography>
-                </Grid> */}
+                <MDTypography fontSize={15} fontWeight="bold">{`# of Trading Days: ${tradingDayData[0]?.totalTradingDays} || Subscription ends after ${Math.floor(tradingDayData[0]?.actualRemainingDay)} trading days`}</MDTypography>
               </Grid>
 
             </MDBox>
@@ -125,13 +109,14 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(openingBalance + pnl.netPnl) >= 0.00 ? "₹" + ((openingBalance + pnl.netPnl).toFixed(0)) : "₹" + ((-(openingBalance + pnl.netPnl)).toFixed(0))}</MDTypography>
+                  
+                    <MDTypography fontSize={10}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance + pnl.netPnl)}</MDTypography>
                     <MDAvatar src={openingBalance + pnl.netPnl - openingBalance + pnl.netPnl >= 0 ? upicon : downicon} style={{ width: 15, height: 15 }} display="flex" justifyContent="left" />
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{openingBalance?.toFixed(0)}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance)}</MDTypography>
                   <MDBox display="flex" justifyContent="right">
                     <MDTypography fontSize={10} display="flex" justifyContent="right">{fundChangePer.toFixed(2)}%</MDTypography>
                     <MDAvatar src={fundChangePer >= 0 ? upicon : downicon} style={{ width: 15, height: 15 }} display="flex" justifyContent="right" />
@@ -158,7 +143,7 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)) : "-₹" + ((-pnl.netPnl).toFixed(2))}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{ (pnl.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl.netPnl))}</MDTypography>
                 </Grid>
               </Grid>
 
