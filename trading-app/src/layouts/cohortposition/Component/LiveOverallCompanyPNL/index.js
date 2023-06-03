@@ -84,23 +84,7 @@ function LiveOverallCompantPNL({socket, batchName}) {
         return new Error(err);
     })
 
-      // Get Lastest Trade timestamp
-      // axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`)
-      // .then((res)=>{
-      //     console.log("Latest Live Trade:",res.data);
-      //     setLatestTradeTimearr(res.data);
-      //     setLatestTradeTime(res.data.trade_time) ;
-      //     setLatestTradeBy(res.data.createdBy) ;
-      //     setLatestTradeType(res.data.buyOrSell) ;
-      //     setLatestTradeQuantity(res.data.Quantity) ;
-      //     setLatestTradeSymbol(res.data.symbol) ;
-      //     setLatestTradeStatus(res.data.status)
-      //     console.log(lastestTradeTimearr);
-      // }).catch((err) => { 
-      //   return new Error(err);
-      // })
-
-  }, [])
+  }, [batchName])
 
 
   useEffect(() => {

@@ -61,7 +61,7 @@ import CollegeDetails from './layouts/college/collegeDetails'
 import Forward10Icon from '@mui/icons-material/Forward10';
 import MyPortfolio from './layouts/UserPortfolio'
 import VpnLockIcon from '@mui/icons-material/VpnLock';
-
+import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 
 
@@ -168,6 +168,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/internshiporders",
     component: <InternshipOrders />,
+  },
+    {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "backreportxts",
+    // icon: <DashboardIcon/>,
+    route: "/backreportxts",
+    component: <BackReportXTS />,
   },
   {
     // type: "collapse",

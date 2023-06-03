@@ -104,7 +104,7 @@ client.connect()
 
   
 
-// test().then(()=>{})
+  // autoCutMainManually().then(()=>{})
 
 // console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
@@ -248,6 +248,7 @@ app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
 app.use('/api/v1/career', require("./routes/career/careerRoute"));
 app.use('/api/v1/tenX', require("./routes/tenXSubscription/tenXRoute"));
 app.use('/api/v1/tenxtrade', require("./routes/mockTrade/tenXTradeRoute"));
+app.use('/api/v1', require("./routes/mockTrade/retreiveOrder"));
 app.use('/api/v1/internship', require("./routes/mockTrade/internshipTradeRoutes"));
 app.use('/api/v1/college', require("./routes/career/collegeRoute"));
 app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));

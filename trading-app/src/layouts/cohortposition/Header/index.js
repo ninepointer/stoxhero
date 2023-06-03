@@ -23,6 +23,8 @@ import breakpoints from "../../../assets/theme/base/breakpoints";
 // Images
 import backgroundImage from "../../../assets/images/trading.jpg";
 import AlgoBoxMain from "../AlgoBoxMain";
+import { MenuItem, TextField } from "@mui/material";
+import MDTypography from "../../../components/MDTypography";
 
 
 
@@ -31,6 +33,7 @@ function BatchPositionHeader({ children }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
   const [batchDetails, setBatchDetails] = useState([]);
+  const [selectedBatch, setSelectedBatch] = useState();
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/infinityTrade/mock/cohortBatchToday`)
@@ -99,7 +102,27 @@ function BatchPositionHeader({ children }) {
 
         <Grid container spacing={6} alignItems="center">
           <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }}>
-            <AppBar position="static">
+          <MDBox sx={{display: 'flex', alignItems: 'center', marginLeft:'24px'}}>
+        <MDTypography fontSize={15}>Select Batch</MDTypography>
+        <TextField
+                // id="outlined-basic"
+                select
+                label=""
+                defaultValue={batchDetails[0]?.batchName??'Selected'}
+                minHeight="4em"
+                //helperText="Please select the body condition"
+                variant="outlined"
+                sx={{margin: 1, padding: 1, width: "200px"}}
+                onChange={(e)=>{setSelectedBatch(e.target.value)}}
+        >
+          {batchDetails?.map((option) => (
+                <MenuItem key={option?._id?.cohort} value={option?._id?.cohort} minHeight="4em">
+                  {option?._id?.cohort}
+                </MenuItem>
+              ))}
+        </TextField>          
+      </MDBox>
+            {/* <AppBar position="static">
               <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
                 {batchDetails.map((elem)=>{
                   return (
@@ -119,9 +142,11 @@ function BatchPositionHeader({ children }) {
             </AppBar>
             {batchDetails.map((elem, index)=>{
               return (
-                <TabPanel value={tabValue} index={index}><AlgoBoxMain batchName={elem._id.cohort}/> </TabPanel>
+                <TabPanel value={tabValue} index={index}> </TabPanel>
               )
-            })}
+            })} */}
+
+<AlgoBoxMain batchName={selectedBatch}/>
           </Grid>
         </Grid>
       </Card>
