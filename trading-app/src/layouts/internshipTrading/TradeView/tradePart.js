@@ -88,17 +88,18 @@ export default function TenXTrading({socket, BatchId}) {
                 <Grid item xs={12} md={6} lg={5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
                   <MDBox display="flex">
-                    <MDTypography fontSize={10}>{(openingBalance+pnl.netPnl) >= 0.00 ? "₹" + ((openingBalance+pnl.netPnl).toFixed(0)): "₹" + ((-(openingBalance+pnl.netPnl)).toFixed(0))}</MDTypography>
-                    <MDAvatar src={openingBalance+pnl.netPnl - openingBalance+pnl.netPnl >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/>
+                  
+                    <MDTypography fontSize={10}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance + pnl.netPnl)}</MDTypography>
+                    <MDAvatar src={openingBalance + pnl.netPnl - openingBalance + pnl.netPnl >= 0 ? upicon : downicon} style={{ width: 15, height: 15 }} display="flex" justifyContent="left" />
                   </MDBox>
                 </Grid>
-              
+
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{openingBalance?.toFixed(0)}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance)}</MDTypography>
                   <MDBox display="flex" justifyContent="right">
                     <MDTypography fontSize={10} display="flex" justifyContent="right">{fundChangePer.toFixed(2)}%</MDTypography>
-                    <MDAvatar src={fundChangePer >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>
-                  </MDBox>   
+                    <MDAvatar src={fundChangePer >= 0 ? upicon : downicon} style={{ width: 15, height: 15 }} display="flex" justifyContent="right" />
+                  </MDBox>
                 </Grid>
               </Grid>
           </MDBox>
@@ -121,7 +122,7 @@ export default function TenXTrading({socket, BatchId}) {
                 </Grid>
               
                 <Grid item xs={12} md={6} lg={4.5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{pnl.netPnl >= 0.00 ? "+₹" + (pnl.netPnl.toFixed(2)): "-₹" + ((-pnl.netPnl).toFixed(2))}</MDTypography>
+                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right" color={gpnlcolor}>{ (pnl.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl.netPnl))}</MDTypography>
                 </Grid>
               </Grid>
             
