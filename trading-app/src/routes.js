@@ -131,7 +131,7 @@ import ContactInfo from './layouts/ContactInfo'
 const routes = [
   {
     type: "collapse",
-    name: "Infinty Dashboard",
+    name: "Infinity Dashboard",
     key: "infinitydashboard",
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
