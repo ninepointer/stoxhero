@@ -71,7 +71,7 @@ function MockOverallCompantPNL({ socket, batchName }) {
         return new Error(err);
       })
 
-  }, [])
+  }, [batchName])
 
   console.log("trade cohort", tradeData)
 
