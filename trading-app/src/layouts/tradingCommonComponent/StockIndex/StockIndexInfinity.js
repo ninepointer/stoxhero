@@ -108,7 +108,7 @@ function StockIndex({socket}) {
                         </Grid>
                     
                         <Grid item xs={12} md={6} lg={4.5}>
-                        <MDTypography fontSize={12} fontWeight="bold" display="flex" justifyContent="right">{e.ltp.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.ltp.props.children).toFixed(2)}</MDTypography>
+                        <MDTypography fontSize={12} fontWeight="bold" display="flex" justifyContent="right">{ (e.ltp.props.children) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e.ltp.props.children)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-e.ltp.props.children))}</MDTypography>
                         <MDBox display="flex" justifyContent="right">
                             <MDTypography fontSize={10} display="flex" justifyContent="right">({e.percentageChange.props.children>0 ? '+' : ''}{e.percentageChange.props.children}%)</MDTypography>
                             <MDAvatar src={e.valueChange.props.children >= 0 ? upicon : downicon} style={{width:15, height:15}} display="flex" justifyContent="right"/>

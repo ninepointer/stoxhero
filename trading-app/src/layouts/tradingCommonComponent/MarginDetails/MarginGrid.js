@@ -89,7 +89,7 @@ const MarginGrid = () => {
                   <DefaultInfoCard
                     title={`Portfolio Details(${portfolioName})`}
                     description="Below is a summary of the total funds and their intended uses"
-                    value={`Total Credit: ${totalCreditString} | Available Margin: ${availableMarginpnlstring}  | Used Margin Today: ${usedMarginString}`}
+                    value={`Portfolio Value: ${totalCreditString} | Available Margin: ${availableMarginpnlstring}  | Used Margin Today: ${usedMarginString}`}
                   />
                 </Grid>
                 {/* <Grid item xs={16} md={8} xl={3}>

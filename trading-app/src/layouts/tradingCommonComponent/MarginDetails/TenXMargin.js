@@ -65,7 +65,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
                     // icon={<CreditCardIcon/>}
-                    title="total credit"
+                    title="Portfolio Value"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
                   />

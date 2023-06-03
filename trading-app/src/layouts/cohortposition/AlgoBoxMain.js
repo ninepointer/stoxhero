@@ -49,9 +49,7 @@ function AlgoBoxMain({batchName}) {
         throw new Error(err);
     }
   
-  
-    //   const [userPermission, setUserPermission] = useState([]);
-     
+       
       useEffect(()=>{
   
           //console.log(socket);
@@ -62,30 +60,6 @@ function AlgoBoxMain({batchName}) {
 
   
       }, []);
-  
-    //   useEffect(()=>{
-
-    //       axios.get(`${baseUrl}api/v1/readpermission`)
-    //       .then((res)=>{
-    //         setUserPermission((res.data));            
-    //           //setOrderCountTodayCompany((res.data).length);
-    //       }).catch((err)=>{
-    //           //window.alert("Server Down");
-    //           return new Error(err);
-    //       })
-  
-    //   }, []);
-  
-    //   const handleSwitchChange = id => {
-    //     setUserPermission(prevUsers =>
-    //       prevUsers.map(user => {
-    //         if (user.userId === id) {
-    //           return { ...user, isRealTradeEnable: !user.isRealTradeEnable };
-    //         }
-    //         return user;
-    //       })
-    //     );
-    //   };
   
       const mockOverallCompanyPNL = useMemo(() => {
         return <MockOverallCompanyPNL batchName={batchName} socket={socket}/>
