@@ -37,7 +37,7 @@ const tenx = async () => {
             exchange: "$exchange",
             symbol: "$symbol",
             instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
             variety: "$variety",
             validity: "$validity",
             order_type: "$order_type",
