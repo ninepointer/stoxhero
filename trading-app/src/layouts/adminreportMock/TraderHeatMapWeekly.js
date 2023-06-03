@@ -46,7 +46,7 @@ useEffect(()=>{
     setFirstWeek(e.target.value)
     pnlCalculation(e.target.value, secondWeek)
     overallPnl = 0;
-    //console.log(e.target.value);
+    ////console.log(e.target.value);
   }
   function endWeek(e){
     e.preventDefault();
@@ -57,15 +57,15 @@ useEffect(()=>{
     setSecondWeek(e.target.value)
     pnlCalculation(firstWeek, e.target.value)
     overallPnl = 0;
-    //console.log(e.target.value);
+    ////console.log(e.target.value);
   }
 
 
   function pnlCalculation(firstWeek, secondWeek){
-    console.log(firstWeek,secondWeek)
+    //console.log(firstWeek,secondWeek)
     axios.get(`${baseUrl}api/v1/getweeklytraderpnl/${firstWeek}/${secondWeek}`)
     .then((res) => {
-      console.log(res.data);
+      //console.log(res.data);
       setOverallPnl(res.data);
 
     }).catch((err) => {
@@ -74,7 +74,7 @@ useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/getuniqueweeks/${firstWeek}/${secondWeek}`)
     .then((res) => {
-      console.log(res.data);
+      //console.log(res.data);
       setUWeeks(res.data);
 
     }).catch((err) => {
@@ -93,17 +93,17 @@ let pnlweeks = []
 uweeks.map((elem)=>{
   pnlweeks.push("Week# " + elem._id.weekNumber + "-" + elem._id.year)
 })
-console.log(pnlweeks);
+//console.log(pnlweeks);
 let pnlweeks1 = []
 uweeks.map((elem)=>{
   pnlweeks1.push(elem._id.weekNumber)
 })
-console.log(pnlweeks);
+//console.log(pnlweeks);
 let pnldata = []
 overallPnl.map((elem)=>{
     pnldata.push([elem._id.weekNumber,elem._id.trader])
 })
-console.log(pnldata)
+//console.log(pnldata)
 
 const xLabelsVisibility = pnlweeks;
 
@@ -147,7 +147,7 @@ function getWeekNumber(d) {
 const currentDate = new Date();
 const currentWeekNumber = getWeekNumber(currentDate)[1];
 
-console.log(currentWeekNumber);
+//console.log(currentWeekNumber);
   
 
 

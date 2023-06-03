@@ -5,14 +5,11 @@ import { useState } from 'react';
 
 export default function NewMain({setter}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-    console.log("rendering")
     const setDetails = useContext(userContext);
     const [info, setInfo] = useState({});
     let data;
     const dashboardPage = async ()=>{
       try{
-          console.log("inside try")
           const res = await fetch(`${baseUrl}api/v1/dashboard`, {
               method: "GET",
               headers: {
@@ -27,7 +24,6 @@ export default function NewMain({setter}) {
           setInfo(data)
           setDetails.setUserDetail(data);
         //   setter(data);
-          console.log(data);
   
           if(!res.status === 200){
               throw new Error(res.error);
