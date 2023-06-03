@@ -82,6 +82,10 @@ const tenx = async () => {
     ]
   );
 
+  // if(data.length == 0){
+  //   return;
+  // }
+
   for (let i = 0; i < data.length; i++) {
     let date = new Date();
     let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
@@ -124,6 +128,9 @@ const tenx = async () => {
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoTenxTrade(Obj);
+        // if(data.length > 0 && i == data.length-1){
+        //   await tenx();
+        // }
         return;
       } else {
         Obj.Quantity = 1800;
@@ -135,10 +142,6 @@ const tenx = async () => {
     }
   }
 
-  if(data.length > 0){
-    await tenx();
-  }
-
   return ;
 }
 
@@ -148,7 +151,7 @@ const internship = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  let tradeArr = [];
+  // let tradeArr = [];
   const data = await Internship.aggregate(
     [
       {
@@ -256,6 +259,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInternshipTrade(Obj);
+
         return;
       } else {
         Obj.Quantity = 1800;
@@ -266,10 +270,6 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
       }
     }
   }
-
-  // if(data.length > 0){
-  //   await internship();
-  // }
 
   return ;
 }
@@ -346,6 +346,10 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     ]
   );
 
+  if(data.length == 0){
+    return;
+  }
+
   for (let i = 0; i < data.length; i++) {
     let date = new Date();
     let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
@@ -387,6 +391,9 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoPaperTrade(Obj);
+        if(data.length > 0 && i == data.length-1){
+          await paperTrade();
+        }
         return;
       } else {
         Obj.Quantity = 1800;

@@ -39,7 +39,7 @@ function Transactions({render}) {
     <Card sx={{ height: "100%" }}>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={3} px={2}>
         <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
-          Net P&L, Total Credit & Available Margin Details
+          Net P&L, Portfolio Value & Available Margin Details
         </MDTypography>
         <MDBox display="flex" alignItems="flex-start">
           <MDBox color="text" mr={0.5} lineHeight={0}>
@@ -72,7 +72,7 @@ function Transactions({render}) {
           name="Trader Id"
           // description={datestring + " Transaction ID: " + elem.transactionId}
           value="Net P&L"
-          valueTotal="Total Credit"
+          valueTotal="Portfolio Value"
           valueTotalAvailable="Available Margin"
           />
           {/* {rows} */}

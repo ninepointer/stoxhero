@@ -96,7 +96,7 @@ function Billing() {
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
                     icon={<AvailableIcon/>}
-                    title="total credit"
+                    title="Portfolio Value"
                     value={totalCreditString}
                   />
                 </Grid>
