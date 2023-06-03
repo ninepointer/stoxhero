@@ -370,3 +370,235 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
   let x = await PaperTrade.aggregate(pipeline)
   res.status(201).json({ message: "data received", data: x });
 }
+
+exports.overallVirtualTraderPnl = async (req, res, next) => {
+  console.log("Inside overall virtual pnl")
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);    
+  console.log(today)
+  let pnlDetails = await PaperTrade.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: today
+          // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+        },
+        status: "COMPLETE",
+      },
+    },
+      {
+        $group: {
+          _id: {
+            symbol: "$symbol",
+            product: "$Product",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+          },
+          amount: {
+            $sum: {$multiply : ["$amount",-1]},
+          },
+          turnover: {
+            $sum: {
+              $toInt: { $abs : "$amount"},
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          totallots: {
+            $sum: {
+              $toInt: { $abs : "$Quantity"},
+            },
+          },
+          trades: {
+            $count:{}
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.liveTotalTradersCount = async (req, res, next) => {
+let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);    
+  let pnlDetails = await PaperTrade.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: today
+          // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+        },
+        status: "COMPLETE"
+      }
+    },
+    {
+      $group: {
+        _id: {
+          trader: "$trader"
+        },
+        runninglots: {
+          $sum: "$Quantity"
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        zeroLotsTraderCount: {
+          $sum: {
+            $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+          }
+        },
+        nonZeroLotsTraderCount: {
+          $sum: {
+            $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        zeroLotsTraderCount: 1,
+        nonZeroLotsTraderCount: 1
+      }
+    }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallVirtualPnlYesterday = async (req, res, next) => {
+let yesterdayDate = new Date();
+yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+// console.log(yesterdayDate)
+  let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+  yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+  let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+  yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+  const startTime = new Date(yesterdayStartTime); 
+  const endTime = new Date(yesterdayEndTime); 
+  // console.log("Query Timing: ", startTime, endTime)
+  let pnlDetails = await PaperTrade.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: startTime, $lte: endTime
+          // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+        },
+        status: "COMPLETE",
+      },
+    },
+      {
+        $group: {
+          _id: null,
+
+          amount: {
+            $sum: {$multiply : ["$amount",-1]},
+          },
+          turnover: {
+            $sum: {
+              $toInt: {$abs : "$amount"},
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          totallots: {
+            $sum: {
+              $toInt: {$abs : "$Quantity"},
+            },
+          },
+          trades: {
+            $count:{}
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.liveTotalTradersCountYesterday = async (req, res, next) => {
+  let yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  // console.log(yesterdayDate)
+  let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+  yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+  let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+  yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+  const startTime = new Date(yesterdayStartTime); 
+  const endTime = new Date(yesterdayEndTime); 
+  // console.log("Query Timing: ", startTime, endTime)  
+  let pnlDetails = await PaperTrade.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: startTime, $lte: endTime
+          // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+        },
+        status: "COMPLETE"
+      }
+    },
+    {
+      $group: {
+        _id: {
+          trader: "$trader"
+        },
+        runninglots: {
+          $sum: "$Quantity"
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        zeroLotsTraderCount: {
+          $sum: {
+            $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+          }
+        },
+        nonZeroLotsTraderCount: {
+          $sum: {
+            $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        zeroLotsTraderCount: 1,
+        nonZeroLotsTraderCount: 1
+      }
+    }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}

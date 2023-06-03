@@ -1,6 +1,6 @@
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTraderCompany = require("../models/mock-trade/infinityTradeCompany");
-// const InfinityTradeCompanyLive = require('../models/')
+const InfinityTradeCompanyLive = require('../models/TradeDetails/infinityLiveUser')
 const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../marketData/redisClient');
 const User = require("../models/User/userDetailSchema");
@@ -359,7 +359,6 @@ exports.mockLiveTotalTradersCount = async (req, res, next) => {
       ])
       res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
-
 
 exports.myTodaysTrade = async (req, res, next) => {
 
@@ -1293,6 +1292,7 @@ exports.overallPnlBatchWiseMock = async (req, res, next) => {
         trade_time: 1,
         status: 1,
         instrumentToken: 1,
+        exchangeInstrumentToken: 1,
         amount: 1,
         buyOrSell: 1,
         Quantity: 1,
@@ -1321,7 +1321,7 @@ exports.overallPnlBatchWiseMock = async (req, res, next) => {
           symbol: "$symbol",
           product: "$Product",
           instrumentToken: "$instrumentToken",
-exchangeInstrumentToken: "$exchangeInstrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
         },
         amount: {
           $sum: {
@@ -1372,7 +1372,12 @@ exports.traderwiseBatchMock = async (req, res, next) => {
     },
     {
       $project: {
-        userId: 1,
+        userId: {
+          $arrayElemAt: [
+            "$userDetails._id",
+            0,
+          ],
+        },
         createdBy: {
           $concat: [
             { $arrayElemAt: ["$userDetails.first_name", 0] },
@@ -1384,6 +1389,7 @@ exports.traderwiseBatchMock = async (req, res, next) => {
         status: 1,
         traderName: 1,
         instrumentToken: 1,
+        exchangeInstrumentToken: 1,
         amount: 1,
         Quantity: 1,
         brokerage: 1,
@@ -1407,6 +1413,7 @@ exports.traderwiseBatchMock = async (req, res, next) => {
           traderId: "$userId",
           traderName: "$createdBy",
           symbol: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken"
         },
         amount: {
           $sum: {
@@ -1581,6 +1588,7 @@ exports.getAllMockOrdersForToday = async (req, res)=>{
     console.log(e);
   }
 }
+
 exports.getAllLiveOrders = async (req, res)=>{
   let date = new Date();
   let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
@@ -1664,35 +1672,52 @@ exports.getAllLiveOrdersForToday = async (req, res)=>{
     console.log(e);
   }
 }
+
 exports.getAllTradersLiveOrders = async (req, res)=>{
   let date = new Date();
   let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
 //$gte : `${todayDate} 00:00:00`, 
   try{
     let x = await InfinityTrader.aggregate([
-         { $match: { trade_time: {$lte : new Date(yesterdayDate)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
+      { $match: { trade_time: { $lte: new Date(yesterdayDate) } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "result",
+        }
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "created",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$created.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$created.last_name", 0],
+            }]
+          },
+          "trader": {
+            $concat: [{
+              $arrayElemAt: ["$result.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$result.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } }
+    ]);
          res.status(201).json(x);
   }catch(e){
     console.log(e);
@@ -1735,6 +1760,7 @@ exports.getAllTradersLiveOrdersForToday = async (req, res)=>{
     console.log(e);
   }
 }
+
 exports.getAllTradersMockOrders = async (req, res)=>{
   let date = new Date();
   let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
@@ -1807,6 +1833,127 @@ exports.getAllTradersMockOrdersForToday = async (req, res)=>{
   }
 }
 
+exports.overallInfinityMockCompanyPnlYesterday = async (req, res, next) => {
+  let yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  // console.log(yesterdayDate)
+    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+    const startTime = new Date(yesterdayStartTime); 
+    const endTime = new Date(yesterdayEndTime); 
+    // console.log("Query Timing: ", startTime, endTime)
+    let pnlDetails = await InfinityTraderCompany.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: startTime, $lte: endTime
+            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+          },
+          status: "COMPLETE",
+        },
+      },
+        {
+          $group: {
+            _id: null,
+            amount: {
+              $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: {$abs : "$amount"},
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            totalLots: {
+              $sum: {
+                $toInt: {$abs : "$Quantity"},
+              },
+            },
+            trades: {
+              $count:{}
+            },
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ])
+      res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallInfinityMockCompanyPnlMTD = async (req, res, next) => {
+  let yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  // console.log(yesterdayDate)
+    let monthStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
+    monthStartTime = monthStartTime + "T00:00:00.000Z";
+    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+    const startTime = new Date(monthStartTime); 
+    const endTime = new Date(yesterdayEndTime); 
+    // console.log("Query Timing: ", startTime, endTime)
+    let pnlDetails = await InfinityTraderCompany.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: startTime, $lte: endTime
+            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+          },
+          status: "COMPLETE",
+        },
+      },
+        {
+          $group: {
+            _id: null,
+            amount: {
+              $sum: {$multiply : ["$amount",-1]},
+            },
+            turnover: {
+              $sum: {
+                $toInt: {$abs : "$amount"},
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            totalLots: {
+              $sum: {
+                $toInt: {$abs : "$Quantity"},
+              },
+            },
+            trades: {
+              $count:{}
+            },
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ])
+      res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
 exports.getUserReportMockDateWise = async(req, res)=>{
   const {id, startDate, endDate} = req.params;
   let date = new Date();

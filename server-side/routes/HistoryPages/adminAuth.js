@@ -28,6 +28,7 @@ const ObjectId = require('mongodb').ObjectId;
 const TradableInstrumentSchema = require("../../models/Instruments/tradableInstrumentsSchema")
 const authentication = require("../../authentication/authentication");
 const Instrument = require("../../models/Instruments/instrumentSchema");
+
 // const Instrument = require('../')
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
@@ -41,7 +42,16 @@ const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManual
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
+const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
+const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
+const {placeOrder} = require("../../services/xts/xtsInteractive");
+const fetchToken = require("../../marketData/generateSingleToken");
+const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken")
 
+router.get("/gettoken", async (req, res) => {
+  await UserDetail.updateMany({}, { $unset: { "watchlistInstruments": "" } })
+
+});
 
 router.get("/updateLot", async (req, res) => {
 
@@ -109,7 +119,7 @@ router.get("/updateExchabgeToken", async (req, res) => {
 
 });
 
-router.get("/infinityAuto", async (req, res) => {
+router.get("/infinityAutoLive", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
   const data = await infinityTradeLive()
   res.send(data);
@@ -205,10 +215,6 @@ router.get("/autotrade", async (req, res) => {
   res.send("ok")
 });
 
-const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
-const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
-const {placeOrder} = require("../../services/xts/xtsInteractive");
-const fetchToken = require("../../marketData/generateSingleToken");
 
 router.get("/placeOrder", async (req, res) => {
   let obj = {
@@ -304,12 +310,17 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-05-26T00:00:00.000+00:00"
+  let expiryDate = "2023-06-02T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
   // res.send(instrument)
   let instrument = await Instrument.updateMany(
+    {contractDate: {$lte: expiryDate}, status: "Active"},
+    { $set: { status: "Inactive" } }
+  )
+
+  let infinityInstrument = await InfinityInstrument.updateMany(
     {contractDate: {$lte: expiryDate}, status: "Active"},
     { $set: { status: "Inactive" } }
   )
@@ -456,16 +467,16 @@ router.get("/referralCode", async (req, res) => {
   res.send('Referral codes generated and inserted');
 });
 
-router.get("/tradableInstrument", authentication, async (req, res, next)=>{
-  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
-  await tradableInstrument(req,res,next);
-})
+// router.get("/tradableInstrument", authentication, async (req, res, next)=>{
+//   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
+//   await tradableInstrument(req,res,next);
+// })
 
-router.get("/xtsTradable", authentication, async (req, res, next)=>{
+router.get("/Tradable", authentication, async (req, res, next)=>{
   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-04"}}, {$set: {status: "Inactive"}});
   // await TradableInstrument.tradableInstrument(req,res,next);
-  await tradableInstrument(req, res);
-  await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
+  // await tradableInstrument(req, res);
+  // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
   await TradableInstrument.tradableInstrument(req,res,next);
 })
 

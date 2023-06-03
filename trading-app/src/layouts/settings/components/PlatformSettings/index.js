@@ -22,14 +22,14 @@ import MDTypography from "../../../../components/MDTypography";
 import React, {useState, useEffect, useContext} from 'react'
 
 // import Grid from "@mui/material/Grid";
-import { useMaterialUIController } from "../../../../context";
+// import { useMaterialUIController } from "../../../../context";
 
-// Material Dashboard 2 React components
-import axios from "axios";
+// // Material Dashboard 2 React components
+// import axios from "axios";
 import { userContext } from '../../../../AuthContext';
 import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
 
-function PlatformSettings() {
+function PlatformSettings({settingData}) {
 
   const [AppStartTime, setAppStartTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
   const [AppEndTime, setAppEndTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
@@ -38,10 +38,10 @@ function PlatformSettings() {
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = () => setSuccessSB(true);
   const closeSuccessSB = () => setSuccessSB(false);
-  const [controller] = useMaterialUIController();
-  const { darkMode } = controller;
+  // const [controller] = useMaterialUIController();
+  // const { darkMode } = controller;
   const [reRender, setReRender] = useState(true);
-  const [settingData, setSettingData] = useState([]);
+  // const [settingData, setSettingData] = useState([]);
   const [LeaderBoardTimming, setLeaderBoardTimming] = useState();
   let date = new Date();
   let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
@@ -53,18 +53,18 @@ function PlatformSettings() {
   
 
   useEffect(()=>{
-  axios.get(`${baseUrl}api/v1/readsetting`)
-  .then((res)=>{
-      setSettingData(res.data)
-      setLeaderBoardTimming(res.data[0]?.leaderBoardTimming)
-      setAppStartTime(dayjs(res.data[0].AppStartTime))
-      setAppEndTime(dayjs(res.data[0].AppEndTime))
-      console.log(res.data);
-  }).catch((err)=>{
-      //window.alert("Server Down");
-      return new Error(err);
-  })
-  },[reRender])
+  // axios.get(`${baseUrl}api/v1/readsetting`)
+  // .then((res)=>{
+      // setSettingData(res.data)
+      setLeaderBoardTimming(settingData[0]?.leaderBoardTimming)
+      setAppStartTime(dayjs(settingData[0]?.AppStartTime))
+      setAppEndTime(dayjs(settingData[0]?.AppEndTime))
+      // console.log(settingData);
+  // }).catch((err)=>{
+  //     //window.alert("Server Down");
+  //     return new Error(err);
+  // })
+  },[reRender, settingData])
 
   function setAppLiveValueFun(appLiveValue){
     if(appLiveValue){

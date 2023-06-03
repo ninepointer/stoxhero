@@ -158,37 +158,37 @@ export default function LabTabs({socket}) {
     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;
 
-    // const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    // const quantitycolor = subelem.lots >= 0 ? "success" : "error"
-    // const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-    // const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    // const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+    const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+    const quantitycolor = subelem.lots >= 0 ? "success" : "error"
+    const gpnlcolor = updatedValue >= 0 ? "success" : "error"
+    const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+    const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
   })
 
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
   const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
   const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
 
-  tradeDataYesterday?.map((subelem, index)=>{
-    let obj = {};
-    ytotalRunningLots += Number(subelem.lots)
-    ytotalTransactionCost += Number(subelem.brokerage);
-    ytotalTurnover += Number(Math.abs(subelem.amount));
-    ytotalLots += Number(Math.abs(subelem.lots))
-    ytotalTrades += Number(subelem.trades)
+//   tradeDataYesterday?.map((subelem, index)=>{
+//     let obj = {};
+//     ytotalRunningLots += Number(subelem.lots)
+//     ytotalTransactionCost += Number(subelem.brokerage);
+//     ytotalTurnover += Number(Math.abs(subelem.turnover));
+//     ytotalLots += Number(Math.abs(subelem.totallots))
+//     ytotalTrades += Number(subelem.trades)
 
-    let liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
-    })
-    let yupdatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
-    ytotalGrossPnl += yupdatedValue;
+//     let liveDetail = marketData.filter((elem)=>{
+//         return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
+//     })
+//     let yupdatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+//     ytotalGrossPnl += yupdatedValue;
 
-    // const yinstrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    // const yquantitycolor = subelem.lots >= 0 ? "success" : "error"
-    // const ygpnlcolor = yupdatedValue >= 0 ? "success" : "error"
-    // const ypchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    // const yproductcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
-  })
+//     // const yinstrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+//     // const yquantitycolor = subelem.lots >= 0 ? "success" : "error"
+//     // const ygpnlcolor = yupdatedValue >= 0 ? "success" : "error"
+//     // const ypchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
+//     // const yproductcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+//   })
 
 //   const ytotalGrossPnlcolor = ytotalGrossPnl >= 0 ? "success" : "error"
 //   const ytotalnetPnlcolor = (ytotalGrossPnl-ytotalTransactionCost) >= 0 ? "success" : "error"
@@ -223,13 +223,13 @@ export default function LabTabs({socket}) {
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (totalGrossPnl - totalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl - totalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTransactionCost - totalGrossPnl))}</MDTypography>
+                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (totalGrossPnl - totalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl - totalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalGrossPnl + totalTransactionCost))}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{totalLots}</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalLots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
@@ -265,43 +265,43 @@ export default function LabTabs({socket}) {
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ (ytotalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-ytotalGrossPnl))}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ (tradeDataYesterday[0]?.amount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeDataYesterday[0]?.amount))}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTransactionCost)}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ (ytotalGrossPnl - ytotalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalGrossPnl - ytotalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(ytotalTransactionCost - ytotalGrossPnl))}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ (tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage - tradeDataYesterday[0]?.amount))}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday?.lots}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.totallots)}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday?.lots}</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday[0]?.lots}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.turnover)}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0]?.trades}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>0/0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCountYesterday}/{notliveTraderCountYesterday}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>0</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
