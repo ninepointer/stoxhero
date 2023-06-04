@@ -18,10 +18,10 @@ exports.getTodaysRetreiveOrder = async (req, res, next) => {
     const today = new Date(todayDate);
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
-    const count = await RetreiveOrder.countDocuments({trade_time: {$gte:today}})
-    console.log("Under today orders", today)
+    const count = await RetreiveOrder.countDocuments({order_timestamp: {$gte:today}})
+    // console.log("Under today orders", today)
     try {
-      const order = await RetreiveOrder.find({trade_time: {$gte:today}}).select("order_id status average_price quantity product transaction_type orderUniqueIdentifier exchange_order_id order_timestamp variety placed_by quantity")
+      const order = await RetreiveOrder.find({order_timestamp: {$gte:today}}).select("order_id status average_price quantity product transaction_type orderUniqueIdentifier exchange_order_id order_timestamp variety placed_by quantity")
         // .populate('trader','employeeid first_name last_name')
         .sort({_id: -1})
         .skip(skip)

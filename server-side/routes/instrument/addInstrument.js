@@ -23,7 +23,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
     try{
         let {from, exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment} = req.body;
 
-        console.log("contractDate", exchangeSegment)
+        // console.log("contractDate", exchangeSegment)
         if(exchangeSegment === "NFO-OPT"){
             exchangeSegment = 2;
         }
@@ -35,7 +35,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
             return res.status(422).json({error : "Any of one feild is incorrect..."})
         }
     
-        console.log("above infinityTrade adding", from, infinityTrader)
+        // console.log("above infinityTrade adding", from, infinityTrader)
         if(role.roleName === infinityTrader){
             console.log("in infinityTrade adding")
             if(maxLot === 1800){
@@ -76,10 +76,11 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                                 status: dataExist.status ,
                                 lotSize: dataExist.lotSize ,
                                 instrumentToken: dataExist.instrumentToken ,
+                                exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
                                 contractDate: dataExist.contractDate ,
                                 maxLot: dataExist.maxLot ,
-                                accountType: dataExist.accountType,
-                                exchangeInstrumentToken: dataExist.exchangeInstrumentToken
+                                // accountType: dataExist.accountType,
+                                
                             }))                
                         }
         
@@ -118,10 +119,11 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                             status: addingInstruments.status ,
                             lotSize: addingInstruments.lotSize ,
                             instrumentToken: addingInstruments.instrumentToken ,
+                            exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
                             contractDate: addingInstruments.contractDate ,
                             maxLot: addingInstruments.maxLot ,
-                            accountType: addingInstruments.accountType,
-                            exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken
+                            // accountType: addingInstruments.accountType,
+                            
                         }))
                     }
     
@@ -179,10 +181,10 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                                 status: dataExist.status ,
                                 lotSize: dataExist.lotSize ,
                                 instrumentToken: dataExist.instrumentToken ,
+                                exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
                                 contractDate: dataExist.contractDate ,
                                 maxLot: dataExist.maxLot ,
-                                accountType: dataExist.accountType,
-                                exchangeInstrumentToken: dataExist.exchangeInstrumentToken
+                                // accountType: dataExist.accountType,
                             }))                
                         }
         
@@ -221,10 +223,10 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                             status: addingInstruments.status ,
                             lotSize: addingInstruments.lotSize ,
                             instrumentToken: addingInstruments.instrumentToken ,
+                            exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
                             contractDate: addingInstruments.contractDate ,
                             maxLot: addingInstruments.maxLot ,
-                            accountType: addingInstruments.accountType,
-                            exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken
+                            // accountType: addingInstruments.accountType,
                         }))
                     }
     
@@ -316,19 +318,21 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
                 status: removeFromWatchlist.status ,
                 lotSize: removeFromWatchlist.lotSize ,
                 instrumentToken: removeFromWatchlist.instrumentToken ,
+                exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken,
                 contractDate: removeFromWatchlist.contractDate ,
                 maxLot: removeFromWatchlist.maxLot,
-                accountType: removeFromWatchlist.accountType,
-                exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
+                // accountType: removeFromWatchlist.accountType,
             }
-            
+            // console.log("removeInstrumentObject", removeInstrumentObject)
             let removeInstrument;
             if(role.roleName === infinityTrader){
                 removeInstrument = await client.LREM(`${(_id).toString()}: infinityInstrument`, 1, JSON.stringify(removeInstrumentObject))
-                console.log("in if removeInstrument", removeInstrument)
+                // console.log("in if removeInstrument", removeInstrument)
             } else{
+                let instrument = await client.LRANGE(`${_id.toString()}: instrument`, 0, -1)
+
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
-                console.log("in else removeInstrument", removeInstrument)
+                // console.log("in else removeInstrument", removeInstrument, instrument)
             }
 
 

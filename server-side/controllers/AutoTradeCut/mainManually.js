@@ -5,5 +5,5 @@ exports.autoCutMainManually = async() => {
     await paperTrade();
     await infinityTrade();
     await internship();
-    await infinityTradeLive();
+    // await infinityTradeLive();
 }

@@ -102,7 +102,7 @@ function Setting() {
               <MarginSettings settingData={settingData}/>
             </Grid>
                 <Grid item xs={12} md={6} xl={4} sx={{ display: "flex" }}>
-                  {marginEndPoint == "xtsMargin" ?
+                  {/* {marginEndPoint == "xtsMargin" ?
                     <ProfileInfoCard
                       title="Margin Information"
                       info={{
@@ -132,7 +132,7 @@ function Setting() {
                       action={{ route: "", tooltip: "Edit Profile" }}
 
                       shadow={false}
-                    /> :
+                    /> : */}
 
                     <ProfileInfoCard
                       title="Margin Information"
@@ -169,7 +169,8 @@ function Setting() {
                       action={{ route: "", tooltip: "Edit Profile" }}
 
                       shadow={false}
-                    />}
+                    />
+                    {/* } */}
                 </Grid>
             </>
             :

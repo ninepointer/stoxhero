@@ -363,10 +363,16 @@ export default function LabTabs({socket}) {
                             </Grid>
                                 <Grid item lg={4}>
                                     <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
-                                         <span style={{ marginRight: '10px' }}>Used Margin</span>
+                                         {/* <span style={{ marginRight: '10px' }}>. */}
+                                         Used Margin
+                                         {/* </span> */}
+                                         {/* <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMargin(!refreshMargin) }} /> */}
+                                    </MDTypography>
+                                    <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                         <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(marginData)}</span>
                                          <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMargin(!refreshMargin) }} />
                                     </MDTypography>
-                                    <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(marginData?.marginUtilized)}</MDTypography>
+                                    {/* <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'></MDTypography> */}
                                 </Grid>
                         </Grid>
                     </Grid>
@@ -947,138 +953,137 @@ export default function LabTabs({socket}) {
             
         </Grid>
 
-        <Grid container spacing={2} mt={1}>
-            {/* <Grid item lg={3}>
-                    
-                <MDButton 
-                    variant="contained" 
-                    color={"primary"} 
-                    size="small" 
-                    component = {Link}
-                    to={{
-                        pathname: `/xtsbackorder`,
-                        }}
-                    >
-                        <Grid container>
-                            
-                            <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>XTS Back Report</MDTypography>
-                            </Grid>
-                            
-                            <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                <MDBox display='flex' justifyContent='left'>
-                                <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Back order of XTS!</MDTypography>
-                                </MDBox>
-                            </Grid>
-    
-                        </Grid>
-                </MDButton>
-
-            </Grid> */}
-
-            <Grid item lg={3} mt={1}>
-                <MDBox p={2} bgColor='text' borderRadius={5}>
-                    <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
-                    <Grid container spacing={1} >
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"success"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/orders`,
+          <Grid container spacing={2} mt={1}>
+              <Grid item lg={3} mt={1}>
+                  <MDBox p={2} bgColor='text' borderRadius={5}>
+                      <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
+                      <Grid container spacing={1} >
+                          <Grid item fullWidth>
+                              <MDButton
+                                  variant="contained"
+                                  color={"success"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/orders`,
                                   }}
 
-                                  
-                            >
-                                StoxHero Orders
-                            </MDButton>
-                        </Grid>
 
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"warning"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/userorders`,
+                              >
+                                  StoxHero Orders
+                              </MDButton>
+                          </Grid>
+
+                          <Grid item fullWidth>
+                              <MDButton
+                                  variant="contained"
+                                  color={"warning"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/userorders`,
                                   }}
-                            >
-                                My Orders
-                            </MDButton>
-                        </Grid>
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"light"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/algobox`,
+                              >
+                                  My Orders
+                              </MDButton>
+                          </Grid>
+                          <Grid item fullWidth>
+                              <MDButton
+                                  variant="contained"
+                                  color={"light"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/algobox`,
                                   }}
-                            >
-                                AlgoBox
-                            </MDButton>
-                        </Grid>
-                        <Grid item>
-                            <MDButton 
-                                variant="contained" 
-                                color={"primary"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/trading-accounts`,
+                              >
+                                  AlgoBox
+                              </MDButton>
+                          </Grid>
+                          <Grid item>
+                              <MDButton
+                                  variant="contained"
+                                  color={"primary"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/trading-accounts`,
                                   }}
-                            >
-                                Trading Account
-                            </MDButton>
-                        </Grid>
-                        <Grid item>
-                            <MDButton 
-                                variant="contained" 
-                                color={"error"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/instruments`,
+                              >
+                                  Trading Account
+                              </MDButton>
+                          </Grid>
+                          <Grid item>
+                              <MDButton
+                                  variant="contained"
+                                  color={"error"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/instruments`,
                                   }}
-                            >
-                                Instruments
-                            </MDButton>
-                        </Grid>
-                        <Grid item>
-                            <MDButton 
-                                variant="contained" 
-                                color={"warning"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/setting`,
+                              >
+                                  Instruments
+                              </MDButton>
+                          </Grid>
+                          <Grid item>
+                              <MDButton
+                                  variant="contained"
+                                  color={"warning"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/setting`,
                                   }}
-                            >
-                                App Settings
-                            </MDButton>
-                        </Grid>
-                        <Grid item>
-                            <MDButton 
-                                variant="contained" 
-                                color={"dark"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/tradersMarginAllocation`,
+                              >
+                                  App Settings
+                              </MDButton>
+                          </Grid>
+                          <Grid item>
+                              <MDButton
+                                  variant="contained"
+                                  color={"dark"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/tradersMarginAllocation`,
                                   }}
-                            >
-                                Margin Allocation
-                            </MDButton>
-                        </Grid>
-                    </Grid>
-                </MDBox>
-                
-            </Grid>
-        </Grid>
+                              >
+                                  Margin Allocation
+                              </MDButton>
+                          </Grid>
+                      </Grid>
+                  </MDBox>
+
+              </Grid>
+              <Grid item lg={3}  mt={1}>
+
+                  <MDButton
+                      variant="contained"
+                      color={"primary"}
+                      size="small"
+                      component={Link}
+                      to={{
+                          pathname: `/backreportxts`,
+                      }}
+                  >
+                      <Grid container>
+
+                          <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                              <MDTypography fontSize={18} style={{ color: "white", paddingLeft: 4, fontWeight: 'bold' }}>XTS Back Report</MDTypography>
+                          </Grid>
+
+                          <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }}>
+                              <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{ color: "white", paddingLeft: 4 }}>Back order of XTS!</MDTypography>
+                              </MDBox>
+                          </Grid>
+
+                      </Grid>
+                  </MDButton>
+
+              </Grid>
+          </Grid>
 
     </MDBox>
   );
