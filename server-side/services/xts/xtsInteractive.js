@@ -708,11 +708,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 }
 
 
-
-//
-
-module.exports = { interactiveLogin, }
-  // placeOrder, autoPlaceOrder };
+module.exports = { interactiveLogin, placeOrder, autoPlaceOrder };
 
 
 // {

@@ -123,7 +123,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       return (elem.instrumentToken == subelem.instrument_token) || (elem.exchangeInstrumentToken == subelem.instrument_token)
     })
     
-    console.log("perticularInstrumentMarketData", perticularInstrumentMarketData)
+    // console.log("perticularInstrumentMarketData", perticularInstrumentMarketData)
     const percentagechangecolor = perticularInstrumentMarketData[0]?.change >= 0 ? "success" : "error"
     const percentagechangecolor1 = (((perticularInstrumentMarketData[0]?.last_price - perticularInstrumentMarketData[0]?.average_price) / perticularInstrumentMarketData[0]?.average_price)*100) >= 0 ? "success" : "error"
 
@@ -168,11 +168,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
+      <BuyModel socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.instrument).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={elem.instrument} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.instrument).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (
@@ -315,15 +315,10 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
                   <InstrumentComponent 
                     contractDate={elem.contractDate.props.children}
                     symbol={elem.symbol.props.children}
-                    instrument={elem.instrument.props.children}
+                    instrument={(elem.symbol.props.children).slice(-7)}
                     last_price={elem.last_price.props.children}
                     change={elem.change.props.children}
                   />
-                  {/* <td style={styleTD} >{elem.chart.props.children}</td> */}
-                  {/* <Tooltip title="Buy" placement="top">
-                  </Tooltip>
-                  <Tooltip title="Sell" placement="top">
-                  </Tooltip> */}
 
                   <Tooltip title="Buy" placement="top">
                     {!elem.buyState ?

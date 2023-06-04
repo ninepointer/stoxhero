@@ -16,7 +16,7 @@ const tenx = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  let tradeArr = [];
+  // let tradeArr = [];
   const data = await TenxTrader.aggregate(
     [
       {
@@ -82,9 +82,10 @@ const tenx = async () => {
     ]
   );
 
-  // if(data.length == 0){
-  //   return;
-  // }
+  if(data.length == 0){
+    console.log("in base case")
+    return;
+  }
 
   for (let i = 0; i < data.length; i++) {
     let date = new Date();
@@ -100,6 +101,9 @@ const tenx = async () => {
 
     // console.log("this is data", data[i])
     // realSymbol: data[i]._id.symbol,
+    let system = await User.findOne({ email: "system@ninepointer.in" })
+    let createdBy = system._id
+
     let Obj = {};
     Obj.symbol = data[i].symbol;
     Obj.Product = data[i].Product;
@@ -116,23 +120,41 @@ const tenx = async () => {
     Obj.autoTrade = true;
     // Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
     Obj.dontSendResp = (i !== (data.length - 1));
+    Obj.createdBy = createdBy;
 
+    // let createdBy;
+    // if (autoTrade) {
+      // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
+
+      // console.log("createdBy", createdBy)
+    // } else {
+    //   createdBy = trader
+    // }
+
+    console.log("quantity", quantity)
     await recursiveFunction(quantity)
 
     async function recursiveFunction(quantity) {
-      if (quantity == 0) {
+      if (quantity <= 0) {
         return;
       }
-      else if (quantity < 1800) {
+      else if (quantity <= 1800) {
+
+        console.log("in else if", quantity)
         Obj.Quantity = quantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
-        await takeAutoTenxTrade(Obj);
-        // if(data.length > 0 && i == data.length-1){
-        //   await tenx();
-        // }
+        console.log("before takeAutoTenxTrade")
+        const auto = await takeAutoTenxTrade(Obj);
+        console.log("before recursive calling", auto)
+        if(data.length > 0 && i == data.length-1){
+          console.log("recursive calling")
+          await tenx();
+        }
         return;
       } else {
+        console.log("in else", quantity)
+
         Obj.Quantity = 1800;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
@@ -217,6 +239,11 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     ]
   );
 
+  if(data.length == 0){
+    console.log("in base case")
+    return;
+  }
+
   for (let i = 0; i < data.length; i++) {
     let date = new Date();
     let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
@@ -229,8 +256,9 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
       buyOrSell = "BUY";
     }
 
-    // console.log("this is data", data[i])
-    // realSymbol: data[i]._id.symbol,
+    let system = await User.findOne({ email: "system@ninepointer.in" })
+    let createdBy = system._id
+
     let Obj = {};
     Obj.symbol = data[i].symbol;
     Obj.Product = data[i].Product;
@@ -245,8 +273,9 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     Obj.trader = data[i].userId;
     Obj.batch = data[i].batch;
     Obj.autoTrade = true;
-    // Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
     Obj.dontSendResp = (i !== (data.length - 1));
+    Obj.createdBy = createdBy;
+
 
     await recursiveFunction(quantity)
 
@@ -254,11 +283,16 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
       if (quantity == 0) {
         return;
       }
-      else if (quantity < 1800) {
+      else if (quantity <= 1800) {
         Obj.Quantity = quantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInternshipTrade(Obj);
+
+        if(data.length > 0 && i == data.length-1){
+          console.log("recursive calling")
+          await internship();
+        }
 
         return;
       } else {
@@ -362,8 +396,9 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
       buyOrSell = "BUY";
     }
 
-    // console.log("this is data", data[i])
-    // realSymbol: data[i]._id.symbol,
+    let system = await User.findOne({ email: "system@ninepointer.in" })
+    let createdBy = system._id
+
     let Obj = {};
     Obj.symbol = data[i].symbol;
     Obj.Product = data[i].Product;
@@ -379,6 +414,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     Obj.portfolioId = data[i].portfolioId;
     Obj.autoTrade = true;
     Obj.dontSendResp = (i !== (data.length - 1));
+    Obj.createdBy = createdBy
 
     await recursiveFunction(quantity)
 
@@ -386,7 +422,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
       if (quantity == 0) {
         return;
       }
-      else if (quantity < 1800) {
+      else if (quantity <= 1800) {
         Obj.Quantity = quantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
@@ -487,6 +523,10 @@ const infinityTrade = async () => {
     ]
   );
 
+  if(data.length == 0){
+    return;
+  }
+
   for (let i = 0; i < data.length; i++) {
     let date = new Date();
     let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
@@ -513,8 +553,9 @@ const infinityTrade = async () => {
       buyOrSell = realBuyOrSell;
     }
 
-    // console.log("this is data", data[i])
-    // realSymbol: data[i]._id.symbol,
+    let system = await User.findOne({ email: "system@ninepointer.in" })
+    let createdBy = system._id
+
     let Obj = {};
     Obj.symbol = data[i].symbol;
     Obj.Product = data[i].Product;
@@ -533,6 +574,7 @@ const infinityTrade = async () => {
     Obj.autoTrade = true;
     // Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
     Obj.dontSendResp = (i !== (data.length - 1));
+    Obj.createdBy = createdBy
 
     await recursiveFunction(quantity)
 
@@ -540,12 +582,16 @@ const infinityTrade = async () => {
       if (quantity == 0) {
         return;
       }
-      else if (quantity < 1800) {
+      else if (quantity <= 1800) {
         Obj.Quantity = quantity;
         Obj.userQuantity = quantity / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInfinityTrade(Obj);
+        if(data.length > 0 && i == data.length-1){
+          console.log("recursive calling")
+          await infinityTrade();
+        }
         return;
       } else {
         Obj.Quantity = 1800;
@@ -571,7 +617,6 @@ const infinityTradeLive = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  // let tradeArr = [];
   const data = await InfinityLiveTradeCompany.aggregate(
     [
       {
@@ -688,37 +733,7 @@ const infinityTradeLive = async () => {
     Obj.dontSendResp = true;
     Obj.createdBy = createdBy
 
-    // await recursiveFunction(quantity)
 
-    // async function recursiveFunction(quantity) {
-    //   const now = performance.now();
-    //   if (quantity == 0) {
-    //     return;
-    //   } else if (quantity < 1800) {
-    //     Obj.Quantity = quantity;
-    //     Obj.userQuantity = quantity / algoBox.lotMultipler;
-    //     Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
-    //     // tradeArr.push({ value: JSON.stringify(Obj) });
-    //     // await takeAutoInfinityTrade(Obj);
-    //     console.log("now in if", performance.now()-now);
-    //     await delay(1300);
-    //     return;
-    //   } else {
-    //     Obj.Quantity = 1800;
-    //     Obj.userQuantity = 1800 / algoBox.lotMultipler;
-    //     Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
-    //     // tradeArr.push({ value: JSON.stringify(Obj) });
-    //     // await takeAutoInfinityTrade(Obj);
-    //     console.log("now in else", performance.now()-now)
-    //     await delay(1300); // Delay for 300 milliseconds
-    
-    //     return recursiveFunction(quantity - 1800);
-    //   }
-    // }
-
-    // function delay(ms) {
-    //   return new Promise(resolve => setTimeout(resolve, ms));
-    // }
     let interval = setInterval(async () => {
       const now = performance.now();
       if(quantity == 0){

@@ -12,13 +12,13 @@ export default function LabTabs() {
   const [isLoading,setIsLoading] = useState(false);
   const getDetails = useContext(userContext);
   const [marginDetails, setMarginDetail] = useState([]);
-  const [tenXMarginDetails, setTenXMarginDetail] = useState([]);
-  const [myPortfolio,setMyPortfolio] = useState([]);
+  // const [tenXMarginDetails, setTenXMarginDetail] = useState([]);
+  // const [myPortfolio,setMyPortfolio] = useState([]);
   const [tenX, setTenX] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const userPortfolio = getDetails?.userDetails?.portfolio
   const userTenXPortfolio = getDetails?.userDetails?.subscription
-  console.log(userTenXPortfolio)
+  // console.log(userTenXPortfolio)
   const tenXSubscriptions = userTenXPortfolio?.filter((e)=>{
     return e?.subscriptionId?.portfolio?.portfolioType === "TenX Trading" && e?.subscriptionId?.portfolio?.portfolioAccount === "Paid"
   })
