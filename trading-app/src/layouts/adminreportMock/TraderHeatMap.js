@@ -64,11 +64,11 @@ useEffect(()=>{
 
 
   function pnlCalculation(firstDate, secondDate){
-    console.log(firstDate,secondDate)
+    // console.log(firstDate,secondDate)
     axios.get(`${baseUrl}api/v1/getuserreport/${firstDate}/${secondDate}`)
     .then((res) => {
       let data = res.data;
-      console.log(res.data);
+      // console.log(res.data);
       setOverallPnl(res.data);
 
     }).catch((err) => {
@@ -78,7 +78,7 @@ useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getuniquedates/${firstDate}/${secondDate}`)
     .then((res) => {
       let data = res.data;
-      console.log(res.data);
+      // console.log(res.data);
       setUDates(res.data);
 
     }).catch((err) => {
@@ -110,28 +110,28 @@ udates.map((elem)=>{
     const date = new Date(dateString);
     const options = { month: "short", day: "numeric" };
     const formattedDate = date.toLocaleDateString("en-US", options);
-    console.log(formattedDate); // Output: "Jan 1"
+    // console.log(formattedDate); // Output: "Jan 1"
     pnldates.push([elem._id.date,formattedDate])
 })
-console.log(pnldates);
+// console.log(pnldates);
 let pnldata = []
 overallPnl.map((elem)=>{
     pnldata.push([elem._id.date,elem.amount])
 })
-console.log(pnldata)
+// console.log(pnldata)
 
 const xLabelsVisibility = pnldates;
 
 const yLabels = traderNameList
 const xLabels = [];
 for (let i = 0; i < pnldates.length; i++) {
-    console.log(pnldates[i][1]);
+    // console.log(pnldates[i][1]);
     xLabels.push(pnldates[i][1])
 }
 
 const pnldates1 = [];
 for (let i = 0; i < pnldates.length; i++) {
-    console.log(pnldates[i][0]);
+    // console.log(pnldates[i][0]);
     pnldates1.push(pnldates[i][0])
 }
 

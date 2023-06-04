@@ -64,7 +64,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
       setUpdatedUser(res.data);
       console.log("subscribed", res.data)
       let subscribed = (res.data?.subscription)?.filter((elem)=>{
-        return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
+        return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
       })
 
       console.log("subscribed", subscribed)
@@ -79,7 +79,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   useEffect(()=>{
     let subscribed = (updatedUser?.subscription)?.filter((elem)=>{
-      return (elem?.subscriptionId)?.toString() === (id)?.toString() && elem?.status === "Live";
+      return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
     })
     if(subscribed?.length > 0){
       setIsSubscribed(true);
@@ -203,12 +203,12 @@ export default function Dialogue({amount, name, id, walletCash}) {
     <>
         {isSubscribed ?
         <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
         :
         messege.thanksMessege ?
         <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "500x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDButton variant="contained" color="dark" sx={{width: "40px", height: "20px", fontSize: "10x"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
         </MDBox>
         :
         <MDBox>
