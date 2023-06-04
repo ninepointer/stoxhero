@@ -3,7 +3,6 @@ import {memo} from 'react';
 
 function CollegeComponent({college,zone,action}) {
 
-  console.log("rendering : CollegeComponent")
 
     let styleTD = {
         textAlign: "center",
