@@ -617,7 +617,6 @@ const infinityTradeLive = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  // let tradeArr = [];
   const data = await InfinityLiveTradeCompany.aggregate(
     [
       {
@@ -684,11 +683,6 @@ const infinityTradeLive = async () => {
 
     ]
   );
-
-  // if(data.length == 0){
-  //   console.log("in base case")
-  //   return;
-  // }
 
   console.log(data)
   for (let i = 0; i < data.length; i++) {
