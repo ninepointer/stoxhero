@@ -17,12 +17,10 @@ import { TextField } from "@mui/material";
 
 function TraderwiseTraderPNL({socket }) {
   const { columns, rows } = data();
-
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
-  const[subscriptions,setSubscription] = useState([]);
+  const [subscriptions,setSubscription] = useState([]);
   const [selectedSubscription, setselectedSubscription] = useState();
 
   useEffect(()=>{
@@ -37,15 +35,12 @@ function TraderwiseTraderPNL({socket }) {
 
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
-        //console.log("live price data", res)
         setMarketData(res.data);
-        // setDetails.setMarketData(data);
     }).catch((err) => {
         return new Error(err);
     })
 
     socket.on("tick", (data) => {
-      //console.log("this is live market data", data);
       setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -53,7 +48,6 @@ function TraderwiseTraderPNL({socket }) {
         });
         return Array.from(instrumentMap.values());
       });
-      // setDetails.setMarketData(data);
     })
   }, [])
 
@@ -72,39 +66,28 @@ function TraderwiseTraderPNL({socket }) {
 
   useEffect(() => {
     return () => {
-        //console.log('closing');
         socket.close();
     }
   }, [])
 
   let mapForParticularUser = new Map();
-    //console.log("Length of All Trade Array:",allTrade.length);
     for(let i = 0; i < allTrade.length; i++){
-      // //console.log(allTrade[i])
       if(mapForParticularUser.has(allTrade[i]._id.traderId)){
-        //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
-          //console.log("market Data Instrument",elem.instrument_token)
           return elem.instrument_token == Number(allTrade[i]._id.symbol)
         })
 
         let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
-        //console.log(marketDataInstrument, "marketDataInstrument")
         obj.totalPnl += ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price)));
-        //console.log("Total P&L: ",allTrade[i]._id.traderId, allTrade[i].amount,Number(allTrade[i]._id.symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
         obj.lotUsed += Math.abs(allTrade[i].lotUsed)
         obj.runninglots += allTrade[i].lots;
         obj.brokerage += allTrade[i].brokerage;
         obj.noOfTrade += allTrade[i].trades
 
       } else{
-        //console.log(marketData, "marketData")
-        //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
           return elem !== undefined && elem.instrument_token === Number(allTrade[i]._id.symbol)
         })
-        ////console.log(marketDataInstrument)
-        //console.log(marketDataInstrument, "marketDataInstrument")
         mapForParticularUser.set(allTrade[i]._id.traderId, {
           name : allTrade[i]._id.traderName,
           totalPnl : ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price))),
@@ -120,7 +103,6 @@ function TraderwiseTraderPNL({socket }) {
 
     }
 
-
     let finalTraderPnl = [];
     for (let value of mapForParticularUser.values()){
       finalTraderPnl.push(value);
@@ -131,12 +113,12 @@ function TraderwiseTraderPNL({socket }) {
     });
 
 
-let totalGrossPnl = 0;
-let totalTransactionCost = 0;
-let totalNoRunningLots = 0;
-let totalTrades = 0;
-let totalLotsUsed = 0;
-let totalTraders = 0;
+  let totalGrossPnl = 0;
+  let totalTransactionCost = 0;
+  let totalNoRunningLots = 0;
+  let totalTrades = 0;
+  let totalLotsUsed = 0;
+  let totalTraders = 0;
 
 
 
@@ -218,8 +200,6 @@ let obj = {};
 const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
 const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
 
-
-
 obj.traderName = (
   <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
     Traders : {totalTraders}
@@ -267,30 +247,27 @@ obj.netPnl = (
 
 rows.push(obj);
 
-//console.log("traderwise row", rows)
-
-
   return (
     <Card>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
+      <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDBox>
-          <MDTypography variant="h6" gutterBottom>
-            Traderwise Trader P&L
+          <MDTypography variant="h6" gutterBottom p={3}>
+            TenX Traders Position
           </MDTypography>
         </MDBox>
 
       </MDBox>
 
       <MDBox sx={{display: 'flex', alignItems: 'center', marginLeft:'24px'}}>
-        <MDTypography fontSize={15}>Select Batch</MDTypography>
+        <MDTypography fontSize={15}>Select Subscription</MDTypography>
         <TextField
                 select
                 label=""
                 value={subscriptions[0]?.plan_name}
                 minHeight="4em"
-                //helperText="Please select the body condition"
+                // helperText="Please select subscription"
                 variant="outlined"
-                sx={{margin: 1, padding: 1, width: "200px"}}
+                sx={{margin: 1, padding: 1, width: "300px"}}
                 onChange={(e)=>{setselectedSubscription(subscriptions.filter((item)=>item.plan_name == e.target.value)[0]._id)}}
         >
           {subscriptions?.map((option) => (

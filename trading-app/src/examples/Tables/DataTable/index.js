@@ -291,7 +291,7 @@ function DataTable({
 
 // Setting default values for the props of DataTable
 DataTable.defaultProps = {
-  entriesPerPage: { defaultValue: 25, entries: [5, 10, 15, 20, 25, 30, 35, 40] },
+  entriesPerPage: { defaultValue: 50, entries: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50] },
   canSearch: false,
   showTotalEntries: true,
   pagination: { variant: "gradient", color: "info" },
