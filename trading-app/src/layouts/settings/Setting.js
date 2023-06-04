@@ -137,16 +137,16 @@ function Setting() {
                     <ProfileInfoCard
                       title="Margin Information"
                       info={{
-                        AccountId: accountIdData[0] ? accountIdData[0].accountId : "Account Id not available",
-                        AvailableMargin: marginData.available ? (marginData.available.live_balance) >= 0.00 ? "+₹" + ((marginData.available.live_balance).toFixed(2)) : "-₹" + ((-(marginData.available.live_balance)).toFixed(2)) : 0,
-                        UsedMargin: marginData.utilised ? marginData.utilised.debits >= 0.00 ? "+₹" + (marginData.utilised.debits.toFixed(2)) : "-₹" + ((-marginData.utilised.debits).toFixed(2)) : 0,
-                        AvailableCash: marginData.net ? marginData.net >= 0.00 ? "+₹" + (marginData.net.toFixed(2)) : "-₹" + ((-marginData.net).toFixed(2)) : 0,
-                        OpeningBalance: marginData.available ? marginData.available.opening_balance >= 0.00 ? "+₹" + (marginData.available.opening_balance.toFixed(2)) : "-₹" + ((-marginData.available.opening_balance).toFixed(2)) : 0,
-                        Payin: marginData.available ? marginData.available.intraday_payin >= 0.00 ? "+₹" + (marginData.available.intraday_payin.toFixed(2)) : "-₹" + ((-marginData.available.intraday_payin).toFixed(2)) : 0,
-                        Payout: marginData.utilised ? marginData.utilised.payout >= 0.00 ? "+₹" + (marginData.utilised.payout.toFixed(2)) : "-₹" + ((-marginData.utilised.payout).toFixed(2)) : 0,
-                        Span: marginData.utilised ? marginData.utilised.span >= 0.00 ? "+₹" + (marginData.utilised.span.toFixed(2)) : "-₹" + ((-marginData.utilised.span).toFixed(2)) : 0,
-                        Exposure: marginData.utilised ? marginData.utilised.exposure >= 0.00 ? "+₹" + (marginData.utilised.exposure.toFixed(2)) : "-₹" + ((-marginData.utilised.exposure).toFixed(2)) : 0,
-                        DeliveryMargin: marginData.utilised ? marginData.utilised.delivery >= 0.00 ? "+₹" + (marginData.utilised.delivery.toFixed(2)) : "-₹" + ((-marginData.utilised.delivery).toFixed(2)) : 0,
+                        AccountId: accountIdData[0] ? accountIdData[0]?.accountId : "Account Id not available",
+                        AvailableMargin: marginData?.available ? (marginData?.available?.live_balance) >= 0.00 ? "+₹" + ((marginData?.available.live_balance).toFixed(2)) : "-₹" + ((-(marginData?.available?.live_balance)).toFixed(2)) : 0,
+                        UsedMargin: marginData?.utilised ? marginData?.utilised.debits >= 0.00 ? "+₹" + (marginData?.utilised.debits.toFixed(2)) : "-₹" + ((-marginData.utilised.debits).toFixed(2)) : 0,
+                        AvailableCash: marginData?.net ? marginData?.net >= 0.00 ? "+₹" + (marginData?.net.toFixed(2)) : "-₹" + ((-marginData?.net).toFixed(2)) : 0,
+                        OpeningBalance: marginData?.available ? marginData.available.opening_balance >= 0.00 ? "+₹" + (marginData?.available.opening_balance.toFixed(2)) : "-₹" + ((-marginData?.available?.opening_balance).toFixed(2)) : 0,
+                        Payin: marginData?.available ? marginData?.available?.intraday_payin >= 0.00 ? "+₹" + (marginData?.available.intraday_payin.toFixed(2)) : "-₹" + ((-marginData?.available?.intraday_payin).toFixed(2)) : 0,
+                        Payout: marginData?.utilised ? marginData?.utilised?.payout >= 0.00 ? "+₹" + (marginData?.utilised.payout.toFixed(2)) : "-₹" + ((-marginData?.utilised?.payout).toFixed(2)) : 0,
+                        Span: marginData?.utilised ? marginData?.utilised?.span >= 0.00 ? "+₹" + (marginData?.utilised.span.toFixed(2)) : "-₹" + ((-marginData?.utilised?.span).toFixed(2)) : 0,
+                        Exposure: marginData?.utilised ? marginData?.utilised?.exposure >= 0.00 ? "+₹" + (marginData?.utilised.exposure.toFixed(2)) : "-₹" + ((-marginData?.utilised?.exposure).toFixed(2)) : 0,
+                        DeliveryMargin: marginData?.utilised ? marginData?.utilised.delivery >= 0.00 ? "+₹" + (marginData?.utilised.delivery.toFixed(2)) : "-₹" + ((-marginData?.utilised?.delivery).toFixed(2)) : 0,
 
                       }}
                       social={[
