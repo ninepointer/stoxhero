@@ -1,16 +1,16 @@
-import Home from './Home';
-import Swap from './Swap'
+// import Home from './Home';
+// import Swap from './Swap'
 import { Link, useLocation } from "react-router-dom";
 import React, {useState, useContext, useEffect} from "react"
-import { Route, Routes } from 'react-router-dom'
+// import { Route, Routes } from 'react-router-dom'
 import theme from '../utils/theme/index';
 import { Box } from '@mui/material';
 import { ThemeProvider } from 'styled-components';
-import About from './About';
+// import About from './About';
 import Navbar from '../components/Navbars/Navbar';
 import Footer from '../components/Footers/Footer';
 import Internship from './Internship';
-import JobDescription from './JobDescription';
+// import JobDescription from './JobDescription';
 
 const App = () => {
   const [campaignCode,setCampaignCode] = useState();

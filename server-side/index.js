@@ -104,7 +104,7 @@ client.connect()
 
   
 
-  // autoCutMainManually().then(()=>{})
+  
 
 // console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
@@ -139,7 +139,7 @@ getKiteCred.getAccess().then(async (data)=>{
     });
     socket.on('company-ticks', async (data) => {
       console.log("in company-ticks event")
-      if(setting.ltp == zerodhaAccountType || setting.complete == zerodhaAccountType){
+      if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
         await getTicksForCompanySide(socket);
       } else{
         await getXTSTicksForCompanySide(socket);
@@ -152,7 +152,7 @@ getKiteCred.getAccess().then(async (data)=>{
       console.log("in user-ticks event")
       // await getTicksForUserPosition(socket, data);
       // await positions();
-      if(setting.ltp == zerodhaAccountType || setting.complete == zerodhaAccountType){
+      if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
         await getTicksForUserPosition(socket, data);
       } else{
         await getXTSTicksForUserPosition(socket, data);
@@ -186,6 +186,8 @@ getKiteCred.getAccess().then(async (data)=>{
 
 });
 
+
+// autoCutMainManually().then(()=>{})
 
 app.use(express.json({ limit: "20kb" }));
 

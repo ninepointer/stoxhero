@@ -46,7 +46,9 @@ const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarke
 const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
 const {placeOrder} = require("../../services/xts/xtsInteractive");
 const fetchToken = require("../../marketData/generateSingleToken");
-const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken")
+const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
+// const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
+
 
 router.get("/gettoken", async (req, res) => {
   await UserDetail.updateMany({}, { $unset: { "watchlistInstruments": "" } })
