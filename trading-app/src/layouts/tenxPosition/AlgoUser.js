@@ -2,9 +2,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-// @mui material components
 import { Chart } from 'chart.js/auto';
-// Chart.register(...registerables);
 import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
@@ -21,10 +19,7 @@ function AlgoUser() {
       throw new Error(err);
   }
 
-   
     useEffect(()=>{
-
-        //console.log(socket);
         socket.on("connect", ()=>{
             socket.emit("company-ticks", true)
         })
@@ -34,18 +29,8 @@ function AlgoUser() {
 
   return (
 
-       <MDBox py={3}>
-
-        {/* <MDBox mt={2}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
-              <OverallTraderPnl socket={socket} batches={batches} setBatches={setBatches} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch}/>
-            </Grid>
-          </Grid>
-        </MDBox> */}
-
-
-        <MDBox mt={2}>
+       <MDBox py={2}>
+        <MDBox>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
               <TraderwiseTraderPnl socket={socket} />
@@ -58,5 +43,3 @@ function AlgoUser() {
 }
 
 export default AlgoUser;
-
-// todo ---> mismatch
