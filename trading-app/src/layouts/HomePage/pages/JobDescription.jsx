@@ -23,10 +23,10 @@ const App = () => {
 
 
   return (
-    <MDBox mt={0} >
+    <MDBox mt={0} sx={{bgcolor:theme.palette.background.default}}>
       <ThemeProvider theme={theme}>
         <Navbar/>
-        <Box p={5} sx={{bgcolor:theme.palette.background.default,height:{xs:"800px",lg:"auto",md:"auto"},}}  >
+        <Box p={5} mb={10} sx={{height:{xs:"800px",lg:"auto",md:"auto"},}}  >
           <Grid mt={10} container height="500px" >
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               <MDTypography fontSize={20} color="light" style={{align:'center'}}>JOB DESCRIPTION</MDTypography>

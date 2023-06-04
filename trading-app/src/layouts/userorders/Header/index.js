@@ -641,7 +641,7 @@ function Header({ children }) {
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={tradesicon} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>You do not have any Paper trading orders!</MDTypography>
+                <MDTypography color="light" fontSize={15}>You do not have any Virtual trading orders!</MDTypography>
               </MDBox>
             </Grid>
             </>
@@ -755,7 +755,7 @@ function Header({ children }) {
             <Grid item xs={12} md={6} lg={12}>
               <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={tradesicon} width={50} height={50}/>
-                <MDTypography color="light" fontSize={15}>You do not have any Paper trading orders!</MDTypography>
+                <MDTypography color="light" fontSize={15}>You do not have any Virtual trading orders!</MDTypography>
               </MDBox>
             </Grid>
             </>

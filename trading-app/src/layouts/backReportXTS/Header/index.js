@@ -36,7 +36,7 @@ export default function LabTabs() {
         color="warning" 
         size="small"
         component={Link}
-        to='/careerdashboard'
+        to='/infinitydashboard'
         >
             Back to Infinity Dashboard
         </MDButton>

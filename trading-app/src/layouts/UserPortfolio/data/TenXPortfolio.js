@@ -3,10 +3,10 @@ import Grid from "@mui/material/Grid";
 // import axios from "axios";
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
-import MDAvatar from "../../../components/MDAvatar";
-import MDButton from "../../../components/MDButton";
+// import MDAvatar from "../../../components/MDAvatar";
+// import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import money from "../../../assets/images/money.png"
+// import money from "../../../assets/images/money.png"
 import TenXPortfolioCard from '../data/TenXPortfolioCard'
 import tradesicon from '../../../assets/images/portfolioicon.png'
 // import link from "../../../assets/images/link.png"

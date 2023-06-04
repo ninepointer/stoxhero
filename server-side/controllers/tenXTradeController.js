@@ -21,14 +21,14 @@ exports.overallPnl = async (req, res, next) => {
   const tempDate = new Date(tempTodayDate);
   const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
-  console.log(today, subscriptionId)
+  // console.log(today, subscriptionId)
 
   try {
 
     if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
       let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
       pnl = JSON.parse(pnl);
-      console.log("pnl redis", pnl)
+      // console.log("pnl redis", pnl)
 
       res.status(201).json({ message: "pnl received", data: pnl });
 
