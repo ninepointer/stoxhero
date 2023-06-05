@@ -96,30 +96,31 @@ function MismatchDetails({socket}) {
   }, [])
 
 
-  console.log("Open Position Data: ",OpenPositionData, tradeData)
+  // console.log("Open Position Data: ",OpenPositionData, tradeData)
 
   if(OpenPositionData.length !== 0){
 
     OpenPositionData.map((elem)=>{
-      let XTSPnl = Number(elem.NetAmount);
+      
       let appPnlData = tradeData.filter((element)=>{
-        return element.exchangeInstrumentToken == elem.ExchangeInstrumentId && elem.ProductType == element.product;
+        return (element.exchangeInstrumentToken == elem.ExchangeInstrumentId || element.instrumentToken == elem.ExchangeInstrumentId) && elem.ProductType == element.product;
       })
 
-      console.log("appdata", appPnlData)
+      // console.log("appdata", appPnlData)
 
       let liveDetail = marketData.filter((element)=>{
-        return element !== undefined && element.instrument_token == elem.ExchangeInstrumentId
+        // console.log(element.instrument_token, elem.ExchangeInstrumentId)
+        return element !== undefined && element.instrument_token == appPnlData[0].instrumentToken
       })
 
-
+      let XTSPnl = Number(elem.NetAmount) + (Number(elem.Quantity) * liveDetail[0]?.last_price);
       let updatedValue = (appPnlData[0]?.amount+(appPnlData[0]?.lots)*liveDetail[0]?.last_price);
-
+      // console.log(Number(elem.NetAmount), elem.Quantity , liveDetail[0]?.last_price, appPnlData[0]?.amount, appPnlData[0]?.lots )
       apprunninglotsTotal += Math.abs(appPnlData[0] ? appPnlData[0]?.lots : 0);
       zerodharunninglotsTotal += Math.abs(elem.Quantity) 
       appPnlTotal += (updatedValue ? updatedValue : 0); 
       zerodhaPnlTotal += XTSPnl;
-      if(appPnlData[0]?.instrumentToken === elem.ExchangeInstrumentId){
+      if(appPnlData[0]?.exchangeInstrumentToken === elem.ExchangeInstrumentId){
         appAndZerodhaSameSymbolRunningLotTotal += Math.abs(elem.Quantity);
         appAndZerodhaSameSymbolPnlTotal += XTSPnl;
       }
@@ -249,7 +250,7 @@ function MismatchDetails({socket}) {
             showTotalEntries={false}
             isSorted={false}
             noEndBorder
-            entriesPerPage={false}
+            entriesPerPage={true}
           />
         </MDBox>
       )}
