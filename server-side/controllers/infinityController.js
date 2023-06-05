@@ -393,7 +393,7 @@ exports.myAllTodaysTrade = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  console.log("Under my today orders", userId, today)
+  // console.log("Under my today orders", userId, today)
   try {
     const myTodaysTrade = await InfinityTrader.find({ trader: new ObjectId(userId), trade_time: { $gte: today } })
       .populate('trader', 'name')
@@ -417,7 +417,7 @@ exports.myHistoryTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 5
   const count = await InfinityTrader.countDocuments({ trader: userId, trade_time: { $lt: today } })
-  console.log("Under history orders", skip, limit)
+  // console.log("Under history orders", skip, limit)
   try {
     const myHistoryTrade = await InfinityTrader.find({ trader: new ObjectId(userId), trade_time: { $lt: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
       .sort({ _id: -1 })
@@ -876,46 +876,45 @@ exports.companyPnlReport = async (req, res, next) => {
   endDate = endDate + "T23:59:59.000Z";
 
 
-  let pipeline = [{
-    $match: {
-      trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
-      status: "COMPLETE"
-    }
-    // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
-  },
-  {
-    $group:
+  let pipeline = [
     {
-      _id: {
-        "date": { $substr: ["$trade_time", 0, 10] },
-      },
-      gpnl: {
-        $sum: { $multiply: ["$amount", -1] }
-      },
-      brokerage: {
-        $sum: { $toDouble: "$brokerage" }
-      },
-      trades: {
-        $count: {}
-      },
-    }
-  },
-  {
-    $addFields:
+      $match: {
+        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
     {
-      npnl: { $subtract: ["$gpnl", "$brokerage"] },
-      dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+      $group:
+      {
+        _id: {
+          "date": { $substr: ["$trade_time", 0, 10] },
+        },
+        gpnl: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        trades: {
+          $count: {}
+        },
+      }
+    },
+    {
+      $addFields:
+      {
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+      }
+    },
+    {
+      $sort:
+        { _id: 1 }
     }
-  },
-  {
-    $sort:
-      { _id: 1 }
-  }
   ]
 
   let x = await InfinityTraderCompany.aggregate(pipeline)
-
-  // res.status(201).json(x);
 
   res.status(201).json({ message: "data received", data: x });
 }
@@ -1581,7 +1580,7 @@ exports.getAllMockOrdersForToday = async (req, res)=>{
         } ] }, } },
          { $sort:{ _id: -1 }}
       ]);
-                 console.log(x)
+                //  console.log(x)
    
          res.status(201).json(x);
   }catch(e){
@@ -1665,7 +1664,7 @@ exports.getAllLiveOrdersForToday = async (req, res)=>{
         } ] }, } },
          { $sort:{ _id: -1 }}
       ]);
-                 console.log(x)
+                //  console.log(x)
    
          res.status(201).json(x);
   }catch(e){
@@ -1753,7 +1752,7 @@ exports.getAllTradersLiveOrdersForToday = async (req, res)=>{
         } ] }, } },
          { $sort:{ _id: -1 }}
       ]);
-                 console.log(x)
+                //  console.log(x)
    
          res.status(201).json(x);
   }catch(e){
@@ -1825,7 +1824,7 @@ exports.getAllTradersMockOrdersForToday = async (req, res)=>{
         } ] }, } },
          { $sort:{ _id: -1 }}
       ]);
-                 console.log(x)
+                //  console.log(x)
    
          res.status(201).json(x);
   }catch(e){

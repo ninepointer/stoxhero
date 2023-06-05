@@ -63,7 +63,7 @@ const backupDatabase = async(sourceUri, targetUri) => {
         for (const collection of collections) {
           await targetDb.collection(collection.name).drop();
         }
-        console.log('All collections in the target database have been dropped.');
+        // console.log('All collections in the target database have been dropped.');
     
         const sourceCollections = await sourceDb.listCollections().toArray();
     
@@ -74,7 +74,7 @@ const backupDatabase = async(sourceUri, targetUri) => {
           if (!isCollectionExistsInTarget) {
             console.log(`Backing up collection ${collectionName}`);
             if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories"){
-              console.log("in if", collectionName)
+              // console.log("in if", collectionName)
               const documents = await sourceDb.collection(collectionName).find({}).toArray();
     
             if (documents.length > 0) {

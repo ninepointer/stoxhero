@@ -91,9 +91,6 @@ client.connect()
   .then(async (res) => {
     // isRedisConnected = true ; 
     setValue(true);
-    await client.HSET('user:1', 'name', 'John');
-    const name = await client.HGET('user:1', 'name');
-    console.log('Name:', name);
     console.log("redis connected", res)
   })
   .catch((err) => {
@@ -108,10 +105,10 @@ client.connect()
 
 // console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
-  console.log(data)
+  // console.log(data)
   await createNewTicker(data.getApiKey, data.getAccessToken);
   io.on("connection", async (socket) => {
-    console.log(socket.id, "socket id")
+    // console.log(socket.id, "socket id")
     socket.on('userId', async (data) => {
       socket.join(`${data}`)
       // console.log("in index.js ", socket.id, data)
@@ -128,7 +125,7 @@ getKiteCred.getAccess().then(async (data)=>{
 
     socket.on('hi', async (data) => {
       // getKiteCred.getAccess().then(async (data)=>{
-      console.log("in hii event");
+      // console.log("in hii event");
         // await getTicks(socket);
         // await getDummyTicks(socket);
         // await DummyMarketData(socket);
@@ -276,7 +273,7 @@ Setting.find().then((res) => {
   const appEndHour = appEndTime.getHours();
   const appEndMinute = appEndTime.getMinutes();
 
-  console.log(appStartHour, appStartMinute, appEndHour, appEndMinute);
+  // console.log(appStartHour, appStartMinute, appEndHour, appEndMinute);
 });
 let date = new Date();
 let weekDay = date.getDay();

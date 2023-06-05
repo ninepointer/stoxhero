@@ -16,7 +16,7 @@ const filterObj = (obj, ...allowedFields) => {
   };
 
 exports.createPortfolio = async(req, res, next)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const{portfolioName, portfolioValue, portfolioType, portfolioAccount, status
     } = req.body;
     if(await Portfolio.findOne({portfolioName})) return res.status(400).json({message:'This portfolio already exists.'});
@@ -113,11 +113,11 @@ exports.getPortfolio = async(req, res, next)=>{
 };
 
 exports.editPortfolio = async(req, res, next) => {
-    console.log("in edit")
+    // console.log("in edit")
     const _id = req.params.id;
-    console.log("id is", _id)
+    // console.log("id is", _id)
     const portfolio = await Portfolio.findById(_id);
-    console.log(id, portfolio)
+    // console.log(id, portfolio)
     const filteredBody = filterObj(req.body, "portfolioName", "portfolioValue", "portfolioType", "lastModifiedOn",
                           "status");
 
@@ -129,11 +129,11 @@ exports.editPortfolio = async(req, res, next) => {
 }
 
 exports.editPortfolioWithName = async(req, res, next) => {
-    console.log("in edit")
+    // console.log("in edit")
     // const _id = req.params.id;
     // console.log("id is", _id)
     const portfolio = await Portfolio.find({portfolioName: req.body.portfolioName});
-    console.log(portfolio)
+    // console.log(portfolio)
     const filteredBody = filterObj(req.body, "portfolioName", "portfolioValue", "portfolioType", "lastModifiedOn",
                           "status");
 
@@ -245,7 +245,7 @@ exports.getPortfolioRemainingAmount = async(req, res, next) => {
             },
         ]);
 
-        console.log(userId, portfolioId)
+        // console.log(userId, portfolioId)
         const portfolio = await Portfolio.findById(portfolioId).select('portfolioValue')
 
         res.status(201).json({pnl: pnlDetails, portfolio: portfolio});
@@ -440,7 +440,7 @@ exports.myTenXPortfolio = async(req, res, next)=>{
 }
 
 exports.myVirtualFreePortfolio = async(req, res, next)=>{
-  console.log("in free", req.user._id)
+  // console.log("in free", req.user._id)
   let pnlDetails = await Portfolio.aggregate([
     {
       $match: {
@@ -518,7 +518,7 @@ exports.myVirtualFreePortfolio = async(req, res, next)=>{
         },
     },
   ]);
-  console.log("pnlDetails", pnlDetails)
+  // console.log("pnlDetails", pnlDetails)
   res.status(201).json({status: "success", data: pnlDetails});
 
 }
