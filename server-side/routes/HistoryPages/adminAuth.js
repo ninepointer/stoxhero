@@ -50,7 +50,7 @@ const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
 
 
-router.get("/gettoken", async (req, res) => {
+router.get("/deleteWatchlist", async (req, res) => {
   await UserDetail.updateMany({}, { $unset: { "watchlistInstruments": "" } })
 
 });

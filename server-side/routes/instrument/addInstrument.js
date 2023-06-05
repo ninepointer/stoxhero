@@ -67,7 +67,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                         }
                         // console.log("this is redis client", newredisClient);
 
-                        if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
+                        // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
                             let instrument = await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, JSON.stringify({
                                 _id: dataExist._id,
                                 instrument: dataExist.instrument,
@@ -82,7 +82,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                                 // accountType: dataExist.accountType,
                                 
                             }))                
-                        }
+                        // }
         
                     } catch(err){
                         console.log(err)
@@ -110,7 +110,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
     
                     //  console.log("this is redis client", newredisClient)
     
-                    if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
+                    // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
                         let instrument = await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, JSON.stringify({
                             _id: addingInstruments._id,
                             instrument: addingInstruments.instrument,
@@ -125,7 +125,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                             // accountType: addingInstruments.accountType,
                             
                         }))
-                    }
+                    // }
     
                     } catch(err){
                         console.log(err)
@@ -172,7 +172,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                         }
                         // console.log("this is redis client", newredisClient);
     
-                        if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
+                        // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                             let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
                                 _id: dataExist._id,
                                 instrument: dataExist.instrument,
@@ -185,8 +185,10 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                                 contractDate: dataExist.contractDate ,
                                 maxLot: dataExist.maxLot ,
                                 // accountType: dataExist.accountType,
-                            }))                
-                        }
+                            }))
+
+                            console.log("instrument", instrument)
+                        // }
         
                     } catch(err){
                         console.log(err)
@@ -214,7 +216,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
     
                     //  console.log("this is redis client", newredisClient)
     
-                    if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
+                    // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                         let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
                             _id: addingInstruments._id,
                             instrument: addingInstruments.instrument,
@@ -228,7 +230,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                             maxLot: addingInstruments.maxLot ,
                             // accountType: addingInstruments.accountType,
                         }))
-                    }
+                    // }
     
                     } catch(err){
                         console.log(err)
@@ -323,7 +325,7 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
                 maxLot: removeFromWatchlist.maxLot,
                 // accountType: removeFromWatchlist.accountType,
             }
-            // console.log("removeInstrumentObject", removeInstrumentObject)
+            console.log("removeInstrumentObject", removeInstrumentObject)
             let removeInstrument;
             if(role.roleName === infinityTrader){
                 removeInstrument = await client.LREM(`${(_id).toString()}: infinityInstrument`, 1, JSON.stringify(removeInstrumentObject))
@@ -332,7 +334,7 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
                 let instrument = await client.LRANGE(`${_id.toString()}: instrument`, 0, -1)
 
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
-                // console.log("in else removeInstrument", removeInstrument, instrument)
+                console.log("in else removeInstrument", removeInstrument, instrument)
             }
 
 

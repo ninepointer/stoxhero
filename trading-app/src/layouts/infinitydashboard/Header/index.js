@@ -34,7 +34,11 @@ export default function LabTabs({socket}) {
   const [liveTraderCountRealTrade, setLiveTraderCountRealTrade] = useState(0);
   const [notliveTraderCountRealTrade, setNotLiveTraderCountRealTrade] = useState(0);
   let [refreshMargin, setRefreshMargin] = useState(true);
+  let [refreshMockMargin, setRefreshMockMargin] = useState(true);
+
   const [marginData, setMarginData] = useState();
+  const [mockMarginData, setMockMarginData] = useState();
+
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 //   let liveDetailsArr = [];
   let totalTransactionCost = 0;
@@ -51,13 +55,6 @@ export default function LabTabs({socket}) {
   let liveTotalLots = 0;
   let liveTotalTrades = 0;
 
-//   const handleChange = (event, newValue) => {
-//     setIsLoading(true)
-//     setValue(newValue);
-//     setTimeout(() => {
-//       setIsLoading(false)
-//     }, 500);
-//   };
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/${"xtsMargin"}`)
@@ -68,6 +65,16 @@ export default function LabTabs({socket}) {
         return new Error(err);
       })
   }, [refreshMargin])
+
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/usedMargin/infinity`)
+      .then((res) => {
+        console.log(res.data);
+        setMockMarginData(res.data.data)
+      }).catch((err) => {
+        return new Error(err);
+      })
+  }, [refreshMockMargin])
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -311,10 +318,15 @@ export default function LabTabs({socket}) {
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCount}/{notliveTraderCount + liveTraderCount}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
-                            </Grid>
+                                <Grid item lg={4}>
+                                    <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                         Used Margin
+                                    </MDTypography>
+                                    <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                         <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData)}</span>
+                                         <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMockMargin(!refreshMockMargin) }} />
+                                    </MDTypography>
+                                </Grid>
                         </Grid>
                     </Grid>
 
@@ -363,16 +375,12 @@ export default function LabTabs({socket}) {
                             </Grid>
                                 <Grid item lg={4}>
                                     <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
-                                         {/* <span style={{ marginRight: '10px' }}>. */}
                                          Used Margin
-                                         {/* </span> */}
-                                         {/* <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMargin(!refreshMargin) }} /> */}
                                     </MDTypography>
                                     <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
                                          <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(marginData)}</span>
                                          <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMargin(!refreshMargin) }} />
                                     </MDTypography>
-                                    {/* <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'></MDTypography> */}
                                 </Grid>
                         </Grid>
                     </Grid>
