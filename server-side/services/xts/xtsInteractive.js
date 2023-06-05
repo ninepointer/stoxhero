@@ -115,7 +115,7 @@ const placedOrderData = async () => {
 const placedOrderDataHelper = async(initialTime, orderData) => {
   let isRedisConnected = getValue();
   let date = new Date();
-  console.log("inside placedOrderDataHelper")
+  // console.log("inside placedOrderDataHelper")
   let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
         OrderType, TimeInForce, OrderQuantity} = orderData;
   let traderData = {};
@@ -164,9 +164,9 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
   }
   const startTime = Date.now();
 
-  console.log("traderData", traderData)
+  // console.log("traderData", traderData)
   if(!traderData?.trader){
-    console.log("running recursively")
+    // console.log("running recursively")
     await placedOrderDataHelper(initialTime, orderData); 
   }
 
@@ -179,7 +179,7 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
 }
 
 const placeOrder = async (obj, req, res) => {
-
+  let date = new Date();
   try {
     let isRedisConnected = getValue();
     let exchangeSegment;
@@ -204,12 +204,12 @@ const placeOrder = async (obj, req, res) => {
       limitPrice: 0,
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
-      orderUniqueIdentifier: `${Date.now()}`
+      orderUniqueIdentifier: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
     });
 
     //check status, if status is 400 then send below error response.
     console.log("response", response)
-    let date = new Date();
+    
     let traderDataObj = {
       appOrderId: response?.result?.AppOrderID,
       order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
@@ -226,13 +226,17 @@ const placeOrder = async (obj, req, res) => {
       uniqueId: `${req.user.first_name}${req.user.mobile}`
     }
 
+    console.log(traderDataObj, response?.result?.AppOrderID)
     if (response?.result?.AppOrderID) {
       if (isRedisConnected && await client.exists(`liveOrderBackupKey`)) {
-        let data = await client.HSET('liveOrderBackupKey', `${(orderData?.AppOrderID).toString(), JSON.stringify(traderDataObj)}`);
+        let data = await client.HSET('liveOrderBackupKey', (response?.result?.AppOrderID).toString(), JSON.stringify(traderDataObj));
         // traderData = JSON.parse(data);
-        await RedisBackup.create(traderDataObj)
+        console.log("this is data", data);
+        const save = await RedisBackup.create(traderDataObj)
+        console.log(save)
       } else {
-        await RedisBackup.create(traderDataObj)
+        const save = await RedisBackup.create(traderDataObj)
+        console.log("save in else", save)
       }
     }
     if (!response?.result?.AppOrderID) {
@@ -314,41 +318,42 @@ const ifServerCrashAfterOrder = async () => {
   };
 
   try {
+    console.log(authOptions)
     const response = await axios.get(url, authOptions)
     let orders = response.data?.result;
-    for(let i = 0; i < orders.length; i++){
-      let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
-        TimeInForce, OrderQuantity, ExchangeSegment } = orders[i];
 
-      for(let j = 0; j < liveCompany.length; j++){
-        if(liveCompany[j].appOrderId !== orders[i].AppOrderID && orders[i].OrderStatus === "Filled"){
-          if(OrderSide === "Buy"){
-            OrderSide = "SELL";
-          } else{
-            OrderSide = "BUY"
-          }
-          const response = await xtsInteractiveAPI.placeOrder({
-            exchangeSegment: ExchangeSegment,
-            exchangeInstrumentID: ExchangeInstrumentID,
-            productType: ProductType,
-            orderType: OrderType,
-            orderSide: OrderSide,
-            timeInForce: TimeInForce,
-            disclosedQuantity: 0,
-            orderQuantity: Math.abs(OrderQuantity),
-            limitPrice: 0,
-            stopPrice: 0,
-            clientID: process.env.XTS_CLIENTID,
-          });
-        }
-      }
+    let openTrade = orders.filter((elem1) => !liveCompany.some((elem2) => elem1.AppOrderID === elem2.appOrderId));
+    let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+      TimeInForce, OrderQuantity, ExchangeSegment } = openTrade
+
+    if(OrderSide === "Buy"){
+      OrderSide = "SELL";
+    } else{
+      OrderSide = "BUY"
     }
+
+    console.log("openTrade", openTrade)
+    // const tradeRsponse = await xtsInteractiveAPI.placeOrder({
+    //   exchangeSegment: ExchangeSegment,
+    //   exchangeInstrumentID: ExchangeInstrumentID,
+    //   productType: ProductType,
+    //   orderType: OrderType,
+    //   orderSide: OrderSide,
+    //   timeInForce: TimeInForce,
+    //   disclosedQuantity: 0,
+    //   orderQuantity: Math.abs(OrderQuantity),
+    //   limitPrice: 0,
+    //   stopPrice: 0,
+    //   clientID: process.env.XTS_CLIENTID,
+    // });
+
   } catch (err) {
     console.log(err)
   }
 }
 
 const autoPlaceOrder = async (obj) => {
+  let date = new Date();
   let {symbol, Product, exchangeInstrumentToken, exchange, validity,
       OrderType, variety, buyOrSell, realBuyOrSell, trader, algoBoxId,
       autoTrade, dontSendResp, createdBy, Quantity, userQuantity, instrumentToken} = obj;
@@ -373,25 +378,10 @@ const autoPlaceOrder = async (obj) => {
     limitPrice: 0,
     stopPrice: 0,
     clientID: process.env.XTS_CLIENTID,
-    orderUniqueIdentifier: `${Date.now()}`
+    orderUniqueIdentifier: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
   });
 
-  let date = new Date();
-
-  // let backupObj = {
-  //   appOrderId: response?.result?.AppOrderID,
-  //   order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
-  //   trader: trader,
-  //   algoBoxId: algoBoxId,
-  //   exchange: exchange,
-  //   symbol: symbol,
-  //   buyOrSell: buyOrSell,
-  //   Quantity: userQuantity,
-  //   variety: variety,
-  //   instrumentToken: instrumentToken,
-  //   dontSendResp: dontSendResp,
-  //   tradedBy: createdBy
-  // }
+  
 
   let traderDataObj = {
     appOrderId: response?.result?.AppOrderID,

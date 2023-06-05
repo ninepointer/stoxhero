@@ -33,7 +33,7 @@ const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 // const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
 const {autoCutMainManually} = require("./controllers/AutoTradeCut/mainManually");
-
+const {saveLiveUsedMargin, saveMockUsedMargin} = require("./controllers/marginRequired")
 const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
@@ -290,7 +290,10 @@ let weekDay = date.getDay();
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
         // const autotrade = nodeCron.schedule('50 9 * * *', test);
         const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
-
+        const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
+          saveLiveUsedMargin();
+          saveMockUsedMargin();
+        });
     }
   }
 

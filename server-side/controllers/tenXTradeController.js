@@ -715,7 +715,10 @@ exports.overallTenXPnl = async (req, res, next) => {
       },
         {
           $group: {
-            _id: null,
+            _id: {
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken"
+            },
             amount: {
               $sum: {$multiply : ["$amount",-1]},
             },

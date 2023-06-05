@@ -25,19 +25,19 @@ export default function LabTabs({socket}) {
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
   const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let liveDetailsArr = [];
+//   let liveDetailsArr = [];
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let totalTurnover = 0;
   let totalLots = 0;
   let totalTrades = 0;
-  let ytotalTransactionCost = 0;
-  let ytotalGrossPnl = 0;
-  let ytotalRunningLots = 0;
-  let ytotalTurnover = 0;
-  let ytotalLots = 0;
-  let ytotalTrades = 0;
+//   let ytotalTransactionCost = 0;
+//   let ytotalGrossPnl = 0;
+//   let ytotalRunningLots = 0;
+//   let ytotalTurnover = 0;
+//   let ytotalLots = 0;
+//   let ytotalTrades = 0;
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -130,7 +130,7 @@ export default function LabTabs({socket}) {
     
   }, [trackEvent])
 
-  console.log("Loading: ",isLoading)
+//   console.log("Loading: ",isLoading)
   useEffect(() => {
     return () => {
         socket.close();
@@ -139,20 +139,20 @@ export default function LabTabs({socket}) {
 
   console.log(tradeDataYesterday)
   tradeData.map((subelem, index)=>{
-    let obj = {};
-    totalRunningLots += Number(subelem.lots)
-    totalTransactionCost += Number(subelem.brokerage);
-    totalTurnover += Number(Math.abs(subelem.turnover));
-    totalLots += Number(Math.abs(subelem.totallots))
-    totalTrades += Number(subelem.trades)
+    // let obj = {};
+    totalRunningLots += Number(subelem?.lots)
+    totalTransactionCost += Number(subelem?.brokerage);
+    totalTurnover += Number(Math.abs(subelem?.turnover));
+    totalLots += Number(Math.abs(subelem?.totallots))
+    totalTrades += Number(subelem?.trades)
 
     let liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
+        return (elem !== undefined && (elem?.instrument_token == subelem?._id?.instrumentToken || elem?.instrument_token == subelem?._id?.exchangeInstrumentToken));
     })
-    let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+    let updatedValue = (subelem?.amount+(subelem?.lots)*liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;
 
-    // const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
+    // const instrumentcolor = subelem?._id.symbol.slice(-2) == "CE" ? "success" : "error"
     // const quantitycolor = subelem.lots >= 0 ? "success" : "error"
     // const gpnlcolor = updatedValue >= 0 ? "success" : "error"
     // const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"

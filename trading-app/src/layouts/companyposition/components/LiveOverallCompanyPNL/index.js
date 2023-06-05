@@ -300,7 +300,7 @@ function LiveOverallCompantPNL({socket}) {
               <span>
                 <strong> last trade </strong>
                 {latestLive.tradeBy} {latestLive.tradeType === "BUY" ? "bought " : "sold "}  
-                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(new Date(latestLive.tradeTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())} - {latestLive.tradeStatus}
+                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(latestLive.tradeTime).toString().split("T")[1].split(".")[0]} - {latestLive.tradeStatus}
               </span>
               : "No real trades today"
             }

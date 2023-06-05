@@ -32,3 +32,67 @@ router.get("/getPositions", async (req, res)=>{
 })
 
 module.exports = router;
+
+
+// {
+//   "type": "success",
+//   "code": "s-user-0001",
+//   "description": "Success position",
+//   "result": [
+//     {
+//       "AccountID": "SYMP1",
+//       "TradingSymbol": "ACC",
+//       "ExchangeSegment": "NSECM",
+//       "ExchangeInstrumentID": 22,
+//       "ProductType": "CNC",
+//       "Marketlot": 1,
+//       "Multiplier": 1,
+//       "BuyAveragePrice": 41.78,
+//       "SellAveragePrice": 41.63,
+//       "OpenBuyQuantity": 10,
+//       "OpenSellQuantity": 0,
+//       "Quantity": 10,
+//       "BuyAmount": 1671,
+//       "SellAmount": 2498,
+//       "NetAmount": 827,
+//       "UnrealizedMTM": 0,
+//       "RealizedMTM": 0,
+//       "MTM": 0,
+//       "BEP": 0,
+//       "SumOfTradedQuantityAndPriceBuy": 1671,
+//       "SumOfTradedQuantityAndPriceSell": 2498,
+//       "statisticsLevel": "ParentLevel",
+//       "isInterOpPosition": "true",
+//       "childPositions": {
+//         "AccountID\"": "SYMP1",
+//         "TradingSymbol": "ACC",
+//         "ExchangeSegment": "NSECM",
+//         "ExchangeInstrumentID": "22",
+//         "ProductType": "CNC",
+//         "Marketlot": "1",
+//         "Multiplier": "1",
+//         "BuyAveragePrice": "41.78",
+//         "SellAveragePrice": "41.63",
+//         "OpenBuyQuantity": "10",
+//         "OpenSellQuantity": "0",
+//         "Quantity": "10",
+//         "BuyAmount": "1671.00",
+//         "SellAmount": "2498.00",
+//         "NetAmount": "827.00",
+//         "UnrealizedMTM": "0",
+//         "RealizedMTM": "0",
+//         "MTM": "0",
+//         "BEP": "0",
+//         "SumOfTradedQuantityAndPriceBuy": "1671.00",
+//         "SumOfTradedQuantityAndPriceSell": "2498.00",
+//         "statisticsLevel": "ParentLevel",
+//         "isInterOpPosition": "true"
+//       },
+//       "MessageCode": 9002,
+//       "MessageVersion": 1,
+//       "TokenID": 0,
+//       "ApplicationType": 0,
+//       "SequenceNumber": 0
+//     }
+//   ]
+// }
