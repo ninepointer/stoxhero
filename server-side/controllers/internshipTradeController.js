@@ -28,7 +28,7 @@ exports.overallPnl = async (req, res, next) => {
       if(isRedisConnected && await client.exists(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`)){
         let pnl = await client.get(`${req.user._id.toString()}${batch.toString()}: overallpnlIntern`)
         pnl = JSON.parse(pnl);
-        console.log("pnl redis", pnl)
+        // console.log("pnl redis", pnl)
         
         res.status(201).json({message: "pnl received", data: pnl});
 
@@ -108,13 +108,13 @@ exports.myTodaysTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
   const count = await InternTrades.countDocuments({trader: userId, trade_time: {$gte:today}})
-  console.log("Under my today orders",userId, today)
+  // console.log("Under my today orders",userId, today)
   try {
     const myTodaysTrade = await InternTrades.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'batch': 1}).populate('batch', 'batchName')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
-    console.log(myTodaysTrade)
+    // console.log(myTodaysTrade)
     res.status(200).json({status: 'success', data: myTodaysTrade, count:count});
   } catch (e) {
     console.log(e);
@@ -132,13 +132,13 @@ exports.myHistoryTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
   const count = await InternTrades.countDocuments({trader: userId, trade_time: {$lt:today}})
-  console.log("Under my today orders",userId, today)
+  // console.log("Under my today orders",userId, today)
   try {
     const myHistoryTrade = await InternTrades.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'batch': 1}).populate('batch', 'batchName')
       .sort({_id: -1})
       .skip(skip)
       .limit(limit);
-    console.log(myHistoryTrade)
+    // console.log(myHistoryTrade)
     res.status(200).json({status: 'success', data: myHistoryTrade, count:count});
   } catch (e) {
     console.log(e);
@@ -148,13 +148,13 @@ exports.myHistoryTrade = async (req, res, next) => {
 
 exports.marginDetail = async (req, res, next) => {
   let {batch} = req.params;
-  console.log("Batch:",batch)
+  // console.log("Batch:",batch)
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  console.log(batch, req.user._id)
+  // console.log(batch, req.user._id)
 
   try {
     const subscription = await InternBatch.aggregate([
@@ -238,9 +238,9 @@ exports.marginDetail = async (req, res, next) => {
             },
         },
     ])
-    console.log("subs", subscription)
+    // console.log("subs", subscription)
     if(subscription.length > 0){
-      console.log("subs", subscription)
+      // console.log("subs", subscription)
 
         res.status(200).json({status: 'success', data: subscription[0]});
     } else{
@@ -280,7 +280,7 @@ exports.marginDetail = async (req, res, next) => {
             },
         ])
 
-        console.log("portfolioValue", portfolioValue, subscription)
+        // console.log("portfolioValue", portfolioValue, subscription)
         res.status(200).json({status: 'success', data: portfolioValue[0]});
     }
   } catch (e) {
@@ -353,7 +353,7 @@ exports.tradingDays = async(req, res, next)=>{
 }
 
 exports.autoExpireInternBatch = async()=>{
-    console.log("autoExpireInternBatch running");
+    // console.log("autoExpireInternBatch running");
     const subscription = await InternBatch.find({status:"Active"});
 
     for(let i = 0; i < subscription.length; i++){
@@ -436,7 +436,7 @@ exports.overallPnlAllTrader = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  console.log(today);
+  // console.log(today);
 
   const pipeline = [
     {
@@ -835,7 +835,7 @@ exports.myOverallInternshipPnl = async (req, res, next) => {
 exports.myInternshipTradingDays = async (req, res, next) => {
   const {batchId} = req.params;
   const userId = req.user._id;
-  console.log("Batch Id & User ID: ",batchId,userId)
+  // console.log("Batch Id & User ID: ",batchId,userId)
   // let date = new Date();
   // date.setDate(new Date(date) - 1)
   // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`

@@ -59,7 +59,7 @@ exports.getActiveContests = async(req, res, next)=>{
 exports.editContest = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const contest = await Contest.findById(id);
 
     const filteredBody = filterObj(req.body, "contestName", "contestStartDate", "contestEndDate", "entryOpeningDate", "entryClosingDate", 
@@ -81,7 +81,7 @@ exports.updateStatus = async(req, res, next) => {
     const status = req.body.status;
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
 
     try{
         const contest = await Contest.findOneAndUpdate({_id : id}, {
@@ -100,7 +100,7 @@ exports.joinContest = async(req, res, next) => {
     // const employeeid = req.user.employeeid;
     const contestId = req.params.id;
     const {paymentId, portfolioId} = req.body;
-    console.log(req.body, contestId)
+    // console.log(req.body, contestId)
     try{
         const contest = await Contest.findById(contestId);
         if(!contest){
@@ -198,7 +198,7 @@ exports.joinContest = async(req, res, next) => {
 }
 
 exports.getContest = async (req,res,next) => {
-    console.log("inside getContest")
+    // console.log("inside getContest")
     const {id} = req.params;
     try {
         const contest = await Contest.findOne({
@@ -212,7 +212,7 @@ exports.getContest = async (req,res,next) => {
         .populate('createdBy', { first_name: 1, last_name: 1 });
         console.log("contest", contest)
         if (!contest) {
-            console.log("in if of contest")
+            // console.log("in if of contest")
           return res.status(200).json({ status: 'success', message: 'Contest not found.', data: {} });
         }
         return res.status(200).json({ status: 'success', message: 'Successful', data: contest });
