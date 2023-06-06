@@ -30,7 +30,7 @@ const DB = process.env.DATABASE;
 // INTERACTIVE_URL = 'http://14.142.188.188:23000'
 // MARKETDATA_URL = 'http://14.142.188.188:23000/apimarketdata'
 // XTS_USERID = "JPKS2"
-// XTS_CLIENTID = "FPI2"
+// XTS_CLIENTID = "CF1"
 
 
 
