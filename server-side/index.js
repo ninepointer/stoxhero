@@ -284,16 +284,12 @@ let weekDay = date.getDay();
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
         const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, ()=>{
           appLive();
-          infinityLive();
+          infinityLive()
         });
         const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, ()=>{
           appOffline();
           infinityOffline();
         });
-        const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
-        const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, appLive);
-        const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, appOffline);
->>>>>>> d59a2c07b8855706e8ac91b9161bacb020396cd4
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
         // const autotrade = nodeCron.schedule('50 9 * * *', test);
         const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
