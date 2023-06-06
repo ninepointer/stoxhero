@@ -20,7 +20,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 let { client, isRedisConnected, setValue } = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
-const { appLive, appOffline } = require('./controllers/appSetting');
+const { appLive, appOffline, infinityLive, infinityOffline } = require('./controllers/appSetting');
 const { deletePnlKey } = require("./controllers/deletePnlKey");
 const { subscribeInstrument, getXTSTicksForUserPosition,
   onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
@@ -282,8 +282,14 @@ let weekDay = date.getDay();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
         const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
-        const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
-        const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, appOffline);
+        const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, ()=>{
+          appLive();
+          infinityLive();
+        });
+        const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, ()=>{
+          appOffline();
+          infinityOffline();
+        });
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
         // const autotrade = nodeCron.schedule('50 9 * * *', test);
         const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);

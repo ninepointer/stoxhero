@@ -47,14 +47,10 @@ router.patch("/applive/:id", Authentication, async (req, res)=>{
 
     try{ 
         const {id} = req.params
-        console.log(id, req.body)
+        const{isAppLive, infinityLive} = req.body;
         const setting = await Setting.findOneAndUpdate({_id : id}, {
-            $set:{ 
-                modifiedOn: new Date(),
-                modifiedBy: req.user._id,
-                isAppLive: req.body.isAppLive,
-            }
-        })
+            isAppLive, infinityLive, modifiedBy: req.user._id, modifiedOn: new Date()
+        }, {new:true})
         console.log("this is role", setting);
         // res.send(setting)
         res.status(201).json({message : "Timming updated succesfully"});
