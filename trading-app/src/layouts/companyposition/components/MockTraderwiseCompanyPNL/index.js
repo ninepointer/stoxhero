@@ -118,21 +118,21 @@ function MockTraderwiseCompantPNL(props) {
 
 
   useEffect(()=>{
-          // Get Lastest Trade timestamp
-          axios.get(`${baseUrl}api/v1/infinityTrade/mock/letestTradeCompany`)
-          // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
-          .then((res)=>{
-            latestLive.tradeTime = (res.data.data.trade_time) ;
-            latestLive.tradeBy = (res.data.data.createdBy) ;
-            latestLive.tradeType = (res.data.data.buyOrSell) ;
-            latestLive.tradeQuantity = (res.data.data.Quantity) ;
-            latestLive.tradeSymbol = (res.data.data.symbol) ;
-            latestLive.tradeStatus = (res.data.data.status)
-      
-            setLatestLive(latestLive)
-          }).catch((err) => {
-            return new Error(err);
-          })
+    // Get Lastest Trade timestamp
+    axios.get(`${baseUrl}api/v1/infinityTrade/mock/letestTradeCompany`)
+    // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
+    .then((res)=>{
+      latestLive.tradeTime = (res.data.data.trade_time) ;
+      latestLive.tradeBy = (res.data.data.createdBy) ;
+      latestLive.tradeType = (res.data.data.buyOrSell) ;
+      latestLive.tradeQuantity = (res.data.data.Quantity) ;
+      latestLive.tradeSymbol = (res.data.data.symbol) ;
+      latestLive.tradeStatus = (res.data.data.status)
+
+      setLatestLive(latestLive)
+    }).catch((err) => {
+      return new Error(err);
+    })
   }, [trackEvent])
 
   let mapForParticularUser = new Map();

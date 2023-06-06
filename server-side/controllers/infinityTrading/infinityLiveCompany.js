@@ -58,7 +58,7 @@ exports.overallLivePnlToday = async(req, res, next)=>{
                 amount: 1,
                 brokerage: 1,
                 instrumentToken: "$_id.instrumentToken",
-          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+                exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
                 npnl: {
                     $subtract: ["$amount", "$brokerage"]
                 },
