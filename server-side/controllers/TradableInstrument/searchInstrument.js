@@ -49,63 +49,91 @@ exports.search = async (searchString, res, req) => {
     let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     let data ;
     console.log(roleObj.roleName , infinityTrader)
-    if(roleObj.roleName === infinityTrader){
-      data = await TradableInstrument.find({
-        $and: [
-          {
-            $or: [
-              { tradingsymbol: { $regex: searchString, $options: 'i' } },
-              { name: { $regex: searchString, $options: 'i' } },
-              { exchange: { $regex: searchString, $options: 'i' } },
-              { expiry: { $regex: searchString, $options: 'i' } },
-            ]
-          },
-          {
-            status: 'Active',
-            infinityVisibility: true
-          },
-          {
-            expiry: {
-              $gte: todayDate, // expiry is greater than or equal to today's date
-              $lt: fromLessThen
-              // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
-            }
+    data = await TradableInstrument.find({
+      $and: [
+        {
+          $or: [
+            { tradingsymbol: { $regex: searchString, $options: 'i' } },
+            { name: { $regex: searchString, $options: 'i' } },
+            { exchange: { $regex: searchString, $options: 'i' } },
+            { expiry: { $regex: searchString, $options: 'i' } },
+          ]
+        },
+        {
+          status: 'Active'
+        },
+        {
+          // accountType: accountType
+        },
+        {
+          expiry: {
+            $gte: todayDate, // expiry is greater than or equal to today's date
+            $lt: fromLessThen
+            // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
           }
-        ]
-      })
-        .sort({ expiry: 1 })
-        .limit(size)
-        .exec();
-    } else{
-      data = await TradableInstrument.find({
-        $and: [
-          {
-            $or: [
-              { tradingsymbol: { $regex: searchString, $options: 'i' } },
-              { name: { $regex: searchString, $options: 'i' } },
-              { exchange: { $regex: searchString, $options: 'i' } },
-              { expiry: { $regex: searchString, $options: 'i' } },
-            ]
-          },
-          {
-            status: 'Active'
-          },
-          {
-            // accountType: accountType
-          },
-          {
-            expiry: {
-              $gte: todayDate, // expiry is greater than or equal to today's date
-              $lt: fromLessThen
-              // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
-            }
-          }
-        ]
-      })
-        .sort({ expiry: 1 })
-        .limit(size)
-        .exec();
-    }
+        }
+      ]
+    })
+      .sort({ expiry: 1 })
+      .limit(size)
+      .exec();
+    // if(roleObj.roleName === infinityTrader){
+    //   data = await TradableInstrument.find({
+    //     $and: [
+    //       {
+    //         $or: [
+    //           { tradingsymbol: { $regex: searchString, $options: 'i' } },
+    //           { name: { $regex: searchString, $options: 'i' } },
+    //           { exchange: { $regex: searchString, $options: 'i' } },
+    //           { expiry: { $regex: searchString, $options: 'i' } },
+    //         ]
+    //       },
+    //       {
+    //         status: 'Active',
+    //         infinityVisibility: true
+    //       },
+    //       {
+    //         expiry: {
+    //           $gte: todayDate, // expiry is greater than or equal to today's date
+    //           $lt: fromLessThen
+    //           // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+    //         }
+    //       }
+    //     ]
+    //   })
+    //     .sort({ expiry: 1 })
+    //     .limit(size)
+    //     .exec();
+    // } else{
+    //   data = await TradableInstrument.find({
+    //     $and: [
+    //       {
+    //         $or: [
+    //           { tradingsymbol: { $regex: searchString, $options: 'i' } },
+    //           { name: { $regex: searchString, $options: 'i' } },
+    //           { exchange: { $regex: searchString, $options: 'i' } },
+    //           { expiry: { $regex: searchString, $options: 'i' } },
+    //         ]
+    //       },
+    //       {
+    //         status: 'Active'
+    //       },
+    //       {
+    //         // accountType: accountType
+    //       },
+    //       {
+    //         expiry: {
+    //           $gte: todayDate, // expiry is greater than or equal to today's date
+    //           $lt: fromLessThen
+    //           // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+    //         }
+    //       }
+    //     ]
+    //   })
+    //     .sort({ expiry: 1 })
+    //     .limit(size)
+    //     .exec();
+    // }
 
 
     res.json(data);
