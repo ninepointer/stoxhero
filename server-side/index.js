@@ -290,7 +290,7 @@ let weekDay = date.getDay();
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();
-        }); 
+        });
         const setOpenPriceFlag = nodeCron.schedule(`46 3 * * *`, openPrice);
 
     }
