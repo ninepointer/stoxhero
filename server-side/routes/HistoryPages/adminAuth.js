@@ -48,11 +48,18 @@ const {placeOrder} = require("../../services/xts/xtsInteractive");
 const fetchToken = require("../../marketData/generateSingleToken");
 const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
+const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
+
+
+
+
+router.get("/usedMargin", async (req, res) => {
+  await saveLiveUsedMargin();
+});
 
 
 router.get("/deleteWatchlist", async (req, res) => {
   await UserDetail.updateMany({}, { $unset: { "watchlistInstruments": "" } })
-
 });
 
 router.get("/updateLot", async (req, res) => {
