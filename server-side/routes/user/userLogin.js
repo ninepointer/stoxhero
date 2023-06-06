@@ -120,10 +120,44 @@ router.post("/resendmobileotp", async(req, res)=>{
     }
 });
 
-router.get("/loginDetail", authentication, (req, res)=>{
-    //console.log("hello my about", req.user);
-    // res.json({message: "data"});
-    res.json(req.user);
+router.get("/loginDetail", authentication, async (req, res)=>{
+    const id = req.user._id;
+    
+    const user = await UserDetail.findOne({_id: id, status: "Active"})
+    .populate('role', 'roleName')
+    .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
+    .populate({
+        path : 'subscription.subscriptionId',
+        select: 'portfolio',
+        populate: [{
+            path: 'portfolio',
+            select: 'portfolioName portfolioValue portfolioType portfolioAccount'
+        },
+        ]
+    })
+    .populate({
+        path: 'internshipBatch',
+        select: 'batchName batchStartDate batchEndDate career portfolio participants',
+        populate: [{
+            path: 'career',
+            select: 'jobTitle'
+        },
+        {
+            path: 'portfolio',
+            select: 'portfolioValue'
+        },
+        {
+            path: 'participants',
+            populate: {
+                path: 'college',
+                select: 'collegeName'
+            }
+        }
+    ],
+      })
+    .select('pincode aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+
+    res.json(user);
 })
 
 router.get("/logout", authentication, (req, res)=>{

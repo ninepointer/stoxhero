@@ -103,37 +103,37 @@ function MismatchDetails({socket}) {
     OpenPositionData.map((elem)=>{
       
       let appPnlData = tradeData.filter((element)=>{
-        return (element.exchangeInstrumentToken == elem.ExchangeInstrumentId || element.instrumentToken == elem.ExchangeInstrumentId) && elem.ProductType == element.product;
+        return (element?.exchangeInstrumentToken == elem?.ExchangeInstrumentId || element?.instrumentToken == elem?.ExchangeInstrumentId) && elem?.ProductType == element?.product;
       })
 
-      // console.log("appdata", appPnlData)
+      console.log("appdata", appPnlData)
 
       let liveDetail = marketData.filter((element)=>{
-        // console.log(element.instrument_token, elem.ExchangeInstrumentId)
-        return element !== undefined && element.instrument_token == appPnlData[0].instrumentToken
+        console.log(element.instrument_token, elem.ExchangeInstrumentId)
+        return element !== undefined && element?.instrument_token == appPnlData[0]?.instrumentToken
       })
 
-      let XTSPnl = Number(elem.NetAmount) + (Number(elem.Quantity) * liveDetail[0]?.last_price);
+      let XTSPnl = Number(elem?.NetAmount) + (Number(elem?.Quantity) * liveDetail[0]?.last_price);
       let updatedValue = (appPnlData[0]?.amount+(appPnlData[0]?.lots)*liveDetail[0]?.last_price);
-      // console.log(Number(elem.NetAmount), elem.Quantity , liveDetail[0]?.last_price, appPnlData[0]?.amount, appPnlData[0]?.lots )
+      // console.log(Number(elem?.NetAmount), elem?.Quantity , liveDetail[0]?.last_price, appPnlData[0]?.amount, appPnlData[0]?.lots )
       apprunninglotsTotal += Math.abs(appPnlData[0] ? appPnlData[0]?.lots : 0);
-      zerodharunninglotsTotal += Math.abs(elem.Quantity) 
+      zerodharunninglotsTotal += Math.abs(elem?.Quantity) 
       appPnlTotal += (updatedValue ? updatedValue : 0); 
       zerodhaPnlTotal += XTSPnl;
-      if(appPnlData[0]?.exchangeInstrumentToken === elem.ExchangeInstrumentId){
-        appAndZerodhaSameSymbolRunningLotTotal += Math.abs(elem.Quantity);
+      if(appPnlData[0]?.exchangeInstrumentToken === elem?.ExchangeInstrumentId){
+        appAndZerodhaSameSymbolRunningLotTotal += Math.abs(elem?.Quantity);
         appAndZerodhaSameSymbolPnlTotal += XTSPnl;
       }
       otmRunningLotsTotal = Math.abs(zerodharunninglotsTotal - apprunninglotsTotal)
       
       let obj = {};
-      const productcolor = elem.ProductType == "NRML" ? "info" : "warning"
+      const productcolor = elem?.ProductType == "NRML" ? "info" : "warning"
       const instrumenttypecolor = !updatedValue ? "warning" : "info"
       const updatedValuecolor = updatedValue >= 0 ? "success" : "error"
       const pnlcolor = XTSPnl >= 0 ? "success" : "error"
       const appPnlDatacolor = appPnlData[0] >= 0 ? "info" : "error"
-      const quantitycolor = (elem.Quantity) >= 0 ? "info" : "error"
-      const instrumentcolor = elem.TradingSymbol.includes("CE") ? "success" : "error"
+      const quantitycolor = (elem?.Quantity) >= 0 ? "info" : "error"
+      const instrumentcolor = elem?.TradingSymbol.includes("CE") ? "success" : "error"
       
       obj.instrument = (
         <MDTypography component="a" variant="caption" color={instrumentcolor} fontWeight="medium">
@@ -168,7 +168,7 @@ function MismatchDetails({socket}) {
       );
       obj.zerodharunninglots = (
         <MDTypography component="a" variant="caption" color={quantitycolor} fontWeight="medium">
-          {elem.Quantity}
+          {elem?.Quantity}
         </MDTypography>
       );
 

@@ -225,6 +225,7 @@ exports.saveLiveUsedMargin = async ()=>{
       },
     ])
   
+    // console.log(allTrade)
     let mapForParticularUser = new Map();
   
     for(let i = 0; i < allTrade.length; i++){
@@ -310,7 +311,7 @@ exports.saveLiveUsedMargin = async ()=>{
   
     try{
       const saveLive = await SaveLive.create(tradeData)
-      // console.log(saveMock);
+      // console.log(saveLive);
     } catch(err){
       console.log("saving margin used mock", err);
     }

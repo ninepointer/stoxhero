@@ -38,40 +38,7 @@ const Authenticate = async (req, res, next)=>{
 
                 // console.log("in else authentication")
                 const user = await User.findOne({_id: verifyToken._id, status: "Active"})
-                .populate('role', 'roleName')
-                .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
-                .populate({
-                    path : 'subscription.subscriptionId',
-                    select: 'portfolio',
-                    populate: [{
-                        path: 'portfolio',
-                        select: 'portfolioName portfolioValue portfolioType portfolioAccount'
-                    },
-                    ]
-                })
-                .populate({
-                    path: 'internshipBatch',
-                    select: 'batchName batchStartDate batchEndDate career portfolio participants',
-                    populate: [{
-                        path: 'career',
-                        select: 'jobTitle'
-                    },
-                    {
-                        path: 'portfolio',
-                        select: 'portfolioValue'
-                    },
-                    {
-                        path: 'participants',
-                        populate: {
-                            path: 'college',
-                            select: 'collegeName'
-                        }
-                    }
-                ],
-                  })
-                // .populate('internshipBatch', 'batchName batchStartDate batchEndDate career portfolio')
-                // .populate('internshipBatch.career', 'jobTitle')
-                .select('pincode aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+                .select('_id employeeid first_name last_name mobile name role isAlgoTrader')
                 
                 if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
 
@@ -95,3 +62,6 @@ const Authenticate = async (req, res, next)=>{
 }
 
 module.exports = Authenticate;
+
+
+// _id, first_name, last_name, mobile, role, isAlgoTrader, name, employeeid
