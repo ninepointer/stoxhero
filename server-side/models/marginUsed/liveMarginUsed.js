@@ -14,12 +14,12 @@ const liveMargin = new mongoose.Schema({
         type: Date,
         default: ()=>new Date()
     },
-    lotBuy:{
+    runningLots:{
         type: Number,
         required: true
     },
-    lotSell:{
-        type: Number,
+    transaction_type:{
+        type: String,
         required: true
     },
     noOfTrader:{
