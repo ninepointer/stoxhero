@@ -91,7 +91,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const [instrumentData, setInstrumentData] = useState([]);
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails/${from}`,{
+    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -214,7 +214,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   async function removeInstrument(instrumentToken, instrument){
     setInstrumentName(instrument)
-    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}/${from}`, {
+    const response = await fetch(`${baseUrl}api/v1/inactiveInstrument/${instrumentToken}`, {
       method: "PATCH",
       credentials:"include",
       headers: {

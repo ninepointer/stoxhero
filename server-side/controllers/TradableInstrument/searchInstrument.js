@@ -6,58 +6,107 @@ const TradableInstrument = require("../../models/Instruments/tradableInstruments
 const { xtsAccountType, zerodhaAccountType } = require("../../constant");
 //TODO toggle between 
 const Setting = require("../../models/settings/setting");
+const Role = require("../../models/User/everyoneRoleSchema");
+const {infinityTrader} = require("../../constant")
+const {client, getValue} = require("../../marketData/redisClient");
+
 
 exports.search = async (searchString, res, req) => {
-
+  let isRedisConnected = getValue();
   const setting  = await Setting.find().select('toggle');
   const page = parseInt(req.query.page);
   const size = parseInt(req.query.size);
-  console.log(page, size, setting[0].toggle)
+  const {role} = req.user;
+  let roleObj;
 
-  let accountType ;
-  if(setting[0]?.toggle?.ltp == zerodhaAccountType || setting[0]?.toggle?.complete == zerodhaAccountType){
-    accountType = zerodhaAccountType;
+  if(isRedisConnected && await client.exists('role')){
+    roleObj = await client.get('role');
+    roleObj = JSON.parse(roleObj)
+    let roleArr = roleObj.filter((elem)=>{
+      return (elem._id).toString() == role.toString();
+    })
+  
+    roleObj = roleArr[0];
   } else{
-    accountType = xtsAccountType;
+      roleObj = await Role.find()
+      await client.set('role', JSON.stringify(roleObj));
+      let roleArr = roleObj.filter((elem)=>{
+        return (elem._id).toString() == role.toString();
+      })
+    
+      roleObj = roleArr[0];
   }
+
+
+  // console.log(page, size, setting[0].toggle)
+
 
   try {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let fromLessThen = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+7).padStart(2, '0')}`
     date.setDate(date.getDate() + 7);
 
     let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-    console.log(todayDate, fromLessThen)
-    const data = await TradableInstrument.find({
-      $and: [
-        {
-          $or: [
-            { tradingsymbol: { $regex: searchString, $options: 'i' } },
-            { name: { $regex: searchString, $options: 'i' } },
-            { exchange: { $regex: searchString, $options: 'i' } },
-            { expiry: { $regex: searchString, $options: 'i' } },
-          ]
-        },
-        {
-          status: 'Active'
-        },
-        {
-          // accountType: accountType
-        },
-        {
-          expiry: {
-            $gte: todayDate, // expiry is greater than or equal to today's date
-            $lt: fromLessThen
-            // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+    let data ;
+    console.log(roleObj.roleName , infinityTrader)
+    if(roleObj.roleName === infinityTrader){
+      data = await TradableInstrument.find({
+        $and: [
+          {
+            $or: [
+              { tradingsymbol: { $regex: searchString, $options: 'i' } },
+              { name: { $regex: searchString, $options: 'i' } },
+              { exchange: { $regex: searchString, $options: 'i' } },
+              { expiry: { $regex: searchString, $options: 'i' } },
+            ]
+          },
+          {
+            status: 'Active',
+            infinityVisibility: true
+          },
+          {
+            expiry: {
+              $gte: todayDate, // expiry is greater than or equal to today's date
+              $lt: fromLessThen
+              // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+            }
           }
-        }
-      ]
-    })
-      .sort({ expiry: 1 })
-      .limit(size)
-      .exec();
+        ]
+      })
+        .sort({ expiry: 1 })
+        .limit(size)
+        .exec();
+    } else{
+      data = await TradableInstrument.find({
+        $and: [
+          {
+            $or: [
+              { tradingsymbol: { $regex: searchString, $options: 'i' } },
+              { name: { $regex: searchString, $options: 'i' } },
+              { exchange: { $regex: searchString, $options: 'i' } },
+              { expiry: { $regex: searchString, $options: 'i' } },
+            ]
+          },
+          {
+            status: 'Active'
+          },
+          {
+            // accountType: accountType
+          },
+          {
+            expiry: {
+              $gte: todayDate, // expiry is greater than or equal to today's date
+              $lt: fromLessThen
+              // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+            }
+          }
+        ]
+      })
+        .sort({ expiry: 1 })
+        .limit(size)
+        .exec();
+    }
+
 
     res.json(data);
   } catch (error) {

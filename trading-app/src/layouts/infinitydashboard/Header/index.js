@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import axios from "axios"
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
-import {Grid, CircularProgress, Divider} from '@mui/material';
+import {Grid, CircularProgress, Divider, LinearProgress} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 // import MDAvatar from '../../../components/MDAvatar';
 // import man from '../../../assets/images/man.png'
@@ -35,6 +35,8 @@ export default function LabTabs({socket}) {
   const [notliveTraderCountRealTrade, setNotLiveTraderCountRealTrade] = useState(0);
   let [refreshMargin, setRefreshMargin] = useState(true);
   let [refreshMockMargin, setRefreshMockMargin] = useState(true);
+  const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);
+  const [isLoadLiveMargin, setIsLoadLiveMargin] = useState(false);
 
   const [marginData, setMarginData] = useState();
   const [mockMarginData, setMockMarginData] = useState();
@@ -57,20 +59,27 @@ export default function LabTabs({socket}) {
 
 
   useEffect(()=>{
+    setIsLoadLiveMargin(false)
     axios.get(`${baseUrl}api/v1/${"xtsMargin"}`)
       .then((res) => {
         console.log(res.data);
         setMarginData(res.data.data)
+        setIsLoadLiveMargin(true)
       }).catch((err) => {
         return new Error(err);
       })
   }, [refreshMargin])
 
+  console.log("mockMarginData", mockMarginData, isLoadMockMargin)
+
   useEffect(()=>{
+    setIsLoadMockMargin(false)
+
     axios.get(`${baseUrl}api/v1/usedMargin/infinity`)
       .then((res) => {
         console.log(res.data);
         setMockMarginData(res.data.data)
+        setIsLoadMockMargin(true)
       }).catch((err) => {
         return new Error(err);
       })
@@ -323,7 +332,11 @@ export default function LabTabs({socket}) {
                                          Used Margin
                                     </MDTypography>
                                     <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                        {( !isLoadMockMargin) ?
+                                            <CircularProgress color="inherit" size={10} sx={{marginRight: "10px"}}/>
+                                         :
                                          <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData)}</span>
+                                        }
                                          <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMockMargin(!refreshMockMargin) }} />
                                     </MDTypography>
                                 </Grid>
@@ -378,7 +391,11 @@ export default function LabTabs({socket}) {
                                          Used Margin
                                     </MDTypography>
                                     <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                        {( !isLoadLiveMargin) ?
+                                            <CircularProgress color="inherit" size={10} sx={{marginRight: "10px"}}/>
+                                         :
                                          <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(marginData)}</span>
+                                        }
                                          <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMargin(!refreshMargin) }} />
                                     </MDTypography>
                                 </Grid>

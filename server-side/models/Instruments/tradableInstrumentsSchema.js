@@ -81,6 +81,9 @@ const tradableInstrumentSchema = new mongoose.Schema({
         type: String,
         required : true,
         default: "Active"
+    },
+    infinityVisibility: {
+        type: Boolean,
     }
 })
 
