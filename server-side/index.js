@@ -38,7 +38,7 @@ const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const {xtsAccountType, zerodhaAccountType} = require("./constant")
-
+const {openPrice} = require("./marketData/setOpenPriceFlag");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -267,7 +267,7 @@ require('./db/conn');
 Setting.find().then((res) => {
   const appStartTime = new Date(res[0].AppStartTime);
   const appEndTime = new Date(res[0].AppEndTime);
-
+  
   const appStartHour = appStartTime.getHours();
   const appStartMinute = appStartTime.getMinutes();
   const appEndHour = appEndTime.getHours();
@@ -281,8 +281,8 @@ let weekDay = date.getDay();
     let date = new Date();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
-        const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
-        const onlineApp = nodeCron.schedule(`45 3 * * ${weekDay}`, appLive);
+        const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
+        const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, appLive);
         const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, appOffline);
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
         // const autotrade = nodeCron.schedule('50 9 * * *', test);
@@ -290,7 +290,9 @@ let weekDay = date.getDay();
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();
-        });
+        }); 
+        const setOpenPriceFlag = nodeCron.schedule(`46 3 * * *`, openPrice);
+
     }
   }
 
