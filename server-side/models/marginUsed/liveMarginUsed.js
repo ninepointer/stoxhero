@@ -34,3 +34,10 @@ const liveMargin = new mongoose.Schema({
 
 const LiveMargin = mongoose.model('infinity-margin-calculation-live', liveMargin);
 module.exports = LiveMargin;
+
+/*
+1. api check for ohcl.
+2. update ohcl at 9:16.
+3. set a flag in tradable instrument.
+4. show instrument to infinity trader according that flag(infinity visibility).
+*/
