@@ -11,8 +11,6 @@ const DB = process.env.DATABASE;
         //  mongoose.connect(DB, {
         mongoose.connect(stagingDB, {
     useNewUrlParser: true,
-    
-    
     useUnifiedTopology: true,
     // useFindAndModify: false
     

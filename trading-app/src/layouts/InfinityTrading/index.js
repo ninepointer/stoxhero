@@ -22,6 +22,7 @@ function Tables() {
     throw new Error(err);
   }
 
+  console.log("getDetails.userDetails", getDetails.userDetails)
   useEffect(() => {
     socket.on("connect", () => {
       socket.emit('userId', getDetails.userDetails._id)
