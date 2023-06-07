@@ -49,12 +49,35 @@ const fetchToken = require("../../marketData/generateSingleToken");
 const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
 const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
+const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
+const {openPrice} = require("../../marketData/setOpenPriceFlag");
 
 
+router.get("/duplicate", async (req, res) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  date.setDate(date.getDate() + 7);
 
+  let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+  const duplicates = await TradableInstrumentSchema.aggregate([
+    {$match: {status: "Active", expiry: {
+      $gte: todayDate, // expiry is greater than or equal to today's date
+      $lt: fromLessThen// $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+    }}},
+    { $group: { _id: '$tradingsymbol', count: { $sum: 1 } } },
+    { $match: { count: { $gt: 1 } } },
+  ]);
+  
+  console.log(duplicates);
+});
 
 router.get("/usedMargin", async (req, res) => {
   await saveLiveUsedMargin();
+});
+
+router.get("/setOpenPrice", async (req, res) => {
+  await openPrice();
 });
 
 

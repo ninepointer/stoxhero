@@ -34,6 +34,7 @@ function PlatformSettings({settingData}) {
   const [AppStartTime, setAppStartTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
   const [AppEndTime, setAppEndTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
   const [appLiveValue, setAppLiveValue] = useState();
+  const [infinityLiveValue, setInfinityLiveValue] = useState();
   const [editable, setEditable] = useState(false);
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = () => setSuccessSB(true);
@@ -59,6 +60,9 @@ function PlatformSettings({settingData}) {
       setLeaderBoardTimming(settingData[0]?.leaderBoardTimming)
       setAppStartTime(dayjs(settingData[0]?.AppStartTime))
       setAppEndTime(dayjs(settingData[0]?.AppEndTime))
+      setAppLiveValue(settingData[0]?.isAppLive)
+      setInfinityLiveValue(settingData[0]?.infinityLive)
+
       // console.log(settingData);
   // }).catch((err)=>{
   //     //window.alert("Server Down");
@@ -75,35 +79,36 @@ function PlatformSettings({settingData}) {
   }
 
 
+
   async function setSettingsValue(id, value){
-    console.log("Value in setSettingsValue function: ",value)
-      const res = await fetch(`${baseUrl}api/v1/applive/${id}`, {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-              "Accept": "application/json",
-              "content-type": "application/json"
-          },
-          body: JSON.stringify({
-              // isAppLive: appLiveValue, modifiedBy, modifiedOn
-              ...value,modifiedBy,modifiedOn
-          })
-      }); 
-      const dataResp = await res.json();
-      console.log(dataResp);
-      if (dataResp.status === 422 || dataResp.error || !dataResp) {
-          window.alert(dataResp.error);
-          // console.log("Failed to Edit");
-      } else {
-          setEditable(false)
-          if(appLiveValue){
-              //window.alert("Trading Enabled");
-              openSuccessSB();
-          } else{
-              //window.alert("Trading Disabled");
-              openSuccessSB();
-          }
-      }
+    console.log("Value in setSettingsValue function: ",value);
+      // const res = await fetch(`${baseUrl}api/v1/applive/${id}`, {
+      //     method: "PATCH",
+      //     credentials: "include",
+      //     headers: {
+      //         "Accept": "application/json",
+      //         "content-type": "application/json"
+      //     },
+      //     body: JSON.stringify({
+      //         // isAppLive: appLiveValue, modifiedBy, modifiedOn
+      //         ...value,modifiedBy,modifiedOn
+      //     })
+      // }); 
+      // const dataResp = await res.json();
+      // console.log(dataResp);
+      // if (dataResp.status === 422 || dataResp.error || !dataResp) {
+      //     window.alert(dataResp.error);
+      //     // console.log("Failed to Edit");
+      // } else {
+      //     setEditable(false)
+      //     if(appLiveValue){
+      //         //window.alert("Trading Enabled");
+      //         openSuccessSB();
+      //     } else{
+      //         //window.alert("Trading Disabled");
+      //         openSuccessSB();
+      //     }
+      // }
       reRender ? setReRender(false) : setReRender(true)
   }
 
@@ -229,11 +234,22 @@ function PlatformSettings({settingData}) {
 
         <MDBox display="flex" alignItems="center" mb={0.5} ml={-1.5}>
           <MDBox mt={0.5}>
-              <Switch checked={settingData[0]?.isAppLive} onChange={() => {setAppLiveValueFun(settingData[0].isAppLive); setSettingsValue(settingData[0]._id,{isAppLive: !settingData[0].isAppLive})}}/>
+              <Switch checked={settingData[0]?.isAppLive} onChange={() => {setAppLiveValueFun(settingData[0]?.isAppLive); setAppLiveValue(!appLiveValue); setSettingsValue(settingData[0]._id,{isAppLive: !settingData[0].isAppLive})}}/>
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="dark">
               {(settingData[0]?.isAppLive ? "Trading Enabled" : "Trading Disabled")}    
+            </MDTypography>
+            {renderSuccessSB}
+          </MDBox>
+        </MDBox>
+        <MDBox display="flex" alignItems="center" mb={0.5} ml={-1.5}>
+          <MDBox mt={0.5}>
+              <Switch checked={settingData[0]?.infinityLive} onChange={() => {setAppLiveValueFun(settingData[0]?.infinityLive); setInfinityLiveValue(!infinityLiveValue); setSettingsValue(settingData[0]._id,{infinityLive: !settingData[0].infinityLive})}}/>
+          </MDBox>
+          <MDBox width="80%" ml={0.5}>
+            <MDTypography variant="button" fontWeight="regular" color="dark">
+              {(settingData[0]?.isAppLive ? "Infinity Trading Enabled" : "Infinity Trading Disabled")}    
             </MDTypography>
             {renderSuccessSB}
           </MDBox>

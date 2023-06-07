@@ -33,6 +33,9 @@ const settingSchema = new mongoose.Schema({
         complete: {type: String, enum : [zerodhaAccountType, xtsAccountType]},
         ltp: {type: String, enum : [zerodhaAccountType, xtsAccountType]},
         liveOrder: {type: String, enum : [zerodhaAccountType, xtsAccountType]},
+    },
+    infinityLive:{
+        type: Boolean
     }
 })
 

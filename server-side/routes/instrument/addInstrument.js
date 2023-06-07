@@ -14,11 +14,33 @@ const ObjectId = require('mongodb').ObjectId;
 const {subscribeSingleXTSToken, unSubscribeXTSToken} = require("../../services/xts/xtsMarket")
 const {infinityTrader} = require("../../constant")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
+const Role = require("../../models/User/everyoneRoleSchema");
 
 router.post("/addInstrument",authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user;
     const {role} = req.user;
+    let roleObj;
+
+  if(isRedisConnected && await client.exists('role')){
+    roleObj = await client.get('role');
+    roleObj = JSON.parse(roleObj)
+    let roleArr = roleObj.filter((elem)=>{
+      return (elem._id).toString() == role.toString();
+    })
+  
+    roleObj = roleArr[0];
+  } else{
+      roleObj = await Role.find()
+      await client.set('role', JSON.stringify(roleObj));
+      let roleArr = roleObj.filter((elem)=>{
+        return (elem._id).toString() == role.toString();
+      })
+    
+      roleObj = roleArr[0];
+  }
+
+
 
     try{
         let {from, exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment} = req.body;
@@ -36,8 +58,8 @@ router.post("/addInstrument",authentication, async (req, res)=>{
         }
     
         // console.log("above infinityTrade adding", from, infinityTrader)
-        if(role.roleName === infinityTrader){
-            console.log("in infinityTrade adding")
+        if(roleObj.roleName === infinityTrader){
+            // console.log("in infinityTrade adding")
             if(maxLot === 1800){
                 maxLot = 900;
             }
@@ -143,7 +165,10 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                          
                      })
                     res.status(201).json({message : "Instrument Added"});
-                }).catch((err)=> res.status(500).json({err: err, error:"Failed to enter data"}));
+                }).catch((err)=> {
+                    console.log(err);
+                    res.status(500).json({error:"Failed to enter data"})
+                });
             }).catch(err => {console.log( "fail")});
         } else{
             Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
@@ -213,9 +238,9 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                         }
                         const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
                     }
-    
+
                     //  console.log("this is redis client", newredisClient)
-    
+
                     // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                         let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
                             _id: addingInstruments._id,
@@ -290,19 +315,38 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
     }
 })
 
-router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async (req, res)=>{
+router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     const {role} = req.user;
     let isRedisConnected = getValue();
+    let roleObj;
+
+  if(isRedisConnected && await client.exists('role')){
+    roleObj = await client.get('role');
+    roleObj = JSON.parse(roleObj)
+    let roleArr = roleObj.filter((elem)=>{
+      return (elem._id).toString() == role.toString();
+    })
+  
+    roleObj = roleArr[0];
+  } else{
+      roleObj = await Role.find()
+      await client.set('role', JSON.stringify(roleObj));
+      let roleArr = roleObj.filter((elem)=>{
+        return (elem._id).toString() == role.toString();
+      })
+    
+      roleObj = roleArr[0];
+  }
     try{ 
         const {instrumentToken, from} = req.params
         const {isAddedWatchlist} = req.body;
         const {_id} = req.user;
-        console.log("in removing ", instrumentToken, _id);
+        // console.log("in removing ", instrumentToken, _id);
         const user = await User.findOne({_id: _id});
         let removeFromWatchlist ;
-        if(role.roleName === infinityTrader){
+        if(roleObj.roleName === infinityTrader){
             removeFromWatchlist = await InfinityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
         } else{
             removeFromWatchlist = await Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
@@ -325,16 +369,16 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
                 maxLot: removeFromWatchlist.maxLot,
                 // accountType: removeFromWatchlist.accountType,
             }
-            console.log("removeInstrumentObject", removeInstrumentObject)
+            // console.log("removeInstrumentObject", removeInstrumentObject)
             let removeInstrument;
-            if(role.roleName === infinityTrader){
+            if(roleObj.roleName === infinityTrader){
                 removeInstrument = await client.LREM(`${(_id).toString()}: infinityInstrument`, 1, JSON.stringify(removeInstrumentObject))
                 // console.log("in if removeInstrument", removeInstrument)
             } else{
                 let instrument = await client.LRANGE(`${_id.toString()}: instrument`, 0, -1)
 
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
-                console.log("in else removeInstrument", removeInstrument, instrument)
+                // console.log("in else removeInstrument", removeInstrument, instrument)
             }
 
 
@@ -370,22 +414,42 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
     }
 })
 
-router.get("/instrumentDetails/:from", authentication, async (req, res)=>{
+router.get("/instrumentDetails", authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user
     const from = req.params.from;
     const {role} = req.user;
+    let roleObj;
 
+    if(isRedisConnected && await client.exists('role')){
+        roleObj = await client.get('role');
+        roleObj = JSON.parse(roleObj)
+        let roleArr = roleObj.filter((elem)=>{
+          return (elem._id).toString() == role.toString();
+        })
+      
+        roleObj = roleArr[0];
+      } else{
+          roleObj = await Role.find()
+          await client.set('role', JSON.stringify(roleObj));
+          let roleArr = roleObj.filter((elem)=>{
+            return (elem._id).toString() == role.toString();
+          })
+        
+          roleObj = roleArr[0];
+      }
+
+    
     try{
 
-        if(role.roleName === infinityTrader){
+        if(roleObj.roleName === infinityTrader){
             if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
                 // console.log("inif", infinityTrader)
                 let instrument = await client.LRANGE(`${req.user._id.toString()}: infinityInstrument`, 0, -1)
                 // console.log(instrument)
                 const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
       
-                res.status(201).json({message: "redis instrument received", data: instrumentJSONs});      
+                res.status(201).json({message: "redis infinity instrument received", data: instrumentJSONs});      
 
             } else{
       
