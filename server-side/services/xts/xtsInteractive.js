@@ -56,7 +56,9 @@ const interactiveLogin = async () => {
       });
 
       await placedOrderData();
-      await ifServerCrashAfterOrder();
+      if(process.env.PROD){
+        await ifServerCrashAfterOrder();
+      }
       await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
     })();
@@ -307,7 +309,7 @@ const ifServerCrashAfterOrder = async () => {
 
   let liveCompany = await InfinityLiveCompany.find({trade_time: {$gte: today }});
 
-  let url = `${process.env.INTERACTIVE_URL}/interactive/orders`;
+  let url = `${process.env.INTERACTIVE_URL}/interactive/orders?clientID=${process.env.XTS_CLIENTID}`;
   const accessToken = await RequestToken.find({status: "Active", accountType: xtsAccountType, xtsType: "Interactive"});
   let token = accessToken[0]?.accessToken;
 
@@ -322,30 +324,37 @@ const ifServerCrashAfterOrder = async () => {
     const response = await axios.get(url, authOptions)
     let orders = response.data?.result;
 
-    let openTrade = orders.filter((elem1) => !liveCompany.some((elem2) => elem1.AppOrderID === elem2.appOrderId));
-    let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
-      TimeInForce, OrderQuantity, ExchangeSegment } = openTrade
+    console.log(orders.length, liveCompany.length)
 
-    if(OrderSide === "Buy"){
-      OrderSide = "SELL";
-    } else{
-      OrderSide = "BUY"
+    let openTrade = orders.filter((elem1) => !liveCompany.some((elem2) => elem1.AppOrderID == elem2.appOrderId));
+
+    for(let i = 0; i < openTrade.length; i++){
+      let { ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+        TimeInForce, OrderQuantity, ExchangeSegment } = openTrade[i]
+  
+      if(OrderSide === "Buy"){
+        OrderSide = "SELL";
+      } else{
+        OrderSide = "BUY"
+      }
+  
+      console.log("openTrade", openTrade[i])
+  
+      const tradeRsponse = await xtsInteractiveAPI.placeOrder({
+        exchangeSegment: ExchangeSegment,
+        exchangeInstrumentID: ExchangeInstrumentID,
+        productType: ProductType,
+        orderType: OrderType,
+        orderSide: OrderSide,
+        timeInForce: TimeInForce,
+        disclosedQuantity: 0,
+        orderQuantity: Math.abs(OrderQuantity),
+        limitPrice: 0,
+        stopPrice: 0,
+        clientID: process.env.XTS_CLIENTID,
+      });
+      console.log(tradeRsponse)
     }
-
-    console.log("openTrade", openTrade)
-    // const tradeRsponse = await xtsInteractiveAPI.placeOrder({
-    //   exchangeSegment: ExchangeSegment,
-    //   exchangeInstrumentID: ExchangeInstrumentID,
-    //   productType: ProductType,
-    //   orderType: OrderType,
-    //   orderSide: OrderSide,
-    //   timeInForce: TimeInForce,
-    //   disclosedQuantity: 0,
-    //   orderQuantity: Math.abs(OrderQuantity),
-    //   limitPrice: 0,
-    //   stopPrice: 0,
-    //   clientID: process.env.XTS_CLIENTID,
-    // });
 
   } catch (err) {
     console.log(err)
@@ -698,7 +707,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 }
 
 
-module.exports = { interactiveLogin, placeOrder, autoPlaceOrder };
+module.exports = { interactiveLogin, placeOrder, autoPlaceOrder, ifServerCrashAfterOrder };
 
 
 // {

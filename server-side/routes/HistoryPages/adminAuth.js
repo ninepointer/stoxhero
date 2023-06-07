@@ -43,6 +43,7 @@ const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
 const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
+const {ifServerCrashAfterOrder} = require("../../services/xts/xtsInteractive");
 // const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
 const {placeOrder} = require("../../services/xts/xtsInteractive");
 // const fetchToken = require("../../marketData/generateSingleToken");
@@ -52,6 +53,14 @@ const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
 
+
+
+
+
+
+router.get("/ifServerCrashAfterOrder", async (req, res) => {
+  await ifServerCrashAfterOrder();
+});
 
 router.get("/duplicate", async (req, res) => {
   let date = new Date();
