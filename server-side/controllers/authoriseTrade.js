@@ -15,7 +15,7 @@ const ObjectId = require('mongodb').ObjectId;
 const InternshipTrade = require("../models/mock-trade/internshipTrade");
 const InternBatch = require("../models/Careers/internBatch");
 const { v4: uuidv4 } = require('uuid');
- 
+
 
 exports.fundCheck = async(req, res, next) => {
 
