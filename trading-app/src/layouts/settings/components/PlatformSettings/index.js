@@ -258,7 +258,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           </MDBox>
           <MDBox width="80%" ml={0.5}>
             <MDTypography variant="button" fontWeight="regular" color="dark">
-              {(settingData[0]?.isAppLive ? "Infinity Trading Enabled" : "Infinity Trading Disabled")}    
+              {(settingData[0]?.infinityLive ? "Infinity Trading Enabled" : "Infinity Trading Disabled")}    
             </MDTypography>
             {renderSuccessSB}
           </MDBox>
