@@ -63,6 +63,7 @@ router.patch("/applive/:id", Authentication, async (req, res)=>{
 router.patch("/settings/:id", Authentication, async (req, res)=>{
     //console.log(req.params)
 
+    // console.log(req.body)
     try{ 
         const {id} = req.params
         console.log(id, req.body)
@@ -73,6 +74,7 @@ router.patch("/settings/:id", Authentication, async (req, res)=>{
                 leaderBoardTimming: req.body.leaderBoardTimming,
                 AppStartTime: req.body.AppStartTime,
                 AppEndTime: req.body.AppEndTime,
+                infinityPrice: req.body.infinityPrice
             }
         })
         console.log("this is role", setting);

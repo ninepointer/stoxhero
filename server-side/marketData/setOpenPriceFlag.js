@@ -45,8 +45,9 @@ exports.openPrice = async() => {
       );
 
     const setting = await Setting.find();
-    const price = 150;
+    const price = setting[0].infinityPrice;
 
+    console.log("price", price)
     let addUrl;
     tradable.forEach((elem, index) => {
       if (index === 0) {
@@ -74,7 +75,7 @@ exports.openPrice = async() => {
         const response = await axios.get(url, authOptions);
         
         for (let instrument in response.data.data) {
-            // console.log(response.data.data[instrument].ohlc.open, instrument);
+            console.log(response.data.data[instrument].ohlc.open, instrument);
             const symbol = instrument.split(":")
             if (response.data.data[instrument].ohlc.open <= price) {
               const updated = await TradableInstrument.updateMany(

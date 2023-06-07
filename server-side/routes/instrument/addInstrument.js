@@ -414,7 +414,7 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
     }
 })
 
-router.get("/instrumentDetails", authentication, async (req, res)=>{
+router.get("/instrumentDetails/", authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user
     const from = req.params.from;
