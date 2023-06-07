@@ -53,6 +53,15 @@ const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema")
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
 
 
+
+router.get("/getTrade", async (req, res) => {
+  let orders = await RetreiveOrder.find({exchange_timestamp: {$gte: new Date("2023-06-05"), $lt: new Date("2023-06-06") }, instrument_token: 45572})
+  let liveCompany = await InfinityLiveCompany.find({trade_time: {$gte: new Date("2023-06-05"), $lt: new Date("2023-06-06") }, instrumentToken: 45572});
+
+  let openTrade = orders.filter((elem1) => !liveCompany.some((elem2) => elem1.order_id === elem2.order_id));
+  res.send(openTrade)
+});
+
 router.get("/duplicate", async (req, res) => {
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
