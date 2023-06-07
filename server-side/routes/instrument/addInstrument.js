@@ -315,7 +315,7 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
     }
 })
 
-router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req, res)=>{
+router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     const {role} = req.user;
@@ -414,7 +414,7 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
     }
 })
 
-router.get("/instrumentDetails", authentication, async (req, res)=>{
+router.get("/instrumentDetails/:from", authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user
     const from = req.params.from;
