@@ -43,7 +43,7 @@ function Setting() {
   const [showSetting, setShowSetting] = useState(false);
   const [settingData, setSettingData] = useState([]);
   const [marginEndPoint, setMarginEndPoint] = useState("");
-
+  const [reRender, setReRender] = useState(true);
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -72,6 +72,10 @@ function Setting() {
         return new Error(err);
       })
 
+
+  }, [])
+
+  useEffect(()=>{
     axios.get(`${baseUrl}api/v1/readsetting`)
       .then((res) => {
         setSettingData(res.data)
@@ -81,9 +85,9 @@ function Setting() {
         //window.alert("Server Down");
         return new Error(err);
       })
-  }, [])
+  }, [reRender])
 
-  console.log("marginData", marginData);
+  // console.log("marginData", marginData);
 
 
   return (
@@ -96,7 +100,7 @@ function Setting() {
             {!showSetting ? 
             <>
             <Grid item xs={12} md={6} xl={4}>
-              <PlatformSettings settingData={settingData}/>
+              <PlatformSettings reRender={reRender} setReRender={setReRender} settingData={settingData}/>
             </Grid>
             <Grid item xs={12} md={6} xl={4}>
               <MarginSettings settingData={settingData}/>
