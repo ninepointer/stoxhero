@@ -29,20 +29,22 @@ import React, {useState, useEffect, useContext} from 'react'
 import { userContext } from '../../../../AuthContext';
 import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
 
-function PlatformSettings({settingData}) {
+function PlatformSettings({settingData, setReRender, reRender}) {
 
   const [AppStartTime, setAppStartTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
   const [AppEndTime, setAppEndTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
   const [appLiveValue, setAppLiveValue] = useState();
   const [editable, setEditable] = useState(false);
+  const [infinityPrice, setInfinityPrice] = useState(0);
+
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = () => setSuccessSB(true);
   const closeSuccessSB = () => setSuccessSB(false);
   // const [controller] = useMaterialUIController();
   // const { darkMode } = controller;
-  const [reRender, setReRender] = useState(true);
+  // const [reRender, setReRender] = useState(true);
   // const [settingData, setSettingData] = useState([]);
-  const [LeaderBoardTimming, setLeaderBoardTimming] = useState();
+  const [LeaderBoardTimming, setLeaderBoardTimming] = useState(0);
   let date = new Date();
   let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
   console.log("AppStartTime", AppStartTime, AppEndTime);
@@ -53,17 +55,13 @@ function PlatformSettings({settingData}) {
   
 
   useEffect(()=>{
-  // axios.get(`${baseUrl}api/v1/readsetting`)
-  // .then((res)=>{
-      // setSettingData(res.data)
+    // console.log("settingData", settingData)
+
       setLeaderBoardTimming(settingData[0]?.leaderBoardTimming)
       setAppStartTime(dayjs(settingData[0]?.AppStartTime))
-      setAppEndTime(dayjs(settingData[0]?.AppEndTime))
-      // console.log(settingData);
-  // }).catch((err)=>{
-  //     //window.alert("Server Down");
-  //     return new Error(err);
-  // })
+      setAppEndTime(dayjs(settingData[0]?.AppEndTime));
+      setInfinityPrice(settingData[0]?.infinityPrice)
+
   },[reRender, settingData])
 
   function setAppLiveValueFun(appLiveValue){
@@ -117,8 +115,10 @@ function PlatformSettings({settingData}) {
           "content-type": "application/json"
       },
       body: JSON.stringify({
-        ...settingData[0] , leaderBoardTimming: LeaderBoardTimming
-      })
+        ...settingData[0],
+        leaderBoardTimming: LeaderBoardTimming,
+        infinityPrice: infinityPrice,
+      }),
   }); 
   const dataResp = await res.json();
   console.log(dataResp);
@@ -140,7 +140,7 @@ function PlatformSettings({settingData}) {
   }
 
 
-  console.log(settingData,AppStartTime,AppEndTime)
+  console.log("settingData",LeaderBoardTimming, infinityPrice)
   let appstatus = settingData[0]?.isAppLive === true ? "Online" : "Offline"
   let today = new Date();
   //let timestamp = (today.getHours())+":"+(today.getMinutes())+":"+(today.getSeconds())
@@ -183,13 +183,23 @@ function PlatformSettings({settingData}) {
           id="outlined-required"
           label='LeaderBoard Timming(second)'
           fullWidth
-          defaultValue={LeaderBoardTimming}
-          // defaultValue={oldObjectId ? contestData?.contestName : formState?.contestName}
-          // onChange={(e) => {setFormState(prevState => ({
-          //     ...prevState,
-          //     contestName: e.target.value
-          //   }))}}
+          // defaultValue={LeaderBoardTimming ? LeaderBoardTimming : settingData[0]?.leaderBoardTimming}
+          value={LeaderBoardTimming}
+          type="number"
           onChange={(e)=>{setLeaderBoardTimming(e.target.value)}}
+        />
+
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Infinity Price'
+          fullWidth
+          type="number"
+          value={infinityPrice}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setInfinityPrice(e.target.value)}}
         />
 
         <MDBox>
