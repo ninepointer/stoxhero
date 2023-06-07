@@ -36,6 +36,10 @@ const settingSchema = new mongoose.Schema({
     },
     infinityLive:{
         type: Boolean
+    },
+    infinityPrice: {
+        type: Number,
+        required: true,
     }
 })
 
