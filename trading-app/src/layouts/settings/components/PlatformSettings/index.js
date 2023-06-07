@@ -82,33 +82,33 @@ function PlatformSettings({settingData}) {
 
   async function setSettingsValue(id, value){
     console.log("Value in setSettingsValue function: ",value);
-      // const res = await fetch(`${baseUrl}api/v1/applive/${id}`, {
-      //     method: "PATCH",
-      //     credentials: "include",
-      //     headers: {
-      //         "Accept": "application/json",
-      //         "content-type": "application/json"
-      //     },
-      //     body: JSON.stringify({
-      //         // isAppLive: appLiveValue, modifiedBy, modifiedOn
-      //         ...value,modifiedBy,modifiedOn
-      //     })
-      // }); 
-      // const dataResp = await res.json();
-      // console.log(dataResp);
-      // if (dataResp.status === 422 || dataResp.error || !dataResp) {
-      //     window.alert(dataResp.error);
-      //     // console.log("Failed to Edit");
-      // } else {
-      //     setEditable(false)
-      //     if(appLiveValue){
-      //         //window.alert("Trading Enabled");
-      //         openSuccessSB();
-      //     } else{
-      //         //window.alert("Trading Disabled");
-      //         openSuccessSB();
-      //     }
-      // }
+      const res = await fetch(`${baseUrl}api/v1/applive/${id}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+              "Accept": "application/json",
+              "content-type": "application/json"
+          },
+          body: JSON.stringify({
+              // isAppLive: appLiveValue, modifiedBy, modifiedOn
+              ...value,modifiedBy,modifiedOn
+          })
+      }); 
+      const dataResp = await res.json();
+      console.log(dataResp);
+      if (dataResp.status === 422 || dataResp.error || !dataResp) {
+          window.alert(dataResp.error);
+          // console.log("Failed to Edit");
+      } else {
+          setEditable(false)
+          if(appLiveValue){
+              //window.alert("Trading Enabled");
+              openSuccessSB();
+          } else{
+              //window.alert("Trading Disabled");
+              openSuccessSB();
+          }
+      }
       reRender ? setReRender(false) : setReRender(true)
   }
 
