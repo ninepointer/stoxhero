@@ -75,9 +75,9 @@ exports.openPrice = async() => {
         const response = await axios.get(url, authOptions);
         
         for (let instrument in response.data.data) {
-            console.log(response.data.data[instrument].ohlc.open, instrument);
+            console.log(response.data.data[instrument].last_price, instrument);
             const symbol = instrument.split(":")
-            if (response.data.data[instrument].ohlc.open <= price) {
+            if (response.data.data[instrument].last_price <= price) {
               const updated = await TradableInstrument.updateMany(
                 { tradingsymbol: symbol[1] },
                 { $set: { infinityVisibility: true } }

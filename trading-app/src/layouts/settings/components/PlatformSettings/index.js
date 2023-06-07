@@ -41,16 +41,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = () => setSuccessSB(true);
   const closeSuccessSB = () => setSuccessSB(false);
-  // const [controller] = useMaterialUIController();
-  // const { darkMode } = controller;
-  // const [reRender, setReRender] = useState(true);
-  // const [settingData, setSettingData] = useState([]);
   const [LeaderBoardTimming, setLeaderBoardTimming] = useState(0);
-  let date = new Date();
-  let modifiedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
-  console.log("AppStartTime", AppStartTime, AppEndTime);
-  const getDetails = useContext(userContext)
-  let modifiedBy = getDetails.userDetails._id;
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
@@ -88,7 +79,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           },
           body: JSON.stringify({
               // isAppLive: appLiveValue, modifiedBy, modifiedOn
-              ...value,modifiedBy,modifiedOn
+              ...value
           })
       }); 
       const dataResp = await res.json();
@@ -144,12 +135,10 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   }
 
 
-  console.log("settingData",LeaderBoardTimming, infinityPrice)
   let appstatus = settingData[0]?.isAppLive === true ? "Online" : "Offline"
   let today = new Date();
-  //let timestamp = (today.getHours())+":"+(today.getMinutes())+":"+(today.getSeconds())
   let timestamp = `${(today.getHours())}:${String(today.getMinutes()).padStart(2, '0')}:${String(today.getSeconds()).padStart(2, '0')}`
-  let title = "App " + appstatus
+  let title =  "App " + appstatus
   let enablestatus = settingData[0]?.isAppLive === true ? "enabled" : "disabled"
   let content = "Trading is " + enablestatus + " now"
   const renderSuccessSB = (
