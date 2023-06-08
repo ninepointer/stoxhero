@@ -11,7 +11,7 @@ import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import {CircularProgress, MenuItem, TextField} from "@mui/material";
 import { Grid } from "@mui/material";
-
+// import { makeStyles } from '@material-ui/core/styles';
 
 export default function UserTodayTradeData() {
 
@@ -112,9 +112,10 @@ export default function UserTodayTradeData() {
         <TextField
           select
           label=""
-          color= "success"
+          // color= "success"
           value={selectTimeline}
           minHeight="4em"
+          style={{backgroundColor: "light"}}
           // helperText="Please select subscription"
           InputProps={{
             style: { color: "light" } // Change the color value to the desired text color
@@ -127,6 +128,7 @@ export default function UserTodayTradeData() {
           variant="outlined"
           // sx={{ marginḶeft: 1, padding: 1, width: "150px", color: "success" }}
           onChange={(e) => { setSelectTimeline(e.target.value) }}
+          color="primary"
         >
           <MenuItem value={"Today"} minHeight="4em">
             {"Today"}

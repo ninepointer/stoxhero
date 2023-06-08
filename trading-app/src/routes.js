@@ -126,6 +126,8 @@ import VirtualDashboard from './layouts/virtualdashboard'
 import InternshipOrders from './layouts/internshipOrders'
 import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
+import TenxReport from "./layouts/tenXReport";
+import InternReport from "./layouts/internReport";
 
 
 const routes = [
@@ -177,6 +179,23 @@ const routes = [
     route: "/backreportxts",
     component: <BackReportXTS />,
   },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "tenxreport",
+    // icon: <DashboardIcon/>,
+    route: "/tenxreport",
+    component: <TenxReport />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "internreport",
+    // icon: <DashboardIcon/>,
+    route: "/internreport",
+    component: <InternReport />,
+  },
+
   {
     // type: "collapse",
     // name: "Company Dashboard",
