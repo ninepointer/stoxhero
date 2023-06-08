@@ -4,7 +4,7 @@ import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
-import Orders from "./layouts/orders";
+import Orders from "./layouts/company-orders";
 import Instruments from "./layouts/instruments";
 // import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";

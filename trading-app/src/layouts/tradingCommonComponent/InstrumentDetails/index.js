@@ -27,6 +27,8 @@ import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
+import { InfinityTraderRole } from "../../../variables";
+import { userContext } from "../../../AuthContext";
 
 
 function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId}) {
@@ -35,6 +37,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
   //console.log("socket print", socket)
+  const getDetail = useContext(userContext);
   console.log("rendering : InstrumentDetails")
   let styleTD = {
     textAlign: "center",
@@ -75,9 +78,15 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
 
   useEffect(() => {
+    console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
     axios.get(`${baseUrl}api/v1/readsetting`)
       .then((res) => {
-        setisAppLive(res.data[0].isAppLive);
+        if(InfinityTraderRole == getDetail.userDetails.role.roleName){
+          setisAppLive(res.data[0].infinityLive);
+        } else{
+          setisAppLive(res.data[0].isAppLive);
+        }
+        
       });
   }, []);
 

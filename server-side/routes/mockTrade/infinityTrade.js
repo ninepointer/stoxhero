@@ -43,14 +43,14 @@ router.route('/userMockTrade/:id').get(myAllTodaysTrade)
 router.route('/pnlCompnaySide/:id').get(overallPnlCompanySide)
 router.route('/live/traderPnlCompany/:id').get(pnlTraderCompany)
 router.route('/pnl/traderWise/:trader').get(Authenticate, overallPnlTraderWise)
-router.route('mock/companyorders').get(getAllMockOrders);
-router.route('mock/userorders').get(getAllTradersMockOrders);
-router.route('mock/companyorderstoday').get(getAllMockOrdersForToday);
-router.route('mock/userorderstoday').get(getAllMockOrdersForToday);
-router.route('live/companyorders').get(getAllLiveOrders);
-router.route('live/userorders').get(getAllTradersLiveOrders);
-router.route('live/companyorderstoday').get(getAllLiveOrdersForToday);
-router.route('live/userorderstoday').get(getAllTradersLiveOrdersForToday);
+router.route('/mock/companyorders').get(getAllMockOrders);
+router.route('/mock/userorders').get(getAllTradersMockOrders);
+router.route('/mock/companyorderstoday').get(getAllMockOrdersForToday);
+router.route('/mock/userorderstoday').get(getAllMockOrdersForToday);
+router.route('/live/companyorders').get(getAllLiveOrders);
+router.route('/live/userorders').get(getAllTradersLiveOrders);
+router.route('/live/companyorderstoday').get(getAllLiveOrdersForToday);
+router.route('/live/userorderstoday').get(getAllTradersLiveOrdersForToday);
 router.route('/mock/traderwisepnl/:id/:startDate/:endDate').get(getUserReportMockDateWise);
 router.route('/mock/alltraderpnl/:startDate/:endDate').get(getAllTraderReportDateWise);
 // router.route('/live/traderPnlCompany/:id').get(pnlTraderCompany)
