@@ -78,38 +78,6 @@ exports.infinityMargin = async (req, res) => {
           },
       ])
 
-      // console.log(pnlLiveDetails)
-  
-      // for(let i = 0; i < pnlLiveDetails.length; i++){
-      //   if(pnlLiveDetails[i].lots !== 0){
-      //     let buyOrSell = pnlLiveDetails[i].lots > 0 ? "BUY" : "SELL";
-      //     let orderData = [{
-      //       "exchange": pnlLiveDetails[i].exchange,
-      //       "tradingsymbol": pnlLiveDetails[i].symbol,
-      //       "transaction_type": buyOrSell,
-      //       "variety": pnlLiveDetails[i].variety,
-      //       "product": pnlLiveDetails[i].product,
-      //       "order_type": pnlLiveDetails[i].order_type,
-      //       "quantity": Math.abs(pnlLiveDetails[i].lots),
-      //       "price": 0,
-      //       "trigger_price": 0
-      //     }]
-      
-      //     console.log("orderData", orderData)
-      //     let marginData;
-      //     let zerodhaMargin;
-      
-      //     try {
-      //       marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
-      //       zerodhaMargin = marginData.data.data.orders[0].total;
-      //       total += zerodhaMargin
-      //       console.log(zerodhaMargin)
-      //       // console.log(total, marginData.data.data.orders[0])
-      //     } catch (e) {
-      //       console.log("error fetching zerodha margin", e);
-      //     }
-      //   }
-      // }
 
       const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -142,9 +110,10 @@ exports.infinityMargin = async (req, res) => {
             } catch (e) {
               console.log("error fetching zerodha margin", e);
             }
+
+            await delay(300);
           }
 
-          await delay(300); // Introduce a delay of 300 ms
         }
       }
 

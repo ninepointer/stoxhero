@@ -11,12 +11,11 @@ import {Link} from 'react-router-dom'
 // import ActiveBatches from '../data/activeBatches';
 // import CompletedBatches from '../data/completedBatches';
 // import InactiveBatches from '../data/inactiveBatches'
-import TodayOrder from '../data/todaysOrder'
-import AllOrder from '../data/allOrders'
-import TraderToday from "../data/traderToday";
-import TraderAll from "../data/traderAllOrder";
+import CompanyLive from '../data/companyLive'
+import CompanyMock from '../data/companyMock'
+import TraderLive from "../data/traderLive";
+import TraderMock from "../data/traderMock";
 
-//data
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
@@ -38,16 +37,18 @@ export default function LabTabs() {
         color="warning" 
         size="small"
         component={Link}
-        to='/careerdashboard'
+        to='/infinitydashboard'
         >
-            Back to Career Dashboard
+            Back to Infinity Dashboard
         </MDButton>
     </MDBox>
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Today's Orders" value="1" />
-            <Tab label="All Orders" value="2" />
+            <Tab label="Company-Mock" value="1" />
+            <Tab label="Company-Live" value="2" />
+            <Tab label="Trader-Mock" value="3" />
+            <Tab label="Trader-Live" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -58,7 +59,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-            <TodayOrder/>
+           <CompanyMock/> 
           </MDBox>
    
           }
@@ -70,7 +71,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <AllOrder/>
+          <CompanyLive/>
           }
         </TabPanel>
 
@@ -80,7 +81,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <TraderToday/>
+         <TraderMock/>
           }
         </TabPanel>
 
@@ -90,7 +91,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <TraderAll/>
+          <TraderLive/> 
           }
         </TabPanel>
       </TabContext>

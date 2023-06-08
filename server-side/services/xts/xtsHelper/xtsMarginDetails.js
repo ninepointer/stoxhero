@@ -109,9 +109,11 @@ router.get("/xtsMargin", async (req, res)=>{
           } catch (e) {
             console.log("error fetching zerodha margin", e);
           }
+
+          await delay(300); // Introduce a delay of 300 ms
+
         }
 
-        await delay(300); // Introduce a delay of 300 ms
       }
     }
 
