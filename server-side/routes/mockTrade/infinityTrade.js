@@ -7,7 +7,7 @@ const {overallPnlBatchWiseMock, mockLiveTotalTradersCount, overallCompanySidePnl
         getAllMockOrders, getAllOrders, getAllOrdersForToday, getAllTradersMockOrders, getAllMockOrdersForToday, 
         getAllLiveOrders, getAllLiveOrdersForToday, getAllTradersLiveOrders, overallInfinityMockCompanyPnlMTD,
         getAllTradersLiveOrdersForToday,overallInfinityMockCompanyPnlYesterday,
-        getUserReportMockDateWise, getAllTraderReportDateWise} = require('../../controllers/infinityController');
+        getUserReportMockDateWise, getAllTraderReportDateWise, getAllTradersMockOrdersForToday} = require('../../controllers/infinityController');
 
 const {pnlTraderCompany, overallLivePnlToday, getLetestLiveTradeCompany, overallInfinityLiveCompanyPnlYesterday,
         traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive,overallInfinityLiveCompanyPnlMTD, 
@@ -46,7 +46,7 @@ router.route('/pnl/traderWise/:trader').get(Authenticate, overallPnlTraderWise)
 router.route('/mock/companyorders').get(getAllMockOrders);
 router.route('/mock/userorders').get(getAllTradersMockOrders);
 router.route('/mock/companyorderstoday').get(getAllMockOrdersForToday);
-router.route('/mock/userorderstoday').get(getAllMockOrdersForToday);
+router.route('/mock/userorderstoday').get(getAllTradersMockOrdersForToday);
 router.route('/live/companyorders').get(getAllLiveOrders);
 router.route('/live/userorders').get(getAllTradersLiveOrders);
 router.route('/live/companyorderstoday').get(getAllLiveOrdersForToday);
