@@ -324,7 +324,7 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/internshipbatch`,
+                            pathname: `/tenxreport`,
                           }}
                       >
                           <Grid container>
