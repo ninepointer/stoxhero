@@ -281,7 +281,7 @@ let weekDay = date.getDay();
     let date = new Date();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
-        const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
+        const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
         const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, ()=>{
           appLive();
           infinityLive()
