@@ -67,7 +67,8 @@ function Header({ children }) {
   let internshipUrl = internshipView === 'today' ? url1 : url2;
   let infinityBaseUrl = getDetails.userDetails.role.roleName == InfinityTraderRole ? "infinityTrade" : "tenX"
  
-
+//1200027715 18550ce 161.81 buy  1000000064054896
+//1200027714 18550ce 158.47 sell 1000000062327849
   useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip}&limit=${limitSetting}`,{

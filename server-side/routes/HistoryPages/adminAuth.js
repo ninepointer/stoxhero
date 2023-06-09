@@ -32,27 +32,35 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
-const {client, getValue} = require("../../marketData/redisClient")
-const {overallPnlTrader} = require("../../controllers/infinityController");
-const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
+// const {client, getValue} = require("../../marketData/redisClient")
+// const {overallPnlTrader} = require("../../controllers/infinityController");
+// const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
-const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
+// const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
 const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
 const {getInstrument, tradableInstrument} = require("../../services/xts/xtsMarket");
-const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
+const {ifServerCrashAfterOrder} = require("../../services/xts/xtsInteractive");
+// const XTSTradableInstrument = require("../../controllers/TradableInstrument/tradableXTS")
 const {placeOrder} = require("../../services/xts/xtsInteractive");
-const fetchToken = require("../../marketData/generateSingleToken");
-const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
+// const fetchToken = require("../../marketData/generateSingleToken");
+// const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
 const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
 
 
+
+
+
+
+router.get("/ifServerCrashAfterOrder", async (req, res) => {
+  await ifServerCrashAfterOrder();
+})
 
 router.get("/getTrade", async (req, res) => {
   let orders = await RetreiveOrder.find({exchange_timestamp: {$gte: new Date("2023-06-05"), $lt: new Date("2023-06-06") }, instrument_token: 45572})

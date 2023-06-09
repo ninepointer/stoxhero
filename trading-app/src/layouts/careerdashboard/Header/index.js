@@ -407,7 +407,7 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/adminreport`,
+                            pathname: `/internreport`,
                           }}
                       >
                           <Grid container>

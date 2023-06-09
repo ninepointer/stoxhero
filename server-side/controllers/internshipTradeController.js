@@ -867,3 +867,123 @@ exports.myInternshipTradingDays = async (req, res, next) => {
   let x = await InternTrades.aggregate(pipeline)
   res.status(201).json({ message: "data received", data: x });
 }
+
+exports.internshipPnlReport = async (req, res, next) => {
+
+  let { startDate, endDate, batch } = req.params
+
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+
+
+  let pipeline = [
+    {
+      $match: {
+        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE",
+        batch: new ObjectId(batch)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group:
+      {
+        _id: {
+          "date": { $substr: ["$trade_time", 0, 10] },
+        },
+        gpnl: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        noOfTrade: {
+          $count: {}
+        },
+      }
+    },
+    {
+      $addFields:
+      {
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+      }
+    },
+    {
+      $sort:
+        { _id: 1 }
+    }
+  ]
+
+  let x = await InternTrades.aggregate(pipeline)
+// console.log(x, startDate, endDate, batch)
+  res.status(201).json({ message: "data received", data: x });
+}
+
+exports.internshipDailyPnlTWise = async (req, res, next) => {
+
+  let { startDate, endDate, batch } = req.params
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+  // console.log("startDate", startDate,endDate )
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE",
+        batch: new ObjectId(batch)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort: {
+        npnl: -1,
+      },
+    },
+  ]
+
+  let x = await InternTrades.aggregate(pipeline)
+
+  // res.status(201).json(x);
+
+  res.status(201).json({ message: "data received", data: x });
+}
