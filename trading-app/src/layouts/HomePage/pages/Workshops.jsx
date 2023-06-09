@@ -20,7 +20,7 @@ const Internship = ({campaignCode}) => {
   const [career, setCareer] = useState([]);
     useEffect(()=>{
       setIsLoading(true)
-      axios.get(`${baseUrl}api/v1/career?type=Job`)
+      axios.get(`${baseUrl}api/v1/career?type=Workshop`)
       .then((res)=>{
         setCareer(res.data?.data);
         console.log(career.length) 
@@ -72,7 +72,7 @@ const Internship = ({campaignCode}) => {
                                 {elem?.jobTitle}
                               </MDTypography>
                               <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
-                                {elem?.jobType}
+                                {elem?.listingType}
                               </MDTypography>
                               <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
                                 Job Location: {elem?.jobLocation}
