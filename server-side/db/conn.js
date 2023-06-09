@@ -8,8 +8,8 @@ const DB = process.env.DATABASE;
     const devDB = process.env.DEVDATABASE;
     const stagingDB = process.env.STAGINGDB;
 // mongoose.connect(devDB, {
-        //  mongoose.connect(DB, {
-        mongoose.connect(stagingDB, {
+         mongoose.connect(DB, {
+        // mongoose.connect(stagingDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     // useFindAndModify: false
@@ -42,3 +42,10 @@ const DB = process.env.DATABASE;
 // INTERACTIVE_APP_KEY = '319309f79e919405e5c245'
 // MARKETDATA_SECRET_KEY = 'Yqyl575#Z8'
 // MARKETDATA_APP_KEY = '37a43d49c099e7a4db1249'
+
+
+/*
+4712 loss
+buy 138.28 * 400
+sell 126.5 * 400
+*/

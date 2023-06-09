@@ -4,7 +4,7 @@ import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
-import Orders from "./layouts/orders";
+import Orders from "./layouts/company-orders";
 import Instruments from "./layouts/instruments";
 // import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";
@@ -126,6 +126,8 @@ import VirtualDashboard from './layouts/virtualdashboard'
 import InternshipOrders from './layouts/internshipOrders'
 import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
+import TenxReport from "./layouts/tenXReport";
+import InternReport from "./layouts/internReport";
 
 
 const routes = [
@@ -177,6 +179,23 @@ const routes = [
     route: "/backreportxts",
     component: <BackReportXTS />,
   },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "tenxreport",
+    // icon: <DashboardIcon/>,
+    route: "/tenxreport",
+    component: <TenxReport />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "internreport",
+    // icon: <DashboardIcon/>,
+    route: "/internreport",
+    component: <InternReport />,
+  },
+
   {
     // type: "collapse",
     // name: "Company Dashboard",

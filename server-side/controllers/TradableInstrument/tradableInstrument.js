@@ -54,6 +54,7 @@ exports.tradableInstrument = async (req,res,next) => {
             .on('data', async (row) => {
 
                 const existingInstrument = await TradableInstrument.findOne({ tradingsymbol: row.tradingsymbol, status: "Active" });
+                console.log("existingInstrument", existingInstrument)
                 if (!existingInstrument) {
                   if((row.name == "NIFTY" || row.name == "BANKNIFTY") && row.segment == "NFO-OPT"){
                     // 
@@ -62,9 +63,14 @@ exports.tradableInstrument = async (req,res,next) => {
                     }
                     row.lastModifiedBy = userId;
                     row.createdBy = userId;
-                    console.log("getting row", row);
-                    const x = await TradableInstrument.create(row);
-                    console.log(x)
+                    // console.log("getting row in instrument", row);
+                    try{
+                        const x = await TradableInstrument.create([row]);
+                        console.log(x)
+                    } catch(err){
+                        console.log(err);
+                    }
+
                   }
                 }
             })
