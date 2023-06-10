@@ -20,7 +20,7 @@ const Internship = ({campaignCode}) => {
   const [career, setCareer] = useState([]);
     useEffect(()=>{
       setIsLoading(true)
-      axios.get(`${baseUrl}api/v1/career`)
+      axios.get(`${baseUrl}api/v1/career?type=Job`)
       .then((res)=>{
         setCareer(res.data?.data);
         console.log(career.length) 
@@ -31,7 +31,7 @@ const Internship = ({campaignCode}) => {
     }, [])
 
     return (
-      <Box p={5} mt={15} >
+      <Box p={5} mt={0} >
         <Grid container flexDirection="column" spacing={4}>
         {!isLoading ?
         <>
