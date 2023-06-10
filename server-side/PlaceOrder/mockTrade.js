@@ -215,6 +215,9 @@ exports.mockTrade = async (req, res) => {
 
             if(isRedisConnected){
                 await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+                await client.expire(`overallMockPnlCompany`, secondsRemaining);
+                await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+                await client.expire(`lastTradeDataMock`, secondsRemaining);
             }
             // Commit the transaction
             

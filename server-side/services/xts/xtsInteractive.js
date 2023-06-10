@@ -661,6 +661,12 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
 //  todo, filled and rejected in socket listner  && status == "COMPLETE"
     await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+    await client.expire(`overallLivePnlCompany`, secondsRemaining);
+    await client.expire(`traderWiseLivePnlCompany`, secondsRemaining);
+    await client.expire(`lastTradeLive`, secondsRemaining);
+    await client.expire(`overallMockPnlCompany`, secondsRemaining);
+    await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+    await client.expire(`lastTradeDataMock`, secondsRemaining);
     
     let redisValueOverall ;
     let redisValueTrader ;
