@@ -11,7 +11,10 @@ import { userContext } from "../../../AuthContext";
 import InternshipTrading from "./tradePart";
 
 function TradeViewTenX() {
-  console.log("rendering in userPosition: infinity")
+  console.log("rendering in userPosition: infinity");
+  const location = useLocation();
+  const  id  = location?.state?.batchId;
+  console.log('id is', id);
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const getDetails = useContext(userContext);
   // const location = useLocation();
@@ -37,7 +40,7 @@ function TradeViewTenX() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <InternshipTrading socket={socket} BatchId={BatchId}/>
+      <InternshipTrading socket={socket} BatchId={id}/>
       <Footer />
     </DashboardLayout>
     </>
