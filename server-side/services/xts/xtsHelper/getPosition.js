@@ -12,7 +12,6 @@ router.get("/getPositions", async (req, res)=>{
     let url = `${process.env.INTERACTIVE_URL}/interactive/portfolio/dealerpositions?dayOrNet=DayWise`;
     let token = accessToken[0]?.accessToken;
 
-    // console.log("token", token)
   
     let authOptions = {
       headers: {

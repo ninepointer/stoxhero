@@ -13,7 +13,7 @@ const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 const InternshipTrade = require("../models/mock-trade/internshipTrade");
-
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock} = require("../services/adminRedis/infinityMock");
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -207,6 +207,11 @@ exports.mockTrade = async (req, res) => {
                 settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
                 console.log("settingRedis", settingRedis)
             }
+            
+            const redisValueOverall = await overallMockPnlRedis(mockTradeDetails[0]);
+            const redisValueTrader = await overallMockPnlTraderWiseRedis(mockTradeDetails[0]);
+            const lastTradeMock = await letestTradeMock(mockTradeDetails[0]);
+
 
             if(isRedisConnected){
                 await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
@@ -219,19 +224,24 @@ exports.mockTrade = async (req, res) => {
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
-            if(settingRedis === "OK"){
+            console.log(settingRedis, redisValueOverall,redisValueTrader )
+
+            if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
                 await session.commitTransaction();
+                res.status(201).json({status: 'Complete', message: 'COMPLETE'});
             } else{
                 // await session.commitTransaction();
                 throw new Error();
             }
             
-             
-            res.status(201).json({status: 'Complete', message: 'COMPLETE'});
 
         } catch(err){
             if(isRedisConnected){
                 const del = await client.del(`${trader.toString()} overallpnl`)
+                const delcompanyOverall = await client.del(`traderWiseMockPnlCompany`)
+                const delCompanyTraderWise = await client.del(`overallMockPnlCompany`)
+                await client.del(`lastTradeDataMock`)
+
             }
             await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);

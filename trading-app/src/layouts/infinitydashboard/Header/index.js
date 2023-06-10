@@ -645,6 +645,80 @@ export default function LabTabs({socket}) {
 
             </Grid>
 
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"warning"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companypositionredis`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>StoxHero Position Redis</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's company position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>{liveTraderCount}</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+                
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"success"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companypositionredis`,
+                          }}
+                          state= {{xts: true}}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>XTS Position Redis</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's XTS position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
             <Grid item lg={3}>
                     
                     <MDButton 
