@@ -34,7 +34,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 // },[id,isSubmitted])
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/career`,{
+    let call1 = axios.get(`${baseUrl}api/v1/career?type=Job`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
