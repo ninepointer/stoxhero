@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.39dfa471.css",
-    "main.js": "/static/js/main.6b18bb40.js",
+    "main.js": "/static/js/main.503ab59e.js",
     "static/js/498.71b2877e.chunk.js": "/static/js/498.71b2877e.chunk.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.3e810b52.chunk.js": "/static/js/513.3e810b52.chunk.js",
@@ -16,6 +16,7 @@
     "static/media/home-decor-2.jpg": "/static/media/home-decor-2.b4e5397c9846645ba275.jpg",
     "static/media/winnerImage.jpg": "/static/media/winnerImage.b0f2c86a96f8dc6c880d.jpg",
     "static/media/home-decor-1.jpg": "/static/media/home-decor-1.05e218fd495ccc65c99d.jpg",
+    "static/media/banner.png": "/static/media/banner.628a75ad81b62c82f709.png",
     "static/media/fullLogo.png": "/static/media/fullLogo.628a75ad81b62c82f709.png",
     "static/media/dao.webp": "/static/media/dao.a6366e8b45f0c87234b5.webp",
     "static/media/main-bg-0_1.webp": "/static/media/main-bg-0_1.c78c2f66219663c585fe.webp",
@@ -45,17 +46,24 @@
     "static/media/main-bg-2_1.webp": "/static/media/main-bg-2_1.badcdca57b48fc341ba7.webp",
     "static/media/purse.png": "/static/media/purse.3bdcf4948b4673ae0853.png",
     "static/media/visa.png": "/static/media/visa.71c0d5e9e2aaee42e4c3.png",
+    "static/media/ppic.png": "/static/media/ppic.44c9853b4b0665439d15.png",
     "static/media/about4.png": "/static/media/about4.dba46fdc20acf86d2a4f.png",
+    "static/media/3.png": "/static/media/3.5b20f5de68688bb05e64.png",
     "static/media/discord.webp": "/static/media/discord.941e3603547494c02f75.webp",
     "static/media/reddit.webp": "/static/media/reddit.157d61434c78a75c0ead.webp",
     "static/media/VideoTutorial.jpg": "/static/media/VideoTutorial.f158b6faebf2daa96a3d.jpg",
+    "static/media/5.png": "/static/media/5.0eb9c5971ae69db96f0c.png",
     "static/media/mastercard.png": "/static/media/mastercard.27fca3e7637a9458fb64.png",
+    "static/media/2.png": "/static/media/2.4eea9bc69fab094bc609.png",
     "static/media/twitter.webp": "/static/media/twitter.6f157b8030dd5b66a747.webp",
+    "static/media/4.png": "/static/media/4.01adb566d9fe539648dc.png",
+    "static/media/1.png": "/static/media/1.8a8cfb6046f3278b7472.png",
     "static/media/transaction.png": "/static/media/transaction.2fb4ae3bc020d454e8af.png",
     "static/media/default-profile.png": "/static/media/default-profile.04fa960999505dcd5a7e.png",
     "static/media/rupee.png": "/static/media/rupee.eb64576f04ab6d1e7776.png",
     "static/media/bonus.png": "/static/media/bonus.d69d171160efa10b7e65.png",
     "static/media/nifty.png": "/static/media/nifty.3b4c916a99b29eda722c.png",
+    "static/media/trophy.png": "/static/media/trophy.4936bf29dc5cf0eed008.png",
     "static/media/netpnlicon.png": "/static/media/netpnlicon.57a9de5e3e2f97043b9c.png",
     "static/media/Dot.png": "/static/media/Dot.21216dabe53b43c30012.png",
     "static/media/upcoming.png": "/static/media/upcoming.90b7bb0b92d46fe8710f.png",
@@ -133,13 +141,13 @@
     "static/media/mew.svg": "/static/media/mew.b0269a00f9248097aadb55069a898680.svg",
     "index.html": "/index.html",
     "main.39dfa471.css.map": "/static/css/main.39dfa471.css.map",
-    "main.6b18bb40.js.map": "/static/js/main.6b18bb40.js.map",
+    "main.503ab59e.js.map": "/static/js/main.503ab59e.js.map",
     "498.71b2877e.chunk.js.map": "/static/js/498.71b2877e.chunk.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.3e810b52.chunk.js.map": "/static/js/513.3e810b52.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.39dfa471.css",
-    "static/js/main.6b18bb40.js"
+    "static/js/main.503ab59e.js"
   ]
 }
