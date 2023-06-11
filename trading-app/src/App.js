@@ -52,6 +52,7 @@ import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
 import Careers from './layouts/HomePage/pages/Career'
+import Workshops from './layouts/HomePage/pages/Workshop'
 import JobDescription from './layouts/HomePage/pages/JobDescription'
 import JobApply from './layouts/HomePage/pages/CareerForm'
 import Home from "../src/layouts/HomePage/pages/Home";
@@ -293,6 +294,7 @@ export default function App() {
           }
           <Route path='/resetpassword' element={<ResetPassword/>}/>
           <Route path='/careers' element={<Careers/>}/>
+          <Route path='/workshops' element={<Workshops/>}/>
           <Route path='/privacy' element={<Privacy/>}/>
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
