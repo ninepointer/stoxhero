@@ -23,7 +23,7 @@ const Career = new mongoose.Schema({
     jobType:{
         type:String,
         required: true,
-        enum: ['Internship','Full-Time']
+        enum: ['Internship','Full-Time', 'Event']
     },
     jobLocation:{
         type: String,
@@ -34,6 +34,10 @@ const Career = new mongoose.Schema({
         type: String,
         required: true,
         enum: ['Live','Draft', 'Rejected']
+    },
+    listingType:{
+        type: String,
+        enum: ['Job', 'Workshop']
     },
     createdOn: {
         type: Date,

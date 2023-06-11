@@ -244,6 +244,7 @@ app.use('/api/v1/userwallet', require("./routes/userWallet/userWalletRoutes"));
 app.use('/api/v1/carousels', require("./routes/carousel/carouselRoutes"));
 app.use('/api/v1/paperTrade', require("./routes/mockTrade/paperTrade"));
 app.use('/api/v1/infinityTrade', require("./routes/mockTrade/infinityTrade"));
+app.use('/api/v1/infinityRedis', require("./routes/mockTrade/infinityTradeRedis"));
 app.use('/api/v1/career', require("./routes/career/careerRoute"));
 app.use('/api/v1/tenX', require("./routes/tenXSubscription/tenXRoute"));
 app.use('/api/v1/tenxtrade', require("./routes/mockTrade/tenXTradeRoute"));
@@ -281,7 +282,7 @@ let weekDay = date.getDay();
     let date = new Date();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
-        const job = nodeCron.schedule(`0 0 16 * * ${weekDay}`, cronJobForHistoryData);
+        const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
         const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, ()=>{
           appLive();
           infinityLive()

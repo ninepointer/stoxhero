@@ -1,5 +1,6 @@
 // Material Dashboard 2 React layouts
 import CompanyPosition from "./layouts/companyposition";
+import CompanyPositionRedis from "./layouts/companypositionRedis";
 import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
 import TenXDashboard from "./layouts/tenxdashboard";
@@ -389,6 +390,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/companyposition",
     component: <CompanyPosition />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Position",
+    key: "companypositionredis",
+    // icon: <BusinessIcon/>,
+    route: "/companypositionredis",
+    component: <CompanyPositionRedis />,
   },
   {
     // type: "collapse",

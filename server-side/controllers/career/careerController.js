@@ -307,11 +307,11 @@ exports.createCareer = async(req, res, next)=>{
     console.log(req.body)
     const{
         jobTitle, jobDescription, rolesAndResponsibilities, jobType, jobLocation,
-        status } = req.body;
+        status, listingType } = req.body;
     if(await Career.findOne({jobTitle, status: "Live" })) return res.status(400).json({info:'This job post is already live.'});
 
     const career = await Career.create({jobTitle: jobTitle.trim(), jobDescription, rolesAndResponsibilities, jobType, jobLocation,
-        status, createdBy: req.user._id, lastModifiedBy: req.user._id});
+        status, createdBy: req.user._id, lastModifiedBy: req.user._id, listingType});
     console.log("Career: ",career)
     res.status(201).json({message: 'Career post successfully created.', data:career});
 }
@@ -335,8 +335,13 @@ exports.editCareer = async(req, res, next) => {
 }
 
 exports.getCareers = async(req, res, next)=>{
+    const type = req.query.type;
+    const cond = !type? {}:{listingType:type}
     const career = await Career.aggregate(
       [
+        {
+          $match: cond
+        },
         {
           $lookup: {
             from: "career-applications",
@@ -359,6 +364,7 @@ exports.getCareers = async(req, res, next)=>{
             status: 1,
             applicants: 1,
             rolesAndResponsibilities: 1,
+            listingType: 1
           },
         },
       ]

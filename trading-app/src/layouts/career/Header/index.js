@@ -9,6 +9,7 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import ActiveCareers from '../data/activeCareer';
+import Workshops from '../data/workshops';
 
 //data
 
@@ -52,6 +53,7 @@ export default function LabTabs() {
             <Tab label="Active Careers" value="1" />
             <Tab label="Draft Careers" value="2" />
             <Tab label="Inactive Careers" value="3" />
+            <Tab label="Workshops" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -83,6 +85,15 @@ export default function LabTabs() {
           : 
         //   <InactivePortfolioCard/>
         <></>
+          }
+        </TabPanel>
+        <TabPanel value="4">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+        <Workshops/>
           }
         </TabPanel>
       </TabContext>

@@ -40,7 +40,7 @@ const MenuProps = {
 function Index() {
     const location = useLocation();
     const  id  = location?.state?.data;
-    console.log(id)
+    console.log('id hai',id);
     const [applicationCount, setApplicationCount] = useState(0);
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -55,6 +55,7 @@ function Index() {
     const [portfolios,setPortfolios] = useState([]);
     const [careers,setCareers] = useState([]);
     const [action, setAction] = useState(false);
+    const [type, setType] = useState('Job');
 
     const [formState,setFormState] = useState({
         batchName:'' || id?.batchName,
@@ -99,7 +100,7 @@ function Index() {
             return new Error(err)
         })
 
-        axios.get(`${baseUrl}api/v1/career`)
+        axios.get(`${baseUrl}api/v1/career?type=${type}`)
         .then((res)=>{
           console.log("Careers :",res?.data?.data)
           setCareers(res?.data?.data);
@@ -118,8 +119,19 @@ function Index() {
         }).catch((err)=>{
             console.log("Error in useeffect: ",err)
         })    
-    },[])
+    },[type])
 
+    const handleTypeChange = (e) =>{
+      const value = e.target.value;
+      console.log('e target value', value);
+      setType(prev=>value);
+      setFormState(prevState => ({
+        ...prevState,
+        portfolio: {id: '', name: ''},
+        career: {id: '', name: ''},
+
+      }))
+    }
     const handlePortfolioChange = (event) => {
         const {
           target: { value },
@@ -162,7 +174,14 @@ function Index() {
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-      // console.log("Is Submitted before State Update: ",isSubmitted)
+        if((type == 'Job' && formState?.portfolio.name != 'Internship') || (type == 'Workshop' && formState?.portfolio.name != 'Workshop' )){
+        console.log('true');
+        return openErrorSB("Wrong Portfolio","Please check the portfolio and type compatibility");
+      }
+
+
+      
+      console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
       const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio} = formState;
       const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
@@ -312,7 +331,7 @@ function Index() {
   );
 
 
-console.log(id)
+console.log('bro get this', formState?.career.name, batch?.career);
 
 const handleChange = (e) => {
   const {name, value} = e.target;
@@ -396,6 +415,34 @@ const handleChange = (e) => {
                 </DemoContainer>
                 </LocalizationProvider>
            </Grid>
+           {!id && <Grid item xs={12} md={3} xl={3}>
+                <FormControl sx={{ minHeight:10, minWidth:263 }}>
+                  <InputLabel id="demo-multiple-name-label">Batch Type</InputLabel>
+                  <Select
+                    labelId="demo-multiple-name-label"
+                    id="demo-multiple-name"
+                    name='batchType'
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    // defaultValue={id ? portfolios?.portfolio : ''}
+                    value={formState?.type}
+                    onChange={handleTypeChange}
+                    input={<OutlinedInput label="Batch Type" />}
+                    sx={{minHeight:45}}
+                    MenuProps={MenuProps}
+                  >
+                      <MenuItem
+                        value='Job'
+                      >
+                        Internship
+                      </MenuItem>
+                      <MenuItem
+                        value='Workshop'
+                      >
+                        Workshop
+                      </MenuItem>
+                  </Select>
+            </FormControl>
+            </Grid>}
 
            <Grid item xs={12} md={3} xl={3}>
                 <FormControl sx={{ minHeight:10, minWidth:263 }}>
