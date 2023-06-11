@@ -15,6 +15,8 @@ const { save } = require("./xtsHelper/saveXtsCred");
 const { ObjectId } = require('mongodb');
 const RequestToken = require("../../models/Trading Account/requestTokenSchema")
 const axios = require("axios");
+const {overallLivePnlRedis, overallLivePnlTraderWiseRedis, letestTradeLive} = require("../adminRedis/infinityLive")
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock} = require("../adminRedis/infinityMock");
 
 
 let xtsInteractiveWS;
@@ -616,10 +618,10 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
     const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
     // const traderDocMock = await InfinityMockTrader.findOne({ _id: algoTrader.upsertedId });
-    console.log("algoTrader", algoTrader)
-    console.log("algoTraderLive", algoTraderLive)
-    console.log("mockCompany", mockCompany)
-    console.log("liveCompanyTrade", liveCompanyTrade)
+    // console.log("algoTrader", algoTrader)
+    // console.log("algoTraderLive", algoTraderLive)
+    // console.log("mockCompany", mockCompany)
+    // console.log("liveCompanyTrade", liveCompanyTrade)
 
     let isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
 
@@ -657,14 +659,33 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       // console.log("in chek if 3", settingRedis)
       console.log(settingRedis)
     }
-//  todo, filled and rejected in socket listner
+//  todo, filled and rejected in socket listner  && status == "COMPLETE"
     await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-    // Commit the transaction
+    await client.expire(`overallLivePnlCompany`, secondsRemaining);
+    await client.expire(`traderWiseLivePnlCompany`, secondsRemaining);
+    await client.expire(`lastTradeLive`, secondsRemaining);
+    await client.expire(`overallMockPnlCompany`, secondsRemaining);
+    await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+    await client.expire(`lastTradeDataMock`, secondsRemaining);
+    
+    let redisValueOverall ;
+    let redisValueTrader ;
+    let redisValueMockOverall ;
+    let redisValueMockTrader ;
+    if(isInsertedAllDB){
+      redisValueOverall = await overallLivePnlRedis(companyDoc);
+      redisValueTrader = await overallLivePnlTraderWiseRedis(companyDoc);  
+      redisValueMockOverall = await overallMockPnlRedis(companyDocMock);
+      redisValueMockTrader = await overallMockPnlTraderWiseRedis(companyDocMock);  
+    }
 
-    // console.log("redis setting chaeck", settingRedis)
+    const lastTradeMock = await letestTradeMock(companyDocMock);
+    const lastTradeLive = await letestTradeLive(companyDocMock);
 
 
-    if (settingRedis === "OK") {
+    let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
+
+    if (redisApproval) {
       await session.commitTransaction();
     } else if(status == "REJECTED"){
       console.log("in rejected")
@@ -680,9 +701,9 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
 
 
-    console.log("data saved in retreive order for", AppOrderID)
+    // console.log("data saved in retreive order for", AppOrderID)
 
-    if (!dontSendResp ) {
+    if (!dontSendResp && redisApproval ) {
       await client.expire(`liveOrderBackupKey`, 600);
       await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
       io.emit("updatePnl", traderDocMock)
@@ -691,11 +712,17 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
     // }
   } catch (err) {
+    await client.del(`overallLivePnlCompany`)
+    await client.del(`traderWiseLivePnlCompany`)
+    await client.del(`lastTradeLive`)
+    await client.del(`overallMockPnlCompany`)
+    await client.del(`traderWiseMockPnlCompany`)
+    await client.del(`lastTradeDataMock`)
     await client.del(`${trader.toString()} overallpnl`)
     await session.abortTransaction();
 
     console.error('Transaction failed, documents not saved:', err);
-    console.log(traderData, startTime);
+    // console.log(traderData, startTime);
     await getPlacedOrderAndSave(orderData, traderData, startTime);
     // return res.status(201).json({ message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", err: "Error" })
 
@@ -709,103 +736,4 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
 module.exports = { interactiveLogin, placeOrder, autoPlaceOrder, ifServerCrashAfterOrder };
 
-
-// {
-//   "type": "success",
-//   "code": "s-user-0001",
-//   "description": "Success order book",
-//   "result": [
-//     {
-//       "LoginID": "SYMP1",
-//       "ClientID": "SYMP1",
-//       "AppOrderID": 648468730,
-//       "OrderReferenceID": "",
-//       "GeneratedBy": "TWSAPI",
-//       "ExchangeOrderID": "1005239196374108",
-//       "OrderCategoryType": "NORMAL",
-//       "ExchangeSegment": "NSECM",
-//       "ExchangeInstrumentID": 16921,
-//       "OrderSide": "BUY",
-//       "OrderType": "Limit",
-//       "ProductType": "NRML",
-//       "TimeInForce": "DAY",
-//       "OrderPrice": 254.55,
-//       "OrderQuantity": 15,
-//       "OrderStopPrice": 0,
-//       "OrderStatus": "New",
-//       "OrderAverageTradedPrice": 250.4,
-//       "LeavesQuantity": 1,
-//       "CumulativeQuantity": 0,
-//       "OrderDisclosedQuantity": 0,
-//       "OrderGeneratedDateTime": "14-05-2021 11:17:29",
-//       "ExchangeTransactTime": "14-05-2021 11:17:30",
-//       "LastUpdateDateTime": "14-05-2021 11:17:29",
-//       "OrderExpiryDate": "01-01-1980 00:00:00",
-//       "CancelRejectReason": "",
-//       "OrderUniqueIdentifier": "123abc",
-//       "OrderLegStatus": "SingleOrderLeg",
-//       "BoLegDetails": 0,
-//       "IsSpread": false,
-//       "BoEntryOrderId": "",
-//       "MessageCode": 9004,
-//       "MessageVersion": 4,
-//       "TokenID": 0,
-//       "ApplicationType": 0,
-//       "SequenceNumber": 0
-//     }
-//   ]
-// }    // else{
-    //   let date = new Date();
-    //   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    //   todayDate = todayDate + "T00:00:00.000Z";
-    //   const today = new Date(todayDate);
-
-    //   let pnlDetails = await InfinityMockTrader.aggregate([
-    //     {
-    //       $match: {
-    //         trade_time: {
-    //           $gte: today
-    //         },
-    //         status: "COMPLETE",
-    //         trader: new ObjectId(trader)
-    //       },
-    //     },
-    //     {
-    //       $group: {
-    //         _id: {
-    //           symbol: "$symbol",
-    //           product: "$Product",
-    //           instrumentToken: "$instrumentToken",
-// exchangeInstrumentToken: "$exchangeInstrumentToken",
-    //           exchangeInstrumentToken: "$exchangeInstrumentToken",
-    //           exchange: "$exchange"
-    //         },
-    //         amount: {
-    //           $sum: { $multiply: ["$amount", -1] },
-    //         },
-    //         brokerage: {
-    //           $sum: {
-    //             $toDouble: "$brokerage",
-    //           },
-    //         },
-    //         lots: {
-    //           $sum: {
-    //             $toInt: "$Quantity",
-    //           },
-    //         },
-    //         lastaverageprice: {
-    //           $last: "$average_price",
-    //         },
-    //       },
-    //     },
-    //     {
-    //       $sort: {
-    //         _id: -1,
-    //       },
-    //     },
-    //   ])
-    //   console.log("pnlDetails", pnlDetails)
-    //   settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnlDetails))
-    // }
-
-
+// status complete in redis conntrolller, redis live and redis in interactive

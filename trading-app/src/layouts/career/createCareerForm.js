@@ -58,7 +58,8 @@ function Index() {
         },
         jobType:'' || id?.jobType,
         jobLocation:'' || id?.jobLocation,
-        status:'' || id?.status
+        status:'' || id?.status,
+        listingType:'' || id?.listingType
     });
 
     useEffect(()=>{
@@ -79,7 +80,7 @@ function Index() {
       }
       // console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {jobTitle, jobDescription, jobType, jobLocation, status } = formState;
+      const {jobTitle, jobDescription, jobType, jobLocation, status, listingType } = formState;
       const res = await fetch(`${baseUrl}api/v1/career/create`, {
           method: "POST",
           credentials:"include",
@@ -88,7 +89,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            jobTitle, jobDescription, jobType, jobLocation, status
+            jobTitle, jobDescription, jobType, jobLocation, status, listingType
           })
       });
       
@@ -341,8 +342,30 @@ const handleChange = (e) => {
                 </Select>
               </FormControl>
           </Grid>
+          <Grid item xs={12} md={6} xl={3}>
+              <FormControl sx={{width: "100%" }}>
+                <InputLabel id="demo-simple-select-autowidth-label">Listing Type</InputLabel>
+                <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                name='listingType'
+                value={formState?.listingType || id?.listingType}
+                // value={oldObjectId ? contestData?.status : formState?.status}
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    listingType: e.target.value
+                }))}}
+                label="Listing Type"
+                sx={{ minHeight:43 }}
+                >
+                <MenuItem value="Job">Job</MenuItem>
+                <MenuItem value="Workshop">Workshop</MenuItem>
+                </Select>
+              </FormControl>
+          </Grid>
 
-          <Grid item xs={12} md={6} xl={12} mt={2}>
+          <Grid item xs={12} md={6} xl={9}>
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
