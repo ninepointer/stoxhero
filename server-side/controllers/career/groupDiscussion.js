@@ -5,6 +5,7 @@ const mailSender = require('../../utils/emailService');
 const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const Campaign = require("../../models/campaigns/campaignSchema");
+const JobPosting = require("../../models/Careers/careerSchema")
 
 exports.createGroupDiscussion = async(req, res, next)=>{
     console.log(req.body) // batchID
@@ -119,11 +120,16 @@ exports.addUserToGd = async(req, res, next) => {
   try{
     let user;
     const gd = await GroupDiscussion.findById(gdId);
-    const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name');
+    const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name career');
+    const jobPositing = await JobPosting.findById(career.career)
+    const listingType = jobPositing?.listingType
+    const batch = await Batch.findById(gd.batch);
+    const batchCareer = batch?.career
+    const batchlistingType = batchCareer?.listingType
     user = await User.findOne({email: career.email}).select('_id');
-    if(user){
+    if(user && (listingType === batchlistingType)){
       const existinggds = await GroupDiscussion.find({'participants.user': user._id});
-      if (existinggds.length >0){
+      if (existinggds.length > 0){
         return res.status(400).json({status:'error', message: 'User is already in another Group Discussion'});
       }
     }
@@ -363,11 +369,16 @@ exports.selectCandidate = async (req, res, next) => {
   try {
     const gd = await GroupDiscussion.findById(gdId);
     const user = await User.findById(userId);
+    const batch = await Batch.findById(gd.batch);
+    const jobPositing = await JobPosting.findById(batch.career);
+    const listingType = jobPositing?.listingType
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
       return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
     }
     const existingUserBatches = await Batch.find({'participants.user': userId})
-    if(existingUserBatches.length >0){
+    const batchCareer = await JobPosting.findById(existingUserBatches?.career)
+    const careerListingType = batchCareer?.listingType
+    if(existingUserBatches.length >0 && (careerListingType === listingType)){
       return res.status(203).json({status:'error', message: 'User is already in an internship batch'});
     }
     let participants = gd.participants.map((item)=>{
@@ -402,7 +413,7 @@ exports.selectCandidate = async (req, res, next) => {
     
     
     //Add user to batch
-    const batch = await Batch.findById(gd.batch);
+    // batch = await Batch.findById(gd.batch);
     
     batch.participants = [...batch.participants, {user: userId, college: collegeId, joiningDate: new Date()}];
     
@@ -410,7 +421,7 @@ exports.selectCandidate = async (req, res, next) => {
     
     //Add batch info to the user's document
     
-    user.internshipBatch = gd.batch;
+    user.internshipBatch = [...user.internshipBatch,gd.batch];
     
     //Give user the intern portfolio
     // user.portfolio = [...user.portfolio, {portfolioId: batch.portfolio, activationDate: new Date()}]

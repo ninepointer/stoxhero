@@ -59,7 +59,46 @@ const {openPrice} = require("../../marketData/setOpenPriceFlag");
 
 
 router.get("/ifServerCrashAfterOrder", async (req, res) => {
-  await ifServerCrashAfterOrder();
+  const c = await InfinityTraderCompany.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $gte: new Date(
+              "2023-06-09"
+            )
+          },
+          status: "COMPLETE",
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            symbol: "$symbol",
+          },
+        },
+    },
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          symbol: "$_id.symbol",
+        },
+    },
+  ])
+
+  res.send(c)
 })
 
 router.get("/getTrade", async (req, res) => {

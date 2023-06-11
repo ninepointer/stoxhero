@@ -131,7 +131,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Internship",
+    name: "Internship/WorkShop",
     key: "internship",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <MenuBookIcon/>,

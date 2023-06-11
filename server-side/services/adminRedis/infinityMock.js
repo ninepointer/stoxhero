@@ -313,7 +313,9 @@ exports.letestTradeMock = async (pnlData) => {
           { $sort: { "trade_time": -1 } },
           { $limit: 1 }
       ])
-      let settingRedis = await client.set(`lastTradeDataMock`, JSON.stringify(trade[0]))
+      let settingRedis;
+      if(trade.length > 0)
+      settingRedis = await client.set(`lastTradeDataMock`, JSON.stringify(trade[0]))
 
       return settingRedis;
   }
