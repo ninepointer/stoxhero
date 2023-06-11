@@ -272,3 +272,67 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
       res.status(500).json({status:'error', message: 'Something went wrong'});
     }
   }
+
+  exports.getCurrentBatch = async(req,res,next) =>{
+    console.log('current');
+    const userId = req.user._id;
+    const userBatches = await User.findById(userId)
+    .populate({
+        path: 'internshipBatch',
+        model: 'intern-batch',
+        select:'career batchStartDate batchEndDate',
+        populate: {
+            path: 'career',
+            model: 'career',
+            select:'listingType jobTitle'
+        }
+    }).select('internshipBatch');
+    let internships = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Job');
+    console.log("userBatches", userBatches);
+    console.log(new Date(), internships[internships.length-1]?.batchEndDate);
+    if(new Date()>internships[internships.length-1]?.batchEndDate){
+        return res.json({status: 'success', data: {}, message:'No active internships'});    
+    }
+    res.json({status: 'success', data: internships[internships.length-1]});
+  }
+
+  exports.getWorkshops = async(req,res,next) =>{
+    console.log('current');
+    const userId = req.user._id;
+    const userBatches = await User.findById(userId)
+    .populate({
+        path: 'internshipBatch',
+        model: 'intern-batch',
+        select:'career batchStartDate batchEndDate',
+        populate: {
+            path: 'career',
+            model: 'career',
+            select:'listingType jobTitle'
+        }
+    }).select('internshipBatch');
+    let workshops = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Workshop');
+    res.json({status: 'success', data: workshops});
+  }
+  exports.getCurrentWorkshop = async(req,res,next) =>{
+    console.log('current');
+    const userId = req.user._id;
+    const userBatches = await User.findById(userId)
+    .populate({
+        path: 'internshipBatch',
+        model: 'intern-batch',
+        select:'career batchStartDate batchEndDate',
+        populate: {
+            path: 'career',
+            model: 'career',
+            select:'listingType jobTitle'
+        }
+    }).select('internshipBatch');
+    let internships = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Workshop');
+    console.log("userBatches", userBatches);
+    if(new Date().toISOString().substring(0,10) !== internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
+        return res.json({status: 'success', data: {}, message:'No active workshops'});    
+    }
+    res.json({status: 'success', data: internships[internships.length-1]});
+  }
+  
+  
