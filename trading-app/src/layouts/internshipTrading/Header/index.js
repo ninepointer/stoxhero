@@ -83,12 +83,13 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     return workingDays;
   }
 
-  const startDate = (getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).toString().split('T')[0]
-  const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
-  // console.log(startDate)
-  // console.log(endDate)
+  // const startDate = (getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).toString().split('T')[0]
+  const startDate = moment(new Date(getDetails?.userDetails?.internshipBatch[0]?.batchStartDate)).format("YYYY-MM-DD")
+  const endDate = moment(new Date().toString()).format("YYYY-MM-DD");
+  console.log(startDate)
+  console.log(endDate)
   const workingDays = calculateWorkingDays(startDate, endDate);
-
+  console.log(workingDays)
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
@@ -183,7 +184,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         },
       })
     .then((api1Response)=>{
-      // console.log(api1Response.data.data)
+      console.log(api1Response.data.data)
       setMyTradingDays(api1Response.data.data.length)  
     })
   }, [])
@@ -352,18 +353,15 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
   },[])
 
-  // console.log("cashBalance", cashBalance)
-  // console.log("User Details: ",getDetails?.userDetails?.internshipBatch[0]?.batchName)
-
   return (
    
     <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10} minHeight='65vh' >
 
     <MDBox display="flex" justifyContent='center' flexDirection='column' mb={1} mt={1}>
       <Grid item xs={12} md={6} lg={12}>
-      <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is StoxHero Internship Program?</MDTypography>
+      <MDTypography fontSize={15} mb={1} fontWeight='bold' color="light">What is StoxHero Internship Program?</MDTypography>
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
-        <MDTypography fontSize={15} fontWeight='bold' color="dark">
+        <MDTypography fontSize={12} fontWeight='bold' color="dark">
             Welcome to the StoxHero Derivatives Trader Internship Program!
             At StoxHero, we believe in nurturing and developing the next generation of derivatives traders. Our internship program is designed to provide you with a comprehensive learning experience that will sharpen your skills, deepen your understanding of the financial markets, and prepare you for a successful career in derivatives trading. 
             At the successful completion of your internship, you will receive a valuable internship certificate from StoxHero. This certificate recognizes your dedication, knowledge, and practical skills gained during your internship.
@@ -376,15 +374,20 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     <Grid container spacing={1} mb={1} mt={1}>
       <Grid item xs={12} md={6} lg={12}>
       <MDBox bgColor="white" p={2} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)" width='100%'>
-        <MDTypography fontSize={18} fontWeight='bold' color="dark">
+        <MDTypography fontSize={15} fontWeight='bold' color="dark">
           Internship Completion Rules and Issuance of Internship Certificate
         </MDTypography>
-        <MDTypography fontSize = {15}>1. You must accept and abide by the terms of usage and must not partake in any malpractices or manipulation.</MDTypography>
-        <MDTypography fontSize = {15}>2. You must take trades on 80% of the trading days during the internship period.</MDTypography>
-        <MDTypography fontSize = {15}>3. You must refer atleast 10 users to the platform using your invite link.</MDTypography>
-        <MDTypography fontSize = {15}>4. You must treat the internship as an education experience.</MDTypography>
-        <MDTypography fontSize = {15}>5. You are limited to taking intraday option trades and are required to close all your positions before 3:20 PM every day.</MDTypography>
+        <MDTypography fontSize = {12}>1. You must accept and abide by the terms of usage and must not partake in any malpractices or manipulation.</MDTypography>
+        <MDTypography fontSize = {12}>2. You must take trades on 80% of the trading days during the internship period.</MDTypography>
+        <MDTypography fontSize = {12}>3. You must refer atleast 30 users to the platform using your invite link.</MDTypography>
+        <MDTypography fontSize = {12}>4. You must treat the internship as an education experience.</MDTypography>
+        <MDTypography fontSize = {12}>5. You are limited to taking intraday option trades and are required to close all your positions before 3:20 PM every day.</MDTypography>
         <MDTypography></MDTypography>
+        <MDTypography fontSize={15} fontWeight='bold' color="dark">
+          Internship Perks & Benefits
+        </MDTypography>
+        <MDTypography fontSize = {12}>1. As part of the internship program, you will receive a stipend calculated at 1% of the net profit and loss (P&L) for the duration of your internship..</MDTypography>
+        <MDTypography fontSize = {12}>2. Upon completion of your internship, you will be awarded an internship certificate from StoxHero.</MDTypography>
       </MDBox>   
       </Grid>           
     </Grid>
