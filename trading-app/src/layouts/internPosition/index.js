@@ -62,24 +62,6 @@ function TraderPosition() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      {/* <MDBox py={3}>
-
-        <MDBox mt={2}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
-              <OverallTraderPnl socket={socket} />
-            </Grid>
-          </Grid>
-        </MDBox>
-
-        <MDBox mt={2}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={12}>
-              <TraderwiseTraderPnl socket={socket} />
-            </Grid>
-          </Grid>
-        </MDBox>
-      </MDBox> */}
       <Header />
       <Footer />
     </DashboardLayout>

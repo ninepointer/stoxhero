@@ -16,10 +16,6 @@ import Title from '../../HomePage/components/Title'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-// import Box from '@mui/material/Box';
-// import Card from '@mui/material/Card';
-// import CardActions from '@mui/material/CardActions';
-// import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import MDTypography from '../../../components/MDTypography';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -27,10 +23,6 @@ import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
 import { Typography } from '@mui/material';
-
-
-
-
 
 export default function Dialogue({amount, name, id, walletCash}) {
   // console.log("props", amount, name, id, walletCash)

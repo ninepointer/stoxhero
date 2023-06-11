@@ -105,6 +105,7 @@ import UserAnalytics from "./layouts/userAnalytics";
 import UserWallet from "./layouts/userWallet"
 import About from './layouts/HomePage/pages/About'
 import Careers from './layouts/HomePage/pages/Career'
+import Workshops from './layouts/HomePage/pages/Workshop'
 import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
@@ -129,6 +130,7 @@ import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
 import TenxReport from "./layouts/tenXReport";
 import InternReport from "./layouts/internReport";
+import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 
 
 const routes = [
@@ -171,6 +173,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/internshiporders",
     component: <InternshipOrders />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "internshipleaderboard",
+    // icon: <DashboardIcon/>,
+    route: "/internshipleaderboard",
+    component: <InternshipLeaderboard />,
   },
     {
     // type: "collapse",
@@ -337,6 +347,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/careers",
     component: <Careers />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/workshops",
+    component: <Workshops />,
   },
   {
     // type: "collapse",
