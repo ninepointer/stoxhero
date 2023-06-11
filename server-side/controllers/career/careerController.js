@@ -25,7 +25,7 @@ exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
   const { firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career, campaignCode } = req.body;
-
+  console.log(req.body)
   const data = await CareerApplication.create({
     first_name: firstName.trim(),
     last_name: lastName.trim(),
@@ -89,9 +89,9 @@ exports.confirmOTP = async(req, res, next)=>{
   
   const{ firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career, campaignCode, mobile_otp
   } = req.body
-  // console.log(req.body)
+  console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile, email: email}], mobile_otp: mobile_otp})
-  // console.log(correctOTP)
+  console.log(correctOTP)
   if(!correctOTP){
     return res.status(400).json({info:'Please enter the correct OTP'})
   }

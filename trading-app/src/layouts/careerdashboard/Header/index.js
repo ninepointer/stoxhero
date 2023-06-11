@@ -439,7 +439,7 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/adminreportlive`,
+                            pathname: `/internshipleaderboard`,
                           }}
                       >
                           <Grid container>
