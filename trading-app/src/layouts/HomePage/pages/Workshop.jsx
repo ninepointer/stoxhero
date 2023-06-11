@@ -17,7 +17,6 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { CircularProgress } from '@mui/material';
-import MDTypography from "../../../components/MDTypography";
 // import JobDescription from './JobDescription';
 
 const App = () => {
@@ -39,11 +38,8 @@ const App = () => {
     <ThemeProvider theme={theme}>
     <div  style={{background:"#06070A"}}>
       <Navbar/>
-    <Box sx={{bgcolor:'white'}}>
-      <MDTypography sx={{color:'white'}}>Careers</MDTypography>
-    </Box>
-    <Box mb={10} pt={10} sx={{bgcolor:"white",display:"flex",justifyContent:"center",alignItems:"center",}}>
-      <Internship campaignCode={campaignCode}/>
+    <Box mb={10} pt={10} sx={{bgcolor:"white",minHeight:"60vh",display:"flex",justifyContent:"center",alignItems:"center",}}>
+      <Workshops campaignCode={campaignCode}/>
     </Box>
 
     <Footer/>

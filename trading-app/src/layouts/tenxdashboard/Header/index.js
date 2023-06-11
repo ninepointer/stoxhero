@@ -280,6 +280,7 @@ export default function LabTabs({socket}) {
         </Grid>
 
         <Grid container spacing={2} mt={1}>
+            
             <Grid item xs={12} md={6} lg={3}>
                     
                     <MDButton 
@@ -294,7 +295,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Position</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Position</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
@@ -330,7 +331,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Report</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Report</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
@@ -366,7 +367,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Subscriptions</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Subscriptions</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
@@ -401,7 +402,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Subscribers</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Subscribers</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
@@ -421,9 +422,7 @@ export default function LabTabs({socket}) {
                           </Grid>
                     </MDButton>
             </Grid>
-        </Grid>
-
-        <Grid container spacing={2} mt={1}>
+            
             <Grid item xs={12} md={6} lg={3}>
                     
                     <MDButton 
@@ -438,7 +437,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Trading</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Trading</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -470,7 +469,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Leaderboard</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Leaderboard</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -502,7 +501,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Payouts</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Payouts</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -534,7 +533,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Queries</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Queries</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -552,9 +551,6 @@ export default function LabTabs({socket}) {
 
             </Grid>
             
-        </Grid>
-        
-        <Grid container spacing={2} mt={1} height='15vH'>
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -569,7 +565,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Wallet</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Wallet</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -601,7 +597,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Analytics</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Analytics</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -633,7 +629,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Portfolio</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Portfolio</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -665,7 +661,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Referrals</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Referrals</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>

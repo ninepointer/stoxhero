@@ -101,6 +101,13 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
+            <a href="/workshops">
+            <LinkButton>
+              <Typography variant="body2">Workshops</Typography>
+              
+            </LinkButton>
+            </a>
+
             <a href="/about">
             <LinkButton spacing={0.5}>
               <Typography variant="body2">About Us</Typography>
@@ -143,6 +150,13 @@ const Navbar = () => {
             <a href="/careers">
             <LinkButton>
               <Typography variant="body2">Careers</Typography>
+              
+            </LinkButton>
+            </a>
+
+            <a href="/workshops">
+            <LinkButton>
+              <Typography variant="body2">Workshops</Typography>
               
             </LinkButton>
             </a>

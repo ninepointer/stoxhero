@@ -14,7 +14,7 @@ const GaugeChart = ({myReferralCount}) => {
               startAngle: 180,
               endAngle: 0,
               min: 0,
-              max: 10,
+              max: 30,
               splitNumber: 2,
               itemStyle: {
                 color: '#1A73E8',
