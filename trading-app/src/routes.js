@@ -128,6 +128,7 @@ import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
 import TenxReport from "./layouts/tenXReport";
 import InternReport from "./layouts/internReport";
+import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 
 
 const routes = [
@@ -170,6 +171,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/internshiporders",
     component: <InternshipOrders />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "internshipleaderboard",
+    // icon: <DashboardIcon/>,
+    route: "/internshipleaderboard",
+    component: <InternshipLeaderboard />,
   },
     {
     // type: "collapse",
