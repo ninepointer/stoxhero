@@ -75,8 +75,9 @@ const Workshops = () => {
                 state={currentworkshop._id} startDate={currentworkshop?.batchStartDate.toString().substring(0,10)} 
                 endDate={currentworkshop?.batchEndDate.toString().substring(0,10)}/> 
                 </MDBox> :
-           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh'>
-           <MDTypography color='white'>No Workshops</MDTypography> 
+           <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh' border='1px solid white' borderRadius='12px'>
+           <MDTypography color='white'>No current workshops</MDTypography>
+           <MDButton variant='text'>Apply for workshops here</MDButton> 
           </MDBox>  
           }
             </MDBox>
@@ -93,14 +94,14 @@ const Workshops = () => {
           </MDBox>
           :
            workshops?.length>0 ? 
-           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh'>
+           <MDBox mt={3}>
             {workshops?.map((workshop)=>{
-                return <card>
-                </card>
+                return <Card name ={workshop?.career?.jobTitle} startDate={workshop?.batchStartDate.toString().substring(0,10)} 
+                endDate={workshop?.batchEndDate.toString().substring(0,10)}/>
             })}
            </MDBox> 
             :
-           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh'> 
+           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh' border='1px solid white' borderRadius='12px'> 
             <MDTypography color='white'>No Workshops</MDTypography>
            </MDBox>  
           }
@@ -117,8 +118,8 @@ const Card = ({name, goTo, state, startDate, endDate})=> {
 
     return (
         <Grid xs={12} lg={12} mb={2}>
-        <MDBox color='black' bgColor='white' minHeight='5vh' p={2} width='100%' borderRadius='12px'>
-        <MDBox display='flex' flexDirection={isMobile ? 'column' : 'row'} justifyContent='space-between'>
+        <MDBox color='black' bgColor='white' minHeight='5vh' p={2} width='100%' minWidth='100%' borderRadius='12px'>
+        <MDBox display='flex' flexDirection={isMobile ? 'column' : 'row'} justifyContent='space-between' alignItems='center'>
                     <Grid xs={12} xl={3}>
                         <MDTypography fontSize={16} fontWeight='bold'>{name}</MDTypography>
                     </Grid>
