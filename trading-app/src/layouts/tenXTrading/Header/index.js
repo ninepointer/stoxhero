@@ -1,40 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
-// import { userContext } from '../../../AuthContext';
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
-// import MDButton from '../../../components/MDButton';
 import MDAvatar from '../../../components/MDAvatar';
 import MDTypography from '../../../components/MDTypography';
-// import tradesicon from '../../../assets/images/tradesicon.png'
 import beginner from '../../../assets/images/beginner.png'
 import intermediate from '../../../assets/images/intermediate.png'
 import pro from '../../../assets/images/pro.png'
 import checklist from '../../../assets/images/checklist.png'
-// import Dialog from '@mui/material/Dialog';
-// import DialogActions from '@mui/material/DialogActions';
-// import DialogContent from '@mui/material/DialogContent';
-// import DialogContentText from '@mui/material/DialogContentText';
-// import DialogTitle from '@mui/material/DialogTitle';
-
-// import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-// import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-// import Button from '@mui/material/Button';
-// import Typography from '@mui/material/Typography';
-// import CheckIcon from '@mui/icons-material/Check';
-// import CloseIcon from '@mui/icons-material/Close';
-// import Subs from '../../../assets/images/subs.png';
 import Dialogue from './dialogueBox';
 
 
 export default function TenXSubscriptions() {
   const [cashBalance, setCashBalance] = React.useState(0);
-  // const [open, setOpen] = React.useState(false);
-  // const [isLoading,setIsLoading] = useState(false);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
-  // const getDetails = React.useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
@@ -197,22 +178,22 @@ export default function TenXSubscriptions() {
     <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10}>
 
     <MDBox display="flex" justifyContent='center' flexDirection='column' mb={2} mt={1}>
-      <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is TenX Trading / TenX ट्रेडिंग क्या है?</MDTypography>
+      <MDTypography fontSize={15} mb={1} fontWeight='bold' color="light">What is TenX Trading / TenX ट्रेडिंग क्या है?</MDTypography>
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
-        <MDTypography fontSize={15} fontWeight='bold' color="dark">
-          <span style={{fontWeight:'bold', fontSize:20}}>TenX</span> gives every trader an opportunity to make a profit with <span style={{fontWeight:'bold', fontSize:20}}>0 (Zero) capital.</span> You just have 
+        <MDTypography fontSize={12} fontWeight='bold' color="dark">
+          <span style={{fontWeight:'bold', fontSize:15}}>TenX</span> gives every trader an opportunity to make a profit with <span style={{fontWeight:'bold', fontSize:15}}>0 (Zero) capital.</span> You just have 
           to start trading using the virtual currency (i.e. margin money) provided by StoxHero. After 
-          20 days of active trading, <span style={{fontWeight:'bold', fontSize:20}}>we'll transfer 10%</span> of the net profit (the real money) to your wallet.
+          20 days of active trading, <span style={{fontWeight:'bold', fontSize:15}}>we'll transfer 10%</span> of the net profit (the real money) to your wallet.
           And the cycle repeats. Yes, you heard it right. Don't miss out on the opportunity to learn and 
           potentially earn real money through virtual currency trading, with the ultimate goal of becoming 
           a successful trader, a StoxHero. Your trader's journey starts now.
         </MDTypography>
       </MDBox>
       <MDBox bgColor="white" p={2} mb={1} mt={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
-        <MDTypography fontSize={15} fontWeight='bold' color="dark">
-          <span style={{fontWeight:'bold', fontSize:20}}>TenX</span> हर ट्रेडर को वास्तविक पैसे कमाने का मौका देता है 
-          जहां उपभोक्ता को <span style={{fontWeight:'bold', fontSize:20}}>0 (शून्य) पूंजी</span> के साथ लाभ कमाने का मौका मिलता है। आपको सिर्फ StoxHero द्वारा प्रदान की जाने वाली 
-          वर्चुअल मुद्रा (अर्थात मार्जिन पैसे) का उपयोग करके ट्रेडिंग शुरू करनी होगी। सक्रिय ट्रेडिंग के 20 दिनों के बाद, हम आपके <span style={{fontWeight:'bold', fontSize:20}}> वॉलेट में 10% </span>
+        <MDTypography fontSize={12} fontWeight='bold' color="dark">
+          <span style={{fontWeight:'bold', fontSize:15}}>TenX</span> हर ट्रेडर को वास्तविक पैसे कमाने का मौका देता है 
+          जहां उपभोक्ता को <span style={{fontWeight:'bold', fontSize:15}}>0 (शून्य) पूंजी</span> के साथ लाभ कमाने का मौका मिलता है। आपको सिर्फ StoxHero द्वारा प्रदान की जाने वाली 
+          वर्चुअल मुद्रा (अर्थात मार्जिन पैसे) का उपयोग करके ट्रेडिंग शुरू करनी होगी। सक्रिय ट्रेडिंग के 20 दिनों के बाद, हम आपके <span style={{fontWeight:'bold', fontSize:15}}> वॉलेट में 10% </span>
           नेट लाभ (वास्तविक पैसे) स्थानांतरित करेंगे। और यह प्रक्रिया दोहराती रहेगी। हाँ, आपने सही सुना है। वास्तविक मुद्रा ट्रेडिंग के माध्यम से 
           सीखने और संभावित रूप से वास्तविक पैसे कमाने का यह मौका न छोड़ें, जहां अंतिम लक्ष्य है सफल ट्रेडर बनना, एक स्टॉक्सहीरो। आपकी 
           ट्रेडर की यात्रा अब शुरू होती है।

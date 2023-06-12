@@ -17,6 +17,7 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { CircularProgress } from '@mui/material';
+import MDTypography from "../../../components/MDTypography";
 // import JobDescription from './JobDescription';
 
 const App = () => {
@@ -35,39 +36,15 @@ const App = () => {
     setCampaignCode(location.search.split('=')[1]??'');
   },[]);
   return (
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
     <div  style={{background:"#06070A"}}>
       <Navbar/>
-    <TabContext value={value}>
-    <Box mb={10} sx={{bgcolor:"white",minHeight:"60vh",display:"flex", flexDirection: 'column', justifyContent:"center",alignItems:"center",}}>
-        <MDBox sx={{ borderBottom: 1, borderColor: 'divider', marginTop:'80px', width:'100%', paddingLeft:'20%', paddingRight:'20%', paddingBottom:'0', marginBottom:'0'}}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Jobs" value="1" />
-            <Tab label="Workshops" value="2" />
-          </TabList>
-        </MDBox>
-        <TabPanel value="1">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <Internship campaignCode={campaignCode}/>
-          }
-          </TabPanel>
-        <TabPanel value="2">
-          {isLoading ? 
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-        //   <TradingPortfolioCard/>
-        <Workshops campaignCode={campaignCode}/>
-          }
-        </TabPanel>
+    <Box sx={{bgcolor:'white'}}>
+      <MDTypography sx={{color:'white'}}>Careers</MDTypography>
     </Box>
-      </TabContext>
+    <Box mb={10} pt={10} sx={{bgcolor:"white",display:"flex",justifyContent:"center",alignItems:"center",}}>
+      <Internship campaignCode={campaignCode}/>
+    </Box>
 
     <Footer/>
     </div>

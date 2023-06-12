@@ -684,7 +684,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
 
     let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
-
+    console.log(lastTradeMock, lastTradeLive, settingRedis, redisValueOverall, redisValueTrader, redisValueMockOverall, redisValueMockTrader)
     if (redisApproval) {
       await session.commitTransaction();
     } else if(status == "REJECTED"){

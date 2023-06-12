@@ -77,7 +77,7 @@ const Workshops = () => {
                 </MDBox> :
            <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh' border='1px solid white' borderRadius='12px'>
            <MDTypography color='white'>No current workshops</MDTypography>
-           <MDButton variant='text'>Apply for workshops here</MDButton> 
+           <MDButton variant='text' onClick={()=>{Navigate('/careers')}}>Apply for workshops here</MDButton> 
           </MDBox>  
           }
             </MDBox>

@@ -289,7 +289,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (StoxHero)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (Mock)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -348,7 +348,7 @@ export default function LabTabs({socket}) {
                     </Grid>
                     
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (XTS)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (Infinity)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -417,7 +417,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (StoxHero)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (Mock)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -453,7 +453,7 @@ export default function LabTabs({socket}) {
                     </Grid>
                     
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (XTS)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (Infinity)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -499,7 +499,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till yesterday (StoxHero)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till yesterday (Mock)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -535,7 +535,7 @@ export default function LabTabs({socket}) {
                     </Grid>
                     
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till yesterday (XTS)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till yesterday (Infinity)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -572,158 +572,158 @@ export default function LabTabs({socket}) {
         </Grid>
 
         <Grid container spacing={2} mt={1} >
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"warning"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/companyposition`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>StoxHero Position</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's company position here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>{liveTraderCount}</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-                
-            </Grid>
-
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"success"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/companyposition`,
-                          }}
-                          state= {{xts: true}}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>XTS Position</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's XTS position here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"warning"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/companypositionredis`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>StoxHero Position Redis</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's company position here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>{liveTraderCount}</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-                
-            </Grid>
-
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"success"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/companypositionredis`,
-                          }}
-                          state= {{xts: true}}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>XTS Position Redis</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's XTS position here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Company Side</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
+            
             <Grid item lg={3}>
                     
                     <MDButton 
                         variant="contained" 
                         color={"primary"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companyposition`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Company Position(M)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's mock company position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>{liveTraderCount}</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Open Lots: {totalRunningLots}</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+                
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"success"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companyposition`,
+                          }}
+                          state= {{xts: true}}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Company Position(I)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's infinity position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Open Lots: {liveTotalRunningLots}</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"warning"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companypositionredis`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Company Position R(M)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's mock(R) company position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>{liveTraderCount}</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Open Lots: TBC</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+                
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"secondary"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/companypositionredis`,
+                          }}
+                          state= {{xts: true}}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Company Position R(I)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's infinity(R) position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Open Lots: TBC</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"success"} 
                         size="small" 
                         component = {Link}
                         to={{
@@ -733,7 +733,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Trader's Position</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Trader's Position(M)</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
@@ -747,7 +747,43 @@ export default function LabTabs({socket}) {
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Trader Side</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Open Lots: TBC</span></MDTypography>
+                              </Grid>
+      
+                          </Grid>
+                    </MDButton>
+
+            </Grid>
+
+            <Grid item lg={3}>
+                    
+                    <MDButton 
+                        variant="contained" 
+                        color={"secondary"} 
+                        size="small" 
+                        component = {Link}
+                        to={{
+                            pathname: `/traderposition`,
+                          }}
+                      >
+                          <Grid container>
+                              
+                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Trader's Position(I)</MDTypography>
+                              </Grid>
+                              
+                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
+                                  <MDBox display="flex" flexDirection="column">
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's traders position here!</MDTypography>
+                                  </MDBox>
+                              </Grid>
+
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>{liveTraderCount}</span></MDTypography>
+                              </Grid>
+      
+                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Open Lots: TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -768,7 +804,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Cohort Position</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Cohort Position</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
@@ -782,15 +818,13 @@ export default function LabTabs({socket}) {
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Trader Side</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}><span style={{fontSize:11,fontWeight:700}}>Open Lots: TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
                     </MDButton>
             </Grid>
-        </Grid>
-
-        <Grid container spacing={2} mt={1} >
+         
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -805,7 +839,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Company's Report(M)</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Company's Report(M)</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -815,7 +849,7 @@ export default function LabTabs({socket}) {
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's Net P&L(till yesterday): <span style={{fontSize:11,fontWeight:700}}>{ mockTradeMTDData[0] ? (mockTradeMTDData[0]?.amount - mockTradeMTDData[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.amount - mockTradeMTDData[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockTradeMTDData[0]?.brokerage - mockTradeMTDData[0]?.amount)) : "₹" + 0}</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -837,17 +871,17 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Company's Report(L)</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Company's Report(I)</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check company side live trades report here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check company side infinity trades report here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's Net P&L(till yesterday): <span style={{fontSize:11,fontWeight:700}}>{ liveTradeMTDData[0] ? (liveTradeMTDData[0]?.amount - liveTradeMTDData[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.amount - liveTradeMTDData[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(liveTradeMTDData[0]?.brokerage - liveTradeMTDData[0]?.amount)) : "₹" + 0}</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -869,7 +903,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(M)</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(M)</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -879,7 +913,7 @@ export default function LabTabs({socket}) {
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's Net P&L(till yesterday): <span style={{fontSize:11,fontWeight:700}}>TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -901,17 +935,17 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(L)</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Trader's Report(I)</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
                                   <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check trader side live trades report here!</MDTypography>
+                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check trader side infinity trades report here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's Net P&L(till yesterday): <span style={{fontSize:11,fontWeight:700}}>TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -919,9 +953,6 @@ export default function LabTabs({socket}) {
 
             </Grid>
             
-        </Grid>
-
-        <Grid container spacing={2} mt={1} >
             <Grid item lg={3}>
                     
                     <MDButton 
@@ -936,7 +967,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Infinity Trading</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Infinity Trading</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -946,7 +977,7 @@ export default function LabTabs({socket}) {
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>My Current Month's Net P&L(till yesterday): <span style={{fontSize:11,fontWeight:700}}>TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -968,7 +999,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Analytics</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Analytics</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -978,7 +1009,7 @@ export default function LabTabs({socket}) {
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>My Current Month's Net P&L(till yesterday): <span style={{fontSize:11,fontWeight:700}}>TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -1000,7 +1031,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Funds</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Funds</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -1010,7 +1041,7 @@ export default function LabTabs({socket}) {
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Available Margin: <span style={{fontSize:11,fontWeight:700}}>TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -1032,7 +1063,7 @@ export default function LabTabs({socket}) {
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Referrals</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Referrals</MDTypography>
                               </Grid>
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
@@ -1042,13 +1073,45 @@ export default function LabTabs({socket}) {
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"white"}}>Referral Count: <span style={{fontSize:11,fontWeight:700}}>TBC</span></MDTypography>
                               </Grid>
       
                           </Grid>
                     </MDButton>
 
             </Grid>
+
+            <Grid item lg={3}>
+
+                  <MDButton
+                      variant="contained"
+                      color={"secondary"}
+                      size="small"
+                      component={Link}
+                      to={{
+                          pathname: `/backreportxts`,
+                      }}
+                  >
+                      <Grid container>
+
+                          <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                              <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, fontWeight: 'bold' }}>XTS App Trades</MDTypography>
+                          </Grid>
+
+                          <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }}>
+                              <MDBox display='flex' justifyContent='left'>
+                                  <MDTypography fontSize={10} style={{ color: "white", paddingLeft: 4 }}>Check orders placed on XTS here!</MDTypography>
+                              </MDBox>
+                          </Grid>
+
+                          <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
+                              <MDTypography fontSize={9} style={{color:"white"}}>Total Trades(this month): <span style={{fontSize:11,fontWeight:700}}>TBC</span></MDTypography>
+                          </Grid>
+
+                      </Grid>
+                  </MDButton>
+
+              </Grid>
             
         </Grid>
 
@@ -1155,33 +1218,7 @@ export default function LabTabs({socket}) {
                   </MDBox>
 
               </Grid>
-              <Grid item lg={3}  mt={1}>
-
-                  <MDButton
-                      variant="contained"
-                      color={"primary"}
-                      size="small"
-                      component={Link}
-                      to={{
-                          pathname: `/backreportxts`,
-                      }}
-                  >
-                      <Grid container>
-
-                          <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                              <MDTypography fontSize={18} style={{ color: "white", paddingLeft: 4, fontWeight: 'bold' }}>XTS Back Report</MDTypography>
-                          </Grid>
-
-                          <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }}>
-                              <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{ color: "white", paddingLeft: 4 }}>Back order of XTS!</MDTypography>
-                              </MDBox>
-                          </Grid>
-
-                      </Grid>
-                  </MDButton>
-
-              </Grid>
+              
           </Grid>
 
     </MDBox>
