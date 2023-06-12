@@ -52,6 +52,7 @@ import Cookies from 'js-cookie';
 import homeRoutes from "./homeRoute";
 import SignUp from './layouts/authentication/sign-up'
 import Careers from './layouts/HomePage/pages/Career'
+import Workshops from './layouts/HomePage/pages/Workshop'
 import JobDescription from './layouts/HomePage/pages/JobDescription'
 import JobApply from './layouts/HomePage/pages/CareerForm'
 import Home from "../src/layouts/HomePage/pages/Home";
@@ -300,7 +301,7 @@ export default function App() {
           <Route path='/login' element={<SignIn/>}/>
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
-          {/* <Route path='/campaigndetails' element={<CampaignDetails/>}/> */}
+          <Route path='/workshops' element={<Workshops/>}/>
             
         </Routes>
       </ThemeProvider>
