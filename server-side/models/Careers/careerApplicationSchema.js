@@ -40,7 +40,7 @@ const CareerApplication = new mongoose.Schema({
     },
     appliedOn: {
         type: Date,
-        default: Date.now()
+        default: ()=> new Date()
     },
     source:{
         type:String,

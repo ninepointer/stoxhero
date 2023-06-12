@@ -152,8 +152,6 @@ function nextHandler(){
             // const fullName = elem?.trader?.first_name + ' ' + elem?.trader?.last_name
             const typecolor = elem?.transaction_type === 'Buy' ? 'success' : 'error'
             return (
-
-
               <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                 <Grid item xs={12} md={2} lg={1.625} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDTypography color="light" fontSize={10} fontWeight="bold">{elem.order_id}</MDTypography>
