@@ -794,42 +794,46 @@ exports.myOverallInternshipPnl = async (req, res, next) => {
   todayDate = todayDate + "T23:59:59.000Z";
   const today = new Date(todayDate);
   // console.log(today)
-  const pipeline = [
-    {
-      $match: {
-        trade_time: {$lte : today},
-        batch: new ObjectId(batchId),
-        trader: new ObjectId(userId),
-        status: "COMPLETE",
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        amount: {
-          $sum: { $multiply: ["$amount", -1] },
+  try{
+    const pipeline = [
+      {
+        $match: {
+          trade_time: {$lte : today},
+          batch: new ObjectId(batchId),
+          trader: new ObjectId(userId),
+          status: "COMPLETE",
         },
-        brokerage: {
-          $sum: {
-            $toDouble: "$brokerage",
+      },
+      {
+        $group: {
+          _id: null,
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
           },
         },
-        lots: {
-          $sum: {
-            $toInt: "$Quantity",
-          },
+      },
+      {
+        $sort: {
+          _id: -1,
         },
       },
-    },
-    {
-      $sort: {
-        _id: -1,
-      },
-    },
-  ]
-
-  let x = await InternTrades.aggregate(pipeline)
-  res.status(201).json({ message: "data received", data: x });
+    ]
+  
+    let x = await InternTrades.aggregate(pipeline)
+    res.status(201).json({ message: "data received", data: x });
+  }catch(e){
+    console.log(e);
+  }
 }
 
 exports.myInternshipTradingDays = async (req, res, next) => {
@@ -841,31 +845,35 @@ exports.myInternshipTradingDays = async (req, res, next) => {
   // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   // todayDate = todayDate + "T23:59:59.000Z";
   // const today = new Date(todayDate);
-  const pipeline = 
-  [
-    {
-      $match: {
-        batch: new ObjectId(batchId),
-        trader: new ObjectId(userId),
-        status: "COMPLETE",
+  try{
+    const pipeline = 
+    [
+      {
+        $match: {
+          batch: new ObjectId(batchId),
+          trader: new ObjectId(userId),
+          status: "COMPLETE",
+        },
       },
-    },
-    {
-      $group: {
-        _id: {
-          date: {
-            $substr: ["$trade_time", 0, 10],
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+          },
+          count: {
+            $count: {},
           },
         },
-        count: {
-          $count: {},
-        },
       },
-    },
-  ]
-
-  let x = await InternTrades.aggregate(pipeline)
-  res.status(201).json({ message: "data received", data: x });
+    ]
+  
+    let x = await InternTrades.aggregate(pipeline)
+    res.status(201).json({ message: "data received", data: x });
+  }catch(e){
+    console.log(e);
+  }
 }
 
 exports.internshipPnlReport = async (req, res, next) => {
