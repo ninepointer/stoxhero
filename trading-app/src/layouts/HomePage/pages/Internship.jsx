@@ -26,13 +26,13 @@ const Internship = ({campaignCode}) => {
         console.log(career.length) 
         setTimeout(()=>{
           setIsLoading(false);
-        },1000) 
+        },500) 
       })
     }, [])
 
     return (
-      <Box p={5} mt={0} >
-        <Grid container flexDirection="column" spacing={4}>
+      <Box p={2} mt={0} >
+        <Grid container flexDirection="column" spacing={2}>
         {!isLoading ?
         <>
           {career.length > 0 ? (
@@ -62,42 +62,27 @@ const Internship = ({campaignCode}) => {
                         alignItems="center"
                         justifyContent="center"
                       >
-                        <Grid container display="flex" justifyContent="center" alignItems="center">
-                          <Grid item lg={2} display="flex" justifyContent="left" alignItems="center">
+                        <Grid container display="flex" justifyContent="center" alignItems="center" minWidth='40vH'>
+                          {/* <Grid item lg={2} display="flex" justifyContent="left" alignItems="center">
                             <MDAvatar src={jobs} size="xl" />
-                          </Grid>
-                          <Grid item lg={10} display="flex" justifyContent="flex-end">
+                          </Grid> */}
+                          <Grid item lg={12} display="flex" justifyContent="center">
                             <MDBox>
-                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
                                 {elem?.jobTitle}
                               </MDTypography>
-                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                              <MDTypography color='info' fontSize={15} fontWeight="bold" display="flex" justifyContent="center">
                                 {elem?.jobType}
                               </MDTypography>
-                              <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                              <MDTypography fontSize={15} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
                                 Job Location: {elem?.jobLocation}
                               </MDTypography>
-                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="flex-end" style={{ color: "black" }}>
+                              <MDTypography fontSize={10} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
                                 Click Here to Apply!
                               </MDTypography>
                           </MDBox>
                           </Grid>
                         </Grid>
-                        {/* <MDBox display="flex" justifyContent="flex-start">
-                        <MDAvatar src={jobs} size="xl" />
-                        </MDBox>
-                        <MDBox ml={2} display="flex" flexDirection="column" justifyContent="center">
-                          <MDBox>
-                          <MDTypography fontSize={20} fontWeight="bold" style={{ color: "black" }}>
-                            {`${elem?.jobTitle} (${elem?.jobType})`}
-                          </MDTypography>
-                          </MDBox>
-                          <MDBox>
-                          <MDTypography fontSize={15} fontWeight="bold" style={{ color: "black" }}>
-                            Click Here to Apply!
-                          </MDTypography>
-                          </MDBox>
-                        </MDBox> */}
                       </Grid>
                     </MDButton>
                   </Tooltip>
