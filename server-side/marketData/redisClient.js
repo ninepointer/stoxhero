@@ -129,3 +129,4 @@
 
 // margin with zerodha
 // instrument remive bug
+// ril, axis, icici, kotak, dr reddy, sbi
