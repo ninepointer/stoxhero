@@ -49,4 +49,3 @@ const DB = process.env.DATABASE;
 buy 138.28 * 400
 sell 126.5 * 400
 */
-
