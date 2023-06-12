@@ -14,7 +14,11 @@
     //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
     //     }
     // )
-    // module.exports = {client, isRedisConnected, setValue, getValue}
+    // const ioredis = require('ioredis');
+
+    // const clientForIORedis = new ioredis();
+
+    // module.exports = {client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else if(process.env.STAGE){
@@ -33,7 +37,11 @@
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }
     // )
-    // module.exports = {client, isRedisConnected, setValue, getValue}
+    // const ioredis = require('ioredis');
+
+    // const clientForIORedis = new ioredis();
+
+    // module.exports = {client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else{
