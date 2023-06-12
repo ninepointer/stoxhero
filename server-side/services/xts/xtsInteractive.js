@@ -3,7 +3,7 @@ const XTSInteractiveWS = require('xts-interactive-api').WS;
 const RetrieveOrder = require("../../models/TradeDetails/retreiveOrder")
 const io = require('../../marketData/socketio');
 const { xtsAccountType, zerodhaAccountType} = require("../../constant");
-const { client, getValue } = require('../../marketData/redisClient');
+const { client, getValue, clientForIORedis } = require('../../marketData/redisClient');
 const InfinityLiveTrader = require("../../models/TradeDetails/infinityLiveUser");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const InfinityMockTrader = require("../../models/mock-trade/infinityTrader");
@@ -16,7 +16,7 @@ const { ObjectId } = require('mongodb');
 const RequestToken = require("../../models/Trading Account/requestTokenSchema")
 const axios = require("axios");
 const {overallLivePnlRedis, overallLivePnlTraderWiseRedis, letestTradeLive} = require("../adminRedis/infinityLive")
-const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock} = require("../adminRedis/infinityMock");
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../adminRedis/infinityMock");
 
 
 let xtsInteractiveWS;
@@ -659,66 +659,120 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       // console.log("in chek if 3", settingRedis)
       console.log(settingRedis)
     }
-//  todo, filled and rejected in socket listner  && status == "COMPLETE"
-    await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-    await client.expire(`overallLivePnlCompany`, secondsRemaining);
-    await client.expire(`traderWiseLivePnlCompany`, secondsRemaining);
-    await client.expire(`lastTradeLive`, secondsRemaining);
-    await client.expire(`overallMockPnlCompany`, secondsRemaining);
-    await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-    await client.expire(`lastTradeDataMock`, secondsRemaining);
+
+
+    const pipeline = clientForIORedis.pipeline();
+
+    await pipeline.get(`${trader.toString()} overallpnl`)
+    await pipeline.get(`overallLivePnlCompany`);
+    await pipeline.get(`traderWiseLivePnlCompany`);
+    await pipeline.get(`lastTradeLive`);
+    await pipeline.get(`overallMockPnlCompany`);
+    await pipeline.get(`traderWiseMockPnlCompany`);
+    await pipeline.get(`lastTradeDataMock`);
+
+    const results = await pipeline.exec();
+
+    const traderOverallPnl = results[0][1];
+    const companyLiveOverallPnl = results[1][1];
+    const traderWiseLivePnl = results[2][1];
+    const liveLastTrade = results[3][1];
+    const companyMockOverallPnl = results[4][1];
+    const traderWiseMockPnl = results[5][1];
+    const mockLastTrade = results[6][1];
     
-    let redisValueOverall ;
-    let redisValueTrader ;
-    let redisValueMockOverall ;
-    let redisValueMockTrader ;
-    if(isInsertedAllDB){
-      redisValueOverall = await overallLivePnlRedis(companyDoc);
-      redisValueTrader = await overallLivePnlTraderWiseRedis(companyDoc);  
-      redisValueMockOverall = await overallMockPnlRedis(companyDocMock);
-      redisValueMockTrader = await overallMockPnlTraderWiseRedis(companyDocMock);  
+    const overallPnlUser = await overallPnlUsers(traderDocMock, trader, traderOverallPnl);
+    const overallLivePnlCompany = await overallLivePnlRedis(companyDoc, companyLiveOverallPnl);
+    const overallLiveTraderWisePnl = await overallLivePnlTraderWiseRedis(companyDoc, traderWiseLivePnl);  
+    const overallMockPnlCompany = await overallMockPnlRedis(companyDocMock, companyMockOverallPnl);
+    const overallMockTraderWisePnl = await overallMockPnlTraderWiseRedis(companyDocMock, traderWiseMockPnl);  
+    const lastTradeMock = await letestTradeMock(companyDocMock, liveLastTrade);
+    const lastTradeLive = await letestTradeLive(companyDocMock, mockLastTrade);
+
+    // console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
+    let pipelineForSet; 
+    
+    // if(isInsertedAllDB){
+      if(isInsertedAllDB && status == "COMPLETE"){
+      pipelineForSet = clientForIORedis.pipeline();
+
+      await pipelineForSet.set(`${trader.toString()} overallpnl`, overallPnlUser);
+      await pipelineForSet.set(`overallMockPnlCompany`, overallMockPnlCompany);
+      await pipelineForSet.set(`traderWiseMockPnlCompany`, overallMockTraderWisePnl);
+      await pipelineForSet.set(`overallLivePnlCompany`, overallLivePnlCompany);
+      await pipelineForSet.set(`traderWiseLivePnlCompany`, overallLiveTraderWisePnl);
+      await pipelineForSet.set(`lastTradeLive`, lastTradeLive);
+      await pipelineForSet.set(`lastTradeDataMock`, lastTradeMock);
+  
+      await pipelineForSet.exec();
     }
 
-    const lastTradeMock = await letestTradeMock(companyDocMock);
-    const lastTradeLive = await letestTradeLive(companyDocMock);
+
+    if(isRedisConnected){
+        const pipeline = clientForIORedis.pipeline();
+
+        pipeline.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+        pipeline.expire(`overallMockPnlCompany`, secondsRemaining);
+        pipeline.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+        pipeline.expire(`lastTradeDataMock`, secondsRemaining);
+        pipeline.expire(`overallLivePnlCompany`, secondsRemaining);
+        pipeline.expire(`traderWiseLivePnlCompany`, secondsRemaining);
+        pipeline.expire(`lastTradeLive`, secondsRemaining);
+
+        await pipeline.exec();
+    }
 
 
-    let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
-    console.log(lastTradeMock, lastTradeLive, settingRedis, redisValueOverall, redisValueTrader, redisValueMockOverall, redisValueMockTrader)
+    let redisApproval = pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK" && pipelineForSet._result[4][1] === "OK"
+
+    // let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
+    console.log(redisApproval, pipelineForSet._result[0][1], pipelineForSet._result[1][1], pipelineForSet._result[2][1], pipelineForSet._result[3][1], pipelineForSet._result[4][1] )
+    // if (settingRedis === "OK") {
     if (redisApproval) {
+      console.log("in redisApproval")
       await session.commitTransaction();
-    } else if(status == "REJECTED"){
+    } else if (status == "REJECTED") {
       console.log("in rejected")
       await session.commitTransaction();
 
-      if(!autoTrade)
-      io.emit(`sendResponse${trader.toString()}`, { message: "Trade rejected due to insufficient balance", err: "Error" })
+      if (!autoTrade)
+        io.emit(`sendResponse${trader.toString()}`, { message: "Trade rejected due to insufficient balance", err: "Error" })
       return; //check return statement
-    } else if(!isRedisConnected){
+    } else if (!isRedisConnected) {
       await session.commitTransaction();
     } else {
+      console.log("in errr")
       throw new Error();
     }
 
 
-    // console.log("data saved in retreive order for", AppOrderID)
+    console.log("data saved in retreive order for", AppOrderID)
 
-    if (!dontSendResp && redisApproval ) {
+    // if (!dontSendResp ) {
+    if (!dontSendResp && redisApproval) {
       await client.expire(`liveOrderBackupKey`, 600);
       await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
       io.emit("updatePnl", traderDocMock)
-      io.emit(`sendResponse${trader.toString()}`, { message: {Quantity: Quantity, symbol: symbol}, status: "complete" })
+      io.emit(`sendResponse${trader.toString()}`, { message: { Quantity: Quantity, symbol: symbol }, status: "complete" })
       // return res.status(201).json({ message: responseMsg, err: responseErr })
     }
     // }
   } catch (err) {
-    await client.del(`overallLivePnlCompany`)
-    await client.del(`traderWiseLivePnlCompany`)
-    await client.del(`lastTradeLive`)
-    await client.del(`overallMockPnlCompany`)
-    await client.del(`traderWiseMockPnlCompany`)
-    await client.del(`lastTradeDataMock`)
-    await client.del(`${trader.toString()} overallpnl`)
+
+    if (isRedisConnected) {
+      const pipeline = clientForIORedis.pipeline();
+
+      await pipeline.del(`${trader.toString()} overallpnl`);
+      await pipeline.del(`overallLivePnlCompany`)
+      await pipeline.del(`traderWiseLivePnlCompany`)
+      await pipeline.del(`lastTradeLive`)
+      await pipeline.del(`overallMockPnlCompany`)
+      await pipeline.del(`traderWiseMockPnlCompany`)
+      await pipeline.del(`lastTradeDataMock`)
+
+      const results = await pipeline.exec();
+    }
+    // await client.del(`${trader.toString()} overallpnl`)
     await session.abortTransaction();
 
     console.error('Transaction failed, documents not saved:', err);
@@ -736,4 +790,5 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
 module.exports = { interactiveLogin, placeOrder, autoPlaceOrder, ifServerCrashAfterOrder };
 
-// status complete in redis conntrolller, redis live and redis in interactive
+// status complete in redis infinity conntrolller, redis infinity live
+//line 696, 802 uncomment
