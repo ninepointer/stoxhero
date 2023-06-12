@@ -7,13 +7,13 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 // const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
-const {client, getValue} = require('../marketData/redisClient');
+const {client, getValue, clientForIORedis} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
 const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice");
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 const InternshipTrade = require("../models/mock-trade/internshipTrade");
-const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock} = require("../services/adminRedis/infinityMock");
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../services/adminRedis/infinityMock");
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -174,50 +174,81 @@ exports.mockTrade = async (req, res) => {
     
             const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
             const algoTrader = await InfinityTrader.create([traderDoc], { session });
-            console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
-            if(isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)){
-                let pnl = await client.get(`${trader.toString()} overallpnl`)
-                pnl = JSON.parse(pnl);
-                console.log("redis pnl", pnl)
-                const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product ));
-                // if instrument is same then just updating value
-                if (matchingElement) {
-                  // Update the values of the matching element with the values of the first document
-                  matchingElement.amount += (algoTrader[0].amount * -1);
-                  matchingElement.brokerage += Number(algoTrader[0].brokerage);
-                  matchingElement.lastaverageprice = algoTrader[0].average_price;
-                  matchingElement.lots += Number(algoTrader[0].Quantity);
+            // console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
+            // if(isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)){
+            //     let pnl = await client.get(`${trader.toString()} overallpnl`)
+            //     pnl = JSON.parse(pnl);
+            //     console.log("redis pnl", pnl)
+            //     const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product ));
+            //     // if instrument is same then just updating value
+            //     if (matchingElement) {
+            //       // Update the values of the matching element with the values of the first document
+            //       matchingElement.amount += (algoTrader[0].amount * -1);
+            //       matchingElement.brokerage += Number(algoTrader[0].brokerage);
+            //       matchingElement.lastaverageprice = algoTrader[0].average_price;
+            //       matchingElement.lots += Number(algoTrader[0].Quantity);
       
-                } else {
-                  // Create a new element if instrument is not matching
-                  pnl.push({
-                    _id: {
-                      symbol: algoTrader[0].symbol,
-                      product: algoTrader[0].Product,
-                      instrumentToken: algoTrader[0].instrumentToken,
-                      exchangeInstrumentToken: algoTrader[0].exchangeInstrumentToken,
-                      exchange: algoTrader[0].exchange,
-                    },
-                    amount: (algoTrader[0].amount * -1),
-                    brokerage: Number(algoTrader[0].brokerage),
-                    lots: Number(algoTrader[0].Quantity),
-                    lastaverageprice: algoTrader[0].average_price,
-                  });
-                }
-                settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
-                console.log("settingRedis", settingRedis)
-            }
+            //     } else {
+            //       // Create a new element if instrument is not matching
+            //       pnl.push({
+            //         _id: {
+            //           symbol: algoTrader[0].symbol,
+            //           product: algoTrader[0].Product,
+            //           instrumentToken: algoTrader[0].instrumentToken,
+            //           exchangeInstrumentToken: algoTrader[0].exchangeInstrumentToken,
+            //           exchange: algoTrader[0].exchange,
+            //         },
+            //         amount: (algoTrader[0].amount * -1),
+            //         brokerage: Number(algoTrader[0].brokerage),
+            //         lots: Number(algoTrader[0].Quantity),
+            //         lastaverageprice: algoTrader[0].average_price,
+            //       });
+            //     }
+            //     settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
+            //     console.log("settingRedis", settingRedis)
+            // }
+
+            const pipeline = clientForIORedis.pipeline();
+
+            await pipeline.get(`${trader.toString()} overallpnl`)
+            await pipeline.get(`overallMockPnlCompany`)
+            await pipeline.get(`traderWiseMockPnlCompany`)
+
+            const results = await pipeline.exec();
+
+            const traderOverallPnl = results[0][1];
+            const companyOverallPnl = results[1][1];
+            const traderWisePnl = results[2][1];
             
-            const redisValueOverall = await overallMockPnlRedis(mockTradeDetails[0]);
-            const redisValueTrader = await overallMockPnlTraderWiseRedis(mockTradeDetails[0]);
+            const overallPnlUser = await overallPnlUsers(algoTrader[0], trader, traderOverallPnl);
+            const redisValueOverall = await overallMockPnlRedis(mockTradeDetails[0], companyOverallPnl);
+            const redisValueTrader = await overallMockPnlTraderWiseRedis(mockTradeDetails[0], traderWisePnl);
             const lastTradeMock = await letestTradeMock(mockTradeDetails[0]);
 
+            console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
+            const pipelineForSet = clientForIORedis.pipeline();
+
+            await pipelineForSet.set(`${trader.toString()} overallpnl`, overallPnlUser);
+            await pipelineForSet.set(`overallMockPnlCompany`, redisValueOverall);
+            await pipelineForSet.set(`traderWiseMockPnlCompany`, redisValueTrader);
+            await pipelineForSet.set(`lastTradeDataMock`, lastTradeMock);
+
+            await pipelineForSet.exec();
 
             if(isRedisConnected){
-                await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-                await client.expire(`overallMockPnlCompany`, secondsRemaining);
-                await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-                await client.expire(`lastTradeDataMock`, secondsRemaining);
+                // await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+                // await client.expire(`overallMockPnlCompany`, secondsRemaining);
+                // await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+                // await client.expire(`lastTradeDataMock`, secondsRemaining);
+
+                const pipeline = clientForIORedis.pipeline();
+
+                pipeline.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+                pipeline.expire(`overallMockPnlCompany`, secondsRemaining);
+                pipeline.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+                pipeline.expire(`lastTradeDataMock`, secondsRemaining);
+
+                await pipeline.exec();
             }
             // Commit the transaction
             
@@ -227,12 +258,15 @@ exports.mockTrade = async (req, res) => {
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
-            console.log(settingRedis, redisValueOverall,redisValueTrader )
+            // console.log(settingRedis, redisValueOverall,redisValueTrader )
 
-            if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
+            // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
+
+            // console.log("pipelineForSet", pipelineForSet)
+            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
                 await session.commitTransaction();
-                res.status(201).json({status: 'Complete', message: 'COMPLETE'});
-            } else{
+                res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+            } else {
                 // await session.commitTransaction();
                 throw new Error();
             }
@@ -240,11 +274,14 @@ exports.mockTrade = async (req, res) => {
 
         } catch(err){
             if(isRedisConnected){
-                const del = await client.del(`${trader.toString()} overallpnl`)
-                const delcompanyOverall = await client.del(`traderWiseMockPnlCompany`)
-                const delCompanyTraderWise = await client.del(`overallMockPnlCompany`)
-                await client.del(`lastTradeDataMock`)
+                const pipeline = clientForIORedis.pipeline();
 
+                await pipeline.del(`${trader.toString()} overallpnl`);
+                await pipeline.del(`traderWiseMockPnlCompany`);
+                await pipeline.del(`overallMockPnlCompany`);
+                await pipeline.del(`lastTradeDataMock`);
+                
+                const results = await pipeline.exec();
             }
             await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);

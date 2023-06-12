@@ -87,7 +87,7 @@ function MockOverallCompantPNL({socket}) {
 
       axios.get(`${baseUrl}api/v1/infinityRedis/mock/overallcompanypnltoday`)
       .then((res) => {
-          setTradeData(res.data);
+          setTradeData(res?.data);
       }).catch((err) => {
           return new Error(err);
       })
@@ -96,12 +96,12 @@ function MockOverallCompantPNL({socket}) {
       axios.get(`${baseUrl}api/v1/infinityRedis/mock/letestTradeCompany`)
       .then((res)=>{
           // console.log(res.data);
-          latestLive.tradeTime = (res.data.data.trade_time) ;
-          latestLive.tradeBy = (res.data.data.createdBy) ;
-          latestLive.tradeType = (res.data.data.buyOrSell) ;
-          latestLive.tradeQuantity = (res.data.data.Quantity) ;
-          latestLive.tradeSymbol = (res.data.data.symbol) ;
-          latestLive.tradeStatus = (res.data.data.status)
+          latestLive.tradeTime = (res?.data?.data?.trade_time) ;
+          latestLive.tradeBy = (res?.data?.data?.createdBy) ;
+          latestLive.tradeType = (res?.data?.data?.buyOrSell) ;
+          latestLive.tradeQuantity = (res?.data?.data?.Quantity) ;
+          latestLive.tradeSymbol = (res?.data?.data?.symbol) ;
+          latestLive.tradeStatus = (res?.data?.data?.status)
     
           setLatestLive(latestLive)
       }).catch((err) => { 
@@ -125,49 +125,49 @@ function MockOverallCompantPNL({socket}) {
 
     tradeData.map((subelem, index)=>{
       let obj = {};
-      totalRunningLots += Number(subelem.lots)
+      totalRunningLots += Number(subelem?.lots)
 
       let liveDetail = marketData.filter((elem)=>{
-          return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
+          return (elem !== undefined && (elem?.instrument_token == subelem?._id?.instrumentToken || elem?.instrument_token == subelem?._id?.exchangeInstrumentToken));
       })
-      let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+      let updatedValue = (subelem?.amount+(subelem?.lots)*liveDetail[0]?.last_price);
       totalGrossPnl += updatedValue;
 
-      const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-      const quantitycolor = subelem.lots >= 0 ? "success" : "error"
+      const instrumentcolor = subelem?._id?.symbol.slice(-2) == "CE" ? "success" : "error"
+      const quantitycolor = subelem?.lots >= 0 ? "success" : "error"
       const gpnlcolor = updatedValue >= 0 ? "success" : "error"
       const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-      const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
+      const productcolor =  subelem?._id?.product === "NRML" ? "info" : subelem?._id?.product == "MIS" ? "warning" : "error"
 
 
       obj.Product = (
         <MDTypography component="a" variant="caption" color={productcolor} fontWeight="medium">
-          {(subelem._id.product)}
+          {(subelem?._id?.product)}
         </MDTypography>
       );
 
       obj.symbol = (
         <MDTypography component="a" variant="caption" color={instrumentcolor} fontWeight="medium">
-          {(subelem._id.symbol)}
+          {(subelem?._id?.symbol)}
         </MDTypography>
       );
 
       obj.Quantity = (
         <MDTypography component="a" variant="caption" color={quantitycolor} fontWeight="medium">
-          {subelem.lots}
+          {subelem?.lots}
         </MDTypography>
       );
 
       obj.avgPrice = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {"₹"+subelem.lastaverageprice.toFixed(2)}
+          {"₹"+subelem?.lastaverageprice?.toFixed(2)}
         </MDTypography>
       );
 
       if((liveDetail[0]?.last_price)){
         obj.last_price = (
           <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            {"₹"+(liveDetail[0]?.last_price).toFixed(2)}
+            {"₹"+(liveDetail[0]?.last_price)?.toFixed(2)}
           </MDTypography>
         );
       } else{
@@ -180,25 +180,25 @@ function MockOverallCompantPNL({socket}) {
 
       obj.grossPnl = (
         <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-          {updatedValue >= 0.00 ? "+₹" + (updatedValue.toFixed(2)): "-₹" + ((-updatedValue).toFixed(2))}
+          {updatedValue >= 0.00 ? "+₹" + (updatedValue?.toFixed(2)): "-₹" + ((-updatedValue)?.toFixed(2))}
         </MDTypography>
       );
 
       if((liveDetail[0]?.change)){
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(liveDetail[0]?.change).toFixed(2)+"%"}
+            {(liveDetail[0]?.change)?.toFixed(2)+"%"}
           </MDTypography>
         );
       } else{
         obj.change = (
           <MDTypography component="a" variant="caption" color={pchangecolor} fontWeight="medium">
-            {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100).toFixed(2)+"%"}
+            {(((liveDetail[0]?.last_price-liveDetail[0]?.average_price)/liveDetail[0]?.average_price)*100)?.toFixed(2)+"%"}
           </MDTypography>
         );
       }
 
-      if(subelem.lots != 0){
+      if(subelem?.lots != 0){
         rows.unshift(obj);
       } else{
         rows.push(obj);
@@ -233,25 +233,25 @@ function MockOverallCompantPNL({socket}) {
   
     obj.last_price = (
       <MDTypography component="a" variant="caption" color="dark" backgroundColor="#e0e1e5" borderRadius="5px" padding="5px" fontWeight="medium">
-        Brokerage : {"₹"+(totalTransactionCost).toFixed(2)}
+        Brokerage : {"₹"+(totalTransactionCost)?.toFixed(2)}
       </MDTypography>
     );
   
     obj.grossPnl = (
       <MDTypography component="a" variant="caption" color={totalGrossPnlcolor} backgroundColor="#e0e1e5" borderRadius="5px" padding="5px" fontWeight="medium">
-       Gross P&L : {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl.toFixed(2)): "-₹" + ((-totalGrossPnl).toFixed(2))}
+       Gross P&L : {totalGrossPnl >= 0.00 ? "+₹" + (totalGrossPnl?.toFixed(2)): "-₹" + ((-totalGrossPnl)?.toFixed(2))}
       </MDTypography>
     );
   
     obj.change = (
       <MDTypography component="a" variant="caption" color={totalnetPnlcolor} backgroundColor="#e0e1e5" borderRadius="5px" padding="5px" fontWeight="medium">
-        Net P&L : {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}
+        Net P&L : {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost)?.toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost))?.toFixed(2))}
       </MDTypography>
     );
   
     rows.push(obj);
   
-    console.log("data from socket in instrument in parent in  mock market", marketData, liveDetailsArr)
+    // console.log("data from socket in instrument in parent in  mock market", marketData, liveDetailsArr)
 
   const renderMenu = (
     <Menu
@@ -289,14 +289,14 @@ function MockOverallCompantPNL({socket}) {
                 mt: 0,
               }}
             >
-              {latestLive.tradeBy ? 'done' : 'stop'}
+              {latestLive?.tradeBy ? 'done' : 'stop'}
             </Icon>
             <MDTypography variant="button" fontWeight="regular" color="text">
-            {latestLive.tradeBy ? 
+            {latestLive?.tradeBy ? 
               <span>
                 <strong> last trade </strong>
-                {latestLive.tradeBy} {latestLive.tradeType === "BUY" ? "bought " : "sold "}  
-                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(latestLive.tradeTime).toString().split("T")[1].split(".")[0]} - {latestLive.tradeStatus}
+                {latestLive?.tradeBy} {latestLive?.tradeType === "BUY" ? "bought " : "sold "}  
+                {Math.abs(latestLive?.tradeQuantity)} quantity of {latestLive?.tradeSymbol} at {(latestLive?.tradeTime).toString().split("T")[1].split(".")[0]} - {latestLive?.tradeStatus}
               </span>
               : "No real trades today"
             }
