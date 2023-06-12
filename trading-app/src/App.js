@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext } from "react";
+import { useState, useEffect, useMemo, useContext, useRef } from "react";
 import axios from "axios"
 
 // react-router components
@@ -86,9 +86,11 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   const { pathname } = useLocation();
+  const location = useLocation();
   let noCookie = false;
+  let myLocation = useRef(location);
 
-
+  
   //get userdetail who is loggedin
   const setDetails = useContext(userContext);
   const getDetails = useContext(userContext);
@@ -275,7 +277,7 @@ export default function App() {
           <Route path="/login" element={<SignIn />} />
           :
           pathname == "/signup" ?
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signup" element={<SignUp location={myLocation.current} />} />
           :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
@@ -293,18 +295,17 @@ export default function App() {
           
           }
           <Route path='/resetpassword' element={<ResetPassword/>}/>
-          <Route path='/careers' element={<Careers/>}/>
+          <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
           <Route path='/privacy' element={<Privacy/>}/>
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
           <Route path='/home' element={<Home/>}/>
-          <Route path='/login' element={<SignIn/>}/>
+          <Route path='/login' element={<SignIn />}/>
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
-          <Route path='/workshops' element={<Workshops/>}/>
+          <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
             
         </Routes>
       </ThemeProvider>
   );
-} // 
-
+} //

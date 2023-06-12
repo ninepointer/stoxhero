@@ -20,7 +20,7 @@ import { CircularProgress } from '@mui/material';
 import MDTypography from "../../../components/MDTypography";
 // import JobDescription from './JobDescription';
 
-const App = () => {
+const App = (props) => {
   const [campaignCode,setCampaignCode] = useState();
   const [isLoading,setIsLoading] = useState(false);
   const location = useLocation();
@@ -33,7 +33,7 @@ const App = () => {
     }, 500);
   };
   useEffect(()=>{
-    setCampaignCode(location.search.split('=')[1]??'');
+    setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
   },[]);
   return (
     <ThemeProvider theme={theme}>
