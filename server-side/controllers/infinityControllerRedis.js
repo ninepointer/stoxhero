@@ -43,7 +43,7 @@ exports.overallCompanySidePnlRedis = async (req, res, next) => {
             trade_time: {
               $gte: today
             },
-            status: "COMPLETE",
+            // status: "COMPLETE",
             "result.isDefault": true
           },
         },
@@ -143,7 +143,7 @@ exports.treaderWiseMockTraderRedis = async (req, res, next) => {
             trade_time: {
               $gte: today
             },
-            status: "COMPLETE",
+            // status: "COMPLETE",
             "algoBox.isDefault": true
           },
         },
@@ -231,7 +231,7 @@ exports.overallCompanySideLivePnlRedis = async (req, res, next) => {
             trade_time: {
               $gte: today
             },
-            status: "COMPLETE",
+            // status: "COMPLETE",
             "algo.isDefault": true
           },
         },
@@ -344,7 +344,7 @@ exports.treaderWiseLiveTraderRedis = async (req, res, next) => {
             trade_time: {
               $gte: today
             },
-            status: "COMPLETE",
+            // status: "COMPLETE",
             "algoBox.isDefault": true
           },
         },

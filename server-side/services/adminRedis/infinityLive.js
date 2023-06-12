@@ -2,7 +2,7 @@ const {client, getValue} = require('../../marketData/redisClient');
 const InfinityTraderCompany = require("../../models/TradeDetails/liveTradeSchema");
 const AlgoBox = require("../../models/AlgoBox/tradingAlgoSchema");
 
-exports.overallLivePnlRedis = async (pnlData)=>{
+exports.overallLivePnlRedis = async (pnlData, data)=>{
     // console.log("in overallLivePnlRedis", pnlData)
     const isRedisConnected = getValue();
     let date = new Date();
@@ -10,12 +10,12 @@ exports.overallLivePnlRedis = async (pnlData)=>{
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
     if(isRedisConnected && await client.exists(`overallLivePnlCompany`)){
-        let pnl = await client.get(`overallLivePnlCompany`)
-        pnl = JSON.parse(pnl);
+        // let pnl = await client.get(`overallLivePnlCompany`)
+        pnl = JSON.parse(data);
         // console.log("in if", pnl)
 
         // if instrument is same then just updating value
-        console.log(pnl, pnlData)
+        // console.log(pnl, pnlData)
         const matchingElement = pnl.find((element) => (element.instrumentToken === pnlData.instrumentToken && element.product === pnlData.Product ));
         // if instrument is same then just updating value
         if (matchingElement) {
@@ -40,9 +40,9 @@ exports.overallLivePnlRedis = async (pnlData)=>{
         }
 
             // console.log("overall redis pnl", pnl)
-        let settingRedis = await client.set(`overallLivePnlCompany`, JSON.stringify(pnl))
+        // let settingRedis = await client.set(`overallLivePnlCompany`, JSON.stringify(pnl))
 
-        return settingRedis;
+        return JSON.stringify(pnl);
     } else {
         let pnlDetails = await InfinityTraderCompany.aggregate([
             {
@@ -58,7 +58,7 @@ exports.overallLivePnlRedis = async (pnlData)=>{
                     trade_time: {
                         $gte: today
                     },
-                    status: "COMPLETE",
+                    // status: "COMPLETE",
                     "algo.isDefault": true
                 },
             },
@@ -110,14 +110,14 @@ exports.overallLivePnlRedis = async (pnlData)=>{
                 },
             },
         ])
-        console.log("pnlDetails in else", pnlDetails)
-        let settingRedis = await client.set(`overallLivePnlCompany`, JSON.stringify(pnlDetails))
+        // console.log("pnlDetails in else", pnlDetails)
+        // let settingRedis = await client.set(`overallLivePnlCompany`, JSON.stringify(pnlDetails))
 
-        return settingRedis;
+        return JSON.stringify(pnlDetails);
     }
 }
 
-exports.overallLivePnlTraderWiseRedis = async (pnlData) => {
+exports.overallLivePnlTraderWiseRedis = async (pnlData, data) => {
     const isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -150,8 +150,8 @@ exports.overallLivePnlTraderWiseRedis = async (pnlData) => {
             name = user.first_name + " " + user.last_name;
         }
 
-        let pnl = await client.get(`traderWiseLivePnlCompany`)
-        pnl = JSON.parse(pnl);
+        // let pnl = await client.get(`traderWiseLivePnlCompany`)
+        pnl = JSON.parse(data);
         // console.log(pnl, pnlData)
         const matchingElement = pnl.find((element) => (element?._id?.traderId.toString() == pnlData.trader.toString() && element?._id?.symbol === pnlData.instrumentToken));
         if (matchingElement) {
@@ -180,9 +180,9 @@ exports.overallLivePnlTraderWiseRedis = async (pnlData) => {
           }
 
         // console.log("trader redis pnl", pnl)
-        let settingRedis = await client.set(`traderWiseLivePnlCompany`, JSON.stringify(pnl))
+        // let settingRedis = await client.set(`traderWiseLivePnlCompany`, JSON.stringify(pnl))
 
-        return settingRedis;
+        return JSON.stringify(pnl);
     } else {
 
         let pnlDetails = await InfinityTraderCompany.aggregate([
@@ -207,7 +207,7 @@ exports.overallLivePnlTraderWiseRedis = async (pnlData) => {
                     trade_time: {
                         $gte: today
                     },
-                    status: "COMPLETE",
+                    // status: "COMPLETE",
                     "algoBox.isDefault": true
                 },
             },
@@ -265,10 +265,10 @@ exports.overallLivePnlTraderWiseRedis = async (pnlData) => {
             },
             { $sort: { _id: -1 } },
         ])
-        console.log("pnlDetails in else trader", pnlDetails)
-        let settingRedis = await client.set(`traderWiseLivePnlCompany`, JSON.stringify(pnlDetails))
+        // console.log("pnlDetails in else trader", pnlDetails)
+        // let settingRedis = await client.set(`traderWiseLivePnlCompany`, JSON.stringify(pnlDetails))
 
-        return settingRedis;
+        return JSON.stringify(pnlDetails);
     }
 }
 
@@ -300,9 +300,9 @@ exports.letestTradeLive = async (pnlData) => {
         }
 
         // console.log("trader redis pnl", pnl)
-        let settingRedis = await client.set(`lastTradeLive`, JSON.stringify(lastTrade))
+        // let settingRedis = await client.set(`lastTradeLive`, JSON.stringify(lastTrade))
 
-        return settingRedis;
+        return JSON.stringify(lastTrade);
     } else {
 
         let trade = await InfinityTraderCompany.aggregate([
@@ -343,11 +343,11 @@ exports.letestTradeLive = async (pnlData) => {
             { $sort: { "trade_time": -1 } },
             { $limit: 1 }
         ])
-        let settingRedis
+        // let settingRedis
         if(trade.length > 0)
-        settingRedis = await client.set(`lastTradeLive`, JSON.stringify(trade[0]))
+        // settingRedis = await client.set(`lastTradeLive`, JSON.stringify(trade[0]))
 
-        return settingRedis;
+        return JSON.stringify(trade);
     }
 }
 
