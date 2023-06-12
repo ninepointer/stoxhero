@@ -61,11 +61,10 @@ function Cover(props) {
     email_otp: "",
     mobile_otp:"",
   });
-  // console.log('search params', location.search.split('=')[1]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
   useEffect(()=>{
-    setformstate(prevState => ({...prevState, referrerCode: location.search.split('=')[1]??''}));
+    setformstate(prevState => ({...prevState, referrerCode: location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''}));
   },[]);
 
   useEffect(() => {
@@ -156,7 +155,7 @@ function Cover(props) {
  
 
     const data = await res.json();
-    console.log(data, res.status);
+    // console.log(data, res.status);
     if(res.status === 201 || res.status === 200){ 
         // window.alert(data.message);
         setShowEmailOTP(true);
@@ -192,7 +191,7 @@ function Cover(props) {
 
 
   const data = await res.json();
-  console.log(data.status);
+  // console.log(data.status);
   if(data.status === "Success"){ 
     setShowConfirmation(false)
     return openSuccessSB("Account Created",data.message);
@@ -224,7 +223,7 @@ function Cover(props) {
 
 
   const data = await res.json();
-  console.log(data.status);
+  // console.log(data.status);
   if(res.status === 200 || res.status === 201){ 
         openSuccessSB("OTP Sent",data.message);
   }else{
