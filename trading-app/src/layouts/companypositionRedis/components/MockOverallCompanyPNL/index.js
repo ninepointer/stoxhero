@@ -160,7 +160,8 @@ function MockOverallCompantPNL({socket}) {
 
       obj.avgPrice = (
         <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-          {"₹"+subelem?.lastaverageprice?.toFixed(2)}
+          {/* {"₹"+0} */}
+          {"₹"+(subelem?.lastaverageprice)}
         </MDTypography>
       );
 

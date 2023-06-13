@@ -308,21 +308,6 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId }) {
               setValue(newValue);
             }
           }}
-          // filterOptions={(options, params) => {
-          //   const filtered = filter(options, params);
-
-          //   const { inputValue } = params;
-          //   // Suggest the creation of a new value
-          //   const isExisting = options.some((option) => inputValue === option.title);
-          //   if (inputValue !== '' && !isExisting) {
-          //     filtered.push({
-          //       inputValue,
-          //       title: `Add "${inputValue}"`,
-          //     });
-          //   }
-
-          //   return filtered;
-          // }}
           selectOnFocus
           clearOnBlur
           handleHomeEndKeys
