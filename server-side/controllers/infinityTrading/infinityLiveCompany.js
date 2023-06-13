@@ -695,3 +695,175 @@ exports.overallInfinityLiveCompanyPnlMTD = async (req, res, next) => {
       ])
       res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
+
+exports.traderPnlTWiseLive = async (req, res, next) => {
+
+  let { startDate, endDate } = req.params
+
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+
+
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $match: {
+        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group:
+      {
+        _id: "$user.name",
+        gpnl: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        trades: {
+          $count: {}
+        },
+      }
+    },
+    {
+      $addFields:
+      {
+        npnl: { $subtract: ["$gpnl", "$brokerage"] }
+      }
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let x = await InfinityLiveCompany.aggregate(pipeline)
+
+  // res.status(201).json(x);
+
+  res.status(201).json({ message: "data received", data: x });
+}
+
+exports.companyPnlReportLive = async (req, res, next) => {
+
+  let { startDate, endDate } = req.params
+
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+
+
+  let pipeline = [
+    {
+      $match: {
+        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group:
+      {
+        _id: {
+          "date": { $substr: ["$trade_time", 0, 10] },
+        },
+        gpnl: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        trades: {
+          $count: {}
+        },
+      }
+    },
+    {
+      $addFields:
+      {
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+      }
+    },
+    {
+      $sort:
+        { _id: 1 }
+    }
+  ]
+
+  let x = await InfinityLiveCompany.aggregate(pipeline)
+
+  res.status(201).json({ message: "data received", data: x });
+}
+
+exports.companyDailyPnlTWiseLive = async (req, res, next) => {
+
+  let { startDate, endDate } = req.params
+  // let date = new Date();
+  // const days = date.getDay();
+  // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  //console.log("Today "+todayDate)
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+  // console.log("startDate", startDate,endDate )
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "zyx",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group:
+      {
+        _id: "$zyx.name",
+        gpnl: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        trades: {
+          $count: {}
+        },
+      }
+    },
+    {
+      $addFields:
+      {
+        npnl: { $subtract: ["$gpnl", "$brokerage"] }
+      }
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let x = await InfinityLiveCompany.aggregate(pipeline)
+
+  // res.status(201).json(x);
+
+  res.status(201).json({ message: "data received", data: x });
+}
