@@ -424,12 +424,11 @@ const handleChange = (e) => {
                     <MobileDateTimePicker 
                       label="Batch End Date"
                       disabled={((isSubmitted || id) && (!editing || saving))}
-                      // value={formState?.batchStartDate || dayjs(batch?.batchStartDate)}
-                      defaultValue={formState?.batchEndDate || dayjs(batch?.batchEndDate)}
-                      onChange={(e) => {
-                        const selectedDate = dayjs(e);
-                        const endOfDay = selectedDate.set('hour', 0).set('minute', 0).set('second', 0);
-                        setFormState(prevState => ({ ...prevState, batchEndDate: endOfDay }))
+                      value={formState?.batchEndDate || dayjs(batch?.batchEndDate)}
+                      onChange={(newValue) => {
+                        if (newValue && newValue.isValid()) {
+                          setFormState(prevState => ({ ...prevState, batchEndDate: newValue }))
+                        }
                       }}
                       minDateTime={null}
                       sx={{ width: '100%' }}
