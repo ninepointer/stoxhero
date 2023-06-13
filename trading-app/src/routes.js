@@ -131,6 +131,7 @@ import ContactInfo from './layouts/ContactInfo'
 import TenxReport from "./layouts/tenXReport";
 import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
+import AdminMockReport from './layouts/adminSideReportMock'
 
 
 const routes = [
@@ -190,6 +191,15 @@ const routes = [
     route: "/backreportxts",
     component: <BackReportXTS />,
   },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "adminmockreport",
+    // icon: <DashboardIcon/>,
+    route: "/adminmockreport",
+    component: <AdminMockReport />,
+  },
+
   {
     // type: "collapse",
     // name: "Company Dashboard",
