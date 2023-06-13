@@ -17,8 +17,8 @@ const filterObj = (obj, ...allowedFields) => {
 exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
-  const { firstName, lastName, email, mobile, dob, collegeName, priorTradingExperience, source, career } = req.body;
-
+  const { firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career } = req.body;
+  console.log("Career Application: ",req.body)
   const data = await CareerApplication.create({
     first_name: firstName.trim(),
     last_name: lastName.trim(),
@@ -26,12 +26,13 @@ try {
     mobileNo: mobile.trim(),
     dob: dob,
     collegeName: collegeName,
+    linkedInProfileLink: linkedInProfileLink,
     priorTradingExperience: priorTradingExperience,
     source: source,
     // resume: uploadedData[0].url,
     career: career
     });
-    // console.log(data)
+
     res.status(201).json({message: "Your job application has been submitted successfully!"});
     } catch (error) {
     console.error(error);
@@ -124,6 +125,6 @@ exports.getCareer = async (req,res,next) => {
 
 exports.getCareerApplicantions = async(req, res, next)=>{
   const {id} = req.params;
-  const careerApplications = await CareerApplication.find({career: id}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source')
+  const careerApplications = await CareerApplication.find({career: id}).select('first_name last_name mobileNo email collegeName linkedInProfileLink dob appliedOn priorTradingExperience source')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }

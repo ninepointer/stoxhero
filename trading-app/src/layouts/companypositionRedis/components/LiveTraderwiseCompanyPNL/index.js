@@ -58,9 +58,9 @@ function LiveTraderwiseCompantPNL(props) {
     props.socket.on("tick", (data) => {
       //console.log("this is live market data", data);
       setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument?.instrument_token, instrument]));
         data.forEach(instrument => {
-          instrumentMap.set(instrument.instrument_token, instrument);
+          instrumentMap.set(instrument?.instrument_token, instrument);
         });
         return Array.from(instrumentMap.values());
       });
@@ -72,7 +72,7 @@ function LiveTraderwiseCompantPNL(props) {
 
     axios.get(`${baseUrl}api/v1/infinityRedis/live/traderWiseCompany`)
     .then((res) => {
-        setAllTrade(res.data.data);
+        setAllTrade(res?.data?.data);
     }).catch((err)=>{
         return new Error(err);
     })
@@ -120,40 +120,40 @@ if(allTrade.length !== 0)
     //console.log("Length of All Trade Array:",allTrade.length);
     for(let i = 0; i < allTrade.length; i++){
       // //console.log(allTrade[i])
-      if(mapForParticularUser.has(allTrade[i].traderId)){
+      if(mapForParticularUser.has(allTrade[i]?.traderId)){
         //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
           //console.log("market Data Instrument",elem.instrument_token)
-          return (elem.instrument_token == Number(allTrade[i].symbol) || elem.instrument_token == Number(allTrade[i].exchangeInstrumentToken))
+          return (elem.instrument_token == Number(allTrade[i]?.symbol) || elem.instrument_token == Number(allTrade[i]?.exchangeInstrumentToken))
         })
 
-        let obj = mapForParticularUser.get(allTrade[i].traderId)
+        let obj = mapForParticularUser.get(allTrade[i]?.traderId)
         //console.log(marketDataInstrument, "marketDataInstrument")
-        obj.totalPnl += ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price)));
-        //console.log("Total P&L: ",allTrade[i].traderId, allTrade[i].amount,Number(allTrade[i].symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
-        obj.lotUsed += Math.abs(allTrade[i].lotUsed)
-        obj.runninglots += allTrade[i].lots;
-        obj.brokerage += allTrade[i].brokerage;
-        obj.noOfTrade += allTrade[i].trades
+        obj.totalPnl += ((allTrade[i]?.amount+((allTrade[i]?.lots)*marketDataInstrument[0]?.last_price)));
+        //console.log("Total P&L: ",allTrade[i]?.traderId, allTrade[i]?.amount,Number(allTrade[i]?.symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i]?.lots);
+        obj.lotUsed += Math.abs(allTrade[i]?.lotUsed)
+        obj.runninglots += allTrade[i]?.lots;
+        obj.brokerage += allTrade[i]?.brokerage;
+        obj.noOfTrade += allTrade[i]?.trades
 
       } else{
         //console.log(marketData, "marketData")
         //console.log(Number(allTrade[i].symbol) ,Number(allTrade[i].symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && (elem.instrument_token == Number(allTrade[i].symbol) || elem.instrument_token == Number(allTrade[i].exchangeInstrumentToken))
+          return elem !== undefined && (elem?.instrument_token == Number(allTrade[i]?.symbol) || elem?.instrument_token == Number(allTrade[i]?.exchangeInstrumentToken))
 
         })
         ////console.log(marketDataInstrument)
         //console.log(marketDataInstrument, "marketDataInstrument")
-        mapForParticularUser.set(allTrade[i].traderId, {
-          name : allTrade[i].traderName,
-          totalPnl : ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price))),
-          lotUsed : Math.abs(allTrade[i].lotUsed),
-          runninglots : allTrade[i].lots,
-          brokerage: allTrade[i].brokerage,
-          noOfTrade: allTrade[i].trades,
-          userId: allTrade[i].traderId,
-          algoName: allTrade[i].algoName
+        mapForParticularUser.set(allTrade[i]?.traderId, {
+          name : allTrade[i]?.traderName,
+          totalPnl : ((allTrade[i]?.amount+((allTrade[i]?.lots)*marketDataInstrument[0]?.last_price))),
+          lotUsed : Math.abs(allTrade[i]?.lotUsed),
+          runninglots : allTrade[i]?.lots,
+          brokerage: allTrade[i]?.brokerage,
+          noOfTrade: allTrade[i]?.trades,
+          userId: allTrade[i]?.traderId,
+          algoName: allTrade[i]?.algoName
         }) 
       }
 
@@ -170,7 +170,7 @@ if(allTrade.length !== 0)
       return (b.totalPnl-b.brokerage)-(a.totalPnl-a.brokerage)
     });
 
-    console.log("finalTraderPnl", finalTraderPnl)
+    // console.log("finalTraderPnl", finalTraderPnl)
 
 
     let totalGrossPnlGrid = 0;
@@ -183,66 +183,66 @@ if(allTrade.length !== 0)
      finalTraderPnl.map((subelem, index)=>{
        let obj = {};
 
-      let npnlcolor = ((subelem.totalPnl)-(subelem.brokerage)) >= 0 ? "success" : "error"
-      let tradercolor = ((subelem.totalPnl)-(subelem.brokerage)) >= 0 ? "success" : "error"
-      let gpnlcolor = (subelem.totalPnl) >= 0 ? "success" : "error"
-      let runninglotscolor = subelem.runninglots > 0 ? "info" : (subelem.runninglots < 0 ? "error" : "dark")
-      let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5"
-      let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : ""
+      let npnlcolor = ((subelem?.totalPnl)-(subelem?.brokerage)) >= 0 ? "success" : "error"
+      let tradercolor = ((subelem?.totalPnl)-(subelem?.brokerage)) >= 0 ? "success" : "error"
+      let gpnlcolor = (subelem?.totalPnl) >= 0 ? "success" : "error"
+      let runninglotscolor = subelem?.runninglots > 0 ? "info" : (subelem?.runninglots < 0 ? "error" : "dark")
+      let traderbackgroundcolor = subelem?.runninglots != 0 ? "white" : "#e0e1e5"
+      let runninglotsbgcolor = subelem?.runninglots > 0 ? "#ffff00" : ""
 
-       totalGrossPnlGrid += (subelem.totalPnl);
-       //console.log("Gross P&L: ",subelem.name,subelem.totalPnl );
-       totalTransactionCost += (subelem.brokerage);
-       totalNoRunningLots += (subelem.runninglots);
-       totalLotsUsed += (subelem.lotUsed);
-       totalTrades += (subelem.noOfTrade);
+       totalGrossPnlGrid += (subelem?.totalPnl);
+       //console.log("Gross P&L: ",subelem?.name,subelem?.totalPnl );
+       totalTransactionCost += (subelem?.brokerage);
+       totalNoRunningLots += (subelem?.runninglots);
+       totalLotsUsed += (subelem?.lotUsed);
+       totalTrades += (subelem?.noOfTrade);
        totalTraders += 1;
 
        obj.userId = (
         <MDTypography component="a" variant="caption" fontWeight="medium">
-          {subelem.userId}
+          {subelem?.userId}
         </MDTypography>
       );
 
        obj.traderName = (
          <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
-           {(subelem.name)}
+           {(subelem?.name)}
          </MDTypography>
        );
    
        obj.grossPnl = (
          <MDTypography component="a" variant="caption" color={gpnlcolor} fontWeight="medium">
-           {(subelem.totalPnl) > 0.00 ? "+₹" + ((subelem.totalPnl).toFixed(2)): "-₹" + (-subelem.totalPnl).toFixed(2)}
+           {(subelem?.totalPnl) > 0.00 ? "+₹" + ((subelem?.totalPnl).toFixed(2)): "-₹" + (-subelem?.totalPnl)?.toFixed(2)}
          </MDTypography>
        );
    
        obj.noOfTrade = (
          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-           {subelem.noOfTrade}
+           {subelem?.noOfTrade}
          </MDTypography>
        );
    
        obj.runningLots = (
          <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
-           {subelem.runninglots}
+           {subelem?.runninglots}
          </MDTypography>
        );
    
        obj.lotUsed = (
          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-           {subelem.lotUsed}
+           {subelem?.lotUsed}
          </MDTypography>
        );
    
        obj.brokerage = (
          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-           {"₹"+(subelem.brokerage).toFixed(2)}
+           {"₹"+(subelem?.brokerage)?.toFixed(2)}
          </MDTypography>
        );
    
        obj.netPnl = (
          <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
-           {((subelem.totalPnl)-(subelem.brokerage)) > 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
+           {((subelem?.totalPnl)-(subelem?.brokerage)) > 0.00 ? "+₹" + (((subelem?.totalPnl)-(subelem?.brokerage))?.toFixed(2)): "-₹" + ((-((subelem?.totalPnl)-(subelem?.brokerage)))?.toFixed(2))}
          </MDTypography>
        );
       //  obj.view = (
@@ -271,7 +271,7 @@ if(allTrade.length !== 0)
    
      obj.grossPnl = (
        <MDTypography component="a" variant="caption" color={totalGrossPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-         {totalGrossPnlGrid >= 0.00 ? "+₹" + (totalGrossPnlGrid.toFixed(2)): "-₹" + ((-totalGrossPnlGrid).toFixed(2))}
+         {totalGrossPnlGrid >= 0.00 ? "+₹" + (totalGrossPnlGrid?.toFixed(2)): "-₹" + ((-totalGrossPnlGrid)?.toFixed(2))}
        </MDTypography>
      );
    
@@ -296,20 +296,20 @@ if(allTrade.length !== 0)
    
      obj.brokerage = (
        <MDTypography component="a" variant="caption"  color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-         {"₹"+(totalTransactionCost).toFixed(2)}
+         {"₹"+(totalTransactionCost)?.toFixed(2)}
        </MDTypography>
      );
    
      obj.netPnl = (
        <MDTypography component="a" variant="caption"  color={totalnetPnlcolor} padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
-        {(totalGrossPnlGrid-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnlGrid-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnlGrid-totalTransactionCost)).toFixed(2))}
+        {(totalGrossPnlGrid-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnlGrid-totalTransactionCost)?.toFixed(2)): "-₹" + ((-(totalGrossPnlGrid-totalTransactionCost))?.toFixed(2))}
        </MDTypography>
      );
      
      rows.push(obj);
 }
 
-console.log("Cumulative Row: ",rows)
+// console.log("Cumulative Row: ",rows)
 
   return (
 <>
@@ -329,14 +329,14 @@ console.log("Cumulative Row: ",rows)
                 mt: 0,
               }}
             >
-              {latestLive.tradeBy ? 'done' : 'stop'}
+              {latestLive?.tradeBy ? 'done' : 'stop'}
             </Icon>
             <MDTypography variant="button" fontWeight="regular" color="text">
-            {latestLive.tradeBy ? 
+            {latestLive?.tradeBy ? 
               <span>
                 <strong> last trade </strong>
-                {latestLive.tradeBy} {latestLive.tradeType === "BUY" ? "bought " : "sold "}  
-                {Math.abs(latestLive.tradeQuantity)} quantity of {latestLive.tradeSymbol} at {(latestLive.tradeTime).toString().split("T")[1].split(".")[0]} - {latestLive.tradeStatus}
+                {latestLive?.tradeBy} {latestLive?.tradeType === "BUY" ? "bought " : "sold "}  
+                {Math.abs(latestLive?.tradeQuantity)} quantity of {latestLive?.tradeSymbol} at {(latestLive?.tradeTime).toString().split("T")[1].split(".")[0]} - {latestLive?.tradeStatus}
               </span>
               : "No real trades today"
             }

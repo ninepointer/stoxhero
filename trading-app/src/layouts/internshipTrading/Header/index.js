@@ -20,8 +20,7 @@ export default function LabTabs() {
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
 
-
- const handleChange = (event, newValue) => {
+  const handleChange = (event, newValue) => {
     setIsLoading(true)
     setValue(newValue);
     setTimeout(() => {

@@ -25,6 +25,7 @@ export default function TenXTrading({socket, BatchId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   const [availbaleMargin, setAvailbleMargin] = useState([]);
+  // console.log('id hai ye bhai ji', BatchId);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;
@@ -69,7 +70,7 @@ export default function TenXTrading({socket, BatchId}) {
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData?.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;
 
-  console.log("fundDetail", fundChangePer, openingBalance)
+  // console.log("fundDetail", fundChangePer, openingBalance)
   return (
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >
