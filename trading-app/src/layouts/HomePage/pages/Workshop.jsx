@@ -31,8 +31,11 @@ const App = () => {
       setIsLoading(false)
     }, 500);
   };
+
+  console.log("Location in Workshop list 0: ",location,location.search.split('=')[1]??'')
   useEffect(()=>{
     setCampaignCode(location.search.split('=')[1]??'');
+    console.log("Location in Workshop list: ",location,location.search.split('=')[1]??'')
   },[]);
   return (
     <ThemeProvider theme={theme}>

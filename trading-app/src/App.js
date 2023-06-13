@@ -268,7 +268,7 @@ export default function App() {
         ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }
-       
+
           {!cookieValue  ?  
           
           pathname == "/login" ?
@@ -277,6 +277,12 @@ export default function App() {
           pathname == "/signup" ?
           <Route path="/signup" element={<SignUp />} />
           :
+          // pathname == "/careers" ?
+          // <Route path="/careers" element={<Navigate to='/careers'/>} />
+          // :
+          // pathname == "/workshops" ?
+          // <Route path="/workshops" element={<Navigate to='/workshops'/>} />
+          // :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :

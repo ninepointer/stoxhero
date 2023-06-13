@@ -30,6 +30,8 @@ const CareerForm = () => {
   const location = useLocation();
   const career = location?.state?.data;
   const campaignCode = location?.state?.campaignCode;
+  console.log("Location",location)
+  console.log("Campaign Code",campaignCode)
   const [detail, setDetails] = useState({
     firstName: "",
     lastName: "",
