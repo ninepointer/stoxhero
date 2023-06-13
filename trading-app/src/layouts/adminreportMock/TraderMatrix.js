@@ -82,40 +82,40 @@ const TableThree = () => {
 
     let hash = new Map();
 
-    for (let i = traderpnldata.length - 1; i >= 0; i--) {
-        if (hash.has(traderpnldata[i]._id.createdBy)) {
-            let obj = hash.get(traderpnldata[i]._id.createdBy);    
-                if(traderpnldata[i].gpnl >= 0) {           
-                  obj.PositivePnl += traderpnldata[i].gpnl
-                }
-                else{
-                obj.NegativePnl += traderpnldata[i].gpnl
-                }
-                if(traderpnldata[i].gpnl >= 0) {           
-                  obj.GreenDays += 1
-                }
-                else{
-                obj.RedDays += 1
-                }
-                obj.TradingDays += 1
-                obj.Brokerage += traderpnldata[i].brokerage
-                obj.LifetimeGPnl += traderpnldata[i].gpnl
-                obj.LifetimeNPnl += Number(traderpnldata[i].npnl)
-                //console.log("LTNPNL: "+obj.LifetimeNPnl,traderpnldata[i].npnl);
-          } else {
-            hash.set(traderpnldata[i]._id.createdBy, {
-              createdBy: traderpnldata[i]._id.createdBy,
-              PositivePnl : traderpnldata[i].gpnl >= 0 ? traderpnldata[i].gpnl : 0,
-              NegativePnl : traderpnldata[i].gpnl >= 0 ? 0 : traderpnldata[i].gpnl,
-              GreenDays : traderpnldata[i].gpnl >= 0 ? 1 : 0,
-              RedDays : traderpnldata[i].gpnl >= 0 ? 0 : 1,
-              Brokerage : traderpnldata[i].brokerage,
-              TradingDays : 1, 
-              LifetimeGPnl : traderpnldata[i].gpnl, 
-              LifetimeNPnl : traderpnldata[i].npnl 
-          })
-          }
+  for (let i = traderpnldata.length - 1; i >= 0; i--) {
+    if (hash.has(traderpnldata[i]._id.createdBy)) {
+      let obj = hash.get(traderpnldata[i]._id.createdBy);
+      if (traderpnldata[i].gpnl >= 0) {
+        obj.PositivePnl += traderpnldata[i].gpnl
+      }
+      else {
+        obj.NegativePnl += traderpnldata[i].gpnl
+      }
+      if (traderpnldata[i].gpnl >= 0) {
+        obj.GreenDays += 1
+      }
+      else {
+        obj.RedDays += 1
+      }
+      obj.TradingDays += 1
+      obj.Brokerage += traderpnldata[i].brokerage
+      obj.LifetimeGPnl += traderpnldata[i].gpnl
+      obj.LifetimeNPnl += Number(traderpnldata[i].npnl)
+      //console.log("LTNPNL: "+obj.LifetimeNPnl,traderpnldata[i].npnl);
+    } else {
+      hash.set(traderpnldata[i]._id.createdBy, {
+        createdBy: traderpnldata[i]._id.createdBy,
+        PositivePnl: traderpnldata[i].gpnl >= 0 ? traderpnldata[i].gpnl : 0,
+        NegativePnl: traderpnldata[i].gpnl >= 0 ? 0 : traderpnldata[i].gpnl,
+        GreenDays: traderpnldata[i].gpnl >= 0 ? 1 : 0,
+        RedDays: traderpnldata[i].gpnl >= 0 ? 0 : 1,
+        Brokerage: traderpnldata[i].brokerage,
+        TradingDays: 1,
+        LifetimeGPnl: traderpnldata[i].gpnl,
+        LifetimeNPnl: traderpnldata[i].npnl
+      })
     }
+  }
 
     //console.log(hash)
     
