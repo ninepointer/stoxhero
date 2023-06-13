@@ -1,13 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
-import { Grid } from '@mui/material';
+// import { Grid } from '@mui/material';
 import dayjs from 'dayjs';
 
-const EChartsDemo = ({cumulativeData, monthWiseData}) => {
+const EChartsDemo = ({cumulativeData, monthWiseData, alignment}) => {
+
+  let data;
+  if(alignment === "Company Daily P&L"){
+    data = monthWiseData.map((e)=>dayjs(e?.date).format('DD MMM YYYY'));
+  } else{
+    data = monthWiseData.map((e)=>e?.name);
+  }
+  
+
+
   const chartRef = useRef(null);
   const [chartInstance, setChartInstance] = useState(null);
-console.log("names", monthWiseData.map((e)=>e?.name))
+// console.log("names", monthWiseData.map((e)=>e?.name))
   useEffect(() => {
     if (!chartInstance) {
       setChartInstance(echarts.init(chartRef.current));
@@ -39,7 +49,7 @@ console.log("names", monthWiseData.map((e)=>e?.name))
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: monthWiseData.map((e)=>e?.name),
+          data: data,
         },
         yAxis: {
           type: 'value',

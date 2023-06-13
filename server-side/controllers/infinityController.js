@@ -926,6 +926,127 @@ exports.companyDailyPnlTWise = async (req, res, next) => {
   res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
 }
 
+exports.companyDailyPnlTWiseSingleUser = async (req, res, next) => {
+
+  let { startDate, endDate, userId } = req.params
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let pipelineCommulative = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let x = await InfinityTraderCompany.aggregate(pipeline)
+  let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative)
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
+}
+
 exports.companyPnlReport = async (req, res, next) => {
 
   let { startDate, endDate } = req.params
@@ -1151,6 +1272,127 @@ exports.traderPnlTWise = async (req, res, next) => {
       $match: {
         trade_time: {$lte: new Date(endDate) },
         status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let x = await InfinityTrader.aggregate(pipeline)
+  let cumulative = await InfinityTrader.aggregate(pipelineCommulative)
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
+}
+
+exports.traderPnlTWiseSingleUser = async (req, res, next) => {
+
+  let { startDate, endDate, userId } = req.params
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let pipelineCommulative = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
       }
       // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
     },
