@@ -5,6 +5,7 @@ const mailSender = require('../../utils/emailService');
 const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const Campaign = require("../../models/campaigns/campaignSchema");
+const CareerSchema = require("../../models/Careers/careerSchema");
 
 exports.createGroupDiscussion = async(req, res, next)=>{
     console.log(req.body) // batchID
@@ -119,12 +120,22 @@ exports.addUserToGd = async(req, res, next) => {
   try{
     let user;
     const gd = await GroupDiscussion.findById(gdId);
+    const currentBatch = await Batch.findById(gd.batch).select('_id career batchStartDate, batchEndDate');
+    const careerListing = await CareerSchema.findById(currentBatch.career);
     const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name');
     user = await User.findOne({email: career.email}).select('_id');
     if(user){
       const existinggds = await GroupDiscussion.find({'participants.user': user._id});
-      if (existinggds.length >0){
-        return res.status(400).json({status:'error', message: 'User is already in another Group Discussion'});
+      const batchesArr = existinggds.map(async(elem)=>{
+        return await Batch.findById(elem.batch).select('_id career batchStartDate batchEndDate') 
+      });
+      const careersArr = batchesArr.map(async(elem)=>{
+        return await CareerSchema.findById(elem.career).select('_id listingType')
+      });
+      if (existinggds.length >0 && 
+        checkForListingMatch(careersArr, careerListing.listingType) && 
+        checkForTimingMatch(batchesArr, currentBatch.batchStartDate, currentBatch.batchEndDate )){
+        return res.status(400).json({status:'error', message: 'User is already in another overlapping Group Discussion'});
       }
     }
     console.log('existing gds');
@@ -328,6 +339,22 @@ exports.addUserToGd = async(req, res, next) => {
   }
 
 }
+const checkForListingMatch = (arr, type) => {
+  for(elem of arr){
+    if(elem.listingType == type){
+      return true
+    }
+  }
+  return false;
+}
+const checkForTimingMatch = (arr, startTime, endTime) => {
+  for(elem of arr){
+    if(elem.batchStartDate < endTime && elem.batchEndDate > startTime){
+      return true
+    }
+  }
+  return false;
+}
 
 exports.markAttendance = async(req,res, next) => {
   console.log('marking');
@@ -362,12 +389,20 @@ exports.selectCandidate = async (req, res, next) => {
 
   try {
     const gd = await GroupDiscussion.findById(gdId);
+    const currentbatch = await Batch.findById(gd.batch).select('_id career batchStartDate batchEndDate');
+    const career = await CareerSchema.findById(currentbatch.career).select('_id listingType');
     const user = await User.findById(userId);
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
       return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
     }
-    const existingUserBatches = await Batch.find({'participants.user': userId})
-    if(existingUserBatches.length >0){
+    const existingUserBatches = await Batch.find({'participants.user': userId});
+    const careersArr = existingUserBatches.map(async(elem)=>{
+      return await CareerSchema.findById(elem.career).select('_id listingType')
+    });
+
+    if(existingUserBatches.length >0 && 
+      checkForListingMatch(careersArr, career.listingType) && 
+      checkForTimingMatch(existingUserBatches, currentbatch.batchStartDate, currentbatch.batchEndDate)){
       return res.status(203).json({status:'error', message: 'User is already in an internship batch'});
     }
     let participants = gd.participants.map((item)=>{
@@ -410,7 +445,7 @@ exports.selectCandidate = async (req, res, next) => {
     
     //Add batch info to the user's document
     
-    user.internshipBatch = gd.batch;
+    user.internshipBatch = [...user.internshipBatch, gd.batch];
     
     //Give user the intern portfolio
     // user.portfolio = [...user.portfolio, {portfolioId: batch.portfolio, activationDate: new Date()}]
