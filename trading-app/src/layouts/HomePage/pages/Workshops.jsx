@@ -15,6 +15,7 @@ import axios from "axios";
 
 
 const Internship = ({campaignCode}) => {
+  // console.log('campaignCode', campaignCode);
   const [isLoading,setIsLoading] = useState(false);
   console.log("Campaign Code on Workshop Page: ",campaignCode)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -24,7 +25,7 @@ const Internship = ({campaignCode}) => {
       axios.get(`${baseUrl}api/v1/career?type=Workshop`)
       .then((res)=>{
         setCareer(res.data?.data);
-        console.log(career.length) 
+        // console.log(career.length) 
         setTimeout(()=>{
           setIsLoading(false);
         },1000) 

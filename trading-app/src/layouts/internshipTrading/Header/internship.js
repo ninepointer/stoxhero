@@ -116,21 +116,23 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
          let signal = abortController.signal;    
 
          // the signal is passed into the request(s) we want to abort using this controller
-         const { data } = await axios.get(`${baseUrl}api/v1/internship/pnl/${batchId}`,{
-         withCredentials: true,
-         headers: {
-             Accept: "application/json",
-             "Content-Type": "application/json",
-             "Access-Control-Allow-Credentials": true
-         },
-         signal: signal }
-         );
-
-         if(data?.data?.length === 0){
-          updateNetPnl(0, 0, 0, 0);
+         if(batchId){
+             const { data } = await axios.get(`${baseUrl}api/v1/internship/pnl/${batchId}`,{
+             withCredentials: true,
+             headers: {
+                 Accept: "application/json",
+                 "Content-Type": "application/json",
+                 "Access-Control-Allow-Credentials": true
+             },
+             signal: signal }
+             );
+    
+             if(data?.data?.length === 0){
+              updateNetPnl(0, 0, 0, 0);
+             }
+             setPnlData(data.data);
+             setTradeData(data.data);
          }
-         setPnlData(data.data);
-         setTradeData(data.data);
 
     })();
 
@@ -167,33 +169,37 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   }, [])
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/internship/my/overallinternshippnl/${batchId}`,{
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-        },
-      })
-    .then((api1Response)=>{
-      // console.log(api1Response.data.data)
-      setMyOverallInternshipPNL(api1Response.data.data)  
-    })
+    if(batchId){
+        axios.get(`${baseUrl}api/v1/internship/my/overallinternshippnl/${batchId}`,{
+          withCredentials: true,
+          headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Credentials": true
+            },
+          })
+        .then((api1Response)=>{
+          // console.log(api1Response.data.data)
+          setMyOverallInternshipPNL(api1Response.data.data)  
+        })
+    }
   }, [batchId])
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/internship/my/tradingDays/${batchId}`,{
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-        },
-      })
-    .then((api1Response)=>{
-      // console.log(api1Response.data.data)
-      setMyTradingDays(api1Response.data.data.length)  
-    })
+    if(batchId){
+        axios.get(`${baseUrl}api/v1/internship/my/tradingDays/${batchId}`,{
+          withCredentials: true,
+          headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Credentials": true
+            },
+          })
+        .then((api1Response)=>{
+          // console.log(api1Response.data.data)
+          setMyTradingDays(api1Response.data.data.length)  
+        })
+    }
   }, [batchId])
 
   tradeData.map((subelem, index)=>{

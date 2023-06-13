@@ -17,10 +17,10 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Workshops = () => {
   const [currentworkshop, setCurrentWorkshop] = useState();
-  // const Navigate = useNavigate();
+  const Navigate = useNavigate();
   const [workshops, setWorkshops] = useState();
   const[isLoading, setIsLoading] = useState(true);  
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(()=>{
     fetchData();
@@ -97,7 +97,7 @@ const Workshops = () => {
                 </MDBox> :
            <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh' border='1px solid white' borderRadius='12px'>
            <MDTypography fontSize={15} color='white'>You don't have any upcoming registered workshop(s)</MDTypography>
-           <MDButton variant='outlined' color='info' fontSize={15}>Apply for workshops here</MDButton> 
+           <MDButton variant='outlined' color='info' fontSize={15} onClick={()=>{Navigate('/careers')}}>Apply for workshops here</MDButton> 
           </MDBox>  
           }
             </MDBox>

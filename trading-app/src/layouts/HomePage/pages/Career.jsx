@@ -1,7 +1,8 @@
 // import Home from './Home';
 // import Swap from './Swap'
-import { Link, useLocation } from "react-router-dom";
+
 import React, {useState, useContext, useEffect} from "react"
+import { Link, useLocation } from "react-router-dom";
 // import { Route, Routes } from 'react-router-dom'
 import theme from '../utils/theme/index';
 import { Box } from '@mui/material';
@@ -20,7 +21,7 @@ import { CircularProgress } from '@mui/material';
 import MDTypography from "../../../components/MDTypography";
 // import JobDescription from './JobDescription';
 
-const App = () => {
+const App = (props) => {
   const [campaignCode,setCampaignCode] = useState();
   const [isLoading,setIsLoading] = useState(false);
   const location = useLocation();
@@ -34,7 +35,7 @@ const App = () => {
   };
   console.log(location)
   useEffect(()=>{
-    setCampaignCode(location.search.split('=')[1]??'');
+    setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
   },[]);
   return (
     <ThemeProvider theme={theme}>

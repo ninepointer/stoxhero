@@ -1,18 +1,111 @@
 const {client, getValue} = require('../../marketData/redisClient');
 const InfinityTraderCompany = require("../../models/mock-trade/infinityTradeCompany");
+const InfinityTrader = require("../../models/mock-trade/infinityTrader");
 const AlgoBox = require("../../models/AlgoBox/tradingAlgoSchema");
+const { ObjectId } = require('mongodb');
 
-exports.overallMockPnlRedis = async (pnlData)=>{
-    console.log("in overallLivePnlRedis", pnlData)
+
+exports.overallPnlUsers = async (pnlData, trader, data)=>{
+  // console.log("in overallLivePnlRedis", pnlData)
+  const isRedisConnected = getValue();
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  if(isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)){
+    // let pnl = await client.get(`${trader.toString()} overallpnl`)
+    pnl = JSON.parse(data);
+    console.log("redis pnl", pnl)
+    const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
+    // if instrument is same then just updating value
+    if (matchingElement) {
+      // Update the values of the matching element with the values of the first document
+      matchingElement.amount += (pnlData.amount * -1);
+      matchingElement.brokerage += Number(pnlData.brokerage);
+      matchingElement.lastaverageprice = pnlData.average_price;
+      matchingElement.lots += Number(pnlData.Quantity);
+
+    } else {
+      // Create a new element if instrument is not matching
+      pnl.push({
+        _id: {
+          symbol: pnlData.symbol,
+          product: pnlData.Product,
+          instrumentToken: pnlData.instrumentToken,
+          exchangeInstrumentToken: pnlData.exchangeInstrumentToken,
+          exchange: pnlData.exchange,
+        },
+        amount: (pnlData.amount * -1),
+        brokerage: Number(pnlData.brokerage),
+        lots: Number(pnlData.Quantity),
+        lastaverageprice: pnlData.average_price,
+      });
+    }
+    // settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
+
+    return  JSON.stringify(pnl);
+  } else{
+    let pnl = await InfinityTrader.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: today
+          },
+          status: "COMPLETE",
+          trader: new ObjectId(trader)
+        },
+      },
+      {
+        $group: {
+          _id: {
+            symbol: "$symbol",
+            product: "$Product",
+            instrumentToken: "$instrumentToken",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+            exchange: "$exchange"
+          },
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          lastaverageprice: {
+            $last: "$average_price",
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ])
+    // console.log("pnlDetails in else", pnlDetails)
+    // let settingRedis = await client.set(`overallMockPnlCompany`, JSON.stringify(pnlDetails))
+
+    return  JSON.stringify(pnl);
+  }
+}
+
+exports.overallMockPnlRedis = async (pnlData, data)=>{
+    // console.log("in overallLivePnlRedis", pnlData)
     const isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
     if(isRedisConnected && await client.exists(`overallMockPnlCompany`)){
-        let pnl = await client.get(`overallMockPnlCompany`)
-        pnl = JSON.parse(pnl);
-        console.log("in if", pnl)
+        // let pnl = await client.get(`overallMockPnlCompany`)
+        pnl = JSON.parse(data);
+        // console.log("in if", pnl)
 
         const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
         // if instrument is same then just updating value
@@ -44,11 +137,11 @@ exports.overallMockPnlRedis = async (pnlData)=>{
         }
 
             // console.log("overall redis pnl", pnl)
-        let settingRedis = await client.set(`overallMockPnlCompany`, JSON.stringify(pnl))
+        // let settingRedis = await client.set(`overallMockPnlCompany`, JSON.stringify(pnl))
 
-        return settingRedis;
+        return  JSON.stringify(pnl);
     } else{
-        let pnlDetails = await InfinityTraderCompany.aggregate([
+        let pnl = await InfinityTraderCompany.aggregate([
             {
               $lookup: {
                 from: 'algo-tradings',
@@ -101,14 +194,14 @@ exports.overallMockPnlRedis = async (pnlData)=>{
               },
             },
           ])
-          console.log("pnlDetails in else", pnlDetails)
-          let settingRedis = await client.set(`overallMockPnlCompany`, JSON.stringify(pnlDetails))
+          // console.log("pnlDetails in else", pnlDetails)
+          // let settingRedis = await client.set(`overallMockPnlCompany`, JSON.stringify(pnlDetails))
 
-          return settingRedis;
+          return  JSON.stringify(pnl);
       }
 }
 
-exports.overallMockPnlTraderWiseRedis = async (pnlData) => {
+exports.overallMockPnlTraderWiseRedis = async (pnlData, data) => {
     const isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -140,8 +233,8 @@ exports.overallMockPnlTraderWiseRedis = async (pnlData) => {
             name = user.first_name + " " + user.last_name;
         }
 
-        let pnl = await client.get(`traderWiseMockPnlCompany`)
-        pnl = JSON.parse(pnl);
+        // let pnl = await client.get(`traderWiseMockPnlCompany`)
+        pnl = JSON.parse(data);
         console.log(pnl, pnlData)
         const matchingElement = pnl.find((element) => (element?._id?.traderId.toString() == pnlData.trader.toString() && element?._id?.symbol === pnlData.instrumentToken));
         if (matchingElement) {
@@ -173,12 +266,12 @@ exports.overallMockPnlTraderWiseRedis = async (pnlData) => {
         }
 
         // console.log("trader redis pnl", pnl)
-        let settingRedis = await client.set(`traderWiseMockPnlCompany`, JSON.stringify(pnl))
+        // let settingRedis = await client.set(`traderWiseMockPnlCompany`, JSON.stringify(pnl))
 
-        return settingRedis;
+        return  JSON.stringify(pnl);
     } else {
 
-        let pnlDetails = await InfinityTraderCompany.aggregate([
+        let pnl = await InfinityTraderCompany.aggregate([
             {
                 $lookup: {
                     from: 'algo-tradings',
@@ -235,10 +328,10 @@ exports.overallMockPnlTraderWiseRedis = async (pnlData) => {
             { $sort: { _id: -1 } },
 
         ])
-        console.log("pnlDetails in else trader", pnlDetails)
-        let settingRedis = await client.set(`traderWiseMockPnlCompany`, JSON.stringify(pnlDetails))
+        // console.log("pnlDetails in else trader", pnlDetails)
+        // let settingRedis = await client.set(`traderWiseMockPnlCompany`, JSON.stringify(pnlDetails))
 
-        return settingRedis;
+        return JSON.stringify(pnl);
     }
 }
 
@@ -270,9 +363,9 @@ exports.letestTradeMock = async (pnlData) => {
       }
 
       // console.log("trader redis pnl", pnl)
-      let settingRedis = await client.set(`lastTradeDataMock`, JSON.stringify(lastTrade))
+      // let settingRedis = await client.set(`lastTradeDataMock`, JSON.stringify(lastTrade))
 
-      return settingRedis;
+      return JSON.stringify(lastTrade);
   } else {
 
       let trade = await InfinityTraderCompany.aggregate([
@@ -313,10 +406,10 @@ exports.letestTradeMock = async (pnlData) => {
           { $sort: { "trade_time": -1 } },
           { $limit: 1 }
       ])
-      let settingRedis;
+      // let settingRedis;
       if(trade.length > 0)
-      settingRedis = await client.set(`lastTradeDataMock`, JSON.stringify(trade[0]))
+      // settingRedis = await client.set(`lastTradeDataMock`, JSON.stringify(trade[0]))
 
-      return settingRedis;
+      return JSON.stringify(trade);
   }
 }
