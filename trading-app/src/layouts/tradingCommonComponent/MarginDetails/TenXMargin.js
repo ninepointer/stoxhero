@@ -14,8 +14,6 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
   // const [yesterdayData, setyesterdayData] = useState({});
   const {render} = useContext(renderContext);
 
- 
-
   const todayAmount = pnlData.reduce((total, acc) => {
     if (acc.lots !== 0) {
       return total + Math.abs(acc.amount);
@@ -23,7 +21,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  console.log("margin", todayAmount)
+  // console.log("margin", todayAmount)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`,{

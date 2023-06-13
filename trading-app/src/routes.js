@@ -191,14 +191,14 @@ const routes = [
     route: "/backreportxts",
     component: <BackReportXTS />,
   },
-  {
-    // type: "collapse",
-    // name: "Company Dashboard",
-    key: "adminmockreport",
-    // icon: <DashboardIcon/>,
-    route: "/adminmockreport",
-    component: <AdminMockReport />,
-  },
+  // {
+  //   // type: "collapse",
+  //   // name: "Company Dashboard",
+  //   key: "adminmockreport",
+  //   // icon: <DashboardIcon/>,
+  //   route: "/adminmockreport",
+  //   component: <AdminMockReport />,
+  // },
 
   {
     // type: "collapse",
@@ -578,7 +578,7 @@ const routes = [
     key: "adminreport",
     // icon: <SummarizeIcon/>,
     route: "/adminreport",
-    component: <AdminReport/>,
+    component: <AdminMockReport/>,
   },
   {
     // type: "collapse",
