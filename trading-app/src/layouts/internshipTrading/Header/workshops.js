@@ -101,7 +101,7 @@ const Workshops = () => {
                 </MDBox> :
            <MDBox display="flex" flexDirection='column' mb={2} justifyContent="center" alignItems="center" mt={2} minHeight='auto' border='1px solid white' borderRadius='12px'>
            <MDTypography fontSize={15} mb={2} mt={2} color='light'>You don't have any upcoming registered workshop(s)</MDTypography>
-           <MDButton variant='outlined' color='light' style={{marginBottom:20}} fontSize={15} onClick={()=>{Navigate('/careers')}}>Apply for workshops here</MDButton> 
+           <MDButton variant='outlined' color='light' style={{marginBottom:20}} fontSize={15} onClick={()=>{window.open('/workshops','_blank')}}>Apply for workshops here</MDButton> 
           </MDBox>  
           }
             </MDBox>

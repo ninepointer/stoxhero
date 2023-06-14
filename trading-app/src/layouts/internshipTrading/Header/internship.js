@@ -491,7 +491,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       </Grid>              
     </Grid>
     :
-    <MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{navigate('/careers')}}>Apply for Internships</MDButton></MDBox>}
+    <MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton></MDBox>}
 
     </MDBox>
   );
