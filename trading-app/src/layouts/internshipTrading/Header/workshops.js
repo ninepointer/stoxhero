@@ -20,6 +20,7 @@ const Workshops = () => {
   const Navigate = useNavigate();
   const [workshops, setWorkshops] = useState();
   const[isLoading, setIsLoading] = useState(true);  
+  const [serverTime, setServerTime] = useState();
   // const navigate = useNavigate();
 
   useEffect(()=>{
@@ -29,7 +30,6 @@ const Workshops = () => {
   const fetchData = async() => {
     const res = await axios.get(`${apiUrl}internbatch/currentworkshop`, {withCredentials: true});
     console.log(res.data);
-    console.log('Workshop: ',res.data?.data?.career?.jobTitle);
     if(Object.keys(res.data.data).length!=0){
         setCurrentWorkshop(res.data.data);
     }
@@ -39,8 +39,11 @@ const Workshops = () => {
             setWorkshops(resp.data.data.filter((item)=>item._id!=res.data.data?._id));
         }
         setIsLoading(false);
-
+    const res2 = await axios.get(`${apiUrl}servertime`)
+        setServerTime(res2.data.data)
   }
+
+  console.log("Checking dates:",currentworkshop?.batchStartDate, serverTime)
   
   return (
     <MDBox bgColor="dark" color="light" mt={0} mb={0} p={1} borderRadius={10} minHeight='auto' >
@@ -93,11 +96,12 @@ const Workshops = () => {
            <MDBox mt={1}>
             <Card name={currentworkshop?.career?.jobTitle} goTo='/internship/trade' 
                 state={currentworkshop._id} startDate= {moment.utc(currentworkshop?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
-                endDate={moment.utc(currentworkshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}/> 
+                endDate={moment.utc(currentworkshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
+                buttonText='Start Trading' disabled={currentworkshop?.batchStartDate >= serverTime}/> 
                 </MDBox> :
-           <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center" mt={5} mb={5} minHeight='25vh' border='1px solid white' borderRadius='12px'>
-           <MDTypography fontSize={15} color='white'>You don't have any upcoming registered workshop(s)</MDTypography>
-           <MDButton variant='outlined' color='info' fontSize={15} onClick={()=>{Navigate('/careers')}}>Apply for workshops here</MDButton> 
+           <MDBox display="flex" flexDirection='column' mb={2} justifyContent="center" alignItems="center" mt={2} minHeight='auto' border='1px solid white' borderRadius='12px'>
+           <MDTypography fontSize={15} mb={2} mt={2} color='light'>You don't have any upcoming registered workshop(s)</MDTypography>
+           <MDButton variant='outlined' color='light' style={{marginBottom:20}} fontSize={15} onClick={()=>{Navigate('/careers')}}>Apply for workshops here</MDButton> 
           </MDBox>  
           }
             </MDBox>
@@ -117,7 +121,8 @@ const Workshops = () => {
            <MDBox mt={1}>
             {workshops?.map((workshop)=>{
                 return <Card name ={workshop?.career?.jobTitle} startDate={moment.utc(workshop?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')} 
-                endDate={moment.utc(workshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}/>
+                endDate={moment.utc(workshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
+                buttonText='View Details'/>
             })}
            </MDBox> 
             :
@@ -131,7 +136,7 @@ const Workshops = () => {
   )
 }
 
-const Card = ({name, goTo, state, startDate, endDate})=> {
+const Card = ({name, goTo, state, startDate, endDate, buttonText, disabled})=> {
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -150,7 +155,7 @@ const Card = ({name, goTo, state, startDate, endDate})=> {
                         <MDTypography fontSize={12}>End Time:{endDate}</MDTypography>
                     </Grid>
                     <Grid xs={12} xl={3}>    
-                <MDButton variant='outlined' color='info' onClick={()=>{navigate(goTo, {state:{batchId:state}})}}>Start Trading</MDButton>
+                <MDButton variant='outlined' disabled={disabled} color='info' onClick={()=>{navigate(goTo, {state:{batchId:state}})}}>{buttonText}</MDButton>
                 </Grid>
             </MDBox>
         </MDBox>
