@@ -287,8 +287,9 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
             select:'listingType jobTitle'
         }
     }).select('internshipBatch');
-    let internships = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Job');
-    console.log("userBatches", userBatches);
+    let internships = userBatches?.internshipBatch?.filter((item)=>item?.career?.listingType === 'Job');
+    console.log("userBatches", userBatches,internships);
+    console.log("IntenrshipBatch", userBatches?.internshipBatch)
     console.log(new Date(), internships[internships.length-1]?.batchEndDate);
     if(new Date()>internships[internships.length-1]?.batchEndDate){
         return res.json({status: 'success', data: {}, message:'No active internships'});    
@@ -328,8 +329,8 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
         }
     }).select('internshipBatch');
     let internships = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Workshop');
-    console.log("userBatches", userBatches);
-    if(new Date().toISOString().substring(0,10) !== internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
+    // console.log("userBatches", userBatches);
+    if(new Date().toISOString().substring(0,10) >= internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
         return res.json({status: 'success', data: {}, message:'No active workshops'});    
     }
     res.json({status: 'success', data: internships[internships.length-1]});

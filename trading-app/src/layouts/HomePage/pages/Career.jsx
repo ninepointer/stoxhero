@@ -33,6 +33,7 @@ const App = (props) => {
       setIsLoading(false)
     }, 500);
   };
+  console.log(location)
   useEffect(()=>{
     setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
   },[]);

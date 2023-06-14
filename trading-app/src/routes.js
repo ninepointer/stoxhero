@@ -354,7 +354,7 @@ const routes = [
   {
     // type: "collapse",
     // name: "Arena",
-    // key: "arena",
+    key: "careers",
     // icon: <BusinessIcon/>,
     route: "/careers",
     component: <Careers />,
@@ -362,7 +362,7 @@ const routes = [
   {
     // type: "collapse",
     // name: "Arena",
-    // key: "arena",
+    key: "workshops",
     // icon: <BusinessIcon/>,
     route: "/workshops",
     component: <Workshops />,

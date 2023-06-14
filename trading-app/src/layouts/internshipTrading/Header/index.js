@@ -26,10 +26,10 @@ export default function LabTabs() {
     setTimeout(() => {
       setIsLoading(false)
     }, 500);
-  };
+  }; 
 
   return (
-    <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>
+    <MDBox bgColor="dark" color="light" mt={2} mb={0} p={1} borderRadius={10} minHeight='auto'>
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
@@ -50,13 +50,15 @@ export default function LabTabs() {
    
           }
           </TabPanel>
-        <TabPanel value="2">
+          <TabPanel value="2">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <Workshops/>
+          <MDBox style={{minWidth:'100%'}}>
+            <Workshops/>
+          </MDBox>
           }
         </TabPanel>
       </TabContext>

@@ -142,6 +142,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   useEffect(()=> {(async ()=>{
     const res = await axios.get(`${baseUrl}api/v1/internbatch/currentinternship`, {withCredentials:true});
     if(Object.keys(res.data.data).length !== 0){
+      console.log(res.data.data._id)
       setBatchId(res.data.data._id);
     }
   })()}, []);
@@ -370,13 +371,13 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
   return (
    
-    <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10} minHeight='65vh' >
+    <MDBox bgColor="dark" color="light" mt={0} mb={0} p={0} borderRadius={10} minHeight='auto' >
 
-    <MDBox display="flex" justifyContent='center' flexDirection='column' mb={1} mt={1}>
+    <MDBox display="flex" justifyContent='center' flexDirection='column' mb={1}>
       <Grid item xs={12} md={6} lg={12}>
-      <MDTypography fontSize={20} mb={1} fontWeight='bold' color="light">What is StoxHero Internship Program?</MDTypography>
+      <MDTypography fontSize={15} mb={1} fontWeight='bold' color="light">What is StoxHero Internship Program?</MDTypography>
       <MDBox bgColor="white" p={2} mb={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)">
-        <MDTypography fontSize={15} fontWeight='bold' color="dark">
+        <MDTypography fontSize={12} fontWeight='bold' color="dark">
             Welcome to the StoxHero Derivatives Trader Internship Program!
             At StoxHero, we believe in nurturing and developing the next generation of derivatives traders. Our internship program is designed to provide you with a comprehensive learning experience that will sharpen your skills, deepen your understanding of the financial markets, and prepare you for a successful career in derivatives trading. 
             At the successful completion of your internship, you will receive a valuable internship certificate from StoxHero. This certificate recognizes your dedication, knowledge, and practical skills gained during your internship.
@@ -386,23 +387,31 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       </Grid>
     </MDBox>
           
-    <Grid container spacing={1} mb={1} mt={1}>
+    <Grid container spacing={1} mb={1}>
       <Grid item xs={12} md={6} lg={12}>
       <MDBox bgColor="white" p={2} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)" width='100%'>
-        <MDTypography fontSize={18} fontWeight='bold' color="dark">
+        <MDTypography fontSize={15} fontWeight='bold' color="dark">
+          Perks & Benefits of StoxHero Internship Program
+        </MDTypography>
+        <MDTypography fontSize = {12}>1. As part of the internship program, you will receive a stipend calculated at 1% of the net profit and loss (P&L) for the duration of your internship.</MDTypography>
+        <MDTypography fontSize = {12}>2. Upon completion of your internship, you will be awarded an internship certificate from StoxHero.</MDTypography>
+        <MDTypography></MDTypography>
+        <MDTypography fontSize={15} fontWeight='bold' color="dark">
           Internship Completion Rules and Issuance of Internship Certificate
         </MDTypography>
-        <MDTypography fontSize = {15}>1. You must accept and abide by the terms of usage and must not partake in any malpractices or manipulation.</MDTypography>
-        <MDTypography fontSize = {15}>2. You must take trades on 80% of the trading days during the internship period.</MDTypography>
-        <MDTypography fontSize = {15}>3. You must refer atleast 10 users to the platform using your invite link.</MDTypography>
-        <MDTypography fontSize = {15}>4. You must treat the internship as an education experience.</MDTypography>
-        <MDTypography fontSize = {15}>5. You are limited to taking intraday option trades and are required to close all your positions before 3:20 PM every day.</MDTypography>
+        <MDTypography fontSize = {12}>1. You must accept and abide by the terms of usage and must not partake in any malpractices or manipulation.</MDTypography>
+        <MDTypography fontSize = {12}>2. You must take trades on 80% of the trading days during the internship period.</MDTypography>
+        <MDTypography fontSize = {12}>3. You must refer atleast 30 users to the platform using your invite link.</MDTypography>
+        <MDTypography fontSize = {12}>4. You must treat the internship as an education experience.</MDTypography>
+        <MDTypography fontSize = {12}>5. You are limited to taking intraday option trades and are required to close all your positions before 3:20 PM every day.</MDTypography>
         <MDTypography></MDTypography>
+        
       </MDBox>   
       </Grid>           
     </Grid>
 
-    {batchId ? <Grid container spacing={1} mb={1} mt={1}>
+    {batchId ? 
+    <Grid container spacing={1} mb={1} mt={1}>
       <Grid item minWidth='100%'>
       <MDBox bgColor='success' p={1} borderRadius={5} boxShadow="0px 4px 10px rgba(0, 0, 0, 0.15)" width='100%'>
         
@@ -421,25 +430,25 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
             <Grid container mt={-5}>
                 <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Batch: {getDetails?.userDetails?.internshipBatch[0]?.batchName}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Batch: {getDetails?.userDetails?.internshipBatch[0]?.batchName}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Start Date: {moment.utc(getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Start Date: {moment.utc(getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>End Date: {moment.utc(getDetails?.userDetails?.internshipBatch[0]?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>End Date: {moment.utc(getDetails?.userDetails?.internshipBatch[0]?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
                   </Grid>
                 </Grid>
                 
                 <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                   <Grid item xs={12} md={6} lg={4} mt={1} display="flex" justifyContent="center">
-                      <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>College: {college_id?.collegeName}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>College: {college_id?.collegeName}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} mt={1} display="flex" justifyContent="center">
-                      <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio Value: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(portfolioValue.toFixed(0))}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio Value: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(portfolioValue.toFixed(0))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} mt={1} display="flex" justifyContent="center">
-                      <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Available Margin: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(availableMargin.toFixed(0))}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Available Margin: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(availableMargin.toFixed(0))}</MDTypography>
                   </Grid>
                 </Grid>
 
@@ -480,7 +489,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         {/* </MDButton> */}
       </MDBox> 
       </Grid>              
-    </Grid>:<MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{navigate('/careers')}}>Apply for Internships</MDButton></MDBox>}
+    </Grid>
+    :
+    <MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton></MDBox>}
 
     </MDBox>
   );
