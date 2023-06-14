@@ -55,12 +55,12 @@ function Index() {
     const [portfolios,setPortfolios] = useState([]);
     const [careers,setCareers] = useState([]);
     const [action, setAction] = useState(false);
-    const [type, setType] = useState('Job');
+    const [type, setType] = useState(id?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
 
     const [formState,setFormState] = useState({
         batchName:'' || id?.batchName,
-        batchStartDate: dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0) || id?.batchStartDate,
-        batchEndDate: dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59) || id?.batchEndDate,
+        batchStartDate: dayjs(id?.batchStartDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+        batchEndDate:  dayjs(id?.batchEndDate) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
         participants: [{collegeName:'',joinedOn:'',userId:''}],
         batchStatus:'' || id?.batchStatus,
         career: {
@@ -91,7 +91,6 @@ function Index() {
 
 
     useEffect(()=>{
-        console.log("inside useeffect")
         axios.get(`${baseUrl}api/v1/portfolio/internship`)
         .then((res)=>{
           console.log("Internship Portfolios :",res?.data?.data)
@@ -174,7 +173,7 @@ function Index() {
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-        if((type == 'Job' && formState?.portfolio.name != 'Internship') || (type == 'Workshop' && formState?.portfolio.name != 'Workshop' )){
+        if((type == 'Job' && !formState?.portfolio.name.toLowerCase().includes('internship')) || (type == 'Workshop' && !formState?.portfolio.name.toLowerCase().includes('workshop'))){
         console.log('true');
         return openErrorSB("Wrong Portfolio","Please check the portfolio and type compatibility");
       }
@@ -378,7 +377,7 @@ const handleChange = (e) => {
               />
           </Grid>
 
-          <Grid item xs={12} md={6} xl={3} mt={-1}>
+          {/* <Grid item xs={12} md={6} xl={3} mt={-1}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                     <DatePicker
@@ -395,9 +394,51 @@ const handleChange = (e) => {
                     />
                 </DemoContainer>
                 </LocalizationProvider>
-           </Grid>
+           </Grid> */}
+          <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={['MobileDateTimePicker']}>
+                <DemoItem>
+                  <MobileDateTimePicker 
+                    label="Batch Start Date"
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    value={formState?.batchStartDate || dayjs(batch?.batchStartDate)}
+                    onChange={(newValue) => {
+                      if (newValue && newValue.isValid()) {
+                        setFormState(prevState => ({ ...prevState, batchStartDate: newValue }))
+                      }
+                    }}
+                    minDateTime={null}
+                    sx={{ width: '100%' }}
+                  />
+                </DemoItem>
+              </DemoContainer>
+            </LocalizationProvider>
+          </Grid>
 
-           <Grid item xs={12} md={6} xl={3} mt={-1}>
+
+          <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['MobileDateTimePicker']}>
+                  <DemoItem>
+                    <MobileDateTimePicker 
+                      label="Batch End Date"
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      value={formState?.batchEndDate || dayjs(batch?.batchEndDate)}
+                      onChange={(newValue) => {
+                        if (newValue && newValue.isValid()) {
+                          setFormState(prevState => ({ ...prevState, batchEndDate: newValue }))
+                        }
+                      }}
+                      minDateTime={null}
+                      sx={{ width: '100%' }}
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+          </Grid>
+
+           {/* <Grid item xs={12} md={6} xl={3} mt={-1}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                     <DatePicker
@@ -414,7 +455,7 @@ const handleChange = (e) => {
                     />
                 </DemoContainer>
                 </LocalizationProvider>
-           </Grid>
+           </Grid> */}
            {!id && <Grid item xs={12} md={3} xl={3}>
                 <FormControl sx={{ minHeight:10, minWidth:263 }}>
                   <InputLabel id="demo-multiple-name-label">Batch Type</InputLabel>
