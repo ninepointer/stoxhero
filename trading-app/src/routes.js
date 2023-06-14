@@ -133,7 +133,7 @@ import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
 import AdminLiveReport from './layouts/adminSideReportLive'
-
+import WorkShopOrders from './layouts/userorders/workshopOrder'
 
 const routes = [
   {
@@ -727,6 +727,22 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/internship/trade",
     component: <InternshipTrade/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/workshop/trade",
+    component: <InternshipTrade/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/workshop/orders",
+    component: <WorkShopOrders/>,
   },
   // {
   //   type: "collapse",

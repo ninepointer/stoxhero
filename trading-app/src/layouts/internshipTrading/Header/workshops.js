@@ -5,10 +5,10 @@ import { apiUrl } from '../../../constants/constants';
 import {CircularProgress } from '@mui/material'; 
 import axios from 'axios';
 import {Grid} from '@mui/material';
-import MDAvatar from '../../../components/MDAvatar';
+// import MDAvatar from '../../../components/MDAvatar';
 import MDButton from '../../../components/MDButton';
-import checklist from '../../../assets/images/checklist.png';
-import CardContent from '@mui/material/CardContent';
+// import checklist from '../../../assets/images/checklist.png';
+// import CardContent from '@mui/material/CardContent';
 import { useNavigate} from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -40,8 +40,8 @@ const Workshops = () => {
 
   const fetchData = async() => {
     const res = await axios.get(`${apiUrl}internbatch/currentworkshop`, {withCredentials: true});
-    console.log(res.data);
-    console.log('bhai job ye',res.data?.data?.career?.jobTitle);
+    // console.log(res.data);
+    // console.log('bhai job ye',res.data?.data?.career?.jobTitle);
     if(Object.keys(res.data.data).length!=0){
         setCurrentWorkshop(res.data.data);
     }
@@ -54,7 +54,7 @@ const Workshops = () => {
 
   }
   
-  
+  console.log("workshops", workshops)
 
   return (
     <MDBox bgColor="dark" color="light" mt={2} mb={2} p={2} borderRadius={10} minHeight='65vh' >
@@ -71,7 +71,7 @@ const Workshops = () => {
           :
            currentworkshop ? 
            <MDBox mt={3}>
-            <Card name={currentworkshop?.career?.jobTitle} goTo='/internship/trade' 
+            <Card name={currentworkshop?.career?.jobTitle} goTo='/workshop/trade' 
                 state={currentworkshop._id} startDate={currentworkshop?.batchStartDate.toString().substring(0,10)} 
                 endDate={currentworkshop?.batchEndDate.toString().substring(0,10)}/> 
                 </MDBox> :
@@ -96,8 +96,8 @@ const Workshops = () => {
            workshops?.length>0 ? 
            <MDBox mt={3}>
             {workshops?.map((workshop)=>{
-                return <Card name ={workshop?.career?.jobTitle} startDate={workshop?.batchStartDate.toString().substring(0,10)} 
-                endDate={workshop?.batchEndDate.toString().substring(0,10)}/>
+                return <Card goTo='/workshop/orders' name ={workshop?.career?.jobTitle} startDate={workshop?.batchStartDate.toString().substring(0,10)} 
+                endDate={workshop?.batchEndDate.toString().substring(0,10)} state={workshop._id}/>
             })}
            </MDBox> 
             :
@@ -111,29 +111,30 @@ const Workshops = () => {
   )
 }
 
-const Card = ({name, goTo, state, startDate, endDate})=> {
-    const Navigate = useNavigate();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+const Card = ({ name, goTo, state, startDate, endDate }) => {
+  const Navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    return (
-        <Grid xs={12} lg={12} mb={2}>
-        <MDBox color='black' bgColor='white' minHeight='5vh' p={2} width='100%' minWidth='100%' borderRadius='12px'>
+  return (
+    <Grid xs={12} lg={12} mb={2}>
+      <MDBox color='black' bgColor='white' minHeight='5vh' p={2} width='100%' minWidth='100%' borderRadius='12px'>
         <MDBox display='flex' flexDirection={isMobile ? 'column' : 'row'} justifyContent='space-between' alignItems='center'>
-                    <Grid xs={12} xl={3}>
-                        <MDTypography fontSize={16} fontWeight='bold'>{name}</MDTypography>
-                    </Grid>
-                    <Grid xs={12} xl={3}>
-                        <MDTypography fontSize={14}>Start:{startDate}</MDTypography>
-                    </Grid>
-                    <Grid xs={12} xl={3}>    
-                        <MDTypography fontSize={14}>End:{endDate}</MDTypography>
-                    </Grid>
-                    <Grid xs={12} xl={3}>    
-                <MDButton onClick={()=>{Navigate(goTo, {state:{batchId:state}})}}>View</MDButton>
-                </Grid>
-            </MDBox>
+          <Grid xs={12} xl={3}>
+            <MDTypography fontSize={16} fontWeight='bold'>{name}</MDTypography>
+          </Grid>
+          <Grid xs={12} xl={3}>
+            <MDTypography fontSize={14}>Start:{startDate}</MDTypography>
+          </Grid>
+          <Grid xs={12} xl={3}>
+            <MDTypography fontSize={14}>End:{endDate}</MDTypography>
+          </Grid>
+          <Grid xs={12} xl={3}>
+            <MDButton onClick={() => { Navigate(goTo, { state: { batchId: state } }) }}>View</MDButton>
+          </Grid>
         </MDBox>
-        </Grid>
-  )}
+      </MDBox>
+    </Grid>
+  )
+}
 export default Workshops

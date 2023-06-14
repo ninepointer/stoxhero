@@ -29,7 +29,7 @@ function TradeViewTenX() {
     }
   })()}, [])
   let socket;
-  // console.log('id hai ye bhaiya', location?.state?.batchId, id );
+  console.log('batch id', location?.state?.batchId, id );
   try {
     socket = io.connect(`${baseUrl1}`)
   } catch (err) {

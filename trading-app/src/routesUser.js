@@ -4,7 +4,7 @@ import Profile from "./layouts/profile";
 
 // @mui icons
 
-import StadiumIcon from '@mui/icons-material/Stadium';
+// import StadiumIcon from '@mui/icons-material/Stadium';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import ReorderIcon from '@mui/icons-material/Reorder';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -24,7 +24,7 @@ import UserOrders from "./layouts/userorders";
 import UserPosition from "./layouts/PaperTrade/index";
 // import UserReport from "./layouts/userreports";
 import MyReferrals from "./layouts/referrals"
-import UserContest from "./layouts/UserContest"
+// import UserContest from "./layouts/UserContest"
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
@@ -55,6 +55,7 @@ import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
+import WorkShopOrders from './layouts/userorders/workshopOrder'
 
 const routes = [
 
@@ -339,6 +340,22 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/internship/trade",
     component: <InternshipTrade/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/workshop/trade",
+    component: <InternshipTrade/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/workshop/orders",
+    component: <WorkShopOrders/>,
   },
   {
     // type: "collapse",

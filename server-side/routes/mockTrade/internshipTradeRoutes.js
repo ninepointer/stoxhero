@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const {overallPnl,myTodaysTrade,myHistoryTrade, overallInternshipPnlYesterday, liveTotalTradersCountYesterday,
     marginDetail, overallInternshipPnl,myInternshipTradingDays, myOverallInternshipPnl, liveTotalTradersCount, tradingDays, overallPnlAllTrader, 
-    traderWiseMockTrader, internshipPnlReport, internshipDailyPnlTWise} = require('../../controllers/internshipTradeController');
+    traderWiseMockTrader, internshipPnlReport, internshipDailyPnlTWise, myWorkshopOrder} = require('../../controllers/internshipTradeController');
 const Authenticate = require('../../authentication/authentication');
 
 
@@ -16,6 +16,8 @@ router.route('/liveandtotaltradercountyesterday').get(liveTotalTradersCountYeste
 router.route('/liveandtotaltradercounttoday').get(liveTotalTradersCount)
 router.route('/my/overallinternshippnl/:batchId').get(Authenticate ,myOverallInternshipPnl);
 router.route('/my/tradingDays/:batchId').get(Authenticate, myInternshipTradingDays)
+router.route('/my/workshoporders/:batchId').get(Authenticate, myWorkshopOrder)
+
 router.route('/pnl/:batch').get(Authenticate, overallPnl);
 router.route('/pnlAllTrader/:batchId').get(Authenticate, overallPnlAllTrader);
 router.route('/traderwiseAllTrader/:batchId').get(Authenticate, traderWiseMockTrader);
