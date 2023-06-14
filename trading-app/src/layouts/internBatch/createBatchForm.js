@@ -173,7 +173,7 @@ function Index() {
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
-        if((type == 'Job' && formState?.portfolio.name != 'Internship') || (type == 'Workshop' && formState?.portfolio.name != 'Workshop' )){
+        if((type == 'Job' && !formState?.portfolio.name.toLowerCase().includes('internship')) || (type == 'Workshop' && !formState?.portfolio.name.toLowerCase().includes('workshop'))){
         console.log('true');
         return openErrorSB("Wrong Portfolio","Please check the portfolio and type compatibility");
       }
