@@ -94,7 +94,7 @@ const Workshops = () => {
           :
            currentworkshop ? 
            <MDBox mt={1}>
-            <Card name={currentworkshop?.career?.jobTitle} goTo='/internship/trade' 
+            <Card name={currentworkshop?.career?.jobTitle} goTo='/workshop/trade' 
                 state={currentworkshop._id} startDate= {moment.utc(currentworkshop?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
                 endDate={moment.utc(currentworkshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
                 buttonText='Start Trading' disabled={currentworkshop?.batchStartDate >= serverTime}/> 

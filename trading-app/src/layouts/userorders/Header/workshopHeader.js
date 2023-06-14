@@ -150,7 +150,7 @@ function Header() {
 
 
   function handleInternshipClick(){
-    console.log("HandleClick",rejectedFilter)
+    // console.log("HandleClick",rejectedFilter)
     setInternshipFilteredData(internshipData?.filter((item)=> {
        console.log(!buyInternshipFilter,!sellInternshipFilter)
        if(buyInternshipFilter && item.buyOrSell === 'BUY') {
@@ -212,9 +212,9 @@ function Header() {
                 {internshipFilterData.length === 0 ?
                 <>
                 <Grid item xs={12} md={6} lg={12}>
-                <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                <MDBox style={{minHeight:"50vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                     <img src={tradesicon} width={50} height={50}/>
-                    <MDTypography color="light" fontSize={15}>You do not have any Virtual trading orders!</MDTypography>
+                    <MDTypography color="light" fontSize={15}>You do not have any WorkShop trading orders!</MDTypography>
                 </MDBox>
                 </Grid>
                 </>

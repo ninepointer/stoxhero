@@ -132,7 +132,7 @@ exports.myWorkshopOrder = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await InternTrades.countDocuments({trader: userId, trade_time: {$gte:today}})
+  const count = await InternTrades.countDocuments({trader: new ObjectId(userId), batch: new ObjectId(batchId), trade_time: {$gte:today}})
   // console.log("Under my today orders",userId, today)
   try {
     const myTodaysTrade = await InternTrades.find({trader: new ObjectId(userId), batch: new ObjectId(batchId), trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1, 'batch': 1}).populate('batch', 'batchName')
