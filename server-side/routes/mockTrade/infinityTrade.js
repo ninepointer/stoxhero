@@ -59,6 +59,11 @@ router.route('/traderwisecompanypnlreport/:startDate/:endDate').get(companyDaily
 router.route('/companypnlreport/:startDate/:endDate').get(companyPnlReport)
 router.route('/traderwisetraderpnlreport/:startDate/:endDate').get(traderPnlTWise)
 router.route('/tradermatrixpnlreport/:startDate/:endDate').get(traderMatrixPnl)
+router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(companyDailyPnlTWise)
+router.route('/live/companypnlreport/:startDate/:endDate').get(companyPnlReport)
+router.route('/live/traderwisetraderpnlreport/:startDate/:endDate').get(traderPnlTWise)
+
+router.route('/live/tradermatrixpnlreport/:startDate/:endDate').get(traderMatrixPnl)
 router.route('/mock/mockPnlBatchWise/:batchname').get(overallPnlBatchWiseMock)
 router.route('/mock/traderwiseBatchWise/:batchname').get(traderwiseBatchMock)
 router.route('/live/mockPnlBatchWise/:batchname').get(overallPnlBatchWiseLive)
@@ -68,6 +73,8 @@ router.route('/live/companypnlreport/:startDate/:endDate').get(companyPnlReportL
 router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(companyDailyPnlTWiseLive)
 router.route('/companypnlreportsingleuser/:userId/:startDate/:endDate').get(companyDailyPnlTWiseSingleUser)
 router.route('/traderpnlreportsingleuser/:userId/:startDate/:endDate').get(traderPnlTWiseSingleUser)
+router.route('/live/companypnlreportsingleuser/:userId/:startDate/:endDate').get(companyDailyPnlTWiseSingleUser)
+router.route('/live/traderpnlreportsingleuser/:userId/:startDate/:endDate').get(traderPnlTWiseSingleUser)
 
 
 module.exports = router;

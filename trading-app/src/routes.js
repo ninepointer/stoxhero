@@ -25,7 +25,7 @@ import AdminReport from "./layouts/adminreportMock";
 import DailyPNLData from "./layouts/dailyPnlDashboard";
 import TraderPosition from "./layouts/traderPosition"
 import InternPosition from "./layouts/internPosition"
-import AdminReportLive from "./layouts/adminreportLive"
+// import AdminReportLive from "./layouts/adminreportLive"
 import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
 // import AnalyticsRoutes from './analyticsRoutes'
@@ -132,6 +132,7 @@ import TenxReport from "./layouts/tenXReport";
 import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
+import AdminLiveReport from './layouts/adminSideReportLive'
 
 
 const routes = [
@@ -586,7 +587,7 @@ const routes = [
     key: "adminreportlive",
     // icon: <SummarizeIcon/>,
     route: "/adminreportlive",
-    component: <AdminReportLive/>,
+    component: <AdminLiveReport/>,
   },
   {
     // type: "collapse",
