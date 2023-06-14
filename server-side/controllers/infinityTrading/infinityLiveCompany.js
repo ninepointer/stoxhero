@@ -1,5 +1,6 @@
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const ObjectId = require('mongoose').Types.ObjectId;
+const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 
 exports.overallLivePnlToday = async(req, res, next)=>{
     let date = new Date();
@@ -809,8 +810,8 @@ exports.traderPnlTWiseLive = async (req, res, next) => {
     }
   ]
 
-  let x = await InfinityTrader.aggregate(pipeline)
-  let cumulative = await InfinityTrader.aggregate(pipelineCommulative)
+  let x = await InfinityLiveUser.aggregate(pipeline)
+  let cumulative = await InfinityLiveUser.aggregate(pipelineCommulative)
 
   res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
 }
@@ -1341,8 +1342,8 @@ exports.traderPnlTWiseSingleUserLive = async (req, res, next) => {
     }
   ]
 
-  let x = await InfinityTrader.aggregate(pipeline)
-  let cumulative = await InfinityTrader.aggregate(pipelineCommulative)
+  let x = await InfinityLiveCompany.aggregate(pipeline)
+  let cumulative = await InfinityLiveCompany.aggregate(pipelineCommulative)
 
   res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
 }
