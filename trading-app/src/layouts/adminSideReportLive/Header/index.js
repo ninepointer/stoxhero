@@ -146,11 +146,11 @@ export default function LabTabs() {
   if(cumulativeData?.length>0){
     // console.log('cumulativeData',cumulativeData);
     for(let item of cumulativeData ){
-      cumulativeTotalgpnl += item.gpnl;
-      cumulativeTotalnpnl += item.npnl;
-      cumulativeTotalBrokerage += item.brokerage;
-      cumulativeTotalOrders += item.noOfTrade;
-      if(item.npnl>=0){
+      cumulativeTotalgpnl += item?.gpnl;
+      cumulativeTotalnpnl += item?.npnl;
+      cumulativeTotalBrokerage += item?.brokerage;
+      cumulativeTotalOrders += item?.noOfTrade;
+      if(item?.npnl>=0){
         cumulativeTotalGreenDays += 1;
       }
       else{
@@ -158,9 +158,15 @@ export default function LabTabs() {
       }
       cumulativeTotalTradingDays +=1;
     }
+    if(alignment === companyDailyPnl){
+      cumulativeTotalgpnl = cumulativeData[cumulativeData.length - 1]?.gpnl;
+      cumulativeTotalnpnl = cumulativeData[cumulativeData.length - 1]?.npnl;
+      cumulativeTotalBrokerage = cumulativeData[cumulativeData.length - 1]?.brokerage;
+      cumulativeTotalOrders = cumulativeData[cumulativeData.length - 1]?.noOfTrade;
+    }
   }
 
-  return (
+  return  (
 
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
 
@@ -335,9 +341,12 @@ export default function LabTabs() {
         </Grid>
       </Grid>
 
-      <Grid mt={3} container>
+      <MDBox bgColor="light" sx={{ borderTopLeftRadius: 5, borderTopRightRadius: 5 }} width="170px">
+        <MDTypography fontSize={13} mt={3} fontWeight="bold" bgColor="light" paddingLeft="5px" >For Selected Date Range</MDTypography>
+      </MDBox>
+      <Grid  container>
         <Grid item xs={12} md={6} lg={12}>
-          <MDBox bgColor="light" borderRadius={5}>
+          <MDBox bgColor="light" borderRadius={5} sx={{ borderTopLeftRadius: 0}}>
 
             <MDBox>
               <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
@@ -391,7 +400,6 @@ export default function LabTabs() {
                     <MDTypography fontSize={13} fontWeight="bold" color="error">{totalRedDays}</MDTypography>
                   </MDBox>
                 </Grid>
-                {/* </MDBox> */}
 
               </Grid>
             </MDBox>
@@ -400,63 +408,65 @@ export default function LabTabs() {
         </Grid>
       </Grid>
 
-      <Grid mt={3} container>
+      <MDBox bgColor="light" sx={{ borderTopLeftRadius: 5, borderTopRightRadius: 5 }} width="130px">
+        <MDTypography fontSize={13} mt={3} fontWeight="bold" bgColor="light" paddingLeft="25px" >Cumulative</MDTypography>
+      </MDBox>
+      {/* <MDTypography fontSize={13} mt={3} fontWeight="bold" color="light">Cumulative</MDTypography> */}
+      <Grid container>
         <Grid item xs={12} md={6} lg={12}>
-          <MDBox bgColor="light" borderRadius={5}>
+          <MDBox bgColor="light" borderRadius={5} sx={{ borderTopLeftRadius: 0}}>
 
             <MDBox>
               <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
 
-                {/* <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center"> */}
-                <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                    <MDTypography fontSize={13} fontWeight="bold">Cumm. Gross:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold">Gross:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" color={cumulativeTotalgpnl > 0 ? "success" : "error"}>{cumulativeTotalgpnl >= 0 ? `₹${cumulativeTotalgpnl?.toFixed(2)}` : `-₹${-1 * cumulativeTotalgpnl?.toFixed(2)}`}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                    <MDTypography fontSize={13} fontWeight="bold">Cumm. Net:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold">Net:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" color={cumulativeTotalnpnl > 0 ? "success" : "error"}>{cumulativeTotalnpnl >= 0 ? `₹${cumulativeTotalnpnl?.toFixed(2)}` : `-₹${-1 * cumulativeTotalnpnl?.toFixed(2)}`}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                    <MDTypography fontSize={13} fontWeight="bold">Cumm. Brokerage:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold">Brokerage:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" color="info">{cumulativeTotalBrokerage >= 0 ? `₹${cumulativeTotalBrokerage?.toFixed(2)}` : `-₹${Math.abs(cumulativeTotalBrokerage?.toFixed(2))}`}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={3} mt={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                    <MDTypography fontSize={13} fontWeight="bold">Cumm. Orders:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold">Orders:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" color="#344767">{cumulativeTotalOrders}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={3} mt={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                    <MDTypography fontSize={13} fontWeight="bold">Cumm. Trade Days:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold">Trade Days:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" color="#344767">{cumulativeTotalTradingDays}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={3} mt={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={1.5} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                    <MDTypography fontSize={13} fontWeight="bold">Cumm. Green D:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold">Green D:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" color="success">{cumulativeTotalGreenDays}</MDTypography>
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={3} mt={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={1.3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
-                    <MDTypography fontSize={13} fontWeight="bold">Cumm. Red D:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold">Red D:&nbsp;</MDTypography>
                     <MDTypography fontSize={13} fontWeight="bold" color="error">{cumulativeTotalRedDays}</MDTypography>
                   </MDBox>
                 </Grid>
-                {/* </MDBox> */}
 
               </Grid>
             </MDBox>
