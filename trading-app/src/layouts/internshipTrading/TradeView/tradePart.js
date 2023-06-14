@@ -25,7 +25,7 @@ export default function TenXTrading({socket, BatchId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   const [availbaleMargin, setAvailbleMargin] = useState([]);
-  // console.log('id hai ye bhai ji', BatchId);
+  console.log('id hai ye bhai ji', BatchId);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;

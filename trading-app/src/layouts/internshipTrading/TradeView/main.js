@@ -23,13 +23,26 @@ function TradeViewTenX() {
   const BatchId = getDetails?.userDetails.internshipBatch[batchArr.length - 1]?._id||'123';
   // console.log("BatchId", getDetails?.userDetails.internshipBatch[batchArr.length - 1]?._id)
   useEffect(()=> {(async ()=>{
-    const res = await axios.get(`${baseUrl}api/v1/internbatch/currentinternship`, {withCredentials:true});
-    if(Object.keys(res.data.data).length !== 0){
-      setId(res.data?.data?._id);
+
+    if(!id){
+      if(location?.pathname == "/workshop/trade"){
+        const res = await axios.get(`${baseUrl}api/v1/internbatch/currentworkshop`, {withCredentials:true});
+        if(Object.keys(res.data.data).length !== 0){
+          setId(res.data?.data?._id);
+        }
+      } else{
+        const res = await axios.get(`${baseUrl}api/v1/internbatch/currentinternship`, {withCredentials:true});
+        if(Object.keys(res.data.data).length !== 0){
+          setId(res.data?.data?._id);
+        }
+      }
     }
-  })()}, [])
+
+  })()
+}, [])
+
   let socket;
-  // console.log('id hai ye bhaiya', location?.state?.batchId, id );
+  console.log('batch id', location );
   try {
     socket = io.connect(`${baseUrl1}`)
   } catch (err) {

@@ -124,7 +124,7 @@ exports.addUserToGd = async(req, res, next) => {
     const careerListing = await CareerSchema.findById(currentBatch.career);
     const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name');
     user = await User.findOne({email: career.email}).select('_id');
-    if(user && (listingType === batchlistingType)){
+    if(user){
       const existinggds = await GroupDiscussion.find({'participants.user': user._id});
       console.log('existing gds', existinggds);
       const batchesArr = await Promise.all(existinggds.map((elem)=>{
@@ -398,9 +398,6 @@ exports.selectCandidate = async (req, res, next) => {
     const currentbatch = await Batch.findById(gd.batch).select('_id career batchStartDate batchEndDate');
     const career = await CareerSchema.findById(currentbatch.career).select('_id listingType');
     const user = await User.findById(userId);
-    const batch = await Batch.findById(gd.batch);
-    const jobPositing = await JobPosting.findById(batch.career);
-    const listingType = jobPositing?.listingType
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
       return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
     }
@@ -450,7 +447,7 @@ exports.selectCandidate = async (req, res, next) => {
     
     
     //Add user to batch
-    // batch = await Batch.findById(gd.batch);
+    const batch = await Batch.findById(gd.batch);
     
     batch.participants = [...batch.participants, {user: userId, college: collegeId, joiningDate: new Date()}];
     

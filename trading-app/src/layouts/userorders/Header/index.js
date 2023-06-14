@@ -53,7 +53,7 @@ function Header({ children }) {
 
   const [data, setData] = useState([]);
   const getDetails = useContext(userContext);
-  console.log("getDetails", getDetails)
+  // console.log("getDetails", getDetails)
   let todayColor = (view === 'today' ? 'warning' : 'light')
   let historyColor = (view === 'history' ? 'warning' : 'light')
   let todayInfinityColor = (infinityView === 'today' ? 'warning' : 'light')
@@ -67,8 +67,6 @@ function Header({ children }) {
   let internshipUrl = internshipView === 'today' ? url1 : url2;
   let infinityBaseUrl = getDetails.userDetails.role.roleName == InfinityTraderRole ? "infinityTrade" : "tenX"
  
-//1200027715 18550ce 161.81 buy  1000000064054896
-//1200027714 18550ce 158.47 sell 1000000062327849
   useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip}&limit=${limitSetting}`,{
@@ -248,6 +246,7 @@ function Header({ children }) {
       })
     }
   },[getDetails, url1, url2,internshipView]); 
+
   function infinityBackHandler(){
       if(InfinitySkip <= 0){
           return;
@@ -370,47 +369,6 @@ function Header({ children }) {
       }    
     }))
   }
-
-  function dateConvert(dateConvert){
-    console.log("Date Convert",dateConvert)
-    // const dateString = dateConvert;
-    // const date = new Date(dateString);
-    dateConvert = new Date(dateConvert)
-    const options = { 
-      timeZone: 'Asia/Kolkata',
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric', 
-      hour: 'numeric', 
-      minute: 'numeric',
-      second: 'numeric'
-    };
-    
-    const formattedDate = new Intl.DateTimeFormat('en-IN', options).format(dateConvert);
-    
-    // get day of month and add ordinal suffix
-    const dayOfMonth = dateConvert.getDate();
-    let suffix = "th";
-    if (dayOfMonth === 1 || dayOfMonth === 21 || dayOfMonth === 31) {
-      suffix = "st";
-    } else if (dayOfMonth === 2 || dayOfMonth === 22) {
-      suffix = "nd";
-    } else if (dayOfMonth === 3 || dayOfMonth === 23) {
-      suffix = "rd";
-    }
-    
-    // combine date and time string with suffix
-    const finalFormattedDate = `${dayOfMonth}${suffix} ${formattedDate?.split(" ")[1]}, ${dateConvert.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false })}`;
-    
-    console.log(finalFormattedDate); // Output: "3rd April, 9:27 PM"
-    
- 
-
-  return finalFormattedDate
-  }
-
-  // console.log(filterData, infinityFilterData)
-  console.log("infinityData", infinityData, infinityFilterData);
 
   return (
     

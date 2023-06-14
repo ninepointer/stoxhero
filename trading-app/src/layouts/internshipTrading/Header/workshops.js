@@ -6,10 +6,10 @@ import {CircularProgress } from '@mui/material';
 import axios from 'axios';
 import moment from 'moment';
 import {Grid} from '@mui/material';
-import MDAvatar from '../../../components/MDAvatar';
+// import MDAvatar from '../../../components/MDAvatar';
 import MDButton from '../../../components/MDButton';
-import checklist from '../../../assets/images/checklist.png';
-import CardContent from '@mui/material/CardContent';
+// import checklist from '../../../assets/images/checklist.png';
+// import CardContent from '@mui/material/CardContent';
 import { useNavigate} from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -94,7 +94,7 @@ const Workshops = () => {
           :
            currentworkshop ? 
            <MDBox mt={1}>
-            <Card name={currentworkshop?.career?.jobTitle} goTo='/internship/trade' 
+            <Card name={currentworkshop?.career?.jobTitle} goTo='/workshop/trade' 
                 state={currentworkshop._id} startDate= {moment.utc(currentworkshop?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
                 endDate={moment.utc(currentworkshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
                 buttonText='Start Trading' disabled={currentworkshop?.batchStartDate >= serverTime}/> 
@@ -120,9 +120,9 @@ const Workshops = () => {
            workshops?.length>0 ? 
            <MDBox mt={1}>
             {workshops?.map((workshop)=>{
-                return <Card name ={workshop?.career?.jobTitle} startDate={moment.utc(workshop?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')} 
+                return <Card goTo='/workshop/orders' name ={workshop?.career?.jobTitle} startDate={moment.utc(workshop?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')} 
                 endDate={moment.utc(workshop?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY HH:mm a')}
-                buttonText='View Details'/>
+                buttonText='View Details' state={workshop._id}/>
             })}
            </MDBox> 
             :

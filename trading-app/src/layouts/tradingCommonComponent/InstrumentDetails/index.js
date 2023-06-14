@@ -38,7 +38,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const [sellState, setSellState] = useState(false);
   //console.log("socket print", socket)
   const getDetail = useContext(userContext);
-  console.log("rendering : InstrumentDetails")
+  console.log("rendering : InstrumentDetails", subscriptionId)
   let styleTD = {
     textAlign: "center",
     fontSize: "11px",

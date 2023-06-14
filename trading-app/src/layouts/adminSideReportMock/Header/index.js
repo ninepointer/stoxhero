@@ -145,12 +145,13 @@ export default function LabTabs() {
   let cumulativeTotalgpnl =0 , cumulativeTotalnpnl =0, cumulativeTotalBrokerage =0, cumulativeTotalOrders=0, cumulativeTotalTradingDays =0, cumulativeTotalGreenDays =0, cumulativeTotalRedDays = 0;
   if(cumulativeData?.length>0){
     // console.log('cumulativeData',cumulativeData);
+
     for(let item of cumulativeData ){
-      cumulativeTotalgpnl += item.gpnl;
-      cumulativeTotalnpnl += item.npnl;
-      cumulativeTotalBrokerage += item.brokerage;
-      cumulativeTotalOrders += item.noOfTrade;
-      if(item.npnl>=0){
+      cumulativeTotalgpnl += item?.gpnl;
+      cumulativeTotalnpnl += item?.npnl;
+      cumulativeTotalBrokerage += item?.brokerage;
+      cumulativeTotalOrders += item?.noOfTrade;
+      if(item?.npnl>=0){
         cumulativeTotalGreenDays += 1;
       }
       else{
@@ -158,9 +159,17 @@ export default function LabTabs() {
       }
       cumulativeTotalTradingDays +=1;
     }
+    if(alignment === companyDailyPnl){
+      cumulativeTotalgpnl = cumulativeData[cumulativeData.length - 1]?.gpnl;
+      cumulativeTotalnpnl = cumulativeData[cumulativeData.length - 1]?.npnl;
+      cumulativeTotalBrokerage = cumulativeData[cumulativeData.length - 1]?.brokerage;
+      cumulativeTotalOrders = cumulativeData[cumulativeData.length - 1]?.noOfTrade;
+    }
   }
 
-  return (
+  // console.log("cumulativeTotalgpnl", cumulativeTotalgpnl)
+
+  return  (
 
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
 
