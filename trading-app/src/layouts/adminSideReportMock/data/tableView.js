@@ -118,6 +118,9 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
               })
               const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error"
               const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error"
+              const cummgpnlcolor = (cummData[0]?.gpnl) >= 0 ? "success" : "error"
+              const cummnpnlcolor = (cummData[0]?.npnl) >= 0 ? "success" : "error"
+
               const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek - 1];
 
               return (
@@ -131,26 +134,29 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
                     <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{weekday}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={gpnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.gpnl))}</MDTypography>
+                    <MDTypography color={gpnlcolor} fontSize={10} fontWeight="bold">{ (elem?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.gpnl))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                     <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.brokerage))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={npnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.npnl))}</MDTypography>
+                    <MDTypography color={npnlcolor} fontSize={10} fontWeight="bold">{ (elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                     <MDTypography color={"light"} fontSize={10} fontWeight="bold">{elem?.noOfTrade}</MDTypography>
                   </Grid>
 
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={gpnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.gpnl))}</MDTypography>
+                    <MDTypography color={cummgpnlcolor} fontSize={10} fontWeight="bold">{ (cummData[0]?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.gpnl))}</MDTypography>
+                    {/* <MDTypography color={gpnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.gpnl))}</MDTypography> */}
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                     <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.brokerage))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={npnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.npnl))}</MDTypography>
+                    <MDTypography color={cummnpnlcolor} fontSize={10} fontWeight="bold">{ (cummData[0]?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.npnl))}</MDTypography>
+
+                    {/* <MDTypography color={npnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.npnl))}</MDTypography> */}
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                     <MDTypography color={"light"} fontSize={10} fontWeight="bold">{cummData[0]?.noOfTrade}</MDTypography>
@@ -169,13 +175,6 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
               </Grid>
             </Grid>
           }
-          {/* {!isLoading && count !== 0 &&
-            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-              <MDButton variant='outlined' color='warning' disabled={(skip+limitSetting)/limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {!count ? 0 : count} | Page {(skip+limitSetting)/limitSetting} of {!count ? 1 : Math.ceil(count/limitSetting)}</MDTypography>
-              <MDButton variant='outlined' color='warning' disabled={Math.ceil(count/limitSetting) === (skip+limitSetting)/limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
-            </MDBox>
-            } */}
 
         </Grid>
         :
@@ -261,23 +260,23 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
                       <MDTypography color="light" fontSize={8} fontWeight="bold">{elem?.createdBy}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={.857} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={gpnlcolor} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.LifetimeGPnl))}</MDTypography>
+                      <MDTypography color={gpnlcolor} fontSize={8} fontWeight="bold">{ (elem?.LifetimeGPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.LifetimeGPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.LifetimeGPnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={.857} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color="light" fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.LifetimeNPnl))}</MDTypography>
+                      <MDTypography color="light" fontSize={8} fontWeight="bold">{ (elem?.LifetimeNPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.LifetimeNPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.LifetimeNPnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={.857} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={npnlcolor} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.PositivePnl))}</MDTypography>
+                      <MDTypography color={npnlcolor} fontSize={8} fontWeight="bold">{ (elem?.PositivePnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.PositivePnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.PositivePnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={.857} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={"light"} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.NegativePnl))}</MDTypography>
+                      <MDTypography color={"light"} fontSize={8} fontWeight="bold"> { (elem?.NegativePnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.NegativePnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.NegativePnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={.857}>
                       <MDTypography color="light" fontSize={8} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(ratio))}</MDTypography>
                     </Grid>
 
                     <Grid item xs={12} md={2} lg={.857} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={gpnlcolor} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(probableavgpnl))}</MDTypography>
+                      <MDTypography color={gpnlcolor} fontSize={8} fontWeight="bold">{ (probableavgpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(probableavgpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-probableavgpnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={.857} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography color="light" fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.TradingDays))}</MDTypography>
@@ -314,13 +313,6 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
                 </Grid>
               </Grid>
             }
-            {/* {!isLoading && count !== 0 &&
-            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-              <MDButton variant='outlined' color='warning' disabled={(skip+limitSetting)/limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {!count ? 0 : count} | Page {(skip+limitSetting)/limitSetting} of {!count ? 1 : Math.ceil(count/limitSetting)}</MDTypography>
-              <MDButton variant='outlined' color='warning' disabled={Math.ceil(count/limitSetting) === (skip+limitSetting)/limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
-            </MDBox>
-            } */}
 
           </Grid>
           :
@@ -369,6 +361,9 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
                 let cummData = cumulativeData?.filter((subelem) => {
                   return elem?.userId === subelem?.userId;
                 })
+
+                const cummgpnlcolor = (cummData[0]?.gpnl) >= 0 ? "success" : "error"
+                const cummnpnlcolor = (cummData[0]?.npnl) >= 0 ? "success" : "error"  
                 const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error"
                 const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error"
                 // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek-1];
@@ -378,16 +373,16 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
 
                   <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                     <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color="light" fontSize={8} fontWeight="bold">{elem?.name?.length > 13 ? (elem?.name)?.slice(0, 14) + "..." : elem?.name}</MDTypography>
+                      <MDTypography color="light" fontSize={8} fontWeight="bold">{elem?.name?.length > 14 ? (elem?.name)?.slice(0, 14) + "..." : elem?.name}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={1.09} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={gpnlcolor} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.gpnl))}</MDTypography>
+                      <MDTypography color={gpnlcolor} fontSize={8} fontWeight="bold">{ (elem?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.gpnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography color="light" fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.brokerage))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={1.09} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={npnlcolor} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.npnl))}</MDTypography>
+                      <MDTypography color={npnlcolor} fontSize={8} fontWeight="bold">{ (elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography color={"light"} fontSize={8} fontWeight="bold">{elem?.noOfTrade}</MDTypography>
@@ -397,13 +392,13 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
                     </Grid>
 
                     <Grid item xs={12} md={2} lg={1.09} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={gpnlcolor} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.gpnl))}</MDTypography>
+                      <MDTypography color={cummgpnlcolor} fontSize={8} fontWeight="bold">{ (cummData[0]?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.gpnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={1.09} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography color="light" fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.brokerage))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={1.09} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                      <MDTypography color={npnlcolor} fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.npnl))}</MDTypography>
+                      <MDTypography color={cummnpnlcolor} fontSize={8} fontWeight="bold">{(cummData[0]?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.npnl))}</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={2} lg={1.09} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography color={"light"} fontSize={8} fontWeight="bold">{cummData[0]?.noOfTrade}</MDTypography>

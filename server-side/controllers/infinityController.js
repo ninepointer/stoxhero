@@ -1051,8 +1051,8 @@ exports.companyPnlReport = async (req, res, next) => {
 
   let { startDate, endDate } = req.params
 
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
+  startDate = new Date(startDate + "T00:00:00.000Z");
+  endDate = new Date(endDate + "T23:59:59.000Z");
 
 
   let pipeline = [
@@ -1119,58 +1119,61 @@ exports.companyPnlReport = async (req, res, next) => {
     },
     {
       $sort: {
-        _id: 1,
+        date: -1,
       },
     },
   ]
 
-  let pipelineCommulative = [
-    {
-      $match: {
-        trade_time: {
-          $lte: new Date(endDate),
+  async function getCumulativeData(date){
+    console.log(date)
+    let pipelineCommulative = [
+      {
+        $match: {
+          trade_time: {
+            // $gte: new Date(startDate),
+            $lte: (date),
+          },
+          status: "COMPLETE",
         },
-        status: "COMPLETE",
+        // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
       },
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
-    },
-    {
-      $group: {
-        _id: {
-          date: {
-            $substr: ["$trade_time", 0, 10],
+      {
+        $group: {
+          _id: {
+            // date: {
+            //   $substr: ["$trade_time", 0, 10],
+            // },
           },
-        },
-        gpnl: {
-          $sum: {
-            $multiply: ["$amount", -1],
+          gpnl: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
           },
-        },
-        brokerage: {
-          $sum: {
-            $toDouble: "$brokerage",
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
           },
-        },
-        noOfTrade: {
-          $count: {},
-        },
-      },
-    },
-    {
-      $addFields: {
-        date: "$_id.date",
-        npnl: {
-          $subtract: ["$gpnl", "$brokerage"],
-        },
-        dayOfWeek: {
-          $dayOfWeek: {
-            $toDate: "$_id.date",
+          noOfTrade: {
+            $count: {},
           },
         },
       },
-    },
-    {
-      $project:
+      {
+        $addFields: {
+          date: { $dateToString: { format: "%Y-%m-%d", date: date } },
+          npnl: {
+            $subtract: ["$gpnl", "$brokerage"],
+          },
+          dayOfWeek: {
+            $dayOfWeek: {
+              $toDate: date,
+            },
+          },
+        },
+      },
+      {
+        $project:
         /**
          * specifications: The fields to
          *   include or exclude.
@@ -1184,18 +1187,35 @@ exports.companyPnlReport = async (req, res, next) => {
           noOfTrade: 1,
           date: 1,
         },
-    },
-    {
-      $sort: {
-        _id: 1,
       },
-    },
-  ]
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]
+    let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative)
+    console.log(cumulative)
+    return cumulative[0];
+  }
+
+  const result = [];
+  for (let currentDate = startDate; currentDate <= endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+    // const currentPipeline = JSON.parse(JSON.stringify(pipelineTemplate)); // Deep copy the pipeline template
+    // currentPipeline[0].$match.trade_time.$gte = currentDate;
+    // currentPipeline[0].$match.trade_time.$lte = currentDate;
+    
+    // Execute the current pipeline and store the result
+    const currentResult = await getCumulativeData(currentDate); // Replace this with your code to execute the aggregation pipeline
+    
+    result.push(currentResult);
+  }
+
+  
 
   let x = await InfinityTraderCompany.aggregate(pipeline)
-  let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative)
 
-  res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
+  res.status(201).json({ message: "data received", data: x, cumulative: result });
 }
 
 exports.traderPnlTWise = async (req, res, next) => {
