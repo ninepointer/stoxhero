@@ -41,7 +41,6 @@ const Workshops = () => {
   const fetchData = async() => {
     const res = await axios.get(`${apiUrl}internbatch/currentworkshop`, {withCredentials: true});
     console.log(res.data);
-    console.log('bhai job ye',res.data?.data?.career?.jobTitle);
     if(Object.keys(res.data.data).length!=0){
         setCurrentWorkshop(res.data.data);
     }
