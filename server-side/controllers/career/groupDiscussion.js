@@ -5,7 +5,7 @@ const mailSender = require('../../utils/emailService');
 const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const Campaign = require("../../models/campaigns/campaignSchema");
-const JobPosting = require("../../models/Careers/careerSchema")
+const CareerSchema = require("../../models/Careers/careerSchema");
 
 exports.createGroupDiscussion = async(req, res, next)=>{
     console.log(req.body) // batchID
@@ -120,22 +120,33 @@ exports.addUserToGd = async(req, res, next) => {
   try{
     let user;
     const gd = await GroupDiscussion.findById(gdId);
-    const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name career');
-    const jobPositing = await JobPosting.findById(career.career)
-    const listingType = jobPositing?.listingType
-    const batch = await Batch.findById(gd.batch);
-    const batchCareer = batch?.career
-    const batchlistingType = batchCareer?.listingType
+    const currentBatch = await Batch.findById(gd.batch).select('_id career batchStartDate, batchEndDate');
+    const careerListing = await CareerSchema.findById(currentBatch.career);
+    const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name');
     user = await User.findOne({email: career.email}).select('_id');
     if(user && (listingType === batchlistingType)){
       const existinggds = await GroupDiscussion.find({'participants.user': user._id});
-      if (existinggds.length > 0){
-        return res.status(400).json({status:'error', message: 'User is already in another Group Discussion'});
+      console.log('existing gds', existinggds);
+      const batchesArr = await Promise.all(existinggds.map((elem)=>{
+        return Batch.findById(elem.batch).select('_id career batchStartDate batchEndDate') 
+      }));
+      const careersArr = await Promise.all(batchesArr.map((elem)=>{
+        return CareerSchema.findById(elem.career).select('_id listingType')
+      }));
+
+      console.log('batches and careers', batchesArr, careersArr);
+      console.log('conditions', existinggds.length >0, 
+      checkForListingMatch(careersArr, careerListing.listingType), 
+      checkForTimingMatch(batchesArr, currentBatch.batchStartDate, currentBatch.batchEndDate ));
+      if (existinggds.length >0 && 
+        checkForListingMatch(careersArr, careerListing.listingType) && 
+        checkForTimingMatch(batchesArr, currentBatch.batchStartDate, currentBatch.batchEndDate )){
+        return res.status(400).json({status:'error', message: 'User is already in another overlapping Group Discussion'});
       }
     }
-    console.log('existing gds');
-    console.log('user is', user);
-    console.log('college is', collegeId);
+    // console.log('existing gds');
+    // console.log('user is', user);
+    // console.log('college is', collegeId);
     const {campaignCode, mobileNo, email,first_name, last_name} = career;
     const  campaign = await Campaign.findOne({campaignCode: campaignCode});
     if(!user){
@@ -165,7 +176,7 @@ exports.addUserToGd = async(req, res, next) => {
       const myReferralCode = generateUniqueReferralCode();
       const userId = email.split('@')[0]
       const userIds = await User.find({employeeid:userId})
-      console.log("User Ids: ",userIds)
+      // console.log("User Ids: ",userIds)
         if(userIds.length > 0){
             userId = userId.toString()+(userIds.length+1).toString()
         }
@@ -213,16 +224,16 @@ exports.addUserToGd = async(req, res, next) => {
                   );
               }
             
-            console.log("Campaign: ",campaign)
+            // console.log("Campaign: ",campaign)
             if(campaign){
-                console.log("Inside setting user to campaign")
+                // console.log("Inside setting user to campaign")
                 campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
                 const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
                     $set:{ 
                         users: campaign?.users
                     }
                 })
-                console.log(campaignData)
+                // console.log(campaignData)
             }
     
             await UserWallet.create(
@@ -323,7 +334,7 @@ exports.addUserToGd = async(req, res, next) => {
       }
     }
     gd.participants = [...gd.participants, {user: user._id, attended: false, status: 'Shortlisted', college: collegeId}]
-    console.log(gd.participants);
+    // console.log(gd.participants);
     await gd.save({validateBeforeSave: false});
     career.applicationStatus = 'Shortlisted';
     await career.save({validateBeforeSave: false});
@@ -334,13 +345,29 @@ exports.addUserToGd = async(req, res, next) => {
   }
 
 }
+const checkForListingMatch = (arr, type) => {
+  for(elem of arr){
+    if(elem.listingType == type){
+      return true
+    }
+  }
+  return false;
+}
+const checkForTimingMatch = (arr, startTime, endTime) => {
+  for(elem of arr){
+    if(elem.batchStartDate < endTime && elem.batchEndDate > startTime){
+      return true
+    }
+  }
+  return false;
+}
 
 exports.markAttendance = async(req,res, next) => {
-  console.log('marking');
+  // console.log('marking');
   const userId = req.params.userId;
   const gdId = req.params.gdId;
   const{attended} = req.body;
-  console.log(attended);
+  // console.log(attended);
   try {
     const gd = await GroupDiscussion.findById(gdId);
     // const career = await CareerApplication.findById(userId).select('email _id applicationStatus');
@@ -368,6 +395,8 @@ exports.selectCandidate = async (req, res, next) => {
 
   try {
     const gd = await GroupDiscussion.findById(gdId);
+    const currentbatch = await Batch.findById(gd.batch).select('_id career batchStartDate batchEndDate');
+    const career = await CareerSchema.findById(currentbatch.career).select('_id listingType');
     const user = await User.findById(userId);
     const batch = await Batch.findById(gd.batch);
     const jobPositing = await JobPosting.findById(batch.career);
@@ -375,10 +404,18 @@ exports.selectCandidate = async (req, res, next) => {
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
       return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
     }
-    const existingUserBatches = await Batch.find({'participants.user': userId})
-    const batchCareer = await JobPosting.findById(existingUserBatches?.career)
-    const careerListingType = batchCareer?.listingType
-    if(existingUserBatches.length >0 && (careerListingType === listingType)){
+    const existingUserBatches = await Batch.find({'participants.user': userId}).populate('career', 'listingType');
+    const filteredExistingUserBatches = existingUserBatches.filter((elem)=>elem.career.listingType == career.listingType);
+    const careersArr = await Promise.all(filteredExistingUserBatches.map((elem)=>{
+      return CareerSchema.findById(elem.career).select('_id listingType')
+    }));
+    console.log('existing batches and careers', filteredExistingUserBatches, careersArr);
+    console.log('condition while selecting', existingUserBatches.length >0, 
+      checkForListingMatch(careersArr, career.listingType), 
+      checkForTimingMatch(filteredExistingUserBatches, currentbatch.batchStartDate, currentbatch.batchEndDate) );
+    if(existingUserBatches.length >0 && 
+      checkForListingMatch(careersArr, career.listingType) && 
+      checkForTimingMatch(filteredExistingUserBatches, currentbatch.batchStartDate, currentbatch.batchEndDate)){
       return res.status(203).json({status:'error', message: 'User is already in an internship batch'});
     }
     let participants = gd.participants.map((item)=>{
@@ -421,7 +458,7 @@ exports.selectCandidate = async (req, res, next) => {
     
     //Add batch info to the user's document
     
-    user.internshipBatch = [...user.internshipBatch,gd.batch];
+    user.internshipBatch = [...user.internshipBatch, gd.batch];
     
     //Give user the intern portfolio
     // user.portfolio = [...user.portfolio, {portfolioId: batch.portfolio, activationDate: new Date()}]
@@ -514,7 +551,7 @@ exports.selectCandidate = async (req, res, next) => {
 exports.getGdsByCareer = async(req, res, next) => {
 
   const {careerId} = req.params;
-  console.log(careerId);
+  // console.log(careerId);
   try{
     const batches = await Batch.find({career: careerId});
     if(batches.length == 0){
@@ -522,15 +559,15 @@ exports.getGdsByCareer = async(req, res, next) => {
     }
   
     const batchIds = batches.map((batch)=>batch._id);
-    console.log('batchIds', batchIds);
+    // console.log('batchIds', batchIds);
   
     const gds = await GroupDiscussion.find({batch: {$in:batchIds} });
-    console.log('gds', gds);
+    // console.log('gds', gds);
     if(gds.length == 0){
       return res.status(200).json({status: 'success', message:'No gds found with this career'});
     }
 
-    console.log(gds)
+    // console.log(gds)
     res.status(200).json({status:'success', data: gds, results:gds.count});
 
   }catch(e){
@@ -543,19 +580,34 @@ exports.getGdsByCareer = async(req, res, next) => {
 
 exports.removeUserFromGD = async(req, res, next)=>{
   const{gdId, userId} = req.params;
-  try{
-    const gd = await GroupDiscussion.findById(gdId);
+try {
+    const gd = await GroupDiscussion.findById(gdId).populate('batch', 'career');
     gd.participants = gd.participants.filter((item)=>item.user != userId);
     const user = await User.findById(userId).select('_id email');
-    const careerApplicant = await CareerApplication.findOne({email: user.email});
-    careerApplicant.applicationStatus = 'Applied';
-    await careerApplicant.save({validateBeforeSave:false});
+    const careerApplicant = await CareerApplication.findOne({email: user.email, career:gd.batch.career});
+    
+    // Checking careerApplicant
+    if (!careerApplicant) {
+        console.log('No career application found for this email.');
+    } else {
+        console.log('careerApplicant', careerApplicant);
+        careerApplicant.applicationStatus = 'Applied';
+        console.log('careerApplicant after status change', careerApplicant.applicationStatus);
+        
+        try {
+            await careerApplicant.save({ validateBeforeSave: false});
+        } catch (err) {
+            console.log('Error saving careerApplicant:', err);
+        }
+    }
+    
     await gd.save({validateBeforeSave: false});
   
     res.status(204).json({status:'success', message:'Removed from GD'});
-  }catch(e){
+} catch(e) {
     console.log(e);
     res.status(500).json({status: 'error', message:'Something went wrong.'})
-  }
+}
+
 
 }
