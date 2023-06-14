@@ -18,6 +18,7 @@ import MDBox from '../../../components/MDBox';
 const App = () => {
 
   const location = useLocation();
+  console.log("Location in Job Description: ",location)
   const career = location?.state?.data;
   const campaignCode = location?.state?.campaignCode;
 

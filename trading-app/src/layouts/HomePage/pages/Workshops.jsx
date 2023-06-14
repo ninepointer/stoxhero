@@ -17,6 +17,7 @@ import axios from "axios";
 const Internship = ({campaignCode}) => {
   // console.log('campaignCode', campaignCode);
   const [isLoading,setIsLoading] = useState(false);
+  console.log("Campaign Code on Workshop Page: ",campaignCode)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [career, setCareer] = useState([]);
     useEffect(()=>{
