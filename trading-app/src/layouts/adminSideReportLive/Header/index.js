@@ -171,7 +171,7 @@ export default function LabTabs() {
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
 
       <MDBox mb={2} style={{ border: '1px solid white', borderRadius: 5 }} display="flex" justifyContent="space-between">
-        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Admin Mock Report</MDTypography>
+        <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Admin Live Report</MDTypography>
         <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
           {/* <TextField
             select

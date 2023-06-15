@@ -134,6 +134,15 @@ const routes = [
   },
   {
     // type: "collapse",
+    // name: "Internship/WorkShop",
+    // key: "internship",
+    // icon: <Icon fontSize="small">person</Icon>,
+    // icon: <MenuBookIcon/>,
+    route: "/workshop",
+    component: <Internship />,
+  },
+  {
+    // type: "collapse",
     // name: "TenX Trading",
     // key: "tenxtrading",
     // // icon: <Icon fontSize="small">person</Icon>,
