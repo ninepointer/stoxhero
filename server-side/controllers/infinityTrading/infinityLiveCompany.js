@@ -578,14 +578,14 @@ exports.overallCompanySidePnlLive = async (req, res, next) => {
 exports.overallInfinityLiveCompanyPnlYesterday = async (req, res, next) => {
   let yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // console.log(yesterdayDate)
+  // //console.log(yesterdayDate)
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(yesterdayStartTime); 
     const endTime = new Date(yesterdayEndTime); 
-    // console.log("Query Timing: ", startTime, endTime)
+    // //console.log("Query Timing: ", startTime, endTime)
     let pnlDetails = await InfinityLiveCompany.aggregate([
       {
         $match: {
@@ -639,14 +639,14 @@ exports.overallInfinityLiveCompanyPnlYesterday = async (req, res, next) => {
 exports.overallInfinityLiveCompanyPnlMTD = async (req, res, next) => {
   let yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // console.log(yesterdayDate)
+  // //console.log(yesterdayDate)
     let monthStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
     monthStartTime = monthStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(monthStartTime); 
     const endTime = new Date(yesterdayEndTime); 
-    // console.log("Query Timing: ", startTime, endTime)
+    // //console.log("Query Timing: ", startTime, endTime)
     let pnlDetails = await InfinityLiveCompany.aggregate([
       {
         $match: {
@@ -810,10 +810,233 @@ exports.traderPnlTWiseLive = async (req, res, next) => {
     }
   ]
 
-  let x = await InfinityLiveUser.aggregate(pipeline)
-  let cumulative = await InfinityLiveUser.aggregate(pipelineCommulative)
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
 
-  res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityLiveUser.aggregate(pipeline);
+  let cumulative = await InfinityLiveUser.aggregate(pipelineCommulative);
+  let rangeDaysCalculation = await InfinityLiveUser.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityLiveUser.aggregate(commulativeDays);
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
+
 }
 
 exports.companyPnlReportLive = async (req, res, next) => {
@@ -822,6 +1045,7 @@ exports.companyPnlReportLive = async (req, res, next) => {
 
   startDate = new Date(startDate + "T00:00:00.000Z");
   endDate = new Date(endDate + "T23:59:59.000Z");
+  let oneDayAfterEnd = endDate.setDate(endDate.getDate() + 1)
 
 
   let pipeline = [
@@ -894,7 +1118,7 @@ exports.companyPnlReportLive = async (req, res, next) => {
   ]
 
   async function getCumulativeData(date){
-    // console.log(date)
+    // //console.log(date)
     let pipelineCommulative = [
       {
         $match: {
@@ -959,7 +1183,10 @@ exports.companyPnlReportLive = async (req, res, next) => {
       },
       {
         $group: {
-          _id: {},
+          _id: {
+            date: "$date",
+          },
+          
           tradingDays: {
             $count: {},
           },
@@ -1006,16 +1233,13 @@ exports.companyPnlReportLive = async (req, res, next) => {
       },
     ]
     let cumulative = await InfinityLiveCompany.aggregate(pipelineCommulative)
-    console.log(cumulative)
+    //console.log(cumulative)
     return cumulative[0];
   }
 
   const result = [];
-  for (let currentDate = startDate; currentDate <= endDate; currentDate.setDate(currentDate.getDate() + 1)) {
-    // const currentPipeline = JSON.parse(JSON.stringify(pipelineTemplate)); // Deep copy the pipeline template
-    // currentPipeline[0].$match.trade_time.$gte = currentDate;
-    // currentPipeline[0].$match.trade_time.$lte = currentDate;
-    
+  for (let currentDate = startDate; currentDate <= oneDayAfterEnd; currentDate.setDate(currentDate.getDate() + 1)) {
+    //console.log(currentDate)
     // Execute the current pipeline and store the result
     const currentResult = await getCumulativeData(currentDate); // Replace this with your code to execute the aggregation pipeline
     
@@ -1142,10 +1366,232 @@ exports.companyDailyPnlTWiseLive = async (req, res, next) => {
     }
   ]
 
-  let x = await InfinityLiveCompany.aggregate(pipeline)
-  let cumulative = await InfinityLiveCompany.aggregate(pipelineCommulative)
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
 
-  res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityLiveCompany.aggregate(pipeline);
+  let cumulative = await InfinityLiveCompany.aggregate(pipelineCommulative);
+  let rangeDaysCalculation = await InfinityLiveCompany.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityLiveCompany.aggregate(commulativeDays);
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
 }
 
 exports.companyDailyPnlTWiseSingleUserLive = async (req, res, next) => {
@@ -1263,10 +1709,235 @@ exports.companyDailyPnlTWiseSingleUserLive = async (req, res, next) => {
     }
   ]
 
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+
   let x = await InfinityLiveCompany.aggregate(pipeline)
   let cumulative = await InfinityLiveCompany.aggregate(pipelineCommulative)
+  let rangeDaysCalculation = await InfinityLiveCompany.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityLiveCompany.aggregate(commulativeDays);
 
-  res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
 }
 
 exports.traderPnlTWiseSingleUserLive = async (req, res, next) => {
@@ -1384,10 +2055,236 @@ exports.traderPnlTWiseSingleUserLive = async (req, res, next) => {
     }
   ]
 
-  let x = await InfinityLiveCompany.aggregate(pipeline)
-  let cumulative = await InfinityLiveCompany.aggregate(pipelineCommulative)
 
-  res.status(201).json({ message: "data received", data: x, cumulative: cumulative });
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+
+  let x = await InfinityLiveUser.aggregate(pipeline)
+  let cumulative = await InfinityLiveUser.aggregate(pipelineCommulative)
+  let rangeDaysCalculation = await InfinityLiveUser.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityLiveUser.aggregate(commulativeDays);
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
 }
 
 exports.traderMatrixPnlLive = async (req, res, next) => {

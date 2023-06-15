@@ -16,6 +16,7 @@ import { apiUrl } from '../../../constants/constants';
 import TableView from "../data/tableView";
 import Autocomplete from '@mui/material/Autocomplete';
 import { makeStyles } from '@mui/styles';
+import MDSnackbar from '../../../components/MDSnackbar';
 // import { makeStyles } from '@mui/core/styles';
 
 const useStyles = makeStyles({
@@ -49,6 +50,8 @@ export default function LabTabs() {
   // const [selectedBatches, setSelectedBatches] = useState();
   const [trader, setTrader] = useState([])
   const [value, setValue] = useState(null);
+  const [dateRange, setDateRange] = useState({});
+  const [cumulativeDays, setCumulativeDays] = useState({});
 
 // console.log("value", value)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -104,7 +107,7 @@ export default function LabTabs() {
     setAlignment(newAlignment);
   };
 
-  console.log("alignment", alignment, endpoint)
+  // console.log("alignment", alignment, endpoint)
 
   useEffect(()=>{
     handleShowDetails();
@@ -113,6 +116,10 @@ export default function LabTabs() {
   const handleShowDetails = async() => {
     const from = startDate.format('YYYY-MM-DD');
     const to = endDate.format('YYYY-MM-DD');
+    if(from > to){
+      openSuccessSB('error', "Please select valid date range.");
+      return;
+    }
     if (from && to) {
       const res = await axios.get(`${apiUrl}${endpoint}/${from}/${to}`, {withCredentials: true});
       // console.log(res.data.data);
@@ -120,13 +127,19 @@ export default function LabTabs() {
       if(res?.data?.cumulative){
         setCumulativeData(res?.data?.cumulative)
       }
+      if(res?.data?.commulativeDays){
+        setCumulativeDays(res?.data?.commulativeDays)
+      }
+      if(res?.data?.rangeDays){
+        setDateRange(res?.data?.rangeDays)
+      }
       
     }
     
   }
   let totalgpnl =0 , totalnpnl =0, totalBrokerage =0, totalOrders=0, totalTradingDays =0, totalGreenDays =0, totalRedDays = 0;
   if(dateWiseData.length>0){
-    console.log('datewise',dateWiseData);
+    // console.log('datewise',dateWiseData);
     for(let item of dateWiseData ){
       totalgpnl += item.gpnl;
       totalnpnl += item.npnl;
@@ -140,11 +153,23 @@ export default function LabTabs() {
       }
       totalTradingDays +=1;
     }
+
+    if(alignment === companyPnlTraderwise || alignment === traderPnlTraderwise){
+      totalgpnl  = dateRange?.totalGpnl;
+      totalnpnl  = dateRange?.totalNpnl;
+      totalBrokerage  = dateRange?.totalBrokerage;
+      totalOrders  = dateRange?.totalTrade;
+      totalGreenDays  = dateRange?.greenDays;
+      totalRedDays = dateRange?.redDays;
+      totalTradingDays  = dateRange?.tradingDays;  
+    }
   }
 
   let cumulativeTotalgpnl =0 , cumulativeTotalnpnl =0, cumulativeTotalBrokerage =0, cumulativeTotalOrders=0, cumulativeTotalTradingDays =0, cumulativeTotalGreenDays =0, cumulativeTotalRedDays = 0;
   if(cumulativeData?.length>0){
     // console.log('cumulativeData',cumulativeData);
+
+
     for(let item of cumulativeData ){
       cumulativeTotalgpnl += item?.gpnl;
       cumulativeTotalnpnl += item?.npnl;
@@ -158,49 +183,74 @@ export default function LabTabs() {
       }
       cumulativeTotalTradingDays +=1;
     }
+
+    if(alignment === companyPnlTraderwise || alignment === traderPnlTraderwise){
+      cumulativeTotalgpnl = cumulativeDays?.totalGpnl;
+      cumulativeTotalnpnl = cumulativeDays?.totalNpnl;
+      cumulativeTotalBrokerage = cumulativeDays?.totalBrokerage;
+      cumulativeTotalOrders = cumulativeDays?.totalTrade;
+      cumulativeTotalGreenDays = cumulativeDays?.greenDays;
+      cumulativeTotalRedDays = cumulativeDays?.redDays;
+      cumulativeTotalTradingDays = cumulativeDays?.tradingDays;  
+    }
+
     if(alignment === companyDailyPnl){
-      cumulativeTotalgpnl = cumulativeData[cumulativeData.length - 1]?.gpnl;
-      cumulativeTotalnpnl = cumulativeData[cumulativeData.length - 1]?.npnl;
-      cumulativeTotalBrokerage = cumulativeData[cumulativeData.length - 1]?.brokerage;
-      cumulativeTotalOrders = cumulativeData[cumulativeData.length - 1]?.noOfTrade;
+      cumulativeTotalgpnl = cumulativeData[cumulativeData.length - 1]?.totalGpnl;
+      cumulativeTotalnpnl = cumulativeData[cumulativeData.length - 1]?.totalNpnl;
+      cumulativeTotalBrokerage = cumulativeData[cumulativeData.length - 1]?.totalBrokerage;
+      cumulativeTotalOrders = cumulativeData[cumulativeData.length - 1]?.totalTrade;
+      cumulativeTotalGreenDays = cumulativeData[cumulativeData.length - 1]?.greenDays;
+      cumulativeTotalRedDays = cumulativeData[cumulativeData.length - 1]?.redDays;
+      cumulativeTotalTradingDays = cumulativeData[cumulativeData.length - 1]?.tradingDays;
     }
   }
 
-  return  (
+
+  const [messageObj, setMessageObj] = useState({
+    color: '',
+    icon: '',
+    title: '',
+    content: ''
+  })
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (value,content) => {
+    // //console.log("Value: ",value)
+    if(value === "error"){
+      messageObj.color = 'error'
+      messageObj.icon = 'error'
+      messageObj.title = "Error";
+      messageObj.content = content;
+    };
+
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  }
+  const closeSuccessSB = () => setSuccessSB(false);
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color= {messageObj.color}
+      icon= {messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+    />
+  );
+
+
+  return (
 
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
 
       <MDBox mb={2} style={{ border: '1px solid white', borderRadius: 5 }} display="flex" justifyContent="space-between">
         <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">Admin Live Report</MDTypography>
         <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
-          {/* <TextField
-            select
-            label=""
-            value={batches[0]?.batchName}
-            minHeight="4em"
-            placeholder="Select subscription"
-            variant="outlined"
-            InputLabelProps={{
-              style: {
-                color: 'light'
-              }
-            }}
-            InputProps={{
-              style: {
-                input: {
-                  color: 'light' // Change the color value to the desired text color
-                }
-              }
-            }}
-            sx={{ width: "170px" }}
-            onChange={(e) => { setSelectedBatches(batches.filter((item) => item.batchName == e.target.value)[0]._id) }}
-          >
-            {batches?.map((option) => (
-              <MenuItem key={option.batchName} value={option.batchName} minHeight="4em">
-                {option.batchName}
-              </MenuItem>
-            ))}
-          </TextField> */}
+
           <ToggleButtonGroup
             color={textColor}
             style={{ backgroundColor: "white", margin: 3 }}
@@ -272,7 +322,7 @@ export default function LabTabs() {
                           sx={{ width: 170, maxHeight: 170, padding: "0px" }}
                           freeSolo
                           renderInput={(params) => (
-                            <TextField {...params} label="Select" sx={{ padding: "0px" }} />
+                            <TextField {...params} placeholder='All Users' sx={{ padding: "0px" }} />
                           )}
                         />
                       </Grid>
@@ -344,9 +394,9 @@ export default function LabTabs() {
       <MDBox bgColor="light" sx={{ borderTopLeftRadius: 5, borderTopRightRadius: 5 }} width="170px">
         <MDTypography fontSize={13} mt={3} fontWeight="bold" bgColor="light" paddingLeft="5px" >For Selected Date Range</MDTypography>
       </MDBox>
-      <Grid  container>
+      <Grid container>
         <Grid item xs={12} md={6} lg={12}>
-          <MDBox bgColor="light" borderRadius={5} sx={{ borderTopLeftRadius: 0}}>
+          <MDBox bgColor="light" borderRadius={5} sx={{ borderTopLeftRadius: 0 }}>
 
             <MDBox>
               <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
@@ -355,21 +405,21 @@ export default function LabTabs() {
                 <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Gross:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color={totalgpnl > 0 ? "success" : "error"}>{totalgpnl >= 0 ? `₹${totalgpnl?.toFixed(2)}` : `-₹${-1 * totalgpnl?.toFixed(2)}`}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color={totalgpnl > 0 ? "success" : "error"}>{totalgpnl ? ((totalgpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalgpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalgpnl))) : "+₹0"}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Net:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color={totalnpnl > 0 ? "success" : "error"}>{totalnpnl >= 0 ? `₹${totalnpnl?.toFixed(2)}` : `-₹${-1 * totalnpnl?.toFixed(2)}`}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color={totalnpnl > 0 ? "success" : "error"}>{totalnpnl ? ((totalnpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalnpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalnpnl))) : "+₹0"}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Brokerage:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color="info">{totalBrokerage >= 0 ? `₹${totalBrokerage?.toFixed(2)}` : `-₹${Math.abs(totalBrokerage?.toFixed(2))}`}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color="info">{totalBrokerage ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalBrokerage)) : "+₹0"}</MDTypography>
                   </MDBox>
                 </Grid>
 
@@ -414,7 +464,7 @@ export default function LabTabs() {
       {/* <MDTypography fontSize={13} mt={3} fontWeight="bold" color="light">Cumulative</MDTypography> */}
       <Grid container>
         <Grid item xs={12} md={6} lg={12}>
-          <MDBox bgColor="light" borderRadius={5} sx={{ borderTopLeftRadius: 0}}>
+          <MDBox bgColor="light" borderRadius={5} sx={{ borderTopLeftRadius: 0 }}>
 
             <MDBox>
               <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
@@ -422,21 +472,21 @@ export default function LabTabs() {
                 <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Gross:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color={cumulativeTotalgpnl > 0 ? "success" : "error"}>{cumulativeTotalgpnl >= 0 ? `₹${cumulativeTotalgpnl?.toFixed(2)}` : `-₹${-1 * cumulativeTotalgpnl?.toFixed(2)}`}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color={cumulativeTotalgpnl > 0 ? "success" : "error"}>{cumulativeTotalgpnl ? (cumulativeTotalgpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cumulativeTotalgpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cumulativeTotalgpnl)) : "+₹0"}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Net:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color={cumulativeTotalnpnl > 0 ? "success" : "error"}>{cumulativeTotalnpnl >= 0 ? `₹${cumulativeTotalnpnl?.toFixed(2)}` : `-₹${-1 * cumulativeTotalnpnl?.toFixed(2)}`}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color={cumulativeTotalnpnl > 0 ? "success" : "error"}>{cumulativeTotalnpnl ? (cumulativeTotalnpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cumulativeTotalnpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cumulativeTotalnpnl)) : "+₹0"}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Brokerage:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color="info">{cumulativeTotalBrokerage >= 0 ? `₹${cumulativeTotalBrokerage?.toFixed(2)}` : `-₹${Math.abs(cumulativeTotalBrokerage?.toFixed(2))}`}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color="info">{cumulativeTotalBrokerage ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cumulativeTotalBrokerage)) : "+₹0"}</MDTypography>
                   </MDBox>
                 </Grid>
 
@@ -492,7 +542,7 @@ export default function LabTabs() {
         </Grid>
 
       </Grid>
-
+      {renderSuccessSB}
     </MDBox>
   );
 }

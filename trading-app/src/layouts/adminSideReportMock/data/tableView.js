@@ -114,12 +114,13 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
             dateWiseData?.map((elem) => {
 
               let cummData = cumulativeData?.filter((subelem) => {
-                return elem?.date === subelem?.date;
+                return elem?.date === subelem?._id?.date;
               })
+              console.log("cummData", cummData)
               const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error"
               const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error"
-              const cummgpnlcolor = (cummData[0]?.gpnl) >= 0 ? "success" : "error"
-              const cummnpnlcolor = (cummData[0]?.npnl) >= 0 ? "success" : "error"
+              const cummgpnlcolor = (cummData[0]?.totalGpnl) >= 0 ? "success" : "error"
+              const cummnpnlcolor = (cummData[0]?.totalNpnl) >= 0 ? "success" : "error"
 
               const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek - 1];
 
@@ -147,19 +148,19 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
                   </Grid>
 
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={cummgpnlcolor} fontSize={10} fontWeight="bold">{ (cummData[0]?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.totalGpnl))}</MDTypography>
+                    <MDTypography color={cummgpnlcolor} fontSize={10} fontWeight="bold">{ cummData[0]?.totalGpnl ? (cummData[0]?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.totalGpnl)) : "+₹0"}</MDTypography>
                     {/* <MDTypography color={gpnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.gpnl))}</MDTypography> */}
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.totalBrokerage))}</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold">₹{cummData[0]?.totalBrokerage ? new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.totalBrokerage)) : "0"}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={cummnpnlcolor} fontSize={10} fontWeight="bold">{ (cummData[0]?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.totalNpnl))}</MDTypography>
+                    <MDTypography color={cummnpnlcolor} fontSize={10} fontWeight="bold">{ cummData[0]?.totalNpnl ? ((cummData[0]?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummData[0]?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummData[0]?.totalNpnl))) : "+₹0"}</MDTypography>
 
                     {/* <MDTypography color={npnlcolor} fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(cummData[0]?.npnl))}</MDTypography> */}
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={"light"} fontSize={10} fontWeight="bold">{cummData[0]?.noOfTrade}</MDTypography>
+                    <MDTypography color={"light"} fontSize={10} fontWeight="bold">{cummData[0]?.totalTrade ? cummData[0]?.totalTrade : 0}</MDTypography>
                   </Grid>
                 </Grid>
 

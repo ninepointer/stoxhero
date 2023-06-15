@@ -66,7 +66,7 @@ const EChartsDemo = ({cumulativeData, monthWiseData, alignment}) => {
           {
             name: 'Net P&L',
             type: 'bar',
-            data: monthWiseData?.map((e)=>e?.npnl.toFixed(0)),
+            data: monthWiseData?.map((e)=>e?.npnl?.toFixed(0)),
             markPoint: {
               data: [
                 { type: 'max', name: 'Max' },
@@ -80,7 +80,7 @@ const EChartsDemo = ({cumulativeData, monthWiseData, alignment}) => {
           {
             name: 'Cumm. Net P&L',
             type: 'bar',
-            data: cumulativeData?.map((e)=>e.npnl.toFixed(0)),
+            data: cumulativeData?.map((e)=>e?.npnl?.toFixed(0)),
             markPoint: {
               data: [
                 { type: 'max', name: 'Max' },
