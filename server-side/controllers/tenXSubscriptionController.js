@@ -83,7 +83,7 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
         const tenXSubs = await TenXSubscription.find({status: "Active"})
         .populate('portfolio', 'portfolioName portfolioValue')
-        .sort({$natural: -1})
+        .sort({$natural: 1})
         
         res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
     }catch(e){
