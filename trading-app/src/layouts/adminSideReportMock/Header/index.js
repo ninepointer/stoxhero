@@ -160,10 +160,13 @@ export default function LabTabs() {
       cumulativeTotalTradingDays +=1;
     }
     if(alignment === companyDailyPnl){
-      cumulativeTotalgpnl = cumulativeData[cumulativeData.length - 1]?.gpnl;
-      cumulativeTotalnpnl = cumulativeData[cumulativeData.length - 1]?.npnl;
-      cumulativeTotalBrokerage = cumulativeData[cumulativeData.length - 1]?.brokerage;
-      cumulativeTotalOrders = cumulativeData[cumulativeData.length - 1]?.noOfTrade;
+      cumulativeTotalgpnl = cumulativeData[cumulativeData.length - 1]?.totalGpnl;
+      cumulativeTotalnpnl = cumulativeData[cumulativeData.length - 1]?.totalNpnl;
+      cumulativeTotalBrokerage = cumulativeData[cumulativeData.length - 1]?.totalBrokerage;
+      cumulativeTotalOrders = cumulativeData[cumulativeData.length - 1]?.totalTrade;
+      cumulativeTotalGreenDays = cumulativeData[cumulativeData.length - 1]?.greenDays;
+      cumulativeTotalRedDays = cumulativeData[cumulativeData.length - 1]?.redDays;
+      cumulativeTotalTradingDays = cumulativeData[cumulativeData.length - 1]?.tradingDays;
     }
   }
 
