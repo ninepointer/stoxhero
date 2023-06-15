@@ -1045,7 +1045,6 @@ exports.companyPnlReportLive = async (req, res, next) => {
 
   startDate = new Date(startDate + "T00:00:00.000Z");
   endDate = new Date(endDate + "T23:59:59.000Z");
-  let oneDayAfterEnd = endDate.setDate(endDate.getDate() + 1)
 
 
   let pipeline = [
@@ -1116,6 +1115,9 @@ exports.companyPnlReportLive = async (req, res, next) => {
       },
     },
   ]
+
+  let oneDayAfterEnd = endDate.setDate(endDate.getDate() + 1)
+
 
   async function getCumulativeData(date){
     // //console.log(date)
