@@ -894,13 +894,13 @@ exports.companyPnlReportLive = async (req, res, next) => {
   ]
 
   async function getCumulativeData(date){
-    console.log(date)
+    // console.log(date)
     let pipelineCommulative = [
       {
         $match: {
           trade_time: {
             // $gte: new Date(startDate),
-            $lte: (date),
+            $lte: new Date(date),
           },
           status: "COMPLETE",
         },
@@ -909,9 +909,9 @@ exports.companyPnlReportLive = async (req, res, next) => {
       {
         $group: {
           _id: {
-            // date: {
-            //   $substr: ["$trade_time", 0, 10],
-            // },
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
           },
           gpnl: {
             $sum: {
@@ -930,24 +930,24 @@ exports.companyPnlReportLive = async (req, res, next) => {
       },
       {
         $addFields: {
-          date: { $dateToString: { format: "%Y-%m-%d", date: date } },
+          date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: new Date(date),
+            },
+          },
           npnl: {
             $subtract: ["$gpnl", "$brokerage"],
           },
           dayOfWeek: {
             $dayOfWeek: {
-              $toDate: date,
+              $toDate: new Date(date),
             },
           },
         },
       },
       {
-        $project:
-        /**
-         * specifications: The fields to
-         *   include or exclude.
-         */
-        {
+        $project: {
           _id: 0,
           gpnl: 1,
           brokerage: 1,
@@ -955,6 +955,48 @@ exports.companyPnlReportLive = async (req, res, next) => {
           dayOfWeek: 1,
           noOfTrade: 1,
           date: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {},
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
         },
       },
       {

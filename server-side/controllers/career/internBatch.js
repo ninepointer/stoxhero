@@ -314,6 +314,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     let workshops = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Workshop');
     res.json({status: 'success', data: workshops});
   }
+
   exports.getCurrentWorkshop = async(req,res,next) =>{
     console.log('current');
     const userId = req.user._id;
@@ -330,9 +331,9 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     }).select('internshipBatch');
     let internships = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Workshop');
     // console.log("userBatches", userBatches);
-    if(new Date().toISOString().substring(0,10) >= internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
-        return res.json({status: 'success', data: {}, message:'No active workshops'});    
-    }
+    // if(new Date().toISOString().substring(0,10) <= internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
+    //     return res.json({status: 'success', data: {}, message:'No active workshops'});    
+    // }
     res.json({status: 'success', data: internships[internships.length-1]});
   }
   
