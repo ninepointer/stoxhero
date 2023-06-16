@@ -617,48 +617,9 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
     const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
     const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
-    // const traderDocMock = await InfinityMockTrader.findOne({ _id: algoTrader.upsertedId });
-    // console.log("algoTrader", algoTrader)
-    // console.log("algoTraderLive", algoTraderLive)
-    // console.log("mockCompany", mockCompany)
-    // console.log("liveCompanyTrade", liveCompanyTrade)
+
 
     let isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
-
-    // let settingRedis;
-    // if (isInsertedAllDB && status == "COMPLETE" && await client.exists(`${trader.toString()} overallpnl`)) {
-    //   let pnl = await client.get(`${trader.toString()} overallpnl`)
-    //   pnl = JSON.parse(pnl);
-    //   // console.log("redis pnl", pnl)
-    //   const matchingElement = pnl.find((element) => (element._id.instrumentToken === traderDocMock.instrumentToken && element._id.product === traderDocMock.Product));
-    //   // if instrument is same then just updating value
-    //   if (matchingElement) {
-    //     // Update the values of the matching element with the values of the first document
-    //     matchingElement.amount += (traderDocMock.amount * -1);
-    //     matchingElement.brokerage += Number(traderDocMock.brokerage);
-    //     matchingElement.lastaverageprice = traderDocMock.average_price;
-    //     matchingElement.lots += Number(traderDocMock.Quantity);
-
-    //   } else {
-    //     // Create a new element if instrument is not matching
-    //     pnl.push({
-    //       _id: {
-    //         symbol: traderDocMock.symbol,
-    //         product: traderDocMock.Product,
-    //         instrumentToken: traderDocMock.instrumentToken,
-    //         exchangeInstrumentToken: traderDocMock.exchangeInstrumentToken,
-    //         exchange: traderDocMock.exchange,
-    //       },
-    //       amount: (traderDocMock.amount * -1),
-    //       brokerage: Number(traderDocMock.brokerage),
-    //       lots: Number(traderDocMock.Quantity),
-    //       lastaverageprice: traderDocMock.average_price,
-    //     });
-    //   }
-    //   settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
-    //   // console.log("in chek if 3", settingRedis)
-    //   console.log(settingRedis)
-    // }
 
 
     const pipeline = clientForIORedis.pipeline();

@@ -13,12 +13,12 @@ export default function RealTrade({Render, id, buttonTextBool, tradingAlgo}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const getDetails = useContext(userContext);
     const { reRender, setReRender } = Render;
-    let realTrade = useRef(buttonTextBool);
-    let buttonText = buttonTextBool ? "ON" : "OFF"
+    // let realTrade = useRef(buttonTextBool);
+    // let buttonText = buttonTextBool ? "ON" : "OFF"
     const [mappedUser, setMappedUser] = useState([]);
     let [accessTokenDetails, setAccessToken] = useState([]);
     let [apiKeyDetails, setApiKey] = useState([]);
-    let buttoncolor = buttonText == "ON" ? "success" : "error"
+    // let buttoncolor = buttonText == "ON" ? "success" : "error"
 
 
     let date = new Date();
