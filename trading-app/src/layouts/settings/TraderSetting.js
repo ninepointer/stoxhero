@@ -9,25 +9,25 @@ import Switch from "@mui/material/Switch";
 export default function TraderSetting({userId, isRealTradeEnable}) {
 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    const [permissionDetail, setPermissionDetail] = useState({});
-    const [tradeDetail, setTradeDetail] = useState([]);
-    const [algoUsed, setAlgoUsed] = useState([]);
-    const [accessTokenDetails, setAccessToken] = useState([]);
-    const [apiKeyDetails, setApiKey] = useState([]);
-    // const {render, setRender} = Render;
-    const [reRender, setReRender] = useState(true);
-    const [realTradeState, setRealTradeState] = useState(true);
-    const [liveTradeDetail, setLiveTradeDetail] = useState([]);
+    // const [permissionDetail, setPermissionDetail] = useState({});
+    // const [tradeDetail, setTradeDetail] = useState([]);
+    // const [algoUsed, setAlgoUsed] = useState([]);
+    // const [accessTokenDetails, setAccessToken] = useState([]);
+    // const [apiKeyDetails, setApiKey] = useState([]);
+    // // const {render, setRender} = Render;
+    // const [reRender, setReRender] = useState(true);
+    // const [realTradeState, setRealTradeState] = useState(true);
+    // const [liveTradeDetail, setLiveTradeDetail] = useState([]);
     const [isChecked, setIsChecked] = useState(isRealTradeEnable)
 
     let date = new Date();
     let createdOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}:${String(date.getMilliseconds()).padStart(2, '0')}`
 
     const uId = uniqid();
-    const tradeBy = "System";
+    // const tradeBy = "System";
     let modifiedOn = createdOn;
     let modifiedBy = "System";
-    let checkingMultipleAlgoFlag = 1;
+    // let checkingMultipleAlgoFlag = 1;
 
     console.log("rendering", userId)
 
