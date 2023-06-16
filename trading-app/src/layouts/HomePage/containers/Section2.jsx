@@ -31,7 +31,6 @@ const CustomCounter = ({
 );
 
 const Section2 = ({data}) => {
-  console.log(data);
   return (
     <Container sx={{ mt:{xs:"-12px"} }}>
      <Box

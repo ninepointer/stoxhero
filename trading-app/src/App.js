@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useContext, useRef } from "react";
 import axios from "axios"
+import ReactGA from "react-ga"
 
 // react-router components
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -65,6 +66,9 @@ import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
+
+const TRACKING_ID = "UA-264098426-2"
+ReactGA.initialize(TRACKING_ID)
 
 export default function App() {
   const cookieValue = Cookies.get("jwtoken");
