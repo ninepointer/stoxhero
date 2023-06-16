@@ -1,39 +1,21 @@
-// import Home from './Home';
-// import Swap from './Swap'
-
 import React, {useState, useContext, useEffect} from "react"
 import { Link, useLocation } from "react-router-dom";
-// import { Route, Routes } from 'react-router-dom'
+import ReactGA from "react-ga";
 import theme from '../utils/theme/index';
 import { Box } from '@mui/material';
 import { ThemeProvider } from 'styled-components';
-// import About from './About';
 import Navbar from '../components/Navbars/Navbar';
 import Footer from '../components/Footers/Footer';
-// import Internship from './Internship';
 import Workshops from './Workshops';
-// import MDBox from "../../../components/MDBox";
-// import Tab from '@mui/material/Tab';
-// import TabContext from '@mui/lab/TabContext';
-// import TabList from '@mui/lab/TabList';
-// import TabPanel from '@mui/lab/TabPanel';
-// import { CircularProgress } from '@mui/material';
-// import JobDescription from './JobDescription';
+
 
 const App = (props) => {
   const [campaignCode,setCampaignCode] = useState();
   // const [isLoading,setIsLoading] = useState(false);
   const location = useLocation();
-  // const [value, setValue] = React.useState('1');
-  // const handleChange = (event, newValue) => {
-  //   setIsLoading(true)
-  //   setValue(newValue);
-  //   setTimeout(() => {
-  //     setIsLoading(false)
-  //   }, 500);
-  // };
   useEffect(()=>{
     setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
+    ReactGA.pageview(window.location.pathname)
   },[]);
 
   console.log("location", location)

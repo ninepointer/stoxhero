@@ -3,6 +3,7 @@
 
 import React, {useState, useContext, useEffect} from "react"
 import { Link, useLocation } from "react-router-dom";
+import ReactGA from "react-ga"
 // import { Route, Routes } from 'react-router-dom'
 import theme from '../utils/theme/index';
 import { Box } from '@mui/material';
@@ -36,6 +37,7 @@ const App = (props) => {
   console.log(location)
   useEffect(()=>{
     setCampaignCode(location.search.split('=')[1]??props.location?.search?.split('=')[1]??'');
+    ReactGA.pageview(window.location.pathname)
   },[]);
   return (
     <ThemeProvider theme={theme}>

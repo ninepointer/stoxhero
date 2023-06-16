@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
+import ReactGA from "react-ga"
 import { CircularProgress, formLabelClasses } from "@mui/material";
 import { Grid, Input, TextField } from '@mui/material'
 import theme from '../utils/theme/index';
@@ -23,6 +24,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
 const CareerForm = () => {
+
   const [submitted,setSubmitted] = useState(false)
   const [saving,setSaving] = useState(false)
   const [creating,setCreating] = useState(false)
@@ -49,6 +51,11 @@ const CareerForm = () => {
   const [file, setFile] = useState(null);
   // const [uploadedData, setUploadedData] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+
+  useEffect(()=>{
+    ReactGA.pageview(window.location.pathname)
+  },[])
+  
 
   async function confirmOTP(){
 
@@ -96,15 +103,10 @@ const CareerForm = () => {
   const data = await res.json();
 
     if(res.status === 201){ 
-        // window.alert(data.message);
-        // setOTPGenerated(true);
-        // setTimerActive(true);
-        // setResendTimer(30); 
         setSubmitted(true);
         setCreating(false);
         return openSuccessSB("Application Submitted",data.info,"SUCCESS");  
     }else{
-        // console.log("openInfoBS Called")
         return openSuccessSB("Error",data.info,"Error")
     }
 

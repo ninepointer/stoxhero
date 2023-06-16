@@ -2,15 +2,10 @@ import { Box, Grid,Stack,Tooltip, Typography } from '@mui/material'
 import MDButton from '../../../components/MDButton'
 import MDBox from '../../../components/MDBox'
 import MDTypography from '../../../components/MDTypography'
-import MDAvatar from '../../../components/MDAvatar'
-// import Title from '../components/Title/index'
+import ReactGA from "react-ga"
 import { CircularProgress, formLabelClasses } from "@mui/material";
 import React, {useEffect, useState} from 'react'
-// import theme from '../utils/theme/index'
-// import ServiceCard from '../components/Cards/ServiceCard'
 import { Link } from 'react-router-dom';
-// import Logo from "../../../assets/images/logo1.jpeg"
-import jobs from "../../../assets/images/jobs.png"
 import axios from "axios";
 
 
@@ -20,10 +15,10 @@ const Internship = ({campaignCode}) => {
   const [career, setCareer] = useState([]);
     useEffect(()=>{
       setIsLoading(true)
+      ReactGA.pageview(window.location.pathname)
       axios.get(`${baseUrl}api/v1/career?type=Job`)
       .then((res)=>{
         setCareer(res.data?.data);
-        console.log(career.length) 
         setTimeout(()=>{
           setIsLoading(false);
         },500) 

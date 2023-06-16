@@ -1,10 +1,8 @@
 import React, {useState, useContext, useEffect} from "react"
+import ReactGA from "react-ga"
 
 // react-router-dom components
 import { Link, useLocation } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
-// import OtpInput from 'react-otp-input';
-// import dayjs from 'dayjs';
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -30,10 +28,6 @@ import backgroundImage from "../../../layouts/HomePage/assets/images/section1/ba
 
 function Cover(props) {
 
-  // console.log("Inside Sign UP")
-
-  // const navigate = useNavigate();
-  // const [dateValue,setDateValue] = useState(dayjs('01/24/2000'))
   const [showEmailOTP, setShowEmailOTP] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(true);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
@@ -65,6 +59,7 @@ function Cover(props) {
   
   useEffect(()=>{
     setformstate(prevState => ({...prevState, referrerCode: location.search?.split('=')[1]??props.location?.search?.split('=')[1]??''}));
+    ReactGA.pageview(window.location.pathname)
   },[]);
 
   useEffect(() => {
@@ -73,7 +68,7 @@ function Cover(props) {
       if (timerActive && resendTimer > 0) {
         countdownTimer = setTimeout(() => {
           setResendTimer(prevTime => prevTime - 1);
-        }, 1000);
+        }, 500);
       }
 
       // If the timer reaches 0, stop the countdown and set the timerActive flag to false

@@ -2,33 +2,28 @@ import { Box, Grid,Stack,Tooltip, Typography } from '@mui/material'
 import MDButton from '../../../components/MDButton'
 import MDBox from '../../../components/MDBox'
 import MDTypography from '../../../components/MDTypography'
-import MDAvatar from '../../../components/MDAvatar'
-// import Title from '../components/Title/index'
 import { CircularProgress, formLabelClasses } from "@mui/material";
 import React, {useEffect, useState} from 'react'
-// import theme from '../utils/theme/index'
-// import ServiceCard from '../components/Cards/ServiceCard'
+import ReactGA from "react-ga";
 import { Link } from 'react-router-dom';
-// import Logo from "../../../assets/images/logo1.jpeg"
 import jobs from "../../../assets/images/jobs.png"
 import axios from "axios";
 
 
 const Internship = ({campaignCode}) => {
-  // console.log('campaignCode', campaignCode);
   const [isLoading,setIsLoading] = useState(false);
-  console.log("Campaign Code on Workshop Page: ",campaignCode)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [career, setCareer] = useState([]);
     useEffect(()=>{
       setIsLoading(true)
+      ReactGA.pageview(window.location.pathname)
       axios.get(`${baseUrl}api/v1/career?type=Workshop`)
       .then((res)=>{
         setCareer(res.data?.data);
         // console.log(career.length) 
         setTimeout(()=>{
           setIsLoading(false);
-        },1000) 
+        },500) 
       })
     }, [])
 
@@ -65,9 +60,6 @@ const Internship = ({campaignCode}) => {
                         justifyContent="center"
                       >
                         <Grid container display="flex" justifyContent="center" alignItems="center" minWidth='40vH'>
-                          {/* <Grid item lg={2} display="flex" justifyContent="left" alignItems="center">
-                            <MDAvatar src={jobs} size="xl" />
-                          </Grid> */}
                           <Grid item lg={10} display="flex" justifyContent="center">
                             <MDBox>
                               <MDTypography fontSize={20} fontWeight="bold" display="flex" justifyContent="center" style={{ color: "black" }}>
@@ -85,21 +77,6 @@ const Internship = ({campaignCode}) => {
                           </MDBox>
                           </Grid>
                         </Grid>
-                        {/* <MDBox display="flex" justifyContent="flex-start">
-                        <MDAvatar src={jobs} size="xl" />
-                        </MDBox>
-                        <MDBox ml={2} display="flex" flexDirection="column" justifyContent="center">
-                          <MDBox>
-                          <MDTypography fontSize={20} fontWeight="bold" style={{ color: "black" }}>
-                            {`${elem?.jobTitle} (${elem?.jobType})`}
-                          </MDTypography>
-                          </MDBox>
-                          <MDBox>
-                          <MDTypography fontSize={15} fontWeight="bold" style={{ color: "black" }}>
-                            Click Here to Apply!
-                          </MDTypography>
-                          </MDBox>
-                        </MDBox> */}
                       </Grid>
                     </MDButton>
                   </Tooltip>
@@ -112,20 +89,12 @@ const Internship = ({campaignCode}) => {
         
               <Grid item border="1px solid transparent" xs={12} md={6}>
                 <Stack border="1px solid transparent" spacing={2} sx={{ maxWidth: 480 }}>
-
-                
-                  
-              < Typography variant="h5" color="#fff" sx={{ pb: 2 }}>
-                Thank you for showing interest! 
-              </Typography>
-
-                  <Typography variant="body1" color="rgba(255, 255, 255, 0.6)" sx={{ pb: 2 }}>
-
-                  No currently we don't have any open positions. Kindly visit after sometime or contact us for more information...
-                    
+                  < Typography variant="h5" color="#fff" sx={{ pb: 2 }}>
+                    Thank you for showing interest! 
                   </Typography>
-
-                  
+                  <Typography variant="body1" color="rgba(255, 255, 255, 0.6)" sx={{ pb: 2 }}>
+                    No currently we don't have any open positions. Kindly visit after sometime or contact us for more information...  
+                  </Typography>
                 </Stack>
               </Grid>
 
