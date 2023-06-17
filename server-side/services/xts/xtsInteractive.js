@@ -794,6 +794,7 @@ const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema")
 const InfinityMockTrader = require("../../models/mock-trade/infinityTrader");
 const InfinityMockCompany = require("../../models/mock-trade/infinityTradeCompany");
 const BrokerageDetail = require("../../models/Trading Account/brokerageSchema");
+const Setting = require("../../models/settings/setting");
 const RedisBackup = require("../../models/TradeDetails/orderIdKeyBackup");
 const mongoose = require('mongoose');
 const { save } = require("./xtsHelper/saveXtsCred");
@@ -858,7 +859,7 @@ const interactiveLogin = async () => {
 const placedOrderData = async () => {
   // let isRedisConnected = getValue();
   xtsInteractiveWS.onOrder(async (orderData) => {
-    // console.log(orderData)
+    console.log(orderData)
     try{
       if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
 
@@ -1154,81 +1155,168 @@ const ifServerCrashAfterOrder = async () => {
   }
 }
 
-const autoPlaceOrder = async (obj, res) => {
-  let date = new Date();
-  let {symbol, Product, exchangeInstrumentToken, exchange, validity,
-      OrderType, variety, buyOrSell, realBuyOrSell, trader, algoBoxId, mockSwitch,
-      autoTrade, dontSendResp, createdBy, Quantity, userQuantity, instrumentToken} = obj;
-  let isRedisConnected = getValue();
-  isReverseTrade = false;
-  let exchangeSegment;
-  if (exchange === "NFO") {
-    exchangeSegment = 'NSEFO'
-  }
-  if (exchange === "NSE") {
-    exchangeSegment = 'NSECM'
-  }
-  let uniqueIdentifier;
-  if(mockSwitch){
-    uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}TMS`
-  } else{
-    uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-  }
-  const response = await xtsInteractiveAPI.placeOrder({
-    exchangeSegment: exchangeSegment,
-    exchangeInstrumentID: exchangeInstrumentToken,
-    productType: Product,
-    orderType: OrderType,
-    orderSide: realBuyOrSell,
-    timeInForce: validity,
-    disclosedQuantity: 0,
-    orderQuantity: Quantity,
-    limitPrice: 0,
-    stopPrice: 0,
-    clientID: process.env.XTS_CLIENTID,
-    orderUniqueIdentifier: uniqueIdentifier
-  });
+// const autoPlaceOrder = async (obj, res) => {
+//   let date = new Date();
+//   let {symbol, Product, exchangeInstrumentToken, exchange, validity,
+//       OrderType, variety, buyOrSell, realBuyOrSell, trader, algoBoxId, mockSwitch,
+//       autoTrade, dontSendResp, createdBy, Quantity, userQuantity, instrumentToken} = obj;
+//   let isRedisConnected = getValue();
+//   isReverseTrade = false;
+//   let exchangeSegment;
+//   if (exchange === "NFO") {
+//     exchangeSegment = 'NSEFO'
+//   }
+//   if (exchange === "NSE") {
+//     exchangeSegment = 'NSECM'
+//   }
+//   let uniqueIdentifier;
+//   if(mockSwitch){
+//     uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}TMS`
+//   } else{
+//     uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+//   }
+//   const response = await xtsInteractiveAPI.placeOrder({
+//     exchangeSegment: exchangeSegment,
+//     exchangeInstrumentID: exchangeInstrumentToken,
+//     productType: Product,
+//     orderType: OrderType,
+//     orderSide: realBuyOrSell,
+//     timeInForce: validity,
+//     disclosedQuantity: 0,
+//     orderQuantity: Quantity,
+//     limitPrice: 0,
+//     stopPrice: 0,
+//     clientID: process.env.XTS_CLIENTID,
+//     orderUniqueIdentifier: uniqueIdentifier
+//   });
 
   
 
-  let traderDataObj = {
-    appOrderId: response?.result?.AppOrderID,
-    order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
-    trader: trader,
-    algoBoxId: algoBoxId,
-    exchange: exchange,
-    symbol: symbol,
-    buyOrSell: buyOrSell,
-    Quantity: userQuantity,
-    variety: variety,
-    instrumentToken: instrumentToken,
-    dontSendResp: dontSendResp,
-    tradedBy: createdBy,
-    autoTrade: autoTrade
-  }
+//   let traderDataObj = {
+//     appOrderId: response?.result?.AppOrderID,
+//     order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
+//     trader: trader,
+//     algoBoxId: algoBoxId,
+//     exchange: exchange,
+//     symbol: symbol,
+//     buyOrSell: buyOrSell,
+//     Quantity: userQuantity,
+//     variety: variety,
+//     instrumentToken: instrumentToken,
+//     dontSendResp: dontSendResp,
+//     tradedBy: createdBy,
+//     autoTrade: autoTrade
+//   }
 
-  //check status, if status is 400 then send below error response.
+//   //check status, if status is 400 then send below error response.
 
-  // console.log("app order id", response?.result?.AppOrderID, response)
-  // setTimeout(async ()=>{
-    if (response?.result?.AppOrderID) {
-      if(isRedisConnected){
-        await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderDataObj));
+//   // console.log("app order id", response?.result?.AppOrderID, response)
+//   // setTimeout(async ()=>{
+//     if (response?.result?.AppOrderID) {
+//       if(isRedisConnected){
+//         await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderDataObj));
+//       }
+//       const redisBackup = await RedisBackup.create(traderDataObj);  
+//       // res.status(200).json({message: "Live"})
+//     } else{
+//       // return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
+//     }
+
+// }
+
+const autoPlaceOrder = (obj, res) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let date = new Date();
+      let {
+        symbol,
+        Product,
+        exchangeInstrumentToken,
+        exchange,
+        validity,
+        OrderType,
+        variety,
+        buyOrSell,
+        realBuyOrSell,
+        trader,
+        algoBoxId,
+        mockSwitch,
+        autoTrade,
+        dontSendResp,
+        createdBy,
+        Quantity,
+        userQuantity,
+        instrumentToken,
+        singleUser
+      } = obj;
+      let isRedisConnected = getValue();
+      isReverseTrade = false;
+      let exchangeSegment;
+      if (exchange === "NFO") {
+        exchangeSegment = 'NSEFO'
       }
-      const redisBackup = await RedisBackup.create(traderDataObj);  
-      // res.status(200).json({message: "Live"})
-    } else{
-      // return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
+      if (exchange === "NSE") {
+        exchangeSegment = 'NSECM'
+      }
+      let uniqueIdentifier;
+      if (mockSwitch) {
+        uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}TMS`
+      } else {
+        uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+      }
+      const response = await xtsInteractiveAPI.placeOrder({
+        exchangeSegment: exchangeSegment,
+        exchangeInstrumentID: exchangeInstrumentToken,
+        productType: Product,
+        orderType: OrderType,
+        orderSide: realBuyOrSell,
+        timeInForce: validity,
+        disclosedQuantity: 0,
+        orderQuantity: Quantity,
+        limitPrice: 0,
+        stopPrice: 0,
+        clientID: process.env.XTS_CLIENTID,
+        orderUniqueIdentifier: uniqueIdentifier
+      });
+
+      let traderDataObj = {
+        appOrderId: response?.result?.AppOrderID,
+        order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
+        trader: trader,
+        algoBoxId: algoBoxId,
+        exchange: exchange,
+        symbol: symbol,
+        buyOrSell: buyOrSell,
+        Quantity: userQuantity,
+        variety: variety,
+        instrumentToken: instrumentToken,
+        dontSendResp: dontSendResp,
+        tradedBy: createdBy,
+        autoTrade: autoTrade,
+        singleUser: singleUser
+      }
+
+      if (response?.result?.AppOrderID) {
+        if (isRedisConnected) {
+          await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderDataObj));
+        }
+        const redisBackup = await RedisBackup.create(traderDataObj);
+        resolve({ message: "Live" });
+      } else {
+        reject({ message: "Something Went Wrong. Please Trade Again.", err: "Error" });
+      }
+
+      if(!dontSendResp){
+        setTimeout(()=>{
+          res.status(200).json(`ok${Math.random()}`);
+        }, 1000)
+       
+      }
+    } catch (error) {
+      reject(error);
     }
-
-    // if(!dontSendResp){
-      // res.status(201).json("Ok");
-    // }
-
-  // }, 4000)
-
-}
-
+  });
+};
 
 const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   
@@ -1555,7 +1643,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
   let isRedisConnected = getValue();
 
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-    instrumentToken, dontSendResp, tradedBy, autoTrade } = traderData
+    instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser } = traderData
 
   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
@@ -1721,137 +1809,45 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
     const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
     const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
 
-
-    // let isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
-
-
-    // const pipeline = clientForIORedis.pipeline();
-
-    // await pipeline.get(`${trader.toString()} overallpnl`)
-    // await pipeline.get(`overallLivePnlCompany`);
-    // await pipeline.get(`traderWiseLivePnlCompany`);
-    // await pipeline.get(`lastTradeLive`);
-    // await pipeline.get(`overallMockPnlCompany`);
-    // await pipeline.get(`traderWiseMockPnlCompany`);
-    // await pipeline.get(`lastTradeDataMock`);
-
-    // const results = await pipeline.exec();
-
-    // const traderOverallPnl = results[0][1];
-    // const companyLiveOverallPnl = results[1][1];
-    // const traderWiseLivePnl = results[2][1];
-    // const liveLastTrade = results[3][1];
-    // const companyMockOverallPnl = results[4][1];
-    // const traderWiseMockPnl = results[5][1];
-    // const mockLastTrade = results[6][1];
-    
-    // const overallPnlUser = await overallPnlUsers(traderDocMock, trader, traderOverallPnl);
-    // const overallLivePnlCompany = await overallLivePnlRedis(companyDoc, companyLiveOverallPnl);
-    // const overallLiveTraderWisePnl = await overallLivePnlTraderWiseRedis(companyDoc, traderWiseLivePnl);  
-    // const overallMockPnlCompany = await overallMockPnlRedis(companyDocMock, companyMockOverallPnl);
-    // const overallMockTraderWisePnl = await overallMockPnlTraderWiseRedis(companyDocMock, traderWiseMockPnl);  
-    // const lastTradeMock = await letestTradeMock(companyDocMock, liveLastTrade);
-    // const lastTradeLive = await letestTradeLive(companyDocMock, mockLastTrade);
-
-    // console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
-    let pipelineForSet; 
-    
-    // if(isInsertedAllDB){
-
-    //   if(isInsertedAllDB && status == "COMPLETE"){
-    //   pipelineForSet = clientForIORedis.pipeline();
-
-    //   await pipelineForSet.set(`${trader.toString()} overallpnl`, overallPnlUser);
-    //   await pipelineForSet.set(`overallMockPnlCompany`, overallMockPnlCompany);
-    //   await pipelineForSet.set(`traderWiseMockPnlCompany`, overallMockTraderWisePnl);
-    //   await pipelineForSet.set(`overallLivePnlCompany`, overallLivePnlCompany);
-    //   await pipelineForSet.set(`traderWiseLivePnlCompany`, overallLiveTraderWisePnl);
-    //   await pipelineForSet.set(`lastTradeLive`, lastTradeLive);
-    //   await pipelineForSet.set(`lastTradeDataMock`, lastTradeMock);
-  
-    //   await pipelineForSet.exec();
-    // }
-
-
-    // if(isRedisConnected){
-    //     const pipeline = clientForIORedis.pipeline();
-
-    //     pipeline.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-    //     pipeline.expire(`overallMockPnlCompany`, secondsRemaining);
-    //     pipeline.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-    //     pipeline.expire(`lastTradeDataMock`, secondsRemaining);
-    //     pipeline.expire(`overallLivePnlCompany`, secondsRemaining);
-    //     pipeline.expire(`traderWiseLivePnlCompany`, secondsRemaining);
-    //     pipeline.expire(`lastTradeLive`, secondsRemaining);
-
-    //     await pipeline.exec();
-    // }
-
-
-    // let redisApproval = pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK" && pipelineForSet._result[4][1] === "OK"
-
-    // let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
-    // console.log(redisApproval, pipelineForSet._result[0][1], pipelineForSet._result[1][1], pipelineForSet._result[2][1], pipelineForSet._result[3][1], pipelineForSet._result[4][1] )
-    // if (settingRedis === "OK") {
-    // if (redisApproval) {
-    //   console.log("in redisApproval")
       await session.commitTransaction();
-    // } else if (status == "REJECTED") {
-    //   console.log("in rejected")
-    //   await session.commitTransaction();
-
-    //   if (!autoTrade)
-    //     io.emit(`sendResponse${trader.toString()}`, { message: "Trade rejected due to insufficient balance", err: "Error" })
-    //   return; //check return statement
-    // } else if (!isRedisConnected) {
-    //   await session.commitTransaction();
-    // } else {
-    //   console.log("in errr")
-    //   throw new Error();
-    // }
-
 
     console.log("data saved in retreive order for", AppOrderID)
 
     console.log("dontSendResp bahr", dontSendResp)
     if(!dontSendResp){
       console.log("dontSendResp", dontSendResp)
-      const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } })
       // res.status(201).json({ message: "Switched all traders to mock.", status: "success" })
+      // io.emit("updatePnl", traderDocMock)
+      if(singleUser){
+        const updateRealTrade = await UserPermission.updateOne({userId: new ObjectId(trader)}, { $set: { isRealTradeEnable: false } })
+console.log("in single user")
+      } else{
+        const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } })
+
+        const setting = await Setting.updateOne({}, {
+          modifiedOn: new Date(),
+          infinityLive: true
+        }, { new: true });
+      }
+
+
+      console.log("i am running in last")
+
     }
-    // if (!dontSendResp ) {
     // if (!dontSendResp && redisApproval) {
     //   await client.expire(`liveOrderBackupKey`, 600);
     //   await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
-    //   io.emit("updatePnl", traderDocMock)
     //   io.emit(`sendResponse${trader.toString()}`, { message: { Quantity: Quantity, symbol: symbol }, status: "complete" })
     //   // return res.status(201).json({ message: responseMsg, err: responseErr })
     // }
-    // }
+
   } catch (err) {
 
-    // if (isRedisConnected) {
-    //   const pipeline = clientForIORedis.pipeline();
-
-    //   await pipeline.del(`${trader.toString()} overallpnl`);
-    //   await pipeline.del(`overallLivePnlCompany`)
-    //   await pipeline.del(`traderWiseLivePnlCompany`)
-    //   await pipeline.del(`lastTradeLive`)
-    //   await pipeline.del(`overallMockPnlCompany`)
-    //   await pipeline.del(`traderWiseMockPnlCompany`)
-    //   await pipeline.del(`lastTradeDataMock`)
-
-    //   const results = await pipeline.exec();
-    // }
-    // await client.del(`${trader.toString()} overallpnl`)
     await session.abortTransaction();
 
     console.error('Transaction failed, documents not saved:', err);
     // console.log(traderData, startTime);
     await saveToMockSwitch(orderData, traderData, startTime);
-
-
-    // return res.status(201).json({ message: "Order Rejected Unexpexctedly. Please Place Your Order Again.", err: "Error" })
 
   } finally {
     session.endSession();

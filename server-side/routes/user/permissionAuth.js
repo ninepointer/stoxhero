@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Permission = require("../../models/User/permissionSchema");
-const authentication = require("../../authentication/authentication")
+const authentication = require("../../authentication/authentication");
+const { ObjectId } = require('mongodb');
 
 router.post("/permission", authentication, (req, res)=>{
     let {userId, isTradeEnable, isRealTradeEnable, algoId} = req.body;
@@ -39,6 +40,15 @@ router.get("/readpermission", async (req, res)=>{
     //     }
     // })
     res.status(200).send(permission)
+})
+
+router.get("/getLiveUser", async (req, res)=>{
+    try{
+        const liveUser = await Permission.find({isRealTradeEnable : true}).populate('userId', 'first_name last_name')
+        res.status(200).json({status: "success", data: liveUser, result: liveUser.length})
+    } catch(err){
+        res.status(500).json({status: "error", error: err})
+    }
 })
 
 router.get("/readpermission/:id", (req, res)=>{
@@ -217,6 +227,16 @@ router.patch("/updateRealTrade/:id", authentication, async (req, res)=>{
         // res.status(201).json({massage : "data edit succesfully"});
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
+    }
+})
+
+router.get("/getLiveUser/:algobox", async (req, res)=>{
+    try{
+        const {algobox} = req.params;
+        const liveUser = await Permission.find({isRealTradeEnable : true, algoId: new ObjectId(algobox)}).populate('userId', 'first_name last_name')
+        res.status(200).json({status: "success", data: liveUser, result: liveUser.length})
+    } catch(err){
+        res.status(500).json({status: "error", error: err})
     }
 })
 
