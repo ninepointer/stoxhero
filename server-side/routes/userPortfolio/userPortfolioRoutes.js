@@ -3,7 +3,7 @@ const router = express.Router({mergeParams: true});
 const {myTenXPortfolio, myVirtualFreePortfolio, getPortfolioPnl, myPortfolios, 
         getTenXPortolios, createPortfolio, getPortfolios, getPortfolio, editPortfolio,
         editPortfolioWithName,getContestPortolios,getTradingPortolios,getInactivePortolios, 
-        getUserPortfolio, getPortfolioRemainingAmount, getInternshipPortolios} = require('../../controllers/portfolioController');
+        getUserPortfolio, getDailyContestPortolios, getPortfolioRemainingAmount, getInternshipPortolios} = require('../../controllers/portfolioController');
 const Authenticate = require('../../authentication/authentication');
 
 
@@ -17,6 +17,7 @@ router.route('/trading').get(getTradingPortolios)
 router.route('/inactive').get(getInactivePortolios)
 router.route('/myTenx').get(Authenticate, myTenXPortfolio)
 router.route('/internship').get(getInternshipPortolios)
+router.route('/dailycontestportfolio').get(getDailyContestPortolios)
 router.route('/myPortfolio').get(Authenticate, myVirtualFreePortfolio)
 
 router.route('/:id').get(getPortfolio).patch(Authenticate, editPortfolio)
