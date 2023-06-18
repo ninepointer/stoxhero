@@ -19,11 +19,6 @@ const MyPortfolioCard = ({virtualPortfolio, marginDetails}) => {
           <MDBox>
             <Grid container spacing={2}>
               {virtualPortfolio?.map((e)=>{
-                  // let portfolio = portfolioPnl.filter((elem)=>{
-                  //   return e?._id === elem?._id?.portfolioId
-                  // })
-
-                  // let netPnl = portfolio[0]?.amount - portfolio[0]?.brokerage;
                   if(e?.portfolioId){
                     return (
                       
