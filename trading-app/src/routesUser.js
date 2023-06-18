@@ -15,6 +15,9 @@ import HelpIcon from '@mui/icons-material/Help';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import VideoChatIcon from '@mui/icons-material/VideoChat';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+// import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 
@@ -57,6 +60,8 @@ import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
 import WorkShopOrders from './layouts/userorders/workshopOrder'
+import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+
 
 const routes = [
 
@@ -105,6 +110,15 @@ const routes = [
     route: "contact",
     component: <Contact />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Dashboard",
+  //   key: "stoxherodashboard",
+  //   // icon: <Icon fontSize="small">person</Icon>,
+  //   icon: <DashboardIcon/>,
+  //   route: "/stoxherodashboard",
+  //   component: <StoxHeroDashboard />,
+  // },
   {
     type: "collapse",
     name: "Virtual Trading",

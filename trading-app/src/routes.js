@@ -64,6 +64,7 @@ import MyPortfolio from './layouts/UserPortfolio'
 import VpnLockIcon from '@mui/icons-material/VpnLock';
 import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
+import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -167,6 +168,15 @@ const routes = [
     icon: <VpnLockIcon/>,
     route: "/virtualdashboard",
     component: <VirtualDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Dashboard",
+    key: "stoxherodashboard",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <BusinessIcon/>,
+    route: "/stoxherodashboard",
+    component: <StoxHeroDashboard />,
   },
   {
     // type: "collapse",
