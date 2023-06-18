@@ -618,6 +618,7 @@
 //     const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
 //     const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
 
+//     console.log(algoTrader, mockCompany, algoTraderLive, liveCompanyTrade)
 
 //     let isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
 
@@ -1502,14 +1503,22 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       isRealTrade: false, instrumentToken, brokerage: brokerageUser,
       createdBy: tradedBy, trader: trader, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
     }
+    let isInsertedAllDB;
+    try{
+      console.log(companyDocMock, traderDocMock, traderDoc, companyDoc, new Date())
 
-    const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
-    const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
-    const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
-    const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
+      const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
+      const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
+      const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
+      const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
+      console.log(liveCompanyTrade, algoTraderLive, mockCompany, algoTrader)
 
+     isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
 
-    let isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
+    } catch(err){
+      console.log(err);
+    }
+
 
 
     const pipeline = clientForIORedis.pipeline();
@@ -1544,7 +1553,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     let pipelineForSet; 
     
     // if(isInsertedAllDB){
-      if(isInsertedAllDB && status == "COMPLETE"){
+    if(isInsertedAllDB !== null && status == "COMPLETE"){
       pipelineForSet = clientForIORedis.pipeline();
 
       await pipelineForSet.set(`${trader.toString()} overallpnl`, overallPnlUser);
@@ -1573,7 +1582,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
         await pipeline.exec();
     }
 
-
+    console.log("pipelineForSet", pipelineForSet, isInsertedAllDB, status)
     let redisApproval = pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK" && pipelineForSet._result[4][1] === "OK"
 
     // let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
@@ -1640,7 +1649,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
 const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
   
-  let isRedisConnected = getValue();
+  // let isRedisConnected = getValue();
 
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser } = traderData
