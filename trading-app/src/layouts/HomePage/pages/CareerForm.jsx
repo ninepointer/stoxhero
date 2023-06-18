@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import MDBox from '../../../components/MDBox'
 import MDButton from '../../../components/MDButton';
+import ReactGA from "react-ga"
 import { CircularProgress, formLabelClasses } from "@mui/material";
 import { Grid, Input, TextField } from '@mui/material'
 import theme from '../utils/theme/index';
@@ -23,6 +24,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
 const CareerForm = () => {
+
   const [submitted,setSubmitted] = useState(false)
   const [saving,setSaving] = useState(false)
   const [creating,setCreating] = useState(false)
@@ -30,6 +32,7 @@ const CareerForm = () => {
   const location = useLocation();
   const career = location?.state?.data;
   const campaignCode = location?.state?.campaignCode;
+
   const [detail, setDetails] = useState({
     firstName: "",
     lastName: "",
@@ -37,20 +40,25 @@ const CareerForm = () => {
     mobile: "",
     dob: "",
     collegeName: "",
+    linkedInProfileLink: "",
     priorTradingExperience: "",
     source: "",
     career: career?._id,
     campaignCode: campaignCode,
     mobile_otp: "",
   })
-  console.log("Career: ",career?._id)
-  console.log("FormState: ",detail)
+
   const [file, setFile] = useState(null);
   // const [uploadedData, setUploadedData] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
+  useEffect(()=>{
+    ReactGA.pageview(window.location.pathname)
+  },[])
+  
+
   async function confirmOTP(){
-    console.log("Inside confirm OTP code")
+
     setCreating(true);
     setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
 
@@ -61,6 +69,7 @@ const CareerForm = () => {
       mobile,
       dob,
       collegeName,
+      linkedInProfileLink,
       priorTradingExperience,
       source,
       career,
@@ -81,6 +90,7 @@ const CareerForm = () => {
         email:email, 
         mobile:mobile, 
         collegeName: collegeName,
+        linkedInProfileLink: linkedInProfileLink,
         source:source,
         career:career,
         dob:dob,  
@@ -91,24 +101,19 @@ const CareerForm = () => {
   });
 
   const data = await res.json();
-    console.log(data, res.status);
+
     if(res.status === 201){ 
-        // window.alert(data.message);
-        // setOTPGenerated(true);
-        // setTimerActive(true);
-        // setResendTimer(30); 
         setSubmitted(true);
         setCreating(false);
         return openSuccessSB("Application Submitted",data.info,"SUCCESS");  
     }else{
-        // console.log("openInfoBS Called")
         return openSuccessSB("Error",data.info,"Error")
     }
 
   }
 
   async function generateOTP(){
-    console.log("Inside generate OTP code")
+
     setOTPGenerated(true)
     // setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
 
@@ -120,6 +125,7 @@ const CareerForm = () => {
       mobile,
       dob,
       collegeName,
+      linkedInProfileLink,
       priorTradingExperience,
       source,
       career,
@@ -157,6 +163,7 @@ const CareerForm = () => {
         email:email, 
         mobile:mobile, 
         collegeName: collegeName,
+        linkedInProfileLink: linkedInProfileLink,
         source:source,
         career:career,
         dob:dob,  
@@ -166,7 +173,7 @@ const CareerForm = () => {
   });
 
   const data = await res.json();
-    console.log(data, res.status);
+
     if(res.status === 201 || res.status === 200){ 
         // window.alert(data.message);
         setOTPGenerated(true);
@@ -175,6 +182,7 @@ const CareerForm = () => {
         return openSuccessSB("OTP Sent",data.info,"SUCCESS");  
     }else{
         // console.log("openInfoBS Called")
+        setOTPGenerated(false)
         return openSuccessSB("Error",data.info,"Error")
     }
 
@@ -200,7 +208,7 @@ const CareerForm = () => {
       msgDetail.color = 'error';
       msgDetail.icon = 'warning'
     }
-    console.log(msgDetail)
+    // console.log(msgDetail)
     setMsgDetail(msgDetail)
     setSuccessSB(true);
   }
@@ -263,7 +271,7 @@ const CareerForm = () => {
                         required
                         disabled={otpGenerated}
                         id="outlined-required"
-                        label="Email"
+                        label="Email(Account details will be shared here)"
                         type="email"
                         fullWidth
                         onChange={(e)=>{setDetails(prevState => ({...prevState, email: e.target.value}))}}
@@ -348,6 +356,18 @@ const CareerForm = () => {
                         <MenuItem value="Others">Others</MenuItem>
                         </Select>
                       </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} lg={12}>
+                    <TextField
+                        required
+                        disabled={otpGenerated}
+                        id="outlined-required"
+                        label="LinedIn Profile Link"
+                        type="text"
+                        fullWidth
+                        onChange={(e)=>{setDetails(prevState => ({...prevState, linkedInProfileLink: e.target.value}))}}
+                      />
                     </Grid>
 
                     {!otpGenerated && <Grid item xs={12} md={6} lg={12}>

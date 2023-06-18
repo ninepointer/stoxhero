@@ -183,6 +183,7 @@ getKiteCred.getAccess().then(async (data)=>{
 
 });
 
+app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
 
 // autoCutMainManually().then(()=>{})
 

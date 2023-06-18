@@ -1,13 +1,12 @@
 import { Box, Container, Grid, Stack } from '@mui/material'
 import { ThemeProvider } from 'styled-components';
+import { useEffect } from 'react';
+import ReactGA from "react-ga";
 import Title from '../components/Title/index'
 import React from 'react'
 import ServiceCard from '../components/Cards/ServiceCard'
-
 import useMeasure from 'react-use-measure'
-
 import Footer from '../components/Footers/Footer'
-
 import Navbar from '../components/Navbars/Navbar'
 import theme from '../utils/theme/index'
 
@@ -23,29 +22,20 @@ import about5 from '../assets/images/About/about5.webp'
 
 const About = () => {
     console.log(theme);
+    useEffect(()=>{
+        ReactGA.pageview(window.location.pathname)
+    })
+
     return (
-
-
-
         <ThemeProvider theme={theme}>
-
-
-
-
-
-
             <Navbar />
             <Box bgcolor="#06070A" sx={{mt:{xs:-10,lg:-15}}} >
-                
-                
-
                 <Container >
                     <Grid container spacing={10} flexWrap="wrap-reverse" justifyContent="center" alignItems="center" sx={{ mt: { xs: 10, md: 15, } }}>
                         <Grid item xs={12} md={6} sx={{mt:10}}  >
                             <Stack spacing={2} sx={{ maxWidth: 480 }}>
                                 <Title variant={{ xs: 'h3', sm: 'h2', md: 'h1' }} sx={{ letterSpacing: "0.02em", mb: 1 }} style={{ color: "white" }} >StoxHero</Title>
                                 <Title variant={{ xs: 'body1', sm: 'body1', md: "body1" }} sx={{ fontWeight: 500, letterSpacing: "0.05em", mb: 6, color: "rgba(255, 255, 255, 0.6)" }} >Welcome to StoxHero.com, the ultimate trading-gamification platform designed to empower GenZ users interested in pursuing a career in the exciting world of trading. Our platform provides a unique blend of gamification and real-time trading, offering a comprehensive training experience for retail traders.</Title>
-
                             </Stack>
                         </Grid>
 
@@ -54,7 +44,6 @@ const About = () => {
                         </Grid>
                     </Grid>
                 </Container>
-
 
                 <Container sx={{ height: "1200" }} >
                     <Grid container spacing={10} flexWrap="wrap-reverse" alignItems="center" sx={{ mt: { xs: 10, md: 15 } }}>
@@ -74,17 +63,7 @@ const About = () => {
                     </Grid>
                 </Container>
 
-
-
-
-
-
-
-
-
                 <Container sx={{ height: "100%", mt: 20, mb: 20 }}>
-
-
 
                     <Stack spacing={4} >
                         <ServiceCard image={about3} title="Community" subtitle="StoxHero's Smart Reports are a game-changer, offering user-specific trading insights and analysis. These reports provide invaluable guidance to help traders evolve and make informed decisions. Our goal is to empower users to choose trading as a viable career option while continuing to trade on StoxHero with real money." />
@@ -92,13 +71,10 @@ const About = () => {
                         <ServiceCard image={about5} title="Program" subtitle="Join StoxHero.com today and embark on an exhilarating journey towards success in the stock market. Experience the power of gamification, practice your strategies in the virtual trading section, and unlock a world of opportunities. With StoxHero, you have the tools, knowledge, and support you need to excel in intra-day trading and beyond." />
                     </Stack>
 
-
                 </Container>
-
 
                 <Footer />
             </Box>
-
 
         </ThemeProvider>
     )

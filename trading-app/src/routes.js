@@ -25,7 +25,7 @@ import AdminReport from "./layouts/adminreportMock";
 import DailyPNLData from "./layouts/dailyPnlDashboard";
 import TraderPosition from "./layouts/traderPosition"
 import InternPosition from "./layouts/internPosition"
-import AdminReportLive from "./layouts/adminreportLive"
+// import AdminReportLive from "./layouts/adminreportLive"
 import TradersReportLive from "./layouts/tradersReportLive"
 import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
 // import AnalyticsRoutes from './analyticsRoutes'
@@ -132,7 +132,8 @@ import TenxReport from "./layouts/tenXReport";
 import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
-
+import AdminLiveReport from './layouts/adminSideReportLive'
+import WorkShopOrders from './layouts/userorders/workshopOrder'
 
 const routes = [
   {
@@ -353,7 +354,7 @@ const routes = [
   {
     // type: "collapse",
     // name: "Arena",
-    // key: "arena",
+    key: "careers",
     // icon: <BusinessIcon/>,
     route: "/careers",
     component: <Careers />,
@@ -361,7 +362,7 @@ const routes = [
   {
     // type: "collapse",
     // name: "Arena",
-    // key: "arena",
+    key: "workshops",
     // icon: <BusinessIcon/>,
     route: "/workshops",
     component: <Workshops />,
@@ -586,7 +587,7 @@ const routes = [
     key: "adminreportlive",
     // icon: <SummarizeIcon/>,
     route: "/adminreportlive",
-    component: <AdminReportLive/>,
+    component: <AdminLiveReport/>,
   },
   {
     // type: "collapse",
@@ -726,6 +727,22 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/internship/trade",
     component: <InternshipTrade/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/workshop/trade",
+    component: <InternshipTrade/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/workshop/orders",
+    component: <WorkShopOrders/>,
   },
   // {
   //   type: "collapse",

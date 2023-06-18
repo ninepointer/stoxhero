@@ -6,9 +6,14 @@ import dayjs from 'dayjs';
 
 const EChartsDemo = ({cumulativeData, monthWiseData, alignment}) => {
 
-  let data;
+  let data = [];
   if(alignment === "Company Daily P&L"){
-    data = monthWiseData.map((e)=>dayjs(e?.date).format('DD MMM YYYY'));
+    // data = monthWiseData.map((e)=>dayjs(e?.date).format('DD MMM YYYY'));
+    // const reversedData = [];
+    for (let i = monthWiseData.length - 1; i >= 0; i--) {
+      const date = dayjs(monthWiseData[i]?.date).format('DD MMM YYYY');
+      data.push(date);
+    }
   } else{
     data = monthWiseData.map((e)=>e?.name);
   }
@@ -61,7 +66,7 @@ const EChartsDemo = ({cumulativeData, monthWiseData, alignment}) => {
           {
             name: 'Net P&L',
             type: 'bar',
-            data: monthWiseData?.map((e)=>e?.npnl.toFixed(2)),
+            data: monthWiseData?.map((e)=>e?.npnl?.toFixed(0)),
             markPoint: {
               data: [
                 { type: 'max', name: 'Max' },
@@ -75,7 +80,7 @@ const EChartsDemo = ({cumulativeData, monthWiseData, alignment}) => {
           {
             name: 'Cumm. Net P&L',
             type: 'bar',
-            data: cumulativeData?.map((e)=>e.npnl.toFixed(2)),
+            data: cumulativeData?.map((e)=>e?.npnl?.toFixed(0)),
             markPoint: {
               data: [
                 { type: 'max', name: 'Max' },

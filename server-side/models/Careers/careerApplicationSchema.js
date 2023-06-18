@@ -38,6 +38,10 @@ const CareerApplication = new mongoose.Schema({
         type:String,
         required: true,
     },
+    linkedInProfileLink:{
+        type:String,
+        required:true,
+    },
     appliedOn: {
         type: Date,
         default: ()=> new Date()

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useContext, useRef } from "react";
 import axios from "axios"
+import ReactGA from "react-ga"
 
 // react-router components
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -65,6 +66,9 @@ import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
+
+const TRACKING_ID = "UA-264098426-2"
+ReactGA.initialize(TRACKING_ID)
 
 export default function App() {
   const cookieValue = Cookies.get("jwtoken");
@@ -270,7 +274,7 @@ export default function App() {
         ? getRoutes(userRoutes) : (detailUser.role?.roleName === "data" || getDetails?.userDetails?.role?.roleName === "data") 
         ? getRoutes(analyticsRoutes) : getRoutes(homeRoutes)
         }
-       
+
           {!cookieValue  ?  
           
           pathname == "/login" ?
@@ -279,6 +283,12 @@ export default function App() {
           pathname == "/signup" ?
           <Route path="/signup" element={<SignUp location={myLocation.current} />} />
           :
+          // pathname == "/careers" ?
+          // <Route path="/careers" element={<Navigate to='/careers'/>} />
+          // :
+          // pathname == "/workshops" ?
+          // <Route path="/workshops" element={<Navigate to='/workshops'/>} />
+          // :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :

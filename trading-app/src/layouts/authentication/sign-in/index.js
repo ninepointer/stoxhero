@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import { useState, useEffect } from 'react';
+import ReactGA from "react-ga";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import OtpInput from 'react-otp-input';
@@ -63,6 +64,10 @@ function Basic() {
   function handleTogglePasswordVisibility() {
     setShowPassword(!showPassword);
   }
+
+  useEffect(()=>{
+    ReactGA.pageview(window.location.pathname)
+  },[])
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
