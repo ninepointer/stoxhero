@@ -60,7 +60,7 @@ const contestSchema = new mongoose.Schema({
     payoutStatus:{
         type:String,
         required: true,
-        enum: ['Live','Draft','Cancelled']
+        enum: ['Completed','Not started','Processing']
     },
     createdOn:{
         type: Date,
