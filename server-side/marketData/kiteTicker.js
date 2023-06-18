@@ -4,7 +4,7 @@ const getKiteCred = require('./getKiteCred');
 const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
-const DummyMarketData = require("./dummyMarketData")
+const {DummyMarketData} = require("./dummyMarketData")
 const User = require("../models/User/userDetailSchema")
 const io = require('../marketData/socketio');
 const {client, getValue} = require("./redisClient");
@@ -144,8 +144,8 @@ const getTicks = async (socket) => {
 
 const getDummyTicks = async(socket) => {
   let userId = await client.get(socket.id);
-  let filteredTicks = await DummyMarketData();
-  io.to(userId).emit('contest-ticks', filteredTicks);
+  let filteredTicks = await DummyMarketData(socket);
+  io.to(userId).emit('tick-room-test', filteredTicks);
 }
 
 const getTicksForUserPosition = async (socket, id) => {

@@ -11,7 +11,8 @@ const io = require('./marketData/socketio');
 const { createNewTicker, disconnectTicker, getTicker,
   subscribeTokens, getTicks, onError, getMargins,
   onOrderUpdate, getTicksForContest, getTicksForUserPosition,
-  getTicksForCompanySide } = require('./marketData/kiteTicker');
+  getTicksForCompanySide, 
+  getDummyTicks} = require('./marketData/kiteTicker');
 const getKiteCred = require('./marketData/getKiteCred');
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
 const helmet = require("helmet");
@@ -26,6 +27,7 @@ const { subscribeInstrument, getXTSTicksForUserPosition,
   onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
+// const { interactiveLogin } = require("./services/xts/xtsInteractive copy");
 const { autoExpireSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
@@ -151,6 +153,7 @@ getKiteCred.getAccess().then(async (data)=>{
       // await positions();
       if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
         await getTicksForUserPosition(socket, data);
+        // await getDummyTicks(socket)
       } else{
         await getXTSTicksForUserPosition(socket, data);
       }

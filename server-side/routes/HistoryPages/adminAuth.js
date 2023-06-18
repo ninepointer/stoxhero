@@ -52,10 +52,28 @@ const {placeOrder} = require("../../services/xts/xtsInteractive");
 const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
+const Permission = require("../../models/User/permissionSchema");
 
 
 
+router.get("/removeduplicate", async (req, res) => {
+  const result = await Permission.aggregate([
+    { $group: { _id: { userId: '$userId' }, uniqueIds: { $addToSet: '$_id' }, count: { $sum: 1 } } },
+    { $match: { count: { $gt: 1 } } }
+  ])
 
+    const duplicates = result.map(doc => doc.uniqueIds.slice(1));
+
+    if (duplicates.length === 0) {
+      console.log('No duplicates found.');
+      client.close();
+      return;
+    }
+
+    const flattenedDuplicates = [].concat.apply([], duplicates);
+
+    const d = await Permission.deleteMany({ _id: { $in: flattenedDuplicates } })
+})
 
 
 router.get("/ifServerCrashAfterOrder", async (req, res) => {
