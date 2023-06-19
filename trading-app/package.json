@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@date-io/date-fns": "^2.16.0",
     "@devexpress/dx-react-chart": "^4.0.3",
     "@devexpress/dx-react-chart-material-ui": "^4.0.3",
     "@devexpress/dx-react-core": "^4.0.3",
@@ -28,6 +29,7 @@
     "bizcharts": "^4.1.22",
     "chart.js": "^4.1.2",
     "chroma-js": "^2.4.2",
+    "date-fns": "^2.30.0",
     "dayjs": "^1.11.7",
     "echarts": "^5.4.2",
     "hammerjs": "^2.0.8",
@@ -49,6 +51,7 @@
     "react-ga": "^3.3.1",
     "react-github-btn": "^1.4.0",
     "react-google-charts": "^4.0.0",
+    "react-gtag": "^0.0.0",
     "react-heatmap-grid": "^0.9.0",
     "react-hook-form": "^7.43.9",
     "react-icons": "^4.8.0",
