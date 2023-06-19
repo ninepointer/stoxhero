@@ -825,7 +825,7 @@ const interactiveLogin = async () => {
 
   try {
     (async () => {
-      console.log(loginRequest, process.env.INTERACTIVE_URL)
+      // console.log(loginRequest, process.env.INTERACTIVE_URL)
       let logIn = await xtsInteractiveAPI.logIn(loginRequest);
       console.log(logIn)
       let socketInitRequest = {
@@ -841,7 +841,7 @@ const interactiveLogin = async () => {
       });
 
       xtsInteractiveWS.onJoined((joinedData) => {
-        console.log("joinedData", joinedData);
+        // console.log("joinedData", joinedData);
       });
 
       await placedOrderData();
@@ -860,7 +860,7 @@ const interactiveLogin = async () => {
 const placedOrderData = async () => {
   // let isRedisConnected = getValue();
   xtsInteractiveWS.onOrder(async (orderData) => {
-    console.log(orderData)
+    // console.log(orderData)
     try{
       if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
 
@@ -892,7 +892,7 @@ const placedOrderData = async () => {
           const initialTime = Date.now();
 
           if(OrderUniqueIdentifier){
-            console.log("inside if listener")
+            // console.log("inside if listener")
             await placedOrderDataHelper(initialTime, orderData);
             return;
           }
@@ -968,7 +968,7 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
   }
 
   if(traderData?.trader){
-    console.log("inside getPlacedOrderAndSave")
+    // console.log("inside getPlacedOrderAndSave")
 
     await getPlacedOrderAndSave(orderData, traderData, startTime);
     return;
@@ -1023,18 +1023,20 @@ const placeOrder = async (obj, req, res) => {
       uniqueId: `${req.user.first_name}${req.user.mobile}`
     }
 
-    console.log(traderDataObj, response?.result?.AppOrderID)
+    // console.log(traderDataObj, response?.result?.AppOrderID)
     if (response?.result?.AppOrderID) {
       if (isRedisConnected && await client.exists(`liveOrderBackupKey`)) {
         let data = await client.HSET('liveOrderBackupKey', (response?.result?.AppOrderID).toString(), JSON.stringify(traderDataObj));
         // traderData = JSON.parse(data);
-        console.log("this is data", data);
+        // console.log("this is data", data);
         const save = await RedisBackup.create(traderDataObj)
-        console.log(save)
+        // console.log(save)
       } else {
         const save = await RedisBackup.create(traderDataObj)
-        console.log("save in else", save)
+        // console.log("save in else", save)
       }
+      res.send("ok");
+
     }
     if (!response?.result?.AppOrderID) {
       res.status(500).json({ message: "Something Went Wrong. Please Trade Again.", err: "Error" });
@@ -1115,11 +1117,11 @@ const ifServerCrashAfterOrder = async () => {
   };
 
   try {
-    console.log(authOptions)
+    // console.log(authOptions)
     const response = await axios.get(url, authOptions)
     let orders = response.data?.result;
 
-    console.log(orders.length, liveCompany.length)
+    // console.log(orders.length, liveCompany.length)
 
     let openTrade = orders.filter((elem1) => !liveCompany.some((elem2) => elem1.AppOrderID == elem2.appOrderId));
 
@@ -1133,7 +1135,7 @@ const ifServerCrashAfterOrder = async () => {
         OrderSide = "BUY"
       }
   
-      console.log("openTrade", openTrade[i])
+      // console.log("openTrade", openTrade[i])
   
       const tradeRsponse = await xtsInteractiveAPI.placeOrder({
         exchangeSegment: ExchangeSegment,
@@ -1148,82 +1150,13 @@ const ifServerCrashAfterOrder = async () => {
         stopPrice: 0,
         clientID: process.env.XTS_CLIENTID,
       });
-      console.log(tradeRsponse)
+      // console.log(tradeRsponse)
     }
 
   } catch (err) {
     console.log(err)
   }
 }
-
-// const autoPlaceOrder = async (obj, res) => {
-//   let date = new Date();
-//   let {symbol, Product, exchangeInstrumentToken, exchange, validity,
-//       OrderType, variety, buyOrSell, realBuyOrSell, trader, algoBoxId, mockSwitch,
-//       autoTrade, dontSendResp, createdBy, Quantity, userQuantity, instrumentToken} = obj;
-//   let isRedisConnected = getValue();
-//   isReverseTrade = false;
-//   let exchangeSegment;
-//   if (exchange === "NFO") {
-//     exchangeSegment = 'NSEFO'
-//   }
-//   if (exchange === "NSE") {
-//     exchangeSegment = 'NSECM'
-//   }
-//   let uniqueIdentifier;
-//   if(mockSwitch){
-//     uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}TMS`
-//   } else{
-//     uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-//   }
-//   const response = await xtsInteractiveAPI.placeOrder({
-//     exchangeSegment: exchangeSegment,
-//     exchangeInstrumentID: exchangeInstrumentToken,
-//     productType: Product,
-//     orderType: OrderType,
-//     orderSide: realBuyOrSell,
-//     timeInForce: validity,
-//     disclosedQuantity: 0,
-//     orderQuantity: Quantity,
-//     limitPrice: 0,
-//     stopPrice: 0,
-//     clientID: process.env.XTS_CLIENTID,
-//     orderUniqueIdentifier: uniqueIdentifier
-//   });
-
-  
-
-//   let traderDataObj = {
-//     appOrderId: response?.result?.AppOrderID,
-//     order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
-//     trader: trader,
-//     algoBoxId: algoBoxId,
-//     exchange: exchange,
-//     symbol: symbol,
-//     buyOrSell: buyOrSell,
-//     Quantity: userQuantity,
-//     variety: variety,
-//     instrumentToken: instrumentToken,
-//     dontSendResp: dontSendResp,
-//     tradedBy: createdBy,
-//     autoTrade: autoTrade
-//   }
-
-//   //check status, if status is 400 then send below error response.
-
-//   // console.log("app order id", response?.result?.AppOrderID, response)
-//   // setTimeout(async ()=>{
-//     if (response?.result?.AppOrderID) {
-//       if(isRedisConnected){
-//         await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderDataObj));
-//       }
-//       const redisBackup = await RedisBackup.create(traderDataObj);  
-//       // res.status(200).json({message: "Live"})
-//     } else{
-//       // return res.status(500).json({message: "Something Went Wrong. Please Trade Again.", err: "Error"})
-//     }
-
-// }
 
 const autoPlaceOrder = (obj, res) => {
   return new Promise(async (resolve, reject) => {
@@ -1333,7 +1266,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     if (exchange === "NFO") {
       exchangeSegment = 2;
     }
-    console.log("inside getPlacedOrderAndSave 2")
+    // console.log("inside getPlacedOrderAndSave 2")
 
   if (Date.now() - startTime >= 10000) {
     let exchangeSegment;
@@ -1505,13 +1438,13 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
     let isInsertedAllDB;
     try{
-      console.log(companyDocMock, traderDocMock, traderDoc, companyDoc, new Date())
 
     const liveCompanyTrade = await InfinityLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
     const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
     const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
     const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
 
+    // console.log(liveCompanyTrade, algoTraderLive, mockCompany, algoTrader, new Date())
 
      isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
 
@@ -1582,11 +1515,11 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
         await pipeline.exec();
     }
 
-    console.log("pipelineForSet", pipelineForSet, isInsertedAllDB, status)
-    let redisApproval = pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK" && pipelineForSet._result[4][1] === "OK"
+    // console.log("pipelineForSet", pipelineForSet, isInsertedAllDB, status)
+    let redisApproval = pipelineForSet?._result[0][1] === "OK" && pipelineForSet?._result[1][1] === "OK" && pipelineForSet?._result[2][1] === "OK" && pipelineForSet?._result[3][1] === "OK" && pipelineForSet?._result[4][1] === "OK"
 
     // let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
-    console.log(redisApproval, pipelineForSet._result[0][1], pipelineForSet._result[1][1], pipelineForSet._result[2][1], pipelineForSet._result[3][1], pipelineForSet._result[4][1] )
+    // console.log(redisApproval, pipelineForSet?._result[0][1], pipelineForSet?._result[1][1], pipelineForSet?._result[2][1], pipelineForSet?._result[3][1], pipelineForSet?._result[4][1] )
     // if (settingRedis === "OK") {
     if (redisApproval) {
       console.log("in redisApproval")
@@ -1596,7 +1529,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       await session.commitTransaction();
 
       if (!autoTrade){
-        io.emit(`sendResponse${trader.toString()}`, { message: "Trade rejected due to insufficient balance", err: "Error" })
+        io.emit(`sendResponse${trader.toString()}`, { message: "Something went wrong. Please try after some time.", status: "error" })
       }
       return; //check return statement
     } else if (!isRedisConnected) {
@@ -1662,7 +1595,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
     if (exchange === "NFO") {
       exchangeSegment = 2;
     }
-    console.log("inside getPlacedOrderAndSave 2")
+    // console.log("inside getPlacedOrderAndSave 2")
 
   if (Date.now() - startTime >= 10000) {
     let exchangeSegment;
@@ -1823,14 +1756,14 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
 
     console.log("data saved in retreive order for", AppOrderID)
 
-    console.log("dontSendResp bahr", dontSendResp)
+    // console.log("dontSendResp bahr", dontSendResp)
     if(!dontSendResp){
-      console.log("dontSendResp", dontSendResp)
+      // console.log("dontSendResp", dontSendResp)
       // res.status(201).json({ message: "Switched all traders to mock.", status: "success" })
       // io.emit("updatePnl", traderDocMock)
       if(singleUser){
         const updateRealTrade = await UserPermission.updateOne({userId: new ObjectId(trader)}, { $set: { isRealTradeEnable: false } })
-        console.log("in single user")
+        // console.log("in single user")
       } else{
         const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } })
 

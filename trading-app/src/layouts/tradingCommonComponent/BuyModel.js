@@ -234,7 +234,6 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
         } else if(dataResp.message === "Live"){
         } else{
             openSuccessSB('else', dataResp.message)
-
         }
     }
     setBuyFormDetails({});

@@ -658,11 +658,12 @@ router.get("/missedOrderId", async (req, res)=>{
     const missedOrderId = await RetreiveOrder.aggregate([
         {
           $match: {
-            order_timestamp: { $regex: "2023-02-16" },
+            order_timestamp: { $gte: new Date("2023-06-19"), $lt: new Date("2023-06-20") },
             // quantity: realQuantity,
             // tradingsymbol: realSymbol,
             status: "COMPLETE",
-            tradingsymbol: "NIFTY2321618200PE"
+            orderUniqueIdentifier: {$ne: ""}
+            // tradingsymbol: "NIFTY2321618200PE"
             // $or: [
             //     {tradingsymbol: "NIFTY2321618200PE"},
             //     {tradingsymbol: "NIFTY2321617950CE"}
@@ -699,26 +700,16 @@ router.get("/missedOrderId", async (req, res)=>{
             variety: {$first: "$variety"},
             validity: {$first: "$validity"},
             exchange: {$first: "$exchange"},
-            exchange_timestamp: {$first: "$exchange_timestamp"},
-            order_type: {$first: "$order_type"},
-            price: {$first: "$price"},
-            filled_quantity: {$first: "$filled_quantity"},
-            pending_quantity: {$first: "$pending_quantity"},
-            cancelled_quantity: {$first: "$cancelled_quantity"},
-            guid: {$first: "$guid"},
-            market_protection: {$first: "$market_protection"},
-            disclosed_quantity: {$first: "$disclosed_quantity"},
-            tradingsymbol: {$first: "$tradingsymbol"},
-            placed_by: {$first: "$placed_by"},
-            status_message: {$first: "$status_message"},
-            status_message_raw: {$first: "$status_message_raw"},
+            orderUniqueIdentifier: {
+              $first: "$orderUniqueIdentifier",
+            },
 
           }
         }
       ]);
       
     //   const count = uniqueDocumentsCount[0].count;
-
+      res.send(missedOrderId)
       console.log(missedOrderId)
 })
 

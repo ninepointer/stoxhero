@@ -34,10 +34,8 @@ mongoose.connect(devDB, {
 
 // XTS_USERID = "KUSH_MARKET"
 // XTS_CLIENTID = "KUSH"
-
 // INTERACTIVE_URL = 'https://developers.symphonyfintech.in'
 // MARKETDATA_URL = 'https://developers.symphonyfintech.in/apimarketdata'
-
 // INTERACTIVE_SECRET_KEY = 'Vpcj303$VU'
 // INTERACTIVE_APP_KEY = '319309f79e919405e5c245'
 // MARKETDATA_SECRET_KEY = 'Yqyl575#Z8'
