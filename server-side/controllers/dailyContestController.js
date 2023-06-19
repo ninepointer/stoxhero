@@ -1,18 +1,21 @@
 const mongoose = require('mongoose');
 const Contest = require('../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
-
+const User = require("../models/User/userDetailSchema")
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
         const {contestStatus, contestEndTime, contestStartTime, contestOn, description, 
             contestType, entryFee, payoutPercentage, payoutStatus, contestName, maxParticipants
         } = req.body;
-        console.log(req.body)
-        const contest = Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, 
+        // console.log(req.body)
+        const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, 
             contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id});
+
+            console.log(contest)
         res.status(201).json({
             status:'success',
             message: "Contest created successfully",
+            data: contest
         });
     } catch (error) {
         console.log(error);
@@ -85,6 +88,26 @@ exports.deleteContest = async (req, res) => {
 exports.getAllContests = async (req, res) => {
     try {
         const contests = await Contest.find({});
+
+        res.status(200).json({
+            status:"success",
+            message: "Contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+// Controller for getting all contests
+exports.getContest = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const contests = await Contest.findOne({_id: id}).populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
 
         res.status(200).json({
             status:"success",
@@ -188,6 +211,82 @@ exports.addAllowedUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+// Controller for remove a user to allowedUsers
+exports.removeAllowedUser = async (req, res) => {
+    try {
+        const { id, userId } = req.params; // ID of the contest and the user to remove
+
+        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+        }
+
+        const contest = await Contest.findOne({ _id: id });
+        if (contest?.allowedUsers?.length == 0) {
+            return res.status(404).json({ status: 'error', message: 'No allowed user in this contest.' });
+        }
+        let participants = contest?.allowedUsers?.filter((item) => (item._id).toString() != userId.toString());
+        contest.allowedUsers = [...participants];
+        console.log(contest.allowedUsers, userId)
+        await contest.save({ validateBeforeSave: false });
+
+        // const result = await Contest.findByIdAndUpdate(
+        //     id,
+        //     { $pull: { allowedUsers: { userId:  mongoose.Types.ObjectId(userId) } } },
+        //     { new: true }  // This option ensures the updated document is returned
+        // );
+
+        // if (!result) {
+        //     return res.status(404).json({ status: "error", message: "Contest not found" });
+        // }
+
+        res.status(200).json({
+            status: "success",
+            message: "User removed from allowedUsers successfully",
+            data: contest
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+
+// Controller for getting users
+exports.getUsers = async (req, res) => {
+    const searchString = req.query.search;
+    try {
+        const data = await User.find({
+            $and: [
+                {
+                    $or: [
+                        { email: { $regex: searchString, $options: 'i' } },
+                        { first_name: { $regex: searchString, $options: 'i' } },
+                        { last_name: { $regex: searchString, $options: 'i' } },
+                        { mobile: { $regex: searchString, $options: 'i' } },
+                    ]
+                },
+                {
+                    status: 'Active',
+                },
+            ]
+        })
+        res.status(200).json({
+            status: "success",
+            message: "Getting User successfully",
+            data: data
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
