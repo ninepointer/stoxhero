@@ -1595,8 +1595,9 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       console.log("in rejected")
       await session.commitTransaction();
 
-      if (!autoTrade)
+      if (!autoTrade){
         io.emit(`sendResponse${trader.toString()}`, { message: "Trade rejected due to insufficient balance", err: "Error" })
+      }
       return; //check return statement
     } else if (!isRedisConnected) {
       await session.commitTransaction();
@@ -1829,7 +1830,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       // io.emit("updatePnl", traderDocMock)
       if(singleUser){
         const updateRealTrade = await UserPermission.updateOne({userId: new ObjectId(trader)}, { $set: { isRealTradeEnable: false } })
-console.log("in single user")
+        console.log("in single user")
       } else{
         const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } })
 

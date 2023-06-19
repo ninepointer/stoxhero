@@ -64,6 +64,18 @@ exports.getTenXPortolios = async(req, res, next)=>{
       
 };
 
+exports.getDailyContestPortolios = async(req, res, next)=>{
+  try{
+      const portfolio = await Portfolio.find({portfolioType: "Daily Contest",status: "Active"})
+      
+      res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
+
 exports.getTradingPortolios = async(req, res, next)=>{
     try{
         const portfolio = await Portfolio.find({portfolioType: "Virtual Trading",status:"Active"})
