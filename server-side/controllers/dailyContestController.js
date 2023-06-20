@@ -5,10 +5,9 @@ const User = require("../models/User/userDetailSchema")
 exports.createContest = async (req, res) => {
     try {
         const {contestStatus, contestEndTime, contestStartTime, contestOn, description, 
-            contestType, entryFee, payoutPercentage, payoutStatus, contestName, maxParticipants
+            contestType, entryFee, payoutPercentage, payoutStatus, contestName, portfolio
         } = req.body;
-        // console.log(req.body)
-        const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, 
+        const contest = Contest.create({contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
             contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id});
 
             console.log(contest)

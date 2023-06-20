@@ -33,7 +33,7 @@ exports.mockTrade = async (req, res) => {
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade } = req.body 
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
 
         if(exchange === "NFO"){
             exchangeSegment = 2;
@@ -140,7 +140,9 @@ exports.mockTrade = async (req, res) => {
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
     
-    console.log(paperTrade, isAlgoTrader);
+    // console.log(paperTrade, isAlgoTrader); dailyContest
+
+
     if(!paperTrade && isAlgoTrader){
 
         let settingRedis ;
@@ -174,39 +176,126 @@ exports.mockTrade = async (req, res) => {
     
             const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
             const algoTrader = await InfinityTrader.create([traderDoc], { session });
-            // console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
-            // if(isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)){
-            //     let pnl = await client.get(`${trader.toString()} overallpnl`)
-            //     pnl = JSON.parse(pnl);
-            //     console.log("redis pnl", pnl)
-            //     const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product ));
-            //     // if instrument is same then just updating value
-            //     if (matchingElement) {
-            //       // Update the values of the matching element with the values of the first document
-            //       matchingElement.amount += (algoTrader[0].amount * -1);
-            //       matchingElement.brokerage += Number(algoTrader[0].brokerage);
-            //       matchingElement.lastaverageprice = algoTrader[0].average_price;
-            //       matchingElement.lots += Number(algoTrader[0].Quantity);
-      
-            //     } else {
-            //       // Create a new element if instrument is not matching
-            //       pnl.push({
-            //         _id: {
-            //           symbol: algoTrader[0].symbol,
-            //           product: algoTrader[0].Product,
-            //           instrumentToken: algoTrader[0].instrumentToken,
-            //           exchangeInstrumentToken: algoTrader[0].exchangeInstrumentToken,
-            //           exchange: algoTrader[0].exchange,
-            //         },
-            //         amount: (algoTrader[0].amount * -1),
-            //         brokerage: Number(algoTrader[0].brokerage),
-            //         lots: Number(algoTrader[0].Quantity),
-            //         lastaverageprice: algoTrader[0].average_price,
-            //       });
-            //     }
-            //     settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
-            //     console.log("settingRedis", settingRedis)
-            // }
+
+
+            const pipeline = clientForIORedis.pipeline();
+
+            await pipeline.get(`${trader.toString()} overallpnl`)
+            await pipeline.get(`overallMockPnlCompany`)
+            await pipeline.get(`traderWiseMockPnlCompany`)
+
+            const results = await pipeline.exec();
+
+            const traderOverallPnl = results[0][1];
+            const companyOverallPnl = results[1][1];
+            const traderWisePnl = results[2][1];
+            
+            const overallPnlUser = await overallPnlUsers(algoTrader[0], trader, traderOverallPnl);
+            const redisValueOverall = await overallMockPnlRedis(mockTradeDetails[0], companyOverallPnl);
+            const redisValueTrader = await overallMockPnlTraderWiseRedis(mockTradeDetails[0], traderWisePnl);
+            const lastTradeMock = await letestTradeMock(mockTradeDetails[0]);
+
+            console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
+            const pipelineForSet = clientForIORedis.pipeline();
+
+            await pipelineForSet.set(`${trader.toString()} overallpnl`, overallPnlUser);
+            await pipelineForSet.set(`overallMockPnlCompany`, redisValueOverall);
+            await pipelineForSet.set(`traderWiseMockPnlCompany`, redisValueTrader);
+            await pipelineForSet.set(`lastTradeDataMock`, lastTradeMock);
+
+            await pipelineForSet.exec();
+
+            if(isRedisConnected){
+                // await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+                // await client.expire(`overallMockPnlCompany`, secondsRemaining);
+                // await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+                // await client.expire(`lastTradeDataMock`, secondsRemaining);
+
+                const pipeline = clientForIORedis.pipeline();
+
+                pipeline.expire(`${trader.toString()} overallpnl`, secondsRemaining);
+                pipeline.expire(`overallMockPnlCompany`, secondsRemaining);
+                pipeline.expire(`traderWiseMockPnlCompany`, secondsRemaining);
+                pipeline.expire(`lastTradeDataMock`, secondsRemaining);
+
+                await pipeline.exec();
+            }
+            // Commit the transaction
+            
+            io.emit("updatePnl", mockTradeDetails)
+            if(fromAdmin){
+                console.log("in admin side")
+                io.emit(`${trader.toString()}autoCut`, algoTrader)
+            }
+
+            // console.log(settingRedis, redisValueOverall,redisValueTrader )
+
+            // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
+
+            // console.log("pipelineForSet", pipelineForSet)
+            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
+                await session.commitTransaction();
+                res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+            } else {
+                // await session.commitTransaction();
+                throw new Error();
+            }
+            
+
+        } catch(err){
+            if(isRedisConnected){
+                const pipeline = clientForIORedis.pipeline();
+
+                await pipeline.del(`${trader.toString()} overallpnl`);
+                await pipeline.del(`traderWiseMockPnlCompany`);
+                await pipeline.del(`overallMockPnlCompany`);
+                await pipeline.del(`lastTradeDataMock`);
+                
+                const results = await pipeline.exec();
+            }
+            await session.abortTransaction();
+            console.error('Transaction failed, documents not saved:', err);
+            res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
+        } finally {
+        // End the session
+            session.endSession();
+        }
+    }
+
+    if(dailyContest){
+
+        // let settingRedis ;
+        const session = await mongoose.startSession();
+        try{
+
+            const mockCompany = await InfinityTradeCompany.findOne({order_id : order_id});
+            const mockInfintyTrader = await InfinityTrader.findOne({order_id : order_id});
+            if((mockCompany || mockInfintyTrader) && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
+                return res.status(422).json({message : "data already exist", error: "Fail to trade"})
+            }
+    
+            
+            session.startTransaction();
+    
+            const companyDoc = {
+                status:"COMPLETE", average_price: originalLastPriceCompany, Quantity: realQuantity, 
+                Product, buyOrSell:realBuyOrSell, variety, validity, exchange, order_type: OrderType, 
+                symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
+                instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
+                trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
+                trade_time:trade_time, exchangeInstrumentToken
+            }
+    
+            const traderDoc = {
+                status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
+                createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+            }
+    
+            const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
+            const algoTrader = await InfinityTrader.create([traderDoc], { session });
+
 
             const pipeline = clientForIORedis.pipeline();
 
