@@ -5,9 +5,9 @@ const Contest = require('../models/Contest'); // Assuming your model is exported
 exports.createContest = async (req, res) => {
     try {
         const {contestStatus, contestEndTime, contestStartTime, contestOn, description, 
-            contestType, entryFee, payoutPercentage, payoutStatus, contestName
+            contestType, entryFee, payoutPercentage, payoutStatus, contestName, portfolio
         } = req.body;
-        const contest = Contest.create({contestStatus, contestEndTime, contestStartTime, contestOn, description, 
+        const contest = Contest.create({contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
             contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id});
         res.status(201).json({
             status:'success',
