@@ -1,10 +1,10 @@
 {
   "files": {
     "main.css": "/static/css/main.39dfa471.css",
-    "main.js": "/static/js/main.f6c0a5aa.js",
+    "main.js": "/static/js/main.53317d2b.js",
     "static/js/498.71b2877e.chunk.js": "/static/js/498.71b2877e.chunk.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
-    "static/js/513.3e810b52.chunk.js": "/static/js/513.3e810b52.chunk.js",
+    "static/js/513.7f175fd1.chunk.js": "/static/js/513.7f175fd1.chunk.js",
     "static/media/bgBanner1.jpg": "/static/media/bgBanner1.c9ad6246a3bebeb04615.jpg",
     "static/media/main-bg-3.png": "/static/media/main-bg-3.c46dd2d7751431a8e006.png",
     "static/media/bgBanner2.jpg": "/static/media/bgBanner2.282ab170a2e58ea962dc.jpg",
@@ -101,6 +101,7 @@
     "static/media/money.png": "/static/media/money.5cd11134452477569e57.png",
     "static/media/team-4.jpg": "/static/media/team-4.85c82b6e60178804017f.jpg",
     "static/media/wallet.png": "/static/media/wallet.71bb0c8c5b5e823497b2.png",
+    "static/media/optionchain.png": "/static/media/optionchain.1d95ef031ab8d36133b5.png",
     "static/media/logo1.jpeg": "/static/media/logo1.f67dd281ffc95ee9fa68.jpeg",
     "static/media/arrow.png": "/static/media/arrow.b92042c2b67a50a8e215.png",
     "static/media/fantom.webp": "/static/media/fantom.4be21b798cd5cf38e3e5.webp",
@@ -141,13 +142,13 @@
     "static/media/mew.svg": "/static/media/mew.abd579786274219a78079f023ed7b335.svg",
     "index.html": "/index.html",
     "main.39dfa471.css.map": "/static/css/main.39dfa471.css.map",
-    "main.f6c0a5aa.js.map": "/static/js/main.f6c0a5aa.js.map",
+    "main.53317d2b.js.map": "/static/js/main.53317d2b.js.map",
     "498.71b2877e.chunk.js.map": "/static/js/498.71b2877e.chunk.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
-    "513.3e810b52.chunk.js.map": "/static/js/513.3e810b52.chunk.js.map"
+    "513.7f175fd1.chunk.js.map": "/static/js/513.7f175fd1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.39dfa471.css",
-    "static/js/main.f6c0a5aa.js"
+    "static/js/main.53317d2b.js"
   ]
 }
