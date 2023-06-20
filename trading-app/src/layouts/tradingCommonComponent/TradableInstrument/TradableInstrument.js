@@ -30,7 +30,7 @@ import SellModel from "../SellModel";
 import { marketDataContext } from "../../../MarketDataContext";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
 
 const initialState = {
@@ -341,11 +341,11 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader) && 'white',
+                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && 'white',
                   color: from === paperTrader ? "white" : "lightgray",
                   padding:"0.5px",
                   '&:hover': {
-                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader) && '#1e2e4a',
+                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && '#1e2e4a',
                     backgroundColor: from === paperTrader ? 'lightgray' : 'lightgray',
                     cursor: 'pointer',
                     fontWeight: 600

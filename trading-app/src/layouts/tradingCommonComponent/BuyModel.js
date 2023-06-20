@@ -27,14 +27,14 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../variables";
 
 
 // import MDBox from '../../../../../components/MDBox';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken}) => {
+const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
   console.log("rendering : buy", subscriptionId)
   const tradeSound = new Howl({
     src : [sound],
@@ -193,6 +193,8 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
       paperTrade = false;
       trader = traderId;
       fromAdmin = true;
+    }else if(from === dailyContest){
+      endPoint = 'placingOrderDailyContest';
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -201,7 +203,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, Price, 
+          exchange, symbol, buyOrSell, Quantity, Price, contestId,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath

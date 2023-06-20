@@ -60,9 +60,9 @@ import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
 import WorkShopOrders from './layouts/userorders/workshopOrder';
-import AlgoContest from "./layouts/UserInfinityContest";
+import DailyContest from "./layouts/dailyContest-Trading";
 // import WorkShopOrders from './layouts/userorders/workshopOrder';
-import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard';
+// import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard';
 
 
 const routes = [
@@ -72,8 +72,8 @@ const routes = [
     // name: "DashBoard",
     // key: "Dashboard",
     // icon: <HomeIcon/>,
-    route: "/contest",
-    component: <AlgoContest />,
+    route: "/dailycontest/trade",
+    component: <DailyContest />,
   },
   {
     // type: "collapse",

@@ -464,7 +464,7 @@ const infinityTrade = async () => {
             $gte: today
           },
           status: "COMPLETE",
-          appOrderId: null
+          // appOrderId: null
         },
       },
       {

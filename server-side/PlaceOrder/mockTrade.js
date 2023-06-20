@@ -5,6 +5,9 @@ const singleLivePrice = require('../marketData/sigleLivePrice');
 const TenxTrader = require("../models/mock-trade/tenXTraderSchema");
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
+const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
+const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockCompany");
+
 // const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
 const {client, getValue, clientForIORedis} = require('../marketData/redisClient');
@@ -13,7 +16,7 @@ const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 const InternshipTrade = require("../models/mock-trade/internshipTrade");
-const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../services/adminRedis/infinityMock");
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers, lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../services/adminRedis/infinityMock");
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -26,14 +29,14 @@ exports.mockTrade = async (req, res) => {
 
     // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
 
-    console.log("caseStudy 8: mocktrade", isRedisConnected)
     // let stoxheroTrader ;
     // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
     // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath,
+        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
+        console.log("caseStudy 8: mocktrade", req.body)
 
         if(exchange === "NFO"){
             exchangeSegment = 2;
@@ -283,25 +286,25 @@ exports.mockTrade = async (req, res) => {
                 symbol: realSymbol, placed_by: "stoxhero", algoBox:algoBoxId, order_id, 
                 instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy: req.user._id,
                 trader : trader, isRealTrade: false, amount: (Number(realQuantity)*originalLastPriceCompany), 
-                trade_time:trade_time, exchangeInstrumentToken
+                trade_time:trade_time, exchangeInstrumentToken, contestId
             }
     
             const traderDoc = {
-                status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                status:"COMPLETE",  average_price: originalLastPriceUser, Quantity, Product, buyOrSell, 
+                variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", contestId,
                 isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser, exchangeInstrumentToken,
                 createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
             }
     
-            const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
-            const algoTrader = await InfinityTrader.create([traderDoc], { session });
+            const mockTradeDetails = await DailyContestMockCompany.create([companyDoc], { session });
+            const algoTrader = await DailyContestMockUser.create([traderDoc], { session });
 
 
             const pipeline = clientForIORedis.pipeline();
 
-            await pipeline.get(`${trader.toString()} overallpnl`)
-            await pipeline.get(`overallMockPnlCompany`)
-            await pipeline.get(`traderWiseMockPnlCompany`)
+            await pipeline.get(`${trader.toString()} overallpnlDailyContest`)
+            await pipeline.get(`overallMockPnlCompanyDailyContest`)
+            await pipeline.get(`traderWiseMockPnlCompanyDailyContest`)
 
             const results = await pipeline.exec();
 
@@ -309,18 +312,18 @@ exports.mockTrade = async (req, res) => {
             const companyOverallPnl = results[1][1];
             const traderWisePnl = results[2][1];
             
-            const overallPnlUser = await overallPnlUsers(algoTrader[0], trader, traderOverallPnl);
-            const redisValueOverall = await overallMockPnlRedis(mockTradeDetails[0], companyOverallPnl);
-            const redisValueTrader = await overallMockPnlTraderWiseRedis(mockTradeDetails[0], traderWisePnl);
-            const lastTradeMock = await letestTradeMock(mockTradeDetails[0]);
+            const overallPnlUser = await overallpnlDailyContest(algoTrader[0], trader, traderOverallPnl, contestId);
+            const redisValueOverall = await overallMockPnlCompanyDailyContest(mockTradeDetails[0], companyOverallPnl, contestId);
+            const redisValueTrader = await traderWiseMockPnlCompanyDailyContest(mockTradeDetails[0], traderWisePnl, contestId);
+            const lastTradeMock = await lastTradeDataMockDailyContest(mockTradeDetails[0], contestId);
 
             console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
             const pipelineForSet = clientForIORedis.pipeline();
 
-            await pipelineForSet.set(`${trader.toString()} overallpnl`, overallPnlUser);
-            await pipelineForSet.set(`overallMockPnlCompany`, redisValueOverall);
-            await pipelineForSet.set(`traderWiseMockPnlCompany`, redisValueTrader);
-            await pipelineForSet.set(`lastTradeDataMock`, lastTradeMock);
+            await pipelineForSet.set(`${trader.toString()} overallpnlDailyContest`, overallPnlUser);
+            await pipelineForSet.set(`overallMockPnlCompanyDailyContest`, redisValueOverall);
+            await pipelineForSet.set(`traderWiseMockPnlCompanyDailyContest`, redisValueTrader);
+            await pipelineForSet.set(`lastTradeDataMockDailyContest`, lastTradeMock);
 
             await pipelineForSet.exec();
 
@@ -332,10 +335,10 @@ exports.mockTrade = async (req, res) => {
 
                 const pipeline = clientForIORedis.pipeline();
 
-                pipeline.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-                pipeline.expire(`overallMockPnlCompany`, secondsRemaining);
-                pipeline.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-                pipeline.expire(`lastTradeDataMock`, secondsRemaining);
+                pipeline.expire(`${trader.toString()} overallpnlDailyContest`, secondsRemaining);
+                pipeline.expire(`overallMockPnlCompanyDailyContest`, secondsRemaining);
+                pipeline.expire(`traderWiseMockPnlCompanyDailyContest`, secondsRemaining);
+                pipeline.expire(`lastTradeDataMockDailyContest`, secondsRemaining);
 
                 await pipeline.exec();
             }
@@ -365,10 +368,10 @@ exports.mockTrade = async (req, res) => {
             if(isRedisConnected){
                 const pipeline = clientForIORedis.pipeline();
 
-                await pipeline.del(`${trader.toString()} overallpnl`);
-                await pipeline.del(`traderWiseMockPnlCompany`);
-                await pipeline.del(`overallMockPnlCompany`);
-                await pipeline.del(`lastTradeDataMock`);
+                await pipeline.del(`${trader.toString()} overallpnlDailyContest`);
+                await pipeline.del(`traderWiseMockPnlCompanyDailyContest`);
+                await pipeline.del(`overallMockPnlCompanyDailyContest`);
+                await pipeline.del(`lastTradeDataMockDailyContest`);
                 
                 const results = await pipeline.exec();
             }

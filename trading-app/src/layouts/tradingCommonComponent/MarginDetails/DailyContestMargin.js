@@ -2,25 +2,19 @@ import React from 'react'
 import Grid from "@mui/material/Grid";
 import {useState, useContext, useEffect, memo} from "react"
 import axios from "axios";
-// import { userContext } from "../../../AuthContext";
 import { NetPnlContext } from '../../../PnlContext';
 import MDBox from '../../../components/MDBox';
-// import MarginDetails from './MarginDetails';
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from '../../../renderContext';
 
-const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
-  console.log("rendering : infinitymargin")
-  //console.log("rendering in userPosition: marginGrid")
+const InternShipMargin = ({contestId, setyesterdayData}) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-//   const [marginDetails, setMarginDetails] = useState([]);
-  // const { columns, rows } = MarginDetails();
-  // const getDetails = useContext(userContext);
-  // const id = getDetails?.userDetails?._id
   const [fundDetail, setFundDetail] = useState({});
   // const [yesterdayData, setyesterdayData] = useState({});
   const {render} = useContext(renderContext);
+
+ 
 
   const todayAmount = pnlData.reduce((total, acc) => {
     if (acc.lots !== 0) {
@@ -29,22 +23,10 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  // useEffect(() => {
-  //   axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
-  //     withCredentials: true,
-  //     headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //         "Access-Control-Allow-Credentials": true
-  //     }}
-  //     ).then((res)=>{
-  //       setyesterdayData(res.data.data);
-  //     })
-      
-  // }, [render]);
+  console.log("margin", todayAmount)
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/myPnlandCreditData`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -53,27 +35,13 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
       }}
       ).then((res)=>{
         setFundDetail(res.data.data);
-        setyesterdayData(res.data.data)
+        setyesterdayData(res.data.data);
       })
       
-  }, [render]);
+  }, [render, contestId]);
 
+  console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail)
 
-//   let totalCredit = 0;
-//   marginDetails?.map((elem)=>{
-//     totalCredit =+ totalCredit + elem.amount
-//   })
-
-  // let totalCreditString = fundDetail?.totalCredit ? fundDetail?.totalCredit >= 0 ? "+₹" + fundDetail?.totalCredit?.toLocaleString() : "-₹" + ((-fundDetail?.totalCredit)?.toLocaleString()): "+₹0"
-  // let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
-  // let runningPnl = Number(netPnl?.toFixed(0));
-  // let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
-  // let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  // let availableMargin = fundDetail?.availableMargin ? Number((fundDetail?.availableMargin)?.toFixed(0))+runningPnl : 0;
-  // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
-  // let usedMargin = runningPnl >= 0 ? 0 : runningPnl
-  // let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin)?.toLocaleString() : "-₹" + (-Number(usedMargin))?.toLocaleString()
-  
   let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
 
   let runningPnl = Number(netPnl?.toFixed(0));
@@ -83,8 +51,8 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
   let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
   let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
-
-  // console.log("checkmargin", netPnl, yesterdayData, fundDetail)
+  
+  console.log("checkmargin", netPnl, fundDetail, fundDetail)
     
     return (<>
   
@@ -97,7 +65,7 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
                     // icon={<CreditCardIcon/>}
-                    title="Total Credit"
+                    title="Portfolio value"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
                   />
@@ -136,4 +104,4 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
     )
 }
 
-export default memo(InfinityMarginGrid);
+export default memo(InternShipMargin);

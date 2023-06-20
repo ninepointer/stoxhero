@@ -28,10 +28,10 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
+import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState}) => {
+const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, contestId}) => {
   console.log("rendering in userPosition: sellModel", exchange)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -200,6 +200,8 @@ const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, 
       paperTrade = false;
       trader = traderId;
       fromAdmin = true;
+    }else if(from === dailyContest){
+      endPoint = 'placingOrderDailyContest';
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -209,7 +211,7 @@ const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, 
         },
         body: JSON.stringify({
             
-          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId,
+          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, internPath,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath

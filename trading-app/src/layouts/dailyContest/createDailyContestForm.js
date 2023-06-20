@@ -70,11 +70,12 @@ function Index() {
     payoutPercentage: '' || contest?.payoutPercentage,
     entryFee: '' || contest?.entryFee,
     description: '' || contest?.description,
-    portfolio: {
-      contest: "" || contest?.portfolio?._contest,
-      portfolioName: "" || contest?.portfolio?.portfolioName,
-      portfolioValue: "" || contest?.portfolio?.portfolioValue,
-    },
+    // portfolio: {
+    //   contest: "" || contest?.portfolio?._contest,
+    //   portfolioName: "" || contest?.portfolio?.portfolioName,
+    //   portfolioValue: "" || contest?.portfolio?.portfolioValue,
+    // },
+    portfolio: "" || contest?.portfolio?._id,
     registeredUsers: {
       userId: "",
       registeredOn: "",
@@ -134,7 +135,9 @@ function Index() {
     })
     setFormState(prevState => ({
       ...prevState,
-      portfolio: { id: portfolioId[0]?._id, portfolioName: portfolioId[0]?.portfolioName, portfolioValue: portfolioId[0]?.portfolioValue }
+      // portfolio: { id: portfolioId[0]?._id, portfolioName: portfolioId[0]?.portfolioName, portfolioValue: portfolioId[0]?.portfolioValue }
+      portfolio: portfolioId[0]?._id
+
     }))
     console.log("portfolioId", portfolioId, formState)
   };

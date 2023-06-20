@@ -51,10 +51,24 @@ const {placeOrder} = require("../../services/xts/xtsInteractive");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
 const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
+const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
 const Permission = require("../../models/User/permissionSchema");
 
 
+router.get("/updateFeild", async (req, res) => {
+  const update1 = await InfinityTraderCompany.updateMany({}, {order_type: "MARKET"})
+  const update2 = await InfinityTrader.updateMany({}, {order_type: "MARKET"})
+  const update3 = await InfinityLiveCompany.updateMany({}, {order_type: "MARKET"})
+  const update4 = await InfinityLiveUser.updateMany({}, {order_type: "MARKET"})
+  console.log(update1, update2, update3, update4);
+})
+
+router.get("/deleteTrades", async (req, res) => {
+  const del = await InfinityTraderCompany.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  const del2 = await InfinityTrader.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  console.log(del.length, del2.length);
+})
 
 router.get("/removeduplicate", async (req, res) => {
   const result = await Permission.aggregate([
