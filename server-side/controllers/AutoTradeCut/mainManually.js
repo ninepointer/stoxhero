@@ -3,7 +3,7 @@ const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive} = require
 exports.autoCutMainManually = async() => {
     await tenx();
     await paperTrade();
-    await infinityTrade();
     await internship();
     await infinityTradeLive();
+    await infinityTrade();
 }

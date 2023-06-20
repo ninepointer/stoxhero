@@ -1263,6 +1263,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
 
+
     if (exchange === "NFO") {
       exchangeSegment = 2;
     }
@@ -1320,7 +1321,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
 
   try {
-    let status, transaction_type;
+    let status, transaction_type, order_type;
     session.startTransaction();
     if (OrderStatus === "Rejected") {
       status = "REJECTED";
@@ -1352,6 +1353,10 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
     if (buyOrSell == "SELL") {
       Quantity = 0 - Quantity;
+    }
+
+    if(OrderType === "Market"){
+      order_type = "MARKET";
     }
 
     function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
@@ -1399,7 +1404,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
       status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
       Product: ProductType, buyOrSell: transaction_type,
-      variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
+      variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
       algoBox: algoBoxId, instrumentToken, brokerage: brokerageCompany,
       trader: trader, isRealTrade: true, amount: (Number(OrderQuantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
@@ -1411,7 +1416,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
       status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: Quantity,
       Product: ProductType, buyOrSell: buyOrSell,
-      variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
+      variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
       instrumentToken, brokerage: brokerageUser, trader: trader,
       isRealTrade: true, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
@@ -1421,7 +1426,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     const companyDocMock = {
       appOrderId: AppOrderID, order_id: order_id,
       status, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
-      Product: ProductType, buyOrSell: transaction_type, variety, validity: TimeInForce, exchange, order_type: OrderType,
+      Product: ProductType, buyOrSell: transaction_type, variety, validity: TimeInForce, exchange, order_type: order_type,
       symbol, placed_by: ClientID, algoBox: algoBoxId,
       instrumentToken, brokerage: brokerageCompany, createdBy: tradedBy,
       trader: trader, isRealTrade: false, amount: (Number(OrderQuantity) * OrderAverageTradedPrice),
@@ -1432,7 +1437,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       appOrderId: AppOrderID, order_id: order_id,
       status, average_price: OrderAverageTradedPrice, Quantity: Quantity,
       Product: ProductType, buyOrSell, exchangeInstrumentToken: ExchangeInstrumentID,
-      variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
+      variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
       isRealTrade: false, instrumentToken, brokerage: brokerageUser,
       createdBy: tradedBy, trader: trader, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
     }
@@ -1649,7 +1654,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
 
 
   try {
-    let status, transaction_type;
+    let status, transaction_type, order_type;
     session.startTransaction();
     if (OrderStatus === "Rejected") {
       status = "REJECTED";
@@ -1681,6 +1686,10 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
     }
     if (buyOrSell == "SELL") {
       Quantity = 0 - Quantity;
+    }
+
+    if(OrderType === "Market"){
+      order_type = "MARKET";
     }
 
     function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
@@ -1728,7 +1737,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
       status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
       Product: ProductType, buyOrSell: transaction_type,
-      variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
+      variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
       algoBox: algoBoxId, instrumentToken, brokerage: brokerageCompany,
       trader: trader, isRealTrade: true, amount: (Number(OrderQuantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
@@ -1740,7 +1749,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
       status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: Quantity,
       Product: ProductType, buyOrSell: buyOrSell,
-      variety, validity: TimeInForce, exchange, order_type: OrderType, symbol, placed_by: ClientID,
+      variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
       instrumentToken, brokerage: brokerageUser, trader: trader,
       isRealTrade: true, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
