@@ -19,8 +19,8 @@ const getInstrumentTicksHistoryData = async () => {
   getKiteCred.getAccess().then(async (data)=>{
     console.log("in ticks")
     let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = "2023-06-02";
+    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let todayDate = "2023-06-14";
     let todayDate1 = todayDate + "T00:00:00.000Z";
     const matchingDate = new Date(todayDate1);
 
@@ -171,3 +171,5 @@ function mailSender(length){
 }
 
 module.exports = getInstrumentTicksHistoryData;
+
+

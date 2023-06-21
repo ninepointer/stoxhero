@@ -612,7 +612,7 @@ const infinityTrade = async () => {
   return ;
 }
 
-const infinityTradeLive = () => {
+const infinityTradeLive = async () => {
   return new Promise(async (resolve, reject) => {
     try {
       let date = new Date();
@@ -681,7 +681,7 @@ const infinityTradeLive = () => {
         }
       ]);
 
-      console.log(data);
+      console.log("collectiong", data);
 
       for (let i = 0; i < data.length; i++) {
         let date = new Date();
@@ -736,14 +736,16 @@ const infinityTradeLive = () => {
             Obj.Quantity = 1800;
             Obj.userQuantity = 1800 / algoBox.lotMultipler;
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+            console.log("before autoplaceorder in elseif");
             await autoPlaceOrder(Obj);
             quantity = quantity - 1800;
             await delay(300);
-            processOrder();
+            return processOrder(); // Ensure that the promise returned by processOrder is returned
           } else {
             Obj.Quantity = quantity;
             Obj.userQuantity = quantity / algoBox.lotMultipler;
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+            console.log("before autoplaceorder in else");
             await autoPlaceOrder(Obj);
           }
         };

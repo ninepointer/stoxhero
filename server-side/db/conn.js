@@ -55,3 +55,16 @@ mongoose.connect(devDB, {
     // "exchangeSegment": "NFO-OPT",
     // "exchangeInstrumentToken": 57651
 
+/*
+index.js
+autoTrde.js
+autoTradeManually.js
+collectingTradeManually.js
+
+xtsInteractive.js
+mainManually.js
+collleactingtrade
+index.js
+
+price 160
+*/

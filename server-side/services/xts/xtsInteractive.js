@@ -1267,7 +1267,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     if (exchange === "NFO") {
       exchangeSegment = 2;
     }
-    // console.log("inside getPlacedOrderAndSave 2")
+    console.log("inside getPlacedOrderAndSave for check")
 
   if (Date.now() - startTime >= 10000) {
     let exchangeSegment;
