@@ -41,6 +41,7 @@ const test = require("./kafkaTest");
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const {xtsAccountType, zerodhaAccountType} = require("./constant")
 const {openPrice} = require("./marketData/setOpenPriceFlag");
+const webSocketService = require('./services/chartService/chartService');
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -116,6 +117,16 @@ getKiteCred.getAccess().then(async (data)=>{
       // console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
     })
+
+    socket.on('GetHistory', (data) => {
+      console.log('event received', data);
+      webSocketService.send(data);
+    });
+    
+    socket.on('SubscribeRealtime', (data) => {
+      console.log('live event received', data);
+      webSocketService.send(data);
+    });
 
     socket.emit('check', false)
 
@@ -315,3 +326,4 @@ let weekDay = date.getDay();
 
 const PORT = process.env.PORT||5002;
 const server = app.listen(PORT);
+webSocketService.init(io);

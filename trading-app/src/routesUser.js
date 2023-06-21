@@ -61,6 +61,7 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import Chart from './layouts/charts/index';
 
 
 const routes = [
@@ -380,6 +381,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/internship/analytics",
     component: <InternshipAnalytics/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/chart",
+    component: <Chart/>,
   },
 ];
 
