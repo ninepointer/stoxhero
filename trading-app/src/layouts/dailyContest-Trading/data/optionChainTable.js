@@ -42,7 +42,7 @@ useEffect(()=>{
   }).catch((err) => {
       return new Error(err);
   })
-
+  socket.emit("company-ticks", true)
   socket.on("tick", (data) => {
     console.log("this is live market data", data);
     setMarketData(prevInstruments => {
@@ -54,7 +54,7 @@ useEffect(()=>{
     });
     // setDetails.setMarketData(data);
   })
-}, [socket])
+}, [])
 
   useEffect(()=>{
       setIsLoading(true)
