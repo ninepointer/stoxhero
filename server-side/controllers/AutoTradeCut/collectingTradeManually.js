@@ -758,10 +758,6 @@ const infinityTradeLive = async () => {
     }, 300);
   }
 
-  // if(data.length > 0){
-  //   await infinityTradeLive();
-  // }
-
   return ;
 }
 

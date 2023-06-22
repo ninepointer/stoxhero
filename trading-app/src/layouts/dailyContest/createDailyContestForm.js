@@ -106,13 +106,6 @@ function Index() {
             return new Error(err)
         })
 
-        axios.get(`${baseUrl}api/v1/career?type=${type}`)
-        .then((res)=>{
-          console.log("Careers :",res?.data?.data)
-          setCareers(res?.data?.data);
-        }).catch((err)=>{
-            return new Error(err)
-        })
     
         axios.get(`${baseUrl}api/v1/dailycontest/${id?._id}`)
         .then((res)=>{
@@ -125,7 +118,7 @@ function Index() {
         }).catch((err)=>{
             console.log("Error in useeffect: ",err)
         })    
-    },[type])
+    },[])
 
     const handleTypeChange = (e) =>{
       const value = e.target.value;
