@@ -35,7 +35,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
 const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
-  console.log("rendering : buy", subscriptionId)
+  console.log("rendering : buy", contestId)
   const tradeSound = new Howl({
     src : [sound],
     html5 : true

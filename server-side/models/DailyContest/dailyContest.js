@@ -49,6 +49,10 @@ const contestSchema = new Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         addedOn:{type:Date},
     }],
+    participants:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        participatedOn:{type:Date},
+    }],
     maxParticipants:{
         type:Number,
         required: true

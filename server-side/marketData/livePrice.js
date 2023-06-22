@@ -7,8 +7,9 @@ const RequestToken = require("../models/Trading Account/requestTokenSchema");
 const Instrument = require("../models/Instruments/instrumentSchema");
 const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
-const {client, getValue} = require("../marketData/redisClient")
+// const {client, getValue} = require("../marketData/redisClient")
 const InfinityInstrument = require("../models/Instruments/infinityInstrument");
+const StockIndex = require("../models/StockIndex/stockIndexSchema");
 
 
 
@@ -67,6 +68,7 @@ router.get("/getliveprice", async (req, res)=>{
     const infinityInstrument = await InfinityInstrument.find({status: "Active"});
     const ans = await Instrument.find({status: "Active"});
     const contestInstrument = await ContestInstrument.find({status: "Active"});
+    const stockIndex = await StockIndex.find({status: "Active"});
     const resp2 = await InstrumentMapping.find({Status: "Active"})
     // let ans = resp.filter((elem) => {
     //   return elem.status === 'Active'
@@ -83,18 +85,14 @@ router.get("/getliveprice", async (req, res)=>{
 
 
     infinityInstrument.forEach((elem, index) => {
-      // if (index === 0) {
-      //   addUrl = ('i=' + elem.exchange + ':' + elem.symbol + '&i=' + elem.exchange + ':' + elem.otm);
-      // } else {
-      // }
       addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
-
     });
 
-    // resp2.forEach((elem, index) => {
-    //   // console.log(addUrl)
-    //   addUrl += ('&i=' + elem.incomingInstrumentExchange + ':' + elem.InstrumentNameIncoming + '&i=' + elem.outgoingInstrumentExchange + ':' + elem.InstrumentNameOutgoing);
-    // });
+    stockIndex.forEach((elem, index) => {
+      addUrl += ('&i=' + "NSE" + ':' + elem.instrumentSymbol);
+    });
+
+
 
     let url = `https://api.kite.trade/quote?${addUrl}`;
     const api_key = getApiKey; 

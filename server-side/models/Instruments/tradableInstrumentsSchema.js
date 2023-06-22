@@ -84,6 +84,9 @@ const tradableInstrumentSchema = new mongoose.Schema({
     },
     infinityVisibility: {
         type: Boolean,
+    },
+    earlySubscription: {
+        type: Boolean,
     }
 })
 

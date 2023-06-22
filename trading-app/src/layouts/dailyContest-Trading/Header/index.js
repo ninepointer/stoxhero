@@ -18,13 +18,46 @@ import { NetPnlContext } from '../../../PnlContext';
 import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 import { dailyContest } from '../../../variables';
 import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
+import OptionChain from '../data/optionChain';
+import MDButton from '../../../components/MDButton';
+import { Link } from "react-router-dom";
+import CircularJSON from 'circular-json';
+import { userContext } from '../../../AuthContext';
+// import { userContext } from "../../AuthContext";
+import { io } from 'socket.io-client';
 
-export default function InfinityTrading({socket, contestId}) {
+export default function InfinityTrading({ contestId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [yesterdayData, setyesterdayData] = useState({});
   const [availbaleMargin, setAvailbleMargin] = useState([]);
+  const [showOption, setShowOption] = useState(false);
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+  // const socketData = CircularJSON.stringify(socket);
+// console.log("socket", socket.id)
+
+
+
+let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+const getDetails = useContext(userContext);
+
+
+let socket;
+try {
+  socket = io.connect(`${baseUrl1}`)
+} catch (err) {
+  throw new Error(err);
+}
+
+useEffect(() => {
+  socket.on("connect", () => {
+    socket.emit('userId', getDetails.userDetails._id)
+    socket.emit("user-ticks", getDetails.userDetails._id);
+    socket.emit("company-ticks", true)
+  })
+}, []);
+
+
 
 
   const memoizedStockIndex = useMemo(() => {
@@ -36,13 +69,24 @@ export default function InfinityTrading({socket, contestId}) {
   }, []);
 
   const memoizedTradableInstrument = useMemo(() => {
-    return <TradableInstrument
+    return <OptionChain
       socket={socket}
-      isGetStartedClicked={isGetStartedClicked}
-      setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      from={dailyContest}
+      setShowOption={setShowOption}
+      showOption={showOption}
+      // isGetStartedClicked={isGetStartedClicked}
+      // setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      // from={dailyContest}
     />;
-  }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [socket, showOption]);
+
+  // const memoizedTradableInstrument = useMemo(() => {
+  //   return <TradableInstrument
+  //     socket={socket}
+  //     isGetStartedClicked={isGetStartedClicked}
+  //     setIsGetStartedClicked={handleSetIsGetStartedClicked}
+  //     from={dailyContest}
+  //   />;
+  // }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -50,8 +94,9 @@ export default function InfinityTrading({socket, contestId}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={dailyContest}
+      subscriptionId={contestId}
     />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+  }, [contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
@@ -64,13 +109,14 @@ export default function InfinityTrading({socket, contestId}) {
     />;
   }, [contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
 
-  let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
-  let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;
+  let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData?.totalFund;
+  let fundChangePer = openingBalance ? ((openingBalance+pnl?.netPnl - openingBalance)*100/openingBalance) : 0;
 
   console.log("fundDetail", fundChangePer, openingBalance)
   return (
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >
+      {!showOption &&
       <Grid container spacing={3} mb={2}>
         
         {memoizedStockIndex}
@@ -115,7 +161,6 @@ export default function InfinityTrading({socket, contestId}) {
                   <MDTypography fontSize={11} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">NET P&L</MDTypography>
                   <MDBox display="flex">
                     <MDTypography fontSize={10}>Today</MDTypography>
-                    {/* <MDAvatar src={downicon} style={{width:15, height:15}} display="flex" justifyContent="left"/> */}
                   </MDBox>
                 </Grid>
               
@@ -127,29 +172,40 @@ export default function InfinityTrading({socket, contestId}) {
           </MDBox>
         </Grid>
 
-      </Grid>
+      </Grid>}
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6} lg={12}>
           {/* <TradableInstrument/> */}
           {memoizedTradableInstrument}
+          {/* <MDButton
+          variant="contained" 
+          color={"light"} 
+          size="small" 
+          component = {Link}
+          to={{
+              pathname: `/optionchain`,
+            }}
+            state={{data: socketData}}
+          >
+            Option Chain
+          </MDButton> */}
         </Grid>
       </Grid>
 
+      {!showOption &&
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={12}>
-          {/* <WatchList/> */}
           {memoizedInstrumentDetails}
         </Grid>
 
         <Grid item xs={12} md={6} lg={12}>
-          {/* <OverallPnl/> */}
           {memoizedOverallPnl}
         </Grid>
         <Grid item xs={12} md={6} lg={12}>
           <DailyContestMargin contestId={contestId} availbaleMargin={availbaleMargin} setyesterdayData={setyesterdayData}/>
         </Grid>
-      </Grid>
+      </Grid>}
 
     </MDBox>
     </>

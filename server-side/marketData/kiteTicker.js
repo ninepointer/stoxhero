@@ -37,12 +37,14 @@ const subscribeTokens = async() => {
     let tokens = await fetchToken();
     // console.log("token in kite", tokens)
     let data = ticker?.subscribe(tokens);
+    ticker.setMode(ticker.modeFull, tokens);
     // console.log("data of subscription", data)
   // });
 }
 
 const subscribeSingleToken = async(instrumentToken) => {
   ticker?.subscribe(instrumentToken);
+  ticker.setMode(ticker.modeFull, instrumentToken);
  
 }
 
@@ -169,7 +171,7 @@ const getTicksForUserPosition = async (socket, id) => {
   try {
     // console.log("above ticks", ticker)
     ticker.on('ticks', async (ticks) => {
-      // console.log("tick")
+
       let indexObj = {};
       let now = performance.now();
       // populate hash table with indexObj from indecies
@@ -223,6 +225,7 @@ const getTicksForUserPosition = async (socket, id) => {
         if (indexData?.length > 0) {
           socket.emit('index-tick', indexData)
         }
+
 
         if (filteredTicks.length > 0) {
           io.to(`${userId}`).emit('tick-room', filteredTicks);
@@ -280,11 +283,16 @@ const getTicksForContest = async (socket) => {
 }
 
 const getTicksForCompanySide = async (socket) => {
+
+  // console.log("in ticks")
   ticker.on('ticks', async (ticks) => {
-    try{
+
+    // console.log("tick", ticks)
+
+    try {
       socket.emit('tick', ticks);
       ticks = null;
-    } catch (err){
+    } catch (err) {
       console.log(err)
     }
   });

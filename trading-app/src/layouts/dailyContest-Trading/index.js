@@ -22,18 +22,18 @@ function Tables() {
     throw new Error(err);
   }
 
-  console.log("getDetails.userDetails", getDetails.userDetails)
   useEffect(() => {
     socket.on("connect", () => {
       socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id)
+      socket.emit("user-ticks", getDetails.userDetails._id);
+      socket.emit("company-ticks", true)
     })
   }, []);
   return (
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <Header socket={socket} contestId={"64915f71a276d74a55f5d1a3"}/>
+      <Header  contestId={"64915f71a276d74a55f5d1a3"}/>
       <Footer />
     </DashboardLayout>
     </>

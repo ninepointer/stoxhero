@@ -42,6 +42,7 @@ require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const {xtsAccountType, zerodhaAccountType} = require("./constant")
 const {openPrice} = require("./marketData/setOpenPriceFlag");
 
+
 const hpp = require("hpp")
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minutes
@@ -259,6 +260,7 @@ app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
 app.use('/api/v1/usedMargin', require("./routes/mockTrade/mockMargin"));
 app.use('/api/v1/dailycontest', require("./routes/DailyContest/dailyContestRoutes"))
 app.use('/api/v1/dailycontest/trade', require("./routes/DailyContest/dailyContestTrade"))
+app.use('/api/v1/optionChain', require("./routes/optionChain/optionChainRoute"))
 
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));

@@ -83,11 +83,11 @@ exports.mockTrade = async (req, res) => {
             console.log("inside setting else case")
             liveData = await singleLivePrice(exchange, symbol)
         }
-        console.log("live data", liveData)
+        // console.log("live data", liveData)
         for(let elem of liveData){
             if(elem.instrument_token == instrumentToken){
                 newTimeStamp = elem.timestamp;
-                console.log("zerodha date", elem.timestamp)
+                // console.log("zerodha date", elem.timestamp)
                 originalLastPriceUser = elem.last_price;
                 originalLastPriceCompany = elem.last_price;
             }

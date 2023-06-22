@@ -54,7 +54,15 @@ const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema")
 const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
 const Permission = require("../../models/User/permissionSchema");
+const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
+const {subscribeTokens} = require("../../marketData/kiteTicker");
 
+
+router.get("/subscribeTradable", async (req, res) => {
+  await EarlySubscribedInstrument();
+  await subscribeTokens();
+  res.send("ok")
+})
 
 router.get("/updateFeild", async (req, res) => {
   const update1 = await InfinityTraderCompany.updateMany({}, {order_type: "MARKET"})

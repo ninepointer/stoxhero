@@ -61,6 +61,8 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
 import WorkShopOrders from './layouts/userorders/workshopOrder';
 import DailyContest from "./layouts/dailyContest-Trading";
+import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
+
 // import WorkShopOrders from './layouts/userorders/workshopOrder';
 // import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard';
 
@@ -74,6 +76,14 @@ const routes = [
     // icon: <HomeIcon/>,
     route: "/dailycontest/trade",
     component: <DailyContest />,
+  },
+  {
+    // type: "collapse",
+    // name: "DashBoard",
+    // key: "Dashboard",
+    // icon: <HomeIcon/>,
+    route: "/optionchain",
+    component: <OptionChain />,
   },
   {
     // type: "collapse",
