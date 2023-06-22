@@ -860,7 +860,7 @@ const interactiveLogin = async () => {
 const placedOrderData = async () => {
   // let isRedisConnected = getValue();
   xtsInteractiveWS.onOrder(async (orderData) => {
-    // console.log(orderData)
+    console.log(orderData)
     try{
       if (orderData.OrderStatus === "Rejected" || orderData.OrderStatus === "Filled") {
 
@@ -987,7 +987,20 @@ const placeOrder = async (obj, req, res) => {
       exchangeSegment = 'NSECM'
     }
 
-
+console.log({
+  exchangeSegment: exchangeSegment,
+  exchangeInstrumentID: obj.exchangeInstrumentToken,
+  productType: obj.Product,
+  orderType: obj.OrderType,
+  orderSide: obj.buyOrSell,
+  timeInForce: obj.validity,
+  disclosedQuantity: 0,
+  orderQuantity: obj.Quantity,
+  limitPrice: 0,
+  stopPrice: 0,
+  clientID: process.env.XTS_CLIENTID,
+  orderUniqueIdentifier: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+})
 
     const response = await xtsInteractiveAPI.placeOrder({
       exchangeSegment: exchangeSegment,
