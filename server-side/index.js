@@ -254,7 +254,7 @@ app.use('/api/v1/internship', require("./routes/mockTrade/internshipTradeRoutes"
 app.use('/api/v1/college', require("./routes/career/collegeRoute"));
 app.use('/api/v1/payment', require("./routes/payment/paymentRoute"));
 app.use('/api/v1/usedMargin', require("./routes/mockTrade/mockMargin"));
-
+app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
