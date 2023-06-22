@@ -1,5 +1,6 @@
 import { React, useState, useEffect, useContext } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { userContext } from '../../../AuthContext';
 import moment from 'moment'
 
@@ -105,10 +106,27 @@ function Header({ e }) {
                         <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
                             <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
                                 <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                    <MDButton variant='outlined' color='info' size='small'><MDTypography color='info' fontWeight='bold' fontSize={10}>INTERESTED?</MDTypography></MDButton>
+                                    <MDButton 
+                                        variant='outlined' 
+                                        color='info' 
+                                        size='small'
+                                    >
+                                        <MDTypography color='info' fontWeight='bold' fontSize={10}>INTERESTED?</MDTypography>
+                                    </MDButton>
                                 </MDBox>
                                 <MDBox display='flex' justifyContent='flex-end' width='50%'>
-                                    <MDButton variant='outlined' color='warning' size='small'><MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography></MDButton>
+                                    <MDButton 
+                                        variant='outlined' 
+                                        color='warning' 
+                                        size='small'
+                                        component={Link} 
+                                        to={{
+                                        pathname: `/contest/alphaavengers`,
+                                        }}
+                                        // state= {{data:e}}
+                                    >
+                                        <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
+                                    </MDButton>
                                 </MDBox>
                             </MDBox>
                         </Grid>

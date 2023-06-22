@@ -63,6 +63,7 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
+import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 
 
 const routes = [
@@ -217,6 +218,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/battlestreet/:name",
     component: <ContestPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/contest/:name",
+    component: <ContestTradingWindow />,
   },
   {
     // type: "collapse",
