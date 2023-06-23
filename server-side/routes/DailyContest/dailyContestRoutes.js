@@ -9,7 +9,7 @@ router.get('/contest/:id', contestController.getContest);
 
 router.put('/contest/:id', contestController.editContest);
 router.delete('/contest/:id', contestController.deleteContest);
-router.put('/contest/:id/participate', Authenticate, contestController.registerUserToContest);
+router.put('/contest/:id/participate', Authenticate, contestController.participateUsers);
 router.put('/contest/:id/register',Authenticate, contestController.registerUserToContest);
 router.put('/contest/:id/allow/:userId', contestController.addAllowedUser);
 router.put('/contest/:id/remove/:userId', contestController.removeAllowedUser);
