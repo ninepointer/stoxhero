@@ -18,7 +18,7 @@ import {dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Ni
 
 
 export default function OptionChainTable({socket, setShowChain}) {
-  console.log("socket 4th", socket.id)
+  console.log("socket 4th", socket)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const [isLoading,setIsLoading] = useState(false);
@@ -36,29 +36,29 @@ export default function OptionChainTable({socket, setShowChain}) {
   // const getDetails = useContext(userContext);
   // console.log("getDetails", getDetails)
 //   let url = selectIndex === "Today" ? "infinityTrade/live/userorderstoday" : "infinityTrade/live/userorders";
-useEffect(()=>{
 
-  axios.get(`${baseUrl}api/v1/getliveprice`)
-  .then((res) => {
-      //console.log("live price data", res)
-      setMarketData(res.data);
-      // setDetails.setMarketData(data);
-  }).catch((err) => {
-      return new Error(err);
-  })
-  socket.emit("company-ticks", true)
-  socket.on("tick", (data) => {
-    console.log("this is live market data", data);
-    setMarketData(prevInstruments => {
-      const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-      data.forEach(instrument => {
-        instrumentMap.set(instrument.instrument_token, instrument);
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/getliveprice`)
+    .then((res) => {
+        //console.log("live price data", res)
+        setMarketData(res.data);
+        // setDetails.setMarketData(data);
+    }).catch((err) => {
+        return new Error(err);
+    })
+    socket.emit("company-ticks", true)
+    socket.on("tick", (data) => {
+      console.log("this is live market data", data);
+      setMarketData(prevInstruments => {
+        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+        data.forEach(instrument => {
+          instrumentMap.set(instrument.instrument_token, instrument);
+        });
+        return Array.from(instrumentMap.values());
       });
-      return Array.from(instrumentMap.values());
-    });
-    // setDetails.setMarketData(data);
-  })
-}, [])
+      // setDetails.setMarketData(data);
+    })
+  }, [])
 
   useEffect(()=>{
       setIsLoading(true)
@@ -374,7 +374,6 @@ console.log("hoveredRows", hoveredRows)
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{elem?.strike}</MDTypography>
                       </Grid>
                     </Grid>
-                    {/* sx={{ backgroundColor: '#FFFFE0' }} */}
                     <Grid container p={1} lg={5.25} sx={index !== 0 ? { backgroundColor: '#FFFFE0' } : { backgroundColor: '#FFFFFF' }}>
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price}</MDTypography>
@@ -403,7 +402,7 @@ console.log("hoveredRows", hoveredRows)
 
                 )
               })
-            }
+            } 
 
       </Grid>
     </MDBox>

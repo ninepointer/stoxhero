@@ -23,7 +23,7 @@ import CircularJSON from 'circular-json';
 export default function OptionChain({socket, setShowOption, showOption}) {
   // const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
-console.log("socket 3rd", socket.id)
+console.log("socket 3rd", socket)
   const memoizedOptionChainTable = useMemo(() => {
     return <OptionChainTable
       socket={socket}
@@ -40,14 +40,12 @@ console.log("socket 3rd", socket.id)
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
           </MDBox>
-          :
-          showOption ?
+           :
+          // showOption ?
           memoizedOptionChainTable
-          // <OptionChainTable socket={socket} setShowChain={setShowOption}/> 
-          :
-          <MDButton onClick={()=>{setShowOption(true)}}>Option Chain</MDButton>
+          // :
+          // <MDButton onClick={()=>{setShowOption(true)}}>Option Chain</MDButton>
           }
-          {/* showChain, setShowChain */}
         </TabPanel>
       </TabContext>
     </MDBox>

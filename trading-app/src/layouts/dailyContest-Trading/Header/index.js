@@ -22,9 +22,9 @@ import OptionChain from '../data/optionChain';
 // import MDButton from '../../../components/MDButton';
 // import { Link } from "react-router-dom";
 // import CircularJSON from 'circular-json';
-// import { userContext } from '../../../AuthContext';
+import { userContext } from '../../../AuthContext';
 // import { userContext } from "../../AuthContext";
-// import { io } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 export default function InfinityTrading({socket, contestId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -34,7 +34,7 @@ export default function InfinityTrading({socket, contestId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   // const socketData = CircularJSON.stringify(socket);
-console.log("socket 2nd", socket.id)
+console.log("socket 2nd", socket)
 
 
 
