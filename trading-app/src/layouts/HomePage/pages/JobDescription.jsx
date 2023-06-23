@@ -1,6 +1,7 @@
 import Home from './Home';
 import Swap from './Swap'
-import React from 'react'
+import React, {useEffect} from 'react'
+import ReactGA from "react-ga"
 import { useLocation } from 'react-router-dom'
 import theme from '../utils/theme/index';
 import { Box, Grid } from '@mui/material';
@@ -18,10 +19,12 @@ import MDBox from '../../../components/MDBox';
 const App = () => {
 
   const location = useLocation();
-  console.log("Location in Job Description: ",location)
   const career = location?.state?.data;
   const campaignCode = location?.state?.campaignCode;
 
+  useEffect(()=>{
+    ReactGA.pageview(window.location.pathname)
+  }, [])
 
   return (
     <MDBox mt={0} sx={{bgcolor:theme.palette.background.default}}>

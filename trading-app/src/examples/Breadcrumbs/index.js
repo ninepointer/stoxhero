@@ -71,6 +71,12 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Tutorial Videos"
   } else if(title === "companyposition"){
     title = "Company Position"
+  } else if(title === "stoxherodashboard"){
+    title = "StoxHero Dashboard"
+  } else if(title === "contestdashboard"){
+    title = "Contest Dashboard"
+  } else if(title === "dailycontestdetails"){
+    title = "Daily Contest Details"
   }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';

@@ -648,7 +648,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
         console.log("in if")
         let pnl = await client.get(`${trader.toString()} overallpnl`)
         pnl = JSON.parse(pnl);
-        console.log("redis pnl", pnl)
+        // console.log("redis pnl", pnl)
         const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product));
         // if instrument is same then just updating value
         if (matchingElement) {

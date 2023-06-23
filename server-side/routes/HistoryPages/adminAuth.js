@@ -38,7 +38,7 @@ const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
-const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
@@ -51,11 +51,72 @@ const {placeOrder} = require("../../services/xts/xtsInteractive");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
 const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
+const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
+const Permission = require("../../models/User/permissionSchema");
 
 
 
+router.get("/instrument", async (req, res) => {
+  let instrumentDetail = await InfinityTraderCompany.aggregate([
+    {
+      $match: {
+              trade_time:{
+                  $gte: new Date("2023-06-15")
+              },
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          instrumentToken: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
+        },
+        
+      },
+    },
+    
+  ])
+  res.send(instrumentDetail)
+})
 
+router.get("/updateFeild", async (req, res) => {
+  const update1 = await InfinityTraderCompany.updateMany({}, {order_type: "MARKET"})
+  const update2 = await InfinityTrader.updateMany({}, {order_type: "MARKET"})
+  const update3 = await InfinityLiveCompany.updateMany({}, {order_type: "MARKET"})
+  const update4 = await InfinityLiveUser.updateMany({}, {order_type: "MARKET"})
+  console.log(update1, update2, update3, update4);
+})
+
+router.get("/deleteTrades", async (req, res) => {
+  const del = await InfinityTraderCompany.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  const del2 = await InfinityTrader.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  const del3 = await InfinityLiveCompany.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  const del4 = await InfinityLiveUser.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+
+  console.log(del.length, del2.length);
+})
+
+router.get("/removeduplicate", async (req, res) => {
+  const result = await Permission.aggregate([
+    { $group: { _id: { userId: '$userId' }, uniqueIds: { $addToSet: '$_id' }, count: { $sum: 1 } } },
+    { $match: { count: { $gt: 1 } } }
+  ])
+
+    const duplicates = result.map(doc => doc.uniqueIds.slice(1));
+
+    if (duplicates.length === 0) {
+      console.log('No duplicates found.');
+      client.close();
+      return;
+    }
+
+    const flattenedDuplicates = [].concat.apply([], duplicates);
+
+    const d = await Permission.deleteMany({ _id: { $in: flattenedDuplicates } })
+})
 
 
 router.get("/ifServerCrashAfterOrder", async (req, res) => {
@@ -300,6 +361,7 @@ router.get("/autotrade", async (req, res) => {
   // let arr2 = await infinityTrade();
   // console.log(arr, arr1, arr2);
   await autoCutMainManually();
+  await autoCutMainManuallyMock();
   res.send("ok")
 });
 
@@ -398,7 +460,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-06-02T00:00:00.000+00:00"
+  let expiryDate = "2023-06-16T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
@@ -640,11 +702,12 @@ router.get("/missedOrderId", async (req, res)=>{
     const missedOrderId = await RetreiveOrder.aggregate([
         {
           $match: {
-            order_timestamp: { $regex: "2023-02-16" },
+            order_timestamp: { $gte: new Date("2023-06-19"), $lt: new Date("2023-06-20") },
             // quantity: realQuantity,
             // tradingsymbol: realSymbol,
             status: "COMPLETE",
-            tradingsymbol: "NIFTY2321618200PE"
+            orderUniqueIdentifier: {$ne: ""}
+            // tradingsymbol: "NIFTY2321618200PE"
             // $or: [
             //     {tradingsymbol: "NIFTY2321618200PE"},
             //     {tradingsymbol: "NIFTY2321617950CE"}
@@ -681,26 +744,16 @@ router.get("/missedOrderId", async (req, res)=>{
             variety: {$first: "$variety"},
             validity: {$first: "$validity"},
             exchange: {$first: "$exchange"},
-            exchange_timestamp: {$first: "$exchange_timestamp"},
-            order_type: {$first: "$order_type"},
-            price: {$first: "$price"},
-            filled_quantity: {$first: "$filled_quantity"},
-            pending_quantity: {$first: "$pending_quantity"},
-            cancelled_quantity: {$first: "$cancelled_quantity"},
-            guid: {$first: "$guid"},
-            market_protection: {$first: "$market_protection"},
-            disclosed_quantity: {$first: "$disclosed_quantity"},
-            tradingsymbol: {$first: "$tradingsymbol"},
-            placed_by: {$first: "$placed_by"},
-            status_message: {$first: "$status_message"},
-            status_message_raw: {$first: "$status_message_raw"},
+            orderUniqueIdentifier: {
+              $first: "$orderUniqueIdentifier",
+            },
 
           }
         }
       ]);
       
     //   const count = uniqueDocumentsCount[0].count;
-
+      res.send(missedOrderId)
       console.log(missedOrderId)
 })
 

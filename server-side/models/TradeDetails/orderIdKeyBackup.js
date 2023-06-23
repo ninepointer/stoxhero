@@ -54,6 +54,16 @@ const redisBackup = new Schema({
         default: false
         // required: true
     },
+    autoTrade:{
+        type: Boolean,
+        default: false
+        // required: true
+    },
+    singleUser:{
+        type: Boolean,
+        default: false
+        // required: true
+    },
 })
 
 const RedisDetail = mongoose.model("liveOrder-key-backup", redisBackup);

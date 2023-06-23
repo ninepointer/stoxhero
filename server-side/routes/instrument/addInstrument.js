@@ -21,7 +21,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
     const {_id} = req.user;
     const {role} = req.user;
     let roleObj;
-
+console.log(req.body)
   if(isRedisConnected && await client.exists('role')){
     roleObj = await client.get('role');
     roleObj = JSON.parse(roleObj)

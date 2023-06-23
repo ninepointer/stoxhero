@@ -1,7 +1,8 @@
 import { Box, Container, Grid, Stack, Typography } from '@mui/material'
 import { ThemeProvider } from 'styled-components';
 import Title from '../components/Title/index'
-import React from 'react'
+import React, {useEffect} from 'react'
+import ReactGA from "react-ga"
 import ServiceCard from '../components/Cards/ServiceCard'
 
 import useMeasure from 'react-use-measure'
@@ -23,17 +24,13 @@ import { fontWeight } from '@mui/system';
 
 
 const About = () => {
-    console.log(theme);
-    return (
-
-
-
+    
+    useEffect(()=>{
+        ReactGA.pageview(window.location.pathname)
+      }, [])
+   
+      return (
         <ThemeProvider theme={theme}>
-
-
-
-
-
 
             <Navbar />
             <Box bgcolor="#06070A" sx={{mt:{xs:-10,lg:-15}}} >

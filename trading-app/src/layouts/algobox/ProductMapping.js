@@ -9,15 +9,15 @@ import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
 
 // Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
+// import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
+// import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
+// import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
 
 // Data
 // import authorsTableData from "./data/authorsTableData";
 import projectsTableData from "./data/projectsTableData";
-import AlgoHeader from "./Header";
+// import AlgoHeader from "./Header";
 import ProductMappingModel from './ProductMappingModel';
 import ProductData from './data/ProductData';
 

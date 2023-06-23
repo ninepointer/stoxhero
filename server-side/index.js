@@ -11,7 +11,8 @@ const io = require('./marketData/socketio');
 const { createNewTicker, disconnectTicker, getTicker,
   subscribeTokens, getTicks, onError, getMargins,
   onOrderUpdate, getTicksForContest, getTicksForUserPosition,
-  getTicksForCompanySide } = require('./marketData/kiteTicker');
+  getTicksForCompanySide, 
+  getDummyTicks} = require('./marketData/kiteTicker');
 const getKiteCred = require('./marketData/getKiteCred');
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
 const helmet = require("helmet");
@@ -26,13 +27,14 @@ const { subscribeInstrument, getXTSTicksForUserPosition,
   onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
+// const { interactiveLogin } = require("./services/xts/xtsInteractive copy");
 const { autoExpireSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const path = require('path');
 const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 // const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
-const {autoCutMainManually} = require("./controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
 const {saveLiveUsedMargin, saveMockUsedMargin} = require("./controllers/marginRequired")
 const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
@@ -151,6 +153,7 @@ getKiteCred.getAccess().then(async (data)=>{
       // await positions();
       if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
         await getTicksForUserPosition(socket, data);
+        // await getDummyTicks(socket)
       } else{
         await getXTSTicksForUserPosition(socket, data);
       }
@@ -293,8 +296,11 @@ let weekDay = date.getDay();
           infinityOffline();
         });
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-        // const autotrade = nodeCron.schedule('50 9 * * *', test);
-        const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
+        // const autotrade = nodeCron.schedule('50 9 * * *', test); 
+        const autotrade = nodeCron.schedule(`50 9 * * *`, () => {
+          autoCutMainManually();
+          autoCutMainManuallyMock();
+        });
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();

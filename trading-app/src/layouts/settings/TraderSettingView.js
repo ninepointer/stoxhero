@@ -16,30 +16,18 @@ import TraderSetting from "./TraderSetting";
 function TraderSettingView() {
 
   const [userData,setUserData] = useState([]);
-  const [algo, setAlgo] = useState([]);
+  const [updatedData, setUpdatedData] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
  useEffect(()=>{
-       axios.get(`${baseUrl}api/v1/readpermission`)
+       axios.get(`${baseUrl}api/v1/getLiveUser`)
       .then((res)=>{
-          setUserData(res.data)
+          setUserData(res?.data?.data)
       }).catch((err)=>{
           return new Error(err);
       })
 
-      axios.get(`${baseUrl}api/v1/readTradingAlgo`)
-      .then((res)=>{
-        let data = res.data;
-                let active = data.filter((elem) => {
-                    return elem.isDefault === true
-                })
-
-                setAlgo(active);
-
-      }).catch((err)=>{
-          return new Error(err);
-      })
-  },[])
+  },[updatedData])
 
   let columns = [
     { Header: "Trader Name", accessor: "name", align: "center" },
@@ -60,20 +48,20 @@ function TraderSettingView() {
 
   userData.map((elem)=>{
     let obj = {};
-    if(elem.algoName === algo[0]?.algoName){
+    // if(elem.algoName === algo[0]?.algoName){
         obj.name = (
             <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-                {(elem.userName)}
+                {(elem?.userId?.first_name + " " + elem?.userId?.last_name)}
             </MDTypography>
         );
         obj.mockOrReal = (
             <MDTypography component="a" variant="caption"  fontWeight="medium">
-                <TraderSetting userId={elem.userId}  isRealTradeEnable={elem.isRealTradeEnable}/>
+                <TraderSetting setUpdatedData={setUpdatedData} userId={elem?.userId?._id}  isRealTradeEnable={elem?.isRealTradeEnable}/>
             </MDTypography>
         );
 
         rows.push(obj)
-    }
+    // }
   })
 
 

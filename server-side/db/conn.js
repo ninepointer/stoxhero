@@ -34,18 +34,37 @@ mongoose.connect(devDB, {
 
 // XTS_USERID = "KUSH_MARKET"
 // XTS_CLIENTID = "KUSH"
-
 // INTERACTIVE_URL = 'https://developers.symphonyfintech.in'
 // MARKETDATA_URL = 'https://developers.symphonyfintech.in/apimarketdata'
-
 // INTERACTIVE_SECRET_KEY = 'Vpcj303$VU'
 // INTERACTIVE_APP_KEY = '319309f79e919405e5c245'
 // MARKETDATA_SECRET_KEY = 'Yqyl575#Z8'
 // MARKETDATA_APP_KEY = '37a43d49c099e7a4db1249'
 
 
+    // "instrument": "NIFTY50",
+    // "exchange": "NFO",
+    // "status": "Active",
+    // "symbol": "NIFTY2362218200CE",
+    // "lotSize": 50,
+    // "instrumentToken": 14758658,
+    // "uId": liy3uh90,
+    // "contractDate": "2023-06-22",
+    // "maxLot": 1800,
+    // "from": Infinity Trader,
+    // "exchangeSegment": "NFO-OPT",
+    // "exchangeInstrumentToken": 57651
+
 /*
-4712 loss
-buy 138.28 * 400
-sell 126.5 * 400
+index.js
+autoTrde.js
+autoTradeManually.js
+collectingTradeManually.js
+
+xtsInteractive.js
+mainManually.js
+collleactingtrade
+index.js
+
+price 160
 */

@@ -40,6 +40,7 @@ import CarouselDetails from './layouts/carousel/carouselDetails'
 import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
+import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
@@ -49,6 +50,7 @@ import ContestTradePage from './layouts/UserContest/ContestTrade'
 // import Home from './layouts/UserHome'
 // import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import UserSignupDashboard from './layouts/userSignupDashboard'
 // import CareerDetailsForm from './layouts/career/createCareerForm'
 import Campaigns from './layouts/campaign'
@@ -64,6 +66,8 @@ import MyPortfolio from './layouts/UserPortfolio'
 import VpnLockIcon from '@mui/icons-material/VpnLock';
 import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
+import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import DailyContestDashboard from './layouts/dailyContestDashboard'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -116,6 +120,7 @@ import Contact from "./layouts/HomePage/pages/Contact";
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
+import DailyContest from "./layouts/dailyContest";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
@@ -160,13 +165,30 @@ const routes = [
     route: "/careerdashboard",
     component: <CareerDashboard />,
   },
-   {
+  {
     type: "collapse",
     name: "Virtual Dashboard",
     key: "virtualdashboard",
     icon: <VpnLockIcon/>,
     route: "/virtualdashboard",
     component: <VirtualDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Contest Dashboard",
+    key: "dailycontestdashboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/contestdashboard",
+    component: <DailyContestDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Dashboard",
+    key: "stoxherodashboard",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <BusinessIcon/>,
+    route: "/stoxherodashboard",
+    component: <StoxHeroDashboard />,
   },
   {
     // type: "collapse",
@@ -298,6 +320,10 @@ const routes = [
   {
     route: "/batchdetails",
     component: <BatchDetails />,
+  },
+  {
+    route: "/dailycontestdetails",
+    component: <DailyContestDetails />,
   },
   {
     route: "/campaigndetails",
@@ -531,6 +557,14 @@ const routes = [
     // icon: <BatchIcon/>,
     route: "/internshipbatch",
     component: <InternBatch />,
+  },
+  {
+    // type: "collapse",
+    // name: "Internship Batch",
+    key: "dailycontest",
+    // icon: <BatchIcon/>,
+    route: "/dailycontest",
+    component: <DailyContest />,
   },
   // {
   //   type: "collapse",

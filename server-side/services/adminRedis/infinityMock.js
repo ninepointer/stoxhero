@@ -15,7 +15,7 @@ exports.overallPnlUsers = async (pnlData, trader, data)=>{
   if(isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)){
     // let pnl = await client.get(`${trader.toString()} overallpnl`)
     pnl = JSON.parse(data);
-    console.log("redis pnl", pnl)
+    // console.log("redis pnl", pnl)
     const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
     // if instrument is same then just updating value
     if (matchingElement) {
