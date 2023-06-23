@@ -47,10 +47,10 @@ function Performance() {
                 <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                 <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12} md={6} lg={4}>
-                    <MDTypography m={1} fontSize={15} fontWeight="bold">Performance</MDTypography>
+                    <MDTypography m={1} fontSize={15} fontWeight="bold">Performance - Virtual Trading</MDTypography>
                     </Grid>
                     <Grid item xs={12} md={6} lg={4}>
-                    <FormControl sx={{ m: 1, minWidth: 200 }}>
+                    {/* <FormControl sx={{ m: 1, minWidth: 200 }}>
                         <Select
                         labelId="demo-controlled-open-select-label"
                         id="demo-controlled-open-select"
@@ -64,7 +64,7 @@ function Performance() {
                         <MenuItem value="Virtual Trading">Virtual Trading</MenuItem>
                         <MenuItem value="TenX Trading">TenX Trading</MenuItem>
                         </Select>
-                    </FormControl>
+                    </FormControl> */}
                     </Grid>
                     <Grid item xs={12} md={6} lg={4}>
                     <FormControl sx={{ m: 1, minWidth: 200 }}>

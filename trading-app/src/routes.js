@@ -116,7 +116,9 @@ import CareerForm from './layouts/HomePage/pages/CareerForm'
 import TenXSubscription from './layouts/tenXSubscription'
 import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
 import TutorialCategoryForm from './layouts/tutorialVideos/tutorialCategoryDetails'
-import Contact from "./layouts/HomePage/pages/Contact";
+import TradingHolidaysDetails from './layouts/tradingHolidays'
+import TradingHolidayForm from './layouts/tradingHolidays/data/tradingHolidayDetails'
+import Contact from "./layouts/HomePage/pages/Contact"; 
 import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
@@ -138,7 +140,8 @@ import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
 import AdminLiveReport from './layouts/adminSideReportLive'
-import WorkShopOrders from './layouts/userorders/workshopOrder'
+import WorkShopOrders from './layouts/userorders/workshopOrder';
+import Chart from './layouts/charts/index'
 
 const routes = [
   {
@@ -360,6 +363,22 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "tutorialcategory",
     component: <TutorialCategoryForm />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
+    route: "holidaydetails",
+    component: <TradingHolidayForm />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
+    route: "tradingholiday",
+    component: <TradingHolidaysDetails />,
   },
   // {
   //   type: "collapse",
@@ -876,6 +895,14 @@ const routes = [
     // icon: <BusinessCenterIcon/>,
     route: "/myportfolio",
     component: <MyPortfolio />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/chart",
+    component: <Chart/>,
   },
 
 ];

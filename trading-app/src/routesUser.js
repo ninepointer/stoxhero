@@ -15,6 +15,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import VideoChatIcon from '@mui/icons-material/VideoChat';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 // import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
@@ -61,6 +62,9 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import UserDailyContest from './layouts/UserDailyContest'
+import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
+import Chart from './layouts/charts/index';
 
 
 const routes = [
@@ -110,15 +114,15 @@ const routes = [
     route: "contact",
     component: <Contact />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Dashboard",
-  //   key: "stoxherodashboard",
-  //   // icon: <Icon fontSize="small">person</Icon>,
-  //   icon: <DashboardIcon/>,
-  //   route: "/stoxherodashboard",
-  //   component: <StoxHeroDashboard />,
-  // },
+  {
+    type: "collapse",
+    name: "Dashboard",
+    key: "stoxherodashboard",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <DashboardIcon/>,
+    route: "/stoxherodashboard",
+    component: <StoxHeroDashboard />,
+  },
   {
     type: "collapse",
     name: "Virtual Trading",
@@ -127,6 +131,15 @@ const routes = [
     icon: <MilitaryTechIcon/>,
     route: "/virtualtrading",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Contest",
+    key: "contest",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <EmojiEventsIcon/>,
+    route: "/contest",
+    component: <UserDailyContest />,
   },
   {
     type: "collapse",
@@ -206,6 +219,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/battlestreet/:name",
     component: <ContestPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/contest/:name",
+    component: <ContestTradingWindow />,
   },
   {
     // type: "collapse",
@@ -380,6 +401,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/internship/analytics",
     component: <InternshipAnalytics/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/chart",
+    component: <Chart/>,
   },
 ];
 
