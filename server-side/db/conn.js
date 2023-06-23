@@ -5,11 +5,13 @@ dotenv.config({path: "./config.env"});
 
 // STAGINGDB
 const DB = process.env.DATABASE;
-    const devDB = process.env.DEVDATABASE;
-    const stagingDB = process.env.STAGINGDB;
-// mongoose.connect(devDB, {
+const devDB = process.env.DEVDATABASE;
+const stagingDB = process.env.STAGINGDB;
+
+
+mongoose.connect(devDB, {
         //  mongoose.connect(DB, {
-        mongoose.connect(stagingDB, {
+        // mongoose.connect(stagingDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     // useFindAndModify: false
@@ -67,4 +69,8 @@ collleactingtrade
 index.js
 
 price 160
+/*
+in openprice of infinity set flag only for nifty and banknifty
+also set maxlot in finnifty
+stock index me accountType ko update krna h
 */

@@ -1,17 +1,27 @@
 const mongoose = require('mongoose');
-const Contest = require('../models/Contest'); // Assuming your model is exported as Contest from the mentioned path
+const Contest = require('../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
+const User = require("../models/User/userDetailSchema");
+const Wallet = require("../models/UserWallet/userWalletSchema");
+const { ObjectId } = require('mongodb');
+const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
         const {contestStatus, contestEndTime, contestStartTime, contestOn, description, 
-            contestType, entryFee, payoutPercentage, payoutStatus, contestName, portfolio
-        } = req.body;
-        const contest = Contest.create({contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
-            contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id});
+            contestType, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex} = req.body;
+        console.log(req.body)
+
+        const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
+            contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex});
+
+            console.log(contest)
         res.status(201).json({
             status:'success',
             message: "Contest created successfully",
+            data: contest
         });
     } catch (error) {
         console.log(error);
@@ -99,12 +109,32 @@ exports.getAllContests = async (req, res) => {
     }
 };
 
+// Controller for getting all contests
+exports.getContest = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const contests = await Contest.findOne({_id: id}).populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
+
+        res.status(200).json({
+            status:"success",
+            message: "Contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
 // Controller for getting upcoming contests
 exports.getUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $gt: new Date() }
-        });
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
 
         res.status(200).json({
             status:"success",
@@ -193,10 +223,87 @@ exports.addAllowedUser = async (req, res) => {
     }
 };
 
+// Controller for remove a user to allowedUsers
+exports.removeAllowedUser = async (req, res) => {
+    try {
+        const { id, userId } = req.params; // ID of the contest and the user to remove
+
+        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+        }
+
+        const contest = await Contest.findOne({ _id: id });
+        if (contest?.allowedUsers?.length == 0) {
+            return res.status(404).json({ status: 'error', message: 'No allowed user in this contest.' });
+        }
+        let participants = contest?.allowedUsers?.filter((item) => (item._id).toString() != userId.toString());
+        contest.allowedUsers = [...participants];
+        console.log(contest.allowedUsers, userId)
+        await contest.save({ validateBeforeSave: false });
+
+        // const result = await Contest.findByIdAndUpdate(
+        //     id,
+        //     { $pull: { allowedUsers: { userId:  mongoose.Types.ObjectId(userId) } } },
+        //     { new: true }  // This option ensures the updated document is returned
+        // );
+
+        // if (!result) {
+        //     return res.status(404).json({ status: "error", message: "Contest not found" });
+        // }
+
+        res.status(200).json({
+            status: "success",
+            message: "User removed from allowedUsers successfully",
+            data: contest
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+
+// Controller for getting users
+exports.getUsers = async (req, res) => {
+    const searchString = req.query.search;
+    try {
+        const data = await User.find({
+            $and: [
+                {
+                    $or: [
+                        { email: { $regex: searchString, $options: 'i' } },
+                        { first_name: { $regex: searchString, $options: 'i' } },
+                        { last_name: { $regex: searchString, $options: 'i' } },
+                        { mobile: { $regex: searchString, $options: 'i' } },
+                    ]
+                },
+                {
+                    status: 'Active',
+                },
+            ]
+        })
+        res.status(200).json({
+            status: "success",
+            message: "Getting User successfully",
+            data: data
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
 // Controller for adding a user to registeredUsers
 exports.registerUserToContest = async (req, res) => {
     try {
-        const { id, userId } = req.params; // ID of the contest and the user to register
+        const { id } = req.params; // ID of the contest and the user to register
+        const userId = req.user._id;
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({status:"error", message: "Invalid contest ID or user ID" });
@@ -204,7 +311,7 @@ exports.registerUserToContest = async (req, res) => {
 
         const result = await Contest.findByIdAndUpdate(
             id,
-            { $push: { registeredUsers: { userId: userId, registeredOn: new Date(), status: 'Joined' } } },
+            { $push: { interestedUsers: { userId: userId, registeredOn: new Date(), status: 'Joined' } } },
             { new: true }  // This option ensures the updated document is returned
         );
 
@@ -217,6 +324,120 @@ exports.registerUserToContest = async (req, res) => {
             message: "User registered to contest successfully",
             data: result
         });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.participateUsers = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the contest 
+        const userId = req.user._id;
+
+        const contest = await Contest.findOne({_id: id});
+        if(contest?.maxParticipants <= contest?.participants?.length){
+            contest.potentialParticipants?.push(userId);
+            contest.save();
+            return res.status(404).json({status:"error", message: "Contest is full. Please try in another contest." });
+        }
+
+        const result = await Contest.findByIdAndUpdate(
+            id,
+            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
+            { new: true }  // This option ensures the updated document is returned
+        );
+
+        if (!result) {
+            return res.status(404).json({status:"error", message: "Something went wrong." });
+        }
+
+        res.status(200).json({
+            status:"success",
+            message: "Participate successfully",
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+
+// run this function in cronjob
+exports.creditAmountToWallet = async () => {
+    try {
+        let date = new Date();
+        let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        todayDate = todayDate + "T00:00:00.000Z";
+        const today = new Date(todayDate);
+    
+        const { id } = req.params; // ID of the contest 
+        // const userId = req.user._id; Wallet
+
+        const contest = await Contest.findOne({_id: id, contestStatus: "Active"});
+        for(let i = 0; i < contest?.participants?.length; i++){
+            let userId = contest?.participants[i]?.userId;
+            let payoutPercentage = contest?.payoutPercentage
+
+            let pnlDetails = await DailyContestMockUser.aggregate([
+                {
+                    $match: {
+                        trade_time: {
+                            $gte: today
+                        },
+                        status: "COMPLETE",
+                        trader: new ObjectId(userId),
+                        contestId: new ObjectId(id)
+                    },
+                },
+                {
+                    $group: {
+                        _id: {
+                        },
+                        amount: {
+                            $sum: {
+                                $multiply: ["$amount", -1],
+                            },
+                        },
+                        brokerage: {
+                            $sum: {
+                                $toDouble: "$brokerage",
+                            },
+                        },
+                    },
+                },
+                {
+                    $project:
+                    {
+                        npnl: {
+                            $subtract: ["$amount", "$brokerage"],
+                        },
+                    },
+                },
+            ])
+
+            if (pnlDetails[0]?.npnl > 0) {
+                const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                const wallet = await Wallet.findOne({ userId: userId });
+                wallet.transactions = [...wallet.transactions, {
+                    title: 'Contest Credit',
+                    description: `Amount credited for contest ${contest.contestName}`,
+                    amount: payoutAmount,
+                    transactionId: uuid.v4(),
+                    transactionType: 'Cash'
+                }];
+                wallet.save();
+            }
+
+        }
+
     } catch (error) {
         res.status(500).json({
             status:"error",

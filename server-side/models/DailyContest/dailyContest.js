@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const contestSchema = new mongoose.Schema({
+const contestSchema = new Schema({
     contestName:{
         type: String,
         required: true
@@ -23,8 +23,9 @@ const contestSchema = new mongoose.Schema({
         required: true,
     },
     contestType:{
+        type: String,
         enum: ['Mock','Live'],
-        required:true,
+        required: true,
     },
     entryFee:{
         amount:Number,
@@ -38,15 +39,22 @@ const contestSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio',
     },
-    registeredUsers:[{
+    interestedUsers:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         registeredOn:{type:Date},
         status:{type:String, enum:['Joined','Exited']},
         exitDate:{type:Date},
     }],
+    potentialParticipants:[
+        {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+    ],
     allowedUsers:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         addedOn:{type:Date},
+    }],
+    participants:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        participatedOn:{type:Date},
     }],
     maxParticipants:{
         type:Number,
@@ -55,11 +63,11 @@ const contestSchema = new mongoose.Schema({
     contestStatus:{
         type:String,
         required: true,
-        enum: ['Live','Draft','Cancelled']
+        enum: ['Active','Draft','Cancelled']
     },
     payoutStatus:{
         type:String,
-        required: true,
+        // required: true,
         enum: ['Completed','Not started','Processing']
     },
     createdOn:{
@@ -80,6 +88,30 @@ const contestSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
+
+
+    contestExpiry:{
+        type:String,
+        required: true,
+        enum: ["Day", "Monthly", "Weekly"]
+    },
+    isNifty:{
+        type:Boolean,
+        required: true
+    },
+    isBankNifty:{
+        type:Boolean,
+        required: true
+    },
+    isFinNifty:{
+        type:Boolean,
+        required: true
+    },
+    isAllIndex:{
+        type:Boolean,
+        required: true
+    },
+
 })
 
 const contestData = mongoose.model("daily-contest", contestSchema);

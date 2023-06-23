@@ -27,15 +27,15 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../variables";
 
 
 // import MDBox from '../../../../../components/MDBox';
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken}) => {
-  console.log("rendering : buy", subscriptionId)
+const BuyModel = ({setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
+  console.log("rendering : buy", contestId)
   const tradeSound = new Howl({
     src : [sound],
     html5 : true
@@ -123,6 +123,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
       addInstrument();
       render ? setRender(false) : setRender(true);
     }
+    
     setButtonClicked(false);
     setOpen(true);
   }; 
@@ -134,6 +135,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
     }
     
     setOpen(false);
+    setOpenOptionChain(false)
     setBuyState(false);
     setButtonClicked(false);
   };
@@ -148,6 +150,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
     setButtonClicked(true);
     e.preventDefault()
     setOpen(false);
+    setOpenOptionChain(false)
     setBuyState(false);
 
     buyFormDetails.buyOrSell = "BUY";
@@ -193,6 +196,8 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
       paperTrade = false;
       trader = traderId;
       fromAdmin = true;
+    }else if(from === dailyContest){
+      endPoint = 'placingOrderDailyContest';
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -201,7 +206,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, Price, 
+          exchange, symbol, buyOrSell, Quantity, Price, contestId,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
@@ -251,7 +256,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
         symbol, lotSize, instrumentToken, from,
-        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true,
+        uId, contractDate: expiry, maxLot, notInWatchList: true,
         exchangeSegment, exchangeInstrumentToken
       })
     });

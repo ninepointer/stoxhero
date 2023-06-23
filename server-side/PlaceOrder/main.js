@@ -33,8 +33,9 @@ router.post("/placingOrder", isInfinityLive, authentication, ApplyAlgo, authoize
     
 })
 
-router.post("/placingOrderDailyContest", isAppLive, authentication, DailyContestApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
+router.post("/placingOrderDailyContest", isAppLive, authentication, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
+    req.dailyContest = true;
     const setting = await Setting.find();
     // console.log("settings", setting, req.user?.role?.roleName )
     if(req.body.apiKey && req.body.accessToken){

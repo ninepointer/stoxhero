@@ -54,8 +54,29 @@ const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema")
 const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
 const Permission = require("../../models/User/permissionSchema");
+const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
+const {subscribeTokens} = require("../../marketData/kiteTicker");
 
 
+router.get("/subscribeTradable", async (req, res) => {
+  await EarlySubscribedInstrument();
+  await subscribeTokens();
+  res.send("ok")
+})
+
+router.get("/updateFeild", async (req, res) => {
+  const update1 = await InfinityTraderCompany.updateMany({}, {order_type: "MARKET"})
+  const update2 = await InfinityTrader.updateMany({}, {order_type: "MARKET"})
+  const update3 = await InfinityLiveCompany.updateMany({}, {order_type: "MARKET"})
+  const update4 = await InfinityLiveUser.updateMany({}, {order_type: "MARKET"})
+  console.log(update1, update2, update3, update4);
+})
+
+router.get("/deleteTrades", async (req, res) => {
+  const del = await InfinityTraderCompany.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  const del2 = await InfinityTrader.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  console.log(del.length, del2.length);
+})
 
 router.get("/instrument", async (req, res) => {
   let instrumentDetail = await InfinityTraderCompany.aggregate([
@@ -460,7 +481,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-06-16T00:00:00.000+00:00"
+  let expiryDate = "2023-06-23T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})

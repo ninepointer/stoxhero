@@ -2,14 +2,14 @@ import React from 'react'
 import Grid from "@mui/material/Grid";
 import {useState, useContext, useEffect, memo} from "react"
 import axios from "axios";
-import { userContext } from "../../../AuthContext";
+// import { userContext } from "../../../AuthContext";
 import { NetPnlContext } from '../../../PnlContext';
 import MDBox from '../../../components/MDBox';
 // import MarginDetails from './MarginDetails';
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from '../../../renderContext';
 
-const InfinityMarginGrid = ({setyesterdayData}) => {
+const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
   console.log("rendering : infinitymargin")
   //console.log("rendering in userPosition: marginGrid")
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);

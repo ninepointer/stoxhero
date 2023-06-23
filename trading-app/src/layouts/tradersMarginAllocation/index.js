@@ -10,17 +10,17 @@ import MDBox from "../../components/MDBox";
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-import MasterCard from "../../examples/Cards/MasterCard";
-import DefaultInfoCard from "../../examples/Cards/InfoCards/DefaultInfoCard";
-import AvailableIcon from '@mui/icons-material/Savings';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PaymentsIcon from '@mui/icons-material/Payments';
+// import MasterCard from "../../examples/Cards/MasterCard";
+// import DefaultInfoCard from "../../examples/Cards/InfoCards/DefaultInfoCard";
+// import AvailableIcon from '@mui/icons-material/Savings';
+// import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import PaymentsIcon from '@mui/icons-material/Payments';
 
 // Billing page components
 import AddFunds from "./components/AddFunds";
 import TotalFunds from "./components/TotalFunds";
-import Invoices from "./components/Invoices";
+// import Invoices from "./components/Invoices";
 import BillingInformation from "./components/BillingInformation";
 import Transactions from "./components/Transactions";
 

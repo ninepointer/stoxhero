@@ -30,8 +30,9 @@ import SellModel from "../SellModel";
 import { marketDataContext } from "../../../MarketDataContext";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
+import {maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty} from "../../../variables";
 
 const initialState = {
   instrumentsData: [],
@@ -183,6 +184,9 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
     const {exchange_token, instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry, accountType, segment} = instrumentData
     console.log("instrumentData", instrumentData, segment)
+
+    let maxLot = (tradingsymbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (tradingsymbol)?.includes("FINNIFTY") ? maxLot_FinNifty :  maxLot_Nifty;
+
     // socket.emit("subscribeToken", instrument_token);
     dispatch({ type: 'setInstrumentName', payload: `${strike} ${instrument_type}` });
     if(addOrRemove === "Add"){
@@ -199,7 +203,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
           instrument: name, exchange, status: "Active", 
           symbol: tradingsymbol, lotSize: lot_size, 
           instrumentToken: instrument_token, uId: uniqid(), 
-          contractDate: expiry, maxLot: lot_size*36, from,
+          contractDate: expiry, maxLot: maxLot, from,
           accountType, exchangeSegment: segment, exchangeInstrumentToken: exchange_token
         })
       });
@@ -300,11 +304,13 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
             ),
           }}
           sx={{margin: 0, background:"white",padding : 0, borderRadius:2 ,width:"100%",'& label': { color: '#49a3f1', fontSize:20, padding:0.4 }}} onChange={(e)=>{dispatch({ type: 'setText', payload: e.target.value });sendSearchReq(e)}} //e.target.value.toUpperCase()
-          />
+        />
         <MDBox>
         { state.instrumentsData?.length > 0 &&
           (state.instrumentsData.map((elem, index)=>{
-            let maxLot = (getDetails?.userDetails?.role?.roleName==infinityTrader) ? 900 : elem.lot_size*36
+            let maxLot = (elem.tradingsymbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (elem.tradingsymbol)?.includes("FINNIFTY") ? maxLot_FinNifty : (getDetails?.userDetails?.role?.roleName === infinityTrader ? maxLot_Nifty/2 : maxLot_Nifty);
+
+            // let maxLot = (getDetails?.userDetails?.role?.roleName==infinityTrader) ? 900 : elem.lot_size*36
             elem.sellState = false;
             elem.buyState = false;
             let perticularInstrumentData = state.userInstrumentData.filter((subElem)=>{
@@ -341,11 +347,11 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader) && 'white',
+                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && 'white',
                   color: from === paperTrader ? "white" : "lightgray",
                   padding:"0.5px",
                   '&:hover': {
-                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader) && '#1e2e4a',
+                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && '#1e2e4a',
                     backgroundColor: from === paperTrader ? 'lightgray' : 'lightgray',
                     cursor: 'pointer',
                     fontWeight: 600

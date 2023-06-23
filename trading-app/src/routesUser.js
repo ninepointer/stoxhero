@@ -47,8 +47,8 @@ import UserWallet from "./layouts/userWallet"
 import TenXTrading from "./layouts/tenXTrading"
 import UserAnalytics from "./layouts/userAnalytics"
 import About from './layouts/HomePage/pages/About'
-import Careers from './layouts/HomePage/pages/Career'
-import WorkShops from './layouts/HomePage/pages/Workshop'
+// import Careers from './layouts/HomePage/pages/Career'
+// import WorkShops from './layouts/HomePage/pages/Workshop'
 import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
@@ -65,18 +65,28 @@ import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import Chart from './layouts/charts/index';
+import DailyContest from "./layouts/dailyContest-Trading";
+import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
 
 
 const routes = [
 
-  // {
-  //   type: "collapse",
-  //   name: "DashBoard",
-  //   key: "Dashboard",
-  //   icon: <HomeIcon/>,
-  //   route: "/Dashboard",
-  //   component: <Home />,
-  // },
+  {
+    // type: "collapse",
+    // name: "DashBoard",
+    // key: "Dashboard",
+    // icon: <HomeIcon/>,
+    route: "/dailycontest/trade",
+    component: <DailyContest />,
+  },
+  {
+    // type: "collapse",
+    // name: "DashBoard",
+    // key: "Dashboard",
+    // icon: <HomeIcon/>,
+    route: "/optionchain",
+    component: <OptionChain />,
+  },
   {
     // type: "collapse",
     // name: "Arena",
@@ -186,32 +196,6 @@ const routes = [
     route: "/tutorials/:category",
     component: <CategoryVideos />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "StoxHero Trading",
-  //   key: "stoxherotrading",
-  //   // icon: <Icon fontSize="small">person</Icon>,
-  //   icon: <GiNinjaHeroicStance/>,
-  //   route: "/stoxherotrading",
-  //   component: <StoxHeroTrading />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "Contests",
-  //   key: "Contest",
-  //   icon: <Icon fontSize="small">person</Icon>,
-  //   icon: <BusinessIcon/>,
-  //   route: "/contest",
-  //   component: <Contest />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "Battle Street",
-  //   key: "battlestreet",
-  //   icon: <StadiumIcon/>,
-  //   route: "/battlestreet",
-  //   component: <UserContest />,
-  // },
   {
     // type: "collapse",
     // name: "Arena",

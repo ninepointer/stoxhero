@@ -23,10 +23,10 @@ import InputLabel from '@mui/material/InputLabel';
 import { renderContext } from '../../../renderContext';
 import {Howl} from "howler";
 import sound from "../../../assets/sound/tradeSound.mp3"
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 
 
-function ExitPosition({maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
+function ExitPosition({contestId, maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -208,6 +208,8 @@ console.log("lotSize", lotSize, maxLot)
       paperTrade = false;
       trader = traderId;
       fromAdmin = true;
+    }else if(from === dailyContest){
+      endPoint = 'placingOrderDailyContest';
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
       method: "POST",
@@ -217,7 +219,7 @@ console.log("lotSize", lotSize, maxLot)
       },
       body: JSON.stringify({
 
-        exchange, symbol, buyOrSell, Quantity, Price,
+        exchange, symbol, buyOrSell, Quantity, Price, contestId,
         Product, OrderType, TriggerPrice, stopLoss, internPath,
         validity, variety, order_id: dummyOrderId, subscriptionId, exchangeInstrumentToken, fromAdmin,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath

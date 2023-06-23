@@ -218,7 +218,7 @@ console.log(req.body)
                     } catch(err){
                         console.log(err)
                     }
-                    res.status(422).json({message : "Instrument Added"})
+                    res.status(200).json({message : "Instrument Added"})
                     return;
                 }
                 const addingInstruments = new Instrument({exchangeInstrumentToken, instrument, exchange, symbol, status, 
