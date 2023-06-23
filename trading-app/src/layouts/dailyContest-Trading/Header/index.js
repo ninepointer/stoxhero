@@ -176,12 +176,9 @@ console.log("socket 2nd", socket)
       <Grid container spacing={3}>
         <Grid item xs={12} md={6} lg={12}>
           {memoizedTradableInstrument}
-          {memoizedOptionChain}
-
         </Grid>
       </Grid>
 
-      {!showOption &&
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={12}>
           {memoizedInstrumentDetails}
@@ -193,7 +190,7 @@ console.log("socket 2nd", socket)
         <Grid item xs={12} md={6} lg={12}>
           <DailyContestMargin contestId={contestId} availbaleMargin={availbaleMargin} setyesterdayData={setyesterdayData}/>
         </Grid>
-      </Grid>}
+      </Grid>
 
     </MDBox>
     </>

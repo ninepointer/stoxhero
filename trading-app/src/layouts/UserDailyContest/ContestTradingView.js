@@ -2,11 +2,9 @@
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
+import ContestTradingView from "./data/tradingWindow";
 import { io } from 'socket.io-client';
 import { useEffect, useContext, useState} from "react";
-
-
-import Header from "./Header";
 import { userContext } from "../../AuthContext";
 
 function Tables() {
@@ -43,24 +41,18 @@ function Tables() {
       console.log("socket connected", socket.id)
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id);
-      socket.emit("company-ticks", true)
+      // socket.emit("company-ticks", true)
       // setIsLoading(false);
     })
   }, []);
 
-  // if (isLoading) {
-  //   // Render a loading state or a placeholder while waiting for the socket prop
-  //   return <div>Loading...</div>;
-  // }
-
   return (
-    <>{ !isLoading &&
-      <DashboardLayout>
-        <DashboardNavbar />
-        <Header socket={socket} contestId={"64915f71a276d74a55f5d1a3"} />
-        <Footer />
-      </DashboardLayout>
-      }
+    <>
+    <DashboardLayout>
+      <DashboardNavbar />
+      <ContestTradingView socket={socket}/>
+      <Footer />
+    </DashboardLayout>
     </>
   );
 }

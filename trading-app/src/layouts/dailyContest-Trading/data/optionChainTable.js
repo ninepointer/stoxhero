@@ -29,8 +29,6 @@ export default function OptionChainTable({socket, setShowChain}) {
   const [abovePE, setAbovePE] = useState([]);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
-
-
   const [marketData, setMarketData] = useState([]);
 
   // const getDetails = useContext(userContext);
@@ -40,9 +38,7 @@ export default function OptionChainTable({socket, setShowChain}) {
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
-        //console.log("live price data", res)
         setMarketData(res.data);
-        // setDetails.setMarketData(data);
     }).catch((err) => {
         return new Error(err);
     })
@@ -95,11 +91,11 @@ export default function OptionChainTable({socket, setShowChain}) {
       })
   },[selectIndex])
 
-  // useEffect(() => {
-  //   return () => {
-  //     socket?.close();
-  //   }
-  // }, []);
+  useEffect(() => {
+    return () => {
+      socket?.close();
+    }
+  }, []);
 
   // console.log("liveData", marketData)
 

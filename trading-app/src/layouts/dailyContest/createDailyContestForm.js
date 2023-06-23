@@ -70,12 +70,14 @@ function Index() {
     payoutPercentage: '' || contest?.payoutPercentage,
     entryFee: '' || contest?.entryFee,
     description: '' || contest?.description,
-    // portfolio: {
-    //   contest: "" || contest?.portfolio?._contest,
-    //   portfolioName: "" || contest?.portfolio?.portfolioName,
-    //   portfolioValue: "" || contest?.portfolio?.portfolioValue,
-    // },
     portfolio: "" || contest?.portfolio?._id,
+
+    contestExpiry: "" || contest?.contestExpiry,
+    isNifty: "" || contest?.isNifty,
+    isBankNifty: "" || contest?.isBankNifty,
+    isFinNifty: "" || contest?.isFinNifty,
+    isAllIndex: "" || contest?.isAllIndex,
+
     registeredUsers: {
       userId: "",
       registeredOn: "",
@@ -115,17 +117,7 @@ function Index() {
       })
   }, [])
 
-  // const handleTypeChange = (e) =>{
-  //   const value = e.target.value;
-  //   console.log('e target value', value);
-  //   setType(prev=>value);
-  //   setFormState(prevState => ({
-  //     ...prevState,
-  //     portfolio: {id: '', name: ''},
-  //     career: {id: '', name: ''},
 
-  //   }))
-  // }
   const handlePortfolioChange = (event) => {
     const {
       target: { value },
@@ -142,38 +134,18 @@ function Index() {
     console.log("portfolioId", portfolioId, formState)
   };
 
-  // const handleCareerChange = (event) => {
-  // const {
-  //     target: { value },
-  // } = event;
-  // let careerId = careers?.filter((elem)=>{
-  //     return elem.jobTitle === value;
-  // })
-  // setFormState(prevState => ({
-  //     ...prevState,
-  //     career: {id: careerId[0]?._id, name: careerId[0]?.jobTitle}
-  // }))
-  // console.log("careerId", careerId, formState)
-  // };
 
   async function onSubmit(e, formState) {
     console.log("inside submit")
     e.preventDefault()
     console.log(formState)
     if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.portfolio) {
-
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    //   if((type == 'Job' && !formState?.portfolio?.portfolioName?.toLowerCase().includes('internship')) || (type == 'Workshop' && !formState?.portfolio.name.toLowerCase().includes('workshop'))){
-    //   console.log('true');
-    //   return openErrorSB("Wrong Portfolio","Please check the portfolio and type compatibility");
-    // }
 
-
-    // console.log("Is Submitted before State Update: ",isSubmitted)
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -182,7 +154,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestType, contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio
+        contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -204,37 +176,6 @@ function Index() {
 
   console.log("dailyContest", dailyContest)
 
-  // async function addAllowedUser(e, childFormState, setChildFormState) {
-  //   e.preventDefault()
-  //   console.log(childFormState)
-  //   setSaving(true)
-  //   if (!childFormState?.gdTitle || !childFormState?.gdTopic || !childFormState?.meetLink || !childFormState?.gdStartDate || !childFormState?.gdEndDate) {
-  //     setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-  //     return openErrorSB("Missing Field", "Please fill all the mandatory fields")
-  //   }
-  //   const { gdTitle, gdTopic, meetLink, gdStartDate, gdEndDate } = childFormState;
-
-  //   const res = await fetch(`${baseUrl}api/v1/gd/`, {
-  //     method: "POST",
-  //     credentials: "include",
-  //     headers: {
-  //       "content-type": "application/json",
-  //       "Access-Control-Allow-Credentials": true
-  //     },
-  //     body: JSON.stringify({
-  //       gdTitle, gdTopic, meetLink, gdStartDate, gdEndDate, dailyContest: dailyContest
-  //     })
-  //   });
-  //   const data = await res.json();
-  //   console.log(data);
-  //   if (res.status !== 201) {
-  //     openErrorSB("Error", data.message)
-  //   } else {
-  //     openSuccessSB("Success", data.message)
-  //     setTimeout(() => { setSaving(false); setEditing(false) }, 500)
-  //   }
-  // }
-
   async function onEdit(e, formState) {
     e.preventDefault()
     console.log("Edited FormState: ", formState, contest?._id)
@@ -244,7 +185,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
       method: "PATCH",
@@ -254,7 +195,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio
+        contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -554,7 +495,126 @@ function Index() {
                   </FormControl>
                 </Grid>
 
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Contest Expiry *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='contestExpiry'
+                      value={formState?.contestExpiry || contest?.contestExpiry}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          contestExpiry: e.target.value
+                        }))
+                      }}
+                      label="Contest Expiry"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="Day">Day</MenuItem>
+                      <MenuItem value="Weekly">Weekly</MenuItem>
+                      <MenuItem value="Monthly">Monthly</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
 
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on Nifty ? *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='isNifty'
+                      value={formState?.isNifty || contest?.isNifty}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isNifty: e.target.value
+                        }))
+                      }}
+                      label="Is Nifty"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="true">TRUE</MenuItem>
+                      <MenuItem value="false">FALSE</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on BankNifty ? *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='isBankNifty'
+                      value={formState?.isBankNifty || contest?.isBankNifty}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isBankNifty: e.target.value
+                        }))
+                      }}
+                      label="Is BankNifty"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="true">TRUE</MenuItem>
+                      <MenuItem value="false">FALSE</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on FinNifty ? *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='isFinNifty'
+                      value={formState?.isFinNifty || contest?.isFinNifty}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isFinNifty: e.target.value
+                        }))
+                      }}
+                      label="Is FinNifty"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="true">TRUE</MenuItem>
+                      <MenuItem value="false">FALSE</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Is Contest on All Index ? *</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      name='isAllIndex'
+                      value={formState?.isAllIndex || contest?.isAllIndex}
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isAllIndex: e.target.value
+                        }))
+                      }}
+                      label="Is All Index"
+                      sx={{ minHeight: 43 }}
+                    >
+                      <MenuItem value="true">TRUE</MenuItem>
+                      <MenuItem value="false">FALSE</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
 
               </Grid>
 

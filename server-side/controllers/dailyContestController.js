@@ -10,11 +10,12 @@ exports.createContest = async (req, res) => {
     try {
         const {contestStatus, contestEndTime, contestStartTime, contestOn, description, 
             contestType, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants} = req.body;
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex} = req.body;
         console.log(req.body)
 
         const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
-            contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id});
+            contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex});
 
             console.log(contest)
         res.status(201).json({
@@ -133,7 +134,7 @@ exports.getUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $gt: new Date() }
-        });
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
 
         res.status(200).json({
             status:"success",

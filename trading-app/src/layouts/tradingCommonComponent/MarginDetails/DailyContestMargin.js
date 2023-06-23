@@ -58,9 +58,9 @@ const InternShipMargin = ({contestId, setyesterdayData}) => {
   
       <MDBox mt={0.5}>
         <MDBox mb={0}>
-          <Grid container spacing={3}>
+          <Grid container spacing={1}>
             <Grid item xs={16} lg={12}>
-              <Grid container spacing={3}>
+              <Grid container spacing={1}>
 
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard

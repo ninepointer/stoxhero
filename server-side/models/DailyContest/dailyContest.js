@@ -85,6 +85,30 @@ const contestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
+
+
+    contestExpiry:{
+        type:String,
+        required: true,
+        enum: ["Day", "Monthly", "Weekly"]
+    },
+    isNifty:{
+        type:Boolean,
+        required: true
+    },
+    isBankNifty:{
+        type:Boolean,
+        required: true
+    },
+    isFinNifty:{
+        type:Boolean,
+        required: true
+    },
+    isAllIndex:{
+        type:Boolean,
+        required: true
+    },
+
 })
 
 const contestData = mongoose.model("daily-contest", contestSchema);

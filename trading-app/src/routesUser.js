@@ -15,6 +15,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import VideoChatIcon from '@mui/icons-material/VideoChat';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 // import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 // import DashboardIcon from '@mui/icons-material/Dashboard';
 
@@ -59,12 +60,12 @@ import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import InternshipAnalytics from './layouts/internshipAnalytics/index';
 // import logo from "../src/assets/images/logo1.jpeg"
-import WorkShopOrders from './layouts/userorders/workshopOrder';
+import WorkShopOrders from './layouts/userorders/workshopOrder'
+import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import UserDailyContest from './layouts/UserDailyContest'
+import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import DailyContest from "./layouts/dailyContest-Trading";
 import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
-
-// import WorkShopOrders from './layouts/userorders/workshopOrder';
-// import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard';
 
 
 const routes = [
@@ -142,6 +143,15 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Contest",
+    key: "contest",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <EmojiEventsIcon/>,
+    route: "/contest",
+    component: <UserDailyContest />,
+  },
+  {
+    type: "collapse",
     name: "TenX Trading",
     key: "tenxtrading",
     // icon: <Icon fontSize="small">person</Icon>,
@@ -192,6 +202,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/battlestreet/:name",
     component: <ContestPage />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/contest/:name",
+    component: <ContestTradingWindow />,
   },
   {
     // type: "collapse",

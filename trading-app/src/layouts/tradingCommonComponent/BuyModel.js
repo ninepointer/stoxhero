@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
+const BuyModel = ({setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
   console.log("rendering : buy", contestId)
   const tradeSound = new Howl({
     src : [sound],
@@ -123,6 +123,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
       addInstrument();
       render ? setRender(false) : setRender(true);
     }
+    
     setButtonClicked(false);
     setOpen(true);
   }; 
@@ -134,6 +135,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
     }
     
     setOpen(false);
+    setOpenOptionChain(false)
     setBuyState(false);
     setButtonClicked(false);
   };
@@ -148,6 +150,7 @@ const BuyModel = ({traderId, socket, subscriptionId, buyState, exchange, symbol,
     setButtonClicked(true);
     e.preventDefault()
     setOpen(false);
+    setOpenOptionChain(false)
     setBuyState(false);
 
     buyFormDetails.buyOrSell = "BUY";

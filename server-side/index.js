@@ -262,6 +262,7 @@ app.use('/api/v1/dailycontest', require("./routes/DailyContest/dailyContestRoute
 app.use('/api/v1/dailycontest/trade', require("./routes/DailyContest/dailyContestTrade"))
 app.use('/api/v1/optionChain', require("./routes/optionChain/optionChainRoute"))
 
+app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
 app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
