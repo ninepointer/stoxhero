@@ -146,7 +146,7 @@ exports.mockTrade = async (req, res) => {
     // console.log(paperTrade, isAlgoTrader); dailyContest
 
 
-    if(!paperTrade && isAlgoTrader){
+    if(!paperTrade && isAlgoTrader && !dailyContest){
 
         let settingRedis ;
         const session = await mongoose.startSession();
@@ -271,9 +271,9 @@ exports.mockTrade = async (req, res) => {
         const session = await mongoose.startSession();
         try{
 
-            const mockCompany = await InfinityTradeCompany.findOne({order_id : order_id});
-            const mockInfintyTrader = await InfinityTrader.findOne({order_id : order_id});
-            if((mockCompany || mockInfintyTrader) && dateExist.order_timestamp !== newTimeStamp && checkingMultipleAlgoFlag === 1){
+            const mockCompany = await DailyContestMockCompany.findOne({order_id : order_id});
+            const mockInfintyTrader = await DailyContestMockUser.findOne({order_id : order_id});
+            if((mockCompany || mockInfintyTrader)){
                 return res.status(422).json({message : "data already exist", error: "Fail to trade"})
             }
     
@@ -311,13 +311,14 @@ exports.mockTrade = async (req, res) => {
             const traderOverallPnl = results[0][1];
             const companyOverallPnl = results[1][1];
             const traderWisePnl = results[2][1];
-            
+            console.log("overallpnl", traderOverallPnl, companyOverallPnl, traderWisePnl)
+
             const overallPnlUser = await overallpnlDailyContest(algoTrader[0], trader, traderOverallPnl, contestId);
             const redisValueOverall = await overallMockPnlCompanyDailyContest(mockTradeDetails[0], companyOverallPnl, contestId);
             const redisValueTrader = await traderWiseMockPnlCompanyDailyContest(mockTradeDetails[0], traderWisePnl, contestId);
             const lastTradeMock = await lastTradeDataMockDailyContest(mockTradeDetails[0], contestId);
 
-            console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
+            console.log("setting data", overallPnlUser, redisValueOverall, redisValueTrader, lastTradeMock)
             const pipelineForSet = clientForIORedis.pipeline();
 
             await pipelineForSet.set(`${trader.toString()} overallpnlDailyContest`, overallPnlUser);
@@ -343,8 +344,9 @@ exports.mockTrade = async (req, res) => {
                 await pipeline.exec();
             }
             // Commit the transaction
-            
+            console.log("before")
             io.emit("updatePnl", mockTradeDetails)
+            console.log("after")
             if(fromAdmin){
                 console.log("in admin side")
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
@@ -354,10 +356,10 @@ exports.mockTrade = async (req, res) => {
 
             // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
 
-            // console.log("pipelineForSet", pipelineForSet)
+            console.log("pipelineForSet", pipelineForSet)
             if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
                 await session.commitTransaction();
-                res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+                return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
             } else {
                 // await session.commitTransaction();
                 throw new Error();
@@ -365,6 +367,7 @@ exports.mockTrade = async (req, res) => {
             
 
         } catch(err){
+            console.log(err);
             if(isRedisConnected){
                 const pipeline = clientForIORedis.pipeline();
 

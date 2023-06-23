@@ -10,30 +10,33 @@ import Header from "./Header";
 import { userContext } from "../../AuthContext";
 
 function Tables() {
-  console.log("rendering in userPosition: infinity")
+
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  const getDetails = useContext(userContext);
+const getDetails = useContext(userContext);
 
 
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+let socket;
+try {
+  socket = io.connect(`${baseUrl1}`)
+  console.log("socket 1st", socket.id)
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id);
-      socket.emit("company-ticks", true)
-    })
-  }, []);
+} catch (err) {
+  throw new Error(err);
+}
+
+useEffect(() => {
+  socket.on("connect", () => {
+    socket.emit('userId', getDetails.userDetails._id)
+    socket.emit("user-ticks", getDetails.userDetails._id);
+    socket.emit("company-ticks", true)
+  })
+}, []);
+
   return (
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <Header  contestId={"64915f71a276d74a55f5d1a3"}/>
+      <Header socket={socket} contestId={"64915f71a276d74a55f5d1a3"}/>
       <Footer />
     </DashboardLayout>
     </>

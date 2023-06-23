@@ -20,6 +20,7 @@ import Grid from '@mui/material/Grid'
 import { renderContext } from '../../../renderContext';
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 import { userContext } from '../../../AuthContext';
+import {maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty} from "../../../variables";
 
 
 function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
@@ -116,9 +117,12 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
       totalGrossPnl += updatedValue;
 
       totalTransactionCost += Number(subelem.brokerage);
-      let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
-      let maxLot = (getDetails?.userDetails?.role?.roleName === infinityTrader) ? 900 : lotSize*36;
+      // let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
+      // let maxLot = (getDetails?.userDetails?.role?.roleName === infinityTrader) ? 900 : lotSize*36;
 
+      let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? lotSize_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? lotSize_FinNifty : lotSize_Nifty;
+      let maxLot = (subelem._id.symbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? maxLot_FinNifty : (getDetails?.userDetails?.role?.roleName === infinityTrader ? maxLot_Nifty/2 : maxLot_Nifty);
+  
       updateNetPnl(totalGrossPnl-totalTransactionCost,totalRunningLots, totalGrossPnl, totalTransactionCost)
 
 

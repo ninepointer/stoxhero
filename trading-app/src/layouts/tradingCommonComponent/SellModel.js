@@ -258,7 +258,7 @@ const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, 
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
         symbol, lotSize, instrumentToken, from,
-        uId, contractDate: expiry, maxLot: lotSize*36, notInWatchList: true,
+        uId, contractDate: expiry, maxLot, notInWatchList: true,
         exchangeInstrumentToken, exchangeSegment
       })
     });

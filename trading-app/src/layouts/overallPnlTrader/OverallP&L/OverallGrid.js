@@ -20,6 +20,7 @@ import { renderContext } from '../../../renderContext';
 // import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
 import { userContext } from '../../../AuthContext';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import {maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, lotSize_Nifty, lotSize_BankNifty, lotSize_FinNifty} from "../../../variables";
 
 const filter = createFilterOptions();
 
@@ -153,13 +154,9 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId }) {
     totalGrossPnl += updatedValue;
 
     totalTransactionCost += Number(subelem.brokerage);
-    let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
-
-    // from === paperTrader ? 
+    let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? lotSize_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? lotSize_FinNifty : lotSize_Nifty;
+    let maxLot = (subelem._id.symbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (subelem._id.symbol)?.includes("FINNIFTY") ? maxLot_FinNifty : maxLot_Nifty;
     updateNetPnl(totalGrossPnl - totalTransactionCost, totalRunningLots, totalGrossPnl, totalTransactionCost)
-    // :
-    // (from === infinityTrader || from === tenxTrader) &&
-    // updateInfinityNetPnl(totalGrossPnl-totalTransactionCost);
 
 
     const instrumentcolor = subelem._id.symbol?.slice(-2) == "CE" ? "success" : "error"
@@ -236,11 +233,11 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId }) {
       < ExitPosition traderId={value?._id} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} product={(subelem._id.product)} symbol={(subelem._id.symbol)} quantity={subelem.lots} instrumentToken={subelem._id.instrumentToken} exchange={subelem._id.exchange} setExitState={setExitState} exitState={exitState} />
     );
     obj.buy = (
-      <Buy traderId={value?._id} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize * 36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState} />
+      <Buy traderId={value?._id} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={maxLot} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState} buyState={buyState} />
     );
 
     obj.sell = (
-      <Sell traderId={value?._id} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={lotSize * 36} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState} />
+      <Sell traderId={value?._id} subscriptionId={subscriptionId} from={from} render={render} setRender={setRender} symbol={subelem._id.symbol} exchange={subelem._id.exchange} instrumentToken={subelem._id.instrumentToken} symbolName={(subelem._id.symbol)?.slice(-7)} lotSize={lotSize} maxLot={maxLot} ltp={(liveDetail[0]?.last_price)?.toFixed(2)} setSellState={setSellState} sellState={sellState} />
     );
 
     obj.sellState = (

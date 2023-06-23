@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
-import axios from "axios";
+// import axios from "axios";
 import { CircularProgress, Grid, Divider } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -15,18 +15,18 @@ import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
-import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
+// import InfinityMargin from '../../tradingCommonComponent/MarginDetails/infinityMargin';
 import { dailyContest } from '../../../variables';
 import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
 import OptionChain from '../data/optionChain';
-import MDButton from '../../../components/MDButton';
-import { Link } from "react-router-dom";
-import CircularJSON from 'circular-json';
-import { userContext } from '../../../AuthContext';
+// import MDButton from '../../../components/MDButton';
+// import { Link } from "react-router-dom";
+// import CircularJSON from 'circular-json';
+// import { userContext } from '../../../AuthContext';
 // import { userContext } from "../../AuthContext";
-import { io } from 'socket.io-client';
+// import { io } from 'socket.io-client';
 
-export default function InfinityTrading({ contestId}) {
+export default function InfinityTrading({socket, contestId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   const [yesterdayData, setyesterdayData] = useState({});
   const [availbaleMargin, setAvailbleMargin] = useState([]);
@@ -34,28 +34,30 @@ export default function InfinityTrading({ contestId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   // const socketData = CircularJSON.stringify(socket);
-// console.log("socket", socket.id)
+console.log("socket 2nd", socket.id)
 
 
 
-let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-const getDetails = useContext(userContext);
+// let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+// const getDetails = useContext(userContext);
 
 
-let socket;
-try {
-  socket = io.connect(`${baseUrl1}`)
-} catch (err) {
-  throw new Error(err);
-}
+// let socket;
+// try {
+//   socket = io.connect(`${baseUrl1}`)
+// } catch (err) {
+//   throw new Error(err);
+// }
 
-useEffect(() => {
-  socket.on("connect", () => {
-    socket.emit('userId', getDetails.userDetails._id)
-    socket.emit("user-ticks", getDetails.userDetails._id);
-    socket.emit("company-ticks", true)
-  })
-}, []);
+
+
+// useEffect(() => {
+//   socket.on("connect", () => {
+//     socket.emit('userId', getDetails.userDetails._id)
+//     socket.emit("user-ticks", getDetails.userDetails._id);
+//     socket.emit("company-ticks", true)
+//   })
+// }, []);
 
 
 
@@ -68,25 +70,22 @@ useEffect(() => {
     setIsGetStartedClicked(value);
   }, []);
 
-  const memoizedTradableInstrument = useMemo(() => {
+  const memoizedOptionChain = useMemo(() => {
     return <OptionChain
       socket={socket}
       setShowOption={setShowOption}
       showOption={showOption}
-      // isGetStartedClicked={isGetStartedClicked}
-      // setIsGetStartedClicked={handleSetIsGetStartedClicked}
-      // from={dailyContest}
     />;
   }, [socket, showOption]);
 
-  // const memoizedTradableInstrument = useMemo(() => {
-  //   return <TradableInstrument
-  //     socket={socket}
-  //     isGetStartedClicked={isGetStartedClicked}
-  //     setIsGetStartedClicked={handleSetIsGetStartedClicked}
-  //     from={dailyContest}
-  //   />;
-  // }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+  const memoizedTradableInstrument = useMemo(() => {
+    return <TradableInstrument
+      socket={socket}
+      isGetStartedClicked={isGetStartedClicked}
+      setIsGetStartedClicked={handleSetIsGetStartedClicked}
+      from={dailyContest}
+    />;
+  }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -176,20 +175,9 @@ useEffect(() => {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6} lg={12}>
-          {/* <TradableInstrument/> */}
           {memoizedTradableInstrument}
-          {/* <MDButton
-          variant="contained" 
-          color={"light"} 
-          size="small" 
-          component = {Link}
-          to={{
-              pathname: `/optionchain`,
-            }}
-            state={{data: socketData}}
-          >
-            Option Chain
-          </MDButton> */}
+          {memoizedOptionChain}
+
         </Grid>
       </Grid>
 

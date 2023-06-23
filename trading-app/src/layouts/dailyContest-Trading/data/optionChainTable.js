@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 // import { userContext } from '../../../AuthContext';
 import moment from 'moment';
 //
@@ -11,21 +11,25 @@ import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import {CircularProgress, MenuItem, TextField} from "@mui/material";
 import { Grid } from "@mui/material";
+import BuyModel from "../../tradingCommonComponent/BuyModel";
+import SellModel from "../../tradingCommonComponent/SellModel";
+import { debounce } from 'lodash';
+import {dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Nifty_DailyContest} from "../../../variables";
 
 
 export default function OptionChainTable({socket, setShowChain}) {
-
-  console.log("socket in last", socket)
+  console.log("socket 4th", socket.id)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  // let [skip, setSkip] = useState(0);
-  // const limitSetting = 10;
-  // const [count, setCount] = useState(0);
+
   const [isLoading,setIsLoading] = useState(false);
   const [selectIndex, setSelectIndex] = useState("NIFTY50");
   const [belowCE, setBelowCE] = useState([]);
   const [aboveCE, setAboveCE] = useState([]);
   const [belowPE, setBelowPE] = useState([]);
   const [abovePE, setAbovePE] = useState([]);
+  const [buyState, setBuyState] = useState(false);
+  const [sellState, setSellState] = useState(false);
+
 
   const [marketData, setMarketData] = useState([]);
 
@@ -91,20 +95,47 @@ useEffect(()=>{
       })
   },[selectIndex])
 
-  useEffect(() => {
-    return () => {
-      // socket.emit('removeKey', socket.id)
-      socket?.close();
-    }
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     socket?.close();
+  //   }
+  // }, []);
 
   // console.log("liveData", marketData)
+
+  const [hoveredRows, setHoveredRows] = useState([]);
+
+  // const handleMouseOver = (index) => {
+  //   // setHoveredRows((prevHoveredRows) => [...prevHoveredRows, index]);
+  //   setHoveredRows([index]);
+
+  // };
+
+  // const handleMouseLeave = (index) => {
+  //   // setHoveredRows((prevHoveredRows) =>
+  //   //   prevHoveredRows.filter((rowIndex) => rowIndex !== index)
+  //   // );
+  //   setHoveredRows([]);
+  // };
+
+  const handleMouseOver = debounce((index) => {
+    // setHoveredRows((prevHoveredRows) => [...prevHoveredRows, index]);
+    setHoveredRows([index]);
+  }, 250);
+  
+  const handleMouseLeave = debounce((index) => {
+    // setHoveredRows((prevHoveredRows) =>
+    //   prevHoveredRows.filter((rowIndex) => rowIndex !== index)
+    // );
+    setHoveredRows([]);
+  }, 250);
+console.log("hoveredRows", hoveredRows)
 
   return (
 
     <MDBox bgColor="light" color="light" mb={0} borderRadius={10} minWidth='100%' minHeight='auto' width="100%">
       <MDBox sx={{ display: 'flex', alignItems: 'center', marginBottom: "10px" }}>
-        <MDTypography color="dark" fontSize={15}>Select Timeline</MDTypography>
+        <MDTypography color="dark" fontSize={15}>Select Index</MDTypography>
         <TextField
           select
           label=""
@@ -184,7 +215,9 @@ useEffect(()=>{
         
             {
               aboveCE?.map((elem, index)=>{
+                let maxLot = (elem.tradingsymbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (elem.tradingsymbol)?.includes("FINNIFTY") ? maxLot_FinNifty : maxLot_Nifty_DailyContest;
 
+                const isRowHovered = hoveredRows.includes(index);
                 let PE = abovePE.filter((subelem)=>{
                   return elem.strike == subelem.strike
                 })
@@ -205,15 +238,28 @@ useEffect(()=>{
                 let offerPe = liveDataPE[0]?.depth?.sell[0]?.price
 
                 // const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
+                console.log("is hover", elem.isHover)
                 return (
-                  <Grid display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%" }}>
+                  <Grid
+                    onMouseOver={() => handleMouseOver(index)}
+                    onMouseLeave={() => handleMouseLeave(index)} 
+                    display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%", cursor: "pointer" }}>
+                    
                     <Grid container p={1} lg={5.25} sx={{ backgroundColor: '#FFFFE0' }}>
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={2} lg={2.4}>
-                        <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(liveData[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
-                      </Grid>
+                      {isRowHovered ?
+                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
+                          <BuyModel setBuyState={setBuyState} buyState={buyState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                          <SellModel setSellState={setSellState} sellState={sellState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                        </Grid>
+                        :
+                        <Grid item xs={12} md={2} lg={2.4}>
+                          <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(liveData[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
+                        </Grid>
+                      }
+
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{bid}</MDTypography>
                       </Grid>
@@ -225,6 +271,8 @@ useEffect(()=>{
                       </Grid>
                     </Grid>
 
+
+
                     <Grid container p={1} lg={1.5} sx={{ backgroundColor: '#FFFFFF' }}>
                       <Grid item xs={12} md={2} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{elem?.strike}</MDTypography>
@@ -235,15 +283,26 @@ useEffect(()=>{
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price}</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDTypography color="dark" fontSize={11} fontWeight="bold">{offerPe}</MDTypography>
-                      </Grid>
+
+                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                          <MDTypography color="dark" fontSize={11} fontWeight="bold">{offerPe}</MDTypography>
+                        </Grid>
+                      
+
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{bidPe}</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDTypography color="dark" fontSize={11} fontWeight="bold">{(liveDataPE[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
-                      </Grid>
+                      {isRowHovered ?
+                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
+                          <BuyModel setBuyState={setBuyState} buyState={buyState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                          <SellModel setSellState={setSellState} sellState={sellState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                          
+                        </Grid>
+                        :
+                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                          <MDTypography color="dark" fontSize={11} fontWeight="bold">{(liveDataPE[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
+                        </Grid>
+                      }
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
                       </Grid>
@@ -256,6 +315,8 @@ useEffect(()=>{
 
             {
               belowCE?.map((elem, index)=>{
+                let maxLot = (elem.tradingsymbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (elem.tradingsymbol)?.includes("FINNIFTY") ? maxLot_FinNifty : maxLot_Nifty_DailyContest;
+                const isRowHovered = hoveredRows.includes(index);
 
                 let PE = belowPE.filter((subelem)=>{
                   return elem.strike == subelem.strike
@@ -278,15 +339,25 @@ useEffect(()=>{
 
                 // const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
                 return (
-                  <Grid display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%" }}>
+                  <Grid  
+                    onMouseOver={() => handleMouseOver(index)}
+                    onMouseLeave={() => handleMouseLeave(index)} 
+                    display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%", cursor: "pointer", }}>
 
                     <Grid container p={1} lg={5.25} sx = {index === 0 && { backgroundColor: '#FFFFFF' }} >
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={2} lg={2.4}>
-                        <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(liveData[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
-                      </Grid>
+                      {isRowHovered ?
+                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
+                          <BuyModel setBuyState={setBuyState} buyState={buyState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                          <SellModel setSellState={setSellState} sellState={sellState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                        </Grid>
+                        :
+                        <Grid item xs={12} md={2} lg={2.4}>
+                          <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(liveData[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
+                        </Grid>
+                      }
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{bid}</MDTypography>
                       </Grid>
@@ -314,9 +385,16 @@ useEffect(()=>{
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{bidPe}</MDTypography>
                       </Grid>
-                      <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDTypography color="dark" fontSize={11} fontWeight="bold">{(liveDataPE[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
-                      </Grid>
+                      {isRowHovered ?
+                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
+                          <BuyModel setBuyState={setBuyState} buyState={buyState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                          <SellModel setSellState={setSellState} sellState={sellState} contestId={"64915f71a276d74a55f5d1a3"} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                        </Grid>
+                        :
+                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                          <MDTypography color="dark" fontSize={11} fontWeight="bold">{(liveDataPE[0]?.oi / 100000)?.toFixed(2)}</MDTypography>
+                        </Grid>
+                      }
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
                       </Grid>

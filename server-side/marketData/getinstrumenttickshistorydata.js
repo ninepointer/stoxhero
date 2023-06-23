@@ -19,8 +19,8 @@ const getInstrumentTicksHistoryData = async () => {
   getKiteCred.getAccess().then(async (data)=>{
     console.log("in ticks")
     let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = "2023-06-02";
+    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let todayDate = "2023-06-20";
     let todayDate1 = todayDate + "T00:00:00.000Z";
     const matchingDate = new Date(todayDate1);
 
@@ -55,7 +55,7 @@ const getInstrumentTicksHistoryData = async () => {
       // let tempData = date.split("-");
       // matchingDate = `${tempData[2]}-${tempData[1]}-${tempData[0]}`
 
-      const historyData = await HistoryData.find({instrumentToken: instrumentToken, timestamp: {$regex:matchingDate}})
+      const historyData = await HistoryData.find({instrumentToken: instrumentToken, timestamp: {$regex:todayDate}})
       console.log("above if")
       if(historyData.length === 0){
         console.log("in if")
@@ -107,7 +107,7 @@ const getInstrumentTicksHistoryData = async () => {
     
       } else{
 
-        const historyDataforLen = await HistoryData.find({timestamp: {$regex:matchingDate}})
+        const historyDataforLen = await HistoryData.find({timestamp: {$regex:todayDate}})
 
         let length = historyDataforLen.length;
         let message = length + " data already present"
