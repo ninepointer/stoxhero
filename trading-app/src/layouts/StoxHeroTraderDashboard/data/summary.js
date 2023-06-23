@@ -46,7 +46,7 @@ function Summary() {
                 </MDBox>
             </Grid>
 
-            <Grid item xs={12} md={6} lg={12} ml={1} mr={1} mb={1}>
+            {/* <Grid item xs={12} md={6} lg={12} ml={1} mr={1} mb={1}>
                 <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                 <Grid container spacing={1} alignItems='center'>
                     <Grid item xs={12} md={6} lg={4}>
@@ -79,7 +79,7 @@ function Summary() {
                        
                     </Grid>
                 </MDBox>
-            </Grid>
+            </Grid> */}
         </Grid>
     </MDBox>
 )

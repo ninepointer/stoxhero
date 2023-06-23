@@ -588,6 +588,19 @@ export default function LabTabs({socket}) {
                         <Grid item fullWidth>
                             <MDButton 
                                 variant="contained" 
+                                color={"error"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/tradingholiday`,
+                                  }}
+                            >
+                                Trading Holiday
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
                                 color={"dark"} 
                                 size="small" 
                                 component = {Link}

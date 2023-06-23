@@ -24,7 +24,7 @@ const contestSchema = new mongoose.Schema({
     },
     contestType:{
         enum: ['Mock','Live'],
-        type: required,
+        required:true,
     },
     entryFee:{
         amount:Number,

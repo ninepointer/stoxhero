@@ -64,6 +64,7 @@ import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
+import Chart from './layouts/charts/index';
 
 
 const routes = [
@@ -113,15 +114,15 @@ const routes = [
     route: "contact",
     component: <Contact />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Dashboard",
-  //   key: "stoxherodashboard",
-  //   // icon: <Icon fontSize="small">person</Icon>,
-  //   icon: <DashboardIcon/>,
-  //   route: "/stoxherodashboard",
-  //   component: <StoxHeroDashboard />,
-  // },
+  {
+    type: "collapse",
+    name: "Dashboard",
+    key: "stoxherodashboard",
+    // icon: <Icon fontSize="small">person</Icon>,
+    icon: <DashboardIcon/>,
+    route: "/stoxherodashboard",
+    component: <StoxHeroDashboard />,
+  },
   {
     type: "collapse",
     name: "Virtual Trading",
@@ -400,6 +401,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/internship/analytics",
     component: <InternshipAnalytics/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/chart",
+    component: <Chart/>,
   },
 ];
 

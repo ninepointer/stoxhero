@@ -55,6 +55,7 @@ router.post("/signup", async (req, res)=>{
         status: 'success'});
              
                 sendOTP(mobile.toString(), mobile_otp);
+                if(!process.env.PROD)sendOTP("9319671094", mobile_otp);
 
             }catch(err){console.log(err);res.status(500).json({message:'Something went wrong',status:"error"})}
 })
@@ -441,7 +442,8 @@ router.patch("/resendotp", async (req, res)=>{
     if(type == 'mobile'){
         user.mobile_otp = mobile_otp;
         // sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);
-        sendOTP(mobile.toString(), mobile_otp);    
+        sendOTP(mobile.toString(), mobile_otp);
+        if(!process.env.PROD)sendOTP("9319671094", mobile_otp);    
     }
     else if(type == 'email'){
         user.email_otp = email_otp;
