@@ -1,9 +1,32 @@
 const WebSocket = require('ws');
-
+const {client, getValue, isRedisConnected} = require("../../marketData/redisClient");
 let ws;
 
 function init(io) {
   connect(io);
+}
+
+async function getMessages(io, socket){
+  console.log('getMessages function called with', socket.id);
+  const incoming = async function incoming(data) {
+    // console.log(data);
+    const response = JSON.parse(data);
+    // console.log(response);
+    let userId;
+    
+      userId = await client.get(socket.id);
+
+    if (response.MessageType === 'HistoryOHLCResult') {
+      console.log('sending response to', userId);
+      io.to(`${userId}`).emit('HistoryOHLCResult', response);
+      ws.removeListener('message', incoming);
+    }
+    if(response.MessageType === 'RealtimeResult'){
+      io.to(`${userId}`).emit('RealtimeResult', response);
+    }
+  }
+  ws.on('message', incoming);
+  // ws.removeListener('message', incoming)
 }
 
 function connect(io) {
@@ -19,14 +42,17 @@ function connect(io) {
     ws.send(JSON.stringify(authMessage));
   });
 
-  ws.on('message', function incoming(data) {
+  ws.on('message', async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
     // console.log(response);
+    // if(isRedisConnected){
+    //   userId = await client.get(socket.id);
+    // }
 
-    if (response.MessageType === 'HistoryOHLCResult') {
-      io.emit('HistoryOHLCResult', response);
-    }
+    // if (response.MessageType === 'HistoryOHLCResult') {
+    //   io.emit('HistoryOHLCResult', response);
+    // }
     if(response.MessageType === 'RealtimeResult'){
       io.emit('RealtimeResult', response);
     }
@@ -54,4 +80,4 @@ function send(message) {
   }
 }
 
-module.exports = { init, send };
+module.exports = { init, send, getMessages };

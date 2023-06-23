@@ -18672,33 +18672,101 @@
 // };
 
 // export default CandlestickChart;
-import { useEffect, useRef } from 'react';
+// import { useEffect, useRef } from 'react';
+// import { createChart } from 'lightweight-charts';
+
+// const CandlestickChart = ({ historicalData, liveData }) => {
+//   const chartContainerRef = useRef();
+//   const chartRef = useRef();
+//   const candleSeriesRef = useRef();
+
+//   useEffect(() => {
+//     if (!chartContainerRef.current) return;
+
+//     chartRef.current = createChart(chartContainerRef.current, { width: 1300, height: 620 });
+//     candleSeriesRef.current = chartRef.current.addCandlestickSeries();
+  
+//     // Set initial data
+//     candleSeriesRef.current.setData(historicalData);
+//     const timeScale = chartRef.current.timeScale();
+//         timeScale.applyOptions({
+//           crosshair: {
+//             vertLine: {
+//               labelVisible: true,
+//               labelBackgroundColor: "#4C525E"
+//             }
+//           },
+//           timeVisible: true
+//         });
+
+
+//     return () => {
+//       // Cleanup chart on component unmount
+//       chartRef.current.remove();
+//     };
+//   }, []);
+
+//   useEffect(() => {
+//     if (!candleSeriesRef.current || !historicalData) return;
+  
+//     // Update chart with historical data
+//     candleSeriesRef.current.setData(historicalData);
+//   }, [historicalData]);
+
+//   useEffect(() => {
+//     if (!candleSeriesRef.current || !liveData) return;
+  
+//     // Update chart with live data
+// //     liveData.forEach(data => {
+// //       if (data.instrument_token === 256265) {
+// //         const ohlcData = {
+// //           time: Math.floor(Date.now() / 1000),
+// //           open: data.ohlc.open,
+// //           high: data.ohlc.high,
+// //           low: data.ohlc.low,
+// //           close: data.ohlc.close,
+// //         };
+  
+// //         // Update the chart with the new data
+// //     }
+// // });
+//     candleSeriesRef.current.update(liveData);
+//   }, [liveData]);
+
+//   return <div style={{padding:'20px', display:'flex',margin:'auto 0', justifyContent:'center'}} ref={chartContainerRef} />;
+// };
+
+// export default CandlestickChart;
+import { useEffect, useRef, useState } from 'react';
 import { createChart } from 'lightweight-charts';
 
-const CandlestickChart = ({ historicalData, liveData }) => {
+const CandlestickChart = ({ historicalData, liveData, minuteTimeframe }) => {
   const chartContainerRef = useRef();
   const chartRef = useRef();
   const candleSeriesRef = useRef();
+//   console.log('rendering chart');
+//   console.log('historicalData', historicalData?.[0]?.time);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    chartRef.current = createChart(chartContainerRef.current, { width: 1300, height: 620 });
+    chartRef.current = createChart(chartContainerRef.current, { width: 1350, height: 550 });
     candleSeriesRef.current = chartRef.current.addCandlestickSeries();
   
     // Set initial data
-    candleSeriesRef.current.setData(historicalData);
+    if (historicalData) {
+      candleSeriesRef.current.setData(historicalData);
+    }
     const timeScale = chartRef.current.timeScale();
-        timeScale.applyOptions({
-          crosshair: {
-            vertLine: {
-              labelVisible: true,
-              labelBackgroundColor: "#4C525E"
-            }
-          },
-          timeVisible: true
-        });
-
+    timeScale.applyOptions({
+      crosshair: {
+        vertLine: {
+          labelVisible: true,
+          labelBackgroundColor: "#4C525E"
+        }
+      },
+      timeVisible: true
+    });
 
     return () => {
       // Cleanup chart on component unmount
@@ -18714,26 +18782,39 @@ const CandlestickChart = ({ historicalData, liveData }) => {
   }, [historicalData]);
 
   useEffect(() => {
-    if (!candleSeriesRef.current || !liveData) return;
-  
-    // Update chart with live data
-    liveData.forEach(data => {
-      if (data.instrument_token === 256265) {
-        const ohlcData = {
-          time: Math.floor(Date.now() / 1000),
-          open: data.ohlc.open,
-          high: data.ohlc.high,
-          low: data.ohlc.low,
-          close: data.ohlc.close,
-        };
-  
-        // Update the chart with the new data
-        candleSeriesRef.current.update(ohlcData);
-      }
-    });
+    if (!candleSeriesRef.current || !liveData || !historicalData) return;
+
+    // Merge live data with the last historical data
+    const lastCandle = historicalData[historicalData.length -1];
+    const newCandle = liveData;
+    console.log('newCandle',newCandle);
+    console.log('firstCandle', historicalData[0])
+    console.log('lastCandle',typeof lastCandle?.time, lastCandle?.time, minuteTimeframe);
+
+    if (newCandle) {
+      const updatedLastCandle = {
+        ...lastCandle,
+        time: lastCandle?.time + minuteTimeframe*60,
+        close: newCandle?.close,
+        high: Math.max(lastCandle?.high, newCandle?.high),
+        low: Math.min(lastCandle?.low, newCandle?.low),
+      };
+      console.log('updatedLastCandle',updatedLastCandle);
+      // Create a new data array with the updated last candle
+      const newData = [
+          ...historicalData.slice(0,historicalData.length-1),
+          updatedLastCandle,    
+        ];
+      console.log('newData',newData);
+      console.log('historicalData', historicalData);  
+
+      // Update chart with the merged data
+      candleSeriesRef.current.setData(newData);
+    }
   }, [liveData]);
 
-  return <div style={{padding:'20px', display:'flex',margin:'auto 0', justifyContent:'center'}} ref={chartContainerRef} />;
+  return <div style={{display:'flex',margin:'auto 0', justifyContent:'center', border:'1px solid black'}} ref={chartContainerRef} />;
 };
 
 export default CandlestickChart;
+

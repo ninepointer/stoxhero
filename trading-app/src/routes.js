@@ -138,7 +138,8 @@ import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
 import AdminLiveReport from './layouts/adminSideReportLive'
-import WorkShopOrders from './layouts/userorders/workshopOrder'
+import WorkShopOrders from './layouts/userorders/workshopOrder';
+import Chart from './layouts/charts/index'
 
 const routes = [
   {
@@ -876,6 +877,14 @@ const routes = [
     // icon: <BusinessCenterIcon/>,
     route: "/myportfolio",
     component: <MyPortfolio />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/chart",
+    component: <Chart/>,
   },
 
 ];

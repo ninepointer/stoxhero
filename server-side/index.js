@@ -118,14 +118,16 @@ getKiteCred.getAccess().then(async (data)=>{
       await client.set(socket.id, data);
     })
 
-    socket.on('GetHistory', (data) => {
+    socket.on('GetHistory', async(data) => {
       console.log('event received', data);
       webSocketService.send(data);
+      await webSocketService.getMessages(io,socket);
     });
     
-    socket.on('SubscribeRealtime', (data) => {
+    socket.on('SubscribeRealtime', async (data) => {
       console.log('live event received', data);
       webSocketService.send(data);
+      await webSocketService.getMessages(io,socket);
     });
 
     socket.emit('check', false)
