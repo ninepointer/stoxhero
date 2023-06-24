@@ -24,7 +24,7 @@ exports.fundCheck = async(req, res, next) => {
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity} = req.body;
 
-    getKiteCred.getAccess().then(async (data)=>{
+        getKiteCred.getAccess().then(async (data)=>{
 
         const userId = req.user._id;
         let date = new Date();

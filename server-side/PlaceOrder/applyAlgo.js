@@ -24,11 +24,12 @@ const ApplyAlgo = async (req, res, next)=>{
     const {symbol, instrumentToken, Quantity, buyOrSell} = req.body;
 
     let userId = req.user._id;
+    
     let accessTokenDetails = await AccessToken.find({status: "Active"});
     let apiKeyDetails = await ApiKey.find({status: "Active"});
     let tradingAlgoData = await TradingAlgo.find({status: "Active"});
     let userPermission = await UserPermission.find({userId: userId}).populate('algoId', 'algoName')
-    let instrumentMapping = await InstrumentMapping.find({Status: "Active"});
+    // let instrumentMapping = await InstrumentMapping.find({Status: "Active"});
 
     // console.log("userPermission", userPermission)
 
