@@ -1,56 +1,17 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import ImageSrc from '../../../assets/images/optionchain.png'
-import MDButton from '../../../components/MDButton';
-import MDBox from '../../../components/MDBox';
-import {Grid} from '@mui/material';
+import { styled } from '@mui/system';
+import { Button } from '@mui/material';
+import { Paper } from '@mui/material';
+import { Carousel } from 'react-material-ui-carousel';
 
-const useStyles = makeStyles((theme) => ({
-  card: {
-    width: 'auto',
-    height: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing(2),
-    borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[2],
-  },
-  image: {
-    width: '58%',
-    height: '58%',
-    // borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  footerText: {
-    textAlign: 'center',
-  },
-}));
+export default function Item({item}) {
+  
+  return(
 
-const SquareBox = ( ) => {
-  const classes = useStyles();
-  const footerText = 'Option Chain'
+  <Paper>
+    <img src={item.imageUrl} alt={item.caption} />
+    <h2>{item.caption}</h2>
+  </Paper>
 
-  return (
-   <MDButton>
-        <MDBox style={{width: '100%', height: '100%'}}>
-          <Grid contianer>
-            <Grid item lg={12}>
-              <img src={ImageSrc} alt="Image" className={classes.image} />
-            </Grid>
-            <Grid item lg={12} style={{border:'1px solid grey'}}>
-              <Typography variant="body2" className={classes.footerText}>
-                {footerText}
-              </Typography>
-          </Grid>
-          </Grid>
-        </MDBox>
-    </MDButton>
-  );
+  )
 };
-
-export default SquareBox;

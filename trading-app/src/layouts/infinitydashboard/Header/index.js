@@ -179,6 +179,7 @@ export default function LabTabs({socket}) {
 
     axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlyesterday`)
     .then((res) => {
+        console.log(res.data.data)
         setLiveTradeYesterdayData(res.data.data);
         setLastLiveTradingDate(res.data.date);
         setTimeout(()=>{

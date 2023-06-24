@@ -58,49 +58,45 @@ function Index() {
         carouselEndDate:'',
         carouselImage:'',
         status:'',
-        objectType:'',
-        objectId:'',
+        clickable: '',
+        linkToCarousel: '',
     });
 
-    console.log("id is", location)
-
-    const handleChange = (event) => {
-        console.log(event)
-        const {
-          target: { value },
-        } = event;
-        setObjectName(value)
-        console.log("Value set as: ",value)
-        console.log(objects);
-        setFormState(prevState => ({
-          ...prevState,
-          objectId: value
-        }))
-      };
-    
-    const handleChangeObjectType = (name) => {
-    if(name === 'Referral'){
-        //set only active Referrals
-        setObjects([{_id: '1234345',name:'Referral 1'},{_id: '23421', name:'Referral 2'},{_id: '5456', name:'Referral 3'}])
-        // handleChange();
-
-    }
-    if(name === 'Contest'){
-        //set only active Contests
-        setObjects([{_id: '1234345',name:'Contest 1'},{_id: '23421', name:'Contest 2'},{_id: '5456', name:'Contest 3'}])
-    }
-    if(name === 'Campaign'){
-        //set only active Campaigns
-        setObjects([{_id: '1234345',name:'Campaign 1'},{_id: '23421', name:'Campaign 2'},{_id: '5456', name:'Campaign 3'}])
-    }
-    }
-
-    async function onSubmit(e,formState){
+    async function onSubmit(e,data){
         e.preventDefault();
-        console.log(formState);
+        console.log("Form Data: ",data)
+        try{
+          const formData = new FormData();
+          Object.keys(data).forEach((key) => {
+            console.log("data to be appended")
+            formData.append(key, data[key])
+            console.log("data appended",formData)
+            console.log("formState",formState)
+          });
+          
+            if(!formState.carouselName || !formState.description || 
+              !formState.carouselStartDate || !formState.carouselEndDate
+              || !formState.status || !formState.clickable
+              || !formState.carouselImage || !formState.linkToCarousel
+              ) return openErrorSB("Error","Please upload the required fields.")
+
+          const res = await fetch(`${baseUrl}api/v1/carousels`, {
+  
+            method: "POST",
+            credentials:"include",
+            headers: {
+                // "content-type" : "application/json",
+                "Access-Control-Allow-Credentials": true
+            },
+            body: formData 
+          });
+          let response = await res.json()
+          console.log("Response:",response)
+          }catch(e){
+            // console.log(e);
+          }
     }
   
-
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
     
@@ -111,8 +107,6 @@ function Index() {
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
-
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -169,188 +163,175 @@ function Index() {
         </MDBox>
 
         <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-        <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={9}>
-          <Grid item xs={12} md={6} xl={3}>
-            <TextField
-                disabled={((isSubmitted || id) && (!editing || saving))}
-                id="outlined-required"
-                label='Carousel Name *'
-                fullWidth
-                // defaultValue={portfolioData?.portfolioName}
-                value={formState?.carouselName}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    carouselName: e.target.value
-                  }))}}
-              />
-          </Grid>
+            <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={9}>
+                
+                <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      id="outlined-required"
+                      label='Carousel Name *'
+                      fullWidth
+                      // defaultValue={portfolioData?.portfolioName}
+                      value={formState?.carouselName}
+                      onChange={(e) => {setFormState(prevState => ({
+                          ...prevState,
+                          carouselName: e.target.value
+                        }))}}
+                    />
+                </Grid>
 
-          <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer components={['MobileDateTimePicker']}>
-                  <DemoItem>
-                    <MobileDateTimePicker 
-                      label="Carousel Start Date"
-                    //   disabled={((isSubmitted || id) && (!editing || saving))}
-                      defaultValue={dayjs(setFormState?.carouselStartDate)}
-                      onChange={(e) => {
+                <Grid item xs={12} md={6} xl={9}>
+                  <TextField
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      id="outlined-required"
+                      label='Link *'
+                      fullWidth
+                      // defaultValue={portfolioData?.portfolioName}
+                      value={formState?.linkToCarousel}
+                      onChange={(e) => {setFormState(prevState => ({
+                          ...prevState,
+                          linkToCarousel: e.target.value
+                        }))}}
+                    />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={['MobileDateTimePicker']}>
+                        <DemoItem>
+                          <MobileDateTimePicker 
+                            label="Carousel Start Date"
+                          //   disabled={((isSubmitted || id) && (!editing || saving))}
+                            defaultValue={dayjs(setFormState?.carouselStartDate)}
+                            onChange={(e) => {
+                              setFormState(prevState => ({
+                                ...prevState,
+                                carouselStartDate: dayjs(e)
+                              }))
+                            }}
+                            minDateTime={null}
+                            sx={{ width: '100%' }}
+                          />
+                        </DemoItem>
+                      </DemoContainer>
+                    </LocalizationProvider>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={['MobileDateTimePicker']}>
+                        <DemoItem>
+                          <MobileDateTimePicker 
+                            label="Contest End Date"
+                            disabled={((isSubmitted || id) && (!editing || saving))}
+                            defaultValue={dayjs(setFormState?.carouselEndDate)}
+                            onChange={(e) => {
+                                setFormState(prevState => ({
+                                ...prevState,
+                                carouselEndDate: dayjs(e)
+                                }))
+                            }}
+                            minDateTime={null}
+                            sx={{ width: '100%' }}
+                          />
+                        </DemoItem>
+                      </DemoContainer>
+                    </LocalizationProvider>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={1}>
+                    <FormControl sx={{width: "100%" }}>
+                      <InputLabel id="demo-simple-select-autowidth-label">Clicklable *</InputLabel>
+                      <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      value={formState?.clickable}
+                      // value={oldObjectId ? contestData?.status : formState?.status}
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      onChange={(e) => {setFormState(prevState => ({
+                          ...prevState,
+                          clickable: e.target.value
+                      }))}}
+                      label="Clickable"
+                      sx={{ minHeight:43 }}
+                      >
+                      <MenuItem value={true}>True</MenuItem>
+                      <MenuItem value={false}>False</MenuItem>
+                      </Select>
+                    </FormControl>
+                </Grid>
+                
+                <Grid item xs={12} md={6} xl={3} mt={1}>
+                    <FormControl sx={{width: "100%" }}>
+                      <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
+                      <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      value={formState?.status}
+                      // value={oldObjectId ? contestData?.status : formState?.status}
+                      // disabled={((isSubmitted || id) && (!editing || saving))}
+                      onChange={(e) => {setFormState(prevState => ({
+                          ...prevState,
+                          status: e.target.value
+                      }))}}
+                      label="Status"
+                      sx={{ minHeight:43 }}
+                      >
+                      <MenuItem value="Live">Live</MenuItem>
+                      <MenuItem value="Draft">Draft</MenuItem>
+                      <MenuItem value="Rejected">Rejected</MenuItem>
+                      </Select>
+                    </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={1}>
+                    <MDButton variant="outlined" style={{fontSize:10}} fullWidth color="success" component="label">
+                      {!formState?.carouselImage?.name ? "Upload Carousel Image" : "Upload Another File?"}
+                      <input 
+                      hidden 
+                      // disabled={!editablePD}
+                      accept="image/*" 
+                      type="file" 
+                      defaultValue={formState?.carouselImage}
+                      onChange={(e)=>{
                         setFormState(prevState => ({
                           ...prevState,
-                          carouselStartDate: dayjs(e)
-                        }))
-                      }}
-                      minDateTime={null}
-                      sx={{ width: '100%' }}
+                          carouselImage: e.target.files[0]
+                        })
+                        )}
+                      }
+                      />
+                    </MDButton>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={.75} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <TextField
+                          disabled
+                          id="outlined-required"
+                          // label='Selected Carousel Image'
+                          fullWidth
+                          // defaultValue={portfolioData?.portfolioName}
+                          value={formState?.carouselImage?.name ? formState?.carouselImage?.name : "No Image Uploaded"}
+                      />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={12} mt={2}>
+                  <TextField
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      id="outlined-required"
+                      label='Description *'
+                      fullWidth
+                      multiline
+                      // defaultValue={portfolioData?.portfolioName}
+                      value={formState?.description}
+                      onChange={(e) => {setFormState(prevState => ({
+                          ...prevState,
+                          description: e.target.value
+                        }))}}
                     />
-                  </DemoItem>
-                </DemoContainer>
-              </LocalizationProvider>
-          </Grid>
-
-          <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer components={['MobileDateTimePicker']}>
-                  <DemoItem>
-                    <MobileDateTimePicker 
-                      label="Contest End Date"
-                    //  disabled={((isSubmitted || id) && (!editing || saving))}
-                        defaultValue={dayjs(setFormState?.carouselEndDate)}
-                        onChange={(e) => {
-                            setFormState(prevState => ({
-                            ...prevState,
-                            carouselEndDate: dayjs(e)
-                            }))
-                        }}
-                      minDateTime={null}
-                      sx={{ width: '100%' }}
-                    />
-                  </DemoItem>
-                </DemoContainer>
-              </LocalizationProvider>
-          </Grid>
-
-          <Grid item xs={12} md={6} xl={3}>
-              <FormControl sx={{width: "100%" }}>
-                <InputLabel id="demo-simple-select-autowidth-label">Carousel Type *</InputLabel>
-                <Select
-                labelId="demo-simple-select-autowidth-label"
-                id="demo-simple-select-autowidth"
-                // value={oldObjectId ? contestData?.portfolioType : formState?.portfolioType}
-                value={formState?.objectType}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
-                onChange={(e) => {handleChangeObjectType(e.target.value);setFormState(prevState => ({
-                    ...prevState,
-                    objectType: e.target.value
-                }))
-                }}
-                label="Object Type"
-                sx={{ minHeight:43 }}
-                >
-                <MenuItem value="Campaign">Campaign</MenuItem>
-                <MenuItem value="Referral">Referral</MenuItem>
-                <MenuItem value="Contest">Contest</MenuItem>
-                </Select>
-              </FormControl>
-          </Grid>
-
-          
-          <Grid item xs={12} md={3} xl={3}>
-                <FormControl sx={{minWidth: "100%" }} >
-                  <InputLabel id="demo-multiple-name-label">Carousel Of</InputLabel>
-                  <Select
-                    labelId="demo-multiple-name-label"
-                    id="demo-multiple-name"
-                    disabled={((isSubmitted || id) && (!editing || saving))}
-                    // defaultValue={objects[0]?.name}
-                    onChange={handleChange}
-                    input={<OutlinedInput label="Carousel Of" />}
-                    sx={{minHeight:45}}
-                    MenuProps={MenuProps}
-                  >
-                    {objects?.map((e) => (
-                      <MenuItem
-                        key={e?.name}
-                        value={e?._id}
-                        // style={getStyles(rule, ruleName, theme)}
-                      >
-                        {e.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} md={6} xl={3}>
-              <FormControl sx={{width: "100%" }}>
-                <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
-                <Select
-                labelId="demo-simple-select-autowidth-label"
-                id="demo-simple-select-autowidth"
-                value={formState?.status}
-                // value={oldObjectId ? contestData?.status : formState?.status}
-                // disabled={((isSubmitted || id) && (!editing || saving))}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    status: e.target.value
-                }))}}
-                label="Status"
-                sx={{ minHeight:43 }}
-                >
-                <MenuItem value="Live">Live</MenuItem>
-                <MenuItem value="Draft">Draft</MenuItem>
-                <MenuItem value="Rejected">Rejected</MenuItem>
-                </Select>
-              </FormControl>
-          </Grid>
-
-          <Grid item xs={12} md={6} xl={3}>
-              <MDButton variant="outlined" style={{fontSize:10}} fullWidth color="success" component="label">
-                {!formState?.carouselImage?.name ? "Upload Carousel Image" : "Upload Another File?"}
-                <input 
-                hidden 
-                // disabled={!editablePD}
-                accept="image/*" 
-                type="file" 
-                defaultValue={formState?.carouselImage}
-                onChange={(e)=>{
-                  setFormState(prevState => ({
-                    ...prevState,
-                    carouselImage: e.target.files[0]
-                  })
-                  )}
-                }
-                />
-              </MDButton>
-          </Grid>
-
-          <Grid item xs={12} md={6} xl={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-            <TextField
-                    disabled
-                    id="outlined-required"
-                    // label='Selected Carousel Image'
-                    fullWidth
-                    // defaultValue={portfolioData?.portfolioName}
-                    value={formState?.carouselImage?.name ? formState?.carouselImage?.name : "No Image Uploaded"}
-                />
-          </Grid>
-
-          <Grid item xs={12} md={6} xl={12} mt={2}>
-            <TextField
-                disabled={((isSubmitted || id) && (!editing || saving))}
-                id="outlined-required"
-                label='Description *'
-                fullWidth
-                multiline
-                // defaultValue={portfolioData?.portfolioName}
-                value={formState?.description}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    description: e.target.value
-                  }))}}
-              />
-          </Grid>
-            
-        </Grid>
+                </Grid>
+                
+            </Grid>
 
         <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={3} xl={3}>
             <Grid item xs={12} md={6} lg={12}>

@@ -2,36 +2,32 @@ const Carousel = require('../models/carousel/carouselSchema');
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
-
-
-
-
-
-
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
-if (file.mimetype.startsWith("image/")) {
+console.log("File upload started");
+  if (file.mimetype.startsWith("image/")) {
     cb(null, true);
 } else {
     cb(new Error("Invalid file type"), false);
 }
 }
-// AWS.config.update({
-//     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-//     region: process.env.AWS_REGION
-//     // accessKeyId: "AKIASR77BQMICZATCLPV",
-//     // secretAccessKey: "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",
+AWS.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION
+    // accessKeyId: "AKIASR77BQMICZATCLPV",
+    // secretAccessKey: "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",
   
-//   });
+  });
   
 const upload = multer({ storage, fileFilter }).single("carouselImage");
+console.log("Upload:",upload)
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-// console.log(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY);
+console.log("Keys:",process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY);
 
 exports.uploadMulter = upload;
 
@@ -42,9 +38,10 @@ exports.resizePhoto = (req, res, next) => {
       next();
       return;
     }
-    sharp(req.file.buffer).resize({ width: 600}).toBuffer()
+    sharp(req.file.buffer).resize({width: 500, height: 500}).toBuffer()
     .then((resizedImageBuffer) => {
       req.file.buffer = resizedImageBuffer;
+      console.log("Resized:",resizedImageBuffer)
       next();
     })
     .catch((err) => {
@@ -81,8 +78,8 @@ exports.uploadToS3 = async(req, res, next) => {
     
     s3.upload((params)).promise()
       .then((s3Data) => {
-        // console.log('file uploaded');
-        // console.log(s3Data.Location);
+        console.log('file uploaded');
+        console.log(s3Data.Location);
         (req).uploadUrl = s3Data.Location;
         next();
       })
@@ -110,17 +107,18 @@ exports.uploadToS3 = async(req, res, next) => {
   
 
   exports.createCarousel =async (req, res, next) => {
-    const{carouselName, description, carouselStartDate, carouselEndDate, objectType, objectId, status,} = req.body;
+    console.log(req.body)
+    const{carouselName, description, clickable, linkToCarousel, carouselStartDate, carouselEndDate, status} = req.body;
     const carouselImage = (req).uploadUrl;
 
-    // console.log(req.body);
+    console.log(req.body);
     //Check for required fields 
     if(!(carouselName))return res.status(400).json({status: 'error', message: 'Enter all mandatory fields.'})
     try{
       //Check if user exists
       // if(await carousel.findOne({isDeleted: false, email})) return res.json({})('User with this email already exists. Please login with existing email.', 401));
-      const carousel = await Carousel.create({carouselName: carouselName.trim(), description, carouselStartDate, carouselEndDate, objectType, status,
-        objectId, createdBy: (req).user._id, carouselImage});
+      const carousel = await Carousel.create({carouselName: carouselName.trim(), description, clickable, linkToCarousel, carouselStartDate, carouselEndDate, status,
+         createdBy: (req).user._id, carouselImage});
   
       if(!carousel) return res.status(400).json({status: 'error', message: 'Couldn\'t create carousel'});
   

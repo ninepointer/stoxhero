@@ -807,76 +807,154 @@ exports.liveTotalTradersCount = async (req, res, next) => {
       res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
+// exports.overallTenXPnlYesterday = async (req, res, next) => {
+  
+//   let date;
+//   let i = 1;
+//   async function pnlDetails(i){
+//     console.log("i",i)
+//     let yesterdayDate = new Date();
+//     yesterdayDate.setDate(yesterdayDate.getDate() - i);
+//     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+//     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+//     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+//     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+//     const startTime = new Date(yesterdayStartTime); 
+//     date = startTime;
+//     const endTime = new Date(yesterdayEndTime); 
+//     console.log("STime & ETime:",startTime,endTime)
+   
+//     let pnlDetailsData = await TenXTrader.aggregate([
+//       {
+//         $match: {
+//           trade_time: {
+//             $gte: startTime, $lte: endTime
+//             // $gte: new Date("2023-06-23T00:00:00.000+00:00"), $lte: new Date("2023-06-23T23:59:59.000+00:00")
+//             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+//           },
+//           status: "COMPLETE",
+//         },
+//       },
+//         {
+//           $group: {
+//             _id: null,
+
+//             amount: {
+//               $sum: {$multiply : ["$amount",-1]},
+//             },
+//             turnover: {
+//               $sum: {
+//                 $toInt: {$abs : "$amount"},
+//               },
+//             },
+//             brokerage: {
+//               $sum: {
+//                 $toDouble: "$brokerage",
+//               },
+//             },
+//             lots: {
+//               $sum: {
+//                 $toInt: "$Quantity",
+//               },
+//             },
+//             totallots: {
+//               $sum: {
+//                 $toInt: {$abs : "$Quantity"},
+//               },
+//             },
+//             trades: {
+//               $count:{}
+//             },
+//           },
+//         },
+//         {
+//           $sort: {
+//             _id: -1,
+//           },
+//         },
+//       ])
+//       console.log("Length:",pnlDetailsData.length,pnlDetailsData)
+//       if(!pnlDetailsData || pnlDetailsData.length === 0){
+//         console.log("Inside length check")
+//         await pnlDetails(i+1);
+//       }
+//       else{
+//         console.log("inside else statement:",pnlDetailsData)
+//         return pnlDetailsData;
+        
+//       }    
+//     }
+    
+//     let pnlData = await pnlDetails(i)
+//     console.log("PNL Data:",i,pnlData)
+//     res.status(201).json({ message: "pnl received", data: pnlData, results:(pnlData ? pnlData.length : 0), date:date });
+// }
+
 exports.overallTenXPnlYesterday = async (req, res, next) => {
-  let yesterdayDate = new Date();
   let date;
   let i = 1;
-  async function pnlDetails(i){
-    yesterdayDate.setDate(yesterdayDate.getDate() - i);
-    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-    const startTime = new Date(yesterdayStartTime); 
-    const endTime = new Date(yesterdayEndTime); 
+  let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+  let pnlDetailsData;
+
+  while (!pnlDetailsData && i <= maxDaysBack) {
+    let day = new Date();
+    day.setDate(day.getDate() - i);
+    let startTime = new Date(day.setHours(0, 0, 0, 0));
+    let endTime = new Date(day.setHours(23, 59, 59, 999));
     date = startTime;
-    let pnlDetailsData = await TenXTrader.aggregate([
+    
+    pnlDetailsData = await TenXTrader.aggregate([
       {
         $match: {
           trade_time: {
-            $gte: startTime, $lte: endTime
-            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+            $gte: startTime,
+            $lte: endTime
           },
           status: "COMPLETE",
         },
       },
-        {
-          $group: {
-            _id: null,
+      {
+        $group: {
+          _id: null,
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          turnover: {
+            $sum: { $toInt: { $abs: "$amount" } },
+          },
+          brokerage: {
+            $sum: { $toDouble: "$brokerage" },
+          },
+          lots: {
+            $sum: { $toInt: "$Quantity" },
+          },
+          totallots: {
+            $sum: { $toInt: { $abs: "$Quantity" } },
+          },
+          trades: {
+            $count: {}
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ]);
 
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            turnover: {
-              $sum: {
-                $toInt: {$abs : "$amount"},
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
-              },
-            },
-            totallots: {
-              $sum: {
-                $toInt: {$abs : "$Quantity"},
-              },
-            },
-            trades: {
-              $count:{}
-            },
-          },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-      ])
-    if(pnlDetailsData?.length === 0){
-      pnlDetails(i+1);
+    if (!pnlDetailsData || pnlDetailsData.length === 0) {
+      pnlDetailsData = null;  // reset the value to ensure the while loop continues
+      i++;  // increment the day counter
     }
-    else{
-      return pnlDetailsData
-    }
-    }
-    const pnlDetailsData = await pnlDetails(i)
-    res.status(201).json({ message: "pnl received", data: pnlDetailsData, results: pnlDetailsData.length, date:date });
+  }
+
+  res.status(201).json({
+    message: "pnl received", 
+    data: pnlDetailsData, 
+    results: pnlDetailsData ? pnlDetailsData.length : 0, 
+    date: date
+  });
 }
 
 exports.liveTotalTradersCountYesterday = async (req, res, next) => {

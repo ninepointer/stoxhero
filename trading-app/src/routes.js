@@ -46,9 +46,9 @@ import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDe
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
-// import Carousel from './layouts/carousel'
+import Carousel from './layouts/carousel'
 // import Home from './layouts/UserHome'
-// import HomeIcon from '@mui/icons-material/OtherHouses';
+import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import UserSignupDashboard from './layouts/userSignupDashboard'
@@ -545,14 +545,14 @@ const routes = [
   //   route: "/contests",
   //   component: <Contests />,
   // },
-  // {
-  //   type: "collapse",
-  //   name: "Carousel",
-  //   key: "carousel",
-  //   icon: <HomeIcon/>,
-  //   route: "/carousel",
-  //   component: <Carousel />,
-  // },
+  {
+    type: "collapse",
+    name: "Carousel",
+    key: "carousel",
+    icon: <HomeIcon/>,
+    route: "/carousel",
+    component: <Carousel />,
+  },
   {
     // type: "collapse",
     // name: "Careers",
