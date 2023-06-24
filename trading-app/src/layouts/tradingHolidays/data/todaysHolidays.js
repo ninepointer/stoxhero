@@ -12,30 +12,8 @@ import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 
 
-const TodaysHoliday = ({setTodaysHolidayCount}) => {
-// const [todaysHolidayCount, setTodaysHolidayCount] = useState(0);
-const [todaysHolidays,setTodaysHolidays] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+const TodaysHoliday = ({todaysHolidays}) => {
 
-  useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/tradingholiday/today`,{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    Promise.all([call1])
-    .then(([api1Response]) => {
-      // Process the responses here
-      setTodaysHolidays(api1Response.data.data)
-      setTodaysHolidayCount(api1Response.data.results)
-    })
-    .catch((error) => {
-      // Handle errors here
-    });
-  },[])
     return (
       <>
       {todaysHolidays.length > 0 ?

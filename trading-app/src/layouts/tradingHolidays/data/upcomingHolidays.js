@@ -12,31 +12,8 @@ import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 
 
-const ActiveTutorialCategory = ({type}) => {
-const [holidayCount, setHolidayCount] = useState(0);
-const [upcomingHolidays,setUpcomingHolidays] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+const ActiveTutorialCategory = ({upcomingHolidays}) => {
 
-  useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/tradingholiday/upcoming`,{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    Promise.all([call1])
-    .then(([api1Response]) => {
-      // Process the responses here
-      console.log(api1Response.data.data);
-      setUpcomingHolidays(api1Response.data.data)
-    })
-    .catch((error) => {
-      // Handle errors here
-      console.error(error);
-    });
-  },[])
     return (
       <>
       {upcomingHolidays.length > 0 ?

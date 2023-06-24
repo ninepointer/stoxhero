@@ -12,31 +12,8 @@ import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 
 
-const ActiveTutorialCategory = ({type}) => {
-const [holidayCount, setHolidayCount] = useState(0);
-const [pastHolidays,setPastHolidays] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+const PastHoliday = ({pastHolidays}) => {
 
-  useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/tradingholiday/past`,{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
-    Promise.all([call1])
-    .then(([api1Response]) => {
-      // Process the responses here
-      console.log(api1Response.data.data);
-      setPastHolidays(api1Response.data.data)
-    })
-    .catch((error) => {
-      // Handle errors here
-      console.error(error);
-    });
-  },[])
     return (
       <>
       {pastHolidays.length > 0 ?
@@ -131,4 +108,4 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
 
 
-export default ActiveTutorialCategory;
+export default PastHoliday;
