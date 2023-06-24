@@ -1,4 +1,7 @@
 import React, {useState, useContext, useEffect} from "react"
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
 import ReactGA from "react-ga"
 
 // react-router-dom components
@@ -23,6 +26,7 @@ import bgImage from "../../../assets/images/trading.jpg";
 import bgImage1 from "../../../assets/images/bgBanner1.jpg";
 import bgImage2 from "../../../assets/images/bgBanner2.jpg";
 import backgroundImage from "../../../layouts/HomePage/assets/images/section1/backgroud.jpg";
+import { InputAdornment } from "@mui/material";
 
 
 
@@ -34,6 +38,8 @@ function Cover(props) {
   const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
   const [submitClicked, setSubmitClicked] = useState(false);
   const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const [formstate, setformstate] = useState({
     first_name:"", 
@@ -165,34 +171,36 @@ function Cover(props) {
 
   async function otpConfirmation() {
     // console.log(formstate.email_otp)
+    validatePassword();
     const res = await fetch(`${baseUrl}api/v1/verifyotp`, {
-      
+
       method: "PATCH",
       // credentials:"include",
       headers: {
-          "content-type" : "application/json",
-          "Access-Control-Allow-Credentials": false
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": false
       },
       body: JSON.stringify({
-        first_name:formstate.first_name,
-        last_name:formstate.last_name,
-        mobile:formstate.mobile,
-        email:formstate.email, 
+        first_name: formstate.first_name,
+        last_name: formstate.last_name,
+        mobile: formstate.mobile,
+        email: formstate.email,
         // email_otp:formstate.email_otp,
         mobile_otp: formstate.mobile_otp,
-        referrerCode:formstate.referrerCode,
+        referrerCode: formstate.referrerCode,
+        password: formstate.password
       })
-  });
+    });
 
 
-  const data = await res.json();
-  // console.log(data.status);
-  if(data.status === "Success"){ 
-    setShowConfirmation(false)
-    return openSuccessSB("Account Created",data.message);
-  }else{
-      return openInfoSB("Error",data.message);
-  }
+    const data = await res.json();
+    // console.log(data.status);
+    if (data.status === "Success") {
+      setShowConfirmation(false)
+      return openSuccessSB("Account Created", data.message);
+    } else {
+      return openInfoSB("Error", data.message);
+    }
 
   }
 
@@ -229,19 +237,32 @@ function Cover(props) {
 
   const [title,setTitle] = useState('')
   const [content,setContent] = useState('')
-  const [time,setTime] = useState('')
+  const [color,setColor] = useState('')
+  const [icon,setIcon] = useState('')
+  
  
   const [successSB, setSuccessSB] = useState(false);
-  const openSuccessSB = (value,content) => {
+  const openSuccessSB = (value, content) => {
     // console.log("Value: ",value)
-    if(value === "OTP Sent"){
-        setTitle("OTP Sent");
-        setContent(content);
+    if (value === "OTP Sent") {
+      setTitle("OTP Sent");
+      setContent(content);
+      setColor("success");
+      setIcon("check")
     };
-    if(value === "Account Created"){
+    if (value === "Account Created") {
       setTitle("Account Created");
       setContent(content);
-  };
+      setColor("success");
+      setIcon("check")
+    };
+
+    if (value === "Error") {
+      setTitle("Error");
+      setContent(content);
+      setColor("error");
+      setIcon("warning")
+    };
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
@@ -250,8 +271,8 @@ function Cover(props) {
 
   const renderSuccessSB = (
     <MDSnackbar
-      color="success"
-      icon="check"
+      color={color}
+      icon={icon}
       title={title}
       content={content}
       open={successSB}
@@ -281,6 +302,22 @@ function Cover(props) {
     />
   );
 
+  const validatePassword = async ()=>{
+    const {password, confirmPassword} = formstate;
+    if(password.toString().length < 6){
+      openSuccessSB("Error", "Password must be atleast six characters long.");
+      return;
+    }
+    if(password !== confirmPassword){
+      openSuccessSB("Error", "Password and Confirm password is not matching");
+      return;
+    }
+  }
+
+  function handleTogglePasswordVisibility() {
+    setShowPassword(!showPassword);
+  }
+
 
   return (
 
@@ -306,85 +343,85 @@ function Cover(props) {
         </MDBox>
         
         <MDBox pt={4} pb={3} px={3}>
-        
+
           <MDBox component="form" role="form">
-          { showConfirmation && (
-          <>
-          <Grid container spacing={2} mt={0.5} mb={2}>
-                
-                <Grid item xs={12} md={12} xl={12}>
+            {showConfirmation && (
+              <>
+                <Grid container spacing={2} mt={0.5} mb={2}>
+
+                  <Grid item xs={12} md={12} xl={12}>
                     <TextField
-                        required
-                        disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="First Name"
-                        fullWidth
-                        onChange={(e)=>{formstate.first_name = e.target.value}}
-                      />
+                      required
+                      disabled={showEmailOTP}
+                      id="outlined-required"
+                      label="First Name"
+                      fullWidth
+                      onChange={(e) => { formstate.first_name = e.target.value }}
+                    />
                   </Grid>
 
                   <Grid item xs={12} md={12} xl={12}>
                     <TextField
-                        required
-                        disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="Last Name"
-                        fullWidth
-                        onChange={(e)=>{formstate.last_name = e.target.value}}
-                      />
+                      required
+                      disabled={showEmailOTP}
+                      id="outlined-required"
+                      label="Last Name"
+                      fullWidth
+                      onChange={(e) => { formstate.last_name = e.target.value }}
+                    />
                   </Grid>
 
                   <Grid item xs={12} md={12} xl={12}>
                     <TextField
-                        required
-                        disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="Email"
-                        type="email"
-                        fullWidth
-                        onChange={(e)=>{formstate.email = e.target.value}}
-                      />
+                      required
+                      disabled={showEmailOTP}
+                      id="outlined-required"
+                      label="Email"
+                      type="email"
+                      fullWidth
+                      onChange={(e) => { formstate.email = e.target.value }}
+                    />
                   </Grid>
 
                   <Grid item xs={12} md={12} xl={12}>
                     <TextField
-                        required
-                        disabled={showEmailOTP}
-                        id="outlined-required"
-                        label="Mobile No."
-                        fullWidth
-                        onChange={(e)=>{formstate.mobile = e.target.value}}
-                      />
+                      required
+                      disabled={showEmailOTP}
+                      id="outlined-required"
+                      label="Mobile No."
+                      fullWidth
+                      onChange={(e) => { formstate.mobile = e.target.value }}
+                    />
                   </Grid>
 
-            </Grid>
-            </>
-            )}            
+                </Grid>
+              </>
+            )}
 
             {!showEmailOTP && (
-            <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="dark" fullWidth onClick={formSubmit} >
-                Submit
-              </MDButton>
-            </MDBox>)}
+              <MDBox mt={4} mb={1}>
+                <MDButton variant="gradient" color="dark" fullWidth onClick={formSubmit} >
+                  Submit
+                </MDButton>
+              </MDBox>)}
 
-            
+
             {showEmailOTP && showConfirmation && (
-            <>
-            <MDBox mt={2}>
-              <MDTypography fontSize={15}>Enter the referral code (if you have)</MDTypography>
-            </MDBox>
-            <MDBox display="flex" justifyContent="space-between">
-            
-            <Grid container spacing={2} mt={0.25}>
-                
-                  <Grid item xs={12} md={12} xl={12}>
-                    <TextField
+              <>
+                <MDBox mt={2}>
+                  <MDTypography fontSize={15}>Enter the referral code (if you have)</MDTypography>
+                </MDBox>
+                <MDBox display="flex" justifyContent="space-between">
+
+                  <Grid container spacing={2} mt={0.25}>
+
+                    <Grid item xs={12} md={12} xl={12}>
+                      <TextField
                         // required
                         disabled={formstate.referrerCode}
                         type="text"
                         id="outlined-required"
-                        label={formstate.referrerCode?'':"Referrer Code"}
+                        label={formstate.referrerCode ? '' : "Referrer Code"}
                         fullWidth
                         value={formstate.referrerCode}
                         // onChange={(e)=>{console.log(e.target.value) ;formstate.referrerCode = e.target.value}}
@@ -396,9 +433,9 @@ function Cover(props) {
                           }));
                         }}
                       />
-                  </Grid>
-                
-                {/* <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
+                    </Grid>
+
+                    {/* <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
                   <MDBox display='block'>
                   <MDTypography fontSize={14} mb={1}>Email OTP</MDTypography>
                   <OtpInput
@@ -418,48 +455,61 @@ function Cover(props) {
                     {timerActive ? `Resend Email OTP in ${resendTimer} seconds` : 'Resend Email OTP'}
                     </MDButton>
                   </Grid> */}
-                  <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
-                  <MDBox mt={-2}>
+                    <Grid item xs={12} md={12} xl={12} width="100%" display="flex" justifyContent="center">
+                      <MDBox mt={-2}>
 
-                  <MDTypography fontSize={14} mb={1}>Mobile OTP</MDTypography>
-                  {/* <OtpInput
-                    value={formstate.mobile_otp}
-                    onChange={(e)=>{setformstate(prevState => ({...prevState, mobile_otp: e}))}}
-                    // onChange={(e)=>{console.log(e)}}
-                    numInputs={6}
-                    renderSeparator={<span>-</span>}
-                    renderInput={(props) => <input {...props} />}
-                    inputStyle={{width:40, height:40}}
-                  /> */}
-                  <TextField
-                    value={formstate.mobile_otp}
-                    onChange={(e)=>{setformstate(prevState => ({...prevState, mobile_otp: e.target.value}))}}                    // onChange={(e)=>{console.log(e)}}
-                    // numInputs={6}
-                    // renderSeparator={<span>-</span>}
-                    // renderInput={(props) => <input {...props} />}
-                    // inputStyle={{width:40, height:50}}
-                  />
-                  </MDBox>
+                        <MDTypography fontSize={14} mt={1}>Mobile OTP</MDTypography>
+
+                        <TextField
+                        sx={{width: "100%"}}
+                          value={formstate.mobile_otp}
+                          onChange={(e) => { setformstate(prevState => ({ ...prevState, mobile_otp: e.target.value })) }}
+                        />
+
+                        <MDTypography fontSize={14} mt={1}>Enter Password</MDTypography>
+                        <TextField
+                          type={showPassword ? "text" : "password"} 
+                          value={formstate.password}
+                          onChange={(e) => { setformstate(prevState => ({ ...prevState, password: e.target.value })) }}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end" sx={{cursor:"pointer"}}>
+                                <div onClick={handleTogglePasswordVisibility} >
+                                  {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                                </div>
+                              </InputAdornment>
+                            )
+                          }}
+                          sx={{width: "100%"}}
+                        />
+
+                        <MDTypography fontSize={14} mt={1}>Enter Confirm Password</MDTypography>
+                        <TextField
+                        sx={{width: "100%"}}
+                          value={formstate.confirmPassword}
+                          onChange={(e) => {setformstate(prevState => ({ ...prevState, confirmPassword: e.target.value })) }}
+                        />
+                      </MDBox>
+                    </Grid>
+                    <Grid item xs={12} md={6} xl={12} mt={-1} display="flex" justifyContent="flex-start">
+                      <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, width: '40%', display: 'flex', justifyContent: 'center', margin: 'auto' }} disabled={timerActive} variant="text" color="dark" fullWidth onClick={() => { resendOTP('mobile') }}>
+                        {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
+                      </MDButton>
+                    </Grid>
+
+
                   </Grid>
-                  <Grid item xs={12} md={6} xl={12} mt={-1} display="flex" justifyContent="flex-start">
-                  <MDButton style={{padding:'0rem', margin:'0rem', minHeight:20, width: '40%', display: 'flex', justifyContent: 'center', margin: 'auto'}} disabled={timerActive} variant="text" color="dark" fullWidth onClick={()=>{resendOTP('mobile')}}>
-                    {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
-                    </MDButton>
-                  </Grid>
 
+                </MDBox>
 
-            </Grid>
-
-            </MDBox>
-
-            <MDBox mt={2.5} mb={1} display="flex" justifyContent="space-around">
-              <MDButton variant="gradient" color="dark" fullWidth onClick={otpConfirmation}>
-                Confirm
-              </MDButton>
-            </MDBox>
-            </>
+                <MDBox mt={2.5} mb={1} display="flex" justifyContent="space-around">
+                  <MDButton variant="gradient" color="dark" fullWidth onClick={otpConfirmation}>
+                    Confirm
+                  </MDButton>
+                </MDBox>
+              </>
             )}
-            
+
             {showConfirmation && <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
                 Already have an account?{" "}
