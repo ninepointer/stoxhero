@@ -4135,16 +4135,19 @@ exports.getAllTradersMockOrdersForToday = async (req, res)=>{
 
 exports.overallInfinityMockCompanyPnlYesterday = async (req, res, next) => {
   let yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // //console.log(yesterdayDate)
+  let date;
+  let i = 1;
+  async function pnlDetails(i){
+    yesterdayDate.setDate(yesterdayDate.getDate() - i);
     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(yesterdayStartTime); 
+    date = startTime;
     const endTime = new Date(yesterdayEndTime); 
     // //console.log("Query Timing: ", startTime, endTime)
-    let pnlDetails = await InfinityTraderCompany.aggregate([
+    let pnlDetailsData = await InfinityTraderCompany.aggregate([
       {
         $match: {
           trade_time: {
@@ -4191,7 +4194,16 @@ exports.overallInfinityMockCompanyPnlYesterday = async (req, res, next) => {
           },
         },
       ])
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+    if(pnlDetailsData?.length === 0){
+      pnlDetails(i+1);
+    }
+    else{
+      return pnlDetailsData
+    }
+    }
+    const pnlDetailsData = await pnlDetails(i)
+    console.log(pnlDetailsData, date)
+    res.status(201).json({ message: "pnl received", data: pnlDetailsData, results: pnlDetailsData.length, date:date });
 }
 
 exports.overallInfinityMockCompanyPnlMTD = async (req, res, next) => {

@@ -16,6 +16,7 @@ export default function LabTabs({socket}) {
 //   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
+  const [lastTenXTradingDate, setLastTenXTradingDate] = useState("");
   const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
@@ -104,10 +105,7 @@ export default function LabTabs({socket}) {
     .then((res) => {
         console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
-        // setTimeout(()=>{
-        //     setIsLoading(false)
-        // },500)
-        
+        setLastTenXTradingDate(res.data.date);        
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -130,16 +128,14 @@ export default function LabTabs({socket}) {
     
   }, [trackEvent])
 
-//   console.log("Loading: ",isLoading)
+
   useEffect(() => {
     return () => {
         socket.close();
     }
   }, [])
 
-  console.log(tradeDataYesterday)
   tradeData.map((subelem, index)=>{
-    // let obj = {};
     totalRunningLots += Number(subelem?.lots)
     totalTransactionCost += Number(subelem?.brokerage);
     totalTurnover += Number(Math.abs(subelem?.turnover));
@@ -151,12 +147,6 @@ export default function LabTabs({socket}) {
     })
     let updatedValue = (subelem?.amount+(subelem?.lots)*liveDetail[0]?.last_price);
     totalGrossPnl += updatedValue;
-
-    // const instrumentcolor = subelem?._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    // const quantitycolor = subelem.lots >= 0 ? "success" : "error"
-    // const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-    // const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    // const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
   })
 
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
@@ -229,7 +219,7 @@ export default function LabTabs({socket}) {
                     </Grid>
 
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's TenX Position</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last TenX Trading Day - {new Date(lastTenXTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
