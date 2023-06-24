@@ -12,13 +12,13 @@ import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 
 
-const ActiveTutorialCategory = ({type}) => {
-const [holidayCount, setHolidayCount] = useState(0);
-const [upcomingHolidays,setUpcomingHolidays] = useState([]);
+const TodaysHoliday = ({setTodaysHolidayCount}) => {
+// const [todaysHolidayCount, setTodaysHolidayCount] = useState(0);
+const [todaysHolidays,setTodaysHolidays] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/tradingholiday/upcoming`,{
+    let call1 = axios.get(`${baseUrl}api/v1/tradingholiday/today`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -29,17 +29,16 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
     Promise.all([call1])
     .then(([api1Response]) => {
       // Process the responses here
-      console.log(api1Response.data.data);
-      setUpcomingHolidays(api1Response.data.data)
+      setTodaysHolidays(api1Response.data.data)
+      setTodaysHolidayCount(api1Response.data.results)
     })
     .catch((error) => {
       // Handle errors here
-      console.error(error);
     });
   },[])
     return (
       <>
-      {upcomingHolidays.length > 0 ?
+      {todaysHolidays.length > 0 ?
         
           <MDBox>
             <Grid container spacing={1} bgColor="dark">
@@ -74,7 +73,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
             </MDButton>
             </MDBox>
             </Grid>
-              {upcomingHolidays?.map((e,index)=>{
+              {todaysHolidays?.map((e,index)=>{
 
                     return (
                       
@@ -87,8 +86,8 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         component = {Link}
                         style={{minWidth:'100%'}}
                         to={{
-                          pathname: `/holidaydetails/${e?.holidayName}`,
-                        }}
+                            pathname: `/holidaydetails/${e?.holidayName}`,
+                          }}
                         state={{data: e}}
                       >
                           <Grid container spacing={1}>
@@ -121,7 +120,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Upcoming Holiday(s)</MDTypography>
+            <MDTypography color="light">No Holiday for Today</MDTypography>
           </Grid>
          </Grid>
          } 
@@ -131,4 +130,4 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
 
 
-export default ActiveTutorialCategory;
+export default TodaysHoliday;

@@ -369,7 +369,7 @@ const routes = [
     // name: "Arena",
     // key: "arena",CreatePaymentHeader
     // icon: <BusinessIcon/>,
-    route: "holidaydetails",
+    route: "holidaydetails/:name",
     component: <TradingHolidayForm />,
   },
   {
