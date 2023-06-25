@@ -22,8 +22,6 @@ router.post("/placingOrder", isInfinityLive, authentication, ApplyAlgo, authoize
             // console.log("in xts if")
             await liveTrade(req, res);
         } else{
-
-            
             await LiveTradeFunc.liveTrade(req.body, res);
         }
         //  TODO toggle

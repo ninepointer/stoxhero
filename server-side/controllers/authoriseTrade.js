@@ -17,14 +17,17 @@ const ObjectId = require('mongodb').ObjectId;
 const InternshipTrade = require("../models/mock-trade/internshipTrade");
 const InternBatch = require("../models/Careers/internBatch");
 const { v4: uuidv4 } = require('uuid');
+const { client, getValue } = require('../marketData/redisClient');
+
 
 
 exports.fundCheck = async(req, res, next) => {
+    let isRedisConnected = getValue();
 
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity} = req.body;
 
-    getKiteCred.getAccess().then(async (data)=>{
+        getKiteCred.getAccess().then(async (data)=>{
 
         const userId = req.user._id;
         let date = new Date();
@@ -53,37 +56,54 @@ exports.fundCheck = async(req, res, next) => {
         try{
             const user = await UserDetail.findOne({_id: new ObjectId(req.user._id)});
             userFunds = user.fund;
-            // 100000000;
-            // 
 
         }catch(e){
             console.log("errro fetching user", e);
         }
 
-        let runningLots;
+        let runningLots = [];
+        let todayPnlData = [];
         try{
-            runningLots = await InfinityTrader.aggregate([
-                {
-                $match:
-                    {
-                        trade_time:{
-                            $gte: today
-                        },
-                        status: "COMPLETE",
-                        trader: new ObjectId(userId),
-                        symbol: symbol
+            // runningLots = await InfinityTrader.aggregate([
+            //     {
+            //     $match:
+            //         {
+            //             trade_time:{
+            //                 $gte: today
+            //             },
+            //             status: "COMPLETE",
+            //             trader: new ObjectId(userId),
+            //             symbol: symbol
+            //         }
+            //     },
+            //     {
+            //     $group:
+            //         {
+            //         _id: {symbol: "$symbol"},
+            //         runningLots: {
+            //             $sum: {$toInt: "$Quantity"}
+            //         }
+            //         }
+            //     },
+            // ])
+
+            if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
+                todayPnlData = await client.get(`${req.user._id.toString()} overallpnl`)
+                todayPnlData = JSON.parse(todayPnlData);
+                
+                for(let i = 0; i < todayPnlData?.length; i++){
+                    if(todayPnlData[i]?._id?.symbol === symbol){
+                        // runningLots = todayPnlData[i]?.lots;
+                        runningLots.push({
+                            _id: {
+                                symbol: symbol
+                            },
+                            runningLots: todayPnlData[i]?.lots
+                        })
                     }
-                },
-                {
-                $group:
-                    {
-                    _id: {symbol: "$symbol"},
-                    runningLots: {
-                        $sum: {$toInt: "$Quantity"}
-                    }
-                    }
-                },
-            ])
+                    // console.log("runningLots", runningLots)
+                }
+            }
         } catch(e){
             console.log("errro fetching pnl 1", e);
         }
@@ -114,56 +134,64 @@ exports.fundCheck = async(req, res, next) => {
         }catch(e){
             // console.log("error fetching zerodha margin", e);
         } 
-        let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-        let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
-        let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
-        lastDayOfMonthDate = new Date(lastDayOfMonthDate);
-        firstDayOfMonthDate = new Date(firstDayOfMonthDate);
+        // let firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        // let lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        // let firstDayOfMonthDate = `${(firstDayOfMonth.getFullYear())}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+        // let lastDayOfMonthDate = `${(lastDayOfMonth.getFullYear())}-${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}T00:00:00.000Z`
+        // lastDayOfMonthDate = new Date(lastDayOfMonthDate);
+        // firstDayOfMonthDate = new Date(firstDayOfMonthDate);
 
-        // console.log(firstDayOfMonthDate, lastDayOfMonthDate)
-        let pnlDetails = await InfinityTrader.aggregate([
-            {
-            $match:
-                {
-                    // trade_time: {
-                    //     $gte: (firstDayOfMonthDate),
-                    //     $lte: (lastDayOfMonthDate)
-                    //     },
-                    trader: new ObjectId(userId),
-                    status: "COMPLETE",
-                },
-            },
-            {
-            $group:
-                {
-                _id: {
-                    trader: "$trader",
-                    // trader: "$createdBy",
-                },
-                gpnl: {
-                    $sum: {
-                    $multiply: ["$amount", -1],
-                    },
-                },
-                brokerage: {
-                    $sum: {
-                    $toDouble: "$brokerage",
-                    },
-                },
-                },
-            },
-            {
-            $addFields:
-                {
-                npnl: {
-                    $subtract: ["$gpnl", "$brokerage"],
-                },
-                },
-            },
-        ])
+        let pnlDetails = [];
+        //  = await InfinityTrader.aggregate([
+        //     {
+        //         $match:
+        //         {
+        //             // trade_time: {
+        //             //     $gte: (firstDayOfMonthDate),
+        //             //     $lte: (lastDayOfMonthDate)
+        //             //     },
+        //             trader: new ObjectId(userId),
+        //             status: "COMPLETE",
+        //         },
+        //     },
+        //     {
+        //         $group:
+        //         {
+        //             _id: {
+        //                 trader: "$trader",
+        //                 // trader: "$createdBy",
+        //             },
+        //             gpnl: {
+        //                 $sum: {
+        //                     $multiply: ["$amount", -1],
+        //                 },
+        //             },
+        //             brokerage: {
+        //                 $sum: {
+        //                     $toDouble: "$brokerage",
+        //                 },
+        //             },
+        //         },
+        //     },
+        //     {
+        //         $addFields:
+        //         {
+        //             npnl: {
+        //                 $subtract: ["$gpnl", "$brokerage"],
+        //             },
+        //         },
+        //     },
+        // ])
+        let totalAmount = 0;
+        for (const element of todayPnlData) {
+            totalAmount += (element.amount-element.brokerage);
+        }
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMargin`)) {
+            let marginDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMargin`)
+            marginDetail = JSON.parse(marginDetail);
+            pnlDetails.push({npnl: (marginDetail?.openingBalance + totalAmount)})
+        }
 
-        // console.log("pnlDetails", pnlDetails)
         let userNetPnl = pnlDetails[0]?.npnl;
         console.log( userFunds , userNetPnl , zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
@@ -857,16 +885,15 @@ exports.contestFundCheck = async(req, res, next) => {
 }
 
 exports.fundCheckInternship = async(req, res, next) => {
+    let isRedisConnected = getValue();
 
-    // console.log("in fundCheckTenxTrader")
     const {exchange, symbol, buyOrSell, variety,
            Product, OrderType, Quantity, subscriptionId} = req.body;
-    console.log("Batch: ",subscriptionId)
 
     getKiteCred.getAccess().then(async (data)=>{
 
         let userFunds;
-        let runningLots;
+        let runningLots = [];
         let date = new Date();
         let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
         todayDate = todayDate + "T00:00:00.000Z";
@@ -914,6 +941,24 @@ exports.fundCheckInternship = async(req, res, next) => {
                     }
                 },
             ])
+
+            // if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
+            //     let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
+            //     pnl = JSON.parse(pnl);
+                
+            //     for(let i = 0; i < pnl?.length; i++){
+            //         if(pnl[i]?._id?.symbol === symbol){
+            //             // runningLots = pnl[i]?.lots;
+            //             runningLots.push({
+            //                 _id: {
+            //                     symbol: symbol
+            //                 },
+            //                 runningLots: pnl[i]?.lots
+            //             })
+            //         }
+            //         // console.log("runningLots", runningLots)
+            //     }
+            // }
         } catch(e){
             console.log("errro fetching pnl 5", e);
         }
