@@ -1,5 +1,6 @@
-const UserRoles = require('../models/user/everyoneRoleSchema');
+const UserRole = require("../models/User/everyoneRoleSchema");
 const Carousel = require('../models/carousel/carouselSchema');
+
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
@@ -162,11 +163,32 @@ exports.getLiveCarousels = async(req, res, next)=>{
 };
 
 exports.getHomePageCarousels = async(req, res, next)=>{
-  // const userRole = req.user.role
-  const count = await Carousel.countDocuments({carouselEndDate: {$gte : new Date()}, status: 'Live'})
+  const userRoleId = req.user.role
+  const userRoleName = await UserRole.findById(userRoleId);
+  const roleFilter = userRoleName?.roleName === "User" ? "StoxHero" : userRoleName.roleName === 'Infinity Trader' ? "Infinity" : "All"
+  const count = await Carousel.countDocuments({carouselEndDate: {$gte : new Date()}, status: 'Live', visibility: roleFilter})
+  let liveCarousels = [];
   try{
-      const liveCarousels = await Carousel.find({carouselEndDate: {$gte : new Date()}, status: 'Live'})
+    if(userRoleName.roleName === "Admin"){
+      liveCarousels = await Carousel.find(
+        {
+          carouselEndDate: {$gte : new Date()}, 
+          status: 'Live'
+        })
       .sort({carouselPosition:1})
+    }
+    else{
+      liveCarousels = await Carousel.find(
+        {
+          carouselEndDate: {$gte : new Date()}, 
+          status: 'Live',
+          $or: [
+            { visibility: roleFilter },
+            { visibility: 'All' }
+          ]
+        })
+      .sort({carouselPosition:1})
+    }
       res.status(201).json({status: 'success', data: liveCarousels, count: count});    
   }catch(e){
       console.log(e);

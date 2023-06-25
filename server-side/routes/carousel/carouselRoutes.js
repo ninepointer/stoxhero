@@ -13,7 +13,7 @@ const currentUser = (req,res,next) =>{
 router.route('/').get(getCarousels).post(Authenticate, uploadMulter, resizePhoto, uploadToS3 ,createCarousel);
 router.route('/active').get(getActiveCarousels)
 router.route('/live').get(getLiveCarousels)
-router.route('/home').get(getHomePageCarousels)
+router.route('/home').get(Authenticate,getHomePageCarousels)
 router.route('/:id').get(Authenticate, getCarousel).patch(Authenticate,uploadMulter, resizePhoto, 
 uploadToS3,editCarousel).delete(Authenticate, deleteCarousel);
 
