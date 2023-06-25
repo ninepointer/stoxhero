@@ -7,6 +7,7 @@ import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
 import Instruments from "./layouts/instruments";
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 // import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";
 import Users from "./layouts/users";
@@ -557,7 +558,7 @@ const routes = [
     type: "collapse",
     name: "Carousel",
     key: "carousel",
-    icon: <HomeIcon/>,
+    icon: <ViewCarouselIcon/>,
     route: "/carousel",
     component: <Carousel />,
   },

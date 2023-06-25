@@ -49,15 +49,15 @@ function Index() {
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
-    const [editing,setEditing] = useState(false)
+    const [editing,setEditing] = useState(id ? false : true)
     const [saving,setSaving] = useState(false)
     const [creating,setCreating] = useState(false)
     const navigate = useNavigate();
     const [formState,setFormState] = useState({
         carouselName:'' || id?.carouselName,
         description:'' || id?.description,
-        carouselStartDate:'' || id?.carouselStartDate,
-        carouselEndDate:'' || id?.carouselEndDate,
+        carouselStartDate: dayjs(id?.carouselStartDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+        carouselEndDate: dayjs(id?.carouselEndDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
         carouselImage:'' || id?.carouselImage,
         status:'' || id?.status,
         clickable: '' || id?.clickable,
@@ -73,8 +73,31 @@ function Index() {
           id && setCarousel(id)
           setIsLoading(false);
       },500)
+
+      axios.get(`${baseUrl}api/v1/carousels/${id}`)
+      .then((res)=>{
+        setCarousel(res?.data?.data);
+        setFormState({
+          carouselName:'' || res.data?.carouselName,
+          description:'' || res.data?.description,
+          carouselStartDate:'' || res.data?.carouselStartDate,
+          carouselEndDate:'' || res.data?.carouselEndDate,
+          carouselImage:'' || res.data?.carouselImage,
+          status:'' || res.data?.status,
+          clickable: '' || res.data?.clickable,
+          linkToCarousel: '' || res.data?.linkToCarousel,
+          window: '' || res.data?.window,
+          carouselPosition: '' || res.data?.carouselPosition,
+          visibility: '' || res.data?.visibility
+        });
+          setTimeout(()=>{setIsLoading(false)},500) 
+      // setIsLoading(false)
+        }).catch((err)=>{
+            //window.alert("Server Down");
+            return new Error(err);
+        })
       // setCampaignUserCount(id?.users?.length);
-    },[])
+    },[id,isSubmitted])
 
     async function onSubmit(e,data){
         e.preventDefault();
@@ -96,7 +119,7 @@ function Index() {
               ) 
             {
               setCreating(false);
-              return openErrorSB("Error","Please upload the required fields.")
+              return openErrorSB("Error","Please fill the mandatory fields.")
             }
           console.log("Calling API")
           const res = await fetch(`${baseUrl}api/v1/carousels`, {
@@ -115,9 +138,9 @@ function Index() {
           if (data1.data) {
             openSuccessSB("Success", data1.message)
             setIsSubmitted(true)
-            setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+            setTimeout(() => { setCreating(false); setIsSubmitted(true); setEditing(false) }, 500)
           } else {
-            setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+            setTimeout(() => { setCreating(false); setIsSubmitted(false); setEditing(false) }, 500)
           }
           }catch(e){
             console.log(e);
@@ -311,7 +334,6 @@ function Index() {
                       label='Carousel Position *'
                       fullWidth
                       type="number"
-                      // defaultValue={portfolioData?.portfolioName}
                       value={formState?.carouselPosition}
                       onChange={(e) => {setFormState(prevState => ({
                           ...prevState,
@@ -327,7 +349,7 @@ function Index() {
                           <MobileDateTimePicker 
                             label="Carousel Start Date"
                             disabled={((isSubmitted || id) && (!editing || saving))}
-                            defaultValue={dayjs(setFormState?.carouselStartDate)}
+                            value={formState?.carouselStartDate || dayjs(carousel?.carouselStartDate)}
                             onChange={(e) => {
                               setFormState(prevState => ({
                                 ...prevState,
@@ -349,7 +371,8 @@ function Index() {
                           <MobileDateTimePicker 
                             label="Contest End Date"
                             disabled={((isSubmitted || id) && (!editing || saving))}
-                            defaultValue={dayjs(setFormState?.carouselEndDate)}
+                            // defaultValue={dayjs(setFormState?.carouselEndDate)}
+                            value={formState?.carouselEndDate || dayjs(carousel?.carouselEndDate)}
                             onChange={(e) => {
                                 setFormState(prevState => ({
                                 ...prevState,
@@ -427,7 +450,6 @@ function Index() {
                       >
                       <MenuItem value="Live">Live</MenuItem>
                       <MenuItem value="Draft">Draft</MenuItem>
-                      <MenuItem value="Rejected">Rejected</MenuItem>
                       </Select>
                     </FormControl>
                 </Grid>
@@ -506,7 +528,7 @@ function Index() {
                         >
                         {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" onClick={()=>{setEditing(false)}}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/carousel")}}>
                         Cancel
                     </MDButton>
                     </>
@@ -539,7 +561,7 @@ function Index() {
                         color="error" 
                         size="small" 
                         disabled={saving} 
-                        // onClick={()=>{setEditing(false)}}
+                        onClick={()=>{setEditing(false)}}
                         >
                         Cancel
                     </MDButton>

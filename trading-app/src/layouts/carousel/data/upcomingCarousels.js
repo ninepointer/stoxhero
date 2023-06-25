@@ -25,7 +25,7 @@ const LiveCarousels = () => {
   
 
 useEffect(()=>{
-  let call1 = axios.get((`${baseUrl}api/v1/carousels/live`),{
+  let call1 = axios.get((`${baseUrl}api/v1/carousels/upcoming`),{
               withCredentials: true,
               headers: {
                   Accept: "application/json",
@@ -53,7 +53,7 @@ function backHandler(){
   setSkip(prev => prev-limitSetting);
   setCarouselData([]);
   setIsLoading(true)
-  axios.get(`${baseUrl}api/v1/carousels/live?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+  axios.get(`${baseUrl}api/v1/carousels/upcoming?skip=${skip-limitSetting}&limit=${limitSetting}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -81,7 +81,7 @@ function nextHandler(){
   setSkip(prev => prev+limitSetting);
   setCarouselData([]);
   setIsLoading(true)
-  axios.get(`${baseUrl}api/v1/carousels/live?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+  axios.get(`${baseUrl}api/v1/carousels/upcoming?skip=${skip+limitSetting}&limit=${limitSetting}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -123,7 +123,7 @@ function Delete(id){
 
   return (
     <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minWidth='100%' minHeight='auto'>
-      <MDTypography fontSize={15} color='light' p={1} sx={{textAlign:'center'}}>Live - Carousels</MDTypography>
+      <MDTypography fontSize={15} color='light' p={1} sx={{textAlign:'center'}}>Upcoming - Carousels</MDTypography>
       <Grid container spacing={2} p={2}>
         {!isLoading ?
              carouselData?.map((elem, index)=>{    

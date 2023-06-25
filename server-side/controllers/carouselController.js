@@ -147,14 +147,242 @@ exports.getCarousels = async (req, res, next)=>{
 
 };
 
+exports.getDraftCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments(
+                      {
+                        status: 'Draft'
+                      })
+  try{
+      const liveCarousels = await Carousel.find(
+                            {
+                              status: 'Draft'
+                            })
+                            .skip(skip)
+                            .limit(limit);
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
+exports.getUpcomingCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments(
+                      {
+                        $and: [
+                          { carouselStartDate : {$gt : new Date()}},
+                          { carouselEndDate : {$gt : new Date()}}
+                        ],
+                        status: 'Live'
+                      })
+  try{
+      const liveCarousels = await Carousel.find(
+                            {
+                              $and: [
+                                { carouselStartDate : {$gt : new Date()}},
+                                { carouselEndDate : {$gt : new Date()}}
+                              ],
+                              status: 'Live'
+                            })
+                            .skip(skip)
+                            .limit(limit);
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
 exports.getLiveCarousels = async(req, res, next)=>{
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 8
-  const count = await Carousel.countDocuments({carouselEndDate: {$gte : new Date()}, status: 'Live'})
+  const count = await Carousel.countDocuments(
+                      {
+                        $and: [
+                          { carouselStartDate : {$lte : new Date()}},
+                          { carouselEndDate : {$gte : new Date()}}
+                        ],
+                        status: 'Live'
+                      })
   try{
-      const liveCarousels = await Carousel.find({carouselEndDate: {$gte : new Date()}, status: 'Live'})
+      const liveCarousels = await Carousel.find(
+                            {
+                              $and: [
+                                { carouselStartDate : {$lte : new Date()}},
+                                { carouselEndDate : {$gte : new Date()}}
+                              ],
+                              status: 'Live'
+                            })
+                            .skip(skip)
+                            .limit(limit);
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
+exports.getInfinityLiveCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments(
+                      {
+                        $and: [
+                          { carouselStartDate : {$lte : new Date()}},
+                          { carouselEndDate : {$gte : new Date()}}
+                        ],
+                        status: 'Live',
+                        $or: [
+                          { visibility: 'Infinity' },
+                          { visibility: 'All' }
+                        ]
+                      })
+
+  try{
+
+    const liveCarousels = await Carousel.find(
+        {
+          $and: [
+            { carouselStartDate : {$lte : new Date()}},
+            { carouselEndDate : {$gte : new Date()}}
+          ],
+          status: 'Live',
+          $or: [
+            { visibility: 'Infinity' },
+            { visibility: 'All' }
+          ]
+        })
+      .sort({carouselPosition:1})
       .skip(skip)
       .limit(limit);
+    
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
+exports.getStoxHeroLiveCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments(
+                      {
+                        $and: [
+                          { carouselStartDate : {$lte : new Date()}},
+                          { carouselEndDate : {$gte : new Date()}}
+                        ],
+                        status: 'Live',
+                        $or: [
+                          { visibility: 'StoxHero' },
+                          { visibility: 'All' }
+                        ]
+                      })
+
+  try{
+
+    const liveCarousels = await Carousel.find(
+        {
+          $and: [
+            { carouselStartDate : {$lte : new Date()}},
+            { carouselEndDate : {$gte : new Date()}}
+          ],
+          status: 'Live',
+          $or: [
+            { visibility: 'StoxHero' },
+            { visibility: 'All' }
+          ]
+        })
+      .sort({carouselPosition:1})
+      .skip(skip)
+      .limit(limit);
+    
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
+exports.getUpcomingInfinityCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments(
+                      {
+                        $and: [
+                          { carouselStartDate : {$gt : new Date()}},
+                          { carouselEndDate : {$gt : new Date()}}
+                        ],
+                        status: 'Live',
+                        $or: [
+                          { visibility: 'Infinity' },
+                          { visibility: 'All' }
+                        ]
+                      })
+
+  try{
+
+    const liveCarousels = await Carousel.find(
+        {
+          $and: [
+            { carouselStartDate : {$gt : new Date()}},
+            { carouselEndDate : {$gt : new Date()}}
+          ],
+          status: 'Live',
+          $or: [
+            { visibility: 'Infinity' },
+            { visibility: 'All' }
+          ]
+        })
+      .sort({carouselPosition:1})
+      .skip(skip)
+      .limit(limit);
+    
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
+exports.getUpcomingStoxHeroCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments(
+                      {
+                        $and: [
+                          { carouselStartDate : {$gt : new Date()}},
+                          { carouselEndDate : {$gt : new Date()}}
+                        ],
+                        status: 'Live',
+                        $or: [
+                          { visibility: 'StoxHero' },
+                          { visibility: 'All' }
+                        ]
+                      })
+
+  try{
+
+    const liveCarousels = await Carousel.find(
+        {
+          $and: [
+            { carouselStartDate : {$gt : new Date()}},
+            { carouselEndDate : {$gt : new Date()}}
+          ],
+          status: 'Live',
+          $or: [
+            { visibility: 'StoxHero' },
+            { visibility: 'All' }
+          ]
+        })
+      .sort({carouselPosition:1})
+      .skip(skip)
+      .limit(limit);
+    
       res.status(201).json({status: 'success', data: liveCarousels, count: count});    
   }catch(e){
       console.log(e);
@@ -166,25 +394,31 @@ exports.getHomePageCarousels = async(req, res, next)=>{
   const userRoleId = req.user.role
   const userRoleName = await UserRole.findById(userRoleId);
   const roleFilter = userRoleName?.roleName === "User" ? "StoxHero" : userRoleName.roleName === 'Infinity Trader' ? "Infinity" : "All"
-  const count = await Carousel.countDocuments({carouselEndDate: {$gte : new Date()}, status: 'Live', visibility: roleFilter})
+  const count = await Carousel.countDocuments({carouselEndDate: {$gte : new Date()}, carouselStartDate : {$lte : new Date()} , status: 'Live', visibility: roleFilter})
   let liveCarousels = [];
   try{
     if(userRoleName.roleName === "Admin"){
       liveCarousels = await Carousel.find(
         {
-          carouselEndDate: {$gte : new Date()}, 
+          $and: [
+            { carouselStartDate : {$lte : new Date()}},
+            { carouselEndDate : {$gte : new Date()}}
+          ],
           status: 'Live'
         })
       .sort({carouselPosition:1})
     }
     else{
       liveCarousels = await Carousel.find(
-        {
-          carouselEndDate: {$gte : new Date()}, 
+        { 
           status: 'Live',
           $or: [
             { visibility: roleFilter },
             { visibility: 'All' }
+          ],
+          $and: [
+            { carouselStartDate : {$lte : new Date()}},
+            { carouselEndDate : {$gte : new Date()}}
           ]
         })
       .sort({carouselPosition:1})

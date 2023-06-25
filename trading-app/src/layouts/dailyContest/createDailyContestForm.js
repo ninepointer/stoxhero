@@ -106,7 +106,6 @@ function Index() {
 
     axios.get(`${baseUrl}api/v1/dailycontest/${contest?._id}`)
       .then((res) => {
-        console.log("Daily Contest :", res?.data?.data)
         setDailyContest(res?.data?.data);
         setTimeout(() => {
           setIsLoading(false)
