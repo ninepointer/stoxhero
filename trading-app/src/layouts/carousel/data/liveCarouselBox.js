@@ -5,12 +5,13 @@ import { Link } from 'react-router-dom';
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
 import { Navigate, useNavigate } from 'react-router-dom';
+import moment from 'moment'
 
 const CarouselBox = ({ image, name, startDate, endDate, link, elem }) => {
     const navigate = useNavigate();
   return (
     <Grid container spacing={2} display='flex' justifyContent='center'>
-      <Grid item display='flex' justifyContent='center'>
+      {/* <Grid item display='flex' justifyContent='center'>
         <MDButton 
             style={{padding:0}} 
             disableRipple
@@ -22,23 +23,43 @@ const CarouselBox = ({ image, name, startDate, endDate, link, elem }) => {
         >
             <img src={image} width='250px' height='250px' alt="Box" />
         </MDButton>
-      </Grid>
-      {/* <Grid display='flex' justifyContent='center' item bgColor='light'>
-        <Grid container display='flex' justifyContent='center' flexDirection='column'>
-            <Grid item xs={12} md={12} lg={12}>
-                <MDTypography pl={1} pt={1} fontSize={10} color='light'>{name}</MDTypography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-                <MDTypography pl={1} fontSize={10} color='light'>Start Date: {startDate}</MDTypography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-                <MDTypography pl={1} fontSize={10} color='light'>End Date: {endDate}</MDTypography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12}>
-                <MDButton onClick={()=>{navigate(link)}}>Link to Carousel</MDButton>
-            </Grid>
-        </Grid>
       </Grid> */}
+      <Grid item display='flex' justifyContent='center'>
+          <MDButton 
+            style={{padding:0}} 
+            disableRipple
+            component={Link}
+            to={{
+              pathname: `/carouseldetails`,
+            }}
+            state={{data: elem}}
+          >
+            <div style={{position: 'relative'}}>
+              <img src={image} width='250px' height='250px' alt="Box" />
+              <div style={{position: 'absolute', bottom: 10, right: 10}}>
+                <span style={{backgroundColor: 'green', padding: '2px 4px', color:'white', fontSize: 10, borderRadius:3}}>
+                  {moment.utc(elem?.carouselStartDate).utcOffset('+05:30').format("DD-MMM HH:mm")}
+                </span>
+              </div>
+              <div style={{position: 'absolute', bottom: 10, left: 10}}>
+                <span style={{backgroundColor: 'green', padding: '2px 4px', color:'white', fontSize: 10, borderRadius:3}}>
+                  {moment.utc(elem?.carouselEndDate).utcOffset('+05:30').format("DD-MMM HH:mm")}
+                </span>
+              </div>
+              <div style={{position: 'absolute', bottom: 35, right: 10}}>
+                <span style={{backgroundColor: 'green', padding: '2px 4px', color:'white', fontSize: 10, borderRadius:3}}>
+                  {elem?.status}
+                </span>
+              </div>
+              <div style={{position: 'absolute', bottom: 35, left: 10}}>
+                <span style={{backgroundColor: 'green', padding: '2px 4px', color:'white', fontSize: 10, borderRadius:3}}>
+                  {elem?.visibility}
+                </span>
+              </div>
+            </div>
+          </MDButton>
+      </Grid>
+
     </Grid>
   );
 };

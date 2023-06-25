@@ -52,11 +52,12 @@ export default function Dashboard() {
    
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight='auto'>
   
+          {CarouselImages?.length && 
           <Grid container spacing={1} mb={2} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={6} lg={12}>
               <Carousel items={CarouselImages}/>
             </Grid>
-          </Grid>
+          </Grid>}
            
           <Grid container spacing={1} mt={1} lg={12} style={{ height: '100%' }}>
             <Grid item xs={12} md={6} lg={12} style={{ height: '100%' }}>

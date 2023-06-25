@@ -36,7 +36,7 @@ export default function LabTabs() {
 
   return (
     <Box sx={{ width: '100%', typography: 'body1' }}>
-    <Box mb={1} display="flex" justifyContent="right">
+    <Box mb={1} mt={1} display="flex" justifyContent="right">
     <MDButton 
     variant="contained" 
     color="success" 
@@ -44,7 +44,7 @@ export default function LabTabs() {
     component={Link}
     to='/carouseldetails'
     >
-        Create Craousel
+        Create Carousel
     </MDButton>
     </Box>
       <TabContext value={value}>
