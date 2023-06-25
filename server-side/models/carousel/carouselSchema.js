@@ -18,6 +18,18 @@ const carouselSchema = new mongoose.Schema({
         type:Date,
         required: true
     },
+    carouselPosition:{
+        type: Number,
+        required: true,
+    },
+    window:{
+        type: String,
+        required: false
+    },
+    visibility:{
+        type: String,
+        required: true,
+    },
     status:{
         type:String,
         required:true,

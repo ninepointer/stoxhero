@@ -289,7 +289,7 @@ const routes = [
     // name: "Company Dashboard",
     key: "carouselDetails",
     // icon: <DashboardIcon/>,
-    route: "/Carousel Details",
+    route: "/carouseldetails",
     component: <CarouselDetails />,
   },
   {
@@ -363,6 +363,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "tutorialcategory",
     component: <TutorialCategoryForm />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
+    route: "holidaydetails",
+    component: <TradingHolidayForm />,
   },
   {
     // type: "collapse",
