@@ -46,6 +46,8 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const { updateNetPnl , setPnlData} = useContext(NetPnlContext);
   const [trackEvent, setTrackEvent] = useState({});
   const [tradeData, setTradeData] = useState([]);
+  const [serverTime, setServerTime] = useState();
+  const [batchEndDate, setBatchEndDate] = useState();
   const [myReferralCount, setMyReferralCount] = useState(getDetails?.userDetails?.referrals?.length);
   const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
   let totalTransactionCost = 0;
@@ -106,7 +108,15 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         return Array.from(instrumentMap.values());
       });
     })
-  }, [])
+  }, []);
+
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/servertime`).then((res)=>{
+      setServerTime(res.data.data);
+    }).catch((e)=>{
+      console.log(e);
+    })
+  },[])
 
   useEffect(()=>{
 
@@ -144,6 +154,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     if(Object.keys(res.data.data).length !== 0){
       console.log(res.data.data._id)
       setBatchId(res.data.data._id);
+      setBatchEndDate(res.data.data.batchEndDate);
     }
   })()}, []);
 
@@ -469,6 +480,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       color="info" 
                       sx={{width: "60%", height: "20px", fontSize: "500x" , margin: '0 20%'}} 
                       onClick={()=>{navigate(`/internship/trade`, { state: { batchId: batchId } })}} size='small'
+                      disabled={serverTime>=batchEndDate}
                     >
                       Start Trading
                     </MDButton>
