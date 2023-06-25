@@ -108,7 +108,7 @@ exports.uploadToS3 = async(req, res, next) => {
 
   exports.createCarousel =async (req, res, next) => {
     console.log(req.body)
-    const{carouselName, description, clickable, linkToCarousel, carouselStartDate, carouselEndDate, status} = req.body;
+    const{carouselName, description, clickable, window, carouselPosition, linkToCarousel, carouselStartDate, carouselEndDate, status} = req.body;
     const carouselImage = (req).uploadUrl;
 
     console.log(req.body);
@@ -117,12 +117,12 @@ exports.uploadToS3 = async(req, res, next) => {
     try{
       //Check if user exists
       // if(await carousel.findOne({isDeleted: false, email})) return res.json({})('User with this email already exists. Please login with existing email.', 401));
-      const carousel = await Carousel.create({carouselName: carouselName.trim(), description, clickable, linkToCarousel, carouselStartDate, carouselEndDate, status,
+      const carousel = await Carousel.create({carouselName: carouselName.trim(), description, clickable, window, carouselPosition, linkToCarousel, carouselStartDate, carouselEndDate, status,
          createdBy: (req).user._id, carouselImage});
   
       if(!carousel) return res.status(400).json({status: 'error', message: 'Couldn\'t create carousel'});
   
-      res.status(201).json({status: "success", data:carousel});
+      res.status(201).json({status: "success", data:carousel, message: "Carousel Created Successfully"});
     }catch(e){
       console.log(e);
       res.status(500).json({status:'error', message: 'Something went wrong.'});
@@ -144,6 +144,22 @@ exports.getCarousels = async (req, res, next)=>{
   }  
 
 };
+
+exports.getLiveCarousels = async(req, res, next)=>{
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 8
+  const count = await Carousel.countDocuments({carouselEndDate: {$gte : new Date()}})
+  try{
+      const liveCarousels = await Carousel.find({carouselEndDate: {$gte : new Date()}})
+      .skip(skip)
+      .limit(limit);
+      res.status(201).json({status: 'success', data: liveCarousels, count: count});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+};
+
 exports.deleteCarousel = async (req, res, next) => {
     const {id} = req.params;
 
@@ -178,17 +194,18 @@ exports.getCarousel = async (req, res, next) => {
 
 
 exports.editCarousel = async (req, res, next) => {
+    console.log("Carousel Values:",req.body)
     const id = req.params.id;
     try{
 
-      const carousel = await Carousel.findOne({_id: id}).select('-__v -password -role');
+      const carousel = await Carousel.findOne({_id: id});
   
       if(!carousel) return res.status(404).json({status: 'error', message: 'No such carousel found.'});
   
       const filteredBody = filterObj(req.body, 'carouselName', 'description', 'carouselEndDate', 
-      'status', 'ObjectType', 'ObjectId', 'carouselStartDate','lastModifiedBy');
+      'status', 'window', 'clickable', 'carouselPosition', 'carouselStartDate','lastModifiedBy');
       
-      filteredBody.lastModifiedBy = id;
+      filteredBody.lastModifiedBy = req.user.id;
       // console.log((req).uploadUrl);
       if ((req).file) filteredBody.carouselImage = (req).uploadUrl;
   
@@ -197,7 +214,7 @@ exports.editCarousel = async (req, res, next) => {
           new: true,
           runValidators: true
         }).select('-__v');
-      res.status(200).json({status: "success", data:updatedCarousel});
+      res.status(200).json({status: "success", data:updatedCarousel, message:"Carousel Updated"});
     }catch(e){
       console.log(e);
       res.status(500).json({status:'error', message: 'Something went wrong.'});

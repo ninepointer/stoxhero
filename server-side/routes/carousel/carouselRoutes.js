@@ -1,7 +1,7 @@
 const express = require('express');
 const Authenticate = require('../../authentication/authentication');
 const { getCarousels, getCarousel, editCarousel, deleteCarousel, createCarousel,
-uploadMulter, uploadToS3, resizePhoto, getActiveCarousels } = require('../../controllers/carouselController');
+uploadMulter, uploadToS3, resizePhoto, getActiveCarousels, getLiveCarousels } = require('../../controllers/carouselController');
 const Carousel = require('../../models/carousel/carouselSchema');
 
 const router = express.Router();
@@ -12,6 +12,7 @@ const currentUser = (req,res,next) =>{
 }
 router.route('/').get(getCarousels).post(Authenticate, uploadMulter, resizePhoto, uploadToS3 ,createCarousel);
 router.route('/active').get(getActiveCarousels)
+router.route('/live').get(getLiveCarousels)
 router.route('/:id').get(Authenticate, getCarousel).patch(Authenticate,uploadMulter, resizePhoto, 
 uploadToS3,editCarousel).delete(Authenticate, deleteCarousel);
 
