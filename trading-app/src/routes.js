@@ -369,6 +369,14 @@ const routes = [
     // name: "Arena",
     // key: "arena",CreatePaymentHeader
     // icon: <BusinessIcon/>,
+    route: "holidaydetails",
+    component: <TradingHolidayForm />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
     route: "holidaydetails/:name",
     component: <TradingHolidayForm />,
   },
