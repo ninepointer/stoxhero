@@ -4,7 +4,7 @@ require("../../db/conn");
 const RequestToken = require("../../models/Trading Account/requestTokenSchema");
 const {disconnectTicker, createNewTicker}  = require('../../marketData/kiteTicker');
 const getKiteCred = require('../../marketData/getKiteCred');
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
 const KiteConnect = require('kiteconnect').KiteConnect;
 // const totp = require("totp-generator");
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");

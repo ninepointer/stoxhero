@@ -143,96 +143,149 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
+  let isRedisConnected = getValue();
 
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  // console.log(userId, today)
+
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
+  // try {
+  //   const portfoliosFund = await Portfolio.aggregate([
+  //     {
+  //       $match:
+  //         {
+  //           status: "Active",
+  //           portfolioType: "Virtual Trading",
+  //         },
+  //     },
+  //     {
+  //       $lookup:
+  //         {
+  //           from: "paper-trades",
+  //           localField: "_id",
+  //           foreignField: "portfolioId",
+  //           as: "trades",
+  //         },
+  //     },
+  //     {
+  //       $unwind:
+  //         {
+  //           path: "$trades",
+  //         },
+  //     },
+  //     {
+  //       $match:
+  //         {
+  //           "trades.trade_time": {
+  //             $lt: today,
+  //           },
+  //           "trades.status": "COMPLETE",
+  //           "trades.trader": new ObjectId(
+  //             req.user._id
+  //           ),
+  //         },
+  //     },
+  //     {
+  //       $group: {
+  //         _id: {
+  //           portfolioId: "$_id",
+  //           portfolioName: "$portfolioName",
+  //           totalFund: "$portfolioValue",
+  //         },
+  //         totalAmount: {
+  //           $sum: {
+  //             $multiply: ["$trades.amount", -1],
+  //           },
+  //         },
+  //         totalBrokerage: {
+  //           $sum: "$trades.brokerage",
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 0,
+  //         portfolioId: "$_id.portfolioId",
+  //         portfolioName: "$_id.portfolioName",
+  //         totalFund: "$_id.totalFund",
+  //         npnl: {
+  //           $subtract: [
+  //             "$totalAmount",
+  //             "$totalBrokerage",
+  //           ],
+  //         },
+  //         openingBalance: {
+  //           $sum: [
+  //             "$_id.totalFund",
+  //             {
+  //               $subtract: [
+  //                 "$totalAmount",
+  //                 "$totalBrokerage",
+  //               ],
+  //             },
+  //           ],
+  //         },
+  //       },
+  //     },
+  //   ])
+
+  //   if(portfoliosFund.length > 0){
+  //     res.status(200).json({status: 'success', data: portfoliosFund[0]});
+  //   } else{
+  //     const portfoliosFund = await Portfolio.aggregate([
+  //       {
+  //         $match:
+  //           {
+  //             status: "Active",
+  //             portfolioType: "Virtual Trading",
+  //           },
+  //       },
+  //       {
+  //         $group: {
+  //           _id: {
+  //             portfolioId: "$_id",
+  //             portfolioName: "$portfolioName",
+  //             totalFund: "$portfolioValue",
+  //           },
+  //         },
+  //       },
+  //       {
+  //         $project: {
+  //           _id: 0,
+  //           portfolioId: "$_id.portfolioId",
+  //           portfolioName: "$_id.portfolioName",
+  //           totalFund: "$_id.totalFund",
+  //         },
+  //       },
+  //     ])
+  //     res.status(200).json({status: 'success', data: portfoliosFund[0]});
+
+  //   }
+  
+  // } catch (e) {
+  //   console.log(e);
+  //   res.status(500).json({status:'error', message: 'Something went wrong'});
+  // }
+
+
 
   try {
-    const portfoliosFund = await Portfolio.aggregate([
-      {
-        $match:
-          {
-            status: "Active",
-            portfolioType: "Virtual Trading",
-          },
-      },
-      {
-        $lookup:
-          {
-            from: "paper-trades",
-            localField: "_id",
-            foreignField: "portfolioId",
-            as: "trades",
-          },
-      },
-      {
-        $unwind:
-          {
-            path: "$trades",
-          },
-      },
-      {
-        $match:
-          {
-            "trades.trade_time": {
-              $lt: today,
-            },
-            "trades.status": "COMPLETE",
-            "trades.trader": new ObjectId(
-              req.user._id
-            ),
-          },
-      },
-      {
-        $group: {
-          _id: {
-            portfolioId: "$_id",
-            portfolioName: "$portfolioName",
-            totalFund: "$portfolioValue",
-          },
-          totalAmount: {
-            $sum: {
-              $multiply: ["$trades.amount", -1],
-            },
-          },
-          totalBrokerage: {
-            $sum: "$trades.brokerage",
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          portfolioId: "$_id.portfolioId",
-          portfolioName: "$_id.portfolioName",
-          totalFund: "$_id.totalFund",
-          npnl: {
-            $subtract: [
-              "$totalAmount",
-              "$totalBrokerage",
-            ],
-          },
-          openingBalance: {
-            $sum: [
-              "$_id.totalFund",
-              {
-                $subtract: [
-                  "$totalAmount",
-                  "$totalBrokerage",
-                ],
-              },
-            ],
-          },
-        },
-      },
-    ])
 
-    if(portfoliosFund.length > 0){
-      res.status(200).json({status: 'success', data: portfoliosFund[0]});
-    } else{
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginPaper`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMarginPaper`)
+      marginDetail = JSON.parse(marginDetail);
+
+      res.status(201).json({ message: "pnl received", data: marginDetail });
+
+    } else {
+
       const portfoliosFund = await Portfolio.aggregate([
         {
           $match:
@@ -242,11 +295,46 @@ exports.marginDetail = async (req, res, next) => {
             },
         },
         {
+          $lookup:
+            {
+              from: "paper-trades",
+              localField: "_id",
+              foreignField: "portfolioId",
+              as: "trades",
+            },
+        },
+        {
+          $unwind:
+            {
+              path: "$trades",
+            },
+        },
+        {
+          $match:
+            {
+              "trades.trade_time": {
+                $lt: today,
+              },
+              "trades.status": "COMPLETE",
+              "trades.trader": new ObjectId(
+                req.user._id
+              ),
+            },
+        },
+        {
           $group: {
             _id: {
               portfolioId: "$_id",
               portfolioName: "$portfolioName",
               totalFund: "$portfolioValue",
+            },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              },
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
             },
           },
         },
@@ -256,19 +344,77 @@ exports.marginDetail = async (req, res, next) => {
             portfolioId: "$_id.portfolioId",
             portfolioName: "$_id.portfolioName",
             totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                {
+                  $subtract: [
+                    "$totalAmount",
+                    "$totalBrokerage",
+                  ],
+                },
+              ],
+            },
           },
         },
       ])
-      res.status(200).json({status: 'success', data: portfoliosFund[0]});
+
+      if (portfoliosFund.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMarginPaper`, JSON.stringify(portfoliosFund[0]))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMarginPaper`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfoliosFund[0] });
+      } else {
+        const portfoliosFund = await Portfolio.aggregate([
+          {
+            $match:
+              {
+                status: "Active",
+                portfolioType: "Virtual Trading",
+              },
+          },
+          {
+            $group: {
+              _id: {
+                portfolioId: "$_id",
+                portfolioName: "$portfolioName",
+                totalFund: "$portfolioValue",
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              portfolioId: "$_id.portfolioId",
+              portfolioName: "$_id.portfolioName",
+              totalFund: "$_id.totalFund",
+            },
+          },
+        ])
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMarginPaper`, JSON.stringify(portfoliosFund[0]))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMarginPaper`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfoliosFund[0] });
+      }
 
     }
-  
 
-    // console.log("pnlDetails", portfoliosFund)
   } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message: 'Something went wrong'});
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
+
+
+
+
 }
 
 exports.findOpenLots = async (req,res,next) =>{
