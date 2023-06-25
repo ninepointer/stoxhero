@@ -43,6 +43,8 @@ function Index() {
     const  id  = location?.state?.data;
     console.log("Carousel:",id)
     let [photo,setPhoto] = useState(id ? id?.carouselImage : DefaultCarouselImage)
+    const [imageFile, setImageFile] = useState(id ? id?.carouselImage : DefaultCarouselImage);
+    const [previewUrl, setPreviewUrl] = useState('');
     const [carousel,setCarousel] = useState([]);
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -62,6 +64,7 @@ function Index() {
         linkToCarousel: '' || id?.linkToCarousel,
         window: '' || id?.window,
         carouselPosition: '' || id?.carouselPosition,
+        visibility: '' || id?.visibility
     });
     console.log("Initial FormState:", formState)
 
@@ -75,6 +78,7 @@ function Index() {
 
     async function onSubmit(e,data){
         e.preventDefault();
+        setCreating(true)
         console.log("Form Data: ",data)
         try{
           const formData = new FormData();
@@ -87,9 +91,13 @@ function Index() {
           
             if(!formState.carouselName || !formState.description || 
               !formState.carouselStartDate || !formState.carouselEndDate
-              || !formState.status || !formState.clickable
+              || !formState.status || !formState.clickable || !formState.visibility
               || !formState.carouselImage || !formState.linkToCarousel || !formState.carouselPosition
-              ) return openErrorSB("Error","Please upload the required fields.")
+              ) 
+            {
+              setCreating(false);
+              return openErrorSB("Error","Please upload the required fields.")
+            }
           console.log("Calling API")
           const res = await fetch(`${baseUrl}api/v1/carousels`, {
   
@@ -117,49 +125,61 @@ function Index() {
     }
 
     async function onEdit(e, data) {
-      e.preventDefault()
-      console.log("Form Data: ",data)
-      setSaving(true)
-      try{
-        console.log("Data: ",data)
+      e.preventDefault();
+      console.log("Form Data: ", formState);
+      setSaving(true);
+
+      try {
         const formData1 = new FormData();
         Object.keys(data).forEach((key) => {
-          console.log("data to be appended")
-          formData1.append(key, data[key])
-          console.log("data appended",key,data[key])
+          formData1.append(key, data[key]);
         });
-      if(!formState.carouselName || !formState.description || 
-        !formState.carouselStartDate || !formState.carouselEndDate
-        || !formState.status || !formState.clickable
-        || !formState.carouselImage || !formState.linkToCarousel || !formState.carouselPosition
-        ) return openErrorSB("Error","Please upload the required fields.")
-      setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-  
-      const res = await fetch(`${baseUrl}api/v1/carousels/${id?._id}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          // "content-type": "application/json",
-          "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-          formData1,
-        })
-  
-      });
-  
-      const response = await res.json();
-      const updatedData = response?.data
-      if (updatedData) {
-        openSuccessSB("Carousel Edited", response.message)
-        setTimeout(()=>{setSaving(false);setEditing(false)},500)
-      } else {
-        openErrorSB("Error", "data.error")
+
+        if (!formState.carouselName || !formState.description ||
+            !formState.carouselStartDate || !formState.carouselEndDate ||
+            !formState.status || !formState.carouselImage ||
+            !formState.linkToCarousel || !formState.carouselPosition) 
+        {
+          setSaving(false)
+          return openErrorSB("Error", "Please upload the required fields.")
+        }
+          
+        setTimeout(() => { setIsSubmitted(true); }, 500);
+    
+        const res = await fetch(`${baseUrl}api/v1/carousels/${id?._id}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "Access-Control-Allow-Credentials": true,
+          },
+          body: formData1
+        });
+    
+        const response = await res.json();
+        const updatedData = response?.data;
+        if (updatedData) {
+          openSuccessSB("Carousel Edited", response.message);
+          setTimeout(() => { setSaving(false); setEditing(false); }, 500);
+        } else {
+          openErrorSB("Error", "data.error");
+        }
+      } catch(e) {
+        console.log(e);
       }
-    }catch(e){
-      console.log(e);
     }
-  }
+
+    const handleImageUpload = (event) => {
+      const file = event.target.files[0];
+      setImageFile(file);
+  
+      // Create a FileReader instance
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    };
+
   
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
@@ -245,7 +265,7 @@ function Index() {
                     />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={9}>
+                <Grid item xs={12} md={6} xl={6}>
                   <TextField
                       disabled={((isSubmitted || id) && (!editing || saving))}
                       id="outlined-required"
@@ -258,6 +278,30 @@ function Index() {
                           linkToCarousel: e.target.value
                         }))}}
                     />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                    <FormControl sx={{width: "100%" }}>
+                      <InputLabel id="demo-simple-select-autowidth-label">Visibility *</InputLabel>
+                      <Select
+                      labelId="demo-simple-select-autowidth-label"
+                      id="demo-simple-select-autowidth"
+                      value={formState?.visibility}
+                      defaultValue="All"
+                      // value={oldObjectId ? contestData?.status : formState?.status}
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      onChange={(e) => {setFormState(prevState => ({
+                          ...prevState,
+                          visibility: e.target.value
+                      }))}}
+                      label="Visibility"
+                      sx={{ minHeight:43 }}
+                      >
+                      <MenuItem value="Infinity">Infinity</MenuItem>
+                      <MenuItem value="StoxHero">StoxHero</MenuItem>
+                      <MenuItem value="All">All</MenuItem>
+                      </Select>
+                    </FormControl>
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3} mt={1}>
@@ -327,6 +371,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       value={formState?.clickable}
+                      defaultValue={false}
                       // value={oldObjectId ? contestData?.status : formState?.status}
                       disabled={((isSubmitted || id) && (!editing || saving))}
                       onChange={(e) => {setFormState(prevState => ({
@@ -396,13 +441,13 @@ function Index() {
                       accept="image/*" 
                       type="file" 
                       // defaultValue={formState?.carouselImage}
-                      onChange={(e)=>{
+                      onChange={(e) => {
                         setFormState(prevState => ({
                           ...prevState,
                           carouselImage: e.target.files[0]
-                        })
-                        )}
-                      }
+                        }));
+                        handleImageUpload(e);
+                      }}
                       />
                     </MDButton>
                 </Grid>
@@ -438,7 +483,11 @@ function Index() {
 
         <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={3} xl={3}>
             <Grid item xs={12} md={6} lg={12}>
-            <img src={photo} style={{height:"250px", width:"250px",borderRadius:"5px", border:"1px #ced4da solid"}}></img>
+            {previewUrl ? 
+              <img src={previewUrl} style={{height:"250px", width:"250px",borderRadius:"5px", border:"1px #ced4da solid"}}/>
+            :
+              <img src={imageFile} style={{height:"250px", width:"250px",borderRadius:"5px", border:"1px #ced4da solid"}}/>
+            }
             </Grid>
         </Grid>
         </Grid>
@@ -457,7 +506,7 @@ function Index() {
                         >
                         {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={()=>{navigate("/carousel")}}>
+                    <MDButton variant="contained" color="error" size="small" onClick={()=>{setEditing(false)}}>
                         Cancel
                     </MDButton>
                     </>

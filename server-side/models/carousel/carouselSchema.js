@@ -26,6 +26,10 @@ const carouselSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    visibility:{
+        type: String,
+        required: true,
+    },
     status:{
         type:String,
         required:true,
