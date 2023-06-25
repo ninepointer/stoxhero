@@ -8,7 +8,7 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-// import ContestPortfolioCard from '../data/contestPortfolioCard'
+import LiveCarousels from '../data/liveCarousels'
 // import TradingPortfolioCard from '../data/tradingPortfolioCard'
 // import InactivePortfolioCard from '../data/inactivePortfolioCard'
 
@@ -35,7 +35,7 @@ export default function LabTabs() {
     color="success" 
     fontSize="small"
     component={Link}
-    to='/Carousel Details'
+    to='/carouseldetails'
     >
         Create Craousel
     </MDButton>
@@ -54,8 +54,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-        //   <ContestPortfolioCard/>
-        <></>
+          <LiveCarousels/>  
           }
           </TabPanel>
         <TabPanel value="2">

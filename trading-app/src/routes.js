@@ -289,7 +289,7 @@ const routes = [
     // name: "Company Dashboard",
     key: "carouselDetails",
     // icon: <DashboardIcon/>,
-    route: "/Carousel Details",
+    route: "/carouseldetails",
     component: <CarouselDetails />,
   },
   {
