@@ -3,6 +3,7 @@ import DashboardLayout from "../../../examples/LayoutContainers/DashboardLayout"
 import DashboardNavbar from "../../../examples/Navbars/DashboardNavbar";
 import Footer from "../../../examples/Footer";
 import { io } from 'socket.io-client';
+import ReactGA from "react-ga"
 import { useEffect, useContext, useState} from "react";
 import {useLocation} from "react-router-dom";
 import axios from "axios";
@@ -62,6 +63,7 @@ function TradeViewTenX() {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
+    ReactGA.pageview(window.location.pathname)
   }, []);
 
   console.log("tradingDayData", tradingDayData)

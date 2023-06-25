@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
+import ReactGA from "react-ga"
 
 import Header from "./Header";
 import { io } from "socket.io-client";
@@ -20,7 +21,7 @@ function Tables() {
     socket.on("connect", () => {
       socket.emit("company-ticks", true)
     })
-
+    ReactGA.pageview(window.location.pathname)
   }, []);
 
   return (

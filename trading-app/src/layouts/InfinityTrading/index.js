@@ -4,6 +4,7 @@ import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import { io } from 'socket.io-client';
 import { useEffect, useContext} from "react";
+import ReactGA from "react-ga"
 
 
 import Header from "./Header";
@@ -28,6 +29,7 @@ function Tables() {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
+    ReactGA.pageview(window.location.pathname)
   }, []);
   return (
     <>

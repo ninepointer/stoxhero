@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import axios from "axios"
+import ReactGA from "react-ga"
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
@@ -60,6 +61,9 @@ export default function LabTabs({socket}) {
         return Array.from(instrumentMap.values());
       });
     })
+
+    ReactGA.pageview(window.location.pathname)
+    
   }, [])
 
   useEffect(()=>{

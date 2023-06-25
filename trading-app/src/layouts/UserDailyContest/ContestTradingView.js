@@ -6,6 +6,7 @@ import ContestTradingView from "./data/tradingWindow";
 import { io } from 'socket.io-client';
 import { useEffect, useContext, useState} from "react";
 import { userContext } from "../../AuthContext";
+import ReactGA from "react-ga"
 
 function Tables() {
 
@@ -44,6 +45,7 @@ function Tables() {
       // socket.emit("company-ticks", true)
       // setIsLoading(false);
     })
+    ReactGA.pageview(window.location.pathname)
   }, []);
 
   return (

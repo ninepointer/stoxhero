@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useContext} from 'react';
+import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
 // import axios from "axios";
 import { Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -15,6 +15,7 @@ import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
+import ReactGA from "react-ga"
 import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { internshipTrader } from '../../../variables';
 import InternshipMargin from '../../tradingCommonComponent/MarginDetails/InternshipMargin';
@@ -25,7 +26,10 @@ export default function TenXTrading({socket, BatchId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   const [availbaleMargin, setAvailbleMargin] = useState([]);
-  console.log('id hai ye bhai ji', BatchId);
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;

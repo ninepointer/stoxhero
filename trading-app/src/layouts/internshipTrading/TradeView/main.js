@@ -6,6 +6,7 @@ import { io } from 'socket.io-client';
 import { useEffect, useContext, useState} from "react";
 import {useLocation} from "react-router-dom";
 import axios from 'axios';
+import ReactGA from "react-ga"
 
 // import Header from "./Header";
 import { userContext } from "../../../AuthContext";
@@ -54,6 +55,7 @@ function TradeViewTenX() {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
+    ReactGA.pageview(window.location.pathname)
   }, []);
   // console.log("BatchId", BatchId)
   return (
