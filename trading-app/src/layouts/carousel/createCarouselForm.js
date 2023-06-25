@@ -117,49 +117,47 @@ function Index() {
     }
 
     async function onEdit(e, data) {
-      e.preventDefault()
-      console.log("Form Data: ",data)
-      setSaving(true)
-      try{
-        console.log("Data: ",data)
+      e.preventDefault();
+      console.log("Form Data: ", data);
+      setSaving(true);
+      try {
         const formData1 = new FormData();
         Object.keys(data).forEach((key) => {
-          console.log("data to be appended")
-          formData1.append(key, data[key])
-          console.log("data appended",key,data[key])
+          console.log("data to be appended");
+          formData1.append(key, data[key]);
+          console.log("data appended", key, data[key]);
         });
-      if(!formState.carouselName || !formState.description || 
-        !formState.carouselStartDate || !formState.carouselEndDate
-        || !formState.status || !formState.clickable
-        || !formState.carouselImage || !formState.linkToCarousel || !formState.carouselPosition
-        ) return openErrorSB("Error","Please upload the required fields.")
-      setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-  
-      const res = await fetch(`${baseUrl}api/v1/carousels/${id?._id}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          // "content-type": "application/json",
-          "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-          formData1,
-        })
-  
-      });
-  
-      const response = await res.json();
-      const updatedData = response?.data
-      if (updatedData) {
-        openSuccessSB("Carousel Edited", response.message)
-        setTimeout(()=>{setSaving(false);setEditing(false)},500)
-      } else {
-        openErrorSB("Error", "data.error")
+    
+        if (!formState.carouselName || !formState.description ||
+            !formState.carouselStartDate || !formState.carouselEndDate ||
+            !formState.status || !formState.clickable ||
+            !formState.carouselImage || !formState.linkToCarousel || !formState.carouselPosition
+        ) return openErrorSB("Error", "Please upload the required fields.");
+    
+        setTimeout(() => { setCreating(false); setIsSubmitted(true); }, 500);
+    
+        const res = await fetch(`${baseUrl}api/v1/carousels/${id?._id}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "Access-Control-Allow-Credentials": true,
+          },
+          body: formData1
+        });
+    
+        const response = await res.json();
+        const updatedData = response?.data;
+        if (updatedData) {
+          openSuccessSB("Carousel Edited", response.message);
+          setTimeout(() => { setSaving(false); setEditing(false); }, 500);
+        } else {
+          openErrorSB("Error", "data.error");
+        }
+      } catch(e) {
+        console.log(e);
       }
-    }catch(e){
-      console.log(e);
     }
-  }
+    
   
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
