@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import ReactGA from "react-ga"
+import React, { useEffect, useContext, useState} from "react";
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
@@ -27,6 +28,10 @@ export default function LabTabs() {
       setIsLoading(false)
     }, 500);
   };
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   return (
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto'>

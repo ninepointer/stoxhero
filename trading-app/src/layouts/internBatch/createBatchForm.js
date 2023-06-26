@@ -40,7 +40,6 @@ const MenuProps = {
 function Index() {
     const location = useLocation();
     const  id  = location?.state?.data;
-    console.log('id hai',id);
     const [applicationCount, setApplicationCount] = useState(0);
     const [isSubmitted,setIsSubmitted] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -63,6 +62,9 @@ function Index() {
         batchEndDate:  dayjs(id?.batchEndDate) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
         participants: [{collegeName:'',joinedOn:'',userId:''}],
         batchStatus:'' || id?.batchStatus,
+        referralCount:'' || id?.referralCount,
+        payoutPercentage:'' || id?.payoutPercentage,
+        attendancePercentage:'' || id?.attendancePercentage,
         career: {
             id: "" || id?.career?._id,
             jobTitle: "" || id?.career?.jobTitle,
@@ -93,7 +95,6 @@ function Index() {
     useEffect(()=>{
         axios.get(`${baseUrl}api/v1/portfolio/internship`)
         .then((res)=>{
-          console.log("Internship Portfolios :",res?.data?.data)
           setPortfolios(res?.data?.data);
         }).catch((err)=>{
             return new Error(err)
@@ -101,7 +102,6 @@ function Index() {
 
         axios.get(`${baseUrl}api/v1/career?type=${type}`)
         .then((res)=>{
-          console.log("Careers :",res?.data?.data)
           setCareers(res?.data?.data);
         }).catch((err)=>{
             return new Error(err)
@@ -109,20 +109,18 @@ function Index() {
     
         axios.get(`${baseUrl}api/v1/internbatch/${id?._id}`)
         .then((res)=>{
-          console.log("Batch :",res?.data?.data)
           setBatch(res?.data?.data);
           setTimeout(()=>{
             setIsLoading(false)
           },500)
         //   setIsLoading(false).setTimeout(30000);
         }).catch((err)=>{
-            console.log("Error in useeffect: ",err)
+            //Handle error here
         })    
     },[type])
 
     const handleTypeChange = (e) =>{
       const value = e.target.value;
-      console.log('e target value', value);
       setType(prev=>value);
       setFormState(prevState => ({
         ...prevState,
@@ -140,12 +138,10 @@ function Index() {
             return elem.portfolioName === value;
         })
     
-        // console.log("portfolioId", portfolioId)
         setFormState(prevState => ({
           ...prevState,
           portfolio: {id: portfolioId[0]?._id, name: portfolioId[0]?.portfolioName}
         }))
-        console.log("portfolioId", portfolioId, formState)
       };
 
     const handleCareerChange = (event) => {
@@ -157,32 +153,25 @@ function Index() {
         return elem.jobTitle === value;
     })
 
-    // console.log("portfolioId", portfolioId)
     setFormState(prevState => ({
         ...prevState,
         career: {id: careerId[0]?._id, name: careerId[0]?.jobTitle}
     }))
-    console.log("careerId", careerId, formState)
     };
 
     async function onSubmit(e,formState){
       e.preventDefault()
-      console.log(formState)
-      if(!formState.batchName || !formState.batchStartDate || !formState.batchEndDate || !formState.batchStatus || !formState.career || !formState.portfolio){
+      if(!formState.batchName || !formState.batchStartDate || !formState.batchEndDate || !formState.batchStatus || !formState.career || !formState.portfolio || !formState.attendancePercentage || !formState.payoutPercentage || !formState.referralCount){
       
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
       }
         if((type == 'Job' && !formState?.portfolio.name.toLowerCase().includes('internship')) || (type == 'Workshop' && !formState?.portfolio.name.toLowerCase().includes('workshop'))){
-        console.log('true');
         return openErrorSB("Wrong Portfolio","Please check the portfolio and type compatibility");
       }
 
-
-      
-      console.log("Is Submitted before State Update: ",isSubmitted)
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio} = formState;
+      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount} = formState;
       const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
           method: "POST",
           credentials:"include",
@@ -191,20 +180,18 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id 
+            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount 
           })
       });
       
       
       const data = await res.json();
-      console.log(data,res.status);
       if (res.status !== 201) {
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
           openErrorSB("Batch not created",data?.message)
       } else {
           openSuccessSB("Batch Created",data?.message)
           setNewObjectId(data?.data?._id)
-          console.log("New Object Id: ",data?.data?._id,newObjectId)
           setIsSubmitted(true)
           setBatch(data?.data);
           setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
@@ -213,7 +200,6 @@ function Index() {
 
     async function createGD(e,childFormState,setChildFormState){
       e.preventDefault()
-      console.log(childFormState)
       setSaving(true)
       if(!childFormState?.gdTitle || !childFormState?.gdTopic || !childFormState?.meetLink || !childFormState?.gdStartDate || !childFormState?.gdEndDate){
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
@@ -233,30 +219,23 @@ function Index() {
           })
       });
       const data = await res.json();
-      console.log(data);
       if (res.status !== 201) {
           openErrorSB("Error",data.message)
       } else {
           // setUpdatedDocument(data?.data);
           openSuccessSB("Success",data.message)
           setTimeout(()=>{setSaving(false);setEditing(false)},500)
-          // setChildFormState(prevState => ({
-          //     ...prevState,
-          //     rolesAndResponsibilities: {}
-          // }))
       }
     }
 
     async function onEdit(e,formState){
         e.preventDefault()
-        console.log("Edited FormState: ",formState,id._id)
         setSaving(true)
-        console.log(formState)
-        if(!formState.batchName || !formState.batchStartDate || !formState.batchEndDate || !formState.batchStatus || !formState.career || !formState.portfolio){
+        if(!formState.batchName || !formState.batchStartDate || !formState.batchEndDate || !formState.batchStatus || !formState.career || !formState.portfolio || !formState.payoutPercentage || !formState.attendancePercentage || !formState.referralCount){
             setTimeout(()=>{setSaving(false);setEditing(true)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio } = formState;
+        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount } = formState;
     
         const res = await fetch(`${baseUrl}api/v1/internbatch/${id._id}`, {
             method: "PATCH",
@@ -266,18 +245,16 @@ function Index() {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id 
+                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount 
             })
         });
-    
+     
         const data = await res.json();
-        console.log(data);
-        if (data.status === 422 || data.error || !data) {
-            openErrorSB("Error",data.error)
-        } else {
+        if (data.data) {
             openSuccessSB("Batch Edited", "Edited Successfully")
-            setTimeout(()=>{setSaving(false);setEditing(false)},500)
-            console.log("entry succesfull");
+            setTimeout(()=>{setSaving(false);setEditing(false)},500)        
+        } else {
+           openErrorSB("Error",data.error)
         }
     }
   
@@ -292,8 +269,6 @@ function Index() {
       setSuccessSB(true);
     }
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
-
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -329,17 +304,14 @@ function Index() {
     />
   );
 
-
-console.log('bro get this', formState?.career.name, batch?.career);
-
 const handleChange = (e) => {
   const {name, value} = e.target;
-  if (!formState[name]?.includes(e.target.value)) {
+  // if (!formState[name]?.includes(e.target.value)) {
     setFormState(prevState => ({
       ...prevState,
       [name]: value,
     }));
-  }
+  // }
 };
 
     return (
@@ -367,34 +339,50 @@ const handleChange = (e) => {
                 label='Batch Name *'
                 name='batchName'
                 fullWidth
-                // defaultValue={portfolioData?.portfolioName}
                 defaultValue={editing ? formState?.batchName : id?.batchName}
-                // onChange={(e) => {setFormState(prevState => ({
-                //     ...prevState,
-                //     batchName: e.target.value
-                //   }))}}
                 onChange={handleChange}
               />
           </Grid>
 
-          {/* <Grid item xs={12} md={6} xl={3} mt={-1}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer components={['DatePicker']}>
-                    <DatePicker
-                    label="Batch Start Date"
-                    name='batchStartDate'
-                    value={formState?.batchStartDate || dayjs(batch?.batchStartDate)}
-                    disabled={((isSubmitted || id) && (!editing || saving))}
-                    onChange={(e) => {
-                      const selectedDate = dayjs(e);
-                      const startOfDay = selectedDate.set('hour', 0).set('minute', 0).set('second', 0);
-                      setFormState(prevState => ({ ...prevState, batchStartDate: startOfDay }))
-                    }}
-                    sx={{ width: '100%' }}
-                    />
-                </DemoContainer>
-                </LocalizationProvider>
-           </Grid> */}
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Referral Count *'
+                name='referralCount'
+                type='number'
+                fullWidth
+                defaultValue={editing ? formState?.referralCount : id?.referralCount}
+                onChange={handleChange}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Attendance % *'
+                name='attendancePercentage'
+                type='number'
+                fullWidth
+                defaultValue={editing ? formState?.attendancePercentage : id?.attendancePercentage}
+                onChange={handleChange}
+              />
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Payout % *'
+                name='payoutPercentage'
+                type='number'
+                fullWidth
+                defaultValue={editing ? formState?.payoutPercentage : id?.payoutPercentage}
+                onChange={handleChange}
+              />
+          </Grid>
+
           <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DemoContainer components={['MobileDateTimePicker']}>
@@ -438,24 +426,6 @@ const handleChange = (e) => {
               </LocalizationProvider>
           </Grid>
 
-           {/* <Grid item xs={12} md={6} xl={3} mt={-1}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer components={['DatePicker']}>
-                    <DatePicker
-                    label="Batch End Date"
-                    value={formState?.batchEndDate || dayjs(batch?.batchEndDate)}
-                    disabled={((isSubmitted || id) && (!editing || saving))}
-                    name='batchEndDate'
-                    onChange={(e) => {
-                      const selectedDate = dayjs(e);
-                      const endOfDay = selectedDate.set('hour', 23).set('minute', 59).set('second', 59);
-                      setFormState(prevState => ({ ...prevState, batchEndDate: endOfDay }))
-                    }}
-                    sx={{ width: '100%' }}
-                    />
-                </DemoContainer>
-                </LocalizationProvider>
-           </Grid> */}
            {!id && <Grid item xs={12} md={3} xl={3}>
                 <FormControl sx={{ minHeight:10, minWidth:263 }}>
                   <InputLabel id="demo-multiple-name-label">Batch Type</InputLabel>
@@ -539,7 +509,7 @@ const handleChange = (e) => {
             </FormControl>
             </Grid>
 
-          <Grid item xs={12} md={6} xl={3}>
+          <Grid item xs={12} md={6} xl={3} mt={-2}>
               <FormControl sx={{width: "100%" }}>
                 <InputLabel id="demo-simple-select-autowidth-label">Batch Status *</InputLabel>
                 <Select
@@ -547,7 +517,6 @@ const handleChange = (e) => {
                 id="demo-simple-select-autowidth"
                 name='batchStatus'
                 value={formState?.batchStatus || id?.batchStatus}
-                // value={oldObjectId ? contestData?.status : formState?.status}
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,

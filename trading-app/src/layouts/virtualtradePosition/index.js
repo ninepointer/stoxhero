@@ -1,5 +1,6 @@
 
 import React from "react";
+import ReactGA from "react-ga"
 // import axios from "axios";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
@@ -30,7 +31,9 @@ import Header from "./Header";
 
 function TraderPosition() {
 
-
+  useEffect(()=>{
+    ReactGA.pageview(window.location.pathname)
+  },[]);
 
   return (
     <DashboardLayout>

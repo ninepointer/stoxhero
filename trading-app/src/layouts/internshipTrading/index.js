@@ -6,6 +6,7 @@ import { io } from 'socket.io-client';
 import { useEffect, useContext} from "react";
 import React from "react";
 import { userContext } from "../../AuthContext";
+import ReactGA from "react-ga"
 
 
 // Data
@@ -30,6 +31,7 @@ function Tables() {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
+    ReactGA.pageview(window.location.pathname)
   }, []);
 
   return (

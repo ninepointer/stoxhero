@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
 import axios from "axios";
+import ReactGA from "react-ga"
 import { CircularProgress, Grid, Divider } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -8,8 +9,6 @@ import upicon from '../../../assets/images/arrow.png'
 import downicon from '../../../assets/images/down.png'
 import marginicon from '../../../assets/images/marginicon.png'
 import netpnlicon from '../../../assets/images/netpnlicon.png'
-
-
 import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
@@ -24,6 +23,10 @@ export default function InfinityTrading({socket}) {
   const [availbaleMargin, setAvailbleMargin] = useState([]);
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
 
   const memoizedStockIndex = useMemo(() => {
