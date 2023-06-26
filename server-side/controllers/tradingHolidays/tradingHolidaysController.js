@@ -41,9 +41,9 @@ exports.getTradingHolidays = async(req, res, next)=>{
 };
 
 exports.getTodaysTradingHolidays = async(req, res, next)=>{
-    
+     
     try{
-        const holiday = await TradingHoliday.find({holidayDate : {$gte:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT00:00:00"), $lte:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT23:59:59")}}).sort({holidayDate:1});
+        const holiday = await TradingHoliday.find({holidayDate : {$gte: new Date().setHours(0, 0, 0, 0), $lte:new Date().setHours(23, 59, 59, 0)}}).sort({holidayDate:1});
        
         res.status(200).json({status: 'success', data: holiday, results: holiday.length});    
     }catch(e){
@@ -55,7 +55,7 @@ exports.getTodaysTradingHolidays = async(req, res, next)=>{
 exports.getUpcomingTradingHolidays = async(req, res, next)=>{
     
     try{
-        const holiday = await TradingHoliday.find({holidayDate : {$gt:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT00:00:00")}}).sort({holidayDate:1});
+        const holiday = await TradingHoliday.find({holidayDate : {$gt:new Date().setHours(23, 59, 59, 0)}}).sort({holidayDate:1});
        
         res.status(200).json({status: 'success', data: holiday, results: holiday.length});    
     }catch(e){
@@ -66,7 +66,7 @@ exports.getUpcomingTradingHolidays = async(req, res, next)=>{
 
 exports.getPastTradingHolidays = async(req, res, next)=>{
     try{
-        const holiday = await TradingHoliday.find({holidayDate : {$lt:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT00:00:00")}}).sort({holidayDate:-1});
+        const holiday = await TradingHoliday.find({holidayDate : {$lt:new Date().setHours(0, 0, 0, 0)}}).sort({holidayDate:-1});
         res.status(200).json({status: 'success', data: holiday, results: holiday.length});    
     }catch(e){
         
