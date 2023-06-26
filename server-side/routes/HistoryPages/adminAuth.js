@@ -56,6 +56,18 @@ const {openPrice} = require("../../marketData/setOpenPriceFlag");
 const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
+const {updateUserWallet} = require("../../controllers/internshipTradeController")
+
+
+
+
+
+
+
+router.get("/walletUpdate", async (req, res) => {
+  await updateUserWallet();
+  res.send("ok")
+})
 
 
 router.get("/subscribeTradable", async (req, res) => {

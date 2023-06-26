@@ -3,6 +3,7 @@ const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const InternBatch = require("../models/Careers/internBatch");
 const {client, getValue} = require('../marketData/redisClient');
+const Careers = require("../models/Careers/careerSchema")
 
 const { ObjectId } = require("mongodb");
 
@@ -1028,6 +1029,7 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
     {
       $project: {
         _id: 0,
+        userId: "$_id.userId",
         name: "$_id.name",
         tradingDays: { $size: "$tradingDays" },
         gpnl: 1,
@@ -1043,9 +1045,202 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
     },
   ]
 
+
+  let userData = await User.find().select("referrals")
   let x = await InternTrades.aggregate(pipeline)
 
   // res.status(201).json(x);
 
-  res.status(201).json({ message: "data received", data: x });
+  res.status(201).json({ message: "data received", data: x, userData: userData });
+}
+
+
+exports.updateUserWallet = async (req, res, next) => {
+
+  const internship = await Careers.aggregate([
+    {
+      $match:
+  
+        {
+          listingType: "Job",
+        },
+    },
+    {
+      $lookup:
+  
+        {
+          from: "intern-batches",
+          localField: "_id",
+          foreignField: "career",
+          as: "batch",
+        },
+    },
+    {
+      $unwind:
+  
+        {
+          path: "$batch",
+        },
+    },
+    {
+      $match:
+  
+        {
+          $expr: {
+            $eq: [
+              {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$batch.batchEndDate",
+                },
+              },
+              "2023-06-26",
+            ],
+          },
+          "batch.batchStatus": "Active",
+        },
+    },
+    {
+      $project:
+  
+      {
+        _id: 0,
+        batchId: "$batch._id",
+        users: "$batch.participants",
+        startDate: "$batch.batchStartDate",
+        endDate: "$batch.batchEndDate"
+      }
+    },
+  
+  ])
+
+  console.log(internship)
+
+  const workingDays = calculateWorkingDays(internship[0].startDate, internship[0].endDate);
+  const users = internship[0].users;
+  const batchId = internship[0].batchId;
+
+  const tradingDays = async (userId, batchId)=>{
+    const pipeline = 
+    [
+      {
+        $match: {
+          batch: new ObjectId(batchId),
+          trader: new ObjectId(userId),
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+          },
+          count: {
+            $count: {},
+          },
+        },
+      },
+    ]
+  
+    let x = await InternTrades.aggregate(pipeline);
+
+    return x.length;
+  }
+
+  const pnl = async (userId, batchId)=>{
+    let pnlDetails = await InternTrades.aggregate([
+      {
+          $match: {
+              status: "COMPLETE",
+              trader: new ObjectId(userId),
+              batch: new ObjectId(batchId) 
+          },
+      },
+      {
+        $group: {
+          _id: {
+          },
+          amount: {
+            $sum: {$multiply : ["$amount",-1]},
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+        },
+      },
+      {
+        $project:
+          /**
+           * specifications: The fields to
+           *   include or exclude.
+           */
+          {
+            _id: 0,
+            npnl: {
+              $subtract: ["$amount", "$brokerage"],
+            },
+          },
+      },
+    ])
+  
+    // let x = await InternTrades.aggregate(pnlDetails);
+
+    return pnlDetails[0]?.npnl;
+  }
+
+  function calculateWorkingDays(startDate, endDate) {
+    // Convert the input strings to Date objects
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setDate(end.getDate() + 1);
+
+    // Check if the start date is after the end date
+    if (start > end) {
+      return 0;
+    }
+  
+    let workingDays = 0;
+    let currentDate = new Date(start);
+  
+    // Iterate over each day between the start and end dates
+    while (currentDate <= end) {
+      // Check if the current day is a weekday (Monday to Friday)
+      if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+        workingDays++;
+      }
+  
+      // Move to the next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  
+    return workingDays;
+  }
+  
+  const referrals = async(userId)=>{
+    const user = await User.findOne({_id: userId});
+    return user?.referrals?.length;
+  }
+
+
+  for(let i = 0; i < users.length; i++){
+    const tradingdays = await tradingDays(users[i].user, batchId);
+    const attendance = tradingdays*100/workingDays;
+    const referral = await referrals(users[i].user);
+    const npnl = await pnl(users[i].user, batchId);
+
+    if(attendance >= 80 && referral >= 25){
+      console.log(attendance, tradingdays, users[i].user, npnl);
+    }
+
+    
+  }
+
+   
+
+
+
 }

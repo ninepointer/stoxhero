@@ -28,12 +28,20 @@ export default function LabTabs() {
   const [dateWiseData, setDateWiseData] = useState([]);
   const [batches,setBatches] = useState([]);
   const [selectedBatches, setSelectedBatches] = useState();
+  const [userData, setUserData] = useState([]);
+  const [dates, setDate] = useState({
+    startDate: "",
+    endDate: ""
+  });
 
   useEffect(()=>{
     axios.get(`${apiUrl}internbatch/active`, {withCredentials: true})
     .then((res)=>{
       setBatches(res.data.data);
       setSelectedBatches(res.data.data[0]?._id)
+      dates.startDate = res.data.data[0]?.batchStartDate;
+      dates.endDate = res.data.data[0]?.batchEndDate;
+      setDate(dates);
     }).catch(e => console.log(e));
   },[])
 
@@ -61,6 +69,8 @@ export default function LabTabs() {
       const res = await axios.get(`${apiUrl}${endpoint}/${from}/${to}`, {withCredentials: true});
       // console.log(res.data.data);
       setDateWiseData(prev=>res.data.data);
+      console.log("users", res.data)
+      setUserData(prev=>res.data.userData);
     }
     
   }
@@ -274,7 +284,8 @@ export default function LabTabs() {
       <Grid mt={0} container spacing={3}>
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1}  borderRadius={4}>
-            <TableView whichTab={alignment} dateWiseData={dateWiseData} />
+            {userData &&
+            <TableView whichTab={alignment} dateWiseData={dateWiseData} userData={userData} batches={batches} dates={dates}/>}
           </MDBox>
         </Grid>
 
