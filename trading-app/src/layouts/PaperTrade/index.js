@@ -18,7 +18,6 @@ import { userContext } from "../../AuthContext";
 
 
 function UserPosition() {
-  console.log("rendering: UserPosition");
   // const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
