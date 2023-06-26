@@ -2,6 +2,7 @@ const aws = require('aws-sdk');
 const otpGenerator = require('otp-generator')
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
+const InternBatch = require("../../models/Careers/internBatch");
 const Career = require("../../models/Careers/careerSchema");
 const User = require("../../models/User/userDetailSchema")
 const PortFolio = require("../../models/userPortfolio/UserPortfolio")
@@ -56,15 +57,15 @@ exports.generateOTP = async(req, res, next)=>{
   // console.log(req.body)
   const{ firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
   } = req.body
-  const applicationExists = await CareerApplication.findOne({mobileNo: mobile, career: career, status: 'OTP Verified'});
-  const emailCheck = await CareerApplication.findOne({email: email, career: career, status: 'OTP Verified'});
+  // const applicationExists = await CareerApplication.findOne({mobileNo: mobile, career: career, status: 'OTP Verified'});
+  // const emailCheck = await CareerApplication.findOne({email: email, career: career, status: 'OTP Verified'});
   // console.log("Application Exists: ",applicationExists)
-  if(applicationExists){
-    return res.status(400).json({info:'You have already applied for this position using this mobile number.'})
-  }
-  if(emailCheck){
-    return res.status(400).json({info:'You have already applied for this position using this email.'})
-  }
+  // if(applicationExists){
+  //   return res.status(400).json({info:'You have already applied for this position using this mobile number.'})
+  // }
+  // if(emailCheck){
+  //   return res.status(400).json({info:'You have already applied for this position using this email.'})
+  // }
   let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
   try {
       const data = await CareerApplication.create({
@@ -111,33 +112,33 @@ exports.confirmOTP = async(req, res, next)=>{
   //   return res.status(400).json({info:"User Already Exists"})
   // }
 
-  async function generateUniqueReferralCode() {
-    const length = 8; // change this to modify the length of the referral code
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let myReferralCode = '';
-    let codeExists = true;
-
-    // Keep generating new codes until a unique one is found
-    while (codeExists) {
-        for (let i = 0; i < length; i++) {
-            myReferralCode += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-
-        // Check if the generated code already exists in the database
-        const existingCode = await User.findOne({ myReferralCode: myReferralCode });
-        if (!existingCode) {
-        codeExists = false;
-        }
-    }
-
-    return myReferralCode;
-    }
-
   let campaign;
     if(campaignCode){
       campaign = await Campaign.findOne({campaignCode:campaignCode})
     }
   
+    async function generateUniqueReferralCode() {
+      const length = 8; // change this to modify the length of the referral code
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let myReferralCode = '';
+      let codeExists = true;
+  
+      // Keep generating new codes until a unique one is found
+      while (codeExists) {
+          for (let i = 0; i < length; i++) {
+              myReferralCode += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+  
+          // Check if the generated code already exists in the database
+          const existingCode = await User.findOne({ myReferralCode: myReferralCode });
+          if (!existingCode) {
+          codeExists = false;
+          }
+      }
+  
+      return myReferralCode;
+      }
+
   if(!existingUser){
   const myReferralCode = generateUniqueReferralCode();
   let userId = email.split('@')[0]
@@ -391,7 +392,9 @@ exports.getCareer = async (req,res,next) => {
 
 exports.getCareerApplicantions = async(req, res, next)=>{
   const {id} = req.params;
-  const careerApplications = await CareerApplication.find({career: id, applicationStatus:'Applied'}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus')
+  const careerApplications = await CareerApplication.find({career: id, applicationStatus:'Applied'})
+                              .sort({_id:-1})
+                              .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }
 

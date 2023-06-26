@@ -63,7 +63,9 @@ export default function Applicants({career}) {
         { Header: "Trading Exp.", accessor: "tradingexp", align: "center" },
         { Header: "Source", accessor: "source", align: "center" },
         { Header: "Status", accessor: "status", align: "center" },
-        { Header: "Applied On", accessor: "appliedon", align: "center" },   
+        { Header: "Applied On", accessor: "appliedon", align: "center" },
+        { Header: "LinkedIn Profile", accessor: "linkedin", align: "center" },    
+         
       ]
 
     let rows = []
@@ -118,6 +120,11 @@ export default function Applicants({career}) {
   featureObj.appliedon = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {new Date(elem?.appliedOn).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.appliedOn).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
+    </MDTypography>
+  );
+  featureObj.linkedin = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem?.linkedInProfileLink}
     </MDTypography>
   );
 

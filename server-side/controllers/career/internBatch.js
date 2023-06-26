@@ -285,21 +285,40 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     .populate({
         path: 'internshipBatch',
         model: 'intern-batch',
-        select:'career batchStartDate batchEndDate',
+        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount',
         populate: {
             path: 'career',
             model: 'career',
             select:'listingType jobTitle'
-        }
+        },
+        // populate: {
+        //     path: 'portfolio',
+        //     model: 'user-portfolio',
+        //     select:'portfolioValue'
+        // }
+    })
+    .populate({
+        path: 'internshipBatch',
+        model: 'intern-batch',
+        select:'career batchName batchStartDate batchEndDate attendancePercentage payoutPercentage referralCount portfolio',
+        populate: {
+            path: 'portfolio',
+            model: 'user-portfolio',
+            select:'portfolioValue'
+        },
+        // populate: {
+        //     path: 'portfolio',
+        //     model: 'user-portfolio',
+        //     select:'portfolioValue'
+        // }
     }).select('internshipBatch');
     let internships = userBatches?.internshipBatch?.filter((item)=>item?.career?.listingType === 'Job');
-    console.log("userBatches", userBatches,internships);
-    console.log("IntenrshipBatch", userBatches?.internshipBatch)
-    console.log(new Date(), internships[internships.length-1]?.batchEndDate);
-    if(new Date()>internships[internships.length-1]?.batchEndDate){
-        return res.json({status: 'success', data: {}, message:'No active internships'});    
+    if(new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate){
+        return res.json({status: 'success', data: internships[internships.length-1]});    
     }
-    res.json({status: 'success', data: internships[internships.length-1]});
+    console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
+    console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
+    return res.json({status: 'success', data: {}, message:'No active internships'});
   }
 
   exports.getWorkshops = async(req,res,next) =>{
