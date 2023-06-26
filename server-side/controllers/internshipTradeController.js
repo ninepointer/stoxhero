@@ -3,7 +3,9 @@ const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const InternBatch = require("../models/Careers/internBatch");
 const {client, getValue} = require('../marketData/redisClient');
-const Careers = require("../models/Careers/careerSchema")
+const Careers = require("../models/Careers/careerSchema");
+const Wallet = require("../models/UserWallet/userWalletSchema");
+const uuid = require('uuid');
 
 const { ObjectId } = require("mongodb");
 
@@ -1057,6 +1059,13 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 
 exports.updateUserWallet = async (req, res, next) => {
 
+  const attendanceLimit = 80;
+  const referralLimit = 25;
+  const payoutPercentage = 1;
+
+  const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
+  const reliefReferralLimit = referralLimit - referralLimit*10/100
+
   const internship = await Careers.aggregate([
     {
       $match:
@@ -1231,12 +1240,46 @@ exports.updateUserWallet = async (req, res, next) => {
     const attendance = tradingdays*100/workingDays;
     const referral = await referrals(users[i].user);
     const npnl = await pnl(users[i].user, batchId);
+    const creditAmount = npnl*payoutPercentage/100;
 
-    if(attendance >= 80 && referral >= 25){
+    const wallet = await Wallet.findOne({userId: users[i].user});
+
+    if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+      // wallet.transactions = [...wallet.transactions, {
+      //   title: 'Internship Payout',
+      //   description: `Amount credited for your internship profit`,
+      //   amount: (creditAmount),
+      //   transactionId: uuid.v4(),
+      //   transactionType: 'Cash'
+      // }];
+      // wallet.save();
       console.log(attendance, tradingdays, users[i].user, npnl);
     }
 
-    
+    if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
+      if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
+        // wallet.transactions = [...wallet.transactions, {
+        //   title: 'Internship Payout',
+        //   description: `Amount credited for your internship profit`,
+        //   amount: (creditAmount),
+        //   transactionId: uuid.v4(),
+        //   transactionType: 'Cash'
+        // }];
+        // wallet.save();
+        console.log("attendance relief", attendance, tradingdays, users[i].user, npnl);
+      }
+      if(referral < referralLimit && referral >= reliefReferralLimit){
+        // wallet.transactions = [...wallet.transactions, {
+        //   title: 'Internship Payout',
+        //   description: `Amount credited for your internship profit`,
+        //   amount: (creditAmount),
+        //   transactionId: uuid.v4(),
+        //   transactionType: 'Cash'
+        // }];
+        // wallet.save();
+        console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+      }
+    }
   }
 
    
