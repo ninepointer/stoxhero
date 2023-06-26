@@ -11,7 +11,7 @@ const InternshipOrders = require('../../models/mock-trade/internshipTrade')
 exports.createBatch = async(req, res, next)=>{
     console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, 
-        batchStatus, career, portfolio } = req.body;
+        batchStatus, career, portfolio, payoutPercentage, attendancePercentage, refferalCount } = req.body;
 
     const date = new Date();
     const month = date.toLocaleString('default', { month: 'short' }).substring(0, 3);
@@ -21,7 +21,7 @@ exports.createBatch = async(req, res, next)=>{
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
     const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate,
-        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio});
+        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, payoutPercentage, attendancePercentage, referralCount});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});
 
@@ -98,6 +98,7 @@ exports.editBatch = async(req, res, next) => {
     const id = req.params.id;
 
     console.log("id is ,", id)
+    console.log("Batch Data:",req.body)
 
     const batch = await Batch.findOneAndUpdate({_id : id}, {
         $set:{
@@ -107,12 +108,16 @@ exports.editBatch = async(req, res, next) => {
             batchStatus: req.body.batchStatus,
             career: req.body.career,
             portfolio: req.body.portfolio,
+            payoutPercentage: req.body.payoutPercentage,
+            attendancePercentage: req.body.attendancePercentage,
+            referralCount: req.body.referralCount,
             lastModifiedBy: req.user._id,
             lastModifiedOn: new Date()
         }
     })
-
-    res.status(200).json({message: 'Successfully edited batch.'});
+    const updatedBatch = await Batch.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    console.log()
+    res.status(200).json({data:updatedBatch ,message: 'Successfully edited batch.'});
 }
 
 exports.approveUser = async (req, res, next) => {
