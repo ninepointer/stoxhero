@@ -6,10 +6,13 @@ import { io } from 'socket.io-client';
 import { useEffect, useContext, useState} from "react";
 import {useLocation} from "react-router-dom";
 import axios from 'axios';
+import ReactGA from "react-ga"
 
 // import Header from "./Header";
 import { userContext } from "../../../AuthContext";
 import InternshipTrading from "./tradePart";
+import MDBox from "../../../components/MDBox";
+import MDTypography from "../../../components/MDTypography";
 
 function TradeViewTenX() {
   // console.log("rendering in userPosition: infinity");
@@ -54,13 +57,19 @@ function TradeViewTenX() {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id)
     })
+    ReactGA.pageview(window.location.pathname)
   }, []);
   // console.log("BatchId", BatchId)
   return (
     <>
-    <DashboardLayout>
+     <DashboardLayout>
       <DashboardNavbar />
-      <InternshipTrading socket={socket} BatchId={id}/>
+      {id ?<InternshipTrading socket={socket} BatchId={id} />:<MDBox style={{
+         minHeight: '80vh', display:'flex', alignItems:'center', justifyContent:'center', backgroundColor: '#344666',
+         color:'white', borderRadius:'12px', marginTop:'12px'
+        }}>
+          <MDTypography color='white'>Your internship has ended. Continue using the app or enroll in other internships.</MDTypography>
+        </MDBox>}
       <Footer />
     </DashboardLayout>
     </>

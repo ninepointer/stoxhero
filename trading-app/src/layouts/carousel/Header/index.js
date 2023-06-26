@@ -8,7 +8,14 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-// import ContestPortfolioCard from '../data/contestPortfolioCard'
+import LiveCarousels from '../data/liveCarousels'
+import UpcomingCarousels from '../data/upcomingCarousels'
+import InfinityLiveCarousels from '../data/infinityLiveCarousels'
+import StoxHeroLiveCarousels from '../data/stoxHeroLiveCarousels'
+import InfinityUpcomingCarousels from '../data/infinityUpcomingCarousels'
+import StoxHeroUpcomingCarousels from '../data/stoxHeroUpcomingCarousels'
+import DraftCarousels from '../data/draftCarousels'
+import MDTypography from '../../../components/MDTypography';
 // import TradingPortfolioCard from '../data/tradingPortfolioCard'
 // import InactivePortfolioCard from '../data/inactivePortfolioCard'
 
@@ -29,23 +36,24 @@ export default function LabTabs() {
 
   return (
     <Box sx={{ width: '100%', typography: 'body1' }}>
-    <Box mb={1} display="flex" justifyContent="right">
+    <Box mb={1} mt={1} display="flex" justifyContent="right">
     <MDButton 
     variant="contained" 
     color="success" 
     fontSize="small"
     component={Link}
-    to='/Carousel Details'
+    to='/carouseldetails'
     >
-        Create Craousel
+        Create Carousel
     </MDButton>
     </Box>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Live Carousels" value="1" />
-            <Tab label="Draft Carousels" value="2" />
-            <Tab label="Rejected/Inactive Carousels" value="3" />
+            <Tab label="StoxHero Carousels" value="1" />
+            <Tab label="Infinity Carousels" value="2" />
+            <Tab label="All Carousels" value="3" />
+            <Tab label="Draft Carousels" value="4" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -54,8 +62,14 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-        //   <ContestPortfolioCard/>
-        <></>
+          <MDBox>
+            <MDBox>
+              <StoxHeroLiveCarousels/> 
+            </MDBox>
+            <MDBox>
+              <StoxHeroUpcomingCarousels/> 
+            </MDBox>
+          </MDBox>
           }
           </TabPanel>
         <TabPanel value="2">
@@ -64,8 +78,14 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-        //   <TradingPortfolioCard/>
-        <></>
+          <MDBox>
+            <MDBox>
+              <InfinityLiveCarousels/> 
+            </MDBox>
+            <MDBox>
+              <InfinityUpcomingCarousels/> 
+            </MDBox>
+          </MDBox>
           }
         </TabPanel>
         <TabPanel value="3">
@@ -74,8 +94,25 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-        //   <InactivePortfolioCard/>
-        <></>
+          <MDBox>
+            <MDBox>
+              <LiveCarousels/> 
+            </MDBox>
+            <MDBox>
+              <UpcomingCarousels/> 
+            </MDBox>
+          </MDBox>
+          }
+        </TabPanel>
+        <TabPanel value="4">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+            <MDBox>
+              <DraftCarousels/> 
+            </MDBox>
           }
         </TabPanel>
       </TabContext>

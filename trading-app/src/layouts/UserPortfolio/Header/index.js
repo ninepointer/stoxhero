@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import ReactGA from "react-ga"
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MyPortfolio from '../data/Portfolios'
@@ -60,6 +61,8 @@ export default function LabTabs() {
       }).catch((err) => {
           return new Error(err);
       })
+
+      ReactGA.pageview(window.location.pathname)
   }, [])
 
   return (

@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
 // import axios from "axios";
+import ReactGA from "react-ga"
 import {  Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -33,6 +34,9 @@ export default function StoxHeroRegistration() {
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
 
   return (

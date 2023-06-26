@@ -15,7 +15,7 @@ export default class Carousel extends Component {
     const settings = {
       dots: false,
       infinite: true,
-      slidesToShow: 3,
+      slidesToShow: 1,
       slidesToScroll: 1,
       autoplay: true,
       speed: 5000,
@@ -40,7 +40,7 @@ export default class Carousel extends Component {
         return (
         <Grid container>
             <Grid item xs={12} md={4} lg={4} display='flex' justifyContent='center'>
-              <Button component={Link} to='/carousel'><img src={elem} style={{padding:-5,marginLeft:"5px",marginRight:"5px",borderRadius:"5px", width:"200px", height:"200px"}}></img></Button>
+              <Button style={{ visibility: "visible" }} disabled={!elem?.clickable} onClick={()=>{window.open(elem?.linkToCarousel,elem?.window === "In App" ? "" : "_blank")}}><img src={elem?.carouselImage} style={{padding:-5,marginLeft:"5px",marginRight:"5px",borderRadius:"5px", width:"200px", height:"200px"}}></img></Button>
             </Grid>
         </Grid>)
         })}

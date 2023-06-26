@@ -2,17 +2,16 @@
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-
-
-// Data
-// import authorsTableData from "./data/authorsTableData";
-// import projectsTableData from "./data/projectsTableData";
 import FAQs from "./faqs";
+import React, { useEffect, useContext, useState} from "react";
+import ReactGA from "react-ga"
 
 function Tables() {
-  // const { columns, rows } = authorsTableData();
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
+  
   return (
     <>
     <DashboardLayout>

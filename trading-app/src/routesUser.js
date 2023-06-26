@@ -143,9 +143,9 @@ const routes = [
     component: <UserPosition />,
   },
   {
-    type: "collapse",
-    name: "Contest",
-    key: "contest",
+    // type: "collapse",
+    // name: "Contest",
+    // key: "contest",
     // icon: <Icon fontSize="small">person</Icon>,
     icon: <EmojiEventsIcon/>,
     route: "/contest",

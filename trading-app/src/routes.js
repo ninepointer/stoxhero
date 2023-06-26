@@ -7,6 +7,7 @@ import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
 import Instruments from "./layouts/instruments";
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 // import Contests from "./layouts/contests";
 import TradingAccount from "./layouts/trading-account";
 import Users from "./layouts/users";
@@ -289,7 +290,7 @@ const routes = [
     // name: "Company Dashboard",
     key: "carouselDetails",
     // icon: <DashboardIcon/>,
-    route: "/Carousel Details",
+    route: "/carouseldetails",
     component: <CarouselDetails />,
   },
   {
@@ -363,6 +364,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "tutorialcategory",
     component: <TutorialCategoryForm />,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena",
+    // key: "arena",CreatePaymentHeader
+    // icon: <BusinessIcon/>,
+    route: "holidaydetails",
+    component: <TradingHolidayForm />,
   },
   {
     // type: "collapse",
@@ -549,7 +558,7 @@ const routes = [
     type: "collapse",
     name: "Carousel",
     key: "carousel",
-    icon: <HomeIcon/>,
+    icon: <ViewCarouselIcon/>,
     route: "/carousel",
     component: <Carousel />,
   },

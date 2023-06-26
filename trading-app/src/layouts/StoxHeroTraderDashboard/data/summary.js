@@ -24,21 +24,21 @@ function Summary() {
                         <Grid item xs={12} md={4} lg={4}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='50%' fontSize={13} fontWeight="bold">P&L</MDTypography>
-                                <MDTypography minWidth='50%' fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>+₹40,000</MDTypography>
+                                <MDTypography minWidth='50%' fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>Coming Soon</MDTypography>
                             </MDBox>
                         </Grid>
 
                         <Grid item xs={12} md={4} lg={4}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='50%' fontSize={13} fontWeight="bold">Trading Days</MDTypography>
-                                <MDTypography minWidth='50%' fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>12</MDTypography>
+                                <MDTypography minWidth='50%' fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>Coming Soon</MDTypography>
                             </MDBox>
                         </Grid>
 
                         <Grid item xs={12} md={4} lg={4} >
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='50%' fontSize={13} fontWeight="bold">Available Margin</MDTypography>
-                                <MDTypography minWidth='50%' fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>₹1,000,000</MDTypography>
+                                <MDTypography minWidth='50%' fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>Coming Soon</MDTypography>
                             </MDBox>
                         </Grid>
                        
