@@ -146,99 +146,29 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
+  let isRedisConnected = getValue();
   let subscriptionId = req.params.id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
   try {
-    const subscription = await Subscription.aggregate([
-      {
-        $match: {
-          _id: new ObjectId(subscriptionId),
-        },
-      },
-      {
-        $lookup: {
-          from: "user-portfolios",
-          localField: "portfolio",
-          foreignField: "_id",
-          as: "portfolioData",
-        },
-      },
-      {
-        $lookup: {
-          from: "tenx-trade-users",
-          localField: "_id",
-          foreignField: "subscriptionId",
-          as: "trades",
-        },
-      },
-      {
-        $unwind:
-        {
-          path: "$trades",
-          includeArrayIndex: "string",
-        },
-      },
-      {
-        $match: {
-          "trades.trade_time": { $lt: today },
-          "trades.status": "COMPLETE",
-          "trades.trader": new ObjectId(req.user._id)
-        },
-      },
-      {
-        $group:
 
-        {
-          _id: {
-            subscriptionId: "$_id",
-            totalFund: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioValue",
-                0,
-              ],
-            },
-          },
-          totalAmount: {
-            $sum: {
-              $multiply: ["$trades.amount", -1],
-            }
-          },
-          totalBrokerage: {
-            $sum: "$trades.brokerage",
-          },
-        },
-      },
-      {
-        $project:
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`)
+      marginDetail = JSON.parse(marginDetail);
 
-        {
-          _id: 0,
-          subscriptionId: "$_id.subscriptionId",
-          totalFund: "$_id.totalFund",
-          npnl: {
-            $subtract: [
-              "$totalAmount",
-              "$totalBrokerage",
-            ],
-          },
-          openingBalance: {
-            $sum: [
-              "$_id.totalFund",
-              { $subtract: ["$totalAmount", "$totalBrokerage"] }
-            ]
-          }
-        },
-      },
-    ])
+      res.status(201).json({ message: "pnl received", data: marginDetail });
 
-    if (subscription.length > 0) {
-      res.status(200).json({ status: 'success', data: subscription[0] });
     } else {
-      const portfolioValue = await Subscription.aggregate([
+
+      const subscription = await Subscription.aggregate([
         {
           $match: {
             _id: new ObjectId(subscriptionId),
@@ -253,7 +183,31 @@ exports.marginDetail = async (req, res, next) => {
           },
         },
         {
-          $group: {
+          $lookup: {
+            from: "tenx-trade-users",
+            localField: "_id",
+            foreignField: "subscriptionId",
+            as: "trades",
+          },
+        },
+        {
+          $unwind:
+          {
+            path: "$trades",
+            includeArrayIndex: "string",
+          },
+        },
+        {
+          $match: {
+            "trades.trade_time": { $lt: today },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(req.user._id)
+          },
+        },
+        {
+          $group:
+  
+          {
             _id: {
               subscriptionId: "$_id",
               totalFund: {
@@ -263,21 +217,93 @@ exports.marginDetail = async (req, res, next) => {
                 ],
               },
             },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              }
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
+            },
           },
         },
         {
-          $project: {
+          $project:
+  
+          {
             _id: 0,
             subscriptionId: "$_id.subscriptionId",
             totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                { $subtract: ["$totalAmount", "$totalBrokerage"] }
+              ]
+            }
           },
         },
       ])
-      res.status(200).json({ status: 'success', data: portfolioValue[0] });
+
+      if (subscription.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(subscription[0]))
+          await client.expire(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: subscription[0] });
+      } else {
+        const portfolioValue = await Subscription.aggregate([
+          {
+            $match: {
+              _id: new ObjectId(subscriptionId),
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolioData",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                subscriptionId: "$_id",
+                totalFund: {
+                  $arrayElemAt: [
+                    "$portfolioData.portfolioValue",
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              subscriptionId: "$_id.subscriptionId",
+              totalFund: "$_id.totalFund",
+            },
+          },
+        ])
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(portfolioValue[0]))
+          await client.expire(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfolioValue[0] });
+      }
+
     }
+
   } catch (e) {
     console.log(e);
-    res.status(500).json({ status: 'error', message: 'Something went wrong' });
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
 }
 // TODO remove hardcode of 60 days
@@ -288,15 +314,16 @@ exports.tradingDays = async (req, res, next) => {
   console.log("subscriptionId", subscriptionId, userId)
   const today = new Date();
 
-  const tradingDays = await TenXTrader.aggregate(
-    [
+  const tradingDays = await TenXTrader.aggregate([
     {
       $match: {
         trader: new ObjectId(
           userId
         ),
         status: "COMPLETE",
-        subscriptionId: new ObjectId(subscriptionId)
+        subscriptionId: new ObjectId(
+          subscriptionId
+        ),
       },
     },
     {
@@ -307,52 +334,52 @@ exports.tradingDays = async (req, res, next) => {
         as: "subscriptionData",
       },
     },
-  
     {
       $group: {
         _id: {
           subscriptionId: "$subscriptionId",
           users: "$subscriptionData.users",
           validity: "$subscriptionData.validity",
-          date: {
-            $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$trade_time",
-            },
-          },
+          date: "$trade_time",
         },
       },
     },
-  
     {
       $group: {
         _id: {
-          users:{$arrayElemAt:  ["$_id.users", 0]},
+          users: {
+            $arrayElemAt: ["$_id.users", 0],
+          },
           id: "$_id.subscriptionId",
           validity: {
             $arrayElemAt: ["$_id.validity", 0],
           },
+          date: "$_id.date",
         },
         count: {
           $sum: 1,
-        },
-        firstMatchedDate: {
-          $first: "$_id.date",
         },
       },
     },
     {
       $unwind: {
-        path: "$_id.users"
-      }
+        path: "$_id.users",
+      },
     },
-      {
+    {
       $match:
   
         {
           "_id.users.userId": new ObjectId(
-          userId
-        ),
+            userId
+          ),
+          "_id.users.status": "Live",
+          $expr: {
+            $gte: [
+              "$_id.date",
+              "$_id.users.subscribedOn",
+            ],
+          },
         },
     },
     {
@@ -370,9 +397,9 @@ exports.tradingDays = async (req, res, next) => {
               $subtract: [
                 today,
                 {
-                  $toDate: "$_id.users.subscribedOn",
+                  $toDate:
+                    "$_id.users.subscribedOn",
                 },
-                
               ],
             },
             24 * 60 * 60 * 1000, // Convert milliseconds to days
@@ -387,10 +414,10 @@ exports.tradingDays = async (req, res, next) => {
                 {
                   $subtract: [
                     today,
-                                 {
-                  $toDate: "$_id.users.subscribedOn",
-                },
-                  
+                    {
+                      $toDate:
+                        "$_id.users.subscribedOn",
+                    },
                   ],
                 },
                 24 * 60 * 60 * 1000, // Convert milliseconds to days
@@ -411,9 +438,9 @@ exports.tradingDays = async (req, res, next) => {
               $subtract: [
                 today,
                 {
-                  $toDate: "$_id.users.subscribedOn",
+                  $toDate:
+                    "$_id.users.subscribedOn",
                 },
-                
               ],
             },
           ],
@@ -421,6 +448,7 @@ exports.tradingDays = async (req, res, next) => {
       },
     },
   ])
+
 
   console.log("tradingDays ", tradingDays)
   if(tradingDays.length> 0){
@@ -464,13 +492,16 @@ exports.autoExpireSubscription = async () => {
 
       const today = new Date();  // Get the current date
 
-      const tradingDays = await TenXTrader.aggregate(
-        [
+      const tradingDays = await TenXTrader.aggregate([
         {
           $match: {
-            trader: new ObjectId(userId),
-            subscriptionId: new ObjectId(subscription[i]._id),
+            trader: new ObjectId(
+              userId
+            ),
             status: "COMPLETE",
+            subscriptionId: new ObjectId(
+              subscriptionId
+            ),
           },
         },
         {
@@ -481,58 +512,58 @@ exports.autoExpireSubscription = async () => {
             as: "subscriptionData",
           },
         },
-      
         {
           $group: {
             _id: {
               subscriptionId: "$subscriptionId",
               users: "$subscriptionData.users",
               validity: "$subscriptionData.validity",
-              date: {
-                $dateToString: {
-                  format: "%Y-%m-%d",
-                  date: "$trade_time",
-                },
-              },
+              date: "$trade_time",
             },
           },
         },
-      
         {
           $group: {
             _id: {
-              users:{$arrayElemAt:  ["$_id.users", 0]},
+              users: {
+                $arrayElemAt: ["$_id.users", 0],
+              },
               id: "$_id.subscriptionId",
               validity: {
                 $arrayElemAt: ["$_id.validity", 0],
               },
+              date: "$_id.date",
             },
             count: {
               $sum: 1,
-            },
-            firstMatchedDate: {
-              $first: "$_id.date",
             },
           },
         },
         {
           $unwind: {
-            path: "$_id.users"
-          }
+            path: "$_id.users",
+          },
         },
-          {
+        {
           $match:
       
             {
               "_id.users.userId": new ObjectId(
-              req.user._id
-            ),
+                userId
+              ),
+              "_id.users.status": "Live",
+              $expr: {
+                $gte: [
+                  "$_id.date",
+                  "$_id.users.subscribedOn",
+                ],
+              },
             },
         },
         {
           $project: {
             _id: 0,
-            // subscriptionId: "$_id.id",
+            subscriptionId: "$_id.id",
             totalTradingDays: "$count",
             firstMatchedDate: 1,
             remainingDays: {
@@ -544,9 +575,9 @@ exports.autoExpireSubscription = async () => {
                   $subtract: [
                     today,
                     {
-                      $toDate: "$_id.users.subscribedOn",
+                      $toDate:
+                        "$_id.users.subscribedOn",
                     },
-                    
                   ],
                 },
                 24 * 60 * 60 * 1000, // Convert milliseconds to days
@@ -561,10 +592,10 @@ exports.autoExpireSubscription = async () => {
                     {
                       $subtract: [
                         today,
-                                     {
-                      $toDate: "$_id.users.subscribedOn",
-                    },
-                      
+                        {
+                          $toDate:
+                            "$_id.users.subscribedOn",
+                        },
                       ],
                     },
                     24 * 60 * 60 * 1000, // Convert milliseconds to days
@@ -585,16 +616,16 @@ exports.autoExpireSubscription = async () => {
                   $subtract: [
                     today,
                     {
-                      $toDate: "$_id.users.subscribedOn",
+                      $toDate:
+                        "$_id.users.subscribedOn",
                     },
-                    
                   ],
                 },
               ],
             },
           },
         },
-      ]);
+      ])
 
 
       // console.log("tradingDays", tradingDays, userId)
@@ -807,66 +838,154 @@ exports.liveTotalTradersCount = async (req, res, next) => {
       res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
+// exports.overallTenXPnlYesterday = async (req, res, next) => {
+  
+//   let date;
+//   let i = 1;
+//   async function pnlDetails(i){
+//     console.log("i",i)
+//     let yesterdayDate = new Date();
+//     yesterdayDate.setDate(yesterdayDate.getDate() - i);
+//     let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+//     yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+//     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+//     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+//     const startTime = new Date(yesterdayStartTime); 
+//     date = startTime;
+//     const endTime = new Date(yesterdayEndTime); 
+//     console.log("STime & ETime:",startTime,endTime)
+   
+//     let pnlDetailsData = await TenXTrader.aggregate([
+//       {
+//         $match: {
+//           trade_time: {
+//             $gte: startTime, $lte: endTime
+//             // $gte: new Date("2023-06-23T00:00:00.000+00:00"), $lte: new Date("2023-06-23T23:59:59.000+00:00")
+//             // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+//           },
+//           status: "COMPLETE",
+//         },
+//       },
+//         {
+//           $group: {
+//             _id: null,
+
+//             amount: {
+//               $sum: {$multiply : ["$amount",-1]},
+//             },
+//             turnover: {
+//               $sum: {
+//                 $toInt: {$abs : "$amount"},
+//               },
+//             },
+//             brokerage: {
+//               $sum: {
+//                 $toDouble: "$brokerage",
+//               },
+//             },
+//             lots: {
+//               $sum: {
+//                 $toInt: "$Quantity",
+//               },
+//             },
+//             totallots: {
+//               $sum: {
+//                 $toInt: {$abs : "$Quantity"},
+//               },
+//             },
+//             trades: {
+//               $count:{}
+//             },
+//           },
+//         },
+//         {
+//           $sort: {
+//             _id: -1,
+//           },
+//         },
+//       ])
+//       console.log("Length:",pnlDetailsData.length,pnlDetailsData)
+//       if(!pnlDetailsData || pnlDetailsData.length === 0){
+//         console.log("Inside length check")
+//         await pnlDetails(i+1);
+//       }
+//       else{
+//         console.log("inside else statement:",pnlDetailsData)
+//         return pnlDetailsData;
+        
+//       }    
+//     }
+    
+//     let pnlData = await pnlDetails(i)
+//     console.log("PNL Data:",i,pnlData)
+//     res.status(201).json({ message: "pnl received", data: pnlData, results:(pnlData ? pnlData.length : 0), date:date });
+// }
+
 exports.overallTenXPnlYesterday = async (req, res, next) => {
-  let yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // console.log(yesterdayDate)
-    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-    const startTime = new Date(yesterdayStartTime); 
-    const endTime = new Date(yesterdayEndTime); 
-    // console.log("Query Timing: ", startTime, endTime)
-    let pnlDetails = await TenXTrader.aggregate([
+  let date;
+  let i = 1;
+  let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+  let pnlDetailsData;
+
+  while (!pnlDetailsData && i <= maxDaysBack) {
+    let day = new Date();
+    day.setDate(day.getDate() - i);
+    let startTime = new Date(day.setHours(0, 0, 0, 0));
+    let endTime = new Date(day.setHours(23, 59, 59, 999));
+    date = startTime;
+    
+    pnlDetailsData = await TenXTrader.aggregate([
       {
         $match: {
           trade_time: {
-            $gte: startTime, $lte: endTime
-            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+            $gte: startTime,
+            $lte: endTime
           },
           status: "COMPLETE",
         },
       },
-        {
-          $group: {
-            _id: null,
+      {
+        $group: {
+          _id: null,
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          turnover: {
+            $sum: { $toInt: { $abs: "$amount" } },
+          },
+          brokerage: {
+            $sum: { $toDouble: "$brokerage" },
+          },
+          lots: {
+            $sum: { $toInt: "$Quantity" },
+          },
+          totallots: {
+            $sum: { $toInt: { $abs: "$Quantity" } },
+          },
+          trades: {
+            $count: {}
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ]);
 
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            turnover: {
-              $sum: {
-                $toInt: {$abs : "$amount"},
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
-              },
-            },
-            totallots: {
-              $sum: {
-                $toInt: {$abs : "$Quantity"},
-              },
-            },
-            trades: {
-              $count:{}
-            },
-          },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-      ])
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+    if (!pnlDetailsData || pnlDetailsData.length === 0) {
+      pnlDetailsData = null;  // reset the value to ensure the while loop continues
+      i++;  // increment the day counter
+    }
+  }
+
+  res.status(201).json({
+    message: "pnl received", 
+    data: pnlDetailsData, 
+    results: pnlDetailsData ? pnlDetailsData.length : 0, 
+    date: date
+  });
 }
 
 exports.liveTotalTradersCountYesterday = async (req, res, next) => {

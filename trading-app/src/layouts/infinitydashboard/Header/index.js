@@ -4,26 +4,18 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider, LinearProgress} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
-// import MDAvatar from '../../../components/MDAvatar';
-// import man from '../../../assets/images/man.png'
-// import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { Link } from "react-router-dom";
 import CachedIcon from '@mui/icons-material/Cached';
 
-// import RunningPNLChart from '../data/runningpnlchart'
-// import data from "../data";
- 
-//data
 
 export default function LabTabs({socket}) {
-//   const { columns, rows } = data();
-//   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
   const [isLoadingData,setIsLoadingData] = useState(false)
   const [trackEvent, setTrackEvent] = useState({});
-//   const [liveDetail, setLiveDetail] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
+  const [lastLiveTradingDate, setLastLiveTradingDate] = useState("");
+  const [lastMockTradingDate, setLastMockTradingDate] = useState("");
   const [tradeDataYesterday,setTradeDataYesterday] = useState([]);
   const [liveTradeData, setLiveTradeData] = useState([]);
   const [liveTradeYesterdayData, setLiveTradeYesterdayData] = useState([]);
@@ -42,7 +34,6 @@ export default function LabTabs({socket}) {
   const [mockMarginData, setMockMarginData] = useState();
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-//   let liveDetailsArr = [];
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -109,7 +100,6 @@ export default function LabTabs({socket}) {
 
   useEffect(()=>{
     socket.on('updatePnl', (data)=>{
-      console.log("in the pnl event", data)
       setTimeout(()=>{
         setTrackEvent(data);
       })
@@ -177,6 +167,7 @@ export default function LabTabs({socket}) {
     axios.get(`${baseUrl}api/v1/infinityTrade/mock/overallinfinitymockcompanypnlyesterday`)
     .then((res) => {
         setTradeDataYesterday(res.data.data);
+        setLastMockTradingDate(res.data.date);
         setTimeout(()=>{
             setIsLoadingData(false)
         },500)
@@ -188,7 +179,9 @@ export default function LabTabs({socket}) {
 
     axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlyesterday`)
     .then((res) => {
+        console.log(res.data.data)
         setLiveTradeYesterdayData(res.data.data);
+        setLastLiveTradingDate(res.data.date);
         setTimeout(()=>{
             setIsLoadingData(false)
         },500)
@@ -289,7 +282,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (Mock)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's (StoxHero)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -417,7 +410,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (Mock)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (StoxHero) - {new Date(lastMockTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -453,7 +446,7 @@ export default function LabTabs({socket}) {
                     </Grid>
                     
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's (Infinity)</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (Infinity) - {new Date(lastLiveTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>

@@ -2,10 +2,12 @@ const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
 const {createTradingHoliday, getTradingHolidays, getTradingHolidayById, 
-        editTradingHoliday, deleteTradingHoliday, getUpcomingTradingHolidays, getPastTradingHolidays} = require('../../controllers/tradingHolidays/tradingHolidaysController');
+        editTradingHoliday, deleteTradingHoliday, getUpcomingTradingHolidays, 
+        getPastTradingHolidays, getTodaysTradingHolidays} = require('../../controllers/tradingHolidays/tradingHolidaysController');
 
 
 router.route('/').post(Authenticate, createTradingHoliday).get(getTradingHolidays);
+router.route('/today').get(getTodaysTradingHolidays);
 router.route('/upcoming').get(getUpcomingTradingHolidays);
 router.route('/past').get(getPastTradingHolidays);
 router.route('/:id').patch(Authenticate, editTradingHoliday).get(getTradingHolidayById);

@@ -23,14 +23,13 @@ const carouselSchema = new mongoose.Schema({
         required:true,
         enum: ['Live','Draft','Rejected']
     },
-    objectType:{
-        type:String,
-        required:true,
-        enum: ['campaign','referral-program','contest']
+    clickable:{
+        type: Boolean,
+        required: true,
     },
-    objectId:{
-        type: Schema.Types.ObjectId,
-        refPath: 'objectType'
+    linkToCarousel:{
+        type: String,
+        required: false,
     },
     carouselImage:{
         type:String,

@@ -10,6 +10,7 @@ export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [marketData, setMarketData] = useState([]);
+  const [lastVirtualTradingDate,setLastVirtualTradingDate] = useState("");
   const [tradeData, setTradeData] = useState([]);
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
   const [liveTraderCount, setLiveTraderCount] = useState(0);
@@ -75,8 +76,8 @@ export default function LabTabs({socket}) {
 
     axios.get(`${baseUrl}api/v1/papertrade/virtualoveralltraderpnlyesterday`)
     .then((res) => {
-        console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
+        setLastVirtualTradingDate(res.data.date);
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -84,7 +85,6 @@ export default function LabTabs({socket}) {
 
     axios.get(`${baseUrl}api/v1/papertrade/liveandtotaltradercountyesterday`)
     .then((res) => {
-        console.log("virtual Count Yesterday: ",res.data.data)
         setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
         setTimeout(()=>{
@@ -188,7 +188,7 @@ export default function LabTabs({socket}) {
                     </Grid>
 
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's Virtual Trading Position</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Virtual Trading Day - {new Date(lastVirtualTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>

@@ -27,7 +27,6 @@ exports.overallPnlTrader = async (req, res, next) => {
     if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
       let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
       pnl = JSON.parse(pnl);
-      // //console.log("pnl redis", pnl)
 
       res.status(201).json({ message: "pnl received", data: pnl });
 
@@ -83,7 +82,6 @@ exports.overallPnlTrader = async (req, res, next) => {
         await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
       }
 
-      // //console.log("pnlDetails", pnlDetails)
       res.status(201).json({ message: "pnl received", data: pnlDetails });
     }
 
@@ -511,85 +509,207 @@ exports.getPnlAndCreditData = async (req, res, next) => {
 }
 
 exports.getMyPnlAndCreditData = async (req, res, next) => {
+  let isRedisConnected = getValue();
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   // todayDate = "2023-05-19" + "T00:00:00.000Z";
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  let myPnlAndCreditData = await InfinityTrader.aggregate([
-    {
-      $lookup: {
-        from: "user-personal-details",
-        localField: "trader",
-        foreignField: "_id",
-        as: "result",
-      },
-    },
-    {
-      $match: {
-        status: "COMPLETE",
-        trader: new ObjectId(req.user._id),
-        trade_time: {
-          $lt: today
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
+  // let myPnlAndCreditData = await InfinityTrader.aggregate([
+  //   {
+  //     $lookup: {
+  //       from: "user-personal-details",
+  //       localField: "trader",
+  //       foreignField: "_id",
+  //       as: "result",
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       status: "COMPLETE",
+  //       trader: new ObjectId(req.user._id),
+  //       trade_time: {
+  //         $lt: today
+  //       }
+  //     }
+  //   },
+  //   {
+  //     $group: {
+  //       _id: {
+
+  //         funds: {
+  //           $arrayElemAt: ["$result.fund", 0],
+  //         },
+  //       },
+  //       gpnl: {
+  //         $sum: {
+  //           $multiply: ["$amount", -1],
+  //         },
+  //       },
+  //       brokerage: {
+  //         $sum: {
+  //           $toDouble: "$brokerage",
+  //         },
+  //       },
+  //     },
+  //   },
+  //   {
+  //     $addFields:
+  //     {
+  //       npnl: {
+  //         $subtract: ["$gpnl", "$brokerage"],
+  //       },
+  //       availableMargin: {
+  //         $add: ["$_id.funds", { $subtract: ["$gpnl", "$brokerage"] }]
+  //       }
+  //     },
+  //   },
+  //   {
+  //     $project:
+  //     {
+  //       _id: 0,
+  //       totalFund: "$_id.funds",
+  //       gpnl: "$gpnl",
+  //       brokerage: "$brokerage",
+  //       npnl: "$npnl",
+  //       openingBalance: "$availableMargin"
+  //     },
+  //   },
+  //   {
+  //     $sort: { npnl: 1 }
+  //   }
+  // ])
+
+  // if (myPnlAndCreditData.length > 0) {
+  //   res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
+  // } else {
+  //   const data = await User.findById(req.user._id).select('fund');
+  //   const respData = { "totalFund": data.fund };
+  //   res.status(201).json({ message: "data received", data: respData });
+  // }
+
+
+
+
+
+
+
+
+
+  try {
+
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMargin`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMargin`)
+      marginDetail = JSON.parse(marginDetail);
+
+      res.status(201).json({ message: "pnl received", data: marginDetail });
+
+    } else {
+
+      let myPnlAndCreditData = await InfinityTrader.aggregate([
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "trader",
+            foreignField: "_id",
+            as: "result",
+          },
+        },
+        {
+          $match: {
+            status: "COMPLETE",
+            trader: new ObjectId(req.user._id),
+            trade_time: {
+              $lt: today
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+    
+              funds: {
+                $arrayElemAt: ["$result.fund", 0],
+              },
+            },
+            gpnl: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+          },
+        },
+        {
+          $addFields:
+          {
+            npnl: {
+              $subtract: ["$gpnl", "$brokerage"],
+            },
+            availableMargin: {
+              $add: ["$_id.funds", { $subtract: ["$gpnl", "$brokerage"] }]
+            }
+          },
+        },
+        {
+          $project:
+          {
+            _id: 0,
+            totalFund: "$_id.funds",
+            gpnl: "$gpnl",
+            brokerage: "$brokerage",
+            npnl: "$npnl",
+            openingBalance: "$availableMargin"
+          },
+        },
+        {
+          $sort: { npnl: 1 }
         }
+      ])
+
+      if (myPnlAndCreditData.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMargin`, JSON.stringify(myPnlAndCreditData[0]))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMargin`, secondsRemaining);
+        }
+        res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
+      } else {
+        const data = await User.findById(req.user._id).select('fund');
+        const respData = { "totalFund": data.fund };
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMargin`, JSON.stringify(respData))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMargin`, secondsRemaining);
+        }
+        res.status(201).json({ message: "data received", data: respData });
       }
-    },
-    {
-      $group: {
-        _id: {
 
-          funds: {
-            $arrayElemAt: ["$result.fund", 0],
-          },
-        },
-        gpnl: {
-          $sum: {
-            $multiply: ["$amount", -1],
-          },
-        },
-        brokerage: {
-          $sum: {
-            $toDouble: "$brokerage",
-          },
-        },
-      },
-    },
-    {
-      $addFields:
-      {
-        npnl: {
-          $subtract: ["$gpnl", "$brokerage"],
-        },
-        availableMargin: {
-          $add: ["$_id.funds", { $subtract: ["$gpnl", "$brokerage"] }]
-        }
-      },
-    },
-    {
-      $project:
-      {
-        _id: 0,
-        totalFund: "$_id.funds",
-        gpnl: "$gpnl",
-        brokerage: "$brokerage",
-        npnl: "$npnl",
-        openingBalance: "$availableMargin"
-      },
-    },
-    {
-      $sort: { npnl: 1 }
+
+
+      // res.status(201).json({ message: "pnl received", data: pnlDetails });
     }
-  ])
 
-  if (myPnlAndCreditData.length > 0) {
-    res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
-  } else {
-    const data = await User.findById(req.user._id).select('fund');
-    const respData = { "totalFund": data.fund };
-    //res.status(201).json({message: "data received", data: fundDetail[0]});
-    res.status(201).json({ message: "data received", data: respData });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
+
+
+
+
+
+
+
 
 
 }
@@ -4134,64 +4254,70 @@ exports.getAllTradersMockOrdersForToday = async (req, res)=>{
 }
 
 exports.overallInfinityMockCompanyPnlYesterday = async (req, res, next) => {
-  let yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // //console.log(yesterdayDate)
-    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-    const startTime = new Date(yesterdayStartTime); 
-    const endTime = new Date(yesterdayEndTime); 
-    // //console.log("Query Timing: ", startTime, endTime)
-    let pnlDetails = await InfinityTraderCompany.aggregate([
+  let date;
+  let i = 1;
+  let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+  let pnlDetailsData;
+
+  while (!pnlDetailsData && i <= maxDaysBack) {
+    let day = new Date();
+    day.setDate(day.getDate() - i);
+    let startTime = new Date(day.setHours(0, 0, 0, 0));
+    let endTime = new Date(day.setHours(23, 59, 59, 999));
+    date = startTime;
+    
+    pnlDetailsData = await InfinityTraderCompany.aggregate([
       {
         $match: {
           trade_time: {
-            $gte: startTime, $lte: endTime
-            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+            $gte: startTime,
+            $lte: endTime
           },
           status: "COMPLETE",
         },
       },
-        {
-          $group: {
-            _id: null,
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            turnover: {
-              $sum: {
-                $toInt: {$abs : "$amount"},
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
-              },
-            },
-            totalLots: {
-              $sum: {
-                $toInt: {$abs : "$Quantity"},
-              },
-            },
-            trades: {
-              $count:{}
-            },
+      {
+        $group: {
+          _id: null,
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          turnover: {
+            $sum: { $toInt: { $abs: "$amount" } },
+          },
+          brokerage: {
+            $sum: { $toDouble: "$brokerage" },
+          },
+          lots: {
+            $sum: { $toInt: "$Quantity" },
+          },
+          totallots: {
+            $sum: { $toInt: { $abs: "$Quantity" } },
+          },
+          trades: {
+            $count: {}
           },
         },
-        {
-          $sort: {
-            _id: -1,
-          },
+      },
+      {
+        $sort: {
+          _id: -1,
         },
-      ])
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+      },
+    ]);
+
+    if (!pnlDetailsData || pnlDetailsData.length === 0) {
+      pnlDetailsData = null;  // reset the value to ensure the while loop continues
+      i++;  // increment the day counter
+    }
+  }
+
+  res.status(201).json({
+    message: "pnl received", 
+    data: pnlDetailsData, 
+    results: pnlDetailsData ? pnlDetailsData.length : 0, 
+    date: date
+  });
 }
 
 exports.overallInfinityMockCompanyPnlMTD = async (req, res, next) => {

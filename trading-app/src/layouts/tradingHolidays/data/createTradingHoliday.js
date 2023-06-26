@@ -43,8 +43,6 @@ const [isSubmitted,setIsSubmitted] = useState(false);
 const [creating,setCreating] = useState(false);
 const [newObjectId, setNewObjectId] = useState("");
 
-
-console.log("location", location, id)
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
@@ -53,15 +51,15 @@ const [formState,setFormState] = useState({
     holidayDate:'',
 });
 
-
 React.useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/tradingholiday/${id?._id}`)
     .then((res)=>{
-      console.log(res?.data?.data)
+   
       setTradingHoliday(res?.data?.data);
+      console.log(res.data.data)
       setFormState({
-        categoryName: res.data.data?.holidayName || '',
+        holidayName: res.data.data?.holidayName || '',
         description: res.data.data?.description || '',
         holidayDate: res.data.data?.holidayDate || '',
       });
@@ -73,17 +71,19 @@ React.useEffect(()=>{
     })    
 },[])
 
+
 async function onEdit(e,formState){
     e.preventDefault()
     setSaving(true)
     console.log(formState)
+
     if(!formState.holidayName || !formState.holidayDate || !formState.description){
         setTimeout(()=>{setSaving(false);setEditing(true)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
     const { holidayName, holidayDate, description } = formState;
 
-    const res = await fetch(`${baseUrl}api/v1/tradingholiday/${id}`, {
+    const res = await fetch(`${baseUrl}api/v1/tradingholiday/${id?._id}`, {
         method: "PATCH",
         credentials:"include",
         headers: {
@@ -96,19 +96,19 @@ async function onEdit(e,formState){
     });
 
     const data = await res.json();
-    console.log(data);
-    if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error",data.error)
+
+    if (!data.data) {
+        setTimeout(()=>{setSaving(false);setEditing(false)},500)
+        openErrorSB("Error",data.error)  
     } else {
         openSuccessSB("Holiday Edited", "Edited Successfully")
         setTimeout(()=>{setSaving(false);setEditing(false)},500)
-        console.log("entry succesfull");
     }
 }
 
   async function onSubmit(e,formState){
     e.preventDefault()
-    console.log(formState)
+
     if(!formState.holidayName || !formState.holidayDate || !formState.description ){
     
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
@@ -130,8 +130,10 @@ async function onEdit(e,formState){
     
     
     const data = await res.json();
-    if (data.status === 422 || data.error || !data) {
+
+    if (!data.data) {
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        openErrorSB("Error",data.message)
     } else {
         setNewObjectId(data?.data._id)
         openSuccessSB("Trading Holiday Created",data.message)
@@ -222,6 +224,7 @@ async function onEdit(e,formState){
                     <DatePicker
                     label="Holiday Date"
                     disabled={((isSubmitted || id) && (!editing || saving))}
+                    value={dayjs(formState?.holidayDate) || dayjs(tradingHoliday?.holidayDate)}
                     onChange={(e)=>{setFormState(prevState => ({...prevState, holidayDate: dayjs(e)}))}}
                     sx={{ width: '100%' }}
                     />

@@ -172,6 +172,7 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
+  let isRedisConnected = getValue();
   let {batch} = req.params;
   // console.log("Batch:",batch)
   let date = new Date();
@@ -179,10 +180,25 @@ exports.marginDetail = async (req, res, next) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  // console.log(batch, req.user._id)
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
+
 
   try {
-    const subscription = await InternBatch.aggregate([
+
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`)
+      marginDetail = JSON.parse(marginDetail);
+
+      res.status(201).json({ message: "pnl received", data: marginDetail });
+
+    } else {
+
+      const subscription = await InternBatch.aggregate([
         {
           $match: {
             _id: new ObjectId(batch),
@@ -206,22 +222,87 @@ exports.marginDetail = async (req, res, next) => {
         },
         {
           $unwind:
-            {
-              path: "$trades",
-              includeArrayIndex: "string",
-            },
+          {
+            path: "$trades",
+            includeArrayIndex: "string",
+          },
         },
         {
-            $match: {
-                "trades.trade_time": {$lt: today},
-                "trades.status": "COMPLETE",
-                "trades.trader": new ObjectId(req.user._id)
-            },
+          $match: {
+            "trades.trade_time": { $lt: today },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(req.user._id)
+          },
         },
         {
           $group:
-      
-            {
+
+          {
+            _id: {
+              batch: "$_id",
+              totalFund: {
+                $arrayElemAt: [
+                  "$portfolioData.portfolioValue",
+                  0,
+                ],
+              },
+            },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              }
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
+            },
+          },
+        },
+        {
+          $project:
+
+          {
+            _id: 0,
+            batch: "$_id.batch",
+            totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                { $subtract: ["$totalAmount", "$totalBrokerage"] }
+              ]
+            }
+          },
+        },
+      ])
+
+      if (subscription.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, JSON.stringify(subscription[0]))
+          await client.expire(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: subscription[0] });
+      } else {
+        const portfolioValue = await InternBatch.aggregate([
+          {
+            $match: {
+              _id: new ObjectId(batch),
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolioData",
+            },
+          },
+          {
+            $group: {
               _id: {
                 batch: "$_id",
                 totalFund: {
@@ -231,87 +312,30 @@ exports.marginDetail = async (req, res, next) => {
                   ],
                 },
               },
-              totalAmount: {
-                $sum:{
-                    $multiply: ["$trades.amount", -1],
-                }
-              },
-              totalBrokerage: {
-                $sum: "$trades.brokerage",
-              },
             },
-        },
-        {
-          $project:
-      
-            {
+          },
+          {
+            $project: {
               _id: 0,
               batch: "$_id.batch",
               totalFund: "$_id.totalFund",
-              npnl: {
-                $subtract: [
-                  "$totalAmount",
-                  "$totalBrokerage",
-                ],
-              },
-              openingBalance: {
-                $sum: [
-                    "$_id.totalFund",
-                    { $subtract: ["$totalAmount", "$totalBrokerage"] }
-                  ]
-              }
             },
-        },
-    ])
-    // console.log("subs", subscription)
-    if(subscription.length > 0){
-      // console.log("subs", subscription)
-
-        res.status(200).json({status: 'success', data: subscription[0]});
-    } else{
-        const portfolioValue = await InternBatch.aggregate([
-            {
-              $match: {
-                _id: new ObjectId(batch),
-              },
-            },
-            {
-              $lookup: {
-                from: "user-portfolios",
-                localField: "portfolio",
-                foreignField: "_id",
-                as: "portfolioData",
-              },
-            },
-            {
-              $group: {
-                _id: {
-                  batch: "$_id",
-                  totalFund: {
-                    $arrayElemAt: [
-                      "$portfolioData.portfolioValue",
-                      0,
-                    ],
-                  },
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                batch: "$_id.batch",
-                totalFund: "$_id.totalFund",
-              },
-            },
+          },
         ])
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, JSON.stringify(portfolioValue[0]))
+          await client.expire(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfolioValue[0] });
+      }
 
-        // console.log("portfolioValue", portfolioValue, subscription)
-        res.status(200).json({status: 'success', data: portfolioValue[0]});
     }
+
   } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message: 'Something went wrong'});
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
+
 }
 
 exports.tradingDays = async(req, res, next)=>{
@@ -691,65 +715,70 @@ exports.liveTotalTradersCount = async (req, res, next) => {
 }
 
 exports.overallInternshipPnlYesterday = async (req, res, next) => {
-  let yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // console.log(yesterdayDate)
-    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-    const startTime = new Date(yesterdayStartTime); 
-    const endTime = new Date(yesterdayEndTime); 
-    // console.log("Query Timing: ", startTime, endTime)
-    let pnlDetails = await InternTrades.aggregate([
+  let date;
+  let i = 1;
+  let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+  let pnlDetailsData;
+
+  while (!pnlDetailsData && i <= maxDaysBack) {
+    let day = new Date();
+    day.setDate(day.getDate() - i);
+    let startTime = new Date(day.setHours(0, 0, 0, 0));
+    let endTime = new Date(day.setHours(23, 59, 59, 999));
+    date = startTime;
+    
+    pnlDetailsData = await InternTrades.aggregate([
       {
         $match: {
           trade_time: {
-            $gte: startTime, $lte: endTime
-            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+            $gte: startTime,
+            $lte: endTime
           },
           status: "COMPLETE",
         },
       },
-        {
-          $group: {
-            _id: null,
+      {
+        $group: {
+          _id: null,
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          turnover: {
+            $sum: { $toInt: { $abs: "$amount" } },
+          },
+          brokerage: {
+            $sum: { $toDouble: "$brokerage" },
+          },
+          lots: {
+            $sum: { $toInt: "$Quantity" },
+          },
+          totallots: {
+            $sum: { $toInt: { $abs: "$Quantity" } },
+          },
+          trades: {
+            $count: {}
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ]);
 
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            turnover: {
-              $sum: {
-                $toInt: {$abs : "$amount"},
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
-              },
-            },
-            totallots: {
-              $sum: {
-                $toInt: {$abs : "$Quantity"},
-              },
-            },
-            trades: {
-              $count:{}
-            },
-          },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-      ])
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+    if (!pnlDetailsData || pnlDetailsData.length === 0) {
+      pnlDetailsData = null;  // reset the value to ensure the while loop continues
+      i++;  // increment the day counter
+    }
+  }
+
+  res.status(201).json({
+    message: "pnl received", 
+    data: pnlDetailsData, 
+    results: pnlDetailsData ? pnlDetailsData.length : 0, 
+    date: date
+  });
 }
 
 exports.liveTotalTradersCountYesterday = async (req, res, next) => {

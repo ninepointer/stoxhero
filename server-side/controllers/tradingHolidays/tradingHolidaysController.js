@@ -1,5 +1,6 @@
 const TradingHoliday = require("../../models/TradingHolidays/tradingHolidays");
 const user = require("../../models/User/userDetailSchema")
+const moment = require('moment');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -12,12 +13,18 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.createTradingHoliday = async(req, res, next)=>{
-    console.log(req.body) 
+    
     const{holidayName, description, holidayDate, status } = req.body;
 
     if(await TradingHoliday.findOne({holidayDate})) return res.status(400).json({message:'This holiday already exists.'});
 
-    const holiday = await TradingHoliday.create({holidayName:holidayName.trim(), description, holidayDate, status, createdBy: req.user._id, lastModifiedBy: req.user._id});
+    const holiday = await TradingHoliday.create({
+        holidayName:holidayName.trim(), 
+        description, 
+        holidayDate,
+        createdBy: req.user._id, 
+        lastModifiedBy: req.user._id
+    });
     
     res.status(201).json({status: 'success', message: 'Trading Holiday successfully created.', data: holiday});
 
@@ -28,27 +35,41 @@ exports.getTradingHolidays = async(req, res, next)=>{
         const holiday = await TradingHoliday.find();
         res.status(200).json({status: 'success', data: holiday, results: holiday.length});    
     }catch(e){
-        console.log(e);
+        
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getTodaysTradingHolidays = async(req, res, next)=>{
+    
+    try{
+        const holiday = await TradingHoliday.find({holidayDate : {$gte:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT00:00:00"), $lte:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT23:59:59")}}).sort({holidayDate:1});
+       
+        res.status(200).json({status: 'success', data: holiday, results: holiday.length});    
+    }catch(e){
+        
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 };
 
 exports.getUpcomingTradingHolidays = async(req, res, next)=>{
+    
     try{
-        const holiday = await TradingHoliday.find({holidayDate : {$gte:new Date()}});
+        const holiday = await TradingHoliday.find({holidayDate : {$gt:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT00:00:00")}}).sort({holidayDate:1});
+       
         res.status(200).json({status: 'success', data: holiday, results: holiday.length});    
     }catch(e){
-        console.log(e);
+        
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 };
 
 exports.getPastTradingHolidays = async(req, res, next)=>{
     try{
-        const holiday = await TradingHoliday.find({holidayDate : {$lt:new Date()}});
+        const holiday = await TradingHoliday.find({holidayDate : {$lt:moment.utc(new Date()).utcOffset('+05:30').format("YYYY-MM-DDT00:00:00")}}).sort({holidayDate:-1});
         res.status(200).json({status: 'success', data: holiday, results: holiday.length});    
     }catch(e){
-        console.log(e);
+        
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 };
@@ -60,7 +81,7 @@ exports.getTradingHolidayById = async(req, res, next) => {
         const holiday = await TradingHoliday.findById(id);
         res.status(200).json({status: 'success', data: holiday});
     } catch (e) {
-        console.log(e);
+      
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 }
@@ -68,14 +89,12 @@ exports.getTradingHolidayById = async(req, res, next) => {
 exports.editTradingHoliday = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
     const holiday = await TradingHoliday.findById(id);
 
     const filteredBody = filterObj(req.body, "holidayName", "holidayDate", "description");
     filteredBody.lastModifiedBy = req.user._id;  
     filteredBody.lastModifiedOn = new Date();  
 
-    console.log(filteredBody)
     const updated = await TradingHoliday.findByIdAndUpdate(id, filteredBody, { new: true });
 
     res.status(200).json({message: 'Successfully edited Trading Holiday.', data: updated});
@@ -84,8 +103,6 @@ exports.editTradingHoliday = async(req, res, next) => {
 exports.deleteTradingHoliday = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("req ,", req.user)
-
     const history = await TradingHoliday.findOneAndUpdate({_id : id}, {
         $set:{
             isDeleted: true,
@@ -93,6 +110,6 @@ exports.deleteTradingHoliday = async(req, res, next) => {
             lastModifiedOn: new Date()
         }
     }, {new: true})
-    console.log(history)
+
     res.status(200).json({message: 'Successfully deleted trading holiday.', data: holiday});
 }

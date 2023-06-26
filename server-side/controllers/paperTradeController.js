@@ -143,96 +143,149 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
+  let isRedisConnected = getValue();
 
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  // console.log(userId, today)
+
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
+  // try {
+  //   const portfoliosFund = await Portfolio.aggregate([
+  //     {
+  //       $match:
+  //         {
+  //           status: "Active",
+  //           portfolioType: "Virtual Trading",
+  //         },
+  //     },
+  //     {
+  //       $lookup:
+  //         {
+  //           from: "paper-trades",
+  //           localField: "_id",
+  //           foreignField: "portfolioId",
+  //           as: "trades",
+  //         },
+  //     },
+  //     {
+  //       $unwind:
+  //         {
+  //           path: "$trades",
+  //         },
+  //     },
+  //     {
+  //       $match:
+  //         {
+  //           "trades.trade_time": {
+  //             $lt: today,
+  //           },
+  //           "trades.status": "COMPLETE",
+  //           "trades.trader": new ObjectId(
+  //             req.user._id
+  //           ),
+  //         },
+  //     },
+  //     {
+  //       $group: {
+  //         _id: {
+  //           portfolioId: "$_id",
+  //           portfolioName: "$portfolioName",
+  //           totalFund: "$portfolioValue",
+  //         },
+  //         totalAmount: {
+  //           $sum: {
+  //             $multiply: ["$trades.amount", -1],
+  //           },
+  //         },
+  //         totalBrokerage: {
+  //           $sum: "$trades.brokerage",
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 0,
+  //         portfolioId: "$_id.portfolioId",
+  //         portfolioName: "$_id.portfolioName",
+  //         totalFund: "$_id.totalFund",
+  //         npnl: {
+  //           $subtract: [
+  //             "$totalAmount",
+  //             "$totalBrokerage",
+  //           ],
+  //         },
+  //         openingBalance: {
+  //           $sum: [
+  //             "$_id.totalFund",
+  //             {
+  //               $subtract: [
+  //                 "$totalAmount",
+  //                 "$totalBrokerage",
+  //               ],
+  //             },
+  //           ],
+  //         },
+  //       },
+  //     },
+  //   ])
+
+  //   if(portfoliosFund.length > 0){
+  //     res.status(200).json({status: 'success', data: portfoliosFund[0]});
+  //   } else{
+  //     const portfoliosFund = await Portfolio.aggregate([
+  //       {
+  //         $match:
+  //           {
+  //             status: "Active",
+  //             portfolioType: "Virtual Trading",
+  //           },
+  //       },
+  //       {
+  //         $group: {
+  //           _id: {
+  //             portfolioId: "$_id",
+  //             portfolioName: "$portfolioName",
+  //             totalFund: "$portfolioValue",
+  //           },
+  //         },
+  //       },
+  //       {
+  //         $project: {
+  //           _id: 0,
+  //           portfolioId: "$_id.portfolioId",
+  //           portfolioName: "$_id.portfolioName",
+  //           totalFund: "$_id.totalFund",
+  //         },
+  //       },
+  //     ])
+  //     res.status(200).json({status: 'success', data: portfoliosFund[0]});
+
+  //   }
+  
+  // } catch (e) {
+  //   console.log(e);
+  //   res.status(500).json({status:'error', message: 'Something went wrong'});
+  // }
+
+
 
   try {
-    const portfoliosFund = await Portfolio.aggregate([
-      {
-        $match:
-          {
-            status: "Active",
-            portfolioType: "Virtual Trading",
-          },
-      },
-      {
-        $lookup:
-          {
-            from: "paper-trades",
-            localField: "_id",
-            foreignField: "portfolioId",
-            as: "trades",
-          },
-      },
-      {
-        $unwind:
-          {
-            path: "$trades",
-          },
-      },
-      {
-        $match:
-          {
-            "trades.trade_time": {
-              $lt: today,
-            },
-            "trades.status": "COMPLETE",
-            "trades.trader": new ObjectId(
-              req.user._id
-            ),
-          },
-      },
-      {
-        $group: {
-          _id: {
-            portfolioId: "$_id",
-            portfolioName: "$portfolioName",
-            totalFund: "$portfolioValue",
-          },
-          totalAmount: {
-            $sum: {
-              $multiply: ["$trades.amount", -1],
-            },
-          },
-          totalBrokerage: {
-            $sum: "$trades.brokerage",
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          portfolioId: "$_id.portfolioId",
-          portfolioName: "$_id.portfolioName",
-          totalFund: "$_id.totalFund",
-          npnl: {
-            $subtract: [
-              "$totalAmount",
-              "$totalBrokerage",
-            ],
-          },
-          openingBalance: {
-            $sum: [
-              "$_id.totalFund",
-              {
-                $subtract: [
-                  "$totalAmount",
-                  "$totalBrokerage",
-                ],
-              },
-            ],
-          },
-        },
-      },
-    ])
 
-    if(portfoliosFund.length > 0){
-      res.status(200).json({status: 'success', data: portfoliosFund[0]});
-    } else{
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginPaper`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMarginPaper`)
+      marginDetail = JSON.parse(marginDetail);
+
+      res.status(201).json({ message: "pnl received", data: marginDetail });
+
+    } else {
+
       const portfoliosFund = await Portfolio.aggregate([
         {
           $match:
@@ -242,11 +295,46 @@ exports.marginDetail = async (req, res, next) => {
             },
         },
         {
+          $lookup:
+            {
+              from: "paper-trades",
+              localField: "_id",
+              foreignField: "portfolioId",
+              as: "trades",
+            },
+        },
+        {
+          $unwind:
+            {
+              path: "$trades",
+            },
+        },
+        {
+          $match:
+            {
+              "trades.trade_time": {
+                $lt: today,
+              },
+              "trades.status": "COMPLETE",
+              "trades.trader": new ObjectId(
+                req.user._id
+              ),
+            },
+        },
+        {
           $group: {
             _id: {
               portfolioId: "$_id",
               portfolioName: "$portfolioName",
               totalFund: "$portfolioValue",
+            },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              },
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
             },
           },
         },
@@ -256,19 +344,77 @@ exports.marginDetail = async (req, res, next) => {
             portfolioId: "$_id.portfolioId",
             portfolioName: "$_id.portfolioName",
             totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                {
+                  $subtract: [
+                    "$totalAmount",
+                    "$totalBrokerage",
+                  ],
+                },
+              ],
+            },
           },
         },
       ])
-      res.status(200).json({status: 'success', data: portfoliosFund[0]});
+
+      if (portfoliosFund.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMarginPaper`, JSON.stringify(portfoliosFund[0]))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMarginPaper`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfoliosFund[0] });
+      } else {
+        const portfoliosFund = await Portfolio.aggregate([
+          {
+            $match:
+              {
+                status: "Active",
+                portfolioType: "Virtual Trading",
+              },
+          },
+          {
+            $group: {
+              _id: {
+                portfolioId: "$_id",
+                portfolioName: "$portfolioName",
+                totalFund: "$portfolioValue",
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              portfolioId: "$_id.portfolioId",
+              portfolioName: "$_id.portfolioName",
+              totalFund: "$_id.totalFund",
+            },
+          },
+        ])
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMarginPaper`, JSON.stringify(portfoliosFund[0]))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMarginPaper`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfoliosFund[0] });
+      }
 
     }
-  
 
-    // console.log("pnlDetails", portfoliosFund)
   } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message: 'Something went wrong'});
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
+
+
+
+
 }
 
 exports.findOpenLots = async (req,res,next) =>{
@@ -485,55 +631,48 @@ let date = new Date();
 }
 
 exports.overallVirtualPnlYesterday = async (req, res, next) => {
-let yesterdayDate = new Date();
-yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-// console.log(yesterdayDate)
-  let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-  yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-  let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-  yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-  const startTime = new Date(yesterdayStartTime); 
-  const endTime = new Date(yesterdayEndTime); 
-  // console.log("Query Timing: ", startTime, endTime)
-  let pnlDetails = await PaperTrade.aggregate([
-    {
-      $match: {
-        trade_time: {
-          $gte: startTime, $lte: endTime
-          // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+  let date;
+  let i = 1;
+  let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+  let pnlDetailsData;
+
+  while (!pnlDetailsData && i <= maxDaysBack) {
+    let day = new Date();
+    day.setDate(day.getDate() - i);
+    let startTime = new Date(day.setHours(0, 0, 0, 0));
+    let endTime = new Date(day.setHours(23, 59, 59, 999));
+    date = startTime;
+    
+    pnlDetailsData = await PaperTrade.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: startTime,
+            $lte: endTime
+          },
+          status: "COMPLETE",
         },
-        status: "COMPLETE",
       },
-    },
       {
         $group: {
           _id: null,
-
           amount: {
-            $sum: {$multiply : ["$amount",-1]},
+            $sum: { $multiply: ["$amount", -1] },
           },
           turnover: {
-            $sum: {
-              $toInt: {$abs : "$amount"},
-            },
+            $sum: { $toInt: { $abs: "$amount" } },
           },
           brokerage: {
-            $sum: {
-              $toDouble: "$brokerage",
-            },
+            $sum: { $toDouble: "$brokerage" },
           },
           lots: {
-            $sum: {
-              $toInt: "$Quantity",
-            },
+            $sum: { $toInt: "$Quantity" },
           },
           totallots: {
-            $sum: {
-              $toInt: {$abs : "$Quantity"},
-            },
+            $sum: { $toInt: { $abs: "$Quantity" } },
           },
           trades: {
-            $count:{}
+            $count: {}
           },
         },
       },
@@ -542,8 +681,20 @@ yesterdayDate.setDate(yesterdayDate.getDate() - 1);
           _id: -1,
         },
       },
-    ])
-    res.status(201).json({ message: "pnl received", data: pnlDetails });
+    ]);
+
+    if (!pnlDetailsData || pnlDetailsData.length === 0) {
+      pnlDetailsData = null;  // reset the value to ensure the while loop continues
+      i++;  // increment the day counter
+    }
+  }
+
+  res.status(201).json({
+    message: "pnl received", 
+    data: pnlDetailsData, 
+    results: pnlDetailsData ? pnlDetailsData.length : 0, 
+    date: date
+  });
 }
 
 exports.liveTotalTradersCountYesterday = async (req, res, next) => {
