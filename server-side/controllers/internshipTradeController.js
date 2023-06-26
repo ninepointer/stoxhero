@@ -1057,233 +1057,242 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 }
 
 
-exports.updateUserWallet = async (req, res, next) => {
+exports.updateUserWallet = async () => {
 
-  const attendanceLimit = 80;
-  const referralLimit = 25;
-  const payoutPercentage = 1;
 
-  const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
-  const reliefReferralLimit = referralLimit - referralLimit*10/100
+  try{
 
-  const internship = await Careers.aggregate([
-    {
-      $match:
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   
-        {
-          listingType: "Job",
-        },
-    },
-    {
-      $lookup:
   
-        {
-          from: "intern-batches",
-          localField: "_id",
-          foreignField: "career",
-          as: "batch",
-        },
-    },
-    {
-      $unwind:
-  
-        {
-          path: "$batch",
-        },
-    },
-    {
-      $match:
-  
-        {
-          $expr: {
-            $eq: [
-              {
-                $dateToString: {
-                  format: "%Y-%m-%d",
-                  date: "$batch.batchEndDate",
+    const internship = await Careers.aggregate([
+      {
+        $match:
+    
+          {
+            listingType: "Job",
+          },
+      },
+      {
+        $lookup:
+    
+          {
+            from: "intern-batches",
+            localField: "_id",
+            foreignField: "career",
+            as: "batch",
+          },
+      },
+      {
+        $unwind:
+    
+          {
+            path: "$batch",
+          },
+      },
+      {
+        $match:
+    
+          {
+            $expr: {
+              $eq: [
+                {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$batch.batchEndDate",
+                  },
                 },
-              },
-              "2023-06-26",
-            ],
-          },
-          "batch.batchStatus": "Active",
-        },
-    },
-    {
-      $project:
-  
-      {
-        _id: 0,
-        batchId: "$batch._id",
-        users: "$batch.participants",
-        startDate: "$batch.batchStartDate",
-        endDate: "$batch.batchEndDate"
-      }
-    },
-  
-  ])
-
-  console.log(internship)
-
-  const workingDays = calculateWorkingDays(internship[0].startDate, internship[0].endDate);
-  const users = internship[0].users;
-  const batchId = internship[0].batchId;
-
-  const tradingDays = async (userId, batchId)=>{
-    const pipeline = 
-    [
-      {
-        $match: {
-          batch: new ObjectId(batchId),
-          trader: new ObjectId(userId),
-          status: "COMPLETE",
-        },
-      },
-      {
-        $group: {
-          _id: {
-            date: {
-              $substr: ["$trade_time", 0, 10],
+                todayDate,
+              ],
             },
+            "batch.batchStatus": "Active",
           },
-          count: {
-            $count: {},
-          },
-        },
-      },
-    ]
-  
-    let x = await InternTrades.aggregate(pipeline);
-
-    return x.length;
-  }
-
-  const pnl = async (userId, batchId)=>{
-    let pnlDetails = await InternTrades.aggregate([
-      {
-          $match: {
-              status: "COMPLETE",
-              trader: new ObjectId(userId),
-              batch: new ObjectId(batchId) 
-          },
-      },
-      {
-        $group: {
-          _id: {
-          },
-          amount: {
-            $sum: {$multiply : ["$amount",-1]},
-          },
-          brokerage: {
-            $sum: {
-              $toDouble: "$brokerage",
-            },
-          },
-        },
       },
       {
         $project:
-          /**
-           * specifications: The fields to
-           *   include or exclude.
-           */
-          {
-            _id: 0,
-            npnl: {
-              $subtract: ["$amount", "$brokerage"],
-            },
-          },
+    
+        {
+          _id: 0,
+          batchId: "$batch._id",
+          users: "$batch.participants",
+          startDate: "$batch.batchStartDate",
+          endDate: "$batch.batchEndDate",
+          attendancePercentage: "$batch.attendancePercentage",
+          payoutPercentage: "$batch.payoutPercentage",
+          referralCount: "$batch.referralCount"
+        }
       },
+    
     ])
   
-    // let x = await InternTrades.aggregate(pnlDetails);
-
-    return pnlDetails[0]?.npnl;
-  }
-
-  function calculateWorkingDays(startDate, endDate) {
-    // Convert the input strings to Date objects
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    end.setDate(end.getDate() + 1);
-
-    // Check if the start date is after the end date
-    if (start > end) {
-      return 0;
+    console.log(internship)
+  
+    const attendanceLimit = internship[0].attendancePercentage;
+    const referralLimit = internship[0].referralCount;
+    const payoutPercentage = internship[0].payoutPercentage;
+    const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
+    const reliefReferralLimit = referralLimit - referralLimit*10/100
+    const workingDays = calculateWorkingDays(internship[0].startDate, internship[0].endDate);
+    const users = internship[0].users;
+    const batchId = internship[0].batchId;
+  
+    const tradingDays = async (userId, batchId)=>{
+      const pipeline = 
+      [
+        {
+          $match: {
+            batch: new ObjectId(batchId),
+            trader: new ObjectId(userId),
+            status: "COMPLETE",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              date: {
+                $substr: ["$trade_time", 0, 10],
+              },
+            },
+            count: {
+              $count: {},
+            },
+          },
+        },
+      ]
+    
+      let x = await InternTrades.aggregate(pipeline);
+  
+      return x.length;
     }
   
-    let workingDays = 0;
-    let currentDate = new Date(start);
+    const pnl = async (userId, batchId)=>{
+      let pnlDetails = await InternTrades.aggregate([
+        {
+            $match: {
+                status: "COMPLETE",
+                trader: new ObjectId(userId),
+                batch: new ObjectId(batchId) 
+            },
+        },
+        {
+          $group: {
+            _id: {
+            },
+            amount: {
+              $sum: {$multiply : ["$amount",-1]},
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+          },
+        },
+        {
+          $project:
+            /**
+             * specifications: The fields to
+             *   include or exclude.
+             */
+            {
+              _id: 0,
+              npnl: {
+                $subtract: ["$amount", "$brokerage"],
+              },
+            },
+        },
+      ])
+    
+      // let x = await InternTrades.aggregate(pnlDetails);
   
-    // Iterate over each day between the start and end dates
-    while (currentDate <= end) {
-      // Check if the current day is a weekday (Monday to Friday)
-      if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
-        workingDays++;
+      return pnlDetails[0]?.npnl;
+    }
+  
+    function calculateWorkingDays(startDate, endDate) {
+      // Convert the input strings to Date objects
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setDate(end.getDate() + 1);
+  
+      // Check if the start date is after the end date
+      if (start > end) {
+        return 0;
+      }
+    
+      let workingDays = 0;
+      let currentDate = new Date(start);
+    
+      // Iterate over each day between the start and end dates
+      while (currentDate <= end) {
+        // Check if the current day is a weekday (Monday to Friday)
+        if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+          workingDays++;
+        }
+    
+        // Move to the next day
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    
+      return workingDays;
+    }
+    
+    const referrals = async(userId)=>{
+      const user = await User.findOne({_id: new ObjectId(userId)});
+      return user?.referrals?.length;
+    }
+  
+  
+    for(let i = 0; i < users.length; i++){
+      const tradingdays = await tradingDays(users[i].user, batchId);
+      const attendance = tradingdays*100/workingDays;
+      const referral = await referrals(users[i].user);
+      const npnl = await pnl(users[i].user, batchId);
+      const creditAmount = npnl*payoutPercentage/100;
+  
+      const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
+  
+      if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+        wallet.transactions = [...wallet.transactions, {
+          title: 'Internship Payout',
+          description: `Amount credited for your internship profit`,
+          amount: (creditAmount),
+          transactionId: uuid.v4(),
+          transactionType: 'Cash'
+        }];
+        wallet.save();
+        console.log(attendance, tradingdays, users[i].user, npnl);
       }
   
-      // Move to the next day
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-  
-    return workingDays;
-  }
-  
-  const referrals = async(userId)=>{
-    const user = await User.findOne({_id: userId});
-    return user?.referrals?.length;
-  }
-
-
-  for(let i = 0; i < users.length; i++){
-    const tradingdays = await tradingDays(users[i].user, batchId);
-    const attendance = tradingdays*100/workingDays;
-    const referral = await referrals(users[i].user);
-    const npnl = await pnl(users[i].user, batchId);
-    const creditAmount = npnl*payoutPercentage/100;
-
-    const wallet = await Wallet.findOne({userId: users[i].user});
-
-    if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
-      // wallet.transactions = [...wallet.transactions, {
-      //   title: 'Internship Payout',
-      //   description: `Amount credited for your internship profit`,
-      //   amount: (creditAmount),
-      //   transactionId: uuid.v4(),
-      //   transactionType: 'Cash'
-      // }];
-      // wallet.save();
-      console.log(attendance, tradingdays, users[i].user, npnl);
-    }
-
-    if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
-      if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
-        // wallet.transactions = [...wallet.transactions, {
-        //   title: 'Internship Payout',
-        //   description: `Amount credited for your internship profit`,
-        //   amount: (creditAmount),
-        //   transactionId: uuid.v4(),
-        //   transactionType: 'Cash'
-        // }];
-        // wallet.save();
-        console.log("attendance relief", attendance, tradingdays, users[i].user, npnl);
-      }
-      if(referral < referralLimit && referral >= reliefReferralLimit){
-        // wallet.transactions = [...wallet.transactions, {
-        //   title: 'Internship Payout',
-        //   description: `Amount credited for your internship profit`,
-        //   amount: (creditAmount),
-        //   transactionId: uuid.v4(),
-        //   transactionType: 'Cash'
-        // }];
-        // wallet.save();
-        console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+      if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
+        if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
+          wallet.transactions = [...wallet.transactions, {
+            title: 'Internship Payout',
+            description: `Amount credited for your internship profit`,
+            amount: (creditAmount),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
+          }];
+          wallet.save();
+          console.log("attendance relief");
+        }
+        if(referral < referralLimit && referral >= reliefReferralLimit){
+          wallet.transactions = [...wallet.transactions, {
+            title: 'Internship Payout',
+            description: `Amount credited for your internship profit`,
+            amount: (creditAmount),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
+          }];
+          wallet.save();
+          console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+        }
       }
     }
+  
+
+  } catch(err){
+    console.log(err);
   }
-
-   
-
-
 
 }
