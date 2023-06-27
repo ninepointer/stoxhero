@@ -53,6 +53,7 @@ function Index() {
     const [editing,setEditing] = useState(id ? false : true)
     const [saving,setSaving] = useState(false)
     const [creating,setCreating] = useState(false)
+    const [pnlDetails, setPnlDetails] = useState({});
     const navigate = useNavigate();
     const [formState,setFormState] = useState({
         printDate: '' || id?.printDate,
@@ -249,6 +250,15 @@ function Index() {
       reader.readAsDataURL(file);
     };
 
+    const getPnlDetails = async (e)=>{
+      console.log('ee hai',e.toDate().toISOString().substr(0,10));
+      const res = await axios.get(`${baseUrl}api/v1/infinityTrade/live/companypnlreport/${e.toDate().toISOString().substr(0,10)}/${e.toDate().toISOString().substr(0,10)}`);
+      if(res.data.data[0]){
+        setPnlDetails(res.data.data[0]);
+      }else{
+        setPnlDetails({});
+      }
+    }
   
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
@@ -327,11 +337,12 @@ function Index() {
                             label="Print Date"
                             disabled={((isSubmitted || id) && (!editing || saving))}
                             value={formState?.printDate || dayjs(brokerReport?.printDate)}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               setFormState(prevState => ({
                                 ...prevState,
                                 printDate: dayjs(e)
-                              }))
+                              }));
+                              await getPnlDetails(e)
                             }}
                             minDateTime={null}
                             sx={{ width: '100%' }}
@@ -659,7 +670,7 @@ function Index() {
                     </>
                     )}
                     {(isSubmitted || id) && !editing && (
-                    <>
+                      <>
                     <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                         Edit
                     </MDButton>
@@ -669,7 +680,7 @@ function Index() {
                     </>
                     )}
                     {(isSubmitted || id) && editing && (
-                    <>
+                      <>
                     <MDButton 
                         variant="contained" 
                         color="warning" 
@@ -689,11 +700,17 @@ function Index() {
                         >
                         Cancel
                     </MDButton>
+                    <MDTypography>P&L for the print date(StoxHero)</MDTypography>
                     </>
                     )}
             </Grid>
          </Grid>
-
+        {Object.keys(pnlDetails).length>0 && <MDBox>
+          <MDTypography>P&L for the print date(StoxHero){formState?.printDate?.toISOString()?.substr(0,10)}</MDTypography>
+          <MDTypography>GPNL:{pnlDetails?.gpnl}</MDTypography>
+          <MDTypography>NPNL:{pnlDetails?.gpnl}</MDTypography>
+          <MDTypography>Brokerage:{pnlDetails?.gpnl}</MDTypography>
+        </MDBox>}
           {renderSuccessSB}
           {renderErrorSB}
     </MDBox>
