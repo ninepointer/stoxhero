@@ -44,7 +44,7 @@ import { useNavigate } from "react-router-dom";
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const PopupTrading = ({elem, checkIsInterested}) => {
+const PopupTrading = ({elem, timeDifference}) => {
     // if(!initialValue){
     //     initialValue = false;
     // }
@@ -111,7 +111,7 @@ const PopupTrading = ({elem, checkIsInterested}) => {
                 color='warning'
                 size='small'
                 // component={Link}
-                // disabled={timeDifference > 0}
+                disabled={timeDifference > 0}
                 // to={{
                 //     pathname: `/contest/alphaavengers`,
                 // }}

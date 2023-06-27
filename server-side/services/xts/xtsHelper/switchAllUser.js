@@ -181,12 +181,7 @@ const infinityTradeLiveSingle = async (res, req) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
     const {userId} = req.params;
-    // const setting = await Setting.updateOne({}, {
-    //     modifiedOn: new Date(),
-    //     infinityLive: false
-    //   }, { new: true });
 
-    // console.log(setting)
 
     const data = await InfinityLiveTradeCompany.aggregate(
         [

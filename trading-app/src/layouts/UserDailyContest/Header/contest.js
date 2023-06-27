@@ -37,11 +37,11 @@ function Header({ e }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [isInterested, setIsInterested] = useState(false);
-    const [timeDifference, setTimeDifference] = useState();
+    const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     useEffect(() => {
 
@@ -73,7 +73,7 @@ function Header({ e }) {
         })
     }, [])
 
-    console.log("serverTime", serverTime)
+    // console.log("serverTime", serverTime)
 
     function changeDateFormat(givenDate) {
 
@@ -107,58 +107,6 @@ function Header({ e }) {
 
         return formattedDate;
 
-    }
-
-    // async function registerUserToContest(id){
-    //     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${id}/register`, {
-    //         method: "PUT",
-    //         credentials:"include",
-    //         headers: {
-    //             "content-type" : "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //         },
-    //         body: JSON.stringify({
-    //         })
-    //     });
-        
-    //     const data = await res.json();
-    //     console.log(data);
-    //     if(data.status === "error" || data.error || !data){
-    //         openSuccessSB("error", data.message)
-    //     }else{
-    //         setIsInterested(true);
-    //     }
-    // }
-
-    async function participateUserToContest(elem){
-        let isParticipated = elem?.participants.some(elem => elem?.userId?.toString() === getDetails?.userDetails?._id?.toString())
-        if(isParticipated){
-            navigate(`/contest/${elem.contestName}`, {
-                state: {data: elem._id}
-            });
-            return;
-        }
-        const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${elem._id}/participate`, {
-            method: "PUT",
-            credentials:"include",
-            headers: {
-                "content-type" : "application/json",
-                "Access-Control-Allow-Credentials": true
-            },
-            body: JSON.stringify({
-            })
-        });
-        
-        const data = await res.json();
-        console.log(data);
-        if(data.status === "error" || data.error || !data){
-            // openSuccessSB("error", data.message)
-            return(<PopupMessage isInterested={true} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} initialValue={true}/>)
-        }else{
-            navigate(`/contest/${elem.contestName}`, {
-                state: {data: elem._id}
-            });
-        }
     }
 
     const [messageObj, setMessageObj] = useState({
@@ -221,13 +169,18 @@ function Header({ e }) {
                                     contestOn = ['NIFTY', 'BANKNIFTY', 'FINNIFTY']
                                 }
 
-                                contestOn.push(elem.contestExpiry.toUpperCase());
+                                // contestOn.push(elem.contestExpiry.toUpperCase());
 
                                 let progressBar = elem?.participants?.length * 100 / elem?.maxParticipants
                                 // let timeDifference = new Date(elem?.contestStartTime) - new Date(serverTime);
-                                let checkIsInterested = elem?.interestedUsers.some(elem => elem?.userId?.toString() == getDetails?.userDetails?._id?.toString())
-                                console.log("timeDifference", timeDifference)
+                                let checkIsInterested = elem?.interestedUsers.some(elem => elem?.userId?._id?.toString() == getDetails?.userDetails?._id?.toString())
+                                
                                 // let isTradingEnable = new Date(elem?.contestEndTime) - serverTime;
+                                let particularContestTime = timeDifference.filter((subelem)=>{
+                                    return subelem?.id?.toString() === elem?._id?.toString();
+                                })
+
+                                // console.log("timeDifference", particularContestTime[0]?.value )
                                 return (
                                     <Grid item xs={12} md={12} lg={6} borderRadius={3}>
                                         <MDButton variant="contained" color="light" size="small">
@@ -269,7 +222,7 @@ function Header({ e }) {
                                                 <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <Timer date={elem?.contestStartTime} setTimeDifference={setTimeDifference} serverTime={serverTime} />
+                                                            <Timer date={elem?.contestStartTime} id={elem._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>
@@ -293,7 +246,7 @@ function Header({ e }) {
                                                 </Grid>
 
                                                 <Grid item xs={12} md={12} lg={12} display="flex" mt={1} mb={1} justifyContent="space-between" alignItems="center" alignContent="center">
-                                                    {timeDifference > 0 ?
+                                                    {particularContestTime[0]?.value > 0 ?
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
                                                             <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SOON INTEREST IN THIS CONTEST</MDBox>
                                                         </MDBox>
@@ -308,7 +261,7 @@ function Header({ e }) {
 
                                                         
                                                         <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                                        {timeDifference > 0 &&
+                                                        {particularContestTime[0]?.value > 0 &&
                                                         <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
                                                         }
                                                         {checkIsInterested &&
@@ -318,15 +271,7 @@ function Header({ e }) {
                                                         </MDBox>
                                                         
                                                         <MDBox display='flex' justifyContent='flex-end' width='50%'>
-                                                            <PopupTrading elem={elem} checkIsInterested={checkIsInterested}/>
-                                                            {/* <MDButton
-                                                                variant='outlined'
-                                                                color='warning'
-                                                                size='small'
-                                                                onClick={()=>{participateUserToContest(elem)}}
-                                                            >
-                                                                <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
-                                                            </MDButton> */}
+                                                            <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value}/>
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>

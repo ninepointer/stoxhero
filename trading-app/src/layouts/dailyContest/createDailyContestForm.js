@@ -16,7 +16,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
 import RegisteredUsers from "./data/registeredUsers";
-import AllowedUsers from './data/allowedUsers';
+import AllowedUsers from './data/notifyUsers';
 import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import dayjs from 'dayjs';
@@ -25,7 +25,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-import User from './users';
+// import User from './users';
+import PotentialUser from "./data/potentialUsers"
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -104,16 +105,16 @@ function Index() {
       })
 
 
-    axios.get(`${baseUrl}api/v1/dailycontest/${contest?._id}`)
-      .then((res) => {
-        setDailyContest(res?.data?.data);
-        setTimeout(() => {
-          setIsLoading(false)
-        }, 500)
-        //   setIsLoading(false).setTimeout(30000);
-      }).catch((err) => {
-        console.log("Error in useeffect: ", err)
-      })
+    // axios.get(`${baseUrl}api/v1/dailycontest/${contest?._id}`)
+    //   .then((res) => {
+    //     setDailyContest(res?.data?.data);
+    //     setTimeout(() => {
+    //       setIsLoading(false)
+    //     }, 500)
+    //     //   setIsLoading(false).setTimeout(30000);
+    //   }).catch((err) => {
+    //     console.log("Error in useeffect: ", err)
+    //   })
   }, [])
 
 
@@ -673,7 +674,7 @@ function Index() {
                 )}
               </Grid>
 
-              {(isSubmitted || contest) && !editing &&
+              {/* {(isSubmitted || contest) && !editing &&
                 <Grid item xs={12} md={6} xl={12}>
 
                   <Grid container spacing={2}>
@@ -684,13 +685,12 @@ function Index() {
                       </MDTypography>
                     </Grid>
 
-                    {/* Add field to search users and add them */}
                     <User contestId={contest?._id ? contest?._id : dailyContest?._id} setUpdatedDocument={setUpdatedDocument} />
 
 
                   </Grid>
 
-                </Grid>}
+                </Grid>} */}
 
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
@@ -700,7 +700,13 @@ function Index() {
 
               {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
-                  <RegisteredUsers dailyContest={newObjectId ? newObjectId : contest?._id} action={action} setAction={setAction} />
+                  <RegisteredUsers dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+
+              {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <PotentialUser dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 
