@@ -51,6 +51,7 @@ function Index() {
     const [editing,setEditing] = useState(id ? false : true)
     const [saving,setSaving] = useState(false)
     const [creating,setCreating] = useState(false)
+    const [pnlDetails, setPnlDetails] = useState({});
     const navigate = useNavigate();
     const [formState,setFormState] = useState({
         printDate: dayjs(id?.printDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
@@ -77,45 +78,11 @@ function Index() {
     useEffect(()=>{
       setTimeout(()=>{
           id && setBrokerReport(id)
+          getPnlDetails(dayjs(id?.printDate))
           setIsLoading(false);
           console.log("Initial Form Data: ", formState);
       },500)
     },[id,isSubmitted])
-
-    // async function getReport (id){
-    //   const res = await fetch(`${baseUrl}api/v1/brokerreport/${id._id}`, {
-    //     method: "GET",
-    //     credentials:"include",
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //       "Access-Control-Allow-Credentials": true
-    //   },
-    //   },
-    // )
-    // let data = await res.json()
-    //   setBrokerReport(data);
-    //   setFormState({
-    //     printDate: dayjs(res.data?.printDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    //     brokerName:'' || res.data?.brokerName,
-    //     clientCode:'' || res.data?.clientCode,
-    //     fromDate: dayjs(res.data?.fromDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    //     toDate: dayjs(res.data?.toDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-    //     document:'' || res.data?.document,
-    //     cummulativeNSETurnover:'' || res.data?.cummulativeNSETurnover,
-    //     cummulativeBSETurnover: '' || res.data?.cummulativeBSETurnover,
-    //     cummulativeNSEFuturesTurnover: '' || res.data?.cummulativeNSEFuturesTurnover,
-    //     cummulativeOptionsTurnover: '' || res.data?.cummulativeOptionsTurnover,
-    //     cummulativeTotalPurchaseTurnover: '' || res.data?.cummulativeTotalPurchaseTurnover,
-    //     cummulativeTotalSaleTurnover: '' || res.data?.cummulativeTotalSaleTurnover,
-    //     cummulativeTransactionCharge: '' || res.data?.cummulativeTransactionCharge,
-    //     cummulativeGrossPNL: '' || res.data?.cummulativeGrossPNL,
-    //     cummulativeNetPNL: '' || res.data?.cummulativeNetPNL,
-    //     cummulativeInterestCharge: '' || res.data?.cummulativeInterestCharge,
-    //     cummulativeLotCharge: '' || res.data?.cummulativeLotCharge,
-    //     cummulativeIDCharge: '' || res.data?.cummulativeIDCharge,
-    //   });
-    // }
 
     async function onSubmit(e,data){
         e.preventDefault();
@@ -252,6 +219,15 @@ function Index() {
       reader.readAsDataURL(file);
     };
 
+    const getPnlDetails = async (e)=>{
+      console.log('ee hai',e.toDate().toISOString().substr(0,10));
+      const res = await axios.get(`${baseUrl}api/v1/infinityTrade/live/companypnlreport/${e.toDate().toISOString().substr(0,10)}/${e.toDate().toISOString().substr(0,10)}`);
+      if(res.data.data[0]){
+        setPnlDetails(res.data.data[0]);
+      }else{
+        setPnlDetails({});
+      }
+    }
   
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
@@ -334,7 +310,8 @@ function Index() {
                               setFormState(prevState => ({
                                 ...prevState,
                                 printDate: dayjs(e)
-                              }))
+                              }));
+                              await getPnlDetails(e)
                             }}
                             minDateTime={null}
                             sx={{ width: '100%' }}
@@ -351,11 +328,12 @@ function Index() {
                         label="Print Date *"
                         disabled={((isSubmitted || id) && (!editing || saving))}
                         value={formState?.printDate || brokerReport?.printDate}
-                        onChange={(e) => {
+                        onChange={ async (e) => {
                           setFormState(prevState => ({
                             ...prevState,
                             printDate: dayjs(e)
-                          }))
+                          }));
+                          await getPnlDetails(e)
                         }}
                         sx={{ width: '100%' }}
                       />
@@ -675,7 +653,7 @@ function Index() {
                     </>
                     )}
                     {(isSubmitted || id) && !editing && (
-                    <>
+                      <>
                     <MDButton variant="contained" color="warning" size="small" sx={{mr:1, ml:2}} onClick={()=>{setEditing(true)}}>
                         Edit
                     </MDButton>
@@ -685,7 +663,7 @@ function Index() {
                     </>
                     )}
                     {(isSubmitted || id) && editing && (
-                    <>
+                      <>
                     <MDButton 
                         variant="contained" 
                         color="warning" 
@@ -705,11 +683,18 @@ function Index() {
                         >
                         Cancel
                     </MDButton>
+                    {/* <MDTypography>P&L for the print date(StoxHero)</MDTypography> */}
                     </>
                     )}
             </Grid>
          </Grid>
-
+        {Object.keys(pnlDetails).length>0 && 
+        <MDBox>
+          <MDTypography>P&L for the print date(StoxHero){formState?.printDate?.toISOString()?.substr(0,10)}</MDTypography>
+          <MDTypography>GPNL:{pnlDetails?.gpnl}</MDTypography>
+          <MDTypography>NPNL:{pnlDetails?.gpnl}</MDTypography>
+          <MDTypography>Brokerage:{pnlDetails?.gpnl}</MDTypography>
+        </MDBox>}
           {renderSuccessSB}
           {renderErrorSB}
     </MDBox>
