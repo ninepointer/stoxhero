@@ -312,7 +312,7 @@ function Index() {
         <MDBox pl={2} pr={2} mt={4}>
         <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-          Fill Carousel Details
+          Fill Report Details
         </MDTypography>
         </MDBox>
 
