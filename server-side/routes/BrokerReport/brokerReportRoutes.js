@@ -1,6 +1,6 @@
 const express = require('express');
 const Authenticate = require('../../authentication/authentication');
-const{getBrokerReports, getBrokerReport, createBrokerReport, editBrokerReport} = require('../../controllers/brokerReportController');
+const{getBrokerReports, getBrokerReport, createBrokerReport, editBrokerReport, uploadMulter, uploadToS3, resizePhoto} = require('../../controllers/brokerReportController');
 
 const router = express.Router();
 

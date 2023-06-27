@@ -29,6 +29,7 @@ useEffect(()=>{
               })
   Promise.all([call1])
   .then(([api1Response]) => {
+    console.log('report',api1Response.data.data);
     // Process the responses here
     setBrokerReportData(api1Response.data.data)
     setCount(api1Response.data.count)
@@ -84,6 +85,7 @@ function nextHandler(){
       },
   })
   .then((res) => {
+      console.log('report',res.data.data);
       setBrokerReportData(res.data.data)
       setCount(res.data.count)
       setTimeout(()=>{
@@ -124,7 +126,7 @@ function Delete(id){
                 return(    
                     
                    <MDBox>
-                    <MDTypography>{brokerReportData?.brokerName}</MDTypography>
+                    <MDTypography color='light'>{elem?.brokerName}</MDTypography>
                    </MDBox>
                   
                 )
