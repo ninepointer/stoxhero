@@ -11,7 +11,7 @@ const InternshipOrders = require('../../models/mock-trade/internshipTrade')
 exports.createBatch = async(req, res, next)=>{
     console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, 
-        batchStatus, career, portfolio, payoutPercentage, attendancePercentage, refferalCount } = req.body;
+        batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount } = req.body;
 
     const date = new Date();
     const month = date.toLocaleString('default', { month: 'short' }).substring(0, 3);
