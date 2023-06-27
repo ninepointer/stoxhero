@@ -338,11 +338,16 @@ exports.participateUsers = async (req, res) => {
         const { id } = req.params; // ID of the contest 
         const userId = req.user._id;
 
+        // const getActiveContest = await Contest.find({
+        //     contestEndTime})
+
         const contest = await Contest.findOne({_id: id});
-        if(contest?.maxParticipants <= contest?.participants?.length){
-            contest.potentialParticipants?.push(userId);
-            contest.save();
-            return res.status(404).json({status:"error", message: "Contest is full. Please try in another contest." });
+        if (contest?.maxParticipants <= contest?.participants?.length) {
+            if (!contest.potentialParticipants.includes(userId)) {
+                contest.potentialParticipants.push(userId);
+                contest.save();
+            }
+            return res.status(404).json({ status: "error", message: "Contest is full. Please try in another contest." });
         }
 
         const result = await Contest.findByIdAndUpdate(

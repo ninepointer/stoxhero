@@ -357,6 +357,8 @@ exports.myTodaysTrade = async (req, res, next) => {
 exports.getMyPnlAndCreditData = async (req, res, next) => {
     let { id } = req.params;
     // console.log("Batch:",batch)
+    let isRedisConnected = getValue();
+
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
