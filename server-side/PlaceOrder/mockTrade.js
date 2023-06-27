@@ -525,6 +525,10 @@ exports.mockTrade = async (req, res) => {
     }
 
     if(internPath){
+
+        // if(subscriptionId.toString() === "646df6b4645992f7151f4959"){
+        //     return res.status(400).json({status: "error", message: "This internship has ended."})
+        // }
         
         InternshipTrade.findOne({order_id : order_id})
         .then((dataExist)=>{

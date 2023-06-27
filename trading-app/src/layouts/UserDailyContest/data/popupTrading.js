@@ -1,14 +1,14 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, {  useState, useContext } from "react";
 import { memo } from 'react';
 // import axios from "axios"
 // import uniqid from "uniqid"
-// import { userContext } from "../../AuthContext";
-import axios from "axios";
-import { debounce } from 'lodash';
+import { userContext } from "../../../AuthContext";
+// import axios from "axios";
+// import { debounce } from 'lodash';
 
 // import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
+// import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -32,11 +32,11 @@ import MDButton from '../../../components/MDButton';
 // import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../variables";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
-import Chain from '../../../assets/images/chain.png'
-import { Grid, MenuItem, TextField } from "@mui/material";
-import BuyModel from "../../tradingCommonComponent/BuyModel";
-import SellModel from "../../tradingCommonComponent/SellModel";
-import { dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Nifty_DailyContest } from "../../../variables";
+// import Chain from '../../../assets/images/chain.png'
+// import { Grid, MenuItem, TextField } from "@mui/material";
+// import BuyModel from "../../tradingCommonComponent/BuyModel";
+// import SellModel from "../../tradingCommonComponent/SellModel";
+// import { dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Nifty_DailyContest } from "../../../variables";
 import { useNavigate } from "react-router-dom";
 
 
@@ -44,16 +44,18 @@ import { useNavigate } from "react-router-dom";
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue }) => {
+const PopupTrading = ({elem, timeDifference}) => {
     // if(!initialValue){
     //     initialValue = false;
     // }
-    
+
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [selectIndex, setSelectIndex] = useState("NIFTY50");
+    const [data, setData] = useState("The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest.");
+    const getDetails = useContext(userContext);
+    
 
     console.log("main data", open)
     const navigate = useNavigate();
@@ -67,35 +69,36 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue 
         setOpen(false);
     };
 
-    
-    async function participateUserToContest(elem){
-        let isParticipated ;
-        // elem?.participants.some(elem => elem?.userId?.toString() === getDetails?.userDetails?._id?.toString())
-        if(isParticipated){
+
+    async function participateUserToContest(elem) {
+        let isParticipated = elem?.participants.some(elem => elem?.userId?.toString() === getDetails?.userDetails?._id?.toString())
+        if (isParticipated) {
             navigate(`/contest/${elem.contestName}`, {
-                state: {data: elem._id}
+                state: { data: elem._id }
             });
             return;
         }
+
         const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${elem._id}/participate`, {
             method: "PUT",
-            credentials:"include",
+            credentials: "include",
             headers: {
-                "content-type" : "application/json",
+                "content-type": "application/json",
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
             })
         });
-        
+
         const data = await res.json();
         console.log(data);
-        if(data.status === "error" || data.error || !data){
+        if (data.status === "error" || data.error || !data) {
+            setOpen(true);
             // openSuccessSB("error", data.message)
-            return(<PopupMessage isInterested={true} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} initialValue={true}/>)
-        }else{
+            // return(<PopupTrading isInterested={true} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} initialValue={true}/>)
+        } else {
             navigate(`/contest/${elem.contestName}`, {
-                state: {data: elem._id}
+                state: { data: elem._id }
             });
         }
     }
@@ -103,20 +106,20 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue 
 
     return (
         <div>
-                               <MDButton
-                                                                variant='outlined'
-                                                                color='warning'
-                                                                size='small'
-                                                                // component={Link}
-                                                                // disabled={timeDifference > 0}
-                                                                // to={{
-                                                                //     pathname: `/contest/alphaavengers`,
-                                                                // }}
-                                                                onClick={()=>{participateUserToContest(elem)}}
-                                                            // state= {{data:e}}
-                                                            >
-                                                                <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
-                                                            </MDButton>
+            <MDButton
+                variant='outlined'
+                color='warning'
+                size='small'
+                // component={Link}
+                disabled={timeDifference > 0}
+                // to={{
+                //     pathname: `/contest/alphaavengers`,
+                // }}
+                onClick={() => { participateUserToContest(elem) }}
+            // state= {{data:e}}
+            >
+                <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
+            </MDButton>
             <div>
                 <Dialog
                     fullScreen={fullScreen}
@@ -147,4 +150,4 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue 
     );
 }
 
-export default memo(PopupMessage);
+export default memo(PopupTrading);
