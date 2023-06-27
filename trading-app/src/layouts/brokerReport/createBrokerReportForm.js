@@ -22,8 +22,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-import DefaultCarouselImage from '../../assets/images/defaultcarousel.png'
-import OutlinedInput from '@mui/material/OutlinedInput';
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -55,7 +53,7 @@ function Index() {
     const [creating,setCreating] = useState(false)
     const navigate = useNavigate();
     const [formState,setFormState] = useState({
-        printDate: '' || id?.printDate,
+        printDate: dayjs(id?.printDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
         brokerName:'' || id?.brokerName,
         clientCode:'' || id?.clientCode,
         fromDate: dayjs(id?.fromDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
@@ -80,39 +78,44 @@ function Index() {
       setTimeout(()=>{
           id && setBrokerReport(id)
           setIsLoading(false);
+          console.log("Initial Form Data: ", formState);
       },500)
-
-      axios.get(`${baseUrl}api/v1/brokerreport/${id}`)
-      .then((res)=>{
-        setBrokerReport(res?.data?.data);
-        setFormState({
-          printDate: '' || res.data?.printDate,
-          brokerName:'' || res.data?.brokerName,
-          clientCode:'' || res.data?.clientCode,
-          fromDate: dayjs(res.data?.fromDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-          toDate: dayjs(res.data?.toDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
-          document:'' || res.data?.document,
-          cummulativeNSETurnover:'' || res.data?.cummulativeNSETurnover,
-          cummulativeBSETurnover: '' || res.data?.cummulativeBSETurnover,
-          cummulativeNSEFuturesTurnover: '' || res.data?.cummulativeNSEFuturesTurnover,
-          cummulativeOptionsTurnover: '' || res.data?.cummulativeOptionsTurnover,
-          cummulativeTotalPurchaseTurnover: '' || res.data?.cummulativeTotalPurchaseTurnover,
-          cummulativeTotalSaleTurnover: '' || res.data?.cummulativeTotalSaleTurnover,
-          cummulativeTransactionCharge: '' || res.data?.cummulativeTransactionCharge,
-          cummulativeGrossPNL: '' || res.data?.cummulativeGrossPNL,
-          cummulativeNetPNL: '' || res.data?.cummulativeNetPNL,
-          cummulativeInterestCharge: '' || res.data?.cummulativeInterestCharge,
-          cummulativeLotCharge: '' || res.data?.cummulativeLotCharge,
-          cummulativeIDCharge: '' || res.data?.cummulativeIDCharge,
-        });
-          setTimeout(()=>{setIsLoading(false)},500) 
-      // setIsLoading(false)
-        }).catch((err)=>{
-            //window.alert("Server Down");
-            return new Error(err);
-        })
-      // setCampaignUserCount(id?.users?.length);
     },[id,isSubmitted])
+
+    // async function getReport (id){
+    //   const res = await fetch(`${baseUrl}api/v1/brokerreport/${id._id}`, {
+    //     method: "GET",
+    //     credentials:"include",
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //       "Access-Control-Allow-Credentials": true
+    //   },
+    //   },
+    // )
+    // let data = await res.json()
+    //   setBrokerReport(data);
+    //   setFormState({
+    //     printDate: dayjs(res.data?.printDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+    //     brokerName:'' || res.data?.brokerName,
+    //     clientCode:'' || res.data?.clientCode,
+    //     fromDate: dayjs(res.data?.fromDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+    //     toDate: dayjs(res.data?.toDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+    //     document:'' || res.data?.document,
+    //     cummulativeNSETurnover:'' || res.data?.cummulativeNSETurnover,
+    //     cummulativeBSETurnover: '' || res.data?.cummulativeBSETurnover,
+    //     cummulativeNSEFuturesTurnover: '' || res.data?.cummulativeNSEFuturesTurnover,
+    //     cummulativeOptionsTurnover: '' || res.data?.cummulativeOptionsTurnover,
+    //     cummulativeTotalPurchaseTurnover: '' || res.data?.cummulativeTotalPurchaseTurnover,
+    //     cummulativeTotalSaleTurnover: '' || res.data?.cummulativeTotalSaleTurnover,
+    //     cummulativeTransactionCharge: '' || res.data?.cummulativeTransactionCharge,
+    //     cummulativeGrossPNL: '' || res.data?.cummulativeGrossPNL,
+    //     cummulativeNetPNL: '' || res.data?.cummulativeNetPNL,
+    //     cummulativeInterestCharge: '' || res.data?.cummulativeInterestCharge,
+    //     cummulativeLotCharge: '' || res.data?.cummulativeLotCharge,
+    //     cummulativeIDCharge: '' || res.data?.cummulativeIDCharge,
+    //   });
+    // }
 
     async function onSubmit(e,data){
         e.preventDefault();
@@ -195,18 +198,18 @@ function Index() {
           !formState.fromDate ||
           !formState.toDate || 
           !formState.document || 
-          !formState.cummulativeNSETurnover ||
-          !formState.cummulativeBSETurnover || 
-          !formState.cummulativeNSEFuturesTurnover || 
-          !formState.cummulativeOptionsTurnover ||
-          !formState.cummulativeTotalPurchaseTurnover ||
-          !formState.cummulativeTotalSaleTurnover ||
-          !formState.cummulativeTransactionCharge ||
-          !formState.cummulativeGrossPNL ||
-          !formState.cummulativeNetPNL ||
-          !formState.cummulativeInterestCharge ||
-          !formState.cummulativeLotCharge ||
-          !formState.cummulativeIDCharge
+          formState.cummulativeNSETurnover === '' ||
+          formState.cummulativeBSETurnover === '' || 
+          formState.cummulativeNSEFuturesTurnover === '' || 
+          formState.cummulativeOptionsTurnover === '' ||
+          formState.cummulativeTotalPurchaseTurnover === '' ||
+          formState.cummulativeTotalSaleTurnover === '' ||
+          formState.cummulativeTransactionCharge === '' ||
+          formState.cummulativeGrossPNL === '' ||
+          formState.cummulativeNetPNL === '' ||
+          formState.cummulativeInterestCharge === '' ||
+          formState.cummulativeLotCharge === '' ||
+          formState.cummulativeIDCharge === ''
           ) 
         {
           setSaving(false)
@@ -317,16 +320,16 @@ function Index() {
         </MDBox>
 
         <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-            <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={9}>
+            <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={9} xl={12}>
                 
-                <Grid item xs={12} md={6} xl={3}>
+                {/* <Grid item xs={12} md={6} xl={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DemoContainer components={['MobileDateTimePicker']}>
                         <DemoItem>
                           <MobileDateTimePicker 
                             label="Print Date"
                             disabled={((isSubmitted || id) && (!editing || saving))}
-                            value={formState?.printDate || dayjs(brokerReport?.printDate)}
+                            value={formState?.printDate || brokerReport?.printDate}
                             onChange={(e) => {
                               setFormState(prevState => ({
                                 ...prevState,
@@ -339,6 +342,25 @@ function Index() {
                         </DemoItem>
                       </DemoContainer>
                     </LocalizationProvider>
+                </Grid> */}
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker']}>
+                      <DatePicker
+                        label="Print Date *"
+                        disabled={((isSubmitted || id) && (!editing || saving))}
+                        value={formState?.printDate || brokerReport?.printDate}
+                        onChange={(e) => {
+                          setFormState(prevState => ({
+                            ...prevState,
+                            printDate: dayjs(e)
+                          }))
+                        }}
+                        sx={{ width: '100%' }}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3} mt={1}>
@@ -347,7 +369,7 @@ function Index() {
                       id="outlined-required"
                       label='Broker Name *'
                       fullWidth
-                      value={formState?.brokerName}
+                      defaultValue={formState?.brokerName || brokerReport?.brokerName}
                       onChange={(e) => {setFormState(prevState => ({
                           ...prevState,
                           brokerName: e.target.value
@@ -370,47 +392,41 @@ function Index() {
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={['MobileDateTimePicker']}>
-                        <DemoItem>
-                          <MobileDateTimePicker 
-                            label="From Date"
-                            disabled={((isSubmitted || id) && (!editing || saving))}
-                            value={formState?.fromDate || dayjs(brokerReport?.fromDate)}
-                            onChange={(e) => {
-                              setFormState(prevState => ({
-                                ...prevState,
-                                fromDate: dayjs(e)
-                              }))
-                            }}
-                            minDateTime={null}
-                            sx={{ width: '100%' }}
-                          />
-                        </DemoItem>
-                      </DemoContainer>
-                    </LocalizationProvider>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker']}>
+                      <DatePicker
+                        label="From Date *"
+                        disabled={((isSubmitted || id) && (!editing || saving))}
+                        value={formState?.fromDate || brokerReport?.fromDate}
+                        onChange={(e) => {
+                          setFormState(prevState => ({
+                            ...prevState,
+                            fromDate: dayjs(e)
+                          }))
+                        }}
+                        sx={{ width: '100%' }}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={['MobileDateTimePicker']}>
-                        <DemoItem>
-                          <MobileDateTimePicker 
-                            label="To Date"
-                            disabled={((isSubmitted || id) && (!editing || saving))}
-                            value={formState?.toDate || dayjs(brokerReport?.toDate)}
-                            onChange={(e) => {
-                              setFormState(prevState => ({
-                                ...prevState,
-                                toDate: dayjs(e)
-                              }))
-                            }}
-                            minDateTime={null}
-                            sx={{ width: '100%' }}
-                          />
-                        </DemoItem>
-                      </DemoContainer>
-                    </LocalizationProvider>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker']}>
+                      <DatePicker
+                        label="To Date *"
+                        disabled={((isSubmitted || id) && (!editing || saving))}
+                        value={formState?.toDate || brokerReport?.toDate}
+                        onChange={(e) => {
+                          setFormState(prevState => ({
+                            ...prevState,
+                            toDate: dayjs(e)
+                          }))
+                        }}
+                        sx={{ width: '100%' }}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
                 </Grid>
 
                 <Grid item xs={12} md={6} xl={3} mt={1}>
@@ -623,7 +639,7 @@ function Index() {
                 
             </Grid>
 
-            <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={3} xl={3}>
+            {/* <Grid container spacing={1} mt={0.5} mb={0} xs={12} md={3} xl={3}>
             <Grid item xs={12} md={6} lg={12}>
               {previewUrl ? (
                 <Document file={previewUrl} onLoadSuccess={handlePdfLoad}>
@@ -636,7 +652,7 @@ function Index() {
                 />
               )}
             </Grid>
-          </Grid>
+            </Grid> */}
         </Grid>
 
          <Grid container mt={2} xs={12} md={12} xl={12} >

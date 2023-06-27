@@ -143,13 +143,15 @@ exports.createBrokerReport =async (req, res, next) => {
 };
 
 exports.getBrokerReports = async (req, res, next)=>{
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const count = await BrokerReport.countDocuments()
   try{
-    const brokerReports = await BrokerReport.find().sort({printDate:-1});
-  
+    const brokerReports = await BrokerReport.find().sort({printDate:-1}).skip(skip).limit(limit);
   
       if(!brokerReports) return res.status(404).json({status:'error', message:'No reports found.'});
       
-      res.status(200).json({status:"success", data: brokerReports, results: brokerReports.length});
+      res.status(200).json({status:"success", data: brokerReports, results: brokerReports.length , count: count});
   }catch(e){
       console.log(e);
       res.status(500).json({status:'error', message: 'Something went wrong.'});
@@ -160,6 +162,7 @@ exports.getBrokerReports = async (req, res, next)=>{
 
 exports.getBrokerReport = async (req, res, next) => {
     const id = req.params.id;
+
     try{
       const brokerReport = await BrokerReport.findOne({_id: id})
   

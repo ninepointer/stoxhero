@@ -1113,6 +1113,19 @@ export default function LabTabs({socket}) {
                   <MDBox p={2} bgColor='text' borderRadius={5}>
                       <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
                       <Grid container spacing={1} >
+                        <Grid item fullWidth>
+                                <MDButton
+                                    variant="contained"
+                                    color={"info"}
+                                    size="small"
+                                    component={Link}
+                                    to={{
+                                        pathname: `/brokerreports`,
+                                    }}
+                                >
+                                    Broker Report
+                                </MDButton>
+                            </Grid>
                           <Grid item fullWidth>
                               <MDButton
                                   variant="contained"
