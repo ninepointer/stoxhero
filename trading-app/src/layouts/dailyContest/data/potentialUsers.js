@@ -15,92 +15,94 @@ export default function AllowedUsers({saving,dailyContest, action, updatedDocume
     const [allowedUsers,setAllowedUsers] = React.useState([]);
     let [update,setUpdate] = React.useState(true);
     const [allowedUserCount,setAllowedUserCount] = useState(0);
-    async function getAllowedUsers() {
-      let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contest/${dailyContest?._id}`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-        },
-      })
-      Promise.all([call1])
-        .then(([api1Response]) => {
-          // Process the responses here
-          setAllowedUsers(api1Response.data.data?.allowedUsers)
-          setAllowedUserCount(api1Response.data?.allowedUsers?.length);
-        })
-        .catch((error) => {
-          // Handle errors here
-          console.error(error);
-        });
-    }
+    // async function getAllowedUsers() {
+    //   let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contest/${dailyContest?._id}`, {
+    //     withCredentials: true,
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //       "Access-Control-Allow-Credentials": true
+    //     },
+    //   })
+    //   Promise.all([call1])
+    //     .then(([api1Response]) => {
+    //       // Process the responses here
+    //       setAllowedUsers(api1Response.data.data?.allowedUsers)
+    //       setAllowedUserCount(api1Response.data?.allowedUsers?.length);
+    //     })
+    //     .catch((error) => {
+    //       // Handle errors here
+    //       console.error(error);
+    //     });
+    // }
 
-    useEffect(()=>{
-      getAllowedUsers();
-    },[saving, open, update, updatedDocument])
+    // useEffect(()=>{
+    //   getAllowedUsers();
+    // },[saving, open, update, updatedDocument])
+
+    console.log("dailyContest", dailyContest)
 
     let columns = [
         { Header: "Name", accessor: "name", align: "center" },
         { Header: "Mobile No.", accessor: "mobile", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "SignUp Method", accessor: "signupMethod", align: "center" },
-        { Header: "Remove", accessor: "remove", align: "center" },
+        // { Header: "Remove", accessor: "remove", align: "center" },
       ]
 
     let rows = []
 
-    async function removeUser(userId){
-      axios.put(`${baseUrl}api/v1/dailycontest/contest/${dailyContest._id}/remove/${userId}`, {
-        withCredentials: true,
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-      })
-      .then((res)=>{
-        //console.log("instrumentData", res.data)
-        // setUser(res.data)
-        // dispatch({ type: 'setUser', payload: (res?.data?.data) });
-        setUpdate(!update);
+    // async function removeUser(userId){
+    //   axios.put(`${baseUrl}api/v1/dailycontest/contest/${dailyContest._id}/remove/${userId}`, {
+    //     withCredentials: true,
+    //     headers: {
+    //         Accept: "application/json",
+    //         "Content-Type": "application/json",
+    //         "Access-Control-Allow-Credentials": true
+    //     },
+    //   })
+    //   .then((res)=>{
+    //     //console.log("instrumentData", res.data)
+    //     // setUser(res.data)
+    //     // dispatch({ type: 'setUser', payload: (res?.data?.data) });
+    //     setUpdate(!update);
   
-      }).catch((err)=>{
-        //console.log(err);
-      })
-    }
+    //   }).catch((err)=>{
+    //     //console.log(err);
+    //   })
+    // }
 
-  allowedUsers?.map((elem, index) => {
+    dailyContest?.potentialParticipants?.map((elem, index) => {
     let featureObj = {}
 
     featureObj.name = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.first_name} {elem?.userId?.last_name}
+        {elem?.first_name} {elem?.last_name}
       </MDTypography>
     );
     featureObj.mobile = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.mobile}
+        {elem?.mobile}
       </MDTypography>
     );
     featureObj.email = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.email}
+        {elem?.email}
       </MDTypography>
     );
 
     featureObj.signupMethod = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem?.userId?.creationProcess}
+        {elem?.creationProcess}
       </MDTypography>
     );
 
-    featureObj.remove = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {/* {elem?.email} */}
-        <MDButton size="small" color="secondary" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { removeUser(elem._id) }}>-</MDButton>
-      </MDTypography>
-    );
+    // featureObj.remove = (
+    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+    //     {/* {elem?.email} */}
+    //     <MDButton size="small" color="secondary" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { removeUser(elem._id) }}>-</MDButton>
+    //   </MDTypography>
+    // );
 
     rows.push(featureObj)
   })
@@ -110,7 +112,7 @@ export default function AllowedUsers({saving,dailyContest, action, updatedDocume
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Allowed Users({allowedUserCount})
+            Potential Users({dailyContest?.potentialParticipants?.length})
           </MDTypography>
         </MDBox>
       </MDBox>

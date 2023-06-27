@@ -129,12 +129,16 @@ exports.getContest = async (req, res) => {
     }
 };
 
-// Controller for getting upcoming contests
+// Controller for getting upcoming contests 
 exports.getUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $gt: new Date() }
         }).populate('portfolio', 'portfolioName _id portfolioValue')
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+
 
         res.status(200).json({
             status:"success",
@@ -338,10 +342,33 @@ exports.participateUsers = async (req, res) => {
         const { id } = req.params; // ID of the contest 
         const userId = req.user._id;
 
-        // const getActiveContest = await Contest.find({
-        //     contestEndTime})
-
         const contest = await Contest.findOne({_id: id});
+
+        const getActiveContest = await Contest.find({
+            participants: {
+                $elemMatch: {
+                    userId: new ObjectId(userId)
+                }
+            },
+            contestStatus: "Active",
+            $or: [
+                { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
+                { contestEndTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
+                {
+                    $and: [
+                        { contestStartTime: { $lte: new Date(contest.contestStartTime) } },
+                        { contestEndTime: { $gte: new Date(contest.contestEndTime) } }
+                    ]
+                }
+            ]
+        })
+
+        if(getActiveContest.length > 0){
+            return res.status(404).json({ status: "error", message: "You can participate in another contest once the current contest ends." });
+        }
+
+
+        
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
