@@ -237,7 +237,7 @@ exports.overallMockPnlTraderWiseRedis = async (pnlData, data) => {
 
         // let pnl = await client.get(`traderWiseMockPnlCompany`)
         pnl = JSON.parse(data);
-        console.log(pnl, pnlData)
+        // console.log(pnl, pnlData)
         const matchingElement = pnl.find((element) => (element?._id?.traderId.toString() == pnlData.trader.toString() && element?._id?.symbol === pnlData.instrumentToken));
         if (matchingElement) {
             // Update the values of the matching element with the values of the first document
@@ -426,7 +426,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId)=>{
   if(isRedisConnected && await client.exists(`${trader.toString()} overallpnlDailyContest`)){
     // let pnl = await client.get(`${trader.toString()} overallpnl`)
     pnl = JSON.parse(data);
-    console.log("redis pnl", pnl)
+    // console.log("redis pnl", pnl)
     const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product ));
     // if instrument is same then just updating value
     if (matchingElement) {
@@ -648,7 +648,7 @@ exports.traderWiseMockPnlCompanyDailyContest = async (pnlData, data, contestId) 
 
         // let pnl = await client.get(`traderWiseMockPnlCompany`)
         pnl = JSON.parse(data);
-        console.log(pnl, pnlData)
+        // console.log(pnl, pnlData)
         const matchingElement = pnl.find((element) => (element?._id?.traderId.toString() == pnlData.trader.toString() && element?._id?.symbol === pnlData.instrumentToken));
         if (matchingElement) {
             // Update the values of the matching element with the values of the first document

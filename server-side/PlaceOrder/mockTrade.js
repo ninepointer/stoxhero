@@ -36,7 +36,7 @@ exports.mockTrade = async (req, res) => {
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
-        console.log("caseStudy 8: mocktrade", req.body)
+        console.log("caseStudy 8: mocktrade")
 
         if(exchange === "NFO"){
             exchangeSegment = 2;
@@ -77,10 +77,10 @@ exports.mockTrade = async (req, res) => {
         // let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
         let liveData;
         if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
-            console.log("inside setting")
+            // console.log("inside setting")
             liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
         } else{
-            console.log("inside setting else case")
+            // console.log("inside setting else case")
             liveData = await singleLivePrice(exchange, symbol)
         }
         // console.log("live data", liveData)
@@ -130,7 +130,7 @@ exports.mockTrade = async (req, res) => {
     let brokerageUser;
     let brokerageCompany;
 
-    console.log(Number(realQuantity), originalLastPriceCompany)
+    // console.log(Number(realQuantity), originalLastPriceCompany)
     if(realBuyOrSell === "BUY"){
         brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailBuy[0]); // TODO 
     } else{
@@ -198,7 +198,7 @@ exports.mockTrade = async (req, res) => {
             const redisValueTrader = await overallMockPnlTraderWiseRedis(mockTradeDetails[0], traderWisePnl);
             const lastTradeMock = await letestTradeMock(mockTradeDetails[0]);
 
-            console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
+            // console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
             const pipelineForSet = clientForIORedis.pipeline();
 
             await pipelineForSet.set(`${trader.toString()} overallpnl`, overallPnlUser);
@@ -311,14 +311,14 @@ exports.mockTrade = async (req, res) => {
             const traderOverallPnl = results[0][1];
             const companyOverallPnl = results[1][1];
             const traderWisePnl = results[2][1];
-            console.log("overallpnl", traderOverallPnl, companyOverallPnl, traderWisePnl)
+            // console.log("overallpnl", traderOverallPnl, companyOverallPnl, traderWisePnl)
 
             const overallPnlUser = await overallpnlDailyContest(algoTrader[0], trader, traderOverallPnl, contestId);
             const redisValueOverall = await overallMockPnlCompanyDailyContest(mockTradeDetails[0], companyOverallPnl, contestId);
             const redisValueTrader = await traderWiseMockPnlCompanyDailyContest(mockTradeDetails[0], traderWisePnl, contestId);
             const lastTradeMock = await lastTradeDataMockDailyContest(mockTradeDetails[0], contestId);
 
-            console.log("setting data", overallPnlUser, redisValueOverall, redisValueTrader, lastTradeMock)
+            // console.log("setting data", overallPnlUser, redisValueOverall, redisValueTrader, lastTradeMock)
             const pipelineForSet = clientForIORedis.pipeline();
 
             await pipelineForSet.set(`${trader.toString()} overallpnlDailyContest`, overallPnlUser);
@@ -344,9 +344,9 @@ exports.mockTrade = async (req, res) => {
                 await pipeline.exec();
             }
             // Commit the transaction
-            console.log("before")
+            // console.log("before")
             io.emit("updatePnl", mockTradeDetails)
-            console.log("after")
+            // console.log("after")
             if(fromAdmin){
                 console.log("in admin side")
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
@@ -356,7 +356,7 @@ exports.mockTrade = async (req, res) => {
 
             // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
 
-            console.log("pipelineForSet", pipelineForSet)
+            // console.log("pipelineForSet", pipelineForSet)
             if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
                 await session.commitTransaction();
                 return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
@@ -403,14 +403,14 @@ exports.mockTrade = async (req, res) => {
                 
             });
     
-            console.log("mockTradeDetails", paperTrade);
+            // console.log("mockTradeDetails", paperTrade);
             paperTrade.save().then(async ()=>{
-                console.log("sending response", isRedisConnected);
+                // console.log("sending response", isRedisConnected);
                 if(isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)){
-                    console.log("in the if condition")
+                    // console.log("in the if condition")
                     let pnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
                     pnl = JSON.parse(pnl);
-                    console.log("before pnl", pnl)
+                    // console.log("before pnl", pnl)
                     const matchingElement = pnl.find((element) => (element._id.instrumentToken === paperTrade.instrumentToken && element._id.product === paperTrade.Product ));
           
                     // if instrument is same then just updating value
@@ -470,7 +470,7 @@ exports.mockTrade = async (req, res) => {
                 
             });
 
-            console.log("tenx tenx", tenx)
+            // console.log("tenx tenx", tenx)
 
     
             //console.log("mockTradeDetails", paperTrade);
@@ -540,7 +540,7 @@ exports.mockTrade = async (req, res) => {
                 
             });
 
-            console.log("internship", internship, req.body)
+            // console.log("internship", internship, req.body)
 
     
             //console.log("mockTradeDetails", paperTrade);
