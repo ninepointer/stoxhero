@@ -692,8 +692,8 @@ function Index() {
         <MDBox>
           <MDTypography>P&L for the print date(StoxHero){formState?.printDate?.toISOString()?.substr(0,10)}</MDTypography>
           <MDTypography>GPNL:{pnlDetails?.gpnl}</MDTypography>
-          <MDTypography>NPNL:{pnlDetails?.gpnl}</MDTypography>
-          <MDTypography>Brokerage:{pnlDetails?.gpnl}</MDTypography>
+          <MDTypography>NPNL:{pnlDetails?.npnl}</MDTypography>
+          <MDTypography>Brokerage:{pnlDetails?.brokerage}</MDTypography>
         </MDBox>}
           {renderSuccessSB}
           {renderErrorSB}
