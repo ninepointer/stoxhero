@@ -14,6 +14,18 @@ const batchSchema = new mongoose.Schema({
         type:Date,
         required: true
     },
+    payoutPercentage:{
+        type: Number,
+        required: true
+    },
+    attendancePercentage:{
+        type: Number,
+        required: true
+    },
+    referralCount:{
+        type: Number,
+        required: true
+    },
     // participants:[{
     //     type: Schema.Types.ObjectId,
     //     ref: 'user-personal-detail'

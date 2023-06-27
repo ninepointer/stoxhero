@@ -34,7 +34,7 @@ const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 // const {client, getValue} = require("../../marketData/redisClient")
 // const {overallPnlTrader} = require("../../controllers/infinityController");
-// const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
+const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
@@ -56,6 +56,18 @@ const {openPrice} = require("../../marketData/setOpenPriceFlag");
 const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
+const {updateUserWallet} = require("../../controllers/internshipTradeController")
+
+
+
+
+
+
+
+router.get("/walletUpdate", async (req, res) => {
+  await updateUserWallet();
+  res.send("ok")
+})
 
 
 router.get("/subscribeTradable", async (req, res) => {
@@ -431,8 +443,8 @@ router.get("/pnl", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   // await overallPnlTrader(req, res)
 
-  // await autoExpireSubscription(req, res)
-  await getMyPnlAndCreditData(req, res);
+  await autoExpireSubscription(req, res)
+  // await getMyPnlAndCreditData(req, res);
 });
 
 router.post("/autotrade/:id", async (req, res) => {

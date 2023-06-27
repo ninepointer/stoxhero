@@ -32,12 +32,13 @@ exports.openPrice = async() => {
     }
 
     const tradable = await TradableInstrument.find({
-        expiry: {
-            $gte: todayDate,
-            $lt: fromLessThen
-        },
-        status: "Active"
-    })
+      expiry: {
+        $gte: todayDate,
+        $lt: fromLessThen
+      },
+      status: "Active",
+      name: { $in: ["BANKNIFTY", "NIFTY50"] }
+    });
 
     const updated = await TradableInstrument.updateMany(
         { infinityVisibility: true },

@@ -48,8 +48,10 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [tradeData, setTradeData] = useState([]);
   const [serverTime, setServerTime] = useState();
   const [batchEndDate, setBatchEndDate] = useState();
+  const [currentBatch, setCurrentBatch] = useState();
   const [myReferralCount, setMyReferralCount] = useState(getDetails?.userDetails?.referrals?.length);
-  const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
+  // const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
+  const [portfolioValue, setPortfolioValue] = useState();
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -84,12 +86,6 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   
     return workingDays;
   }
-
-  const startDate = (getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).toString().split('T')[0]
-  const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
-  // console.log(startDate)
-  // console.log(endDate)
-  const workingDays = calculateWorkingDays(startDate, endDate);
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -151,10 +147,11 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
   useEffect(()=> {(async ()=>{
     const res = await axios.get(`${baseUrl}api/v1/internbatch/currentinternship`, {withCredentials:true});
-    if(Object.keys(res.data.data).length !== 0){
-      console.log(res.data.data._id)
-      setBatchId(res.data.data._id);
-      setBatchEndDate(res.data.data.batchEndDate);
+    console.log("Current Batch",res?.data?.data)
+    if(Object.keys(res?.data?.data)?.length !== 0){
+      setBatchId(res?.data?.data?._id);
+      setBatchEndDate(res?.data?.data?.batchEndDate);
+      setCurrentBatch(res?.data?.data);
     }
   })()}, []);
 
@@ -213,6 +210,12 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     }
   }, [batchId])
 
+  const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
+  const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
+  // console.log(startDate)
+  // console.log(endDate)
+  const workingDays = calculateWorkingDays(startDate, endDate);
+
   tradeData.map((subelem, index)=>{
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem)=>{
@@ -234,7 +237,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   })
   // console.log(portfolioValue, myOverallIntenrshipPNL[0]?.amount, myOverallIntenrshipPNL[0]?.brokerage, totalGrossPnl, totalTransactionCost );
   // console.log(myOverallInternshipPnl)
-  let availableMargin = portfolioValue + (totalGrossPnl-totalTransactionCost) + (myOverallIntenrshipPNL.length > 0 ? (myOverallIntenrshipPNL[0]?.amount - myOverallIntenrshipPNL[0]?.brokerage) : 0)
+  let availableMargin = currentBatch?.portfolio?.portfolioValue + (totalGrossPnl-totalTransactionCost) + (myOverallIntenrshipPNL.length > 0 ? (myOverallIntenrshipPNL[0]?.amount - myOverallIntenrshipPNL[0]?.brokerage) : 0)
 
   const batchParticipants = getDetails?.userDetails?.internshipBatch[0]?.participants
   const user_id = getDetails?.userDetails?._id
@@ -404,15 +407,15 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
           Perks & Benefits of StoxHero Internship Program
         </MDTypography>
-        <MDTypography fontSize = {12}>1. As part of the internship program, you will receive a stipend calculated at 1% of the net profit and loss (P&L) for the duration of your internship.</MDTypography>
+        <MDTypography fontSize = {12}>1. As part of the internship program, you will receive a stipend calculated at {currentBatch ? currentBatch?.payoutPercentage + '%' : 'certain %'} of the net profit and loss (P&L) for the duration of your internship.</MDTypography>
         <MDTypography fontSize = {12}>2. Upon completion of your internship, you will be awarded an internship certificate from StoxHero.</MDTypography>
         <MDTypography></MDTypography>
         <MDTypography fontSize={15} fontWeight='bold' color="dark">
           Internship Completion Rules and Issuance of Internship Certificate
         </MDTypography>
         <MDTypography fontSize = {12}>1. You must accept and abide by the terms of usage and must not partake in any malpractices or manipulation.</MDTypography>
-        <MDTypography fontSize = {12}>2. You must take trades on 80% of the trading days during the internship period.</MDTypography>
-        <MDTypography fontSize = {12}>3. You must refer atleast 30 users to the platform using your invite link.</MDTypography>
+        <MDTypography fontSize = {12}>2. You must take trades on {currentBatch ? currentBatch?.attendancePercentage : 80}% of the trading days during the internship period.</MDTypography>
+        <MDTypography fontSize = {12}>3. You must refer atleast {currentBatch ? currentBatch?.referralCount : 25} users to the platform using your invite link.</MDTypography>
         <MDTypography fontSize = {12}>4. You must treat the internship as an education experience.</MDTypography>
         <MDTypography fontSize = {12}>5. You are limited to taking intraday option trades and are required to close all your positions before 3:20 PM every day.</MDTypography>
         <MDTypography></MDTypography>
@@ -428,10 +431,10 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
         
             <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                   <Grid style={{width:'100%'}} item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <GaugeChartReferrals myReferralCount={myReferralCount}/>
+                      <GaugeChartReferrals myReferralCount={myReferralCount} referralCount={currentBatch?.referralCount}/>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <GaugeChartReturns availableMargin={availableMargin} portfolioValue={portfolioValue}/>
+                      <GaugeChartReturns availableMargin={availableMargin} portfolioValue={currentBatch?.portfolio?.portfolioValue}/>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
                       <GaugeChartAttendance myTradingDays={myTradingDays} totalTradingDays={workingDays} />
@@ -441,13 +444,13 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
             <Grid container mt={-5}>
                 <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Batch: {getDetails?.userDetails?.internshipBatch[0]?.batchName}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Batch: {currentBatch?.batchName}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Start Date: {moment.utc(getDetails?.userDetails?.internshipBatch[0]?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Start Date: {moment.utc(currentBatch?.batchStartDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
-                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>End Date: {moment.utc(getDetails?.userDetails?.internshipBatch[0]?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>End Date: {moment.utc(currentBatch?.batchEndDate).utcOffset('+05:30').format('DD-MMM-YY')}</MDTypography>
                   </Grid>
                 </Grid>
                 
@@ -456,7 +459,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>College: {college_id?.collegeName}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} mt={1} display="flex" justifyContent="center">
-                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio Value: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(portfolioValue.toFixed(0))}</MDTypography>
+                      <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Portfolio Value: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(currentBatch?.portfolio?.portfolioValue.toFixed(0))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} mt={1} display="flex" justifyContent="center">
                       <MDTypography fontSize={12} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Available Margin: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(availableMargin.toFixed(0))}</MDTypography>

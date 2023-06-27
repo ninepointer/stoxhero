@@ -27,8 +27,8 @@ exports.overallPnlTrader = async (req, res, next) => {
 
     try {
 
-        if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnlDailyContest`)) {
-            let pnl = await client.get(`${req.user._id.toString()} overallpnlDailyContest`)
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)) {
+            let pnl = await client.get(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)
             pnl = JSON.parse(pnl);
             // //console.log("pnl redis", pnl)
 
@@ -83,8 +83,8 @@ exports.overallPnlTrader = async (req, res, next) => {
             // //console.log("pnlDetails in else", pnlDetails)
 
             if (isRedisConnected) {
-                await client.set(`${req.user._id.toString()} overallpnlDailyContest`, JSON.stringify(pnlDetails))
-                await client.expire(`${req.user._id.toString()} overallpnlDailyContest`, secondsRemaining);
+                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, JSON.stringify(pnlDetails))
+                await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, secondsRemaining);
             }
 
             // //console.log("pnlDetails", pnlDetails)
@@ -357,101 +357,251 @@ exports.myTodaysTrade = async (req, res, next) => {
 exports.getMyPnlAndCreditData = async (req, res, next) => {
     let { id } = req.params;
     // console.log("Batch:",batch)
+    let isRedisConnected = getValue();
+
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
+    let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+    const tempDate = new Date(tempTodayDate);
+    const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+  
+
     // console.log(batch, req.user._id)
 
-    try {
-        const subscription = await DailyContest.aggregate([
-            {
-                $match: {
-                    _id: new ObjectId(id),
-                },
-            },
-            {
-                $lookup: {
-                    from: "user-portfolios",
-                    localField: "portfolio",
-                    foreignField: "_id",
-                    as: "portfolioData",
-                },
-            },
-            {
-                $lookup: {
-                    from: "dailycontest-mock-users",
-                    localField: "_id",
-                    foreignField: "contestId",
-                    as: "trades",
-                },
-            },
-            {
-                $unwind:
-                {
-                    path: "$trades",
-                    includeArrayIndex: "string",
-                },
-            },
-            {
-                $match: {
-                    "trades.trade_time": { $lt: today },
-                    "trades.status": "COMPLETE",
-                    "trades.trader": new ObjectId(req.user._id)
-                },
-            },
-            {
-                $group:
+    // try {
+    //     const subscription = await DailyContest.aggregate([
+    //         {
+    //             $match: {
+    //                 _id: new ObjectId(id),
+    //             },
+    //         },
+    //         {
+    //             $lookup: {
+    //                 from: "user-portfolios",
+    //                 localField: "portfolio",
+    //                 foreignField: "_id",
+    //                 as: "portfolioData",
+    //             },
+    //         },
+    //         {
+    //             $lookup: {
+    //                 from: "dailycontest-mock-users",
+    //                 localField: "_id",
+    //                 foreignField: "contestId",
+    //                 as: "trades",
+    //             },
+    //         },
+    //         {
+    //             $unwind:
+    //             {
+    //                 path: "$trades",
+    //                 includeArrayIndex: "string",
+    //             },
+    //         },
+    //         {
+    //             $match: {
+    //                 "trades.trade_time": { $lt: today },
+    //                 "trades.status": "COMPLETE",
+    //                 "trades.trader": new ObjectId(req.user._id)
+    //             },
+    //         },
+    //         {
+    //             $group:
 
+    //             {
+    //                 _id: {
+    //                     batch: "$_id",
+    //                     totalFund: {
+    //                         $arrayElemAt: [
+    //                             "$portfolioData.portfolioValue",
+    //                             0,
+    //                         ],
+    //                     },
+    //                 },
+    //                 totalAmount: {
+    //                     $sum: {
+    //                         $multiply: ["$trades.amount", -1],
+    //                     }
+    //                 },
+    //                 totalBrokerage: {
+    //                     $sum: "$trades.brokerage",
+    //                 },
+    //             },
+    //         },
+    //         {
+    //             $project:
+
+    //             {
+    //                 _id: 0,
+    //                 batch: "$_id.batch",
+    //                 totalFund: "$_id.totalFund",
+    //                 npnl: {
+    //                     $subtract: [
+    //                         "$totalAmount",
+    //                         "$totalBrokerage",
+    //                     ],
+    //                 },
+    //                 openingBalance: {
+    //                     $sum: [
+    //                         "$_id.totalFund",
+    //                         { $subtract: ["$totalAmount", "$totalBrokerage"] }
+    //                     ]
+    //                 }
+    //             },
+    //         },
+    //     ])
+
+    //     if (subscription.length > 0) {
+    //         res.status(200).json({ status: 'success', data: subscription[0] });
+    //     } else {
+    //         const portfolioValue = await DailyContest.aggregate([
+    //             {
+    //                 $match: {
+    //                     _id: new ObjectId(id),
+    //                 },
+    //             },
+    //             {
+    //                 $lookup: {
+    //                     from: "user-portfolios",
+    //                     localField: "portfolio",
+    //                     foreignField: "_id",
+    //                     as: "portfolioData",
+    //                 },
+    //             },
+    //             {
+    //                 $group: {
+    //                     _id: {
+    //                         contestId: "$_id",
+    //                         totalFund: {
+    //                             $arrayElemAt: [
+    //                                 "$portfolioData.portfolioValue",
+    //                                 0,
+    //                             ],
+    //                         },
+    //                     },
+    //                 },
+    //             },
+    //             {
+    //                 $project: {
+    //                     _id: 0,
+    //                     batch: "$_id.contestId",
+    //                     totalFund: "$_id.totalFund",
+    //                 },
+    //             },
+    //         ])
+
+    //         res.status(200).json({ status: 'success', data: portfolioValue[0] });
+    //     }
+    // } catch (e) {
+    //     console.log(e);
+    //     res.status(500).json({ status: 'error', message: 'Something went wrong' });
+    // }
+
+
+
+    try {
+
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`)) {
+          let marginDetail = await client.get(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`)
+          marginDetail = JSON.parse(marginDetail);
+    
+          res.status(201).json({ message: "pnl received", data: marginDetail });
+    
+        } else {
+    
+            const subscription = await DailyContest.aggregate([
                 {
-                    _id: {
-                        batch: "$_id",
-                        totalFund: {
-                            $arrayElemAt: [
-                                "$portfolioData.portfolioValue",
-                                0,
-                            ],
+                    $match: {
+                        _id: new ObjectId(id),
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "user-portfolios",
+                        localField: "portfolio",
+                        foreignField: "_id",
+                        as: "portfolioData",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "dailycontest-mock-users",
+                        localField: "_id",
+                        foreignField: "contestId",
+                        as: "trades",
+                    },
+                },
+                {
+                    $unwind:
+                    {
+                        path: "$trades",
+                        includeArrayIndex: "string",
+                    },
+                },
+                {
+                    $match: {
+                        "trades.trade_time": { $lt: today },
+                        "trades.status": "COMPLETE",
+                        "trades.trader": new ObjectId(req.user._id)
+                    },
+                },
+                {
+                    $group:
+    
+                    {
+                        _id: {
+                            batch: "$_id",
+                            totalFund: {
+                                $arrayElemAt: [
+                                    "$portfolioData.portfolioValue",
+                                    0,
+                                ],
+                            },
+                        },
+                        totalAmount: {
+                            $sum: {
+                                $multiply: ["$trades.amount", -1],
+                            }
+                        },
+                        totalBrokerage: {
+                            $sum: "$trades.brokerage",
                         },
                     },
-                    totalAmount: {
-                        $sum: {
-                            $multiply: ["$trades.amount", -1],
+                },
+                {
+                    $project:
+    
+                    {
+                        _id: 0,
+                        batch: "$_id.batch",
+                        totalFund: "$_id.totalFund",
+                        npnl: {
+                            $subtract: [
+                                "$totalAmount",
+                                "$totalBrokerage",
+                            ],
+                        },
+                        openingBalance: {
+                            $sum: [
+                                "$_id.totalFund",
+                                { $subtract: ["$totalAmount", "$totalBrokerage"] }
+                            ]
                         }
                     },
-                    totalBrokerage: {
-                        $sum: "$trades.brokerage",
-                    },
                 },
-            },
-            {
-                $project:
-
-                {
-                    _id: 0,
-                    batch: "$_id.batch",
-                    totalFund: "$_id.totalFund",
-                    npnl: {
-                        $subtract: [
-                            "$totalAmount",
-                            "$totalBrokerage",
-                        ],
-                    },
-                    openingBalance: {
-                        $sum: [
-                            "$_id.totalFund",
-                            { $subtract: ["$totalAmount", "$totalBrokerage"] }
-                        ]
-                    }
-                },
-            },
-        ])
-        // console.log("subs", subscription)
-        if (subscription.length > 0) {
-            // console.log("subs", subscription)
-
+            ])
+    
+          if (subscription.length > 0) {
+            if (isRedisConnected) {
+              await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, JSON.stringify(subscription[0]))
+              await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, secondsRemaining);
+            }
             res.status(200).json({ status: 'success', data: subscription[0] });
-        } else {
+          } else {
             const portfolioValue = await DailyContest.aggregate([
                 {
                     $match: {
@@ -487,12 +637,17 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                     },
                 },
             ])
-
-            // console.log("portfolioValue", portfolioValue, subscription)
+            if (isRedisConnected) {
+              await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, JSON.stringify(portfolioValue[0]))
+              await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, secondsRemaining);
+            }
             res.status(200).json({ status: 'success', data: portfolioValue[0] });
+          }
+    
         }
-    } catch (e) {
+    
+      } catch (e) {
         console.log(e);
-        res.status(500).json({ status: 'error', message: 'Something went wrong' });
-    }
+        return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+      }
 }

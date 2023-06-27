@@ -29,6 +29,7 @@ import { HiUserGroup } from 'react-icons/hi';
 import { CircularProgress, Divider } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
+import PopupTrading from "../data/popupTrading";
 
 
 
@@ -216,6 +217,9 @@ function Header({ e }) {
                                 if (elem.isFinNifty) {
                                     contestOn.push("FINNIFTY")
                                 }
+                                if(elem.isAllIndex){
+                                    contestOn = ['NIFTY', 'BANKNIFTY', 'FINNIFTY']
+                                }
 
                                 contestOn.push(elem.contestExpiry.toUpperCase());
 
@@ -302,28 +306,27 @@ function Header({ e }) {
                                                 <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
 
+                                                        
                                                         <MDBox display='flex' justifyContent='flex-start' width='50%'>
+                                                        {timeDifference > 0 &&
                                                         <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
-                                                            {checkIsInterested &&
+                                                        }
+                                                        {checkIsInterested &&
 
-                                                                 <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thank You for showing interest.</MDTypography>
+                                                                 <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
                                                              }
                                                         </MDBox>
+                                                        
                                                         <MDBox display='flex' justifyContent='flex-end' width='50%'>
-                                                            <MDButton
+                                                            <PopupTrading elem={elem} checkIsInterested={checkIsInterested}/>
+                                                            {/* <MDButton
                                                                 variant='outlined'
                                                                 color='warning'
                                                                 size='small'
-                                                                // component={Link}
-                                                                // disabled={timeDifference > 0}
-                                                                // to={{
-                                                                //     pathname: `/contest/alphaavengers`,
-                                                                // }}
                                                                 onClick={()=>{participateUserToContest(elem)}}
-                                                            // state= {{data:e}}
                                                             >
                                                                 <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
-                                                            </MDButton>
+                                                            </MDButton> */}
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>

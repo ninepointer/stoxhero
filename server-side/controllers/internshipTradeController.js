@@ -3,6 +3,9 @@ const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const InternBatch = require("../models/Careers/internBatch");
 const {client, getValue} = require('../marketData/redisClient');
+const Careers = require("../models/Careers/careerSchema");
+const Wallet = require("../models/UserWallet/userWalletSchema");
+const uuid = require('uuid');
 
 const { ObjectId } = require("mongodb");
 
@@ -172,6 +175,7 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
+  let isRedisConnected = getValue();
   let {batch} = req.params;
   // console.log("Batch:",batch)
   let date = new Date();
@@ -179,10 +183,25 @@ exports.marginDetail = async (req, res, next) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  // console.log(batch, req.user._id)
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
+
 
   try {
-    const subscription = await InternBatch.aggregate([
+
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`)
+      marginDetail = JSON.parse(marginDetail);
+
+      res.status(201).json({ message: "pnl received", data: marginDetail });
+
+    } else {
+
+      const subscription = await InternBatch.aggregate([
         {
           $match: {
             _id: new ObjectId(batch),
@@ -206,22 +225,87 @@ exports.marginDetail = async (req, res, next) => {
         },
         {
           $unwind:
-            {
-              path: "$trades",
-              includeArrayIndex: "string",
-            },
+          {
+            path: "$trades",
+            includeArrayIndex: "string",
+          },
         },
         {
-            $match: {
-                "trades.trade_time": {$lt: today},
-                "trades.status": "COMPLETE",
-                "trades.trader": new ObjectId(req.user._id)
-            },
+          $match: {
+            "trades.trade_time": { $lt: today },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(req.user._id)
+          },
         },
         {
           $group:
-      
-            {
+
+          {
+            _id: {
+              batch: "$_id",
+              totalFund: {
+                $arrayElemAt: [
+                  "$portfolioData.portfolioValue",
+                  0,
+                ],
+              },
+            },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              }
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
+            },
+          },
+        },
+        {
+          $project:
+
+          {
+            _id: 0,
+            batch: "$_id.batch",
+            totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                { $subtract: ["$totalAmount", "$totalBrokerage"] }
+              ]
+            }
+          },
+        },
+      ])
+
+      if (subscription.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, JSON.stringify(subscription[0]))
+          await client.expire(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: subscription[0] });
+      } else {
+        const portfolioValue = await InternBatch.aggregate([
+          {
+            $match: {
+              _id: new ObjectId(batch),
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolioData",
+            },
+          },
+          {
+            $group: {
               _id: {
                 batch: "$_id",
                 totalFund: {
@@ -231,87 +315,30 @@ exports.marginDetail = async (req, res, next) => {
                   ],
                 },
               },
-              totalAmount: {
-                $sum:{
-                    $multiply: ["$trades.amount", -1],
-                }
-              },
-              totalBrokerage: {
-                $sum: "$trades.brokerage",
-              },
             },
-        },
-        {
-          $project:
-      
-            {
+          },
+          {
+            $project: {
               _id: 0,
               batch: "$_id.batch",
               totalFund: "$_id.totalFund",
-              npnl: {
-                $subtract: [
-                  "$totalAmount",
-                  "$totalBrokerage",
-                ],
-              },
-              openingBalance: {
-                $sum: [
-                    "$_id.totalFund",
-                    { $subtract: ["$totalAmount", "$totalBrokerage"] }
-                  ]
-              }
             },
-        },
-    ])
-    // console.log("subs", subscription)
-    if(subscription.length > 0){
-      // console.log("subs", subscription)
-
-        res.status(200).json({status: 'success', data: subscription[0]});
-    } else{
-        const portfolioValue = await InternBatch.aggregate([
-            {
-              $match: {
-                _id: new ObjectId(batch),
-              },
-            },
-            {
-              $lookup: {
-                from: "user-portfolios",
-                localField: "portfolio",
-                foreignField: "_id",
-                as: "portfolioData",
-              },
-            },
-            {
-              $group: {
-                _id: {
-                  batch: "$_id",
-                  totalFund: {
-                    $arrayElemAt: [
-                      "$portfolioData.portfolioValue",
-                      0,
-                    ],
-                  },
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                batch: "$_id.batch",
-                totalFund: "$_id.totalFund",
-              },
-            },
+          },
         ])
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, JSON.stringify(portfolioValue[0]))
+          await client.expire(`${req.user._id.toString()}${batch.toString()} openingBalanceAndMarginInternship`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfolioValue[0] });
+      }
 
-        // console.log("portfolioValue", portfolioValue, subscription)
-        res.status(200).json({status: 'success', data: portfolioValue[0]});
     }
+
   } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message: 'Something went wrong'});
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
+
 }
 
 exports.tradingDays = async(req, res, next)=>{
@@ -1004,6 +1031,7 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
     {
       $project: {
         _id: 0,
+        userId: "$_id.userId",
         name: "$_id.name",
         tradingDays: { $size: "$tradingDays" },
         gpnl: 1,
@@ -1019,9 +1047,252 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
     },
   ]
 
+
+  let userData = await User.find().select("referrals")
   let x = await InternTrades.aggregate(pipeline)
 
   // res.status(201).json(x);
 
-  res.status(201).json({ message: "data received", data: x });
+  res.status(201).json({ message: "data received", data: x, userData: userData });
+}
+
+
+exports.updateUserWallet = async () => {
+
+
+  try{
+
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  
+  
+    const internship = await Careers.aggregate([
+      {
+        $match:
+    
+          {
+            listingType: "Job",
+          },
+      },
+      {
+        $lookup:
+    
+          {
+            from: "intern-batches",
+            localField: "_id",
+            foreignField: "career",
+            as: "batch",
+          },
+      },
+      {
+        $unwind:
+    
+          {
+            path: "$batch",
+          },
+      },
+      {
+        $match:
+    
+          {
+            $expr: {
+              $eq: [
+                {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$batch.batchEndDate",
+                  },
+                },
+                todayDate,
+              ],
+            },
+            "batch.batchStatus": "Active",
+          },
+      },
+      {
+        $project:
+    
+        {
+          _id: 0,
+          batchId: "$batch._id",
+          users: "$batch.participants",
+          startDate: "$batch.batchStartDate",
+          endDate: "$batch.batchEndDate",
+          attendancePercentage: "$batch.attendancePercentage",
+          payoutPercentage: "$batch.payoutPercentage",
+          referralCount: "$batch.referralCount"
+        }
+      },
+    
+    ])
+  
+    console.log(internship)
+  
+    const attendanceLimit = internship[0].attendancePercentage;
+    const referralLimit = internship[0].referralCount;
+    const payoutPercentage = internship[0].payoutPercentage;
+    const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
+    const reliefReferralLimit = referralLimit - referralLimit*10/100
+    const workingDays = calculateWorkingDays(internship[0].startDate, internship[0].endDate);
+    const users = internship[0].users;
+    const batchId = internship[0].batchId;
+  
+    const tradingDays = async (userId, batchId)=>{
+      const pipeline = 
+      [
+        {
+          $match: {
+            batch: new ObjectId(batchId),
+            trader: new ObjectId(userId),
+            status: "COMPLETE",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              date: {
+                $substr: ["$trade_time", 0, 10],
+              },
+            },
+            count: {
+              $count: {},
+            },
+          },
+        },
+      ]
+    
+      let x = await InternTrades.aggregate(pipeline);
+  
+      return x.length;
+    }
+  
+    const pnl = async (userId, batchId)=>{
+      let pnlDetails = await InternTrades.aggregate([
+        {
+            $match: {
+                status: "COMPLETE",
+                trader: new ObjectId(userId),
+                batch: new ObjectId(batchId) 
+            },
+        },
+        {
+          $group: {
+            _id: {
+            },
+            amount: {
+              $sum: {$multiply : ["$amount",-1]},
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+          },
+        },
+        {
+          $project:
+            /**
+             * specifications: The fields to
+             *   include or exclude.
+             */
+            {
+              _id: 0,
+              npnl: {
+                $subtract: ["$amount", "$brokerage"],
+              },
+            },
+        },
+      ])
+    
+      // let x = await InternTrades.aggregate(pnlDetails);
+  
+      return pnlDetails[0]?.npnl;
+    }
+  
+    function calculateWorkingDays(startDate, endDate) {
+      // Convert the input strings to Date objects
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setDate(end.getDate() + 1);
+  
+      // Check if the start date is after the end date
+      if (start > end) {
+        return 0;
+      }
+    
+      let workingDays = 0;
+      let currentDate = new Date(start);
+    
+      // Iterate over each day between the start and end dates
+      while (currentDate <= end) {
+        // Check if the current day is a weekday (Monday to Friday)
+        if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+          workingDays++;
+        }
+    
+        // Move to the next day
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    
+      return workingDays;
+    }
+    
+    const referrals = async(userId)=>{
+      const user = await User.findOne({_id: new ObjectId(userId)});
+      return user?.referrals?.length;
+    }
+  
+  
+    for(let i = 0; i < users.length; i++){
+      const tradingdays = await tradingDays(users[i].user, batchId);
+      const attendance = tradingdays*100/workingDays;
+      const referral = await referrals(users[i].user);
+      const npnl = await pnl(users[i].user, batchId);
+      const creditAmount = npnl*payoutPercentage/100;
+  
+      const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
+  
+      if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+        wallet.transactions = [...wallet.transactions, {
+          title: 'Internship Payout',
+          description: `Amount credited for your internship profit`,
+          amount: (creditAmount),
+          transactionId: uuid.v4(),
+          transactionType: 'Cash'
+        }];
+        wallet.save();
+        console.log(attendance, tradingdays, users[i].user, npnl);
+      }
+  
+      if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
+        if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
+          wallet.transactions = [...wallet.transactions, {
+            title: 'Internship Payout',
+            description: `Amount credited for your internship profit`,
+            amount: (creditAmount),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
+          }];
+          wallet.save();
+          console.log("attendance relief");
+        }
+        if(referral < referralLimit && referral >= reliefReferralLimit){
+          wallet.transactions = [...wallet.transactions, {
+            title: 'Internship Payout',
+            description: `Amount credited for your internship profit`,
+            amount: (creditAmount),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
+          }];
+          wallet.save();
+          console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+        }
+      }
+    }
+  
+
+  } catch(err){
+    console.log(err);
+  }
+
 }

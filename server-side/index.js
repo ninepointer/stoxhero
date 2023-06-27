@@ -42,6 +42,7 @@ require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 const {xtsAccountType, zerodhaAccountType} = require("./constant")
 const {openPrice} = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
+const {updateUserWallet} = require('./controllers/internshipTradeController');
 
 
 const hpp = require("hpp")
@@ -314,7 +315,6 @@ let weekDay = date.getDay();
           appOffline();
           infinityOffline();
         });
-        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
         // const autotrade = nodeCron.schedule('50 9 * * *', test); 
         const autotrade = nodeCron.schedule(`50 9 * * *`, () => {
           autoCutMainManually();
@@ -328,6 +328,9 @@ let weekDay = date.getDay();
 
     }
   }
+
+  const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+  const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
 
   if(!process.env.PROD){
     // const autotrade = nodeCron.schedule(`50 9 * * *`, test);

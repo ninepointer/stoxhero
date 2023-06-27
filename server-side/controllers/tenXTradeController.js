@@ -146,99 +146,29 @@ exports.myHistoryTrade = async (req, res, next) => {
 }
 
 exports.marginDetail = async (req, res, next) => {
+  let isRedisConnected = getValue();
   let subscriptionId = req.params.id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
   try {
-    const subscription = await Subscription.aggregate([
-      {
-        $match: {
-          _id: new ObjectId(subscriptionId),
-        },
-      },
-      {
-        $lookup: {
-          from: "user-portfolios",
-          localField: "portfolio",
-          foreignField: "_id",
-          as: "portfolioData",
-        },
-      },
-      {
-        $lookup: {
-          from: "tenx-trade-users",
-          localField: "_id",
-          foreignField: "subscriptionId",
-          as: "trades",
-        },
-      },
-      {
-        $unwind:
-        {
-          path: "$trades",
-          includeArrayIndex: "string",
-        },
-      },
-      {
-        $match: {
-          "trades.trade_time": { $lt: today },
-          "trades.status": "COMPLETE",
-          "trades.trader": new ObjectId(req.user._id)
-        },
-      },
-      {
-        $group:
 
-        {
-          _id: {
-            subscriptionId: "$_id",
-            totalFund: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioValue",
-                0,
-              ],
-            },
-          },
-          totalAmount: {
-            $sum: {
-              $multiply: ["$trades.amount", -1],
-            }
-          },
-          totalBrokerage: {
-            $sum: "$trades.brokerage",
-          },
-        },
-      },
-      {
-        $project:
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`)
+      marginDetail = JSON.parse(marginDetail);
 
-        {
-          _id: 0,
-          subscriptionId: "$_id.subscriptionId",
-          totalFund: "$_id.totalFund",
-          npnl: {
-            $subtract: [
-              "$totalAmount",
-              "$totalBrokerage",
-            ],
-          },
-          openingBalance: {
-            $sum: [
-              "$_id.totalFund",
-              { $subtract: ["$totalAmount", "$totalBrokerage"] }
-            ]
-          }
-        },
-      },
-    ])
+      res.status(201).json({ message: "pnl received", data: marginDetail });
 
-    if (subscription.length > 0) {
-      res.status(200).json({ status: 'success', data: subscription[0] });
     } else {
-      const portfolioValue = await Subscription.aggregate([
+
+      const subscription = await Subscription.aggregate([
         {
           $match: {
             _id: new ObjectId(subscriptionId),
@@ -253,7 +183,31 @@ exports.marginDetail = async (req, res, next) => {
           },
         },
         {
-          $group: {
+          $lookup: {
+            from: "tenx-trade-users",
+            localField: "_id",
+            foreignField: "subscriptionId",
+            as: "trades",
+          },
+        },
+        {
+          $unwind:
+          {
+            path: "$trades",
+            includeArrayIndex: "string",
+          },
+        },
+        {
+          $match: {
+            "trades.trade_time": { $lt: today },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(req.user._id)
+          },
+        },
+        {
+          $group:
+  
+          {
             _id: {
               subscriptionId: "$_id",
               totalFund: {
@@ -263,21 +217,93 @@ exports.marginDetail = async (req, res, next) => {
                 ],
               },
             },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              }
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
+            },
           },
         },
         {
-          $project: {
+          $project:
+  
+          {
             _id: 0,
             subscriptionId: "$_id.subscriptionId",
             totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                { $subtract: ["$totalAmount", "$totalBrokerage"] }
+              ]
+            }
           },
         },
       ])
-      res.status(200).json({ status: 'success', data: portfolioValue[0] });
+
+      if (subscription.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(subscription[0]))
+          await client.expire(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: subscription[0] });
+      } else {
+        const portfolioValue = await Subscription.aggregate([
+          {
+            $match: {
+              _id: new ObjectId(subscriptionId),
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "portfolio",
+              foreignField: "_id",
+              as: "portfolioData",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                subscriptionId: "$_id",
+                totalFund: {
+                  $arrayElemAt: [
+                    "$portfolioData.portfolioValue",
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              subscriptionId: "$_id.subscriptionId",
+              totalFund: "$_id.totalFund",
+            },
+          },
+        ])
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(portfolioValue[0]))
+          await client.expire(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, secondsRemaining);
+        }
+        res.status(200).json({ status: 'success', data: portfolioValue[0] });
+      }
+
     }
+
   } catch (e) {
     console.log(e);
-    res.status(500).json({ status: 'error', message: 'Something went wrong' });
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
 }
 // TODO remove hardcode of 60 days
