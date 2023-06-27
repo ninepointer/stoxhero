@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-
+ 
 const brokerReportSchema = new mongoose.Schema({
     printDate:{
         type: Date,
@@ -63,11 +63,6 @@ const brokerReportSchema = new mongoose.Schema({
         default: 0,
     },
     cummulativeNetPNL:{
-        type:Number,
-        required:true,
-        default: 0,
-    },
-    cummulativeTransactionCharge:{
         type:Number,
         required:true,
         default: 0,

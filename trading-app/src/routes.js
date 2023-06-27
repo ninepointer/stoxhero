@@ -38,6 +38,7 @@ import MyReferrals from "./layouts/referrals"
 import Portfolio from './layouts/portfolio'
 import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
+import BrokerReportDetails from './layouts/brokerReport/brokerReportDetails'
 import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
@@ -48,6 +49,7 @@ import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
 import Carousel from './layouts/carousel'
+import BrokerReport from './layouts/brokerReport'
 // import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
@@ -292,6 +294,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/carouseldetails",
     component: <CarouselDetails />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "brokerreportdetails",
+    // icon: <DashboardIcon/>,
+    route: "/brokerreportdetails",
+    component: <BrokerReportDetails />,
   },
   {
     // type: "collapse",
@@ -561,6 +571,14 @@ const routes = [
     icon: <ViewCarouselIcon/>,
     route: "/carousel",
     component: <Carousel />,
+  },
+  {
+    type: "collapse",
+    name: "Broker Reports",
+    key: "brokerreports",
+    icon: <ViewCarouselIcon/>,
+    route: "/brokerreports",
+    component: <BrokerReport />,
   },
   {
     // type: "collapse",
