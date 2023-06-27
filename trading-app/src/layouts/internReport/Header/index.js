@@ -35,7 +35,7 @@ export default function LabTabs() {
   });
 
   useEffect(()=>{
-    axios.get(`${apiUrl}internbatch/active`, {withCredentials: true})
+    axios.get(`${apiUrl}internbatch`, {withCredentials: true})
     .then((res)=>{
       setBatches(res.data.data);
       setSelectedBatches(res.data.data[0]?._id)
@@ -284,7 +284,7 @@ export default function LabTabs() {
       <Grid mt={0} container spacing={3}>
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1}  borderRadius={4}>
-            {userData &&
+            {(alignment === dailPnl || userData) &&
             <TableView whichTab={alignment} dateWiseData={dateWiseData} userData={userData} batches={batches} dates={dates}/>}
           </MDBox>
         </Grid>

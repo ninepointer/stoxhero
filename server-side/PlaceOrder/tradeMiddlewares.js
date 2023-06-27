@@ -11,9 +11,7 @@ exports.isAppLive = async(req,res,next) => {
         if(req?.user?._id.toString() == "63987453e88caa645cc98e44" || req?.user?._id.toString() == "63788f7591fc4bf629de6e59"){
             next();
         }
-        // if(isPermitted){
-        //     return;
-        // }
+
         const appSettings = await AppSettings.find();
         if(appSettings.length>0 && !appSettings[0].isAppLive){
             return res.status(401).send({message: "App is not Live right now. Please wait."}) ;
