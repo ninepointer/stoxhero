@@ -52,7 +52,7 @@ function Index() {
     const [saving,setSaving] = useState(false)
     const [creating,setCreating] = useState(false)
     const [pnlDetails, setPnlDetails] = useState({});
-    const [brokerPnlDetails, setBrokerPnlDetails] =useState();
+    const [brokerPnlDetails, setBrokerPnlDetails] =useState({});
     const [cummulativePnlDetails, setCummulativePnlDetails] = useState({});
     const navigate = useNavigate();
     const [formState,setFormState] = useState({
@@ -773,7 +773,7 @@ function Index() {
             </MDBox>
           </Grid>
 
-          <Grid container p={2}>
+          {Object.keys(brokerPnlDetails).length>0 && <Grid container p={2}>
             <MDBox bgColor='light' display='flex' border='1px solid white' width='100%'>
               <Grid item lg={12} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='dark' fontWeight='bold'>Infinity P&L for {pnlDetails?.date} [As per Broker]</MDTypography>
@@ -830,7 +830,7 @@ function Index() {
                 </MDTypography>
               </Grid>
             </MDBox>
-          </Grid>
+          </Grid>}
 
         </MDBox>}
           {renderSuccessSB}
