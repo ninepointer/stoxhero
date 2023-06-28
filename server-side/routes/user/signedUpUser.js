@@ -205,11 +205,11 @@ router.patch("/verifyotp", async (req, res) => {
             referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             referral.save();
             // console.log(referral?.users)
-            // const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
-            //     $set: {
-            //         users: referral?.users
-            //     }
-            // })
+            const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
+                $set: {
+                    users: referral?.users
+                }
+            })
 
             if (referrerCode) {
                 let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
