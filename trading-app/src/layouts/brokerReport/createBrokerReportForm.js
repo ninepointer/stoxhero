@@ -712,7 +712,24 @@ function Index() {
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Transaction: { (pnlDetails?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.brokerage))}
+                  Transaction: { (pnlDetails?.brokerage) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.brokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Total Turn: { (pnlDetails?.totalTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.totalTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.totalTurnover))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Pur Turn: { (pnlDetails?.purchaseTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.purchaseTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.purchaseTurnover))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Sale Turn: { (pnlDetails?.saleTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.saleTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.saleTurnover))}
                 </MDTypography>
               </Grid>
             </MDBox>
@@ -729,27 +746,28 @@ function Index() {
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Transaction: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                  Cumm. Transaction: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
                 </MDTypography>
               </Grid>
             </MDBox>
             <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Total Turn: { (cummulativePnlDetails?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalGpnl))}
+                  Cumm. Total Turn: { (cummulativePnlDetails?.cummulativeTotalTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.cummulativeTotalTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.cummulativeTotalTurnover))}
                 </MDTypography>
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Pur Turn: { (cummulativePnlDetails?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalNpnl))}
+                  Cumm. Pur Turn: { (cummulativePnlDetails?.cummulativePurchaseTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.cummulativePurchaseTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.cummulativePurchaseTurnover))}
                 </MDTypography>
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Sale Turn: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                  Cumm. Sale Turn: { (cummulativePnlDetails?.cummulativeSaleTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.cummulativeSaleTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.cummulativeSaleTurnover))}
                 </MDTypography>
               </Grid>
             </MDBox>
+            
           </Grid>
 
           <Grid container p={2}>
