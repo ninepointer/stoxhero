@@ -57,11 +57,16 @@ const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
+const {saveMissedData} = require("../../utils/insertData");
 
 
 
 
 
+router.get("/saveMissedData", async (req, res) => {
+  await saveMissedData();
+  res.send("ok")
+})
 
 
 router.get("/walletUpdate", async (req, res) => {
@@ -85,8 +90,15 @@ router.get("/updateFeild", async (req, res) => {
 })
 
 router.get("/deleteTrades", async (req, res) => {
-  const del = await InfinityTraderCompany.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
-  const del2 = await InfinityTrader.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
+  $lt: new Date("2023-06-20"),}})
+  const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
+  $lt: new Date("2023-06-20"),}})
+
+  const del3 = await InfinityLiveCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
+  $lt: new Date("2023-06-20"),}})
+  const del4 = await InfinityLiveUser.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
+  $lt: new Date("2023-06-20"),}})
   console.log(del.length, del2.length);
 })
 
