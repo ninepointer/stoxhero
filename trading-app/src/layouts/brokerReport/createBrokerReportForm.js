@@ -52,6 +52,7 @@ function Index() {
     const [saving,setSaving] = useState(false)
     const [creating,setCreating] = useState(false)
     const [pnlDetails, setPnlDetails] = useState({});
+    const [cummulativePnlDetails, setCummulativePnlDetails] = useState({});
     const navigate = useNavigate();
     const [formState,setFormState] = useState({
         printDate: dayjs(id?.printDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
@@ -78,7 +79,7 @@ function Index() {
     useEffect(()=>{
       setTimeout(()=>{
           id && setBrokerReport(id)
-          getPnlDetails(dayjs(id?.printDate))
+          getPnlDetails(dayjs(id?.printDate),dayjs(id?.fromDate))
           setIsLoading(false);
           console.log("Initial Form Data: ", formState);
       },500)
@@ -219,11 +220,12 @@ function Index() {
       reader.readAsDataURL(file);
     };
 
-    const getPnlDetails = async (e)=>{
-      console.log('ee hai',e.toDate().toISOString().substr(0,10));
-      const res = await axios.get(`${baseUrl}api/v1/infinityTrade/live/companypnlreport/${e.toDate().toISOString().substr(0,10)}/${e.toDate().toISOString().substr(0,10)}`);
+    const getPnlDetails = async (e, fromDate)=>{
+      console.log('ee hai',e.toDate().toISOString().substr(0,10), fromDate);
+      const res = await axios.get(`${baseUrl}api/v1/infinityTrade/live/brokerreportmatch/${e.toDate().toISOString().substr(0,10)}/${fromDate.toDate().toISOString().substr(0,10)}`);
       if(res.data.data[0]){
         setPnlDetails(res.data.data[0]);
+        setCummulativePnlDetails(res.data.cumulative[0])
       }else{
         setPnlDetails({});
       }
@@ -333,7 +335,7 @@ function Index() {
                             ...prevState,
                             printDate: dayjs(e)
                           }));
-                          await getPnlDetails(e)
+                          await getPnlDetails(e, formState?.fromDate)
                         }}
                         sx={{ width: '100%' }}
                       />
@@ -689,11 +691,126 @@ function Index() {
             </Grid>
          </Grid>
         {Object.keys(pnlDetails).length>0 && 
-        <MDBox>
-          <MDTypography>P&L for the print date(StoxHero){formState?.printDate?.toISOString()?.substr(0,10)}</MDTypography>
-          <MDTypography>GPNL:{pnlDetails?.gpnl}</MDTypography>
-          <MDTypography>NPNL:{pnlDetails?.gpnl}</MDTypography>
-          <MDTypography>Brokerage:{pnlDetails?.gpnl}</MDTypography>
+        <MDBox bgColor='dark' mt={1} borderRadius={5}>
+          
+          <Grid container p={2}>
+            <MDBox bgColor='light' display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={12} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='dark' fontWeight='bold'>Infinity P&L for {pnlDetails?.date} [As per StoxHero App]</MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Gross P&L: { (pnlDetails?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.gpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Net P&L: { (pnlDetails?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.npnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Transaction: { (pnlDetails?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.brokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Gross P&L: { (cummulativePnlDetails?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalGpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Net P&L: { (cummulativePnlDetails?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalNpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Transaction: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Total Turn: { (cummulativePnlDetails?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalGpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Pur Turn: { (cummulativePnlDetails?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalNpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Sale Turn: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+          </Grid>
+
+          <Grid container p={2}>
+            <MDBox bgColor='light' display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={12} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='dark' fontWeight='bold'>Infinity P&L for {pnlDetails?.date} [As per Broker]</MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Gross P&L: { (pnlDetails?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.gpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Net P&L: { (pnlDetails?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.npnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Transaction: { (pnlDetails?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.brokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Gross P&L: { (cummulativePnlDetails?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalGpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Net P&L: { (cummulativePnlDetails?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalNpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Transaction: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Total Turn: { (cummulativePnlDetails?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalGpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Pur Turn: { (cummulativePnlDetails?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalNpnl))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Cumm. Sale Turn: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+          </Grid>
+
         </MDBox>}
           {renderSuccessSB}
           {renderErrorSB}
