@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs")
 const uniqid = require("uniqid");
 const { Schema } = mongoose;
+require("../../db/conn");
 
 
 const userDetailSchema = new mongoose.Schema({

@@ -1164,3 +1164,152 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
 
   res.status(201).json({ message: "data received", data: x });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// [
+//   {
+//     $match: {
+//       trader:  ObjectId(
+//         "64627c51529029a8b8728b91"
+//       ),
+//       status: "COMPLETE",
+//       subscriptionId:  ObjectId("645cc7162f0bba5a7a3ff40a")
+//     },
+//   },
+//   {
+//     $lookup: {
+//       from: "tenx-subscriptions",
+//       localField: "subscriptionId",
+//       foreignField: "_id",
+//       as: "subscriptionData",
+//     },
+//   },
+
+//   {
+//     $group: {
+//       _id: {
+//         subscriptionId: "$subscriptionId",
+//         users: "$subscriptionData.users",
+//         validity: "$subscriptionData.validity",
+//         date: {
+//           $dateToString: {
+//             format: "%Y-%m-%d",
+//             date: "$trade_time",
+//           },
+//         },
+//       },
+//     },
+//   },
+
+//   {
+//     $group: {
+//       _id: {
+//         users:{$arrayElemAt:  ["$_id.users", 0]},
+//         id: "$_id.subscriptionId",
+//         validity: {
+//           $arrayElemAt: ["$_id.validity", 0],
+//         },
+//       },
+//       count: {
+//         $sum: 1,
+//       },
+//       firstMatchedDate: {
+//         $first: "$_id.date",
+//       },
+//     },
+//   },
+//   {
+//     $unwind: {
+//       path: "$_id.users"
+//     }
+//   },
+//     {
+//     $match:
+
+//       {
+//         "_id.users.userId":  ObjectId(
+//         "64627c51529029a8b8728b91"
+//       ),
+//       },
+//   },
+//   {
+//     $project: {
+//       _id: 0,
+//       subscriptionId: "$_id.id",
+//       totalTradingDays: "$count",
+//       firstMatchedDate: 1,
+//       remainingDays: {
+//         $subtract: ["$_id.validity", "$count"],
+//       },
+//       defaultRemaining: {
+//         $divide: [
+//           {
+//             $subtract: [
+//               new Date("2023-06-27"),
+//               {
+//                 $toDate: "$_id.users.subscribedOn",
+//               },
+              
+//             ],
+//           },
+//           24 * 60 * 60 * 1000, // Convert milliseconds to days
+//         ],
+//       },
+
+//       remainingAfterDefault: {
+//         $subtract: [
+//           60,
+//           {
+//             $divide: [
+//               {
+//                 $subtract: [
+//                   new Date("2023-06-27"),
+//                                {
+//                 $toDate: "$_id.users.subscribedOn",
+//               },
+                
+//                 ],
+//               },
+//               24 * 60 * 60 * 1000, // Convert milliseconds to days
+//             ],
+//           },
+//         ],
+//       },
+
+//       actualRemainingDay: {
+//         $min: [
+//           {
+//             $subtract: [
+//               "$_id.validity",
+//               "$count",
+//             ],
+//           },
+//           {
+//             $subtract: [
+//               new Date("2023-06-27"),
+//               {
+//                 $toDate: "$_id.users.subscribedOn",
+//               },
+              
+//             ],
+//           },
+//         ],
+//       },
+//     },
+//   },
+// ]

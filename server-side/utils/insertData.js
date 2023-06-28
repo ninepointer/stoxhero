@@ -1,4 +1,5 @@
 const RetreiveOrder = require("../models/TradeDetails/retreiveOrder");
+const Tradable = require("../models/Instruments/tradableInstrumentsSchema");
 const InfinityLiveTrader = require("../models/TradeDetails/infinityLiveUser");
 const InfinityLiveCompany = require("../models/TradeDetails/liveTradeSchema");
 const InfinityMockTrader = require("../models/mock-trade/infinityTrader");
@@ -232,4 +233,37 @@ const saveMissedData = async () => {
 }
 
 
-module.exports = { saveMissedData };
+const saveRetreiveData = async (symbol, amount1, lot1, amount2, lot2, type) => {
+
+    const tradable = await Tradable.findOne({tradingsymbol: symbol});
+
+    let price = (amount2-amount1)/(lot2-lot1);
+
+    let obj = {
+        order_id: `230531${Math.floor(100000000 + Math.random() * 900000000)}`,
+        average_price: price,
+        disclosed_quantity: 0,
+        exchange: "NFO",
+        exchange_order_id: `11000000${Math.floor(100000000 + Math.random() * 900000000)}`,
+        exchange_timestamp: new Date("2023-05-31T13:41:08.000+00:00"),
+        exchange_update_timestamp: new Date("2023-05-31T13:41:08.000+00:00"),
+        guid: `230531${Math.floor(100000000 + Math.random() * 900000000)}11000000${Math.floor(100000000 + Math.random() * 900000000)}`,
+        instrument_token: tradable?.exchange_token,
+        order_timestamp: new Date("2023-05-31T13:41:08.000+00:00"),
+        order_type: "Market",
+        placed_by: "CF1",
+        price: 0,
+        product: "NRML",
+        quantity: lot2-lot1,
+        status: "COMPLETE",
+        status_message: "",
+        transaction_type: type,
+        validity: "DAY"
+    }
+
+    console.log(obj);
+    const retreivedData = await RetreiveOrder.create(obj)
+}
+
+
+module.exports = { saveMissedData, saveRetreiveData };

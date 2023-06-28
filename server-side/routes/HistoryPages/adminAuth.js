@@ -57,17 +57,111 @@ const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
-const {saveMissedData} = require("../../utils/insertData");
+const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
 
 
+    
 
+router.get("/insertInRetreive", async (req, res) => {
+  await saveRetreiveData("BANKNIFTY2360144300PE", 1110762, 2700, 1470023, 3600, "Sell");
+  res.send("ok")
+})
+
+
+router.get("/data", async (req, res) => {
+  const data = await RetreiveOrder.aggregate([
+    {
+      $match: {
+        order_timestamp: {
+          $gte: new Date("2023-05-26"),
+          $lt: new Date("2023-06-01"),
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "tradable-instruments",
+        localField: "instrument_token",
+        foreignField: "exchange_token",
+        as: "instrumentData",
+      },
+    },
+    {
+      $unwind: {
+        path: "$instrumentData",
+      },
+    },
+    {
+      $project: {
+        order_id: 1,
+        average_price: 1,
+        exchange: 1,
+        exchange_order_id: 1,
+        exchange_timestamp: 1,
+        exchange_update_timestamp: 1,
+        guid: 1,
+        exchangeInstrumentToken:
+          "$instrument_token",
+        order_timestamp: 1,
+        order_type: 1,
+        placed_by: 1,
+        price: 1,
+        product: 1,
+        quantity: 1,
+        status: 1,
+        transaction_type: 1,
+        validity: 1,
+        instrumentToken:
+          "$instrumentData.instrument_token",
+        symbol: "$instrumentData.tradingsymbol",
+      },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            symbol: "$symbol",
+            transaction_type: "$transaction_type",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$quantity",
+                "$average_price",
+              ],
+            },
+          },
+          lot: {
+            $sum: 
+                "$quantity"
+                
+            
+          },
+        },
+    },
+    {
+      $project:
+        {
+          symbol: "$_id.symbol",
+          _id: 0,
+          type: "$_id.transaction_type",
+          amount: "$amount",
+          lot: "$lot"
+        },
+    },
+  ])
+  res.send(data)
+})
 
 
 router.get("/saveMissedData", async (req, res) => {
   await saveMissedData();
   res.send("ok")
 })
-
 
 router.get("/walletUpdate", async (req, res) => {
   await updateUserWallet();
