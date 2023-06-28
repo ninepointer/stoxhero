@@ -209,3 +209,126 @@ exports.editBrokerReport = async (req, res, next) => {
     }
 
 };
+
+// exports.getSingularDataByDate = async (req, res) => {
+//   const broker = req.params.broker;  
+//   const date = new Date(req.params.date);  // Parse the date from the request params
+//   const prevDate = new Date(date.getTime() - 86400000);  // Subtract a day to get the previous date
+
+//   try {
+//     // Get the report for the specified date
+//     const reports = await BrokerReport.find({ printDate: date, brokerName:broker });
+//     const currentReportTotal = reports.map((elem)=>{
+//         return 
+//     });
+
+//     if (!report) {
+//       return res.status(404).json({ message: 'No report found for the specified date.' });
+//     }
+
+//     // Get the last available report before the specified date
+//     const prevReport = await BrokerReport.findOne({ printDate: { $lt: date } })
+//                                          .sort({ printDate: -1 })  // Sort in descending order to get the latest
+
+//     if (!prevReport) {
+//       return res.status(404).json({ message: 'No previous report found.' });
+//     }
+
+//     // Subtract the previous report's data from the current report's data
+//     let subtractionData = {};
+//     for (let key in report._doc) {
+//       if (key.startsWith('cummulative') && prevReport._doc.hasOwnProperty(key)) {
+//         subtractionData[key] = report[key] - prevReport[key];
+//       }
+//     }
+
+//     return res.json({status:'success', data:subtractionData});
+
+//   } catch (err) {
+//     return res.status(500).json({ status:'error', message: 'Something went wrong.'});
+//   }
+// };
+
+exports.getSingularReportByBrokerAndDate = async (req, res) => {
+  console.log('aaya=---=')
+  const date = new Date(req.params.date);
+  const prevDatDocs = await BrokerReport.find({ printDate: { $lt: date } }).sort({printDate:-1});
+  console.log('dates', date, prevDatDocs[0]?.printDate);
+  const prevDate = prevDatDocs[0]?.printDate;
+  const brokerName = req.params.broker;
+
+  try {
+    // Aggregate the reports for the specified date
+    const reports = await BrokerReport.aggregate([
+      { $match: { brokerName: brokerName, printDate: {$gt: new Date(`${date.toISOString().substring(0,10)}T00:00:00`),
+       $lte: new Date(`${date.toISOString().substring(0,10)}T23:59:59`) } } },
+      {
+        $group: {
+          _id: null,
+          cummulativeNSETurnover: { $sum: "$cummulativeNSETurnover" },
+          cummulativeBSETurnover: { $sum: "$cummulativeBSETurnover" },
+          cummulativeNSEFuturesTurnover: { $sum: "$cummulativeNSEFuturesTurnover" },
+          cummulativeOptionsTurnover: { $sum: "$cummulativeOptionsTurnover" },
+          cummulativeTotalPurchaseTurnover: { $sum: "$cummulativeTotalPurchaseTurnover" },
+          cummulativeTotalSaleTurnover: { $sum: "$cummulativeTotalSaleTurnover" },
+          cummulativeTransactionCharge: { $sum: "$cummulativeTransactionCharge" },
+          cummulativeGrossPNL: { $sum: "$cummulativeGrossPNL" },
+          cummulativeNetPNL: { $sum: "$cummulativeNetPNL" },
+          cummulativeInterestCharge: { $sum: "$cummulativeInterestCharge" },
+          cummulativeLotCharge: { $sum: "$cummulativeLotCharge" },
+          cummulativeIDCharge: { $sum: "$cummulativeIDCharge" },
+        }
+      }
+    ]);
+    console.log('reports', reports);
+
+    // Aggregate the reports for the previous day
+    const prevReports = await BrokerReport.aggregate([
+      { $match: { brokerName: brokerName, printDate: {$gt: new Date(`${prevDate.toISOString().substring(0,10)}T00:00:00`),
+      $lte: new Date(`${prevDate.toISOString().substring(0,10)}T23:59:59`) } } },
+      { $sort: { printDate: -1 } },
+      {
+        $group: {
+          _id: null,
+          cummulativeNSETurnover: { $sum: "$cummulativeNSETurnover" },
+          cummulativeBSETurnover: { $sum: "$cummulativeBSETurnover" },
+          cummulativeNSEFuturesTurnover: { $sum: "$cummulativeNSEFuturesTurnover" },
+          cummulativeOptionsTurnover: { $sum: "$cummulativeOptionsTurnover" },
+          cummulativeTotalPurchaseTurnover: { $sum: "$cummulativeTotalPurchaseTurnover" },
+          cummulativeTotalSaleTurnover: { $sum: "$cummulativeTotalSaleTurnover" },
+          cummulativeTransactionCharge: { $sum: "$cummulativeTransactionCharge" },
+          cummulativeGrossPNL: { $sum: "$cummulativeGrossPNL" },
+          cummulativeNetPNL: { $sum: "$cummulativeNetPNL" },
+          cummulativeInterestCharge: { $sum: "$cummulativeInterestCharge" },
+          cummulativeLotCharge: { $sum: "$cummulativeLotCharge" },
+          cummulativeIDCharge: { $sum: "$cummulativeIDCharge" },
+        }
+      }
+    ]);
+
+    console.log('Prev reports', prevReports);
+
+    // Check if we have data for the specified date and for the previous date
+    if (reports.length === 0 || prevReports.length === 0) {
+      return res.status(404).json({ message: 'Report data not found for the specified or previous date.' });
+    }
+
+    // Subtract the previous day's totals from the specified day's totals
+    let subtractionData = {
+      brokerName: brokerName,
+      date: date
+    };
+
+    for (let key in reports[0]) {
+      if (key !== "_id" && prevReports[0].hasOwnProperty(key)) {
+        subtractionData[key] = reports[0][key] - prevReports[0][key];
+      }
+    }
+
+    return res.status(200).json({status:'success', data:subtractionData});
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
