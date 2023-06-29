@@ -15,7 +15,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DownloadIcon from '@mui/icons-material/Download';
 import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -636,6 +638,22 @@ function Index() {
                           fullWidth
                           value={id ? id?.document.split("/")[6]  : (formState?.document?.name ? formState?.document?.name : "No File Uploaded")}
                       />
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={.75} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDButton
+                  variant="contained"
+                  // color={index % 2 === 0 ? 'success' : 'warning'}
+                  size="small"
+                  color="warning"
+                  component={Link}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open(id?.document, '_blank');
+                  }}
+                >
+                  {/* <DownloadIcon color='black' /> */}Download Report
+                </MDButton>
                 </Grid>
                 
             </Grid>

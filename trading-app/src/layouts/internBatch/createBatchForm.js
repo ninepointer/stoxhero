@@ -63,6 +63,8 @@ function Index() {
         participants: [{collegeName:'',joinedOn:'',userId:''}],
         batchStatus:'' || id?.batchStatus,
         referralCount:'' || id?.referralCount,
+        orientationDate: dayjs(id?.orientationDate) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+        orientationMeetingLink: '' || id?.orientationMeetingLink,
         payoutPercentage:'' || id?.payoutPercentage,
         attendancePercentage:'' || id?.attendancePercentage,
         career: {
@@ -161,7 +163,17 @@ function Index() {
 
     async function onSubmit(e,formState){
       e.preventDefault()
-      if(!formState.batchName || !formState.batchStartDate || !formState.batchEndDate || !formState.batchStatus || !formState.career || !formState.portfolio || !formState.attendancePercentage || !formState.payoutPercentage || !formState.referralCount){
+      if(!formState.batchName || 
+        !formState.batchStartDate || 
+        !formState.batchEndDate || 
+        !formState.batchStatus || 
+        !formState.career || 
+        !formState.portfolio || 
+        !formState.attendancePercentage || 
+        formState.payoutPercentage === '' || 
+        !formState.orientationDate ||
+        !formState.orientationMeetingLink ||
+        !formState.referralCount){
       
           setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
           return openErrorSB("Missing Field","Please fill all the mandatory fields")
@@ -171,7 +183,7 @@ function Index() {
       }
 
       setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount} = formState;
+      const {batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink} = formState;
       const res = await fetch(`${baseUrl}api/v1/internbatch/`, {
           method: "POST",
           credentials:"include",
@@ -180,7 +192,7 @@ function Index() {
               "Access-Control-Allow-Credentials": true
           },
           body: JSON.stringify({
-            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount 
+            batchName, batchStartDate, batchEndDate, batchStatus, career : career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
           })
       });
       
@@ -230,12 +242,23 @@ function Index() {
 
     async function onEdit(e,formState){
         e.preventDefault()
+        console.log(formState)
         setSaving(true)
-        if(!formState.batchName || !formState.batchStartDate || !formState.batchEndDate || !formState.batchStatus || !formState.career || !formState.portfolio || !formState.payoutPercentage || !formState.attendancePercentage || !formState.referralCount){
+        if(!formState.batchName || 
+          !formState.batchStartDate || 
+          !formState.batchEndDate || 
+          !formState.batchStatus || 
+          !formState.career || 
+          !formState.portfolio || 
+          formState.payoutPercentage === '' || 
+          !formState.attendancePercentage ||
+          !formState.orientationDate ||
+          !formState.orientationMeetingLink || 
+          !formState.referralCount){
             setTimeout(()=>{setSaving(false);setEditing(true)},500)
             return openErrorSB("Missing Field","Please fill all the mandatory fields")
         }
-        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount } = formState;
+        const { batchName, batchStartDate, batchEndDate, batchStatus, career, portfolio, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = formState;
     
         const res = await fetch(`${baseUrl}api/v1/internbatch/${id._id}`, {
             method: "PATCH",
@@ -245,7 +268,7 @@ function Index() {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount 
+                batchName, batchStartDate, batchEndDate, batchStatus, career: career.id, portfolio: portfolio.id, payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink 
             })
         });
      
@@ -426,6 +449,40 @@ const handleChange = (e) => {
               </LocalizationProvider>
           </Grid>
 
+          <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['MobileDateTimePicker']}>
+                  <DemoItem>
+                    <MobileDateTimePicker 
+                      label="Orientation Date"
+                      disabled={((isSubmitted || id) && (!editing || saving))}
+                      value={formState?.orientationDate || dayjs(batch?.orientationDate)}
+                      onChange={(newValue) => {
+                        if (newValue && newValue.isValid()) {
+                          setFormState(prevState => ({ ...prevState, orientationDate: newValue }))
+                        }
+                      }}
+                      minDateTime={null}
+                      sx={{ width: '100%' }}
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+          </Grid>
+
+          <Grid item xs={12} md={6} xl={3}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Orientation Meet Link *'
+                name='orientationMeetingLink'
+                type='text'
+                fullWidth
+                defaultValue={editing ? formState?.orientationMeetingLink : id?.orientationMeetingLink}
+                onChange={handleChange}
+              />
+          </Grid>
+
            {!id && <Grid item xs={12} md={3} xl={3}>
                 <FormControl sx={{ minHeight:10, minWidth:263 }}>
                   <InputLabel id="demo-multiple-name-label">Batch Type</InputLabel>
@@ -455,7 +512,7 @@ const handleChange = (e) => {
             </FormControl>
             </Grid>}
 
-           <Grid item xs={12} md={3} xl={3}>
+           <Grid item xs={12} md={3} xl={3} mt={-2}>
                 <FormControl sx={{ minHeight:10, minWidth:263 }}>
                   <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
                   <Select
@@ -482,7 +539,7 @@ const handleChange = (e) => {
             </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={3} xl={3}>
+            <Grid item xs={12} md={3} xl={3} mt={-2}>
                 <FormControl sx={{ minHeight:10, minWidth:263 }}>
                   <InputLabel id="demo-multiple-name-label">Career</InputLabel>
                   <Select
