@@ -15,7 +15,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DownloadIcon from '@mui/icons-material/Download';
 import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -637,6 +639,22 @@ function Index() {
                           value={id ? id?.document.split("/")[6]  : (formState?.document?.name ? formState?.document?.name : "No File Uploaded")}
                       />
                 </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={.75} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDButton
+                  variant="contained"
+                  // color={index % 2 === 0 ? 'success' : 'warning'}
+                  size="small"
+                  color="warning"
+                  component={Link}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open(id?.document, '_blank');
+                  }}
+                >
+                  {/* <DownloadIcon color='black' /> */}Download Report
+                </MDButton>
+                </Grid>
                 
             </Grid>
 
@@ -733,7 +751,24 @@ function Index() {
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Transaction: { (pnlDetails?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.brokerage))}
+                  Transaction: { (pnlDetails?.brokerage) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.brokerage))}
+                </MDTypography>
+              </Grid>
+            </MDBox>
+            <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Total Turn: { (pnlDetails?.totalTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.totalTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.totalTurnover))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Pur Turn: { (pnlDetails?.purchaseTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.purchaseTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.purchaseTurnover))}
+                </MDTypography>
+              </Grid>
+              <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
+                <MDTypography fontSize={15} color='light'>
+                  Sale Turn: { (pnlDetails?.saleTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnlDetails?.saleTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnlDetails?.saleTurnover))}
                 </MDTypography>
               </Grid>
             </MDBox>
@@ -750,27 +785,28 @@ function Index() {
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Transaction: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                  Cumm. Transaction: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
                 </MDTypography>
               </Grid>
             </MDBox>
             <MDBox mt={1} display='flex' border='1px solid white' width='100%'>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Total Turn: { (cummulativePnlDetails?.totalGpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalGpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalGpnl))}
+                  Cumm. Total Turn: { (cummulativePnlDetails?.cummulativeTotalTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.cummulativeTotalTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.cummulativeTotalTurnover))}
                 </MDTypography>
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Pur Turn: { (cummulativePnlDetails?.totalNpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalNpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalNpnl))}
+                  Cumm. Pur Turn: { (cummulativePnlDetails?.cummulativePurchaseTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.cummulativePurchaseTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.cummulativePurchaseTurnover))}
                 </MDTypography>
               </Grid>
               <Grid item lg={4} display='flex' justifyContent='center' alignItems='center'>
                 <MDTypography fontSize={15} color='light'>
-                  Cumm. Sale Turn: { (cummulativePnlDetails?.totalBrokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.totalBrokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.totalBrokerage))}
+                  Cumm. Sale Turn: { (cummulativePnlDetails?.cummulativeSaleTurnover) >= 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cummulativePnlDetails?.cummulativeSaleTurnover)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-cummulativePnlDetails?.cummulativeSaleTurnover))}
                 </MDTypography>
               </Grid>
             </MDBox>
+            
           </Grid>
 
           {Object.keys(brokerPnlDetails).length>0 && <Grid container p={2}>

@@ -64,6 +64,8 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Daily Contest Details"
   } else if(title === "tradingholiday"){
     title = "Trading Holidays"
+  } else if(title === "infinitymining"){
+    title = "Infinity Mining"
   }
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';

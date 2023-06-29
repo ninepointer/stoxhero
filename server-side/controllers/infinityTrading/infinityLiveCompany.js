@@ -2392,6 +2392,31 @@ exports.brokerReportMatchLive = async (req, res, next) => {
             $toDouble: "$brokerage",
           },
         },
+        purchaseTurnover: {
+          $sum: {
+            $cond: {
+              if: {
+                $eq: ["$buyOrSell", "BUY"],
+              },
+              then: "$amount",
+              else: 0,
+            },
+          },
+        },
+        saleTurnover: {
+          $sum: {
+            $cond: {
+              if: {
+                $eq: ["$buyOrSell", "SELL"],
+              },
+              then: {$multiply : ["$amount",-1]},
+              else: 0,
+            },
+          },
+        },
+        totalTurnover: {
+          $sum: {$abs : ["$amount"]}
+        },
         runningLots: {
           $sum: "$Quantity"
         },
@@ -2421,6 +2446,9 @@ exports.brokerReportMatchLive = async (req, res, next) => {
         brokerage: 1,
         runningLots: 1,
         npnl: 1,
+        purchaseTurnover: 1,
+        saleTurnover: 1,
+        totalTurnover: 1,
         dayOfWeek: 1,
         noOfTrade: 1,
         date: 1,
@@ -2461,6 +2489,31 @@ exports.brokerReportMatchLive = async (req, res, next) => {
               $toDouble: "$brokerage",
             },
           },
+          purchaseTurnover: {
+            $sum: {
+              $cond: {
+                if: {
+                  $eq: ["$buyOrSell", "BUY"],
+                },
+                then: "$amount",
+                else: 0,
+              },
+            },
+          },
+          saleTurnover: {
+            $sum: {
+              $cond: {
+                if: {
+                  $eq: ["$buyOrSell", "SELL"],
+                },
+                then: {$multiply : ["$amount",-1]},
+                else: 0,
+              },
+            },
+          },
+          totalTurnover: {
+            $sum: {$abs : ["$amount"]}
+          },
           runningLots: {
             $sum: "$Quantity"
           },
@@ -2493,6 +2546,9 @@ exports.brokerReportMatchLive = async (req, res, next) => {
           _id: 0,
           gpnl: 1,
           brokerage: 1,
+          purchaseTurnover: 1,
+          saleTurnover: 1,
+          totalTurnover: 1,
           runningLots: 1,
           npnl: 1,
           noOfTrade: 1,
@@ -2511,6 +2567,15 @@ exports.brokerReportMatchLive = async (req, res, next) => {
           },
           totalBrokerage: {
             $sum: "$brokerage",
+          },
+          cummulativePurchaseTurnover: {
+            $sum : "$purchaseTurnover"
+          },
+          cummulativeSaleTurnover: {
+            $sum : "$saleTurnover"
+          },
+          cummulativeTotalTurnover: {
+            $sum : "$totalTurnover"
           },
           totalRunningLots: {
             $sum: "$runningLots",

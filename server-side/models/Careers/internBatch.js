@@ -14,6 +14,14 @@ const batchSchema = new mongoose.Schema({
         type:Date,
         required: true
     },
+    orientationDate:{
+        type:Date,
+        required: true
+    },
+    orientationMeetingLink:{
+        type:String,
+        required: true
+    },
     payoutPercentage:{
         type: Number,
         required: true
