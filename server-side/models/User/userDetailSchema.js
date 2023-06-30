@@ -19,7 +19,7 @@ const userDetailSchema = new mongoose.Schema({
     createdOn:{
         type: Date,
         default: ()=>new Date(),
-        required : true
+        // required : true
     },
     lastModified:{
         type: Date,
@@ -127,7 +127,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     creationProcess:{
         type: String,
-        required: true,
+        // required: true,
         enum: ['Auto SignUp','By Admin','Career SignUp']
     },
     employeeid:{

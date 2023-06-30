@@ -5,10 +5,13 @@ const Margin = require("../../models/marginAllocation/marginAllocationSchema");
 const UserDetail = require("../../models/User/userDetailSchema");
 const { default: mongoose } = require("mongoose");
 const Authentication = require("../../authentication/authentication")
+const ObjectId = require('mongodb').ObjectId;
+const { client, getValue } = require('../../marketData/redisClient');
 
 router.post("/setmargin", Authentication, async (req, res)=>{
+  let isRedisConnected = getValue();
     const {amount, userId} = req.body;
-
+    console.log(amount, userId)
     if(!userId || !amount){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please fill all the feilds"})
@@ -20,10 +23,24 @@ router.post("/setmargin", Authentication, async (req, res)=>{
         res.status(201).json({massage : "data enter succesfully"});
     }).catch((err)=> console.log(err, "in adding fund"));
 
-    const userdetail = await UserDetail.findOne({_id: userId});
+    const userdetail = await UserDetail.findOne({_id: new ObjectId(userId)});
     let fund = (userdetail.fund ? userdetail.fund : 0);
+    console.log("fund before", fund);
     fund = Number(fund) + Number(amount);
+    console.log("fund after", fund);
    await userdetail.updateOne({fund: fund});
+
+   if (isRedisConnected && await client.exists(`${userId.toString()} openingBalanceAndMargin`)) {
+    let marginDetail = await client.get(`${userId.toString()} openingBalanceAndMargin`)
+    marginDetail = JSON.parse(marginDetail);
+    console.log(marginDetail)
+
+    marginDetail.totalFund = fund;
+
+    await client.set(`${userId.toString()} openingBalanceAndMargin`, JSON.stringify(marginDetail))
+    // res.status(201).json({ message: "pnl received", data: marginDetail });
+
+  }
     
 })
 

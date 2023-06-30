@@ -90,13 +90,6 @@ function generateRandomString(length) {
   return result;
 }
 
-
-
-
-
-
-
-
 router.get("/getMismatch", async (req, res) => {
  const data = await InfinityLiveUser.aggregate([
   {
@@ -618,7 +611,7 @@ router.get("/deletePnlKey", async (req, res) => {
   await deletePnlKey()
 });
 
-router.get("/pnl", async (req, res) => {
+router.get("/autoExpireSubscription", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   // await overallPnlTrader(req, res)
 
