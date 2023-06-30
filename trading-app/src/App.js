@@ -10,7 +10,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import SettingsIcon from '@mui/icons-material/Settings';
 
-
 // Material Dashboard 2 React components
 import MDBox from "./components/MDBox";
 // import MDAvatar from "./components/MDAvatar";
