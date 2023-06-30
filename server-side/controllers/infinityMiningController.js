@@ -164,7 +164,7 @@ exports.getTraderStats = async (req, res) => {
       profitValues.length%2 === 0 ? (profitValues[Math.floor(profitValues.length / 2)] + profitValues[Math.floor((profitValues.length / 2)-1)])/2 : profitValues[Math.floor(profitValues.length / 2)];
       const medianLoss =
       lossValues.length%2 === 0 ? (lossValues[Math.floor(lossValues.length / 2)] + lossValues[Math.floor((lossValues.length / 2)-1)])/2 : lossValues[Math.floor(lossValues.length / 2)];
-  
+      const totalMarketDays = await countTradingDays(user.joining_date.toISOString().substring(0,10))
       const data = {
         firstName: user.first_name,
         lastName: user.last_name,
