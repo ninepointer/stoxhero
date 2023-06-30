@@ -1,6 +1,8 @@
 const UserDetails = require('../models/User/userDetailSchema');
 const InfinityTrade = require('../models/mock-trade/infinityTrader');
 const { ObjectId } = require('mongodb');
+const moment = require('moment');
+const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
 
 
 exports.getTraderStatss = async (req, res) => {
@@ -160,6 +162,7 @@ exports.getTraderStats = async (req, res) => {
   
       const medianProfit = profitValues[Math.floor(profitValues.length / 2)] || 0;
       const medianLoss = lossValues[Math.floor(lossValues.length / 2)] || 0;
+      const totalMarketDays = await countTradingDays(user.joining_date.toISOString().substring(0,10))
   
       const data = {
         firstName: user.first_name,
@@ -175,6 +178,7 @@ exports.getTraderStats = async (req, res) => {
         profitDays: profitDays,
         lossDays: lossDays,
         totalTradingDays: result.length,
+        totalMarketDays: totalMarketDays,
         maxProfitStreak: maxProfitStreak,
         maxLossStreak: maxLossStreak,
         averageProfit: averageProfit,
@@ -188,4 +192,29 @@ exports.getTraderStats = async (req, res) => {
       console.log(error);  
       return res.status(500).send({ message: 'Internal Server Error' });
     }
-  }  
+  }
+  
+  async function countTradingDays(startDate) {
+    let start = moment(startDate);
+    let end = moment();
+
+    let count = 0;
+
+    // Fetch all holidays from DB
+    const holidays = await TradingHoliday.find({
+        holidayDate: { $gte: start.toDate(), $lte: end.toDate() },
+        isDeleted: false,
+    });
+    console.log('holidays', holidays.length);
+
+    // Convert all holiday dates to string format for easy comparison
+    const holidayDates = holidays.map(h => moment(h.holidayDate).format('YYYY-MM-DD'));
+
+    for (let m = moment(start); m.isBefore(end); m.add(1, 'days')) {
+        if (m.isoWeekday() <= 5 && !holidayDates.includes(m.format('YYYY-MM-DD'))) { // Monday to Friday are considered trading days
+            count++;
+        }
+    }
+
+    return count;
+}
