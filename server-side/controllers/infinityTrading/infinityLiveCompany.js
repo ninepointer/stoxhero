@@ -2355,3 +2355,259 @@ exports.traderMatrixPnlLive = async (req, res, next) => {
 
   res.status(201).json({ message: "data received", data: x });
 }
+
+exports.brokerReportMatchLive = async (req, res, next) => {
+  let { printDate, fromDate } = req.params
+
+  console.log("Print Date & From Date 1:", printDate,fromDate)
+  const printDateEnd = new Date(printDate + "T23:59:59.000Z");
+  printDate = new Date(printDate + "T23:59:59.000Z");
+  fromDate = new Date(fromDate + "T00:00:00.000Z");
+  console.log("Print Date, From Date & Print Date End 2:", printDate,fromDate, printDateEnd)
+
+  let pipeline = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(fromDate),
+          $lte: new Date(printDate),
+        },
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        purchaseTurnover: {
+          $sum: {
+            $cond: {
+              if: {
+                $eq: ["$buyOrSell", "BUY"],
+              },
+              then: "$amount",
+              else: 0,
+            },
+          },
+        },
+        saleTurnover: {
+          $sum: {
+            $cond: {
+              if: {
+                $eq: ["$buyOrSell", "SELL"],
+              },
+              then: {$multiply : ["$amount",-1]},
+              else: 0,
+            },
+          },
+        },
+        totalTurnover: {
+          $sum: {$abs : ["$amount"]}
+        },
+        runningLots: {
+          $sum: "$Quantity"
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        runningLots: 1,
+        npnl: 1,
+        purchaseTurnover: 1,
+        saleTurnover: 1,
+        totalTurnover: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  // let oneDayAfterEnd = printDate.setDate(endDate.getDate() + 1)
+
+
+  async function getCumulativeData(fromDate,printDate){
+    console.log("From Date & Print Date: ",fromDate,printDate)
+    let pipelineCommulative = [
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(fromDate),
+            $lte: new Date(printDate),
+          },
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          gpnl: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          purchaseTurnover: {
+            $sum: {
+              $cond: {
+                if: {
+                  $eq: ["$buyOrSell", "BUY"],
+                },
+                then: "$amount",
+                else: 0,
+              },
+            },
+          },
+          saleTurnover: {
+            $sum: {
+              $cond: {
+                if: {
+                  $eq: ["$buyOrSell", "SELL"],
+                },
+                then: {$multiply : ["$amount",-1]},
+                else: 0,
+              },
+            },
+          },
+          totalTurnover: {
+            $sum: {$abs : ["$amount"]}
+          },
+          runningLots: {
+            $sum: "$Quantity"
+          },
+          noOfTrade: {
+            $count: {},
+          },
+        },
+      },
+      {
+        $addFields: {
+          // fromDate: {
+          //   $dateToString: {
+          //     format: "%Y-%m-%d",
+          //     date: new Date(fromDate),
+          //   },
+          // },
+          // toDate: {
+          //   $dateToString: {
+          //     format: "%Y-%m-%d",
+          //     date: new Date(printDate),
+          //   },
+          // },
+          npnl: {
+            $subtract: ["$gpnl", "$brokerage"],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          gpnl: 1,
+          brokerage: 1,
+          purchaseTurnover: 1,
+          saleTurnover: 1,
+          totalTurnover: 1,
+          runningLots: 1,
+          npnl: 1,
+          noOfTrade: 1,
+          // fromDate: 1,
+          // toDate: 1,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          cummulativePurchaseTurnover: {
+            $sum : "$purchaseTurnover"
+          },
+          cummulativeSaleTurnover: {
+            $sum : "$saleTurnover"
+          },
+          cummulativeTotalTurnover: {
+            $sum : "$totalTurnover"
+          },
+          totalRunningLots: {
+            $sum: "$runningLots",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]
+    let cumulative = await InfinityLiveCompany.aggregate(pipelineCommulative)
+    //console.log(cumulative)
+    return cumulative[0];
+  }
+
+  const result = [];
+  // for (let currentDate = printDate; currentDate <= oneDayAfterEnd; currentDate.setDate(currentDate.getDate() + 1)) {
+    // console.log(currentDate)
+    // Execute the current pipeline and store the result
+    const currentResult = await getCumulativeData(fromDate,printDate); // Replace this with your code to execute the aggregation pipeline
+    
+    result.push(currentResult);
+  // }
+
+  
+
+  let x = await InfinityLiveCompany.aggregate(pipeline)
+
+  res.status(201).json({ message: "data received", data: x, cumulative: result });
+}

@@ -3,6 +3,7 @@ import CompanyPosition from "./layouts/companyposition";
 import CompanyPositionRedis from "./layouts/companypositionRedis";
 import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
+import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
@@ -38,6 +39,7 @@ import MyReferrals from "./layouts/referrals"
 import Portfolio from './layouts/portfolio'
 import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
+import BrokerReportDetails from './layouts/brokerReport/brokerReportDetails'
 import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
@@ -48,6 +50,7 @@ import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
 import Carousel from './layouts/carousel'
+import BrokerReport from './layouts/brokerReport'
 // import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
@@ -69,6 +72,7 @@ import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
+import InfinityMining from './layouts/InfinityMining'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -155,6 +159,14 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Infinity Mining",
+    key: "infinitymining",
+    icon: <TroubleshootIcon/>,
+    route: "/infinitymining",
+    component: <InfinityMining />,
+  },
+  {
+    type: "collapse",
     name: "TenX Dashboard",
     key: "tenxdashboard",
     icon: <Forward10Icon/>,
@@ -180,7 +192,7 @@ const routes = [
   {
     type: "collapse",
     name: "Contest Dashboard",
-    key: "dailycontestdashboard",
+    key: "contestdashboard",
     icon: <EmojiEventsIcon/>,
     route: "/contestdashboard",
     component: <DailyContestDashboard />,
@@ -292,6 +304,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/carouseldetails",
     component: <CarouselDetails />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "brokerreportdetails",
+    // icon: <DashboardIcon/>,
+    route: "/brokerreportdetails",
+    component: <BrokerReportDetails />,
   },
   {
     // type: "collapse",
@@ -564,6 +584,14 @@ const routes = [
   },
   {
     // type: "collapse",
+    // name: "Broker Reports",
+    // key: "brokerreports",
+    // icon: <ViewCarouselIcon/>,
+    route: "/brokerreports",
+    component: <BrokerReport />,
+  },
+  {
+    // type: "collapse",
     // name: "Careers",
     key: "careerlist",
     // icon: <WorkIcon/>,
@@ -715,14 +743,14 @@ const routes = [
     route: "/portfolio",
     component: <Portfolio />,
   },
-  {
-    type: "collapse",
-    name: "Daily P&L Chart",
-    key: "DailyPnlData",
-    icon: <QueryStatsIcon/>,
-    route: "/DailyPnlData",
-    component: <DailyPNLData />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Daily P&L Chart",
+  //   key: "DailyPnlData",
+  //   icon: <QueryStatsIcon/>,
+  //   route: "/DailyPnlData",
+  //   component: <DailyPNLData />,
+  // },
   {
     type: "collapse",
     name: "Users",
@@ -747,14 +775,14 @@ const routes = [
     route: "/virtualtrading",
     component: <UserPosition />,
   },
-  {
-    type: "collapse",
-    name: "Contact Info",
-    key: "contactinfo",
-    icon: <BusinessIcon/>,
-    route: "/contactinfo",
-    component: <ContactInfo />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Contact Info",
+  //   key: "contactinfo",
+  //   icon: <BusinessIcon/>,
+  //   route: "/contactinfo",
+  //   component: <ContactInfo />,
+  // },
   {
     // type: "collapse",
     // name: "Infinity Trading",

@@ -77,6 +77,5 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
         }
         
       })();
-
-  }
+}
 module.exports = zerodhaLogin

@@ -11,7 +11,8 @@ const InternshipOrders = require('../../models/mock-trade/internshipTrade')
 exports.createBatch = async(req, res, next)=>{
     console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, 
-        batchStatus, career, portfolio, payoutPercentage, attendancePercentage, refferalCount } = req.body;
+        batchStatus, career, portfolio, payoutPercentage, 
+        attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = req.body;
 
     const date = new Date();
     const month = date.toLocaleString('default', { month: 'short' }).substring(0, 3);
@@ -21,7 +22,8 @@ exports.createBatch = async(req, res, next)=>{
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
     const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate,
-        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, payoutPercentage, attendancePercentage, referralCount});
+        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, 
+        payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});
 
@@ -317,7 +319,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
         return res.json({status: 'success', data: internships[internships.length-1]});    
     }
     console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
-    console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
+    console.log("Condition:",new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate);
     return res.json({status: 'success', data: {}, message:'No active internships'});
   }
 
@@ -355,10 +357,16 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     }).select('internshipBatch');
     let internships = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Workshop');
     // console.log("userBatches", userBatches);
-    if(new Date().toISOString().substring(0,10) <= internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
-        return res.json({status: 'success', data: {}, message:'No active workshops'});    
+    // if(new Date().toISOString().substring(0,10) <= internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
+    //     return res.json({status: 'success', data: {}, message:'No active workshops'});    
+    // }
+    // res.json({status: 'success', data: internships[internships.length-1]});
+    if(new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate){
+        return res.json({status: 'success', data: internships[internships.length-1]});    
     }
-    res.json({status: 'success', data: internships[internships.length-1]});
+    console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
+    console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
+    return res.json({status: 'success', data: {}, message:'No active internships'});
   }
   
   

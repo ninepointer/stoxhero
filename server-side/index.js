@@ -276,6 +276,7 @@ app.use('/api/v1/usedMargin', require("./routes/mockTrade/mockMargin"));
 app.use('/api/v1/dailycontest', require("./routes/DailyContest/dailyContestRoutes"))
 app.use('/api/v1/dailycontest/trade', require("./routes/DailyContest/dailyContestTrade"))
 app.use('/api/v1/optionChain', require("./routes/optionChain/optionChainRoute"))
+app.use('/api/v1/brokerreport', require("./routes/BrokerReport/brokerReportRoutes"))
 
 app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
