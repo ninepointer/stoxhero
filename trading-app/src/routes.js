@@ -3,6 +3,7 @@ import CompanyPosition from "./layouts/companyposition";
 import CompanyPositionRedis from "./layouts/companypositionRedis";
 import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
+import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
@@ -71,6 +72,7 @@ import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
+import InfinityMining from './layouts/InfinityMining'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -154,6 +156,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
     component: <InfinityDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Infinity Mining",
+    key: "infinitymining",
+    icon: <TroubleshootIcon/>,
+    route: "/infinitymining",
+    component: <InfinityMining />,
   },
   {
     type: "collapse",

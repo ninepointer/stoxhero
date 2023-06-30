@@ -2,6 +2,7 @@ const GroupDiscussion = require("../../models/Careers/groupDiscussion");
 const Batch = require("../../models/Careers/internBatch");
 const User = require("../../models/User/userDetailSchema");
 const mailSender = require('../../utils/emailService');
+const moment = require('moment')
 const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const Campaign = require("../../models/campaigns/campaignSchema");
@@ -133,20 +134,14 @@ exports.addUserToGd = async(req, res, next) => {
       const careersArr = await Promise.all(batchesArr.map((elem)=>{
         return CareerSchema.findById(elem.career).select('_id listingType')
       }));
-
-      console.log('batches and careers', batchesArr, careersArr);
-      console.log('conditions', existinggds.length >0, 
-      checkForListingMatch(careersArr, careerListing.listingType), 
-      checkForTimingMatch(batchesArr, currentBatch.batchStartDate, currentBatch.batchEndDate ));
+    
       if (existinggds.length >0 && 
         checkForListingMatch(careersArr, careerListing.listingType) && 
         checkForTimingMatch(batchesArr, currentBatch.batchStartDate, currentBatch.batchEndDate )){
         return res.status(400).json({status:'error', message: 'User is already in another overlapping Group Discussion'});
       }
     }
-    // console.log('existing gds');
-    // console.log('user is', user);
-    // console.log('college is', collegeId);
+
     const {campaignCode, mobileNo, email,first_name, last_name} = career;
     const  campaign = await Campaign.findOne({campaignCode: campaignCode});
     if(!user){
@@ -397,7 +392,7 @@ exports.selectCandidate = async (req, res, next) => {
     const gd = await GroupDiscussion.findById(gdId);
     const currentbatch = await Batch.findById(gd.batch).select('_id career batchStartDate batchEndDate');
     const career = await CareerSchema.findById(currentbatch.career).select('_id listingType');
-    const user = await User.findById(userId);
+    let user = await User.findById(userId);
     if(gd.participants.filter((item)=>item.user==userId)[0].attended == false){
       return res.status(203).json({status:'error', message: 'Can\'t select participant without attendance'});
     }
@@ -406,10 +401,7 @@ exports.selectCandidate = async (req, res, next) => {
     const careersArr = await Promise.all(filteredExistingUserBatches.map((elem)=>{
       return CareerSchema.findById(elem.career).select('_id listingType')
     }));
-    console.log('existing batches and careers', filteredExistingUserBatches, careersArr);
-    console.log('condition while selecting', existingUserBatches.length >0, 
-      checkForListingMatch(careersArr, career.listingType), 
-      checkForTimingMatch(filteredExistingUserBatches, currentbatch.batchStartDate, currentbatch.batchEndDate) );
+
     if(existingUserBatches.length >0 && 
       checkForListingMatch(careersArr, career.listingType) && 
       checkForTimingMatch(filteredExistingUserBatches, currentbatch.batchStartDate, currentbatch.batchEndDate)){
@@ -448,28 +440,30 @@ exports.selectCandidate = async (req, res, next) => {
     
     //Add user to batch
     const batch = await Batch.findById(gd.batch);
-    
+
     batch.participants = [...batch.participants, {user: userId, college: collegeId, joiningDate: new Date()}];
     
     await batch.save({validateBeforeSave: false});
     
     //Add batch info to the user's document
-    
+
     user.internshipBatch = [...user.internshipBatch, gd.batch];
-    
+
     //Give user the intern portfolio
     // user.portfolio = [...user.portfolio, {portfolioId: batch.portfolio, activationDate: new Date()}]
     await user.save({validateBeforeSave: false});
+
     const portfolio = await Portfolio.findById(batch.portfolio);
     portfolio.users = [...portfolio.users, {userId: user._id, linkedOn: new Date(), portfolioValue: 1000000}]
     await portfolio.save({validateBeforeSave: false});
-    const jobTitle = await Batch.findById(gd.batch).populate('career', 'jobTitle').select('jobTitle');
+    const jobTitle = await Batch.findById(gd.batch).populate('career', 'jobTitle listingType').select('jobTitle listingType');
+ 
     //Candidate gets selection email
     const message = `<!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>Email OTP</title>
+        <title>Internship Details - StoxHero</title>
         <style>
         body {
             font-family: Arial, sans-serif;
@@ -523,10 +517,21 @@ exports.selectCandidate = async (req, res, next) => {
     </head>
     <body>
         <div class="container">
-        <h1>Email OTP</h1>
         <p>Congratulations ${user.first_name},</p>
-        <p>Your are selected for ${jobTitle.jobTitle}</p>
-        <p>Please Login with your credentials and start your journey with StoxHero </p>
+        <p>Your have been selected for the ${jobTitle.career.listingType == 'Job' ? 'Internship' : ''} role of ${jobTitle.career.jobTitle} with StoxHero.</p>
+        
+        <h1>Internship Details</h1>
+        
+        <p>Batch Name: ${batch.batchName}</p>
+        <p>Batch Starts On: ${moment.utc(batch?.batchStartDate).utcOffset('+05:30').format("DD-MMM-YY")}</p>
+        <p>Batch Ends On: ${moment.utc(batch?.batchEndDate).utcOffset('+05:30').format("DD-MMM-YY")}</p>
+
+        <h1>Orientation Details</h1>
+        <p>Orientation Date: ${moment.utc(batch?.orientationDate).utcOffset('+05:30').format("DD-MMM-YY")}</p>
+        <p>Orientation Time: ${moment.utc(batch?.orientationDate).utcOffset('+05:30').format("HH:mm a")}</p>
+        <p>Orientation Meet Link: ${batch.orientationMeetingLink}</p>
+
+        <p>Please Login with your mobile number and start your journey with StoxHero</p>
         <p>If you did not apply for the position, please ignore this email.</p>
         <p>Thank you,</p>
         <p>Team StoxHero</p>
@@ -534,10 +539,11 @@ exports.selectCandidate = async (req, res, next) => {
     </body>
     </html>
 `
-    // await mailSender(user.email, 'Congratulations! You\'re selected for the internship.', message);
+
+    await mailSender(user.email, 'Congratulations! You\'re selected for the internship.', message);
 
     //send success response
-    res.status(200).json({status: 'success', message: 'User selected for batch'});
+    res.status(200).json({status: 'success', message: user.first_name + ' selected for batch & email sent to him @ ' + user.email});
 
   } catch (e) {
     console.log(e);
@@ -587,9 +593,9 @@ try {
     if (!careerApplicant) {
         console.log('No career application found for this email.');
     } else {
-        console.log('careerApplicant', careerApplicant);
+     
         careerApplicant.applicationStatus = 'Applied';
-        console.log('careerApplicant after status change', careerApplicant.applicationStatus);
+        
         
         try {
             await careerApplicant.save({ validateBeforeSave: false});
