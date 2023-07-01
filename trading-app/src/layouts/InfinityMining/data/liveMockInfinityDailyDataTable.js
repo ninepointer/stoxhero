@@ -189,33 +189,33 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
             </MDBox>
             </Grid>
             
-            {/* {bothSideTradeData?.map((elem,index)=>{
+            {pnlValues?.map((elem,index)=>{
                 return(
                 <>
                 <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                 <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>21-Jan-2023</MDTypography>
+                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{dates[index]}</MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>1,00,000</MDTypography>
+                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.stoxHero?.gpnl?.toFixed(2)}</MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>1,20,000</MDTypography>
+                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.infinity?.gpnl?.toFixed(2)}</MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>80,000</MDTypography>
+                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.stoxHero?.npnl?.toFixed(2)}</MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>90,000</MDTypography>
+                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.infinity?.npnl?.toFixed(2)}</MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>-10,000</MDTypography>
+                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.infinity?.numTrades!==0 ? elem?.stoxHero?.npnl?.toFixed(2)-elem?.infinity?.npnl?.toFixed(2):'NA'}</MDTypography>
                 </Grid>
             </MDBox>
             </Grid>
             </>)
-            }) } */}
+            }) }
 
             
             </MDBox> }        
