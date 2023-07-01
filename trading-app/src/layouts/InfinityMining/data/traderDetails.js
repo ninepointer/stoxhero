@@ -7,11 +7,12 @@ import {Link} from 'react-router-dom'
 import { Grid } from '@mui/material';
 import Logo from '../../../assets/images/default-profile.png'
 import moment from 'moment'
+import InfinityMiningCSS from '../infinityMining.css'
 
 //data
 import LiveMockInfinityDailyData from '../data/liveMockInfinityDailyChart'
 
-export default function TraderDetails({traderId}) {
+export default function TraderDetails({traderId, isLoading}) {
     console.log(traderId)
     const calculateAge = (dob) => {
         const birthDate = new Date(dob);
@@ -29,6 +30,175 @@ export default function TraderDetails({traderId}) {
 
   return (
      <> 
+            {isLoading ?
+            <MDBox style={{ filter: 'blur(2px)' }}>
+                <Grid container xs={12} md={12} lg={12} p={1} display='flex' justifyContent='center' width='100%'>
+                                
+                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' width='100%'>
+                    <MDAvatar
+                    src={traderId?.profilePhoto?.url || Logo}
+                    alt="Profile"
+                    size="xl"
+                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
+                        border: `${borderWidth[2]} solid ${white.main}`,
+                        cursor: "pointer",
+                        position: "relative",
+                        ml: 0,
+
+                        "&:hover, &:focus": {
+                        zIndex: "10",
+                        },
+                    })}
+                    />
+                </Grid>
+
+                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column'>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold'>Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>DOB: Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Joining Date: Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>User Id: Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Email: Laoding</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Batch: Loading</MDTypography></MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' width='100%'>
+                    
+                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                        
+                        <MDBox style={{border:'1px solid #e91e63', backgroundColor:'#e91e63'}} borderRadius={5} p={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={4} md={4} lg={12} display='flex' justifyContent='center'>
+                            <MDTypography color='light' fontSize={13} fontWeight='bold'>Trader Details</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Age</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Gender</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+                        
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Currently Working</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Non-Working Duration</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Previously Employeed</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Latest Salary(Monthly)</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>
+                                Loading
+                            </MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Latest Degree</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Laoding</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>College Name</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Family Income(Monthly)</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>
+                                Laoding
+                            </MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Staying With</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Marital Status</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Current City</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+
+                        <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13} fontWeight='bold'>Native City</MDTypography>
+                        </Grid>
+                        <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
+                        </Grid>
+                        </MDBox>
+                        
+                    </Grid>
+
+                </Grid>
+
+                </Grid>
+            </MDBox>
+            :
             <Grid container xs={12} md={12} lg={12} p={1} display='flex' justifyContent='center' width='100%'>
                             
                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' width='100%'>
@@ -193,7 +363,7 @@ export default function TraderDetails({traderId}) {
                 
                             </Grid>
 
-            </Grid>
+            </Grid>}
     </>
   );
 }

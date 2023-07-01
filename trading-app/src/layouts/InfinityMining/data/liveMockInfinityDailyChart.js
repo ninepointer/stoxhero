@@ -1,9 +1,32 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
+import MDBox from '../../../components/MDBox';
 
-const EchartsComponent = () => {
+export default function TraderDetails({bothSideTradeData, isLoading}) {
   const chartRef = useRef(null);
+  let dates = []
+  let stoxHeroNpnl = []
+  let infinityNpnl = []
+  dates = Object.keys(bothSideTradeData)
+  let pnlValues = Object.values(bothSideTradeData)
+  stoxHeroNpnl = pnlValues?.map((elem)=>{
+    return elem?.stoxHero?.npnl
+  })
+  infinityNpnl = pnlValues?.map((elem)=>{
+    return elem?.infinity?.npnl
+  })
+  let stoxHeroMaxValue = Math.max(...stoxHeroNpnl)
+  let infinityMaxValue = Math.max(...infinityNpnl)
+  let stoxHeroMinValue = Math.min(...stoxHeroNpnl)
+  let infinityMinValue = Math.min(...infinityNpnl)
+  console.log(stoxHeroMaxValue,infinityMaxValue)
+  let maxValue = stoxHeroMaxValue > infinityMaxValue ? stoxHeroMaxValue : infinityMaxValue
+  let minValue = stoxHeroMinValue < infinityMinValue ? stoxHeroMinValue : infinityMinValue
+  let interval = Math.round(Math.abs(maxValue/10),0)
 
+  console.log(dates)
+  console.log(stoxHeroNpnl,infinityNpnl)
+  console.log(maxValue,minValue,interval)
   useEffect(() => {
     const chart = echarts.init(chartRef.current);
 
@@ -37,7 +60,7 @@ const EchartsComponent = () => {
       xAxis: [
         {
           type: 'category',
-          data: ['20-Jan(M)', '21-Jan(T)', '22-Jan(W)', '23-Jan(T)', '24-Jan(F)', '26-Jan(M)', '29-Jan(T)', '30-Jan(F)', '01-Feb(M)', '02-Feb(T)', '03-Feb(W)', '04-Feb(T)'],
+          data: dates,
           axisPointer: {
             type: 'shadow'
           }
@@ -47,9 +70,9 @@ const EchartsComponent = () => {
         {
           type: 'value',
           name: 'Net P&L',
-          min: -250000,
-          max: 250000,
-          interval: 25000,
+          // min: parseInt(minValue),
+          // max: parseInt(maxValue),
+          // interval: parseInt(interval),
           axisLabel: {
             formatter: `{value} ₹`
           }
@@ -62,9 +85,7 @@ const EchartsComponent = () => {
           tooltip: {
             formatter: '{c} ₹'
           },
-          data: [
-            -10000, -20000, -45000, -32000, 30000, 23000, 80000, -155000, 23000, 15000, -220000, 15000
-          ]
+          data: stoxHeroNpnl
         },
         {
           name: 'Net P&L(Infinity)',
@@ -72,9 +93,7 @@ const EchartsComponent = () => {
           tooltip: {
             formatter: '{c} ₹'
           },
-          data: [
-            -12000, -10000, -45000, -38000, 10000, 23000, 50000, -255000, 25000, 25000, -220000, 15000
-          ]
+          data: infinityNpnl
         },
       ]
     };
@@ -84,9 +103,7 @@ const EchartsComponent = () => {
     return () => {
       chart.dispose();
     };
-  }, []);
+  }, [bothSideTradeData]);
 
-  return <div ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
+  return isLoading ? <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px', filter: 'blur(2px)' }} /> : <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };
-
-export default EchartsComponent;
