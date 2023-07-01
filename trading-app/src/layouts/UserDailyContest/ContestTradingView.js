@@ -7,14 +7,16 @@ import { io } from 'socket.io-client';
 import { useEffect, useContext, useState} from "react";
 import { userContext } from "../../AuthContext";
 import ReactGA from "react-ga"
+import { useLocation } from "react-router-dom";
 
 function Tables() {
 
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const getDetails = useContext(userContext);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
 
-
+  console.log("location", location);
   let socket;
   try {
     socket = io.connect(`${baseUrl1}`)
@@ -25,25 +27,11 @@ function Tables() {
   }
 
 
-  // useEffect(() => {
-  //   // Wait for the socket prop to be available
-  //   if (socket.id) {
-  //     // Perform any actions that require the socket prop
-  //     console.log("Socket ID:", socket.id);
-
-  //     // Set loading state to false
-      
-  //   }
-  // }, [socket.id]);
-
   useEffect(() => {
     socket.on("connect", () => {
-      
       console.log("socket connected", socket.id)
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id);
-      // socket.emit("company-ticks", true)
-      // setIsLoading(false);
     })
     ReactGA.pageview(window.location.pathname)
   }, []);
@@ -52,7 +40,7 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <ContestTradingView socket={socket}/>
+      <ContestTradingView socket={socket} data={location.state}/>
       <Footer />
     </DashboardLayout>
     </>

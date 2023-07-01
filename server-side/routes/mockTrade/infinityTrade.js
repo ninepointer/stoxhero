@@ -62,7 +62,7 @@ router.route('/companypnlreport/:startDate/:endDate').get(companyPnlReport)
 router.route('/traderwisetraderpnlreport/:startDate/:endDate').get(traderPnlTWise)
 router.route('/tradermatrixpnlreport/:startDate/:endDate').get(traderMatrixPnl)
 router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(companyDailyPnlTWiseLive)
-router.route('/live/companypnlreport/:startDate/:endDate').get(companyPnlReportLive)
+// router.route('/live/companypnlreport/:startDate/:endDate').get(companyPnlReportLive)
 router.route('/live/brokerreportmatch/:printDate/:fromDate').get(brokerReportMatchLive)
 router.route('/live/traderwisetraderpnlreport/:startDate/:endDate').get(traderPnlTWiseLive)
 

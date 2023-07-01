@@ -299,10 +299,11 @@ exports.mockTrade = async (req, res) => {
             const mockTradeDetails = await DailyContestMockCompany.create([companyDoc], { session });
             const algoTrader = await DailyContestMockUser.create([traderDoc], { session });
 
+            console.log(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)
 
             const pipeline = clientForIORedis.pipeline();
 
-            await pipeline.get(`${trader.toString()} overallpnlDailyContest`)
+            await pipeline.get(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)
             await pipeline.get(`overallMockPnlCompanyDailyContest`)
             await pipeline.get(`traderWiseMockPnlCompanyDailyContest`)
 
@@ -321,7 +322,7 @@ exports.mockTrade = async (req, res) => {
             // console.log("setting data", overallPnlUser, redisValueOverall, redisValueTrader, lastTradeMock)
             const pipelineForSet = clientForIORedis.pipeline();
 
-            await pipelineForSet.set(`${trader.toString()} overallpnlDailyContest`, overallPnlUser);
+            await pipelineForSet.set(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`, overallPnlUser);
             await pipelineForSet.set(`overallMockPnlCompanyDailyContest`, redisValueOverall);
             await pipelineForSet.set(`traderWiseMockPnlCompanyDailyContest`, redisValueTrader);
             await pipelineForSet.set(`lastTradeDataMockDailyContest`, lastTradeMock);
@@ -329,14 +330,10 @@ exports.mockTrade = async (req, res) => {
             await pipelineForSet.exec();
 
             if(isRedisConnected){
-                // await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-                // await client.expire(`overallMockPnlCompany`, secondsRemaining);
-                // await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-                // await client.expire(`lastTradeDataMock`, secondsRemaining);
 
                 const pipeline = clientForIORedis.pipeline();
 
-                pipeline.expire(`${trader.toString()} overallpnlDailyContest`, secondsRemaining);
+                pipeline.expire(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`, secondsRemaining);
                 pipeline.expire(`overallMockPnlCompanyDailyContest`, secondsRemaining);
                 pipeline.expire(`traderWiseMockPnlCompanyDailyContest`, secondsRemaining);
                 pipeline.expire(`lastTradeDataMockDailyContest`, secondsRemaining);
@@ -371,7 +368,7 @@ exports.mockTrade = async (req, res) => {
             if(isRedisConnected){
                 const pipeline = clientForIORedis.pipeline();
 
-                await pipeline.del(`${trader.toString()} overallpnlDailyContest`);
+                await pipeline.del(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`);
                 await pipeline.del(`traderWiseMockPnlCompanyDailyContest`);
                 await pipeline.del(`overallMockPnlCompanyDailyContest`);
                 await pipeline.del(`lastTradeDataMockDailyContest`);

@@ -27,11 +27,11 @@ import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
-import { InfinityTraderRole } from "../../../variables";
+import { InfinityTraderRole, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
 
 
-function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId}) {
+function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData}) {
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
@@ -75,8 +75,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     })
   }, [])
 
-
-
   useEffect(() => {
     console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
     axios.get(`${baseUrl}api/v1/readsetting`)
@@ -86,7 +84,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
         } else{
           setisAppLive(res.data[0].isAppLive);
         }
-        
       });
   }, []);
 
@@ -99,8 +96,38 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   const [instrumentData, setInstrumentData] = useState([]);
 
+  let isNifty = contestData?.isNifty;
+  let isBankNifty = contestData?.isBank;
+  let isFinNifty = contestData?.isFin;
+  let isAllIndex = contestData?.isAll;
+  let url = "";
+  let endPoint = "";
+
+  if(isNifty){
+    url = `&isNifty=${true}`;
+  }
+  if(isBankNifty){
+    url += `&isBankNifty=${true}`;
+  }
+  if(isFinNifty){
+    url += `&isFinNifty=${true}`;
+  }
+  if(isAllIndex){
+    url = `&isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`;
+  }
+
+  url = url.slice(1);
+
+  if(from === dailyContest){
+    endPoint = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
+  } else{
+    endPoint = `${baseUrl}api/v1/instrumentDetails`
+  }
+
+  console.log("url", url, endPoint)
+
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
+    axios.get(`${endPoint}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",

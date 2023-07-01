@@ -522,87 +522,6 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
   const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
 
-  // let myPnlAndCreditData = await InfinityTrader.aggregate([
-  //   {
-  //     $lookup: {
-  //       from: "user-personal-details",
-  //       localField: "trader",
-  //       foreignField: "_id",
-  //       as: "result",
-  //     },
-  //   },
-  //   {
-  //     $match: {
-  //       status: "COMPLETE",
-  //       trader: new ObjectId(req.user._id),
-  //       trade_time: {
-  //         $lt: today
-  //       }
-  //     }
-  //   },
-  //   {
-  //     $group: {
-  //       _id: {
-
-  //         funds: {
-  //           $arrayElemAt: ["$result.fund", 0],
-  //         },
-  //       },
-  //       gpnl: {
-  //         $sum: {
-  //           $multiply: ["$amount", -1],
-  //         },
-  //       },
-  //       brokerage: {
-  //         $sum: {
-  //           $toDouble: "$brokerage",
-  //         },
-  //       },
-  //     },
-  //   },
-  //   {
-  //     $addFields:
-  //     {
-  //       npnl: {
-  //         $subtract: ["$gpnl", "$brokerage"],
-  //       },
-  //       availableMargin: {
-  //         $add: ["$_id.funds", { $subtract: ["$gpnl", "$brokerage"] }]
-  //       }
-  //     },
-  //   },
-  //   {
-  //     $project:
-  //     {
-  //       _id: 0,
-  //       totalFund: "$_id.funds",
-  //       gpnl: "$gpnl",
-  //       brokerage: "$brokerage",
-  //       npnl: "$npnl",
-  //       openingBalance: "$availableMargin"
-  //     },
-  //   },
-  //   {
-  //     $sort: { npnl: 1 }
-  //   }
-  // ])
-
-  // if (myPnlAndCreditData.length > 0) {
-  //   res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
-  // } else {
-  //   const data = await User.findById(req.user._id).select('fund');
-  //   const respData = { "totalFund": data.fund };
-  //   res.status(201).json({ message: "data received", data: respData });
-  // }
-
-
-
-
-
-
-
-
-
   try {
 
     if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMargin`)) {
@@ -2947,6 +2866,7 @@ exports.companyPnlReport = async (req, res, next) => {
   for (let currentDate = startDate; currentDate <= oneDayAfterEnd; currentDate.setDate(currentDate.getDate() + 1)) {
     //console.log(currentDate)
     // Execute the current pipeline and store the result
+    currentDate.setHours(23, 59, 59, 0);
     const currentResult = await getCumulativeData(currentDate); // Replace this with your code to execute the aggregation pipeline
     
     result.push(currentResult);

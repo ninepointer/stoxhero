@@ -57,12 +57,182 @@ const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
+const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
 
 
+router.get("/updateGuid", async (req, res) => {
+  const ordersToUpdate = await RetreiveOrder.find({
+    order_timestamp: {
+      $gte: new Date("2023-05-19"),
+      $lt: new Date("2023-05-31"),
+    },
+    // status: "COMPLETE",
+  });
+
+  console.log("ordersToUpdate", ordersToUpdate)
+  for (let elem of ordersToUpdate) {
+
+    const update = await RetreiveOrder.updateOne({guid: elem.guid}, {$set: {guid: elem.guid.slice(0, -6) + generateRandomString(6)}})
+    console.log("update", update)
+  }
+
+  res.send(ordersToUpdate);
+});
+
+function generateRandomString(length) {
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+router.get("/getMismatch", async (req, res) => {
+ const data = await InfinityLiveUser.aggregate([
+  {
+    $match: {
+      trade_time: {
+        $gte: new Date("2023-06-19"),
+        $lt: new Date("2023-06-20"),
+      },
+      status: "COMPLETE",
+      symbol: "NIFTY2362218850CE",
+    },
+  },
+  {
+    $lookup: {
+      from: "live-trade-companies",
+      localField: "order_id",
+      foreignField: "order_id",
+      as: "companyMatch",
+    },
+  },
+  {
+    $project:
+      {
+        order_id: 1,
+        Quantity: 1,
+        _id: 0,
+        companyOrderId: {
+          $arrayElemAt: [
+            "$companyMatch.order_id",
+            0,
+          ],
+        },
+        companyQuantity: {
+          $arrayElemAt: [
+            "$companyMatch.Quantity",
+            0,
+          ],
+        },
+      },
+  }
+]);
+  res.send(data)
+})
+
+router.get("/insertInRetreive", async (req, res) => {
+  await saveRetreiveData("NIFTY2360118700PE", 1730051, 10300, 1815175.00, 10800, "Sell", "2023-05-31", "31");
+  res.send("ok")
+})
+
+router.get("/data", async (req, res) => {
+  const data = await RetreiveOrder.aggregate([
+    {
+      $match: {
+        order_timestamp: {
+          $gte: new Date("2023-05-31"),
+          $lt: new Date("2023-06-01"),
+        },
+        status: "COMPLETE"
+      },
+    },
+    {
+      $lookup: {
+        from: "tradable-instruments",
+        localField: "instrument_token",
+        foreignField: "exchange_token",
+        as: "instrumentData",
+      },
+    },
+    {
+      $unwind: {
+        path: "$instrumentData",
+      },
+    },
+    {
+      $project: {
+        order_id: 1,
+        average_price: 1,
+        exchange: 1,
+        exchange_order_id: 1,
+        exchange_timestamp: 1,
+        exchange_update_timestamp: 1,
+        guid: 1,
+        exchangeInstrumentToken:
+          "$instrument_token",
+        order_timestamp: 1,
+        order_type: 1,
+        placed_by: 1,
+        price: 1,
+        product: 1,
+        quantity: 1,
+        status: 1,
+        transaction_type: 1,
+        validity: 1,
+        instrumentToken:
+          "$instrumentData.instrument_token",
+        symbol: "$instrumentData.tradingsymbol",
+      },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            symbol: "$symbol",
+            transaction_type: "$transaction_type",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$quantity",
+                "$average_price",
+              ],
+            },
+          },
+          lot: {
+            $sum: 
+                "$quantity"
+                
+          },
+        },
+    },
+    {
+      $project:
+        {
+          symbol: "$_id.symbol",
+          _id: 0,
+          type: "$_id.transaction_type",
+          amount: "$amount",
+          lot: "$lot"
+        },
+    },
+  ])
+  res.send(data)
+})
 
 
-
-
+router.get("/saveMissedData", async (req, res) => {
+  await saveMissedData();
+  res.send("ok")
+})
 
 router.get("/walletUpdate", async (req, res) => {
   await updateUserWallet();
@@ -85,8 +255,10 @@ router.get("/updateFeild", async (req, res) => {
 })
 
 router.get("/deleteTrades", async (req, res) => {
-  const del = await InfinityTraderCompany.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
-  const del2 = await InfinityTrader.deleteMany({createdBy: new ObjectId('63ecbc570302e7cf0153370c'), trade_time: {$gte: new Date("2023-06-20")}})
+  const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
+  const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
+  const del3 = await InfinityLiveCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
+  const del4 = await InfinityLiveUser.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
   console.log(del.length, del2.length);
 })
 
@@ -439,7 +611,7 @@ router.get("/deletePnlKey", async (req, res) => {
   await deletePnlKey()
 });
 
-router.get("/pnl", async (req, res) => {
+router.get("/autoExpireSubscription", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   // await overallPnlTrader(req, res)
 

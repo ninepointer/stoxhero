@@ -363,7 +363,13 @@ exports.participateUsers = async (req, res) => {
             ]
         })
 
+        // console.log("getActiveContest", getActiveContest)
+
         if(getActiveContest.length > 0){
+            if (!contest.potentialParticipants.includes(userId)) {
+                contest.potentialParticipants.push(userId);
+                contest.save();
+            }
             return res.status(404).json({ status: "error", message: "You can participate in another contest once the current contest ends." });
         }
 
@@ -374,7 +380,7 @@ exports.participateUsers = async (req, res) => {
                 contest.potentialParticipants.push(userId);
                 contest.save();
             }
-            return res.status(404).json({ status: "error", message: "Contest is full. Please try in another contest." });
+            return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
         const result = await Contest.findByIdAndUpdate(

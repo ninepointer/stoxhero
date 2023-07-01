@@ -16,7 +16,7 @@ const contestSchema = new Schema({
     },
     contestOn:{
         type:String,
-        required:true
+        // required:true
     },
     description:{
         type: String,
