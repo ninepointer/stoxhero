@@ -5,7 +5,7 @@ import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
 import MDAvatar from '../../../components/MDAvatar';
 import {Link} from 'react-router-dom'
-import { Grid } from '@mui/material';
+import { CircularProgress, Grid, LinearProgress } from '@mui/material';
 import Logo from '../../../assets/images/default-profile.png'
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -32,10 +32,12 @@ export default function InfinityMining() {
   const [infinityMiningData, setInfinityMiningData] = useState();
   const [traderId,setTraderId] = useState();
   const [infinityTraders,setInfinityTraders] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     console.log("Inside Use Effect")
+    setIsLoading(true)
     let call2 = axios.get((`${baseUrl}api/v1/infinityTraders`),{
       withCredentials: true,
       headers: {
@@ -48,12 +50,18 @@ export default function InfinityMining() {
     .then(([api1Response2]) => {
       // Process the responses here
       console.log(api1Response2.data.data);
+      setTraderSelectedOption(traderSelectedOption ? traderSelectedOption : api1Response2.data.data[0]);
+      setTraderId(traderSelectedOption ? traderSelectedOption : api1Response2.data.data[0]);
       setInfinityTraders(api1Response2.data.data)
-      setTraderSelectedOption(api1Response2.data.data[0]);
       InfinityMining(traderId)
+      setTimeout(()=>{
+        setIsLoading(false)
+      },1000)
+      
     })
     .catch((error) => {
       // Handle errors here
+      setIsLoading(false)
       console.error(error);
     });  
   },[traderId])
@@ -94,8 +102,11 @@ export default function InfinityMining() {
   };
 
   return (
-    <MDBox>
-      <MDBox bgColor="primary" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='10vh'>
+    <>
+    {infinityTraders && 
+      <MDBox>
+       
+       <MDBox bgColor="primary" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='10vh'>
          
           <Grid container lg={12}>
               <Grid item lg={4}>
@@ -111,7 +122,7 @@ export default function InfinityMining() {
                     value={traderSelectedOption}
                     onChange={handleTraderOptionChange}
                     autoHighlight
-                    getOptionLabel={(option) => option.first_name + ' ' + option.last_name}
+                    getOptionLabel={(option) => option.first_name + ' ' + option.last_name + ' - ' + option.cohort}
                     renderOption={(props, option) => (
                       <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
                         <img
@@ -121,7 +132,7 @@ export default function InfinityMining() {
                           srcSet={option.profilePhoto?.url || Logo}
                           alt=""
                         />
-                        {option.first_name + ' ' + option.last_name}
+                        {option.first_name + ' ' + option.last_name + ' - ' + option.cohort}
                       </Box>
                     )}
                     renderInput={(params) => (
@@ -144,6 +155,7 @@ export default function InfinityMining() {
               <Grid item lg={4}>
                   <CustomAutocomplete
                     id="country-select-demo"
+                    disabled
                     sx={{ 
                       width: 300,
                       '& .MuiAutocomplete-clearIndicator': {
@@ -187,13 +199,30 @@ export default function InfinityMining() {
           
       </MDBox>
 
+      {isLoading &&
+      <MDBox
+      style={{
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 9999}}
+      >
+       <CircularProgress/>
+      </MDBox>
+      } 
       <MDBox style={{backgroundColor:'white'}} color="light" mt={1} mb={1} p={0} borderRadius={0} minHeight='auto'>
           <Grid container spacing={0}>
             
             <Grid item xs={12} md={8} lg={4}>
               
               <Grid item xs={12} md={8} lg={12} style={{backgroundColor:'white'}} width='100%'>
-                <TraderDetails traderId = {traderId}/>     
+                {traderId && <TraderDetails traderId = {traderId} isLoading={isLoading}/>}   
               </Grid>
 
             </Grid>
@@ -201,11 +230,11 @@ export default function InfinityMining() {
             <Grid item xs={12} md={8} lg={8}>
               
               <Grid item xs={12} md={12} lg={12} p={2} display='flex' justifyContent='center' flexDirection='column' style={{backgroundColor:'white', width:'100%'}}>
-                <PNLSummary infinityMiningData={infinityMiningData}/>
+                {infinityMiningData && <PNLSummary infinityMiningData={infinityMiningData} isLoading={isLoading}/>}
               </Grid>
 
               <Grid item xs={12} md={8} lg={12} p={2} style={{backgroundColor:'white', width:'100%'}}>
-                <TraderMetrics infinityMiningData={infinityMiningData}/>
+                {infinityMiningData && <TraderMetrics infinityMiningData={infinityMiningData} isLoading={isLoading}/>}
               </Grid>
 
             </Grid>
@@ -219,7 +248,7 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} style={{backgroundColor:'white', width:'100%'}}>
-                    <LiveMockInfinityDailyData/>
+                    <LiveMockInfinityDailyData isLoading={isLoading}/>
                 </Grid>
               </Grid>
           </Grid>
@@ -231,14 +260,15 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} p={1} style={{backgroundColor:'white', width:'100%'}}>
-                    <LiveMockInfinityTableData/>
+                    <LiveMockInfinityTableData isLoading={isLoading}/>
                 </Grid>
               </Grid>
           </Grid>
 
       </MDBox>
 
-    </MDBox>
+    </MDBox>}
+    </>
   );
 }
 

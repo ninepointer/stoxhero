@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
+import MDBox from '../../../components/MDBox';
 
-const EchartsComponent = () => {
+export default function TraderDetails({isLoading}) {
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -86,7 +87,5 @@ const EchartsComponent = () => {
     };
   }, []);
 
-  return <div ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
+  return isLoading ? <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px', filter: 'blur(2px)' }} /> : <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };
-
-export default EchartsComponent;
