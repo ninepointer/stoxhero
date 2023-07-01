@@ -55,6 +55,38 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    maritalStatus:{
+        type: String,
+        // required: true
+    },
+    currentlyWorking:{
+        type: String,
+        // required: true
+    },
+    previouslyEmployeed:{
+        type: String,
+        // required: true
+    },
+    latestSalaryPerMonth:{
+        type: Number,
+        // required: true
+    },
+    familyIncomePerMonth:{
+        type: Number,
+        // required: true
+    },
+    collegeName:{
+        type: String,
+        // required: true
+    },
+    stayingWith:{
+        type: String,
+        // required: true
+    },
+    nonWorkingDurationInMonths:{
+        type: Number,
+        // required: true
+    },
     mobile:{
         type: String,
         required: true

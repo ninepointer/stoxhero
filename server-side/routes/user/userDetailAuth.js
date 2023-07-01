@@ -859,6 +859,18 @@ router.get("/infinityUsers", Authenticate, async (req, res)=>{
   // })
 });
 
+router.get("/infinityTraders", Authenticate, async (req, res)=>{
+
+  const role = await Role.findOne({roleName: "Infinity Trader"})
+
+  // console.log(role)
+  const newuser = await UserDetail.find({role : role._id, designation: 'Equity Trader'})
+                        .select('first_name last_name city gender dob joining_date employeeid designation referrals last_occupation location degree familyIncomePerMonth currentlyWorking latestSalaryPerMonth nonWorkingDurationInMonths email cohort profilePhoto _id stayingWith maritalStatus previouslyEmployeed')
+                        .sort({first_name:1})
+  return res.status(200).json({data : newuser, count: newuser.length});
+
+});
+
 module.exports = router;
 
 
