@@ -104,17 +104,6 @@ function Index() {
         return new Error(err)
       })
 
-
-    // axios.get(`${baseUrl}api/v1/dailycontest/${contest?._id}`)
-    //   .then((res) => {
-    //     setDailyContest(res?.data?.data);
-    //     setTimeout(() => {
-    //       setIsLoading(false)
-    //     }, 500)
-    //     //   setIsLoading(false).setTimeout(30000);
-    //   }).catch((err) => {
-    //     console.log("Error in useeffect: ", err)
-    //   })
   }, [])
 
 
@@ -145,7 +134,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -154,7 +143,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -181,21 +170,21 @@ function Index() {
     console.log("Edited FormState: ", formState, contest?._id)
     setSaving(true)
     console.log(formState)
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.career || !formState.portfolio) {
-      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.portfolio) {
+      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
-      method: "PATCH",
+      method: "PUT",
       credentials: "include",
       headers: {
         "content-type": "application/json",
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -383,7 +372,13 @@ function Index() {
                     fullWidth
                     type='number'
                     defaultValue={editing ? formState?.maxParticipants : contest?.maxParticipants}
-                    onChange={handleChange}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        maxParticipants: e.target.value
+                      }))
+                    }}
                   />
                 </Grid>
 
@@ -396,11 +391,17 @@ function Index() {
                     fullWidth
                     type='number'
                     defaultValue={editing ? formState?.payoutPercentage : contest?.payoutPercentage}
-                    onChange={handleChange}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        payoutPercentage: e.target.value
+                      }))
+                    }}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3} mb={2}>
+                {/* <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
                     id="outlined-required"
@@ -411,7 +412,7 @@ function Index() {
                     defaultValue={editing ? formState?.contestOn : contest?.contestOn}
                     onChange={handleChange}
                   />
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField

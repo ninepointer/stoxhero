@@ -4,6 +4,9 @@ const router = express.Router();
 const cors = require('cors');
 const app = express();
 const dotenv = require('dotenv');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
+
 // const fetch = require('./marketData/placeOrder');
 app.use(require("cookie-parser")());
 const fetchData = require('./marketData/fetchToken');
@@ -30,7 +33,6 @@ const { interactiveLogin } = require("./services/xts/xtsInteractive");
 // const { interactiveLogin } = require("./services/xts/xtsInteractive copy");
 const { autoExpireSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
-const path = require('path');
 const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 // const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
@@ -38,7 +40,7 @@ const {autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/Au
 const {saveLiveUsedMargin, saveMockUsedMargin} = require("./controllers/marginRequired")
 const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
-require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
+
 const {xtsAccountType, zerodhaAccountType} = require("./constant")
 const {openPrice} = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');

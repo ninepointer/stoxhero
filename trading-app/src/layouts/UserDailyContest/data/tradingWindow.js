@@ -44,14 +44,21 @@ import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/Daily
 
 
 
-function Header({ socket, contestId }) {
+function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [yesterdayData, setyesterdayData] = useState({});
     const [availbaleMargin, setAvailbleMargin] = useState([]);
     const [showOption, setShowOption] = useState(false);
     const pnl = useContext(NetPnlContext);
     const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+
+    let contestId = data?.data;
+    let isNifty = data?.isNifty;
+    let isBankNifty = data?.isBank;
+    let iaFinNifty = data?.isFin;
+    let isAllIndex = data?.isAll;
   
+    // console.log("data", data)
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
@@ -62,8 +69,9 @@ function Header({ socket, contestId }) {
           isGetStartedClicked={isGetStartedClicked}
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
+          contestData={data}
         />;
-      }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+      }, [data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
     
       const memoizedInstrumentDetails = useMemo(() => {
         return <WatchList
@@ -72,8 +80,9 @@ function Header({ socket, contestId }) {
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
           subscriptionId={contestId}
+          contestData={data}
         />;
-      }, [contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+      }, [data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
     
       const memoizedOverallPnl = useMemo(() => {
         return <OverallPnl
@@ -83,8 +92,9 @@ function Header({ socket, contestId }) {
           from={dailyContest}
           subscriptionId={contestId}
           setAvailbleMargin={setAvailbleMargin}
+          contestData={data}
         />;
-      }, [contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
+      }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     
 
     return (
@@ -143,7 +153,7 @@ function Header({ socket, contestId }) {
                                         <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Option Chain</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton> */}
-                                <OptionChain socket={socket} />
+                                <OptionChain socket={socket} data={data}/>
                             </Grid>
 
                             <Grid item xs={12} md={6} lg={3}>

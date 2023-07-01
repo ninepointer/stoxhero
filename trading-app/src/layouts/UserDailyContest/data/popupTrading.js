@@ -71,10 +71,14 @@ const PopupTrading = ({elem, timeDifference}) => {
 
 
     async function participateUserToContest(elem) {
-        let isParticipated = elem?.participants.some(elem => elem?.userId?.toString() === getDetails?.userDetails?._id?.toString())
+        let isParticipated = elem?.participants.some(elem => {
+            // console.log("isParticipated", elem?.userId?._id?.toString(), getDetails?.userDetails?._id?.toString())
+            return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
+        })
+        // console.log("isParticipated", isParticipated)
         if (isParticipated) {
             navigate(`/contest/${elem.contestName}`, {
-                state: { data: elem._id }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex}
             });
             return;
         }
@@ -94,6 +98,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         console.log(data);
         if (data.status === "error" || data.error || !data) {
             setOpen(true);
+            setData(data.message)
             // openSuccessSB("error", data.message)
             // return(<PopupTrading isInterested={true} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} initialValue={true}/>)
         } else {
@@ -136,14 +141,6 @@ const PopupTrading = ({elem, timeDifference}) => {
                             </MDBox>
                         </DialogContentText>
                     </DialogContent>
-                    {/* <DialogActions>
-            <MDButton autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
-              BUY
-            </MDButton>
-            <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
-              Close
-            </MDButton>
-          </DialogActions> */}
                 </Dialog>
             </div >
         </div >
