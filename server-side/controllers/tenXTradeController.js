@@ -688,7 +688,7 @@ exports.autoExpireSubscription = async () => {
           for (let k = len - 1; k >= 0; k--) {
             if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
               user.subscription[k].status = "Expired";
-              console.log("this is user", user)
+              // console.log("this is user", user)
               await user.save();
               break;
             }
@@ -720,7 +720,7 @@ exports.autoExpireSubscription = async () => {
           for (let k = Subslen - 1; k >= 0; k--) {
             if (subs.users[k].userId?.toString() === userId?.toString()) {
               subs.users[k].status = "Expired";
-              console.log("this is subs", subs)
+              // console.log("this is subs", subs)
               await subs.save();
               break;
             }
