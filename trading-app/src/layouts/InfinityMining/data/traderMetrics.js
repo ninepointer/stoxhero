@@ -32,8 +32,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                                 <MDTypography color='light' fontSize={13} fontWeight='bold'>Exp/Avg Daily NP&L(L)</MDTypography>
                             </Grid>
                             <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                                <MDTypography ml={5} color={expectedNpnlColor} fontSize={13} fontWeight='bold'>
-                                  {expectedNpnl >= 0 ? '+₹' : '-₹'}{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(expectedNpnl >= 0 ? (expectedNpnl) : ((-expectedNpnl)))}
+                                <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                  Loading
                                 </MDTypography>
                             </Grid>
                           </MDBox>
@@ -47,7 +47,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                                 <MDTypography color='light' fontSize={13} fontWeight='bold'>Exp/Avg Daily NP&L(W)</MDTypography>
                             </Grid>
                             <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                                <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                                <MDTypography ml={5} fontSize={13} fontWeight='bold'>Loading</MDTypography>
                             </Grid>
                           </MDBox>
                           </Grid>
@@ -60,7 +60,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                                 <MDTypography color='light' fontSize={13} fontWeight='bold'>Risk 2 Reward(L)</MDTypography>
                             </Grid>
                             <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                                <MDTypography ml={5} color='info' fontSize={13} fontWeight='bold'>{Math.abs(infinityMiningData?.averageProfit/infinityMiningData?.averageLoss)?.toFixed(2)}</MDTypography>
+                                <MDTypography ml={5} fontSize={13} fontWeight='bold'>Loading</MDTypography>
                             </Grid>
                           </MDBox>
                           </Grid>
@@ -73,7 +73,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                                 <MDTypography color='light' fontSize={13} fontWeight='bold'>Risk 2 Reward(W)</MDTypography>
                             </Grid>
                             <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                                <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                                <MDTypography ml={5} fontSize={13} fontWeight='bold'>Loading</MDTypography>
                             </Grid>
                           </MDBox>
                           </Grid>
@@ -86,8 +86,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Profit Days</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>
-                                {infinityMiningData?.profitDays} ({((infinityMiningData?.profitDays/(infinityMiningData?.profitDays + infinityMiningData?.lossDays))*100)?.toFixed(2) + '%'})
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -101,8 +101,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Loss Days</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>
-                                {infinityMiningData?.lossDays} ({((infinityMiningData?.lossDays/(infinityMiningData?.profitDays + infinityMiningData?.lossDays))*100)?.toFixed(2) + '%'})
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -116,8 +116,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Avg. Profit</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>
-                                +₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((infinityMiningData?.averageProfit))}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -131,8 +131,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Avg. Loss</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>
-                                -₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((-infinityMiningData?.averageLoss))}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -146,8 +146,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Trader Trading Days</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='info' fontSize={13} fontWeight='bold'>
-                                {infinityMiningData?.totalTradingDays} ({((infinityMiningData?.totalTradingDays/infinityMiningData?.totalMarketDays)*100)?.toFixed(2) + '%)'}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -161,8 +161,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Market Trading Days</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='info' fontSize={13} fontWeight='bold'>
-                                {infinityMiningData?.totalMarketDays}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                               Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -176,8 +176,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Profit</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>
-                                +₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((infinityMiningData?.maxProfit))}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -191,7 +191,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Profit %</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>Loading</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>
@@ -204,8 +204,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Loss</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>
-                                -₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((-infinityMiningData?.maxLoss))}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -219,7 +219,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Loss %</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>Loading</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>
@@ -232,8 +232,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Win Streak</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>
-                                {infinityMiningData?.maxProfitStreak}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                               Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -247,8 +247,8 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Loss Streak</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>
-                                {infinityMiningData?.maxLossStreak}
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>
+                                Loading
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -262,7 +262,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Available Margin</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='info' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>Loading</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>
@@ -275,7 +275,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Today's Opening Balance</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='info' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                              <MDTypography ml={5} fontSize={13} fontWeight='bold'>Loading</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>

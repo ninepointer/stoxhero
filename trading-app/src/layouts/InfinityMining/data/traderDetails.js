@@ -53,12 +53,12 @@ export default function TraderDetails({traderId, isLoading}) {
                 </Grid>
 
                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' flexDirection='column'>
-                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold'>{traderId?.first_name + ' ' + traderId?.last_name}</MDTypography></MDBox>
-                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>DOB: {moment.utc(traderId?.dob).utcOffset('+05:30').format("DD-MMM-YYYY")}</MDTypography></MDBox>
-                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Joining Date: {moment.utc(traderId?.joining_date).utcOffset('+05:30').format("DD-MMM-YYYY")}</MDTypography></MDBox>
-                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>User Id: {traderId?.employeeid}</MDTypography></MDBox>
-                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Email: {traderId?.email}</MDTypography></MDBox>
-                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Batch: {traderId?.cohort}</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold'>Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>DOB: Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Joining Date: Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>User Id: Loading</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Email: Laoding</MDTypography></MDBox>
+                    <MDBox display='flex' justifyContent='center'><MDTypography fontSize={10} fontWeight='bold'>Batch: Loading</MDTypography></MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' width='100%'>
@@ -76,7 +76,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Age</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{(traderId?.dob || traderId?.dob === '') ? calculateAge(traderId?.dob + ' Years') : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -85,7 +85,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Gender</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.gender ? traderId?.gender : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
                         
@@ -94,7 +94,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Currently Working</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.currentlyWorking ? traderId?.currentlyWorking : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -103,7 +103,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Non-Working Duration</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.nonWorkingDurationInMonths ? traderId?.nonWorkingDurationInMonths + ' Months' : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -112,7 +112,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Previously Employeed</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.previouslyEmployeed ? traderId?.previouslyEmployeed : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -122,7 +122,7 @@ export default function TraderDetails({traderId, isLoading}) {
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
                             <MDTypography fontSize={13}>
-                                {traderId?.latestSalaryPerMonth ? '₹' : ''}{traderId?.latestSalaryPerMonth ? new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((traderId?.latestSalaryPerMonth)) : 'NA'}
+                                Loading
                             </MDTypography>
                         </Grid>
                         </MDBox>
@@ -132,7 +132,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Latest Degree</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.degree ? traderId?.degree : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Laoding</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -141,7 +141,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>College Name</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.collegeName ? traderId?.collegeName : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -151,7 +151,7 @@ export default function TraderDetails({traderId, isLoading}) {
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
                             <MDTypography fontSize={13}>
-                                {traderId?.familyIncomePerMonth ? '₹' : ''}{traderId?.familyIncomePerMonth ? new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((traderId?.familyIncomePerMonth)) : 'NA'}
+                                Laoding
                             </MDTypography>
                         </Grid>
                         </MDBox>
@@ -161,7 +161,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Staying With</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.stayingWith ? traderId?.stayingWith : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -170,7 +170,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Marital Status</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.maritalStatus ? traderId?.maritalStatus : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -179,7 +179,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Current City</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.location ? traderId?.location : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
 
@@ -188,7 +188,7 @@ export default function TraderDetails({traderId, isLoading}) {
                             <MDTypography fontSize={13} fontWeight='bold'>Native City</MDTypography>
                         </Grid>
                         <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center'>
-                            <MDTypography fontSize={13}>{traderId?.city ? traderId?.city : 'NA'}</MDTypography>
+                            <MDTypography fontSize={13}>Loading</MDTypography>
                         </Grid>
                         </MDBox>
                         

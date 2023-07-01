@@ -33,6 +33,7 @@ export default function InfinityMining() {
   const [traderId,setTraderId] = useState();
   const [infinityTraders,setInfinityTraders] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [pnlSummary, setPNLSummary] = useState();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
@@ -56,7 +57,7 @@ export default function InfinityMining() {
       InfinityMining(traderId)
       setTimeout(()=>{
         setIsLoading(false)
-      },1000)
+      },500)
       
     })
     .catch((error) => {
@@ -76,11 +77,21 @@ export default function InfinityMining() {
           "Access-Control-Allow-Credentials": true
         },
       })
-    Promise.all([call1])
-    .then(([api1Response1]) => {
+    let call3 = await axios.get((`${baseUrl}api/v1/infinitymining/tradertradesoverview/${traderId?._id}`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    Promise.all([call1, call3])
+    .then(([api1Response1, api1Response3]) => {
       // Process the responses here
       console.log("Infinity Mining Data:",api1Response1.data.data);
+      console.log("PNL Summary:",api1Response3.data.data)
       setInfinityMiningData(api1Response1.data.data)
+      setPNLSummary(api1Response3.data.data);
     })
     .catch((error) => {
       // Handle errors here
@@ -230,7 +241,7 @@ export default function InfinityMining() {
             <Grid item xs={12} md={8} lg={8}>
               
               <Grid item xs={12} md={12} lg={12} p={2} display='flex' justifyContent='center' flexDirection='column' style={{backgroundColor:'white', width:'100%'}}>
-                {infinityMiningData && <PNLSummary infinityMiningData={infinityMiningData} isLoading={isLoading}/>}
+                {infinityMiningData && <PNLSummary infinityMiningData={infinityMiningData} pnlSummary={pnlSummary} isLoading={isLoading}/>}
               </Grid>
 
               <Grid item xs={12} md={8} lg={12} p={2} style={{backgroundColor:'white', width:'100%'}}>
