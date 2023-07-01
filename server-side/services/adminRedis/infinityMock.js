@@ -423,7 +423,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId)=>{
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  if(isRedisConnected && await client.exists(`${trader.toString()} overallpnlDailyContest`)){
+  if(isRedisConnected && await client.exists(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)){
     // let pnl = await client.get(`${trader.toString()} overallpnl`)
     pnl = JSON.parse(data);
     // console.log("redis pnl", pnl)

@@ -76,9 +76,9 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId}) {
+function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, contestData}) {
 
-  console.log("rendering : tradable instrument", from)
+  // console.log("rendering : tradable instrument", from)
   //console.log("rendering in userPosition: TradableInstrument", from)
   const {render, setRender} = useContext(renderContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -160,8 +160,35 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       return;
     }
 
+    let isNifty = contestData?.isNifty;
+    let isBankNifty = contestData?.isBank;
+    let isFinNifty = contestData?.isFin;
+    let isAllIndex = contestData?.isAll;
+    let url = "";
+    let endPoint = "";
 
-    axios.get(`${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}`, {
+    if(isNifty){
+      url = `&isNifty=${true}`;
+    }
+    if(isBankNifty){
+      url += `&isBankNifty=${true}`;
+    }
+    if(isFinNifty){
+      url += `&isFinNifty=${true}`;
+    }
+    if(isAllIndex){
+      url = `&isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`;
+    }
+
+    // console.log("url", url, contestData)
+
+    if(from === dailyContest){
+      endPoint = `${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}${url}&dailyContest=${dailyContest}`
+    } else{
+      endPoint = `${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}`
+    }
+
+    axios.get(`${endPoint}`, {
       withCredentials: true,
       headers: {
           Accept: "application/json",

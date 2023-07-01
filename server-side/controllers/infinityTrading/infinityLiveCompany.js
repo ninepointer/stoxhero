@@ -1248,8 +1248,14 @@ exports.companyPnlReportLive = async (req, res, next) => {
 
   const result = [];
   for (let currentDate = startDate; currentDate <= oneDayAfterEnd; currentDate.setDate(currentDate.getDate() + 1)) {
-    //console.log(currentDate)
+    console.log(currentDate)
     // Execute the current pipeline and store the result
+
+    // if (currentDate.getTime() === startDate.getTime()) {
+    //   currentDate.setDate(currentDate.getDate() + 1);
+    // }
+    currentDate.setHours(23, 59, 59, 0);
+    
     const currentResult = await getCumulativeData(currentDate); // Replace this with your code to execute the aggregation pipeline
     
     result.push(currentResult);

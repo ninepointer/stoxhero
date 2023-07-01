@@ -43,7 +43,7 @@ import { dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_N
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const OptionChain = ({ socket }) => {
+const OptionChain = ({ socket, data }) => {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
@@ -178,15 +178,20 @@ const OptionChain = ({ socket }) => {
                                     // sx={{ marginḶeft: 1, padding: 1, width: "150px", color: "success" }}
                                     onChange={(e) => { setSelectIndex(e.target.value) }}
                                 >
+                                    {(data?.isBank || data?.isAll) &&
                                     <MenuItem value={"BANKNIFTY"} minHeight="4em">
                                         {"BANKNIFTY"}
-                                    </MenuItem>
+                                    </MenuItem>}
+
+                                    {(data?.isNifty || data?.isAll) &&
                                     <MenuItem value={"NIFTY50"} minHeight="4em">
                                         {"NIFTY50"}
-                                    </MenuItem>
+                                    </MenuItem>}
+
+                                    {(data?.isFin || data?.isAll) &&
                                     <MenuItem value={"FINNIFTY"} minHeight="4em">
                                         {"FINNIFTY"}
-                                    </MenuItem>
+                                    </MenuItem>}
                                 </TextField>
                             </MDBox>
                             <Grid container >

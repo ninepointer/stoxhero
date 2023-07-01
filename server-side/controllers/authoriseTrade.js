@@ -934,8 +934,8 @@ exports.fundCheckDailyContest = async(req, res, next) => {
             totalAmount += (element.amount-element.brokerage);
         }
 
-        if(isRedisConnected && await client.exists(`${req.user._id.toString()}${contestId.toString()}: openingBalanceAndMarginDailyContest`)){
-            let pnl = await client.get(`${req.user._id.toString()}${contestId.toString()}: openingBalanceAndMarginDailyContest`)
+        if(isRedisConnected && await client.exists(`${req.user._id.toString()}${contestId.toString()} openingBalanceAndMarginDailyContest`)){
+            let pnl = await client.get(`${req.user._id.toString()}${contestId.toString()} openingBalanceAndMarginDailyContest`)
             pnl = JSON.parse(pnl);
             userFunds = pnl[0]?.totalFund;
 
@@ -944,7 +944,6 @@ exports.fundCheckDailyContest = async(req, res, next) => {
             } else{
                 userNetPnl = totalAmount
             }
-            // userNetPnl = ( pnl[0]?.openingBalance - userFunds) + totalAmount
         }
 
 

@@ -1,12 +1,12 @@
 import { React, useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+// import { Link, useNavigate } from "react-router-dom";
 import { userContext } from '../../../AuthContext';
-import moment from 'moment'
+// import moment from 'moment'
 
 // prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
-import tradesicon from '../../../assets/images/tradesicon.png'
+// import PropTypes from "prop-types";
+// import tradesicon from '../../../assets/images/tradesicon.png'
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -19,8 +19,8 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import {InfinityTraderRole, tenxTrader} from "../../../variables";
-import ContestCup from '../../../assets/images/candlestick-chart.png'
+// import {InfinityTraderRole, tenxTrader} from "../../../variables";
+// import ContestCup from '../../../assets/images/candlestick-chart.png'
 import ContestCarousel from '../../../assets/images/target.png'
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
@@ -169,7 +169,7 @@ function Header({ e }) {
                                     contestOn = ['NIFTY', 'BANKNIFTY', 'FINNIFTY']
                                 }
 
-                                // contestOn.push(elem.contestExpiry.toUpperCase());
+                                contestOn.push(elem.contestExpiry.toUpperCase());
 
                                 let progressBar = elem?.participants?.length * 100 / elem?.maxParticipants
                                 // let timeDifference = new Date(elem?.contestStartTime) - new Date(serverTime);
