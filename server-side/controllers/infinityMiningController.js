@@ -4,6 +4,7 @@ const { ObjectId } = require('mongodb');
 const moment = require('moment');
 const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
 const Margin = require('../models/marginAllocation/marginAllocationSchema');
+const liveTradeDetails = require('../models/TradeDetails/infinityLiveUser');
 
 
 exports.getTraderStatss = async (req, res) => {
@@ -501,11 +502,68 @@ exports.getTraderTimePeriodStats = async(req, res ,next) =>{
         }
     ]);
 
-    res.json({status:'success',data:result[0]});
+    res.status(200).json({status:'success',data:result[0]});
 
 } catch (error) {
     console.error(error);
     res.status(500).json({status:'error', message: 'Internal server error'});
 }
 
+}
+
+exports.getTradersBothTradesData = async (req, res) => {
+  const traderId = req.params.id;
+  try{
+    const [ stoxHeroStats, infinityStats ] = await Promise.all([
+      calculateTraderStats(InfinityTrade, traderId),
+      calculateTraderStats(liveTradeDetails, traderId)
+  ]);
+
+  // Mapping the results by date
+  const stats = {};
+  const emptyStats = {
+    gpnl: 0,
+    totalbrokerage: 0,
+    numTrades: 0,
+    npnl: 0
+};
+  stoxHeroStats.forEach(stat => {
+      if(!stats[stat._id]) stats[stat._id] = {};
+      stats[stat._id]['stoxHero'] = stat;
+  });
+
+  infinityStats.forEach(stat => {
+      if(!stats[stat._id]) stats[stat._id] = {};
+      stats[stat._id]['infinity'] = stat;
+  });
+  Object.keys(stats).forEach(date => {
+    if(!stats[date]['stoxHero']) stats[date]['stoxHero'] = emptyStats;
+    if(!stats[date]['infinity']) stats[date]['infinity'] = emptyStats;
+});
+
+  res.status(200).json({status:'success', data:stats});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong'});
+  }
+}
+
+async function calculateTraderStats(Model, traderId) {
+  try {
+      return Model.aggregate([
+        { $match: { trader: new ObjectId(traderId) } },
+        { $group: {
+            _id: {
+                $dateToString: { format: "%Y-%m-%d", date: "$trade_time" }
+            },
+            gpnl: { $sum: { $multiply: ["$amount", -1] } },
+            totalbrokerage: { $sum: "$brokerage" },
+            numTrades: { $sum: 1 },
+        }},
+        { $addFields: { npnl: { $subtract: ["$gpnl", "$totalbrokerage"] } } },
+        { $sort : { _id : 1 } },
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
 }
