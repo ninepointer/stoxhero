@@ -22,7 +22,7 @@ const DailyContestPortfolioCard = ({isObjectNew,setIsObjectNew}) => {
       axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`)
       .then((res)=>{
                 setDailyContestPortfolioData(res.data.data);
-                console.log(res.data.data)
+                console.log("Daily Contest Portfolio:",res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })
