@@ -572,8 +572,8 @@ exports.getWeekWiseBothSideData = async (req, res) => {
   const traderId = req.params.id;
 
   const [ stoxHeroStats, infinityStats ] = await Promise.all([
-      calculateTraderStats(InfinityTrade, traderId),
-      calculateTraderStats(liveTradeDetails, traderId)
+      calculateTraderWeekStats(InfinityTrade, traderId),
+      calculateTraderWeekStats(liveTradeDetails, traderId)
   ]);
 
   // Empty stats object for dates with no data
@@ -596,10 +596,10 @@ exports.getWeekWiseBothSideData = async (req, res) => {
       }; 
   });
 
-  res.json(stats);
+  res.status(200).json({status:'success',data:stats});
 }
 
-async function calculateTraderStats(Model, traderId) {
+async function calculateTraderWeekStats(Model, traderId) {
   return Model.aggregate([
       { $match: { trader: new ObjectId(traderId), status:'COMPLETE',  trade_time: {$lt: new Date(new Date().toISOString().substring(0,10)) }  } },
       { $group: {
