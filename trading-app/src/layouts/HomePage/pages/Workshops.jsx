@@ -12,7 +12,7 @@ import axios from "axios";
 
 const Internship = ({campaignCode}) => {
   const [isLoading,setIsLoading] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [career, setCareer] = useState([]);
     useEffect(()=>{
       setIsLoading(true)

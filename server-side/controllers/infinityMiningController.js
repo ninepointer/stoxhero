@@ -224,6 +224,7 @@ exports.getTraderStats = async (req, res) => {
     ];
 
     const result = await InfinityTrade.aggregate(pipeline);
+    console.log(result);
 
     let maxProfitStreak = 0;
     let maxLossStreak = 0;
@@ -272,14 +273,14 @@ exports.getTraderStats = async (req, res) => {
 
     profitValues.sort((a, b) => a - b);
     lossValues.sort((a, b) => a - b);
-
+    console.log(profitValues, lossValues)
     const totalMarketDays = await countTradingDays(user.joining_date.toISOString().substring(0,10))
     const medianProfit = 
     profitValues.length%2 === 0 ? (profitValues[Math.floor(profitValues.length / 2)] + profitValues[Math.floor((profitValues.length / 2)-1)])/2 : profitValues[Math.floor(profitValues.length / 2)];
     const medianLoss =
     lossValues.length%2 === 0 ? (lossValues[Math.floor(lossValues.length / 2)] + lossValues[Math.floor((lossValues.length / 2)-1)])/2 : lossValues[Math.floor(lossValues.length / 2)];
-    const maxProfitOpeningBalance = await getTotalCredits(maxProfitDay._id, user._id)+result[maxProfitIndex-1].npnl;
-    const maxLossOpeningBalance = await getTotalCredits(maxLossDay._id, user._id)+result[maxLossIndex-1].npnl;
+    const maxProfitOpeningBalance = await getTotalCredits(maxProfitDay?._id, user._id)+result[maxProfitIndex-1]?.npnl;
+    const maxLossOpeningBalance = await getTotalCredits(maxLossDay?._id, user._id)+result[maxLossIndex-1]?.npnl;
     console.log(maxProfitOpeningBalance, maxLossOpeningBalance);
     const data = {
       firstName: user.first_name,
@@ -309,7 +310,7 @@ exports.getTraderStats = async (req, res) => {
       maxProfitDayProfitPercent: maxProfitDay?.npnl/maxProfitOpeningBalance *100,
       maxLossDayLossPercent: Math.abs(maxLossDay?.npnl/maxLossOpeningBalance) *100
     };
-    console.log('res',await getTotalCredits(maxProfitDay._id, user._id)+result[maxProfitIndex-1].npnl);
+    console.log('res',await getTotalCredits(maxProfitDay?._id, user._id)+result[maxProfitIndex-1]?.npnl);
     return res.status(200).json({status:'success',data});
   } catch (error) {
     console.log(error);  
@@ -566,4 +567,70 @@ async function calculateTraderStats(Model, traderId) {
   } catch (error) {
     console.log(error);
   }
+}
+
+exports.getWeekWiseBothSideData = async (req, res) => {
+  const traderId = req.params.id;
+
+  const [ stoxHeroStats, infinityStats ] = await Promise.all([
+      calculateTraderStats(InfinityTrade, traderId),
+      calculateTraderStats(liveTradeDetails, traderId)
+  ]);
+
+  // Empty stats object for dates with no data
+  const emptyStats = {
+      gpnl: 0,
+      totalbrokerage: 0,
+      numTrades: 0,
+      npnl: 0
+  };
+
+  // Array of weekdays
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  // Mapping the results by weekday
+  const stats = {};
+  weekdays.forEach(day => { 
+      stats[day] = { 
+          stoxHero: (stoxHeroStats.find(stat => stat._id === day) || emptyStats),
+          infinity: (infinityStats.find(stat => stat._id === day) || emptyStats)
+      }; 
+  });
+
+  res.json(stats);
+}
+
+async function calculateTraderStats(Model, traderId) {
+  return Model.aggregate([
+      { $match: { trader: new ObjectId(traderId) } },
+      { $group: {
+          _id: {
+              $dayOfWeek: { date: "$trade_time" }
+          },
+          gpnl: { $sum: { $multiply: ["$amount", -1] } },
+          totalbrokerage: { $sum: "$brokerage" },
+          numTrades: { $sum: 1 },
+      }},
+      { $addFields: { npnl: { $subtract: ["$gpnl", "$totalbrokerage"] } } },
+      { $project: {
+          _id: {
+              $switch: {
+                  branches: [
+                      { case: { $eq: ["$_id", 1] }, then: "Sunday" },
+                      { case: { $eq: ["$_id", 2] }, then: "Monday" },
+                      { case: { $eq: ["$_id", 3] }, then: "Tuesday" },
+                      { case: { $eq: ["$_id", 4] }, then: "Wednesday" },
+                      { case: { $eq: ["$_id", 5] }, then: "Thursday" },
+                      { case: { $eq: ["$_id", 6] }, then: "Friday" },
+                      { case: { $eq: ["$_id", 7] }, then: "Saturday" }
+                  ]
+              }
+          },
+          gpnl: 1,
+          totalbrokerage: 1,
+          numTrades: 1,
+          npnl: 1
+      } },
+      { $sort : { _id : 1 } },
+  ]);
 }
