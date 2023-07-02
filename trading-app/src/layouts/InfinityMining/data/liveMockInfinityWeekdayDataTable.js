@@ -12,30 +12,18 @@ import html2canvas from 'html2canvas';
 //data
 import LiveMockInfinityDailyData from '../data/liveMockInfinityDailyChart'
 
-export default function InfinityData({bothSideTradeData,isLoading}) {
-    let dates = []
-    let stoxHeroNpnl = []
-    let infinityNpnl = []
-    dates = Object.keys(bothSideTradeData)
-    let pnlValues = Object.values(bothSideTradeData)
-    stoxHeroNpnl = pnlValues?.map((elem)=>{
-      return elem?.stoxHero?.npnl
-    })
-    infinityNpnl = pnlValues?.map((elem)=>{
-      return elem?.infinity?.npnl
-    })
-    
+export default function InfinityData({bothSideTradeData,isLoading}) {    
 
   return (
     <>  
     {isLoading ? 
-        <MDBox style={{ filter: 'blur(2px)' }}>
+            <MDBox style={{ filter: 'blur(2px)' }}>
 
             <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             
             <MDBox style={{border:'1px solid #e91e63', backgroundColor:'#e91e63'}} borderRadius={5} p={0.5} display='flex' justifyContent='center' width='100%'>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='light' fontSize={13} fontWeight='bold'>Date</MDTypography>
+                    <MDTypography color='light' fontSize={13} fontWeight='bold'>Weekday</MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
                     <MDTypography color='light' fontSize={13} fontWeight='bold'>Gross P&L(S)</MDTypography>
@@ -161,13 +149,11 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
             </Grid>
             </MDBox> 
         :    
-            <MDBox id="your-mdbox-component-id">
+            <MDBox id="your-mdbox-component-id" mb={1}>
 
             <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-            <MDBox style={{border:'1px solid #e91e63', backgroundColor:'#e91e63'}} borderRadius={5} p={0.5} display='flex' justifyContent='center' width='100%'>
-                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='light' fontSize={13} fontWeight='bold'>Date</MDTypography>
-                </Grid>
+            <MDBox style={{border:'1px solid #e91e63', backgroundColor:'#e91e63'}} borderRadius={5} p={0.5} ml={1} mr={1} display='flex' justifyContent='center' width='100%'>
+
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
                     <MDTypography color='light' fontSize={13} fontWeight='bold'>Weekday</MDTypography>
                 </Grid>
@@ -186,81 +172,186 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
                     <MDTypography color='light' fontSize={13} fontWeight='bold'>Net P&L Diff(S-I)</MDTypography>
                 </Grid>
+
             </MDBox>
             </Grid>
-            
-            {pnlValues?.map((elem,index)=>{
-                const difference = elem?.infinity?.numTrades!==0 ? elem?.stoxHero?.npnl-elem?.infinity?.npnl : '-'
-                const tradeDate = new Date(dates[index])
-                const utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
-                console.log(utcDateString)
-                
-                return(
-                <>
-                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-                <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
+
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} ml={1} mt={0.5} mr={1} display='flex' justifyContent='center' width='100%'>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography 
-                        color={moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Thursday' ? 'error' : moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Wednesday' ? 'warning' : 'text'}  
-                        fontSize={13} 
-                        fontWeight='bold'
-                    >
-                        {moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM-YY')}
+                    <MDTypography fontSize={13} fontWeight='bold'>
+                        Monday
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography 
-                        color={moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Thursday' ? 'error' : moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Wednesday' ? 'warning' : 'text'} 
-                        fontSize={13} 
-                        fontWeight='bold'
-                    >
-                        {moment.utc(utcDateString).utcOffset('+00:00').format('dddd')}
+                    <MDTypography fontSize={13}>
+                        Coming Soon
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13} color={elem?.stoxHero?.gpnl >= 0 ? 'success' : elem?.stoxHero?.gpnl < 0 ? 'error' : 'text'}>
-                        {elem?.stoxHero?.gpnl ? 
-                                (elem?.stoxHero?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.stoxHero?.gpnl >= 0 ? elem?.stoxHero?.gpnl : -elem?.stoxHero?.gpnl)
-                                : '₹0'
-                        }
+                    <MDTypography fontSize={13}>
+                        Coming Soon
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13} color={elem?.infinity?.gpnl >= 0 ? 'success' : elem?.infinity?.gpnl < 0 ? 'error' : 'text'}>
-                        {elem?.infinity?.gpnl ? 
-                                (elem?.infinity?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.infinity?.gpnl >= 0 ? elem?.infinity?.gpnl : -elem?.infinity?.gpnl)
-                                : '₹0'
-                        }
+                    <MDTypography fontSize={13}>
+                        Coming Soon
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13} color={elem?.stoxHero?.npnl >= 0 ? 'success' : elem?.stoxHero?.npnl < 0 ? 'error' : 'text'}>
-                        {elem?.stoxHero?.npnl ? 
-                                (elem?.stoxHero?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.stoxHero?.npnl >= 0 ? elem?.stoxHero?.npnl : -elem?.stoxHero?.npnl)
-                                : '₹0'
-                        }
+                    <MDTypography fontSize={13}>
+                        Coming Soon
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                <MDTypography fontSize={13} color={elem?.infinity?.npnl >= 0 ? 'success' : elem?.infinity?.npnl < 0 ? 'error' : 'text'}>
-                        {elem?.infinity?.npnl ? 
-                                (elem?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.infinity?.npnl >= 0 ? elem?.infinity?.npnl : -elem?.infinity?.npnl)
-                                : '₹0'
-                        }
-                    </MDTypography>
-                </Grid>
-                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color={difference > 0 ? 'success' : difference < 0 ? 'error' : 'text'} fontSize={13} fontWeight='bold'>
-                        {(difference > 0 ? '+₹' : difference < 0 ? '-₹' : '₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(difference > 0 ? difference : difference < 0 ? -difference : 0)}
+                    <MDTypography fontSize={13}>
+                        Coming Soon
                     </MDTypography>
                 </Grid>
             </MDBox>
-                </Grid>
-            </>)
-            }) }
+            </Grid>
 
-            
-            </MDBox> }        
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} ml={1} mt={0.5} mr={1} display='flex' justifyContent='center' width='100%'>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13} fontWeight='bold'>
+                        Tuesday
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+            </MDBox>
+            </Grid>
+
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} ml={1} mt={0.5} mr={1} display='flex' justifyContent='center' width='100%'>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13} fontWeight='bold'>
+                        Wednesday
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+            </MDBox>
+            </Grid>
+
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} ml={1} mt={0.5} mr={1} display='flex' justifyContent='center' width='100%'>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13} fontWeight='bold'>
+                        Thursday
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+            </MDBox>
+            </Grid>
+
+            <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
+                <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} ml={1} mt={0.5} mr={1} display='flex' justifyContent='center' width='100%'>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13} fontWeight='bold'>
+                        Friday
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography fontSize={13}>
+                        Coming Soon
+                    </MDTypography>
+                </Grid>
+            </MDBox>
+            </Grid>
+            </MDBox>
+    }             
     </>
   );
 }
