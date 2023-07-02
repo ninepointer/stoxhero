@@ -100,10 +100,6 @@ export default function InfinityMining() {
       setTraderId(traderSelectedOption ? traderSelectedOption : api1Response2.data.data[0]);
       setInfinityTraders(api1Response2.data.data)
       InfinityMining(traderId)
-      setTimeout(()=>{
-        setIsLoading(false)
-      },500)
-      
     })
     .catch((error) => {
       // Handle errors here
@@ -146,10 +142,12 @@ export default function InfinityMining() {
       setInfinityMiningData(api1Response1.data.data)
       setPNLSummary(api1Response3.data.data);
       setBothSideTradeData(api1Response4.data.data)
+      setIsLoading(false)
     })
     .catch((error) => {
       // Handle errors here
       console.error(error);
+      setIsLoading(false)
     }); 
   }
 
@@ -313,13 +311,13 @@ export default function InfinityMining() {
        <CircularProgress/>
       </MDBox>
       } 
-      <MDBox style={{backgroundColor:'white'}} color="light" mt={1} mb={1} p={0} borderRadius={0} minHeight='auto'>
+      <MDBox style={{backgroundColor:'white'}} color="light" mt={1} mb={1} p={0} borderRadius={0} minHeight='80vH'>
           <Grid container spacing={0}>
             
             <Grid item xs={12} md={8} lg={4}>
               
               <Grid item xs={12} md={8} lg={12} style={{backgroundColor:'white'}} width='100%'>
-                {traderId && <TraderDetails traderId = {traderId} isLoading={isLoading}/>}   
+                {(traderId && bothSideTradeData && !isLoading) && <TraderDetails traderId = {traderId} isLoading={isLoading}/>}   
               </Grid>
 
             </Grid>
@@ -327,11 +325,11 @@ export default function InfinityMining() {
             <Grid item xs={12} md={8} lg={8}>
               
               <Grid item xs={12} md={12} lg={12} p={2} display='flex' justifyContent='center' flexDirection='column' style={{backgroundColor:'white', width:'100%'}}>
-                {infinityMiningData && <PNLSummary infinityMiningData={infinityMiningData} pnlSummary={pnlSummary} isLoading={isLoading}/>}
+                {(infinityMiningData && !isLoading) && <PNLSummary infinityMiningData={infinityMiningData} pnlSummary={pnlSummary} isLoading={isLoading}/>}
               </Grid>
 
               <Grid item xs={12} md={8} lg={12} p={2} style={{backgroundColor:'white', width:'100%'}}>
-                {infinityMiningData && <TraderMetrics infinityMiningData={infinityMiningData} isLoading={isLoading}/>}
+                {(infinityMiningData && !isLoading) && <TraderMetrics infinityMiningData={infinityMiningData} isLoading={isLoading}/>}
               </Grid>
 
             </Grid>
@@ -345,7 +343,7 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} style={{backgroundColor:'white', width:'100%'}}>
-                   {bothSideTradeData && 
+                   {(bothSideTradeData && !isLoading) && 
                    <>
                    <MDBox mb={0.5} mt={1}>
                     <MDTypography fontSize={15} fontWeight='bold' style={{textAlign:'center'}}>
@@ -366,7 +364,7 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} style={{backgroundColor:'white', width:'100%'}}>
-                   {bothSideTradeData && 
+                   {(bothSideTradeData && !isLoading) && 
                    <>
                    <MDBox mb={1} mt={1.5} display='flex' justifyContent='space-between' alignItems='center'>
                       <MDBox ml={2}>
@@ -393,7 +391,7 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} style={{backgroundColor:'white', width:'100%'}}>
-                   {bothSideTradeData && 
+                   {(bothSideTradeData && !isLoading) && 
                    <>
                    <MDBox mb={0.5} mt={1}>
                       <MDTypography fontSize={15} fontWeight='bold' style={{textAlign:'center'}}>
@@ -414,7 +412,7 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} p={1} style={{backgroundColor:'white', width:'100%'}}>
-                    {bothSideTradeData && 
+                    {(bothSideTradeData && !isLoading) && 
                     <>
                     <MDBox mb={1} mt={0.5} display='flex' justifyContent='space-between' alignItems='center'>
                       <MDBox ml={1}>
