@@ -35,7 +35,7 @@ export default function InfinityMining() {
   const [isLoading, setIsLoading] = useState(false);
   const [pnlSummary, setPNLSummary] = useState();
   const [bothSideTradeData, setBothSideTradeData] = useState();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     console.log("Inside Use Effect")

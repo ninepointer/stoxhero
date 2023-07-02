@@ -8,7 +8,7 @@ import Performance from '../data/performance'
 import Summary from '../data/summary'
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [carouselData,setCarouselData] = useState([])
   
   useEffect(()=>{
