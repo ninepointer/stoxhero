@@ -1123,7 +1123,7 @@ exports.companyPnlReportLive = async (req, res, next) => {
     },
   ]
 
-  let oneDayAfterEnd = endDate.setDate(endDate.getDate() + 1)
+  // let oneDayAfterEnd = endDate.setDate(endDate.getDate() + 1)
 
 
   async function getCumulativeData(date){
@@ -1247,8 +1247,8 @@ exports.companyPnlReportLive = async (req, res, next) => {
   }
 
   const result = [];
-  for (let currentDate = startDate; currentDate <= oneDayAfterEnd; currentDate.setDate(currentDate.getDate() + 1)) {
-    console.log(currentDate)
+  for (let currentDate = startDate; currentDate < endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+    console.log(currentDate, endDate)
 
     currentDate.setHours(23, 59, 59, 0);
     

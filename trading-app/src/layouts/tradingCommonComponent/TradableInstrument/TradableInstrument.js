@@ -374,11 +374,11 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && 'white',
-                  color: from === paperTrader ? "white" : "lightgray",
+                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader ) && 'white',
+                  color: from === paperTrader ? "white" : from === dailyContest ? "#1e2e4a" : "lightgray",
                   padding:"0.5px",
                   '&:hover': {
-                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && '#1e2e4a',
+                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader ) && '#1e2e4a',
                     backgroundColor: from === paperTrader ? 'lightgray' : 'lightgray',
                     cursor: 'pointer',
                     fontWeight: 600
