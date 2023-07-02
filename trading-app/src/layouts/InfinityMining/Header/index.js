@@ -68,7 +68,7 @@ export default function InfinityMining() {
       html2canvas(screenshotElement)
       .then((canvas) => {
         const link = document.createElement('a');
-        link.download = 'screenshot.png';
+        link.download = `${traderId?.first_name + ' ' + traderId?.last_name}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
         setShowDownloadButton(true)
