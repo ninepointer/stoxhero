@@ -5,6 +5,7 @@ import MDButton from '../../../components/MDButton';
 import MDAvatar from '../../../components/MDAvatar';
 import {Link} from 'react-router-dom'
 import { Grid } from '@mui/material';
+import moment from 'moment';
 import Logo from '../../../assets/images/default-profile.png'
 
 //data
@@ -22,6 +23,7 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
     infinityNpnl = pnlValues?.map((elem)=>{
       return elem?.infinity?.npnl
     })
+
   return (
     <>  
     {isLoading ? 
@@ -162,7 +164,7 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
         :    
             <MDBox>
             <Grid container xs={12} md={12} lg={12} mt={1} mb={1} display='flex' justifyContent='center' alignItems='center'>
-                <MDTypography fontSize={15} fontWeight='bold'>Date Wise Data for 21-Jan-2023 to 01-Mar-2023</MDTypography>
+                <MDTypography fontSize={15} fontWeight='bold'>Date Wise Both Side Data</MDTypography>
             </Grid>
 
             <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
@@ -170,6 +172,9 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
             <MDBox style={{border:'1px solid #e91e63', backgroundColor:'#e91e63'}} borderRadius={5} p={0.5} display='flex' justifyContent='center' width='100%'>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
                     <MDTypography color='light' fontSize={13} fontWeight='bold'>Date</MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography color='light' fontSize={13} fontWeight='bold'>Weekday</MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
                     <MDTypography color='light' fontSize={13} fontWeight='bold'>Gross P&L(S)</MDTypography>
@@ -190,27 +195,69 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
             </Grid>
             
             {pnlValues?.map((elem,index)=>{
+                const difference = elem?.infinity?.numTrades!==0 ? elem?.stoxHero?.npnl-elem?.infinity?.npnl : '-'
+                const tradeDate = new Date(dates[index])
+                const utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
+                console.log(utcDateString)
+                
                 return(
                 <>
                 <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                 <MDBox style={{border:'1px solid grey'}} borderRadius={5} p={0.5} mt={0.5} display='flex' justifyContent='center' width='100%'>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{dates[index]}</MDTypography>
+                    <MDTypography 
+                        color={moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Thursday' ? 'error' : moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Wednesday' ? 'warning' : 'text'}  
+                        fontSize={13} 
+                        fontWeight='bold'
+                    >
+                        {moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM-YY')}
+                    </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.stoxHero?.gpnl?.toFixed(2)}</MDTypography>
+                    <MDTypography 
+                        color={moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Thursday' ? 'error' : moment.utc(utcDateString).utcOffset('+00:00').format('dddd') === 'Wednesday' ? 'warning' : 'text'} 
+                        fontSize={13} 
+                        fontWeight='bold'
+                    >
+                        {moment.utc(utcDateString).utcOffset('+00:00').format('dddd')}
+                    </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.infinity?.gpnl?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} color={elem?.stoxHero?.gpnl >= 0 ? 'success' : elem?.stoxHero?.gpnl < 0 ? 'error' : 'text'}>
+                        {elem?.stoxHero?.gpnl ? 
+                                (elem?.stoxHero?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.stoxHero?.gpnl >= 0 ? elem?.stoxHero?.gpnl : -elem?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
+                    </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.stoxHero?.npnl?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} color={elem?.infinity?.gpnl >= 0 ? 'success' : elem?.infinity?.gpnl < 0 ? 'error' : 'text'}>
+                        {elem?.infinity?.gpnl ? 
+                                (elem?.infinity?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.infinity?.gpnl >= 0 ? elem?.infinity?.gpnl : -elem?.infinity?.gpnl)
+                                : '₹0'
+                        }
+                    </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.infinity?.npnl?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} color={elem?.stoxHero?.npnl >= 0 ? 'success' : elem?.stoxHero?.npnl < 0 ? 'error' : 'text'}>
+                        {elem?.stoxHero?.npnl ? 
+                                (elem?.stoxHero?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.stoxHero?.npnl >= 0 ? elem?.stoxHero?.npnl : -elem?.stoxHero?.npnl)
+                                : '₹0'
+                        }
+                    </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography color='dark' fontSize={13} fontWeight='bold'>{elem?.infinity?.numTrades!==0 ? elem?.stoxHero?.npnl?.toFixed(2)-elem?.infinity?.npnl?.toFixed(2):'NA'}</MDTypography>
+                <MDTypography fontSize={13} color={elem?.infinity?.npnl >= 0 ? 'success' : elem?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {elem?.infinity?.npnl ? 
+                                (elem?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.infinity?.npnl >= 0 ? elem?.infinity?.npnl : -elem?.infinity?.npnl)
+                                : '₹0'
+                        }
+                    </MDTypography>
+                </Grid>
+                <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
+                    <MDTypography color={difference > 0 ? 'success' : difference < 0 ? 'error' : 'text'} fontSize={13} fontWeight='bold'>
+                        {(difference > 0 ? '+₹' : difference < 0 ? '-₹' : '₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(difference > 0 ? difference : difference < 0 ? -difference : 0)}
+                    </MDTypography>
                 </Grid>
             </MDBox>
             </Grid>

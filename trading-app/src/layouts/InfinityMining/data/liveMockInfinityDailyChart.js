@@ -1,13 +1,22 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
+import moment, { min } from 'moment';
 
 export default function TraderDetails({bothSideTradeData, isLoading}) {
   const chartRef = useRef(null);
   let dates = []
+  let convertedDates = []
   let stoxHeroNpnl = []
   let infinityNpnl = []
   dates = Object.keys(bothSideTradeData)
+
+  convertedDates = dates?.map((date)=>{
+    let tradeDate = new Date(date)
+    let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
+    return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
+  })
+
   let pnlValues = Object.values(bothSideTradeData)
   stoxHeroNpnl = pnlValues?.map((elem)=>{
     return elem?.stoxHero?.npnl
@@ -23,6 +32,8 @@ export default function TraderDetails({bothSideTradeData, isLoading}) {
   let maxValue = stoxHeroMaxValue > infinityMaxValue ? stoxHeroMaxValue : infinityMaxValue
   let minValue = stoxHeroMinValue < infinityMinValue ? stoxHeroMinValue : infinityMinValue
   let interval = Math.round(Math.abs(maxValue/10),0)
+
+  let value = maxValue > -minValue ? Math.round(maxValue/10000)*10000 + 10000 : Math.round(-minValue/10000)*10000 + 10000
 
   console.log(dates)
   console.log(stoxHeroNpnl,infinityNpnl)
@@ -60,7 +71,7 @@ export default function TraderDetails({bothSideTradeData, isLoading}) {
       xAxis: [
         {
           type: 'category',
-          data: dates,
+          data: convertedDates,
           axisPointer: {
             type: 'shadow'
           }
@@ -70,8 +81,8 @@ export default function TraderDetails({bothSideTradeData, isLoading}) {
         {
           type: 'value',
           name: 'Net P&L',
-          // min: parseInt(minValue),
-          // max: parseInt(maxValue),
+          min: parseInt(-value),
+          max: parseInt(value),
           // interval: parseInt(interval),
           axisLabel: {
             formatter: `{value} ₹`
