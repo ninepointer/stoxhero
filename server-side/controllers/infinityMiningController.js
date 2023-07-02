@@ -204,7 +204,6 @@ exports.getTraderStats = async (req, res) => {
     if (!user) {
       return res.status(404).send({ message: 'User not found' });
     }
-    console.log('date fr',new Date(new Date().toISOString().substring(0,10))); 
     const pipeline = [
       { $match: { 'trader': new  ObjectId(traderId), status:'COMPLETE', trade_time:{$lt: new Date(new Date().toISOString().substring(0,10))} } },
       { $addFields: { 
@@ -552,7 +551,7 @@ exports.getTradersBothTradesData = async (req, res) => {
 async function calculateTraderStats(Model, traderId) {
   try {
       return Model.aggregate([
-        { $match: { trader: new ObjectId(traderId) } },
+        { $match: { trader: new ObjectId(traderId), status:'COMPLETE', trade_time: {$lt: new Date(new Date().toISOString().substring(0,10)) }} },
         { $group: {
             _id: {
                 $dateToString: { format: "%Y-%m-%d", date: "$trade_time" }
@@ -586,7 +585,7 @@ exports.getWeekWiseBothSideData = async (req, res) => {
   };
 
   // Array of weekdays
-  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const weekdays = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
   // Mapping the results by weekday
   const stats = {};
@@ -602,7 +601,7 @@ exports.getWeekWiseBothSideData = async (req, res) => {
 
 async function calculateTraderStats(Model, traderId) {
   return Model.aggregate([
-      { $match: { trader: new ObjectId(traderId) } },
+      { $match: { trader: new ObjectId(traderId), status:'COMPLETE',  trade_time: {$lt: new Date(new Date().toISOString().substring(0,10)) }  } },
       { $group: {
           _id: {
               $dayOfWeek: { date: "$trade_time" }
@@ -610,8 +609,13 @@ async function calculateTraderStats(Model, traderId) {
           gpnl: { $sum: { $multiply: ["$amount", -1] } },
           totalbrokerage: { $sum: "$brokerage" },
           numTrades: { $sum: 1 },
+          uniqueTradingDates: { 
+            $addToSet: { 
+                $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } 
+            } 
+        },
       }},
-      { $addFields: { npnl: { $subtract: ["$gpnl", "$totalbrokerage"] } } },
+      { $addFields: { npnl: { $subtract: ["$gpnl", "$totalbrokerage"] }, numDays: { $size: "$uniqueTradingDates" }} },
       { $project: {
           _id: {
               $switch: {
@@ -629,7 +633,8 @@ async function calculateTraderStats(Model, traderId) {
           gpnl: 1,
           totalbrokerage: 1,
           numTrades: 1,
-          npnl: 1
+          npnl: 1,
+          numDays: 1
       } },
       { $sort : { _id : 1 } },
   ]);
