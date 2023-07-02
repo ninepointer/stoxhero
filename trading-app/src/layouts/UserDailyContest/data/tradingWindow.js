@@ -58,7 +58,7 @@ function Header({ socket, data }) {
     let iaFinNifty = data?.isFin;
     let isAllIndex = data?.isAll;
   
-    // console.log("data", data)
+    console.log("data", data)
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
