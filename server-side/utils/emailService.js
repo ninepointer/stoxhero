@@ -33,8 +33,8 @@ const nodemailer = require('nodemailer');
 
 function mailSender(to, subject, message) {
   return new Promise((resolve, reject) => {
-    console.log("Inside Email Service")
-    console.log("Password: ",process.env.STOXHEROEMAILPASSWORD)
+    // console.log("Inside Email Service")
+    // console.log("Password: ",process.env.STOXHEROEMAILPASSWORD)
     let transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -42,7 +42,7 @@ function mailSender(to, subject, message) {
         pass: process.env.STOXHEROEMAILPASSWORD              //password here
       }
     });
-    console.log('Transporter: ',transporter)
+    // console.log('Transporter: ',transporter)
     const mailOptions = { 
       from: 'team@stoxhero.com',      // sender address
       to: to,       // receiver address 

@@ -63,7 +63,7 @@ const contestSchema = new Schema({
     contestStatus:{
         type:String,
         required: true,
-        enum: ['Active','Draft','Cancelled']
+        enum: ['Active','Draft','Cancelled', 'Completed']
     },
     payoutStatus:{
         type:String,

@@ -11,7 +11,7 @@ const {liveTrade} = require("../services/xts/xtsHelper/xtsLiveOrderPlace");
 const { xtsAccountType, zerodhaAccountType } = require("../constant");
 const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
-
+const DailyContest = require("../models/DailyContest/dailyContest");
 
 router.post("/placingOrder", isInfinityLive, authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
@@ -32,17 +32,21 @@ router.post("/placingOrder", isInfinityLive, authentication, ApplyAlgo, authoize
 })
 
 router.post("/placingOrderDailyContest", isAppLive, authentication, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
-    // console.log("caseStudy 4: placing")
+    // console.log("caseStudy 4: placing", req.body)
     req.dailyContest = true;
     const setting = await Setting.find();
+    const dailyContest = await DailyContest.findById(req.body.contestId);
+    console.log("dailyContest", dailyContest)
+
+    if(dailyContest?.contestEndTime < new Date()){
+        return res.status(201).json({ status: 'error', message: 'This contest has ended.' });
+    }
     // console.log("settings", setting, req.user?.role?.roleName )
     if(req.body.apiKey && req.body.accessToken){
         if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){
             // console.log("in xts if")
             await liveTrade(req, res);
         } else{
-
-            
             await LiveTradeFunc.liveTrade(req.body, res);
         }
         //  TODO toggle

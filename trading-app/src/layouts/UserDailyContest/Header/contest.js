@@ -73,6 +73,20 @@ function Header({ e }) {
         })
     }, [])
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+          axios.get(`${baseUrl}api/v1/servertime`)
+            .then((res) => {
+                console.log("server time", res.data.data)
+              setServerTime(res.data.data);
+            });
+        }, 5000);
+      
+        return () => {
+          clearInterval(interval);
+        };
+      }, []);
+
     // console.log("serverTime", serverTime)
 
     function changeDateFormat(givenDate) {
@@ -252,7 +266,7 @@ function Header({ e }) {
                                                         </MDBox>
                                                         :
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
+                                                            <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
                                                         </MDBox>}
                                                 </Grid>
 
