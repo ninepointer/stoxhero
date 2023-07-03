@@ -46,6 +46,7 @@ export default function InfinityMining() {
   const [bothSideWeeklyTradeData, setBothSideWeeklyTradeData] = useState();
   const [showDownloadButton, setShowDownloadButton] = useState(true);
   const [showDownloadButton1, setShowDownloadButton1] = useState(true);
+  const [showDownloadButton2, setShowDownloadButton2] = useState(true);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const handleDownload = (csvData) => {
@@ -219,6 +220,8 @@ export default function InfinityMining() {
   csvData1 = [[...csvData1,...csvDataFile1]]
   console.log("CSV PNL Data Weekday: ",csvData1)
   
+  let csvDataFile2 = [[]]
+  let csvData2 = [['Period','Gross P&L','Net P&L','Brokerage', 'Trades']]
 
   const handleSideOptionChange = (event, newValue) => {
     console.log("Side Selection:",newValue)
@@ -358,10 +361,21 @@ export default function InfinityMining() {
             </Grid>
 
             <Grid item xs={12} md={8} lg={8}>
-              
+              <MDBox id='screenshot-component2' bgColor="light" color="light" mb={1} p={0} borderRadius={0} minHeight='auto'>
               <Grid item xs={12} md={12} lg={12} p={2} display='flex' justifyContent='center' flexDirection='column' style={{backgroundColor:'white', width:'100%'}}>
+                  <MDBox mt={-1.5} display='flex' justifyContent='space-between' alignItems='center'>
+                    <MDBox ml={2}>
+                      <MDTypography fontSize={15} fontWeight='bold' style={{textAlign:'center'}}>
+                        {traderId?.first_name} {traderId?.last_name}'s PNL Summary (Period - {startDate} to {endDate})
+                      </MDTypography>
+                    </MDBox>
+                    <MDBox mr={1} mb={0.5}>
+                      {showDownloadButton && <Tooltip title="Screenshot"><MDButton variant='contained' onClick={()=>{captureScreenshot('screenshot-component2')}}><ScreenshotMonitorIcon/></MDButton></Tooltip>}
+                    </MDBox>
+                  </MDBox>
                 {(infinityMiningData && !isLoading) && <PNLSummary infinityMiningData={infinityMiningData} pnlSummary={pnlSummary} isLoading={isLoading}/>}
               </Grid>
+              </MDBox>
 
               <Grid item xs={12} md={8} lg={12} p={2} style={{backgroundColor:'white', width:'100%'}}>
                 {(infinityMiningData && !isLoading) && <TraderMetrics infinityMiningData={infinityMiningData} isLoading={isLoading}/>}
@@ -408,8 +422,8 @@ export default function InfinityMining() {
                         </MDTypography>
                       </MDBox>
                       <MDBox mr={1}>
-                        {showDownloadButton1 && <Tooltip title="Screenshot"><MDButton variant='contained' onClick={()=>{captureScreenshot('screenshot-component1')}}><ScreenshotMonitorIcon/></MDButton></Tooltip>}
-                        {showDownloadButton1 && <Tooltip title="Download CSV"><MDButton variant='contained' onClick={()=>{handleDownload(csvData1)}}><DownloadIcon/></MDButton></Tooltip>}
+                        {showDownloadButton && <Tooltip title="Screenshot"><MDButton variant='contained' onClick={()=>{captureScreenshot('screenshot-component1')}}><ScreenshotMonitorIcon/></MDButton></Tooltip>}
+                        {showDownloadButton && <Tooltip title="Download CSV"><MDButton variant='contained' onClick={()=>{handleDownload(csvData1)}}><DownloadIcon/></MDButton></Tooltip>}
                       </MDBox>
                     </MDBox>
                    <LiveMockInfinityWeekdayDataTable bothSideWeeklyTradeData={bothSideWeeklyTradeData} isLoading={isLoading}/>

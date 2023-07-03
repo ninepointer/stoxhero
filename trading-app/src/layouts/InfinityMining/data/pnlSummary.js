@@ -160,9 +160,6 @@ export default function PNLSUmmary({infinityMiningData, pnlSummary, isLoading}) 
                 </MDBox>   
                 :
                 <MDBox>
-                      <Grid container xs={12} md={12} lg={12} mb={1} display='flex' justifyContent='center' alignItems='center'>
-                          <MDTypography fontSize={15} fontWeight='bold'> P&L Summary</MDTypography>
-                      </Grid>
 
                       <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
                         

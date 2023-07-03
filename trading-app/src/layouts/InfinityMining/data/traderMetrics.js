@@ -454,10 +454,10 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                         <Grid container xs={12} md={6} lg={12}>
                         <MDBox style={{border:'1px solid grey'}} borderRadius={5} mt={0.5} display='flex' justifyContent='center' width='100%'>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='center' style={{backgroundColor:'grey'}}>
-                              <MDTypography color='light' fontSize={13} fontWeight='bold'>Profit %</MDTypography>
+                              <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Profit %</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>{(infinityMiningData?.maxProfitDayProfitPercent).toFixed(2)}%</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>
@@ -482,10 +482,10 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                         <Grid container xs={12} md={6} lg={12}>
                         <MDBox style={{border:'1px solid grey'}} borderRadius={5} mt={0.5} display='flex' justifyContent='center' width='100%'>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='center' style={{backgroundColor:'grey'}}>
-                              <MDTypography color='light' fontSize={13} fontWeight='bold'>Loss %</MDTypography>
+                              <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Loss %</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>Coming Soon</MDTypography>
+                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>{(infinityMiningData?.maxLossDayLossPercent).toFixed(2)}%</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>
