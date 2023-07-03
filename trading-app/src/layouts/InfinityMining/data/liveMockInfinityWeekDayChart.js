@@ -6,35 +6,38 @@ import moment, { min } from 'moment';
 export default function TraderDetails({bothSideTradeData, isLoading}) {
   const chartRef = useRef(null);
   let dates = []
-  let convertedDates = []
-  let stoxHeroNpnl = []
-  let infinityNpnl = []
+  let convertedDates = ['Monday','Tuesday','Wednesday','Thursday','Friday']
+  let stoxHeroNpnl = [10000,20000,-30000,40000,50000]
+  let infinityNpnl = [-10000,20000,-30000,45000,35000]
   dates = Object.keys(bothSideTradeData)
 
-  convertedDates = dates?.map((date)=>{
-    let tradeDate = new Date(date)
-    let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
-    return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
-  })
+  // convertedDates = dates?.map((date)=>{
+  //   let tradeDate = new Date(date)
+  //   let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
+  //   return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
+  // })
 
-  let pnlValues = Object.values(bothSideTradeData)
-  stoxHeroNpnl = pnlValues?.map((elem)=>{
-    return (elem?.stoxHero?.npnl)?.toFixed(0)
-  })
-  infinityNpnl = pnlValues?.map((elem)=>{
-    return (elem?.infinity?.npnl)?.toFixed(0)
-  })
-  let stoxHeroMaxValue = Math.max(...stoxHeroNpnl)
-  let infinityMaxValue = Math.max(...infinityNpnl)
-  let stoxHeroMinValue = Math.min(...stoxHeroNpnl)
-  let infinityMinValue = Math.min(...infinityNpnl)
-  console.log(stoxHeroMaxValue,infinityMaxValue)
-  let maxValue = stoxHeroMaxValue > infinityMaxValue ? stoxHeroMaxValue : infinityMaxValue
-  let minValue = stoxHeroMinValue < infinityMinValue ? stoxHeroMinValue : infinityMinValue
-  let interval = Math.round(Math.abs(maxValue/10),0)
+  // let pnlValues = Object.values(bothSideTradeData)
+  // stoxHeroNpnl = pnlValues?.map((elem)=>{
+  //   return elem?.stoxHero?.npnl
+  // })
+  // infinityNpnl = pnlValues?.map((elem)=>{
+  //   return elem?.infinity?.npnl
+  // })
+  // let stoxHeroMaxValue = Math.max(...stoxHeroNpnl)
+  // let infinityMaxValue = Math.max(...infinityNpnl)
+  // let stoxHeroMinValue = Math.min(...stoxHeroNpnl)
+  // let infinityMinValue = Math.min(...infinityNpnl)
+  // console.log(stoxHeroMaxValue,infinityMaxValue)
+  // let maxValue = stoxHeroMaxValue > infinityMaxValue ? stoxHeroMaxValue : infinityMaxValue
+  // let minValue = stoxHeroMinValue < infinityMinValue ? stoxHeroMinValue : infinityMinValue
+  // let interval = Math.round(Math.abs(maxValue/10),0)
 
-  let value = maxValue > -minValue ? Math.round(maxValue/10000)*10000 + 10000 : Math.round(-minValue/10000)*10000 + 10000
+  // let value = maxValue > -minValue ? Math.round(maxValue/10000)*10000 + 10000 : Math.round(-minValue/10000)*10000 + 10000
 
+  // console.log(dates)
+  // console.log(stoxHeroNpnl,infinityNpnl)
+  // console.log(maxValue,minValue,interval)
   useEffect(() => {
     const chart = echarts.init(chartRef.current);
 
@@ -77,12 +80,12 @@ export default function TraderDetails({bothSideTradeData, isLoading}) {
       yAxis: [
         {
           type: 'value',
-          name: 'Net P&L(in ₹)',
-          min: parseInt(-value),
-          max: parseInt(value),
+          name: 'Net P&L',
+          min: -50000,
+          max: 50000,
           // interval: parseInt(interval),
           axisLabel: {
-            formatter: `{value}`
+            formatter: `{value} ₹`
           }
         },
       ],
