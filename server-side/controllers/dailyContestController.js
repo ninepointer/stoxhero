@@ -4,6 +4,8 @@ const User = require("../models/User/userDetailSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const { ObjectId } = require('mongodb');
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
+const uuid = require("uuid")
+
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -416,71 +418,80 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
     
-        const { id } = req.params; // ID of the contest 
+        // const { id } = req.params; // ID of the contest 
         // const userId = req.user._id; Wallet
+        const contest = await Contest.find({contestStatus: "Active"});
 
-        const contest = await Contest.findOne({_id: id, contestStatus: "Active"});
-        for(let i = 0; i < contest?.participants?.length; i++){
-            let userId = contest?.participants[i]?.userId;
-            let payoutPercentage = contest?.payoutPercentage
-
-            let pnlDetails = await DailyContestMockUser.aggregate([
-                {
-                    $match: {
-                        trade_time: {
-                            $gte: today
-                        },
-                        status: "COMPLETE",
-                        trader: new ObjectId(userId),
-                        contestId: new ObjectId(id)
-                    },
-                },
-                {
-                    $group: {
-                        _id: {
-                        },
-                        amount: {
-                            $sum: {
-                                $multiply: ["$amount", -1],
+        for(let j = 0; j < contest.length; j++){
+            if(contest[j].contestEndTime < new Date()){
+                for(let i = 0; i < contest[j]?.participants?.length; i++){
+                    let userId = contest[j]?.participants[i]?.userId;
+                    let payoutPercentage = contest[j]?.payoutPercentage
+                    let id = contest[j]._id;
+                    let pnlDetails = await DailyContestMockUser.aggregate([
+                        {
+                            $match: {
+                                trade_time: {
+                                    $gte: today
+                                },
+                                status: "COMPLETE",
+                                trader: new ObjectId(userId),
+                                contestId: new ObjectId(id)
                             },
                         },
-                        brokerage: {
-                            $sum: {
-                                $toDouble: "$brokerage",
+                        {
+                            $group: {
+                                _id: {
+                                },
+                                amount: {
+                                    $sum: {
+                                        $multiply: ["$amount", -1],
+                                    },
+                                },
+                                brokerage: {
+                                    $sum: {
+                                        $toDouble: "$brokerage",
+                                    },
+                                },
                             },
                         },
-                    },
-                },
-                {
-                    $project:
-                    {
-                        npnl: {
-                            $subtract: ["$amount", "$brokerage"],
+                        {
+                            $project:
+                            {
+                                npnl: {
+                                    $subtract: ["$amount", "$brokerage"],
+                                },
+                            },
                         },
-                    },
-                },
-            ])
-
-            if (pnlDetails[0]?.npnl > 0) {
-                const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
-                const wallet = await Wallet.findOne({ userId: userId });
-                wallet.transactions = [...wallet.transactions, {
-                    title: 'Contest Credit',
-                    description: `Amount credited for contest ${contest.contestName}`,
-                    amount: payoutAmount,
-                    transactionId: uuid.v4(),
-                    transactionType: 'Cash'
-                }];
-                wallet.save();
+                    ])
+                    
+                    console.log(pnlDetails[0]);
+                    if (pnlDetails[0]?.npnl > 0) {
+                        const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                        const wallet = await Wallet.findOne({ userId: userId });
+                        wallet.transactions = [...wallet.transactions, {
+                            title: 'Contest Credit',
+                            description: `Amount credited for contest ${contest[j].contestName}`,
+                            amount: payoutAmount,
+                            transactionId: uuid.v4(),
+                            transactionType: 'Cash'
+                        }];
+                        wallet.save();
+                    }
+                    contest[j].payoutStatus = 'Completed'
+                    contest[j].contestStatus = "Completed";
+                    await contest[j].save();
+                }
             }
-
         }
 
+
     } catch (error) {
-        res.status(500).json({
-            status:"error",
-            message: "Something went wrong",
-            error: error.message
-        });
+        console.log(error);
+        // res.status(500).json({
+        //     status:"error",
+        //     message: "Something went wrong",
+        //     error: error.message
+        // });
     }
 };

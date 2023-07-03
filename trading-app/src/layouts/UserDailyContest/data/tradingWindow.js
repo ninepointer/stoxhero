@@ -48,17 +48,18 @@ function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [yesterdayData, setyesterdayData] = useState({});
     const [availbaleMargin, setAvailbleMargin] = useState([]);
-    const [showOption, setShowOption] = useState(false);
-    const pnl = useContext(NetPnlContext);
-    const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+    const [portfolio, setPortfolio] = useState();
+    // const [showOption, setShowOption] = useState(false);
+    // const pnl = useContext(NetPnlContext);
+    // const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
 
     let contestId = data?.data;
-    let isNifty = data?.isNifty;
-    let isBankNifty = data?.isBank;
-    let iaFinNifty = data?.isFin;
-    let isAllIndex = data?.isAll;
-  
-    console.log("data", data)
+    // let isNifty = data?.isNifty;
+    // let isBankNifty = data?.isBank;
+    // let iaFinNifty = data?.isFin;
+    // let isAllIndex = data?.isAll;
+
+    // console.log("this is datas", data?.timeDifference)
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
