@@ -23,10 +23,10 @@ exports.createWithdrawal = async(req,res,next) => {
     if(amount<500){
         return res.status(400).json({status:'error', message:'The minimum amount that can be withdrawn is ₹500'})
     }
-    const transactionId = uuid().v4(),
+    const transactionId = uuid().v4();
     await Withdrawal.create({
         amount, user:userId, userWallet:userWallet?._id, withdrawalStatus:'Pending', 
-        createdBy:userId, lastModifiedBy:userId
+        createdBy:userId, lastModifiedBy:userId, walletTransactionId:transactionId
     });
 
     userWallet.transactions.push({
@@ -78,8 +78,26 @@ exports.processWithdrawal = async(req,res,next) => {
 exports.rejectWithdrawal = async(req,res,next) => {
     const withdrawalId = req.params.id;
     const withdrawal = await Withdrawal.findById(withdrawalId);
+    if(!withdrawal) return res.status(404).json({status:'error', message: 'No withdrawal found.'})
     withdrawal.withdrawalStatus = 'Rejected';
+    withdrawal.lastModifiedBy = req.user._id;
+    withdrawal.lastModifiedOn= new Date();
 
     const userWallet= await Wallet.findById(withdrawal?.userWallet);
-    userWallet
-}
+    const withdrawalTransaction = userWallet?.transactions?.find((item)=>item?.transactionId == withdrawal?.walletTransactionId);
+    if(withdrawalTransaction) withdrawalTransaction['transactionStatus'] = 'Failed';
+
+    userWallet?.transactions?.push(
+        {
+            title:`Refund to wallet against withdrawal request`, 
+            description:'Withdrawal request rejected',
+            amount: withdrawal?.amount,
+            transactionId: uuid().v4(),
+            transactionType: 'Cash',
+            transactionStatus:'Completed'
+        }
+    );
+    await userWallet.save({validateBeforeSave:false});
+    await withdrawal.save({validateBeforeSave:false});
+    res.status(200).json({status:'success', message:'Withdrawal request rejected'});
+} 
