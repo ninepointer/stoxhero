@@ -68,6 +68,18 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     try{
 
+        const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
+
+        for(let i = 0; i < subs.users.length; i++){
+            if(subs.users[i].userId.toString() == userId.toString() && subs.users[i].status == "Live"){
+                console.log("getting that user")
+                return res.status(404).json({status:'error', message: 'You already have subscribed this subscription'});
+                // break;
+            }
+        }
+
+        console.log("outside of for loop")
+
         const wallet = await UserWallet.findOne({userId: userId});
         wallet.transactions = [...wallet.transactions, {
               title: 'Bought TenX Trading Subscription',
@@ -92,7 +104,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         );
 
         const subscription = await Subscription.findOneAndUpdate(
-        { _id: subscribedId },
+        { _id: new ObjectId(subscribedId) },
         {
             $push: {
             users: {
@@ -209,5 +221,4 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 }
-
 

@@ -62,7 +62,7 @@ const InternShipMargin = ({contestId, setyesterdayData}) => {
             <Grid item xs={16} lg={12}>
               <Grid container spacing={1}>
 
-                <Grid item xs={16} md={6} xl={3}>
+                <Grid item xs={16} md={6} xl={4}>
                   <DefaultInfoCard
                     // icon={<CreditCardIcon/>}
                     title="Portfolio value"
@@ -70,7 +70,7 @@ const InternShipMargin = ({contestId, setyesterdayData}) => {
                     value={totalCreditString}
                   />
                 </Grid>
-                <Grid item xs={16} md={8} xl={3}>
+                <Grid item xs={16} md={8} xl={4}>
                   <DefaultInfoCard
                     // icon={<AvailableIcon/>}
                     title="available margin"
@@ -78,7 +78,7 @@ const InternShipMargin = ({contestId, setyesterdayData}) => {
                     value={availableMarginpnlstring}
                   />
                 </Grid>
-                <Grid item xs={16} md={8} xl={3}>
+                <Grid item xs={16} md={8} xl={4}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
                     title="used margin"
@@ -87,14 +87,14 @@ const InternShipMargin = ({contestId, setyesterdayData}) => {
                   />
                 </Grid>
 
-                <Grid item xs={16} md={8} xl={3}>
+                {/* <Grid item xs={16} md={8} xl={4}>
                   <DefaultInfoCard
                     // icon={<AccountBalanceWalletIcon/>}
                     title="opening balance"
                     description="Cash available at the beginning of the day"
                     value={openingBalanceString}
                   />
-                </Grid>
+                </Grid> */}
               </Grid>
             </Grid>
           </Grid>

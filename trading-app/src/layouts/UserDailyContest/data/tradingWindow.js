@@ -1,12 +1,12 @@
 import { React, useState, useEffect, useContext, useCallback, useMemo } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import { userContext } from '../../../AuthContext';
-import moment from 'moment'
+// import axios from "axios";
+// import { Link } from "react-router-dom";
+// import { userContext } from '../../../AuthContext';
+// import moment from 'moment'
 
-// prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
-import tradesicon from '../../../assets/images/tradesicon.png'
+// // prop-types is a library for typechecking of props.
+// import PropTypes from "prop-types";
+// import tradesicon from '../../../assets/images/tradesicon.png'
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -19,12 +19,12 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import { InfinityTraderRole, tenxTrader } from "../../../variables";
-import ContestCup from '../../../assets/images/candlestick-chart.png'
-import ContestCarousel from '../../../assets/images/target.png'
-import Timer from '../timer'
-import ProgressBar from "../progressBar";
-import { HiUserGroup } from 'react-icons/hi';
+// import { InfinityTraderRole, tenxTrader } from "../../../variables";
+// import ContestCup from '../../../assets/images/candlestick-chart.png'
+// import ContestCarousel from '../../../assets/images/target.png'
+// import Timer from '../timer'
+// import ProgressBar from "../progressBar";
+// import { HiUserGroup } from 'react-icons/hi';
 import AMargin from '../../../assets/images/amargin.png'
 import Profit from '../../../assets/images/profit.png'
 import Tcost from '../../../assets/images/tcost.png'
@@ -41,6 +41,8 @@ import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { dailyContest } from '../../../variables';
 import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
+import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/StockIndexDailyContest";
+// import { NetPnlContext } from '../../../PnlContext';
 
 
 
@@ -50,7 +52,7 @@ function Header({ socket, data }) {
     const [availbaleMargin, setAvailbleMargin] = useState([]);
     const [portfolio, setPortfolio] = useState();
     // const [showOption, setShowOption] = useState(false);
-    // const pnl = useContext(NetPnlContext);
+    const pnl = useContext(NetPnlContext);
     // const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
 
     let contestId = data?.data;
@@ -63,6 +65,10 @@ function Header({ socket, data }) {
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
+
+      const memoizedStockIndex = useMemo(() => {
+        return <StockIndexDailyContest socket={socket} />;
+      }, [socket]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
@@ -108,8 +114,8 @@ function Header({ socket, data }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Portfolio:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Portfolio:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (yesterdayData?.totalFund) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(yesterdayData?.totalFund)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-yesterdayData?.totalFund))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -117,8 +123,8 @@ function Header({ socket, data }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Tcost} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Margin:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Margin:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>{ ((yesterdayData?.openingBalance + pnl?.netPnl)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((yesterdayData?.openingBalance + pnl?.netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(yesterdayData?.openingBalance + pnl?.netPnl)))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -126,8 +132,8 @@ function Header({ socket, data }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Profit} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Gross Profit:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Gross Profit:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}> { (pnl?.grossPnlAndBrokerage?.grossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.grossPnlAndBrokerage?.grossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.grossPnlAndBrokerage?.grossPnl))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -135,8 +141,8 @@ function Header({ socket, data }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Profit} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Net Profit:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Net Profit:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.netPnl))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -151,18 +157,18 @@ function Header({ socket, data }) {
                                 {/* <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Chain} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Option Chain</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Option Chain</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton> */}
                                 <OptionChain socket={socket} data={data}/>
                             </Grid>
 
-                            <Grid item xs={12} md={6} lg={3}>
+                            {/* <Grid item xs={12} md={6} lg={3}>
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Nifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>NIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>NIFTY:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>1,000,000</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -170,8 +176,8 @@ function Header({ socket, data }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={BNifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>BANK NIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>BANK NIFTY:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>1,000,000</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -179,12 +185,14 @@ function Header({ socket, data }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={FNifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>FINNIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>FINNIFTY:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>1,000,000</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
-                            </Grid>
+                            </Grid> */}
 
+                            {/* <StockIndexDailyContest /> */}
+                            {memoizedStockIndex}
                         </Grid>
                     </MDBox>
                 </MDBox>

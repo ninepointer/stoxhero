@@ -66,14 +66,12 @@ function Header({ e }) {
         }
     }, [serverTime])
 
-    // useEffect(()=>{
-    //     axios.get(`${baseUrl}api/v1/servertime`)
-    //     .then((res)=>{
-
-            
-    //         setServerTime(res.data.data);
-    //     })
-    // }, [])
+    useEffect(()=>{
+        axios.get(`${baseUrl}api/v1/servertime`)
+        .then((res)=>{
+            setServerTime(res.data.data);
+        })
+    }, [])
 
     useEffect(() => {
         const interval = setInterval(() => {
