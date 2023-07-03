@@ -3,13 +3,23 @@ import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 import moment, { min } from 'moment';
 
-export default function TraderDetails({bothSideTradeData, isLoading}) {
+export default function TraderDetails({bothSideWeeklyTradeData, isLoading}) {
   const chartRef = useRef(null);
-  let dates = []
-  let convertedDates = ['Monday','Tuesday','Wednesday','Thursday','Friday']
-  let stoxHeroNpnl = [10000,20000,-30000,40000,50000]
-  let infinityNpnl = [-10000,20000,-30000,45000,35000]
-  dates = Object.keys(bothSideTradeData)
+  let weekday = []
+  weekday = Object.keys(bothSideWeeklyTradeData)
+  let values = Object.values(bothSideWeeklyTradeData)
+  console.log("Chart Values: ",weekday,values)
+  let convertedDates = weekday
+  let stoxHeroNpnl = []
+  let infinityNpnl = []
+
+  stoxHeroNpnl = values?.map((elem)=>{
+    return (elem?.stoxHero?.npnl)?.toFixed(0)
+  })
+
+  infinityNpnl = values?.map((elem)=>{
+    return (elem?.infinity?.npnl)?.toFixed(0)
+  })
 
   // convertedDates = dates?.map((date)=>{
   //   let tradeDate = new Date(date)
@@ -114,7 +124,7 @@ export default function TraderDetails({bothSideTradeData, isLoading}) {
     return () => {
       chart.dispose();
     };
-  }, [bothSideTradeData]);
+  }, [bothSideWeeklyTradeData]);
 
   return isLoading ? <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px', filter: 'blur(2px)' }} /> : <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };

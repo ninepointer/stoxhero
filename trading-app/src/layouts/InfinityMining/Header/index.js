@@ -43,6 +43,7 @@ export default function InfinityMining() {
   const [isLoading, setIsLoading] = useState(false);
   const [pnlSummary, setPNLSummary] = useState();
   const [bothSideTradeData, setBothSideTradeData] = useState();
+  const [bothSideWeeklyTradeData, setBothSideWeeklyTradeData] = useState();
   const [showDownloadButton, setShowDownloadButton] = useState(true);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -134,14 +135,23 @@ export default function InfinityMining() {
           "Access-Control-Allow-Credentials": true
         },
       })
-    Promise.all([call1, call3, call4])
-    .then(([api1Response1, api1Response3, api1Response4]) => {
+    let call5 = await axios.get((`${baseUrl}api/v1/infinitymining/bothtradesdataweek/${traderId?._id}`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    Promise.all([call1, call3, call4, call5])
+    .then(([api1Response1, api1Response3, api1Response4,api1Response5]) => {
       // Process the responses here
       console.log("Infinity Mining Data:",api1Response1.data.data);
       console.log("PNL Summary:",api1Response3.data.data)
       setInfinityMiningData(api1Response1.data.data)
       setPNLSummary(api1Response3.data.data);
       setBothSideTradeData(api1Response4.data.data)
+      setBothSideWeeklyTradeData(api1Response5.data.data);
       setIsLoading(false)
     })
     .catch((error) => {
@@ -343,14 +353,14 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} style={{backgroundColor:'white', width:'100%'}}>
-                   {(bothSideTradeData && !isLoading) && 
+                   {(bothSideWeeklyTradeData && !isLoading) && 
                    <>
                    <MDBox mb={0.5} mt={1}>
                     <MDTypography fontSize={15} fontWeight='bold' style={{textAlign:'center'}}>
                       {traderId?.first_name} {traderId?.last_name}'s Average Net P&L Weekday Wise (Period - {startDate} to {endDate})
                     </MDTypography>
                    </MDBox>
-                   <LiveMockInfinityWeekDayChart bothSideTradeData={bothSideTradeData} isLoading={isLoading}/>
+                   <LiveMockInfinityWeekDayChart bothSideWeeklyTradeData={bothSideWeeklyTradeData} isLoading={isLoading}/>
                    </>
                    }
                 </Grid>
@@ -364,7 +374,7 @@ export default function InfinityMining() {
           <Grid item xs={12} md={8} lg={12} mt={1} style={{minHeight:'auto'}}>
               <Grid container width='100%'>
                 <Grid item lg={12} style={{backgroundColor:'white', width:'100%'}}>
-                   {(bothSideTradeData && !isLoading) && 
+                   {(bothSideWeeklyTradeData && !isLoading) && 
                    <>
                    <MDBox mb={1} mt={1.5} display='flex' justifyContent='space-between' alignItems='center'>
                       <MDBox ml={2}>
@@ -377,7 +387,7 @@ export default function InfinityMining() {
                         {showDownloadButton && <Tooltip title="Download CSV"><MDButton variant='contained'><DownloadIcon/></MDButton></Tooltip>}
                       </MDBox>
                     </MDBox>
-                   <LiveMockInfinityWeekdayDataTable bothSideTradeData={bothSideTradeData} isLoading={isLoading}/>
+                   <LiveMockInfinityWeekdayDataTable bothSideWeeklyTradeData={bothSideWeeklyTradeData} isLoading={isLoading}/>
                    </>
                    }
                 </Grid>
