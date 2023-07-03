@@ -58,6 +58,22 @@ const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInst
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
 const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
+// const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
+const {creditAmountToWallet} = require("../../controllers/dailyContestController");
+
+
+
+router.get("/afterContest", async (req, res) => {
+  await autoCutMainManually();
+  await autoCutMainManuallyMock();
+  await creditAmountToWallet();
+  res.send("ok");
+});
+
+// router.get("/wallet", async (req, res) => {
+//   await creditAmountToWallet();
+//   res.send("ok");
+// });
 
 
 router.get("/updateGuid", async (req, res) => {

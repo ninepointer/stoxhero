@@ -1,4 +1,4 @@
-const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive} = require("./collectingTradeManually");
+const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, dailyContestMock} = require("./collectingTradeManually");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 
 const autoCutMainManually = async() => {
@@ -78,6 +78,7 @@ const autoCutMainManuallyMock = async() => {
         await paperTrade();
         await internship();
         await infinityTrade();
+        await dailyContestMock();
         return;
     }
 
