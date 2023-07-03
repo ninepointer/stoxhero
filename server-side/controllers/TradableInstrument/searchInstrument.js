@@ -17,7 +17,7 @@ exports.search = async (searchString, res, req) => {
   const page = parseInt(req.query.page);
   const size = parseInt(req.query.size);
   let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
-  console.log(isNifty, isBankNifty, isFinNifty)
+  // console.log(isNifty, isBankNifty, isFinNifty)
 
   let query = [];
   if(isNifty){
@@ -59,7 +59,7 @@ exports.search = async (searchString, res, req) => {
 
     let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     let data ;
-    console.log(roleObj.roleName , infinityTrader)
+    console.log(roleObj.roleName , infinityTrader, searchString)
 
     if(roleObj.roleName === infinityTrader){
       data = await TradableInstrument.find({
@@ -74,7 +74,8 @@ exports.search = async (searchString, res, req) => {
           },
           {
             status: 'Active',
-            infinityVisibility: true
+            infinityVisibility: true,
+            // tradingsymbol: { $regex: /^(NIFTY|BANK)/i }
           },
           {
             expiry: {
@@ -88,6 +89,8 @@ exports.search = async (searchString, res, req) => {
         .sort({ expiry: 1 })
         .limit(size)
         .exec();
+
+        // console.log("data", data)
     } else{
 
       if(dailyContest){
