@@ -472,7 +472,7 @@ exports.creditAmountToWallet = async () => {
                         wallet.transactions = [...wallet.transactions, {
                             title: 'Contest Credit',
                             description: `Amount credited for contest ${contest[j].contestName}`,
-                            amount: payoutAmount,
+                            amount: payoutAmount?.toFixed(2),
                             transactionId: uuid.v4(),
                             transactionType: 'Cash'
                         }];

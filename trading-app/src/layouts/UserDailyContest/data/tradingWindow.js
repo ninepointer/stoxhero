@@ -56,12 +56,6 @@ function Header({ socket, data }) {
     // const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
 
     let contestId = data?.data;
-    // let isNifty = data?.isNifty;
-    // let isBankNifty = data?.isBank;
-    // let iaFinNifty = data?.isFin;
-    // let isAllIndex = data?.isAll;
-
-    // console.log("this is datas", data?.timeDifference)
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
@@ -103,6 +97,7 @@ function Header({ socket, data }) {
         />;
       }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     
+    //   console.log("yesterdayData", yesterdayData);
 
     return (
         <>
@@ -124,7 +119,7 @@ function Header({ socket, data }) {
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Tcost} width='40px' height='40px' /></MDBox>
                                         <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Margin:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}>{ ((yesterdayData?.openingBalance + pnl?.netPnl)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((yesterdayData?.openingBalance + pnl?.netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(yesterdayData?.openingBalance + pnl?.netPnl)))}</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (yesterdayData?.totalFund + pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((yesterdayData?.totalFund + pnl?.netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(yesterdayData?.totalFund + pnl?.netPnl)))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>

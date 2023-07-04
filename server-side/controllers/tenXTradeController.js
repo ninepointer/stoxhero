@@ -734,7 +734,7 @@ exports.autoExpireSubscription = async () => {
             wallet.transactions = [...wallet.transactions, {
                   title: 'TenX Trading Payout',
                   description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
-                  amount: (payoutAmount),
+                  amount: (payoutAmount?.toFixed(2)),
                   transactionId: uuid.v4(),
                   transactionType: 'Cash'
             }];

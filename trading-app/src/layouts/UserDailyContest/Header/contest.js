@@ -184,7 +184,7 @@ function Header({ e }) {
             <MDBox>
                 {(isLoading && serverTime) ?
                     <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-                        <CircularProgress color="info" />
+                        <CircularProgress color="light" />
                     </MDBox>
                     :
                   
@@ -221,8 +221,6 @@ function Header({ e }) {
                                     <Grid item xs={12} md={12} lg={6} borderRadius={3}>
                                         <MDButton variant="contained" color="light" size="small">
                                             <Grid container display='flex' justifyContent='space-between' alignItems='center'>
-                                                {/* {isInterested &&
-                                                <PopupMessage data={"Thanks for showing interest in contestName contest. You will be notified 10 mins before the contest starts on your WhatsApp Number."} />} */}
                                                 <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                     <img src={ContestCarousel} width='40px' height='40px' />
                                                 </Grid>
@@ -288,6 +286,7 @@ function Header({ e }) {
                                                             <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SOON INTEREST IN THIS CONTEST</MDBox>
                                                         </MDBox>
                                                         :
+                                                        particularContestTime[0]?.value <= 0 &&
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
                                                             <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
                                                         </MDBox>}
@@ -299,12 +298,11 @@ function Header({ e }) {
                                                         
                                                         <MDBox display='flex' justifyContent='flex-start' width='50%'>
                                                         {particularContestTime[0]?.value > 0 &&
-                                                        <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
+                                                        <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
                                                         }
                                                         {checkIsInterested &&
-
-                                                                 <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
-                                                             }
+                                                            <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
+                                                        }
                                                         </MDBox>
                                                         
                                                         <MDBox display='flex' justifyContent='flex-end' width='50%' alignItems='center'>
