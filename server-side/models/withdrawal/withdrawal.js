@@ -23,6 +23,12 @@ const WithDrawalSchema = new mongoose.Schema({
         type: String,
         enum:['Pending','Initiated', 'Processed', 'Rejected']
     },
+    actions:[{
+       actionDate: Date,
+       actionTitle: String,
+       actionStatus: String,
+       actionBy:{type:Schema.Types.ObjectId, ref:'user-personal-detail'} 
+    }],
     withdrawalSettlementDate:{
         type: Date
     },
@@ -33,6 +39,8 @@ const WithDrawalSchema = new mongoose.Schema({
     settlementTransactionId:{
         type:'String'
     },
+    settlementAccount:String,
+    tickets:[{type:Schema.Types.ObjectId, ref:'ticket'}],
     createdBy:{
         type:Schema.Types.ObjectId,
         ref:'user-personal-detail'
