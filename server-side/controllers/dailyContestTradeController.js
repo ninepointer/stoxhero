@@ -248,19 +248,20 @@ exports.myTodaysTrade = async (req, res, next) => {
 
     const { id } = req.params;
     const userId = req.user._id;
+    console.log(id, userId);
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
+    // const today = new Date(todayDate);
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
-    const count = await DailyContestMockUser.countDocuments({ trader: new ObjectId(userId), contestId: new ObjectId(id), trade_time: { $gte: today } })
+    const count = await DailyContestMockUser.countDocuments({ trader: new ObjectId(userId), contestId: new ObjectId(id) })
     // //console.log("Under my today orders",userId, today)
     try {
-        const myTodaysTrade = await DailyContestMockUser.find({ trader: new ObjectId(userId), contestId: new ObjectId(id), trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
+        const myTodaysTrade = await DailyContestMockUser.find({ trader: new ObjectId(userId), contestId: new ObjectId(id) }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
             .sort({ _id: -1 })
-            .skip(skip)
-            .limit(limit);
+            // .skip(skip)
+            // .limit(limit);
         // //console.log(myTodaysTrade)
         res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
     } catch (e) {

@@ -67,7 +67,7 @@ import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import Chart from './layouts/charts/index';
 import DailyContest from "./layouts/dailyContest-Trading";
 import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
-
+import DailyContestOrder from "./layouts/UserDailyContest/Orders"
 
 const routes = [
 
@@ -84,8 +84,8 @@ const routes = [
     // name: "DashBoard",
     // key: "Dashboard",
     // icon: <HomeIcon/>,
-    route: "/optionchain",
-    component: <OptionChain />,
+    route: "/contestorders/:name",
+    component: <DailyContestOrder />,
   },
   {
     // type: "collapse",
