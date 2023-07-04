@@ -118,6 +118,9 @@ exports.fundCheck = async(req, res, next) => {
 
         let totalAmount = 0;
         for (const element of todayPnlData) {
+            if(element.lots < 0){
+                element.amount = -element.amount;
+            }
             totalAmount += (element.amount-element.brokerage);
         }
         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMargin`)) {
@@ -302,6 +305,9 @@ exports.fundCheckPaperTrade = async(req, res, next) => {
 
         let totalAmount = 0;
         for (const element of todayPnlData) {
+            if(element.lots < 0){
+                element.amount = -element.amount;
+            }
             totalAmount += (element.amount-element.brokerage);
         }
         // console.log("todayPnlData is", todayPnlData)
@@ -432,6 +438,9 @@ exports.fundCheckTenxTrader = async(req, res, next) => {
 
         let totalAmount = 0;
         for (const element of todayPnlData) {
+            if(element.lots < 0){
+                element.amount = -element.amount;
+            }
             totalAmount += (element.amount-element.brokerage);
         }
         // console.log("todayPnlData is", todayPnlData, totalAmount)
@@ -897,9 +906,11 @@ exports.fundCheckDailyContest = async(req, res, next) => {
         try{
 
 
-            if (isRedisConnected && await client.exists(`${req.user._id.toString()}${contestId.toString()}: overallpnlDailyContest`)) {
-                let todayPnlData = await client.get(`${req.user._id.toString()}${contestId.toString()}: overallpnlDailyContest`)
+            if (isRedisConnected && await client.exists(`${req.user._id.toString()}${contestId.toString()} overallpnlDailyContest`)) {
+                todayPnlData = await client.get(`${req.user._id.toString()}${contestId.toString()} overallpnlDailyContest`)
                 todayPnlData = JSON.parse(todayPnlData);
+
+                // console.log("todayPnlData", todayPnlData)
                 
                 for(let i = 0; i < todayPnlData?.length; i++){
                     if(todayPnlData[i]?._id?.symbol === symbol){
@@ -930,17 +941,23 @@ exports.fundCheckDailyContest = async(req, res, next) => {
         }
 
         let totalAmount = 0;
+        // console.log("todayPnlData", todayPnlData)
         for (const element of todayPnlData) {
+            // console.log("element.amount-element.brokerage", element.amount, element.brokerage)
+            if(element.lots < 0){
+                element.amount = -element.amount;
+            }
             totalAmount += (element.amount-element.brokerage);
         }
 
         if(isRedisConnected && await client.exists(`${req.user._id.toString()}${contestId.toString()} openingBalanceAndMarginDailyContest`)){
             let pnl = await client.get(`${req.user._id.toString()}${contestId.toString()} openingBalanceAndMarginDailyContest`)
             pnl = JSON.parse(pnl);
-            userFunds = pnl[0]?.totalFund;
+            // console.log("fund pnl", pnl)
+            userFunds = pnl?.totalFund;
 
-            if(pnl[0]?.openingBalance){
-                userNetPnl = ( pnl[0]?.openingBalance - userFunds) + totalAmount
+            if(pnl?.openingBalance){
+                userNetPnl = ( pnl?.openingBalance - userFunds) + totalAmount
             } else{
                 userNetPnl = totalAmount
             }

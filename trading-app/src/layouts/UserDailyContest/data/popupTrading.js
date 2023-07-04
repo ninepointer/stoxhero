@@ -78,7 +78,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         // console.log("isParticipated", isParticipated)
         if (isParticipated) {
             navigate(`/contest/${elem.contestName}`, {
-                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex}
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, }
             });
             return;
         }
@@ -121,7 +121,6 @@ const PopupTrading = ({elem, timeDifference}) => {
                 //     pathname: `/contest/alphaavengers`,
                 // }}
                 onClick={() => { participateUserToContest(elem) }}
-            // state= {{data:e}}
             >
                 <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
             </MDButton>

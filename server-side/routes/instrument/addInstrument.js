@@ -150,6 +150,7 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                      await subscribeSingleToken(instrumentToken);//TODO toggle
                      await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                      let getInstruments = await User.findOne({_id : _id});
+                     console.log("instrument is", addingInstruments._id)
                      getInstruments.watchlistInstruments.push(addingInstruments._id)
                      const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
                          $set:{ 
@@ -259,6 +260,8 @@ router.post("/addInstrument",authentication, async (req, res)=>{
                      await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                      let getInstruments = await User.findOne({_id : _id});
                      getInstruments.watchlistInstruments.push(addingInstruments._id)
+                     console.log("instrument is", addingInstruments._id)
+
                      const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
                          $set:{ 
                              

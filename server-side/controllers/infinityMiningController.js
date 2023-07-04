@@ -275,7 +275,7 @@ exports.getTraderStats = async (req, res) => {
     console.log(profitValues, lossValues)
     const totalMarketDays = await countTradingDays(user.joining_date.toISOString().substring(0,10))
     const medianProfit = 
-    profitValues.length%2 === 0 ? (profitValues[Math.floor(profitValues.length / 2)] + profitValues[Math.floor((profitValues.length / 2)-1)])/2 : profitValues[Math.floor(profitValues.length / 2)];
+    profitValues?.length%2 === 0 ? (profitValues[Math.floor(profitValues.length / 2)] + profitValues[Math.floor((profitValues.length / 2)-1)])/2 : profitValues[Math.floor(profitValues.length / 2)];
     const medianLoss =
     lossValues.length%2 === 0 ? (lossValues[Math.floor(lossValues.length / 2)] + lossValues[Math.floor((lossValues.length / 2)-1)])/2 : lossValues[Math.floor(lossValues.length / 2)];
     const maxProfitOpeningBalance = await getTotalCredits(maxProfitDay?._id, user._id)+result[maxProfitIndex-1]?.npnl;
@@ -409,9 +409,7 @@ exports.getTraderTimePeriodStats = async(req, res ,next) =>{
   .limit(1);
 
   const lastTradeDate = recentTrade[0]?.trade_time;
-  console.log('last trade date', lastTradeDate, recentTrade);
-  console.log('start of week', startOfWeek);
-  const lastTradeDateStart = new Date(lastTradeDate.toISOString().substring(0,10));
+  const lastTradeDateStart = new Date(lastTradeDate?.toISOString()?.substring(0,10));
 
     const result = await InfinityTrade.aggregate([
         {
@@ -621,6 +619,29 @@ async function calculateTraderWeekStats(Model, traderId) {
         },
       }},
       { $addFields: { npnl: { $subtract: ["$gpnl", "$totalbrokerage"] }, numDays: { $size: "$uniqueTradingDates" }} },
+      // {
+      //   $addFields: {
+      //     dayOrder: {
+      //       $switch: {
+      //         branches: [
+      //           { case: { $eq: ["$_id", 1] }, then: 1 },
+      //           { case: { $eq: ["$_id", 2] }, then: 2 },
+      //           { case: { $eq: ["$_id", 3] }, then: 3 },
+      //           { case: { $eq: ["$_id", 4] }, then: 4 },
+      //           { case: { $eq: ["$_id", 5] }, then: 5 },
+      //           { case: { $eq: ["$_id", 6] }, then: 6 },
+      //           { case: { $eq: ["$_id", 7] }, then: 7 }
+      //         ],
+      //         default: 0
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   $sort: {
+      //     dayOrder: 1
+      //   }
+      // },
       { $project: {
           _id: {
               $switch: {

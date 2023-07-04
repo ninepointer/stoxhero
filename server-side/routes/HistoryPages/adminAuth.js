@@ -58,6 +58,22 @@ const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInst
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
 const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
+// const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
+const {creditAmountToWallet} = require("../../controllers/dailyContestController");
+
+
+
+router.get("/afterContest", async (req, res) => {
+  await autoCutMainManually();
+  await autoCutMainManuallyMock();
+  await creditAmountToWallet();
+  res.send("ok");
+});
+
+// router.get("/wallet", async (req, res) => {
+//   await creditAmountToWallet();
+//   res.send("ok");
+// });
 
 
 router.get("/updateGuid", async (req, res) => {
@@ -665,7 +681,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-06-23T00:00:00.000+00:00"
+  let expiryDate = "2023-06-30T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})

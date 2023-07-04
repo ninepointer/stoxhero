@@ -12,7 +12,6 @@ import UpcomingContest from '../data/activeDailyContests';
 import CompletedContest from '../data/completedDailyContests';
 import DraftContest from '../data/draftDailyContests'
 
-//data
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');

@@ -376,7 +376,7 @@ function Index() {
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        maxParticipants: e.target.value
+                        maxParticipants: parseInt(e.target.value, 10)
                       }))
                     }}
                   />
@@ -395,7 +395,7 @@ function Index() {
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        payoutPercentage: e.target.value
+                        payoutPercentage: parseInt(e.target.value, 10)
                       }))
                     }}
                   />
@@ -427,7 +427,7 @@ function Index() {
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        entryFee: e.target.value
+                        entryFee: parseInt(e.target.value, 10)
                       }))
                     }}
                   />

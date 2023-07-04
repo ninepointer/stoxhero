@@ -82,11 +82,11 @@ function StockIndex({socket}) {
         </MDTypography>
         );
     
-        finalArr.push(obj);
+        if(name[0]?.displayName !== "FINNIFTY"){
+            finalArr.push(obj);
+        }
     })
 
-
-// //console.log("finalArr", finalArr)
   return (
     <>
         {finalArr.map((e)=>{

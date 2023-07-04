@@ -4,27 +4,15 @@ import axios from "axios";
 const Timer = ({date, setTimeDifference, serverTime, id}) => {
   const [remainingTime, setRemainingTime] = useState(null);
   // const [serverTime, setServerTime] = useState();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-  // useEffect(() => {
-  //   axios.get(`${baseUrl}api/v1/servertime`)
-  //     .then((res) => {
-  //       setServerTime(res.data.data);
-  //     })
-  // }, [])
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // const []
 
   useEffect(() => {
     const targetDate = new Date(date); // Replace with your specific date and time
     const now = new Date(serverTime);
     const intervalId = setInterval(() => {
-      // console.log("timeDifference first", now, targetDate, serverTime)
-      // console.log("timeDifference before", now)
       now.setSeconds(now.getSeconds() + 1);
-      // console.log("timeDifference after", now)
       const timeDifference = targetDate - now;
-      // console.log("timeDifference timer", timeDifference)
-      // setTimeDifference(timeDifference) 
-      // setTimeDifference(prevArray => [...prevArray, {id: id, value: timeDifference}])
       setTimeDifference(prevArray => {
         const index = prevArray.findIndex(item => item.id === id);
   
@@ -38,6 +26,7 @@ const Timer = ({date, setTimeDifference, serverTime, id}) => {
           return [...prevArray, { id, value: timeDifference }];
         }
       });
+      console.log("timeDifference", timeDifference, id)
       if (timeDifference > 0) {
         const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

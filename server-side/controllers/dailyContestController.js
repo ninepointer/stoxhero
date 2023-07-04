@@ -4,6 +4,8 @@ const User = require("../models/User/userDetailSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const { ObjectId } = require('mongodb');
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
+const uuid = require("uuid")
+
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
@@ -156,9 +158,10 @@ exports.getUpcomingContests = async (req, res) => {
 
 // Controller for getting completed contests
 exports.getCompletedContests = async (req, res) => {
+    const userId = req.user._id;
     try {
         const contests = await Contest.find({
-            contestEndTime: { $lt: new Date() }
+            contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId)
         });
 
         res.status(200).json({
@@ -313,11 +316,29 @@ exports.registerUserToContest = async (req, res) => {
             return res.status(400).json({status:"error", message: "Invalid contest ID or user ID" });
         }
 
+        // const result = await Contest.findByIdAndUpdate(
+        //     id,
+        //     { $push: { interestedUsers: { userId: userId, registeredOn: new Date(), status: 'Joined' } } },
+        //     { new: true }  // This option ensures the updated document is returned
+        // );
+
         const result = await Contest.findByIdAndUpdate(
             id,
-            { $push: { interestedUsers: { userId: userId, registeredOn: new Date(), status: 'Joined' } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
+            {
+              $addToSet: {
+                interestedUsers: {
+                  $each: [
+                    {
+                      userId: userId,
+                      registeredOn: new Date(),
+                      status: 'Joined',
+                    },
+                  ],
+                },
+              },
+            },
+            { new: true }
+          );
 
         if (!result) {
             return res.status(404).json({status:"error", message: "Contest not found" });
@@ -326,6 +347,50 @@ exports.registerUserToContest = async (req, res) => {
         res.status(200).json({
             status:"success",
             message: "User registered to contest successfully",
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.copyAndShare = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the contest and the user to register
+        const userId = req.user._id;
+
+        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({status:"error", message: "Invalid contest ID or user ID" });
+        }
+
+        const result = await Contest.findByIdAndUpdate(
+            id,
+            {
+              $addToSet: {
+                contestSharedBy: {
+                  $each: [
+                    {
+                      userId: userId,
+                      sharedAt: new Date(),
+                    },
+                  ],
+                },
+              },
+            },
+            { new: true }
+          );
+
+        if (!result) {
+            return res.status(404).json({status:"error", message: "Contest not found" });
+        }
+
+        res.status(200).json({
+            status:"success",
+            message: "User share to contest successfully",
             data: result
         });
     } catch (error) {
@@ -416,71 +481,80 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
     
-        const { id } = req.params; // ID of the contest 
+        // const { id } = req.params; // ID of the contest 
         // const userId = req.user._id; Wallet
+        const contest = await Contest.find({contestStatus: "Active"});
 
-        const contest = await Contest.findOne({_id: id, contestStatus: "Active"});
-        for(let i = 0; i < contest?.participants?.length; i++){
-            let userId = contest?.participants[i]?.userId;
-            let payoutPercentage = contest?.payoutPercentage
-
-            let pnlDetails = await DailyContestMockUser.aggregate([
-                {
-                    $match: {
-                        trade_time: {
-                            $gte: today
-                        },
-                        status: "COMPLETE",
-                        trader: new ObjectId(userId),
-                        contestId: new ObjectId(id)
-                    },
-                },
-                {
-                    $group: {
-                        _id: {
-                        },
-                        amount: {
-                            $sum: {
-                                $multiply: ["$amount", -1],
+        for(let j = 0; j < contest.length; j++){
+            if(contest[j].contestEndTime < new Date()){
+                for(let i = 0; i < contest[j]?.participants?.length; i++){
+                    let userId = contest[j]?.participants[i]?.userId;
+                    let payoutPercentage = contest[j]?.payoutPercentage
+                    let id = contest[j]._id;
+                    let pnlDetails = await DailyContestMockUser.aggregate([
+                        {
+                            $match: {
+                                trade_time: {
+                                    $gte: today
+                                },
+                                status: "COMPLETE",
+                                trader: new ObjectId(userId),
+                                contestId: new ObjectId(id)
                             },
                         },
-                        brokerage: {
-                            $sum: {
-                                $toDouble: "$brokerage",
+                        {
+                            $group: {
+                                _id: {
+                                },
+                                amount: {
+                                    $sum: {
+                                        $multiply: ["$amount", -1],
+                                    },
+                                },
+                                brokerage: {
+                                    $sum: {
+                                        $toDouble: "$brokerage",
+                                    },
+                                },
                             },
                         },
-                    },
-                },
-                {
-                    $project:
-                    {
-                        npnl: {
-                            $subtract: ["$amount", "$brokerage"],
+                        {
+                            $project:
+                            {
+                                npnl: {
+                                    $subtract: ["$amount", "$brokerage"],
+                                },
+                            },
                         },
-                    },
-                },
-            ])
-
-            if (pnlDetails[0]?.npnl > 0) {
-                const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
-                const wallet = await Wallet.findOne({ userId: userId });
-                wallet.transactions = [...wallet.transactions, {
-                    title: 'Contest Credit',
-                    description: `Amount credited for contest ${contest.contestName}`,
-                    amount: payoutAmount,
-                    transactionId: uuid.v4(),
-                    transactionType: 'Cash'
-                }];
-                wallet.save();
+                    ])
+                    
+                    console.log(pnlDetails[0]);
+                    if (pnlDetails[0]?.npnl > 0) {
+                        const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                        const wallet = await Wallet.findOne({ userId: userId });
+                        wallet.transactions = [...wallet.transactions, {
+                            title: 'Contest Credit',
+                            description: `Amount credited for contest ${contest[j].contestName}`,
+                            amount: payoutAmount?.toFixed(2),
+                            transactionId: uuid.v4(),
+                            transactionType: 'Cash'
+                        }];
+                        wallet.save();
+                    }
+                    contest[j].payoutStatus = 'Completed'
+                    contest[j].contestStatus = "Completed";
+                    await contest[j].save();
+                }
             }
-
         }
 
+
     } catch (error) {
-        res.status(500).json({
-            status:"error",
-            message: "Something went wrong",
-            error: error.message
-        });
+        console.log(error);
+        // res.status(500).json({
+        //     status:"error",
+        //     message: "Something went wrong",
+        //     error: error.message
+        // });
     }
 };

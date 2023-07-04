@@ -11,13 +11,15 @@ router.put('/contest/:id', contestController.editContest);
 router.delete('/contest/:id', contestController.deleteContest);
 router.put('/contest/:id/participate', Authenticate, contestController.participateUsers);
 router.put('/contest/:id/register',Authenticate, contestController.registerUserToContest);
+router.put('/contest/:id/share',Authenticate, contestController.copyAndShare);
+
 router.put('/contest/:id/allow/:userId', contestController.addAllowedUser);
 router.put('/contest/:id/remove/:userId', contestController.removeAllowedUser);
 
 // Routes for getting contests
 router.get('/contests', contestController.getAllContests);
 router.get('/contests/upcoming', contestController.getUpcomingContests);
-router.get('/contests/completed', contestController.getCompletedContests);
+router.get('/contests/completed', Authenticate, contestController.getCompletedContests);
 router.get('/contests/draft', contestController.getDraftContests);
 
 

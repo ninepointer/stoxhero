@@ -78,8 +78,12 @@ function StockIndex({socket}) {
             {2}
         </MDTypography>
         );
+
+        if(name[0]?.displayName !== "FINNIFTY"){
+            finalArr.push(obj);
+        }
     
-        finalArr.push(obj);
+        
     })
 
     const Item = styled(Paper)(({ theme }) => ({

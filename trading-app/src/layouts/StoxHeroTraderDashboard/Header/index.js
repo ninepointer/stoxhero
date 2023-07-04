@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useContext} from 'react';
 import axios from "axios";
 import MDBox from '../../../components/MDBox';
 import Grid from "@mui/material/Grid";
@@ -6,10 +6,15 @@ import {Link} from 'react-router-dom'
 import Carousel from '../data/carouselItems'
 import Performance from '../data/performance'
 import Summary from '../data/summary'
+import { userContext } from '../../../AuthContext';
+
 
 export default function Dashboard() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [carouselData,setCarouselData] = useState([])
+  const [tradingData, setTradingData] = useState();
+  const getDetails = useContext(userContext);
+  const userId = getDetails.userDetails._id
   
   useEffect(()=>{
     let call1 = axios.get((`${baseUrl}api/v1/carousels/home`),{
@@ -20,10 +25,20 @@ export default function Dashboard() {
                     "Access-Control-Allow-Credentials": true
                   },
                 })
-    Promise.all([call1])
-    .then(([api1Response]) => {
+    let call2 = axios.get((`${baseUrl}api/v1/virtualtradingperformance/traderstats/${userId}`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    Promise.all([call1, call2])
+    .then(([api1Response, api1Response1]) => {
       // Process the responses here
       setCarouselData(api1Response.data.data)
+      console.log(api1Response1.data.data)
+      setTradingData(api1Response1.data.data)
     })
     .catch((error) => {
       // Handle errors here
@@ -64,7 +79,7 @@ export default function Dashboard() {
               <Summary style={{ height: '100%' }}/>
             </Grid>
             <Grid item xs={12} md={6} lg={12} style={{ height: '100%' }}>
-              <Performance/>
+              <Performance tradingData={tradingData}/>
             </Grid>
           </Grid>
 
