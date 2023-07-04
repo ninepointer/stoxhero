@@ -48,6 +48,10 @@ const contestSchema = new Schema({
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
     ],
+    contestSharedBy:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        sharedAt:{type:Date}
+    }],
     allowedUsers:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         addedOn:{type:Date},

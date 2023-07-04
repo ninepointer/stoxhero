@@ -158,9 +158,10 @@ exports.getUpcomingContests = async (req, res) => {
 
 // Controller for getting completed contests
 exports.getCompletedContests = async (req, res) => {
+    const userId = req.user._id;
     try {
         const contests = await Contest.find({
-            contestEndTime: { $lt: new Date() }
+            contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId)
         });
 
         res.status(200).json({
@@ -315,11 +316,29 @@ exports.registerUserToContest = async (req, res) => {
             return res.status(400).json({status:"error", message: "Invalid contest ID or user ID" });
         }
 
+        // const result = await Contest.findByIdAndUpdate(
+        //     id,
+        //     { $push: { interestedUsers: { userId: userId, registeredOn: new Date(), status: 'Joined' } } },
+        //     { new: true }  // This option ensures the updated document is returned
+        // );
+
         const result = await Contest.findByIdAndUpdate(
             id,
-            { $push: { interestedUsers: { userId: userId, registeredOn: new Date(), status: 'Joined' } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
+            {
+              $addToSet: {
+                interestedUsers: {
+                  $each: [
+                    {
+                      userId: userId,
+                      registeredOn: new Date(),
+                      status: 'Joined',
+                    },
+                  ],
+                },
+              },
+            },
+            { new: true }
+          );
 
         if (!result) {
             return res.status(404).json({status:"error", message: "Contest not found" });

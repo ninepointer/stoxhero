@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from "axios";
 import { CircularProgress, Grid, Divider } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -16,12 +16,15 @@ import referral from '../../../assets/images/referralt.png'
 import battle from '../../../assets/images/battlet.png'
 import CashFlow from '../../../assets/images/transaction.png'
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
+import { userContext } from '../../../AuthContext';
+import {InfinityTraderRole} from "../../../variables"
 
 export default function Wallet() {
   let name = 'Prateek Pawan'
   const [photo,setPhoto] = useState(DefaultProfilePic)
   const [myWallet,setMyWallet] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  const getDetails = useContext(userContext)
 
   useEffect(()=>{
   
@@ -113,7 +116,7 @@ export default function Wallet() {
                    <MDAvatar src={CashFlow} name={name} size="xl" />
                 </Grid>
                 <MDTypography mt={3} color="light" display="flex" justifyContent="center">No Transactions Yet!</MDTypography>
-                <MDTypography mt={3} color="light" display="flex" justifyContent="center" fontSize={15}>Participate in Battles and invite your friends to the app to earn cash & bonus.</MDTypography>
+                <MDTypography mt={3} color="light" display="flex" justifyContent="center" fontSize={15}>{getDetails?.userDetails?.role?.roleName === InfinityTraderRole ? `Invite your friends to the app to earn cash & bonus.` : `Participate in Battles and invite your friends to the app to earn cash & bonus.`}</MDTypography>
                 <MDBox mt={3} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                   <Link to ='/battlestreet'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:15,marginLeft:100,marginRight:100}}>Check Upcoming Battles</MDButton></Link>
                   <Link to ='/Referrals'><MDButton variant="outlined" color="warning" size="small" style={{marginBottom:30,marginLeft:100,marginRight:100}}>Invite A Friend</MDButton></Link>

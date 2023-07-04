@@ -9,7 +9,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 
-function Performance() {
+function Performance({tradingData}) {
 
   const [monthYear, setMonthYear] = React.useState('Jun 23');
   const [trading, setTrading] = React.useState('Virtual Trading');
@@ -87,7 +87,7 @@ function Performance() {
                             <MDBox bgColor='light' p={1} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDBox display='flex' flexDirection='column' minWidth='50%'>
                                     <MDTypography fontSize={13} fontWeight="bold">Max Profit</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">Coming Soon</MDTypography>
+                                    <MDTypography fontSize={13} color='success' fontWeight="bold">{tradingData?.maxProfit}</MDTypography>
                                 </MDBox>
                                 <MDBox display='flex' flexDirection='column' minWidth='50%'>
                                     <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Max Loss</MDTypography>
@@ -120,25 +120,25 @@ function Performance() {
                             <MDBox bgColor='light' p={1} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDBox display='flex' flexDirection='column' minWidth='33.33%'>
                                     <MDTypography fontSize={13} fontWeight="bold">Profit Days</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">Coming Soon</MDTypography>
+                                    <MDTypography fontSize={13} color='success' fontWeight="bold">{tradingData?.profitDays}</MDTypography>
                                 </MDBox>
                                 <MDBox display='flex' flexDirection='column' minWidth='33.33%'>
                                     <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Loss Days</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">Coming Soon</MDTypography>
+                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">{tradingData?.lossDays}</MDTypography>
                                 </MDBox>
                                 <MDBox display='flex' flexDirection='column' minWidth='33.33%'>
                                     <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Trading Days</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">Coming Soon</MDTypography>
+                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">{tradingData?.totalTradingDays}</MDTypography>
                                 </MDBox>
                             </MDBox>
                             <MDBox bgColor='light' p={1} mt={1} borderRadius={5} display='flex'>
                                 <MDBox display='flex' flexDirection='column' minWidth='50%'>
                                     <MDTypography fontSize={13} fontWeight="bold">Max Win Streak</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">Coming Soon</MDTypography>
+                                    <MDTypography fontSize={13} color='success' fontWeight="bold">{tradingData?.maxWinStreak === undefined ? 0 : tradingData?.maxWinStreak}</MDTypography>
                                 </MDBox>
                                 <MDBox display='flex' flexDirection='column' minWidth='50%'>
                                     <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Max Loss Streak</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">Coming Soon</MDTypography>
+                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">{tradingData?.maxLossStreak === undefined ? 0 : tradingData?.maxLossStreak}</MDTypography>
                                 </MDBox>
                             </MDBox>
                             <MDBox bgColor='light' p={1} mt={1} borderRadius={5} display='flex'>

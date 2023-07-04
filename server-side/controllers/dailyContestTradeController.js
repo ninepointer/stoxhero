@@ -270,90 +270,6 @@ exports.myTodaysTrade = async (req, res, next) => {
     }
 }
 
-// exports.getMyPnlAndCreditData = async (req, res, next) => {
-//     let date = new Date();
-//     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//     // todayDate = "2023-05-19" + "T00:00:00.000Z";
-//     todayDate = todayDate + "T00:00:00.000Z";
-//     const today = new Date(todayDate);
-//     const {id} = req.params;
-//     let myPnlAndCreditData = await DailyContestMockUser.aggregate([
-//         {
-//             $lookup: {
-//                 from: "user-personal-details",
-//                 localField: "trader",
-//                 foreignField: "_id",
-//                 as: "result",
-//             },
-//         },
-//         {
-//             $match: {
-//                 status: "COMPLETE",
-//                 trader: new ObjectId(req.user._id),
-//                 trade_time: {
-//                     $lt: today
-//                 },
-//                 contestId: new ObjectId(id)
-//             }
-//         },
-//         {
-//             $group: {
-//                 _id: {
-
-//                     funds: {
-//                         $arrayElemAt: ["$result.fund", 0],
-//                     },
-//                 },
-//                 gpnl: {
-//                     $sum: {
-//                         $multiply: ["$amount", -1],
-//                     },
-//                 },
-//                 brokerage: {
-//                     $sum: {
-//                         $toDouble: "$brokerage",
-//                     },
-//                 },
-//             },
-//         },
-//         {
-//             $addFields:
-//             {
-//                 npnl: {
-//                     $subtract: ["$gpnl", "$brokerage"],
-//                 },
-//                 availableMargin: {
-//                     $add: ["$_id.funds", { $subtract: ["$gpnl", "$brokerage"] }]
-//                 }
-//             },
-//         },
-//         {
-//             $project:
-//             {
-//                 _id: 0,
-//                 totalFund: "$_id.funds",
-//                 gpnl: "$gpnl",
-//                 brokerage: "$brokerage",
-//                 npnl: "$npnl",
-//                 openingBalance: "$availableMargin"
-//             },
-//         },
-//         {
-//             $sort: { npnl: 1 }
-//         }
-//     ])
-
-//     if (myPnlAndCreditData.length > 0) {
-//         res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
-//     } else {
-//         const data = await User.findById(req.user._id).select('fund');
-//         const respData = { "totalFund": data.fund };
-//         //res.status(201).json({message: "data received", data: fundDetail[0]});
-//         res.status(201).json({ message: "data received", data: respData });
-//     }
-
-
-// }
 
 exports.getMyPnlAndCreditData = async (req, res, next) => {
     let { id } = req.params;
@@ -517,5 +433,101 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
       } catch (e) {
         console.log(e);
         return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+      }
+}
+
+exports.myPnlAndPayout = async (req, res, next) => {
+    let userId = req.user._id;
+
+    try {
+
+        const data = await DailyContestMockUser.aggregate([
+            {
+              $match:
+                {
+                  trader: new ObjectId(userId)
+                },
+            },
+            {
+              $group:
+                {
+                  _id: {
+                    userId: "$trader",
+                    contestId: "$contestId",
+                  },
+                  amount: {
+                    $sum: {
+                      $multiply: ["$amount", -1],
+                    },
+                  },
+                  brokerage: {
+                    $sum: "$brokerage",
+                  },
+                },
+            },
+            {
+              $lookup:
+                {
+                  from: "daily-contests",
+                  localField: "_id.contestId",
+                  foreignField: "_id",
+                  as: "contestData",
+                },
+            },
+            {
+              $unwind:
+                {
+                  path: "$contestData",
+                },
+            },
+            {
+              $lookup:
+                {
+                  from: "user-portfolios",
+                  localField: "contestData.portfolio",
+                  foreignField: "_id",
+                  as: "portfolioData",
+                },
+            },
+            {
+              $unwind:
+                {
+                  path: "$portfolioData",
+                },
+            },
+            {
+              $project: {
+                _id: 0,
+                contestId: "$_id.contestId",
+                npnl: {
+                  $subtract: ["$amount", "$brokerage"],
+                },
+                portfolioValue:
+                  "$portfolioData.portfolioValue",
+                payoutAmount: {
+                  $multiply: [
+                    "$contestData.payoutPercentage",
+                    {
+                      $divide: [
+                        {
+                          $subtract: [
+                            "$amount",
+                            "$brokerage",
+                          ],
+                        },
+                        100,
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+        ])
+
+        res.status(200).json({ status: 'success', data: data })
+
+      } catch (e) {
+        console.log(e);
+        return res.status(500).json({ status: 'error', message: 'something went wrong.', error: e })
       }
 }

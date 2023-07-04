@@ -3,7 +3,7 @@ import axios from "axios";
 import { useEffect, useState, useContext } from "react";
 import { userContext } from '../../../AuthContext';
 import moment from 'moment';
-//
+
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -11,18 +11,18 @@ import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import {CircularProgress} from "@mui/material";
 import { Grid } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 
 export default function DailyContestOrders() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let [skip, setSkip] = useState(0);
-  const limitSetting = 10;
-  const [count, setCount] = useState(0);
+  // let [skip, setSkip] = useState(0);
+  // const limitSetting = 10;
+  // const [count, setCount] = useState(0);
   const [isLoading,setIsLoading] = useState(false);
   const [data, setData] = useState([]);
-  const getDetails = useContext(userContext);
+  // const getDetails = useContext(userContext);
   const location = useLocation();
 
   let contestId = location?.state?.data;
@@ -41,7 +41,7 @@ export default function DailyContestOrders() {
       .then((res)=>{
           console.log(res.data)
           setData(res.data.data);
-          setCount(res.data.count);
+          // setCount(res.data.count);
           setIsLoading(false)
       }).catch((err)=>{
           //window.alert("Server Down");
@@ -114,9 +114,22 @@ export default function DailyContestOrders() {
 
   return (
 
-    <MDBox bgColor="dark" color="light" mb={1} mt={3} borderRadius={10} minWidth='100%' minHeight='auto'>
-
-      <Grid container >
+    <MDBox bgColor="dark" color="light" p={1} mb={1} mt={3} borderRadius={10} minWidth='100%' minHeight='auto'>
+      <MDButton
+          variant='outlined'
+          color='warning'
+          size='small'
+          m={1}
+          component={Link}
+          // disabled={timeDifference > 0}
+          to={{
+              pathname: `/completedcontests`,
+          }}
+          // onClick={() => { participateUserToContest(elem) }}
+      >
+          <MDTypography color='warning' fontWeight='bold' fontSize={10}>BACK TO COMPLETED CONTEST</MDTypography>
+      </MDButton>
+      <Grid container mt={1}>
         <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>
               {/* <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <MDTypography color="light" fontSize={13} fontWeight="bold">Intern Name</MDTypography>
@@ -197,14 +210,6 @@ export default function DailyContestOrders() {
                 </Grid>
             </Grid>
             }
-            {/* {!isLoading && count !== 0 &&
-            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-                <MDButton variant='outlined' color='warning' disabled={(skip+limitSetting)/limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {!count ? 0 : count} | Page {(skip+limitSetting)/limitSetting} of {!count ? 1 : Math.ceil(count/limitSetting)}</MDTypography>
-                <MDButton variant='outlined' color='warning' disabled={Math.ceil(count/limitSetting) === (skip+limitSetting)/limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
-            </MDBox>
-            } */}
-
       </Grid>
     </MDBox>
   );

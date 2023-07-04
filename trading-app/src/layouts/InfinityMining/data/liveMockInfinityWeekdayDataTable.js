@@ -12,8 +12,8 @@ import html2canvas from 'html2canvas';
 //data
 import LiveMockInfinityDailyData from '../data/liveMockInfinityDailyChart'
 
-export default function InfinityData({bothSideTradeData,isLoading}) {    
-
+export default function InfinityData({bothSideWeeklyTradeData,isLoading}) {    
+console.log("Weekly Data:",bothSideWeeklyTradeData)
   return (
     <>  
     {isLoading ? 
@@ -184,28 +184,43 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl >= 0 ? bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl : -bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Monday?.infinity?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Monday?.infinity?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Monday?.infinity?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Monday?.infinity?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Monday?.infinity?.gpnl >= 0 ? bothSideWeeklyTradeData?.Monday?.infinity?.gpnl : -bothSideWeeklyTradeData?.Monday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl ? 
+                                (bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl >= 0 ? bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl : -bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Monday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Monday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Monday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Monday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Monday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Monday?.infinity?.npnl : -bothSideWeeklyTradeData?.Monday?.infinity?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Monday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Monday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Monday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Monday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Monday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Monday?.infinity?.npnl : -(bothSideWeeklyTradeData?.Monday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Monday?.infinity?.npnl))
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
             </MDBox>
@@ -219,28 +234,43 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl >= 0 ? bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl : -bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Tuesday?.infinity?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Tuesday?.infinity?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Tuesday?.infinity?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Tuesday?.infinity?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Tuesday?.infinity?.gpnl >= 0 ? bothSideWeeklyTradeData?.Tuesday?.infinity?.gpnl : -bothSideWeeklyTradeData?.Tuesday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl ? 
+                                (bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl >= 0 ? bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl : -bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl : -bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl : -(bothSideWeeklyTradeData?.Tuesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Tuesday?.infinity?.npnl))
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
             </MDBox>
@@ -254,28 +284,43 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl >= 0 ? bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl : -bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Wednesday?.infinity?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Wednesday?.infinity?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Wednesday?.infinity?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Wednesday?.infinity?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Wednesday?.infinity?.gpnl >= 0 ? bothSideWeeklyTradeData?.Wednesday?.infinity?.gpnl : -bothSideWeeklyTradeData?.Wednesday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl ? 
+                                (bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl >= 0 ? bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl : -bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl : -bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl : -(bothSideWeeklyTradeData?.Wednesday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Wednesday?.infinity?.npnl))
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
             </MDBox>
@@ -289,28 +334,43 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl >= 0 ? bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl : -bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Thursday?.infinity?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Thursday?.infinity?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Thursday?.infinity?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Thursday?.infinity?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Thursday?.infinity?.gpnl >= 0 ? bothSideWeeklyTradeData?.Thursday?.infinity?.gpnl : -bothSideWeeklyTradeData?.Thursday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl ? 
+                                (bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl >= 0 ? bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl : -bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Thursday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Thursday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Thursday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Thursday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Thursday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Thursday?.infinity?.npnl : -bothSideWeeklyTradeData?.Thursday?.infinity?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Thursday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Thursday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Thursday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Thursday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Thursday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Thursday?.infinity?.npnl : -(bothSideWeeklyTradeData?.Thursday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Thursday?.infinity?.npnl))
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
             </MDBox>
@@ -324,32 +384,48 @@ export default function InfinityData({bothSideTradeData,isLoading}) {
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl >= 0 ? bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl : -bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Friday?.infinity?.gpnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Friday?.infinity?.gpnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Friday?.infinity?.gpnl ? 
+                                (bothSideWeeklyTradeData?.Friday?.infinity?.gpnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Friday?.infinity?.gpnl >= 0 ? bothSideWeeklyTradeData?.Friday?.infinity?.gpnl : -bothSideWeeklyTradeData?.Friday?.stoxHero?.gpnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl ? 
+                                (bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl >= 0 ? bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl : -bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Friday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Friday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Friday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Friday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Friday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Friday?.infinity?.npnl : -bothSideWeeklyTradeData?.Friday?.infinity?.npnl)
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
                 <Grid item xs={2.4} md={2.4} lg={2.4} display='flex' justifyContent='center'>
-                    <MDTypography fontSize={13}>
-                        Coming Soon
+                    <MDTypography fontSize={13} color={bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Friday?.infinity?.npnl >= 0 ? 'success' : bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Friday?.infinity?.npnl < 0 ? 'error' : 'text'}>
+                        {bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Friday?.infinity?.npnl ? 
+                                (bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Friday?.infinity?.npnl >= 0 ? '+₹' : '-₹') + new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Friday?.infinity?.npnl >= 0 ? bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Friday?.infinity?.npnl : -(bothSideWeeklyTradeData?.Friday?.stoxHero?.npnl-bothSideWeeklyTradeData?.Friday?.infinity?.npnl))
+                                : '₹0'
+                        }
                     </MDTypography>
                 </Grid>
             </MDBox>
             </Grid>
+
             </MDBox>
     }             
     </>
