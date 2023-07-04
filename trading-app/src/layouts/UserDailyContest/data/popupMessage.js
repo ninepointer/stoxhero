@@ -43,7 +43,7 @@ import { dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_N
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue }) => {
+const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState }) => {
     // if(!initialValue){
     //     initialValue = false;
     // }
@@ -52,13 +52,13 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue 
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [selectIndex, setSelectIndex] = useState("NIFTY50");
+    // const [selectIndex, setSelectIndex] = useState("NIFTY50");
 
-    console.log("main data", open)
+    // console.log("main data", open)
 
-    const handleClickOpen = async () => {
-        setOpen(true);
-    };
+    // const handleClickOpen = async () => {
+    //     setOpen(true);
+    // };
 
     const handleClose = async (e) => {
 
@@ -84,7 +84,7 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue 
         if(data.status === "error" || data.error || !data){
             // openSuccessSB("error", data.message)
         }else{
-            setIsInterested(true);
+            isInterestedState ? setIsInterested(false) : setIsInterested(true) ;
         }
     }
 
@@ -116,14 +116,6 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, initialValue 
                             </MDBox>
                         </DialogContentText>
                     </DialogContent>
-                    {/* <DialogActions>
-            <MDButton autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
-              BUY
-            </MDButton>
-            <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
-              Close
-            </MDButton>
-          </DialogActions> */}
                 </Dialog>
             </div >
         </div >
