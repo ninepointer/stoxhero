@@ -678,7 +678,7 @@ exports.autoExpireSubscription = async () => {
   
 
         // console.log(Math.floor(tradingDays[0]?.actualRemainingDay), tradingDays)
-        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) === 0) {
+        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) < 0) {
           console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
           // "subscription.subscribedOn": {$gte: new Date(subscribedOn)}
           console.log(new Date(subscribedOn))

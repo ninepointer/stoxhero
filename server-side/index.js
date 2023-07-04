@@ -46,6 +46,7 @@ const {openPrice} = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
 const {creditAmountToWallet} = require("./controllers/dailyContestController");
+const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
 
 
 const hpp = require("hpp")
@@ -324,26 +325,36 @@ let weekDay = date.getDay();
         });
         // const autotrade = nodeCron.schedule('50 9 * * *', test); 
         const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
-          await autoCutMainManually();
-          await autoCutMainManuallyMock();
-          await creditAmountToWallet();
+          autoCutMainManually();
+          autoCutMainManuallyMock();
+          // await creditAmountToWallet();
+        });
+        const creditAmountToWallet = nodeCron.schedule(`51 9 * * *`, async () => {
+          creditAmountToWallet();
         });
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();
         });
-        const setOpenPriceFlag = nodeCron.schedule(`46 3 * * *`, openPrice);
+        const setOpenPriceFlag = nodeCron.schedule(`46 3 * * *`, ()=>{
+          openPrice();
+          EarlySubscribedInstrument();
+        } );
+
+        const subscribeTokens = nodeCron.schedule(`48 3 * * *`, ()=>{
+          subscribeTokens();
+        } );
 
     }
   }
 
   const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
-const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
-  await autoCutMainManually();
-  await autoCutMainManuallyMock();
-  await creditAmountToWallet();
-});
+  const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+  // const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
+  //   await autoCutMainManually();
+  //   await autoCutMainManuallyMock();
+  //   await creditAmountToWallet();
+  // });
 
   if(!process.env.PROD){
     // const autotrade = nodeCron.schedule(`50 9 * * *`, test);

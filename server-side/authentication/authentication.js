@@ -14,11 +14,11 @@ const Authenticate = async (req, res, next)=>{
     ) {
         token = req.headers.authorization.split(' ')[1];
     }
-    // console.log((req ))
+    // console.log(req.cookies)
     if (req.cookies) {
         if(req.cookies.jwtoken) token = req.cookies.jwtoken;
     }
-        // console.log("Token: ",req.cookies.jwtoken)
+        // console.log("Token: ",token, process.env.SECRET_KEY)
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
         // console.log('verify token',verifyToken);
 
