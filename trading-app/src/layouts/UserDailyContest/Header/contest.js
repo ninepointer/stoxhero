@@ -10,6 +10,7 @@ import { userContext } from '../../../AuthContext';
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import ShareIcon from '@mui/icons-material/Share';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -26,7 +27,7 @@ import Timer from '../timer'
 import ProgressBar from "../progressBar";
 import { HiUserGroup } from 'react-icons/hi';
 
-import { CircularProgress, Divider } from "@mui/material";
+import { CircularProgress, Divider, Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
@@ -40,11 +41,23 @@ function Header({ e }) {
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+
     // const navigate = useNavigate();
 
-    useEffect(() => {
+    const handleButtonClick = () => {
+        const textToCopy = 'https://www.stoxhero.com/contest';
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => {
+            console.log(textToCopy);
+          })
+          .catch((error) => {
+            console.error('Error copying text:', error);
+          });
+      };
 
+    useEffect(() => {
+        setIsLoading(true)
         axios.get(`${baseUrl}api/v1/dailycontest/contests/upcoming`, {
             withCredentials: true,
             headers: {
@@ -55,14 +68,22 @@ function Header({ e }) {
         })
         .then((res) => {
             setContest(res.data.data);
+            setTimeout(()=>{
+                setIsLoading(false)
+            },1000)
+            
         }).catch((err) => {
+            setIsLoading(false)
             return new Error(err);
+            
         })
     }, [isInterested])
 
     useEffect(()=>{
         if(serverTime){
-            setLoading(false);
+            setTimeout(()=>{
+                setIsLoading(false)
+            },1000)
         }
     }, [serverTime])
 
@@ -80,7 +101,7 @@ function Header({ e }) {
                 console.log("server time", res.data.data)
               setServerTime(res.data.data);
             });
-        }, 5000);
+        });
       
         return () => {
           clearInterval(interval);
@@ -161,14 +182,15 @@ function Header({ e }) {
     return (
         <>
             <MDBox>
-                {loading ?
+                {(isLoading && serverTime) ?
                     <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
                         <CircularProgress color="info" />
                     </MDBox>
                     :
+                  
                     <Grid container spacing={2} xs={12} md={12} lg={12}>
                         {
-                            contest.map((elem) => {
+                            contest?.map((elem) => {
                                 let contestOn = [];
                                 if (elem.isNifty) {
                                     contestOn.push("NIFTY")
@@ -211,6 +233,7 @@ function Header({ e }) {
                                                         </MDBox>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>
                                                             <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} color='dark'>{changeDateFormat(elem.contestStartTime)}</MDTypography></MDBox>
+                                                            <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} color='dark'>{changeDateFormat(elem.contestEndTime)}</MDTypography></MDBox>
                                                             {
                                                                 contestOn.map((elem, index) => {
                                                                     return (
@@ -228,7 +251,7 @@ function Header({ e }) {
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='dark'>{elem.payoutPercentage}% of the net P&L</MDTypography></MDBox>
+                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='dark'>{elem?.payoutPercentage}% of the net P&L</MDTypography></MDBox>
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>
@@ -236,20 +259,20 @@ function Header({ e }) {
                                                 <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <Timer date={elem?.contestStartTime} id={elem._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />
+                                                            {!isLoading && <Timer date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />}
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>
 
                                                 <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
                                                     <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                        <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>ENTRY FEE : FREE</MDTypography></MDBox>
+                                                        <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : ₹{elem?.entryFee}</MDTypography></MDBox>
                                                     </MDBox>
                                                     {/* <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
                                                     <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 2, marginTop: 3, fontWeight: 700 }}>3 SEATS UP FOR GRAB</MDBox>
                                                 </MDBox> */}
                                                     <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                        <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>PORTFOLIO: {elem?.portfolio?.portfolioValue}</MDTypography></MDBox>
+                                                        <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
                                                     </MDBox>
                                                 </Grid>
 
@@ -284,8 +307,9 @@ function Header({ e }) {
                                                              }
                                                         </MDBox>
                                                         
-                                                        <MDBox display='flex' justifyContent='flex-end' width='50%'>
-                                                            <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value}/>
+                                                        <MDBox display='flex' justifyContent='flex-end' width='50%' alignItems='center'>
+                                                            <MDBox><PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value}/></MDBox>
+                                                            <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={handleButtonClick}><ShareIcon size='large'/></MDButton></MDBox></Tooltip>
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>
@@ -298,7 +322,8 @@ function Header({ e }) {
                                 )
                             })
                         }
-                    </Grid>}
+                    </Grid>
+                    }
                     {renderSuccessSB}
             </MDBox>
         </>
