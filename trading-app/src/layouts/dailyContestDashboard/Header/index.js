@@ -5,6 +5,7 @@ import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
+import CachedIcon from '@mui/icons-material/Cached';
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
@@ -102,6 +103,22 @@ export default function LabTabs({socket}) {
     }
   }, [])
 
+  const [mockMarginData, setMockMarginData] = useState();
+  const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);
+  let [refreshMockMargin, setRefreshMockMargin] = useState(true);
+
+  useEffect(()=>{
+    setIsLoadMockMargin(false)
+    axios.get(`${baseUrl}api/v1/usedMargin/dailycontest`)
+      .then((res) => {
+        console.log(res.data);
+        setMockMarginData(res.data.data)
+        setIsLoadMockMargin(true)
+      }).catch((err) => {
+        return new Error(err);
+      })
+  }, [refreshMockMargin])
+
   tradeData.map((subelem, index)=>{
     let obj = {};
     totalRunningLots += Number(subelem.lots)
@@ -177,8 +194,17 @@ export default function LabTabs({socket}) {
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCount}/{notliveTraderCount + liveTraderCount}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                    Used Margin
+                                </MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                    {(!isLoadMockMargin) ?
+                                        <CircularProgress color="inherit" size={10} sx={{ marginRight: "10px" }} />
+                                        :
+                                        <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData)}</span>
+                                    }
+                                    <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMockMargin(!refreshMockMargin) }} />
+                                </MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>

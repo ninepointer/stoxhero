@@ -4,14 +4,14 @@ const dotenv = require("dotenv");
 dotenv.config({path: "./config.env"});
 
 // STAGINGDB
-const DB = process.env.PRODDB;
+const DB = process.env.DATABASE;
 const devDB = process.env.DEVDATABASE;
 const stagingDB = process.env.STAGINGDB;
 
 
-// mongoose.connect(devDB, {
+mongoose.connect(devDB, {
         //  mongoose.connect(DB, {
-        mongoose.connect(stagingDB, {
+        // mongoose.connect(stagingDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     // useFindAndModify: false
@@ -42,35 +42,3 @@ const stagingDB = process.env.STAGINGDB;
 // INTERACTIVE_APP_KEY = '319309f79e919405e5c245'
 // MARKETDATA_SECRET_KEY = 'Yqyl575#Z8'
 // MARKETDATA_APP_KEY = '37a43d49c099e7a4db1249'
-
-
-    // "instrument": "NIFTY50",
-    // "exchange": "NFO",
-    // "status": "Active",
-    // "symbol": "NIFTY2362218200CE",
-    // "lotSize": 50,
-    // "instrumentToken": 14758658,
-    // "uId": liy3uh90,
-    // "contractDate": "2023-06-22",
-    // "maxLot": 1800,
-    // "from": Infinity Trader,
-    // "exchangeSegment": "NFO-OPT",
-    // "exchangeInstrumentToken": 57651
-
-/*
-index.js
-autoTrde.js
-autoTradeManually.js
-collectingTradeManually.js
-
-xtsInteractive.js
-mainManually.js
-collleactingtrade
-index.js
-
-price 160
-/*
-in openprice of infinity set flag only for nifty and banknifty
-also set maxlot in finnifty
-stock index me accountType ko update krna h
-*/

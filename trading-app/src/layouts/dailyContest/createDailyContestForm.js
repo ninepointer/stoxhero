@@ -27,6 +27,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
 import PotentialUser from "./data/potentialUsers"
+import Shared from "./data/shared";
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -708,6 +709,12 @@ function Index() {
               {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <PotentialUser dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+
+              {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <Shared dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 

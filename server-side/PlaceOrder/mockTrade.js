@@ -36,7 +36,7 @@ exports.mockTrade = async (req, res) => {
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
-        console.log("caseStudy 8: mocktrade")
+        console.log("caseStudy 8: mocktrade", )
 
         if(exchange === "NFO"){
             exchangeSegment = 2;
@@ -84,14 +84,14 @@ exports.mockTrade = async (req, res) => {
             liveData = await singleLivePrice(exchange, symbol)
         }
         // console.log("live data", liveData)
-        for(let elem of liveData){
-            if(elem.instrument_token == instrumentToken){
-                newTimeStamp = elem.timestamp;
-                // console.log("zerodha date", elem.timestamp)
-                originalLastPriceUser = elem.last_price;
-                originalLastPriceCompany = elem.last_price;
-            }
-        }
+        // for(let elem of liveData){
+        //     if(elem.instrument_token == instrumentToken){
+                newTimeStamp = liveData[0]?.timestamp;
+                // console.log("zerodha date", liveData[0].timestamp)
+                originalLastPriceUser = liveData[0]?.last_price;
+                originalLastPriceCompany = liveData[0]?.last_price;
+        //     }
+        // }
 
         trade_time = new Date(newTimeStamp);
 
@@ -130,7 +130,6 @@ exports.mockTrade = async (req, res) => {
     let brokerageUser;
     let brokerageCompany;
 
-    // console.log(Number(realQuantity), originalLastPriceCompany)
     if(realBuyOrSell === "BUY"){
         brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailBuy[0]); // TODO 
     } else{
@@ -142,6 +141,9 @@ exports.mockTrade = async (req, res) => {
     } else{
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
+
+    // console.log(brokerageUser, brokerageCompany, Number(realQuantity), originalLastPriceCompany, brokerageDetailBuy[0])
+
     
     // console.log(paperTrade, isAlgoTrader); dailyContest
 
@@ -299,7 +301,7 @@ exports.mockTrade = async (req, res) => {
             const mockTradeDetails = await DailyContestMockCompany.create([companyDoc], { session });
             const algoTrader = await DailyContestMockUser.create([traderDoc], { session });
 
-            console.log(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)
+            // console.log(traderDoc)
 
             const pipeline = clientForIORedis.pipeline();
 

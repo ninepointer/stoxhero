@@ -126,10 +126,10 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
         console.log("KYC FormData: ",data)
         if(!formStateKYC.aadhaarNumber || !formStateKYC.panNumber || 
           !formStateKYC.aadhaarCardFrontImage || !formStateKYC.aadhaarCardBackImage ||
-          !formStateKYC.panCardFrontImage || !formStateKYC.passportPhoto || !formStateKYC.addressProofDocument
+          !formStateKYC.panCardFrontImage
           ) return openErrorSB("KYC Details","Please upload the required fields.")
-        // formData.append("KYCStatus","Pending Approval")
-        setFormStateKYC(formStateKYC.KYCStatus,"Pending Approval")
+        formData.append("KYCStatus","Pending Approval")
+        // setFormStateKYC(formStateKYC.KYCStatus,"Pending Approval")
       }
       if(section==="Bank Details"){
         if(!formStateBD.nameAsPerBankAccount || !formStateBD.bankName || 

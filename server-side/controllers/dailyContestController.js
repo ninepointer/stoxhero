@@ -140,6 +140,7 @@ exports.getUpcomingContests = async (req, res) => {
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
 
 
         res.status(200).json({
