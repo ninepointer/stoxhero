@@ -293,6 +293,7 @@ app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));
 app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMiningRoutes"));
 app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtualTradingRoute"));
 app.use('/api/v1/user', require("./routes/user/userRoutes"));
+app.use('/api/v1/withdrawals', require("./routes/withdrawal/withdrawalRoutes"));
 
 
 require('./db/conn');

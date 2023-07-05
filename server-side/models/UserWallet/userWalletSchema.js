@@ -14,7 +14,8 @@ const wallet = new mongoose.Schema({
             transactionDate:{type:Date,default:new Date()},
             amount:{type:Number},
             transactionId:{type:String},
-            transactionType:{type: String, enum:['Cash','Bonus','Deposit','Withdrawal']}
+            transactionType:{type: String, enum:['Cash','Bonus','Deposit','Withdrawal']},
+            transactionStatus:{type:String, enum:['Pending', 'Completed', 'Failed']}
         }]
     ,
     createdOn:{

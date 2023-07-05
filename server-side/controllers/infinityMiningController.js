@@ -389,13 +389,16 @@ exports.getTraderTimePeriodStats = async(req, res ,next) =>{
 
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
+    startOfWeek.setHours(0, 0, 0, 0);
 
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
 
     const startOfLastMonth = new Date();
     startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
     startOfLastMonth.setDate(1);
+    startOfLastMonth.setHours(0, 0, 0, 0);
     console.log(startOfLastMonth,startOfMonth,startOfWeek,yesterday);
 
     const recentTrade = await InfinityTrade.find({ 

@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const authentication = require("../../authentication/authentication");
 const {sendSMS, sendOTP} = require('../../utils/smsService');
 const otpGenerator = require('otp-generator');
+const moment = require('moment');
 
 router.post("/login", async (req, res)=>{
     const {userId, pass} = req.body;
@@ -47,10 +48,14 @@ router.post('/phonelogin', async (req,res, next)=>{
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
         }
         // console.log(user);
+        if (user?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(user?.lastOtpTime)) {
+            return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+          }
     
         let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
     
         user.mobile_otp = mobile_otp;
+        user.lastOtpTime = new Date();
         // console.log(user);
         await user.save({validateBeforeSave: false});
     
@@ -122,9 +127,15 @@ router.post("/resendmobileotp", async(req, res)=>{
         if(!user){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
         }
+
+        if (user?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(user?.lastOtpTime)) {
+            return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+        }
+
         let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
         
         user.mobile_otp = mobile_otp;
+        user.lastOtpTime=new Date();
         await user.save({validateBeforeSave: false});
     
         // sendSMS([mobile.toString()], `Your OTP is ${mobile_otp}`);
