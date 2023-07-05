@@ -84,10 +84,10 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
     const handleSubmit = async() =>{
 
         //check if user has kyc verified
-        if(getDetails?.userDetails?.KYCStatus!='Approved'){
-            return openErrorSB('KYC Status not verified', 'Please get your KYC Verified before proceeding');
-            console.log(getDetails?.userDetails);
-        }
+        // if(getDetails?.userDetails?.KYCStatus!='Approved'){
+        //     return openErrorSB('KYC Status not verified', 'Please get your KYC Verified before proceeding');
+        //     console.log(getDetails?.userDetails);
+        // }
 
         //check if the amount is greater than wallet balance
         if(amount>walletBalance){
@@ -102,6 +102,9 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
         console.log(res.data, res.status, res.statusCode);
         if(res.data.status == 'success'){
             openSuccessSB('Withdrawal Request Successful', 'Request has been submitted. Please wait for 1-2 business days to get the amount in your account')
+            handleClose();
+        } else{
+          openErrorSB('Error', res.data.message)
         }
 
     }        

@@ -32,7 +32,7 @@ export default function Wallet() {
     const handleOpen = () => {
       setOpen(true);
     };
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const getDetails = useContext(userContext)
 
   useEffect(()=>{
@@ -62,7 +62,7 @@ export default function Wallet() {
     });
 
 
-  },[])
+  },[open])
 
   const cashTransactions = myWallet?.transactions?.filter((transaction) => {
     return transaction.transactionType === "Cash";
@@ -97,7 +97,7 @@ export default function Wallet() {
 
           {myWallet?.transactions?.length > 0 ? 
             myWallet?.transactions?.map((elem) => {
-              console.log("elem", elem)
+              // console.log("elem", elem)
               return (
                 <MDBox mb={1} style={{border:'1px solid white', borderRadius:5,padding:4}}>
                   <Grid container xs={12} md={6} lg={12} spacing={1} display="flex" justifyContent="center" alignItems="center" alignContent="center">
