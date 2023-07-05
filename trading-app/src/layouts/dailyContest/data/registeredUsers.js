@@ -11,7 +11,7 @@ import { apiUrl } from '../../../constants/constants';
 
 export default function RegisteredUsers({dailyContest, action, setAction}) {
    
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [registeredUsers,setRegisteredUsers] = React.useState([]);
     const [registeredUsersCount,setRegisteredUsersCount] = useState(0);
     // const [action, setAction] = useState(false);

@@ -128,8 +128,8 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           !formStateKYC.aadhaarCardFrontImage || !formStateKYC.aadhaarCardBackImage ||
           !formStateKYC.panCardFrontImage
           ) return openErrorSB("KYC Details","Please upload the required fields.")
-        // formData.append("KYCStatus","Pending Approval")
-        setFormStateKYC(formStateKYC.KYCStatus,"Pending Approval")
+        formData.append("KYCStatus","Pending Approval")
+        // setFormStateKYC(formStateKYC.KYCStatus,"Pending Approval")
       }
       if(section==="Bank Details"){
         if(!formStateBD.nameAsPerBankAccount || !formStateBD.bankName || 
@@ -323,7 +323,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
     }
   }
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   const [title,setTitle] = useState('')
   const [content,setContent] = useState('')

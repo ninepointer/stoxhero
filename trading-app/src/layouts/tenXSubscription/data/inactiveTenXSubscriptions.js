@@ -9,7 +9,7 @@ import subscription from '../../../assets/images/subscription.png'
 
 export default function ActiveTenXSubscriptions() {
     const [tenX,setTenX] = useState([])
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
     async function getTenXActiveSubs (){
         const res = await fetch(`${baseUrl}api/v1/tenX/inactive`, {
