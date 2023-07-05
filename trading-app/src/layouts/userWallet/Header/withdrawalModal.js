@@ -26,7 +26,7 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
       transform: 'translate(-50%, -50%)',
       // width: 400,
       bgcolor: 'background.paper',
-      height: '40vh',
+      height: '50vh',
     //   border: '2px solid #000',
       borderRadius:2,
       boxShadow: 24,
