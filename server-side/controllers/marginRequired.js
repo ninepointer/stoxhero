@@ -2,6 +2,8 @@ const InfinityLiveCompany = require("../models/TradeDetails/liveTradeSchema")
 const InfinityCompany = require("../models/mock-trade/infinityTradeCompany")
 const getKiteCred = require('../marketData/getKiteCred'); 
 // const RequestToken = require("../models/Trading Account/requestTokenSchema");
+const DailyContestCompany = require("../models/DailyContest/dailyContestMockCompany")
+
 const axios = require("axios");
 const singleLivePrice = require('../marketData/sigleLivePrice');
 const SaveMock = require("../models/marginUsed/mockMarginUsed")
@@ -449,3 +451,4 @@ exports.saveMockUsedMargin = async ()=>{
     // console.log(tradeData)
   })
 }
+
