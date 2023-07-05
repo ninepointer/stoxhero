@@ -1256,7 +1256,7 @@ exports.updateUserWallet = async () => {
         wallet.transactions = [...wallet.transactions, {
           title: 'Internship Payout',
           description: `Amount credited for your internship profit`,
-          amount: (creditAmount),
+          amount: (creditAmount?.toFixed(2)),
           transactionId: uuid.v4(),
           transactionType: 'Cash'
         }];
@@ -1269,7 +1269,7 @@ exports.updateUserWallet = async () => {
           wallet.transactions = [...wallet.transactions, {
             title: 'Internship Payout',
             description: `Amount credited for your internship profit`,
-            amount: (creditAmount),
+            amount: (creditAmount?.toFixed(2)),
             transactionId: uuid.v4(),
             transactionType: 'Cash'
           }];
@@ -1280,7 +1280,7 @@ exports.updateUserWallet = async () => {
           wallet.transactions = [...wallet.transactions, {
             title: 'Internship Payout',
             description: `Amount credited for your internship profit`,
-            amount: (creditAmount),
+            amount: (creditAmount?.toFixed(2)),
             transactionId: uuid.v4(),
             transactionType: 'Cash'
           }];

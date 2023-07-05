@@ -26,6 +26,7 @@ const Timer = ({date, setTimeDifference, serverTime, id}) => {
           return [...prevArray, { id, value: timeDifference }];
         }
       });
+      console.log("timeDifference", timeDifference, id)
       if (timeDifference > 0) {
         const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

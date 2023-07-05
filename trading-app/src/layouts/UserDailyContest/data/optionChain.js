@@ -208,19 +208,19 @@ const OptionChain = ({ socket, data }) => {
                                 <Grid display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%" }}>
 
                                     <Grid container p={1} lg={5.25}>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                        </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4}>
+                                        </Grid> */}
+                                        <Grid item xs={12} md={2} lg={3}>
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">OI(Lakh)</MDTypography>
                                         </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">Bid</MDTypography>
                                         </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">Offer</MDTypography>
                                         </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">LTP</MDTypography>
                                         </Grid>
                                     </Grid>
@@ -232,21 +232,21 @@ const OptionChain = ({ socket, data }) => {
                                     </Grid>
 
                                     <Grid container p={1} lg={5.25}>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">LTP</MDTypography>
                                         </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">Offer</MDTypography>
                                         </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">Bid</MDTypography>
                                         </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(Lakh)</MDTypography>
                                         </Grid>
-                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                        {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                        </Grid>
+                                        </Grid> */}
                                     </Grid>
                                 </Grid>
 
@@ -284,27 +284,27 @@ const OptionChain = ({ socket, data }) => {
                                                 display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%", cursor: "pointer" }}>
 
                                                 <Grid container p={1} lg={5.25} sx={{ backgroundColor: '#FFFFE0' }}>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid>
+                                                    </Grid> */}
                                                     {isRowHovered && liveData[0]?.last_price ?
-                                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
+                                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
                                                             <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
-                                                            <SellModel  setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                            <SellModel isOption={true} setOpenOptionChain={setOpen}  setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
                                                         </Grid>
                                                         :
-                                                        <Grid item xs={12} md={2} lg={2.4}>
+                                                        <Grid item xs={12} md={2} lg={3}>
                                                             <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{liveData[0]?.last_price ? (liveData[0]?.oi / 100000)?.toFixed(2) : "-"}</MDTypography>
                                                         </Grid>
                                                     }
 
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveData[0]?.last_price ? bid : "-"}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveData[0]?.last_price ? offer : "-"}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveData[0]?.last_price ? liveData[0]?.last_price : "-"}</MDTypography>
                                                     </Grid>
                                                 </Grid>
@@ -318,32 +318,32 @@ const OptionChain = ({ socket, data }) => {
                                                 </Grid>
 
                                                 <Grid container p={1} lg={5.25}>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? liveDataPE[0]?.last_price: "-"}</MDTypography>
                                                     </Grid>
 
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? offerPe : "-"}</MDTypography>
                                                     </Grid>
 
 
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? bidPe : "-"}</MDTypography>
                                                     </Grid>
                                                     {isRowHovered && liveDataPE[0]?.last_price ?
-                                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
-                                                            <BuyModel setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
-                                                            <SellModel setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
+                                                            <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                            <SellModel isOption={true} setOpenOptionChain={setOpen} setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
 
                                                         </Grid>
                                                         :
-                                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? (liveDataPE[0]?.oi / 100000)?.toFixed(2) : "-"}</MDTypography>
                                                         </Grid>
                                                     }
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid>
+                                                    </Grid> */}
                                                 </Grid>
                                             </Grid>
 
@@ -383,26 +383,26 @@ const OptionChain = ({ socket, data }) => {
                                                 display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%", cursor: "pointer", }}>
 
                                                 <Grid container p={1} lg={5.25} sx={index === 0 && { backgroundColor: '#FFFFFF' }} >
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid>
+                                                    </Grid> */}
                                                     {isRowHovered && liveData[0]?.last_price ?
-                                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
-                                                            <BuyModel setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
-                                                            <SellModel setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
+                                                            <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                            <SellModel isOption={true} setOpenOptionChain={setOpen} setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
                                                         </Grid>
                                                         :
-                                                        <Grid item xs={12} md={2} lg={2.4}>
+                                                        <Grid item xs={12} md={2} lg={3}>
                                                             <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{liveData[0]?.last_price ? (liveData[0]?.oi / 100000)?.toFixed(2) : "-"}</MDTypography>
                                                         </Grid>
                                                     }
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveData[0]?.last_price ? bid : "-"}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveData[0]?.last_price ? offer : "-"}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveData[0]?.last_price ? liveData[0]?.last_price : "-"}</MDTypography>
                                                     </Grid>
                                                 </Grid>
@@ -413,28 +413,28 @@ const OptionChain = ({ socket, data }) => {
                                                     </Grid>
                                                 </Grid>
                                                 <Grid container p={1} lg={5.25} sx={index !== 0 ? { backgroundColor: '#FFFFE0' } : { backgroundColor: '#FFFFFF' }}>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? liveDataPE[0]?.last_price : "-"}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? offerPe : "-"}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? bidPe : "-"}</MDTypography>
                                                     </Grid>
                                                     {isRowHovered && liveDataPE[0]?.last_price ?
-                                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center">
-                                                            <BuyModel setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
-                                                            <SellModel setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
+                                                            <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                            <SellModel isOption={true} setOpenOptionChain={setOpen} setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
                                                         </Grid>
                                                         :
-                                                        <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                        <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? (liveDataPE[0]?.oi / 100000)?.toFixed(2) : "-"}</MDTypography>
                                                         </Grid>
                                                     }
-                                                    <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                                         <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid>
+                                                    </Grid> */}
                                                 </Grid>
                                             </Grid>
 
@@ -445,14 +445,6 @@ const OptionChain = ({ socket, data }) => {
                             </Grid>
                         </DialogContentText>
                     </DialogContent>
-                    {/* <DialogActions>
-            <MDButton autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
-              BUY
-            </MDButton>
-            <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
-              Close
-            </MDButton>
-          </DialogActions> */}
                 </Dialog>
             </div >
         </div >

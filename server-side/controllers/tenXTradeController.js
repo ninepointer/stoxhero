@@ -678,7 +678,7 @@ exports.autoExpireSubscription = async () => {
   
 
         // console.log(Math.floor(tradingDays[0]?.actualRemainingDay), tradingDays)
-        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) === 0) {
+        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) < 0) {
           console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
           // "subscription.subscribedOn": {$gte: new Date(subscribedOn)}
           console.log(new Date(subscribedOn))
@@ -734,7 +734,7 @@ exports.autoExpireSubscription = async () => {
             wallet.transactions = [...wallet.transactions, {
                   title: 'TenX Trading Payout',
                   description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
-                  amount: (payoutAmount),
+                  amount: (payoutAmount?.toFixed(2)),
                   transactionId: uuid.v4(),
                   transactionType: 'Cash'
             }];

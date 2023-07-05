@@ -54,7 +54,7 @@ export default function LabTabs({socket}) {
   useEffect(()=>{
     console.log("Loading: ",isLoading)
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/papertrade/virtualoveralltraderpnltoday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/virtualoveralltraderpnltoday`)
     .then((res) => {
         console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data); 
@@ -63,7 +63,7 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
     console.log("Loading: ",isLoading)
-    axios.get(`${baseUrl}api/v1/papertrade/liveandtotaltradercounttoday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercounttoday`)
     .then((res) => {
         console.log("Virtual Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
