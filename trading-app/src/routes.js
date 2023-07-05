@@ -134,12 +134,14 @@ import SchoolIcon from '@mui/icons-material/School';
 import VirtualPosition from "./layouts/virtualtradePosition";
 import TenxPosition from "./layouts/tenxPosition";
 import DailyContestPosition from "./layouts/dailyContestPosition";
+import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
+
 // import BadgeIcon from '@mui/icons-material/Badge';
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
 import VirtualDashboard from './layouts/virtualdashboard'
 import InternshipOrders from './layouts/internshipOrders'
-import ContactInfo from './layouts/ContactInfo'
+// import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
 import TenxReport from "./layouts/tenXReport";
 import DailyContestReport from "./layouts/dailyContestReport";
@@ -255,7 +257,7 @@ const routes = [
     // name: "Company Dashboard",DailyContestReport
     key: "dailycontestreport",
     // icon: <DashboardIcon/>,
-    route: "/dailycontestreport",
+    route: "/contestdashboard/dailycontestreport",
     component: <DailyContestReport />,
   },
   {
@@ -550,8 +552,17 @@ const routes = [
     // name: "Tenx Position",
     key: "dailycontestposition",
     // icon: <SupervisorAccountIcon/>,
-    route: "/dailycontestposition",
+    route: "/contestdashboard/dailycontestposition",
     component: <DailyContestPosition />,
+  },
+
+  {
+    // type: "collapse",
+    // name: "Tenx Position",
+    key: "dailycontestpositiontrader",
+    // icon: <SupervisorAccountIcon/>,
+    route: "/contestdashboard/dailycontestpositiontrader",
+    component: <DailyContestPositionTrader />,
   },
   // {
   //   type: "collapse",
@@ -638,7 +649,7 @@ const routes = [
     // name: "Internship Batch",
     key: "dailycontest",
     // icon: <BatchIcon/>,
-    route: "/dailycontest",
+    route: "/contestdashboard/dailycontest",
     component: <DailyContest />,
   },
   // {

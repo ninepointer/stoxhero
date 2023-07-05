@@ -19,8 +19,8 @@ const getInstrumentTicksHistoryData = async () => {
   getKiteCred.getAccess().then(async (data)=>{
     console.log("in ticks")
     let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // let todayDate = "2023-06-14";
+    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let todayDate = "2023-06-29";
     let todayDate1 = todayDate + "T00:00:00.000Z";
     const matchingDate = new Date(todayDate1);
 
@@ -78,7 +78,7 @@ const getInstrumentTicksHistoryData = async () => {
         try{
           const response = await axios.get(url, authOptions);
           const instrumentticks = (response.data).data;
-          console.log(instrumentticks)
+          console.log("instrumentticks", instrumentticks, response)
           let len = instrumentticks.candles.length;
           let instrumentticksdata;
           for(let j = len-1; j >= 0; j--){
@@ -156,7 +156,7 @@ function mailSender(length){
   });
   
   const mailOptions = { 
-                from: 'vvv201214@gmail.com',       // sender address
+                from: 'team@stoxhero.com',       // sender address
                 to: 'vvv201214@gmail.com, prateek@ninepointer.com',        // reciever address 
                 subject: `History Data cronjob records inserted : ${length}`,  
                 html: '<p>CronJob is done for history data, please check database</p>'// plain text body

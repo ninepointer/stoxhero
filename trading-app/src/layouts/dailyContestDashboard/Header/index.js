@@ -5,6 +5,7 @@ import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
+import CachedIcon from '@mui/icons-material/Cached';
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
@@ -102,6 +103,22 @@ export default function LabTabs({socket}) {
     }
   }, [])
 
+  const [mockMarginData, setMockMarginData] = useState();
+  const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);
+  let [refreshMockMargin, setRefreshMockMargin] = useState(true);
+
+  useEffect(()=>{
+    setIsLoadMockMargin(false)
+    axios.get(`${baseUrl}api/v1/usedMargin/dailycontest`)
+      .then((res) => {
+        console.log(res.data);
+        setMockMarginData(res.data.data)
+        setIsLoadMockMargin(true)
+      }).catch((err) => {
+        return new Error(err);
+      })
+  }, [refreshMockMargin])
+
   tradeData.map((subelem, index)=>{
     let obj = {};
     totalRunningLots += Number(subelem.lots)
@@ -177,8 +194,17 @@ export default function LabTabs({socket}) {
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCount}/{notliveTraderCount + liveTraderCount}</MDTypography>
                             </Grid>
                             <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                    Used Margin
+                                </MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
+                                    {(!isLoadMockMargin) ?
+                                        <CircularProgress color="inherit" size={10} sx={{ marginRight: "10px" }} />
+                                        :
+                                        <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData)}</span>
+                                    }
+                                    <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMockMargin(!refreshMockMargin) }} />
+                                </MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -248,43 +274,7 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/dailycontestposition`,
-                    }}
-                >
-                    <Grid container>
-
-                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position</MDTypography>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
-                            <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
-                            </MDBox>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                        </Grid>
-
-                    </Grid>
-                </MDButton>
-
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-
-                <MDButton
-                    variant="contained"
-                    color={"warning"}
-                    size="small"
-                    component={Link}
-                    to={{
-                        pathname: `/dailycontestpostiontrader`,
+                        pathname: `/contestdashboard/dailycontestposition`,
                     }}
                 >
                     <Grid container>
@@ -316,11 +306,47 @@ export default function LabTabs({socket}) {
 
                 <MDButton
                     variant="contained"
+                    color={"warning"}
+                    size="small"
+                    component={Link}
+                    to={{
+                        pathname: `/contestdashboard/dailycontestpositiontrader`,
+                    }}
+                >
+                    <Grid container>
+
+                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Trader)</MDTypography>
+                        </Grid>
+
+                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                            <MDBox display="flex" flexDirection="column">
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
+                            </MDBox>
+                        </Grid>
+
+                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        </Grid>
+
+                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        </Grid>
+
+                    </Grid>
+                </MDButton>
+
+            </Grid>
+
+            <Grid item xs={12} md={6} lg={3}>
+
+                <MDButton
+                    variant="contained"
                     color={"primary"}
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/dailycontestreport`,
+                        pathname: `/contestdashboard/dailycontestreport`,
                     }}
                 >
                     <Grid container>
@@ -356,7 +382,7 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/dailycontest`,
+                        pathname: `/contestdashboard/dailycontest`,
                     }}
                 >
                     <Grid container>

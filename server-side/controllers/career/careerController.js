@@ -85,8 +85,8 @@ exports.generateOTP = async(req, res, next)=>{
       applicationStatus: 'Applied'
       });
       // console.log(data)
-      if(process.env.PROD ==true)sendOTP(mobile.toString(), mobile_otp);
-      if(process.env.PROD!==true)sendOTP("9319671094", mobile_otp);
+      if(true)sendOTP(mobile.toString(), mobile_otp);
+     // if(process.env.PROD!==true)sendOTP("9319671094", mobile_otp);
       res.status(201).json({info: "OTP Sent on your mobile number!"}); 
   }catch(error){
     console.log(error)
