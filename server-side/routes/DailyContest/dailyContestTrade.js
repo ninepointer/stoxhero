@@ -4,7 +4,8 @@ const router = express.Router({mergeParams: true});
 const {liveTotalTradersCount, overallDailyContestTraderPnl, 
     overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, 
     myPnlAndPayout, overallDailyContestPnlYesterday, 
-    liveTotalTradersCountYesterday, traderWiseMockTrader, DailyContestPnlTWise } = require('../../controllers/dailyContestTradeController');
+    liveTotalTradersCountYesterday, traderWiseMockCompanySide, 
+    DailyContestPnlTWise, traderWiseMockTraderSide } = require('../../controllers/dailyContestTradeController');
 
 
 router.route('/virtualoveralltraderpnltoday').get(overallDailyContestTraderPnl)
@@ -12,7 +13,8 @@ router.route('/virtualoveralltraderpnlyesterday').get(overallDailyContestPnlYest
 router.route('/liveandtotaltradercounttoday').get(liveTotalTradersCount)
 router.route('/liveandtotaltradercountyesterday').get(liveTotalTradersCountYesterday)
 router.route('/allcontestPnl').get(Authenticate, myPnlAndPayout);
-router.route('/:id/traderWisePnl').get(Authenticate, traderWiseMockTrader)
+router.route('/:id/traderWisePnl').get(Authenticate, traderWiseMockCompanySide)
+router.route('/:id/traderWisePnlTside').get(Authenticate, traderWiseMockTraderSide)
 router.route('/:id/traderwisecompanypnlreport').get(DailyContestPnlTWise)
 
 router.route('/:id/pnl').get(Authenticate, overallPnlTrader);

@@ -769,7 +769,7 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
-exports.traderWiseMockTrader = async (req, res, next) => {
+exports.traderWiseMockCompanySide = async (req, res, next) => {
     const { id } = req.params;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -836,6 +836,77 @@ exports.traderWiseMockTrader = async (req, res, next) => {
     ]
 
     let x = await DailyContestMockCompany.aggregate(pipeline)
+    console.log(id, x)
+    res.status(201).json({ message: "data received", data: x });
+}
+
+exports.traderWiseMockTraderSide = async (req, res, next) => {
+    const { id } = req.params;
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const pipeline = [
+        {
+            $match:
+            {
+                // trade_time: {
+                //     $gte: today
+                // },
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            }
+        },
+        {
+            $lookup: {
+                from: "user-personal-details",
+                localField: "trader",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        {
+            $group:
+            {
+                _id:
+                {
+                    "traderId": "$trader",
+                    "traderName": {
+                        $arrayElemAt: ["$user.name", 0]
+                    },
+                    "symbol": "$instrumentToken",
+                    "exchangeInstrumentToken": "$exchangeInstrumentToken",
+                    "traderEmail": {
+                        $arrayElemAt: ["$user.email", 0]
+                    },
+                    "traderMobile": {
+                        $arrayElemAt: ["$user.mobile", 0]
+                    }
+
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await DailyContestMockUser.aggregate(pipeline)
     console.log(id, x)
     res.status(201).json({ message: "data received", data: x });
 }

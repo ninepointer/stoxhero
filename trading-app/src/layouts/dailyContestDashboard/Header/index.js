@@ -248,43 +248,7 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/dailycontestposition`,
-                    }}
-                >
-                    <Grid container>
-
-                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position</MDTypography>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
-                            <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
-                            </MDBox>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
-                        </Grid>
-
-                    </Grid>
-                </MDButton>
-
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-
-                <MDButton
-                    variant="contained"
-                    color={"warning"}
-                    size="small"
-                    component={Link}
-                    to={{
-                        pathname: `/dailycontestpostiontrader`,
+                        pathname: `/contestdashboard/dailycontestposition`,
                     }}
                 >
                     <Grid container>
@@ -316,11 +280,47 @@ export default function LabTabs({socket}) {
 
                 <MDButton
                     variant="contained"
+                    color={"warning"}
+                    size="small"
+                    component={Link}
+                    to={{
+                        pathname: `/contestdashboard/dailycontestpositiontrader`,
+                    }}
+                >
+                    <Grid container>
+
+                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Trader)</MDTypography>
+                        </Grid>
+
+                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                            <MDBox display="flex" flexDirection="column">
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
+                            </MDBox>
+                        </Grid>
+
+                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        </Grid>
+
+                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        </Grid>
+
+                    </Grid>
+                </MDButton>
+
+            </Grid>
+
+            <Grid item xs={12} md={6} lg={3}>
+
+                <MDButton
+                    variant="contained"
                     color={"primary"}
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/dailycontestreport`,
+                        pathname: `/contestdashboard/dailycontestreport`,
                     }}
                 >
                     <Grid container>
@@ -356,7 +356,7 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/dailycontest`,
+                        pathname: `/contestdashboard/dailycontest`,
                     }}
                 >
                     <Grid container>
