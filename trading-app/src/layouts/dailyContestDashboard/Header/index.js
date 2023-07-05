@@ -57,7 +57,6 @@ export default function LabTabs({socket}) {
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/dailycontest/trade/virtualoveralltraderpnltoday`)
     .then((res) => {
-        console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data); 
     }).catch((err) => {
         setIsLoading(false)
@@ -66,7 +65,6 @@ export default function LabTabs({socket}) {
     console.log("Loading: ",isLoading)
     axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercounttoday`)
     .then((res) => {
-        console.log("Virtual Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
     }).catch((err) => {
@@ -74,18 +72,16 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/papertrade/virtualoveralltraderpnlyesterday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/virtualoveralltraderpnlyesterday`)
     .then((res) => {
-        console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/papertrade/liveandtotaltradercountyesterday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercountyesterday`)
     .then((res) => {
-        console.log("virtual Count Yesterday: ",res.data.data)
         setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
         setTimeout(()=>{
