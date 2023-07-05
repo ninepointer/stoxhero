@@ -95,7 +95,7 @@ exports.deleteContest = async (req, res) => {
 // Controller for getting all contests
 exports.getAllContests = async (req, res) => {
     try {
-        const contests = await Contest.find({});
+        const contests = await Contest.find({}).sort({contestStartTime: -1})
 
         res.status(200).json({
             status:"success",
