@@ -34,7 +34,7 @@ import { Divider, Typography } from '@mui/material';
 
 function MyProfile({profilePhoto,setProfilePhoto}) {
 
-  // console.log('Rendering again');
+  console.log('Rendering again');
 
 
   const [followsMe, setFollowsMe] = useState(true);
@@ -115,7 +115,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
   // console.log(formStateKYC)
 
   async function formSubmit(data,section){
-    console.log("Form Data: ",data)
+    // console.log("Form Data: ",data)
     try{
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
@@ -123,7 +123,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
         formData.append(key, data[key])
       });
       if(section==="KYC Details"){
-        console.log("KYC FormData: ",data)
+        // console.log("KYC FormData: ",data)
         if(!formStateKYC.aadhaarNumber || !formStateKYC.panNumber || 
           !formStateKYC.aadhaarCardFrontImage || !formStateKYC.aadhaarCardBackImage ||
           !formStateKYC.panCardFrontImage
@@ -150,7 +150,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       // console.log('response', response);
       if(response.status === 'success'){
         getDetails.setUserDetail(response.data);
-        console.log("Response: ",response.data,data);
+        // console.log("Response: ",response.data,data);
         setFormStateKYC(prev=>({...prev, drivingLicenseNumber:response.data?.drivingLicenseNumber??'',passportNumber:response.data?.passportNumber??'',panNumber:response.data?.panNumber??'',aadhaarNumber:response.data?.aadhaarNumber??'' ,aadhaarCardBackImage:response.data?.aadhaarCardBackImage??'', 
         aadhaarCardFrontImage: response.data?.aadhaarCardFrontImage??'', panCardFrontImage: response.data?.panCardFrontImage??'',
         addressProofDocument: response.data?.addressProofDocument??'', passportPhoto: response.data?.passportPhoto??''
@@ -253,7 +253,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       }
       else{
         openErrorSB("KYC Details","Invalid file type. Please select an image.");
-        console.log("Error: Invalid file type. Please select an image.");
+        // console.log("Error: Invalid file type. Please select an image.");
       } 
       };
       reader.readAsDataURL(selectedFile);
@@ -323,7 +323,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
     }
   }
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const [title,setTitle] = useState('')
   const [content,setContent] = useState('')

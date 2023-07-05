@@ -13,7 +13,7 @@
 
 export default function AllInActiveAccessTokens() {
 
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   // const [activeData, setActiveData] = useState([]);
   // const [inactiveData, setInactiveData] = useState([]);

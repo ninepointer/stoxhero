@@ -17,7 +17,7 @@ const MarginGrid = () => {
   console.log("rendering : papermargin")
   //console.log("rendering in userPosition: marginGrid")
   const { netPnl, totalRunningLots, pnlData  } = useContext(NetPnlContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [fundDetail, setFundDetail] = useState({});
   // const { columns, rows } = MarginDetails();
 //   const { columns: pColumns, rows: pRows } = MarginDetails();
