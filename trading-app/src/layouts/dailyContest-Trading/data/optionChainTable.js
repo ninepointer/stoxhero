@@ -19,7 +19,7 @@ import {dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Ni
 
 export default function OptionChainTable({socket, setShowChain}) {
   console.log("socket 4th", socket)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   const [isLoading,setIsLoading] = useState(false);
   const [selectIndex, setSelectIndex] = useState("NIFTY50");

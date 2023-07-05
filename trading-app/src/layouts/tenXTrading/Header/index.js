@@ -16,7 +16,7 @@ import Dialogue from './dialogueBox';
 export default function TenXSubscriptions() {
   const [cashBalance, setCashBalance] = React.useState(0);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/userwallet/my`,{

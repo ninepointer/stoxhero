@@ -53,7 +53,7 @@ export default function LabTabs() {
   const [dateRange, setDateRange] = useState({});
   const [cumulativeDays, setCumulativeDays] = useState({});
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   useEffect(()=>{
     let abortController;
