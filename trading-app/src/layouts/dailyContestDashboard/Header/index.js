@@ -284,7 +284,7 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/virtualposition`,
+                            pathname: `/dailycontestposition`,
                           }}
                       >
                           <Grid container>
@@ -295,7 +295,7 @@ export default function LabTabs({socket}) {
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all trader's virtual position here!</MDTypography>
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all trader's contest position here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -320,7 +320,7 @@ export default function LabTabs({socket}) {
                         size="small" 
                         component = {Link}
                         to={{
-                            pathname: `/tenxsubscriptions`,
+                            pathname: `/dailycontestreport`,
                           }}
                       >
                           <Grid container>
@@ -331,7 +331,7 @@ export default function LabTabs({socket}) {
                               
                               <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
                                   <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all virtual trading reports here!</MDTypography>
+                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all daily contest reports here!</MDTypography>
                                   </MDBox>
                               </Grid>
 
@@ -384,7 +384,7 @@ export default function LabTabs({socket}) {
 
             </Grid>
 
-            <Grid item xs={12} md={6} lg={3}>
+            {/* <Grid item xs={12} md={6} lg={3}>
                     <MDButton 
                         variant="contained" 
                         color={"error"} 
@@ -448,9 +448,9 @@ export default function LabTabs({socket}) {
                           </Grid>
                     </MDButton>
                 
-            </Grid>
+            </Grid> */}
 
-            <Grid item lg={3}>
+            {/* <Grid item lg={3}>
                     
                     <MDButton 
                         variant="contained" 
@@ -544,7 +544,7 @@ export default function LabTabs({socket}) {
                           </Grid>
                     </MDButton>
 
-            </Grid>
+            </Grid> */}
             
         </Grid>
 
