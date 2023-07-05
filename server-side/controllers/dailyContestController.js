@@ -95,7 +95,7 @@ exports.deleteContest = async (req, res) => {
 // Controller for getting all contests
 exports.getAllContests = async (req, res) => {
     try {
-        const contests = await Contest.find({});
+        const contests = await Contest.find({}).sort({contestStartTime: -1})
 
         res.status(200).json({
             status:"success",
@@ -140,7 +140,31 @@ exports.getUpcomingContests = async (req, res) => {
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
 
+
+        res.status(200).json({
+            status:"success",
+            message: "Upcoming contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+};
+
+exports.getCommpletedContestsAdmin = async (req, res) => {
+    try {
+        const contests = await Contest.find({contestStatus : 'Completed'})
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
 
         res.status(200).json({
             status:"success",

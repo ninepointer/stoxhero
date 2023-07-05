@@ -457,7 +457,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Profit %</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>{(infinityMiningData?.maxProfitDayProfitPercent).toFixed(2)}%</MDTypography>
+                              <MDTypography ml={5} color='success' fontSize={13} fontWeight='bold'>{(infinityMiningData?.maxProfitDayProfitPercent)?.toFixed(2)??0}%</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>
@@ -471,7 +471,17 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
                               <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>
-                                -₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((-infinityMiningData?.maxLoss))}
+                                    -₹{(() => {
+                                    const maxLoss = infinityMiningData?.maxLoss;
+                                    if (maxLoss === 0 || maxLoss === null || maxLoss === undefined) {
+                                      return '0';
+                                    } else {
+                                      return new Intl.NumberFormat(undefined, {
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0
+                                      }).format(-maxLoss);
+                                    }
+                                  })()}
                               </MDTypography>
                           </Grid>
                         </MDBox>
@@ -485,7 +495,7 @@ export default function TraderMetrics({infinityMiningData, isLoading}) {
                               <MDTypography color='light' fontSize={13} fontWeight='bold'>Max Loss %</MDTypography>
                           </Grid>
                           <Grid item xs={6} md={6} lg={6} p={0.5} display='flex' justifyContent='left'>
-                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>{(infinityMiningData?.maxLossDayLossPercent).toFixed(2)}%</MDTypography>
+                              <MDTypography ml={5} color='error' fontSize={13} fontWeight='bold'>{(infinityMiningData?.maxLossDayLossPercent)?.toFixed(2)??0}%</MDTypography>
                           </Grid>
                         </MDBox>
                         </Grid>

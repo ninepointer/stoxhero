@@ -18,7 +18,7 @@ const [completedContests,setCompletedContests] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/completed`,{
+    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/completedadmin`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",

@@ -27,6 +27,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
 import PotentialUser from "./data/potentialUsers"
+import Shared from "./data/shared";
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -635,7 +636,7 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/dailycontest") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/contestdashboard/dailycontest") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -645,7 +646,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/dailycontest') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/contestdashboard/dailycontest') }}>
                       Back
                     </MDButton>
                   </>
@@ -708,6 +709,12 @@ function Index() {
               {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <PotentialUser dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+
+              {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <Shared dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 

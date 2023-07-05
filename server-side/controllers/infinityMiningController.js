@@ -386,6 +386,7 @@ exports.getTraderTimePeriodStats = async(req, res ,next) =>{
     const traderId = req.params.id;
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(23,59,59,0);
 
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);

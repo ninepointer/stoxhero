@@ -537,110 +537,446 @@ exports.overallDailyContestTraderPnl = async (req, res, next) => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);    
+    const today = new Date(todayDate);
     // console.log(today)
     let pnlDetails = await DailyContestMockCompany.aggregate([
-      {
-        $match: {
-          trade_time: {
-            $gte: today
-            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
-          },
-          status: "COMPLETE",
-        },
-      },
         {
-          $group: {
-            _id: {
-              symbol: "$symbol",
-              product: "$Product",
-              instrumentToken: "$instrumentToken",
-              exchangeInstrumentToken: "$exchangeInstrumentToken",
+            $match: {
+                trade_time: {
+                    $gte: today
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE",
             },
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            turnover: {
-              $sum: {
-                $toInt: { $abs : "$amount"},
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
-              },
-            },
-            totallots: {
-              $sum: {
-                $toInt: { $abs : "$Quantity"},
-              },
-            },
-            trades: {
-              $count:{}
-            },
-          },
         },
         {
-          $sort: {
-            _id: -1,
-          },
+            $group: {
+                _id: {
+                    symbol: "$symbol",
+                    product: "$Product",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] },
+                },
+                turnover: {
+                    $sum: {
+                        $toInt: { $abs: "$amount" },
+                    },
+                },
+                brokerage: {
+                    $sum: {
+                        $toDouble: "$brokerage",
+                    },
+                },
+                lots: {
+                    $sum: {
+                        $toInt: "$Quantity",
+                    },
+                },
+                totallots: {
+                    $sum: {
+                        $toInt: { $abs: "$Quantity" },
+                    },
+                },
+                trades: {
+                    $count: {}
+                },
+            },
         },
-      ])
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
-  }
+        {
+            $sort: {
+                _id: -1,
+            },
+        },
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
 
-  exports.liveTotalTradersCount = async (req, res, next) => {
+exports.liveTotalTradersCount = async (req, res, next) => {
     let date = new Date();
-      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-      todayDate = todayDate + "T00:00:00.000Z";
-      const today = new Date(todayDate);    
-      let pnlDetails = await DailyContestMockCompany.aggregate([
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    let pnlDetails = await DailyContestMockCompany.aggregate([
         {
-          $match: {
-            trade_time: {
-              $gte: today
-              // $gte: new Date("2023-05-26T00:00:00.000+00:00")
-            },
-            status: "COMPLETE"
-          }
-        },
-        {
-          $group: {
-            _id: {
-              trader: "$trader"
-            },
-            runninglots: {
-              $sum: "$Quantity"
+            $match: {
+                trade_time: {
+                    $gte: today
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE"
             }
-          }
         },
         {
-          $group: {
-            _id: null,
-            zeroLotsTraderCount: {
-              $sum: {
-                $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
-              }
-            },
-            nonZeroLotsTraderCount: {
-              $sum: {
-                $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
-              }
+            $group: {
+                _id: {
+                    trader: "$trader"
+                },
+                runninglots: {
+                    $sum: "$Quantity"
+                }
             }
-          }
         },
         {
-          $project: {
-            _id: 0,
-            zeroLotsTraderCount: 1,
-            nonZeroLotsTraderCount: 1
-          }
+            $group: {
+                _id: null,
+                zeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+                    }
+                },
+                nonZeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                zeroLotsTraderCount: 1,
+                nonZeroLotsTraderCount: 1
+            }
         }
-        ])
-        res.status(201).json({ message: "pnl received", data: pnlDetails });
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.overallDailyContestPnlYesterday = async (req, res, next) => {
+    let date;
+    let i = 1;
+    let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+    let pnlDetailsData;
+
+    while (!pnlDetailsData && i <= maxDaysBack) {
+        let day = new Date();
+        day.setDate(day.getDate() - i);
+        let startTime = new Date(day.setHours(0, 0, 0, 0));
+        let endTime = new Date(day.setHours(23, 59, 59, 999));
+        date = startTime;
+
+        pnlDetailsData = await DailyContestMockCompany.aggregate([
+            {
+                $match: {
+                    trade_time: {
+                        $gte: startTime,
+                        $lte: endTime
+                    },
+                    status: "COMPLETE",
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    amount: {
+                        $sum: { $multiply: ["$amount", -1] },
+                    },
+                    turnover: {
+                        $sum: { $toInt: { $abs: "$amount" } },
+                    },
+                    brokerage: {
+                        $sum: { $toDouble: "$brokerage" },
+                    },
+                    lots: {
+                        $sum: { $toInt: "$Quantity" },
+                    },
+                    totallots: {
+                        $sum: { $toInt: { $abs: "$Quantity" } },
+                    },
+                    trades: {
+                        $count: {}
+                    },
+                },
+            },
+            {
+                $sort: {
+                    _id: -1,
+                },
+            },
+        ]);
+
+        if (!pnlDetailsData || pnlDetailsData.length === 0) {
+            pnlDetailsData = null;  // reset the value to ensure the while loop continues
+            i++;  // increment the day counter
+        }
     }
+
+    res.status(201).json({
+        message: "pnl received",
+        data: pnlDetailsData,
+        results: pnlDetailsData ? pnlDetailsData.length : 0,
+        date: date
+    });
+}
+
+exports.liveTotalTradersCountYesterday = async (req, res, next) => {
+    let yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    // console.log(yesterdayDate)
+    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
+    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
+    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
+    const startTime = new Date(yesterdayStartTime);
+    const endTime = new Date(yesterdayEndTime);
+    // console.log("Query Timing: ", startTime, endTime)  
+    let pnlDetails = await DailyContestMockCompany.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: startTime, $lte: endTime
+                    // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+                },
+                status: "COMPLETE"
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader"
+                },
+                runninglots: {
+                    $sum: "$Quantity"
+                }
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                zeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $eq: ["$runninglots", 0] }, 1, 0]
+                    }
+                },
+                nonZeroLotsTraderCount: {
+                    $sum: {
+                        $cond: [{ $ne: ["$runninglots", 0] }, 1, 0]
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                zeroLotsTraderCount: 1,
+                nonZeroLotsTraderCount: 1
+            }
+        }
+    ])
+    res.status(201).json({ message: "pnl received", data: pnlDetails });
+}
+
+exports.traderWiseMockCompanySide = async (req, res, next) => {
+    const { id } = req.params;
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const pipeline = [
+        {
+            $match:
+            {
+                // trade_time: {
+                //     $gte: today
+                // },
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            }
+        },
+        {
+            $lookup: {
+                from: "user-personal-details",
+                localField: "trader",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        {
+            $group:
+            {
+                _id:
+                {
+                    "traderId": "$trader",
+                    "traderName": {
+                        $arrayElemAt: ["$user.name", 0]
+                    },
+                    "symbol": "$instrumentToken",
+                    "exchangeInstrumentToken": "$exchangeInstrumentToken",
+                    "traderEmail": {
+                        $arrayElemAt: ["$user.email", 0]
+                    },
+                    "traderMobile": {
+                        $arrayElemAt: ["$user.mobile", 0]
+                    }
+
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await DailyContestMockCompany.aggregate(pipeline)
+    console.log(id, x)
+    res.status(201).json({ message: "data received", data: x });
+}
+
+exports.traderWiseMockTraderSide = async (req, res, next) => {
+    const { id } = req.params;
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const pipeline = [
+        {
+            $match:
+            {
+                // trade_time: {
+                //     $gte: today
+                // },
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            }
+        },
+        {
+            $lookup: {
+                from: "user-personal-details",
+                localField: "trader",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        {
+            $group:
+            {
+                _id:
+                {
+                    "traderId": "$trader",
+                    "traderName": {
+                        $arrayElemAt: ["$user.name", 0]
+                    },
+                    "symbol": "$instrumentToken",
+                    "exchangeInstrumentToken": "$exchangeInstrumentToken",
+                    "traderEmail": {
+                        $arrayElemAt: ["$user.email", 0]
+                    },
+                    "traderMobile": {
+                        $arrayElemAt: ["$user.mobile", 0]
+                    }
+
+                },
+                amount: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await DailyContestMockUser.aggregate(pipeline)
+    console.log(id, x)
+    res.status(201).json({ message: "data received", data: x });
+}
+
+exports.DailyContestPnlTWise = async (req, res, next) => {
+
+    let { id } = req.params
+    // startDate = startDate + "T00:00:00.000Z";
+    // endDate = endDate + "T23:59:59.000Z";
+    // console.log("startDate", startDate,endDate )
+    let pipeline = [
+
+        {
+            $lookup: {
+                from: "user-personal-details",
+                localField: "trader",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+
+        {
+            $match: {
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    userId: "$trader",
+                    name: {
+                        $concat: [
+                            { $arrayElemAt: ["$user.first_name", 0] },
+                            " ",
+                            { $arrayElemAt: ["$user.last_name", 0] },
+                        ],
+                    },
+                },
+                gpnl: { $sum: { $multiply: ["$amount", -1] } },
+                brokerage: { $sum: { $toDouble: "$brokerage" } },
+                trades: { $count: {} },
+                tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+                
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                userId: "$_id.userId",
+                name: "$_id.name",
+                tradingDays: { $size: "$tradingDays" },
+                gpnl: 1,
+                brokerage: 1,
+                npnl: { $subtract: ["$gpnl", "$brokerage"] },
+                noOfTrade: "$trades"
+            },
+        },
+        {
+            $sort: {
+                npnl: -1,
+            },
+        },
+    ]
+
+
+    // let userData = await User.find().select("referrals")
+    let x = await DailyContestMockCompany.aggregate(pipeline)
+
+    // res.status(201).json(x);
+
+    res.status(201).json({ message: "data received", data: x });
+}

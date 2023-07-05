@@ -257,8 +257,10 @@ const OptionChain = ({ socket, data }) => {
 
                                         const isRowHovered = hoveredRows.includes(index);
                                         let PE = abovePE.filter((subelem) => {
-                                            return elem.strike == subelem.strike
+                                            return elem?.strike == subelem?.strike ;
                                         })
+
+                                        
 
                                         let liveData = marketData.filter((subelem) => {
                                             return elem.instrument_token == subelem.instrument_token || elem.exchange_token == subelem.instrument_token
@@ -332,8 +334,8 @@ const OptionChain = ({ socket, data }) => {
                                                     </Grid>
                                                     {isRowHovered && liveDataPE[0]?.last_price ?
                                                         <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
-                                                            <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
-                                                            <SellModel isOption={true} setOpenOptionChain={setOpen} setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                            <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={PE[0]?.tradingsymbol} exchange={PE[0]?.exchange} instrumentToken={PE[0]?.instrument_token} symbolName={`${PE[0]?.strike} ${PE[0]?.instrument_type}`} lotSize={PE[0]?.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={PE[0]?.expiry} exchangeInstrumentToken={PE[0]?.exchange_token} exchangeSegment={PE[0]?.segment} />
+                                                            <SellModel isOption={true} setOpenOptionChain={setOpen} setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={PE[0]?.tradingsymbol} exchange={PE[0]?.exchange} instrumentToken={PE[0]?.instrument_token} symbolName={`${PE[0]?.strike} ${PE[0]?.instrument_type}`} lotSize={PE[0]?.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={PE[0]?.expiry} exchangeInstrumentToken={PE[0]?.exchange_token} exchangeSegment={PE[0]?.segment} />
 
                                                         </Grid>
                                                         :
@@ -357,8 +359,10 @@ const OptionChain = ({ socket, data }) => {
                                         const isRowHovered = hoveredRows.includes(index);
 
                                         let PE = belowPE.filter((subelem) => {
-                                            return elem.strike == subelem.strike
+                                            return elem?.strike == subelem?.strike;
                                         })
+
+                                        console.log("checking pe", elem?.instrument_type)
 
                                         let liveData = marketData.filter((subelem) => {
                                             return elem.instrument_token == subelem.instrument_token || elem.exchange_token == subelem.instrument_token
@@ -424,8 +428,8 @@ const OptionChain = ({ socket, data }) => {
                                                     </Grid>
                                                     {isRowHovered && liveDataPE[0]?.last_price ?
                                                         <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
-                                                            <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
-                                                            <SellModel isOption={true} setOpenOptionChain={setOpen} setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
+                                                            <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={PE[0]?.tradingsymbol} exchange={PE[0]?.exchange} instrumentToken={PE[0]?.instrument_token} symbolName={`${PE[0]?.strike} ${PE[0]?.instrument_type}`} lotSize={PE[0]?.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={PE[0]?.expiry} exchangeInstrumentToken={PE[0]?.exchange_token} exchangeSegment={PE[0]?.segment} />
+                                                            <SellModel isOption={true} setOpenOptionChain={setOpen} setSellState={setSellState} sellState={sellState} contestId={contestId} from={dailyContest} socket={socket} symbol={PE[0]?.tradingsymbol} exchange={PE[0]?.exchange} instrumentToken={PE[0]?.instrument_token} symbolName={`${PE[0]?.strike} ${PE[0]?.instrument_type}`} lotSize={PE[0]?.lot_size} maxLot={maxLot} ltp={(liveDataPE[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={PE[0]?.expiry} exchangeInstrumentToken={PE[0]?.exchange_token} exchangeSegment={PE[0]?.segment} />
                                                         </Grid>
                                                         :
                                                         <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
