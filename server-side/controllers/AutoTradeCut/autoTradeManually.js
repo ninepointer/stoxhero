@@ -546,6 +546,10 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
       userQuantity = "-" + userQuantity;
     }
 
+    if (buyOrSell === "SELL") {
+      Quantity = "-" + Quantity;
+    }
+
     //console.log("1st")
     let originalLastPriceUser;
     let originalLastPriceCompany;
@@ -555,7 +559,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
       //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      console.log("liveData", liveData)
+      // console.log("liveData", liveData)
       for (let elem of liveData) {
         if (elem.instrument_token == instrumentToken) {
           newTimeStamp = elem.timestamp;
@@ -746,6 +750,9 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
 
     if (buyOrSell === "SELL") {
       userQuantity = "-" + userQuantity;
+    }
+    if (buyOrSell === "SELL") {
+      Quantity = "-" + Quantity;
     }
 
     //console.log("1st")

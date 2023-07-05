@@ -257,7 +257,7 @@ const routes = [
     // name: "Company Dashboard",DailyContestReport
     key: "dailycontestreport",
     // icon: <DashboardIcon/>,
-    route: "/dailycontestreport",
+    route: "/contestdashboard/dailycontestreport",
     component: <DailyContestReport />,
   },
   {
@@ -552,7 +552,7 @@ const routes = [
     // name: "Tenx Position",
     key: "dailycontestposition",
     // icon: <SupervisorAccountIcon/>,
-    route: "/dailycontestposition",
+    route: "/contestdashboard/dailycontestposition",
     component: <DailyContestPosition />,
   },
 
@@ -561,7 +561,7 @@ const routes = [
     // name: "Tenx Position",
     key: "dailycontestpositiontrader",
     // icon: <SupervisorAccountIcon/>,
-    route: "/dailycontestpositiontrader",
+    route: "/contestdashboard/dailycontestpositiontrader",
     component: <DailyContestPositionTrader />,
   },
   // {
@@ -649,7 +649,7 @@ const routes = [
     // name: "Internship Batch",
     key: "dailycontest",
     // icon: <BatchIcon/>,
-    route: "/dailycontest",
+    route: "/contestdashboard/dailycontest",
     component: <DailyContest />,
   },
   // {
