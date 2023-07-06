@@ -5,7 +5,7 @@ const {liveTotalTradersCount, overallDailyContestTraderPnl,
     overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, 
     myPnlAndPayout, overallDailyContestPnlYesterday, 
     liveTotalTradersCountYesterday, traderWiseMockCompanySide, 
-    DailyContestPnlTWise, traderWiseMockTraderSide } = require('../../controllers/dailyContestTradeController');
+    DailyContestPnlTWise, traderWiseMockTraderSide, getRedisLeaderBoard } = require('../../controllers/dailyContestTradeController');
 
 
 router.route('/virtualoveralltraderpnltoday').get(overallDailyContestTraderPnl)
@@ -13,6 +13,8 @@ router.route('/virtualoveralltraderpnlyesterday').get(overallDailyContestPnlYest
 router.route('/liveandtotaltradercounttoday').get(liveTotalTradersCount)
 router.route('/liveandtotaltradercountyesterday').get(liveTotalTradersCountYesterday)
 router.route('/allcontestPnl').get(Authenticate, myPnlAndPayout);
+router.route('/:id/leaderboard').get( getRedisLeaderBoard)
+
 router.route('/:id/traderWisePnl').get(Authenticate, traderWiseMockCompanySide)
 router.route('/:id/traderWisePnlTside').get(Authenticate, traderWiseMockTraderSide)
 router.route('/:id/traderwisecompanypnlreport').get(DailyContestPnlTWise)
