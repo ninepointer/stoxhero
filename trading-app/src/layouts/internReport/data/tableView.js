@@ -7,7 +7,7 @@ import moment from 'moment';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
-// import MDButton from "../../../components/MDButton";
+import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import {CircularProgress} from "@mui/material";
 import { Grid } from "@mui/material";
@@ -53,6 +53,7 @@ export default function TableView({whichTab, dateWiseData, userData, batches, da
     <MDBox bgColor="dark" color="light" mb={0} borderRadius={10} minWidth='100%' minHeight='auto'>
       {whichTab === "Daily P&L" ?
         <Grid container spacing={1}>
+          <MDBox><MDButton color='light'>Download</MDButton></MDBox>
           <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
             <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
               <MDTypography color="light" fontSize={9} fontWeight="bold">DATE</MDTypography>

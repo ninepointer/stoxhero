@@ -636,7 +636,7 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/dailycontest") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/contestdashboard/dailycontest") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -646,7 +646,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/dailycontest') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/contestdashboard/dailycontest') }}>
                       Back
                     </MDButton>
                   </>

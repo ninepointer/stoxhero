@@ -110,8 +110,15 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   },[isGetStartedClicked])
 
 
+  let url = `isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`
+  let endPointUrl;
+  if(from === dailyContest){
+    endPointUrl = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
+  } else{
+    endPointUrl = `${baseUrl}api/v1/instrumentDetails`
+  }
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
+    axios.get(`${endPointUrl}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",

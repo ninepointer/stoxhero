@@ -546,7 +546,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
       userQuantity = "-" + userQuantity;
     }
 
-    if (buyOrSell === "SELL") {
+    if (realBuyOrSell === "SELL") {
       Quantity = "-" + Quantity;
     }
 
@@ -751,7 +751,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
     if (buyOrSell === "SELL") {
       userQuantity = "-" + userQuantity;
     }
-    if (buyOrSell === "SELL") {
+    if (realBuyOrSell === "SELL") {
       Quantity = "-" + Quantity;
     }
 
@@ -765,13 +765,11 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
       //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
       console.log("liveData", liveData)
-      for (let elem of liveData) {
-        if (elem.instrument_token == instrumentToken) {
-          newTimeStamp = elem.timestamp;
-          originalLastPriceUser = elem.last_price;
-          originalLastPriceCompany = elem.last_price;
-        }
-      }
+      newTimeStamp = liveData[0]?.timestamp;
+      // console.log("zerodha date", liveData[0].timestamp)
+      originalLastPriceUser = liveData[0]?.last_price;
+      originalLastPriceCompany = liveData[0]?.last_price;
+
 
 
       trade_time = new Date(newTimeStamp);

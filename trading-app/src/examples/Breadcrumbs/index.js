@@ -66,7 +66,19 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Trading Holidays"
   } else if(title === "infinitymining"){
     title = "Infinity Mining"
-  }
+  } else if(title === "dailycontestposition"){
+    title = "Daily Contest Positions"
+  } else if(title === "dailycontestpositiontrader"){
+    title = "Daily Contest Positions - Trader Side"
+  } else if(title === "contestdashboard"){
+    title = "Contest Dashboard"
+  } else if(title === "virtualdashboard"){
+    title = "Virtual Trading Dashboard"
+  } 
+
+  
+
+  
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
 

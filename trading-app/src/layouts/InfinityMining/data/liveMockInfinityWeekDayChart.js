@@ -21,6 +21,17 @@ export default function TraderDetails({bothSideWeeklyTradeData, isLoading}) {
     return (elem?.infinity?.npnl)?.toFixed(0)
   })
 
+  let stoxHeroMaxValue = Math.max(...stoxHeroNpnl)
+  let infinityMaxValue = Math.max(...infinityNpnl)
+  let stoxHeroMinValue = Math.min(...stoxHeroNpnl)
+  let infinityMinValue = Math.min(...infinityNpnl)
+  console.log(stoxHeroMaxValue,infinityMaxValue)
+  let maxValue = stoxHeroMaxValue > infinityMaxValue ? stoxHeroMaxValue : infinityMaxValue
+  let minValue = stoxHeroMinValue < infinityMinValue ? stoxHeroMinValue : infinityMinValue
+  let interval = Math.round(Math.abs(maxValue/10),0)
+
+  let value = maxValue > -minValue ? Math.round(maxValue/10000)*10000 + 30000 : Math.round(-minValue/10000)*10000 + 30000
+
   // convertedDates = dates?.map((date)=>{
   //   let tradeDate = new Date(date)
   //   let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
@@ -91,8 +102,8 @@ export default function TraderDetails({bothSideWeeklyTradeData, isLoading}) {
         {
           type: 'value',
           name: 'Net P&L',
-          min: -50000,
-          max: 50000,
+          min: parseInt(-value),
+          max: parseInt(value),
           // interval: parseInt(interval),
           axisLabel: {
             formatter: `{value} ₹`

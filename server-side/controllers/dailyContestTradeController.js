@@ -5,8 +5,10 @@ const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../marketData/redisClient');
 const DailyContest = require("../models/DailyContest/dailyContest");
 // const InfinityTraderLive = require("../models/TradeDetails/infinityLiveUser")
-
-
+const User = require("../models/User/userDetailSchema")
+const Instrument = require("../models/Instruments/instrumentSchema")
+const getKiteCred = require('../marketData/getKiteCred');
+const axios = require("axios")
 
 
 exports.overallPnlTrader = async (req, res, next) => {
@@ -980,3 +982,530 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
 
     res.status(201).json({ message: "data received", data: x });
 }
+
+exports.getRedisLeaderBoard = async (req, res, next) => {
+    const { id } = req.params;
+    // const appSetting = await AppSetting.find();
+
+
+    try {
+        if (!await client.exists(`${id.toString()}employeeid`)) {
+            let allUsers = await User.find({ status: "Active" });
+
+            let obj = {};
+            for (let i = 0; i < allUsers.length; i++) {
+                let data = {
+                    employeeid: allUsers[i].employeeid,
+                    name: allUsers[i].first_name + " " + allUsers[i].last_name,
+                    photo: allUsers[i]?.profilePhoto?.url,
+                };
+
+                obj[allUsers[i]._id.toString()] = data;
+            }
+
+            try {
+                let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
+
+            } catch (err) {
+                console.log(err)
+            }
+        }
+
+        if (await client.exists(`leaderboard:${id}`)) {
+            // console.log("in if con")
+            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19", 'WITHSCORES'])
+            const formattedLeaderboard = await formatData(leaderBoard)
+            // console.log("app setting", appSetting[0].leaderBoardTimming)
+            // console.log('cached', formattedLeaderboard);
+            // return res.status(200).json({
+            //     status: 'success',
+            //     results: formattedLeaderboard.length,
+            //     data: formattedLeaderboard
+            // });
+            return formattedLeaderboard;
+        }
+        else {
+            //get ltp for the contest instruments
+            // const contestInstruments = await Contest.findById(id).select('instruments');
+            let addUrl;
+            let livePrices = {};
+            let dummyTesting = false;
+            if (dummyTesting) {
+                let filteredTicks = getFilteredTicks();
+                // console.log('filtered ticks received', filteredTicks);
+                if (filteredTicks.length > 0) {
+                    for (tick of filteredTicks) {
+                        livePrices[tick.instrument_token] = tick.last_price;
+                    }
+                    // console.log(livePrices);
+                }
+            } else {
+                const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
+                const data = await getKiteCred.getAccess();
+                contestInstruments.forEach((elem, index) => {
+                    if (index === 0) {
+                        addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+                    } else {
+                        addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+                    }
+                });
+                // console.log(addUrl);
+                const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
+                let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
+
+                let authOptions = {
+                    headers: {
+                        'X-Kite-Version': '3',
+                        Authorization: auth,
+                    },
+                };
+
+                const response = await axios.get(ltpBaseUrl, authOptions);
+                for (let instrument in response.data.data) {
+                    livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+                }
+            }
+
+            let ranks;
+
+            if (await client.exists(`${id.toString()} allranks`)) {
+                ranks = await client.get(`${id.toString()} allranks`);
+                ranks = JSON.parse(ranks);
+                // console.log('ranks in redis',ranks);
+            } else {
+
+                ranks = await DailyContestMockUser.aggregate([
+                    // Match documents for the given contestId
+                    {
+                        $match: {
+                            contestId: new ObjectId(id),
+                            status: "COMPLETE",
+                        }
+                    },
+                    // Group by userId and sum the amount
+                    {
+                        $group: {
+                            _id: {
+                                trader: "$trader",
+                                // employeeid: "$employeeid",
+                                instrumentToken: "$instrumentToken",
+                                exchangeInstrumentToken: "$exchangeInstrumentToken",
+                                symbol: "$symbol",
+                                product: "$Product",
+                            },
+                            totalAmount: { $sum: { $multiply: ["$amount", -1] } },
+                            investedAmount: {
+                                $sum: {
+                                    $cond: {
+                                        if: { $gte: ["$amount", 0] },
+                                        then: "$amount",
+                                        else: 0
+                                    }
+                                }
+                            },
+                            brokerage: {
+                                $sum: {
+                                    $toDouble: "$brokerage",
+                                },
+                            },
+                            lots: {
+                                $sum: { $toInt: "$Quantity" }
+                            }
+                        }
+                    },
+                    // Sort by totalAmount in descending order
+
+                    // Project the result to include only userId and totalAmount
+                    {
+                        $project: {
+                            _id: 0,
+                            userId: "$_id",
+                            totalAmount: 1,
+                            investedAmount: 1,
+                            brokerage: 1,
+                            lots: 1
+                        }
+                    },
+                    {
+                        $addFields: {
+                            rpnl: {
+                                $multiply: ["$lots",]
+                            }
+                        }
+                    },
+                ]);
+                // console.log("ranks from db", ranks)
+                await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
+
+            }
+
+            // console.log(livePrices);
+
+            for (doc of ranks) {
+                // console.log('doc is', doc);
+                doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
+                doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
+                // console.log('npnl is', doc?.npnl);
+            }
+
+
+            async function aggregateRanks(ranks) {
+                const result = {};
+                for (const curr of ranks) {
+                    const { userId, npnl, investedAmount } = curr;
+                    const traderId = userId.trader;
+                    let employeeidObj = await client.get(`${(id).toString()}employeeid`);
+
+                    employeeidObj = JSON.parse(employeeidObj);
+                    // console.log("employeeid", employeeidObj)
+                    if (!result[traderId]) {
+                        result[traderId] = {
+                            traderId,
+                            name: employeeidObj[traderId.toString()]?.employeeid,
+                            npnl: 0,
+                            userName: employeeidObj[traderId.toString()]?.name,
+                            photo: employeeidObj[traderId.toString()]?.photo,
+                            investedAmount: 0,
+
+                        };
+                    }
+                    result[traderId].npnl += npnl;
+                    result[traderId].investedAmount += investedAmount
+                    // console.log("result", result)
+                }
+                return Object.entries(result).map(([key, value]) => value);
+            }
+
+            const result = await aggregateRanks(ranks);
+
+            console.log("rsult", result)
+            for (rank of result) {
+                // console.log(rank);
+                // console.log(`leaderboard${id}`);
+                await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
+                await client.ZADD(`leaderboard:${id}`, {
+                    score: rank.npnl,
+                    value: JSON.stringify({ name: rank.name })
+                });
+            }
+
+            // await pipeline.exec();
+            // console.log("app setting", appSetting[0].leaderBoardTimming)
+            await client.expire(`leaderboard:${id}`, 10);
+
+            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "5", 'WITHSCORES'])
+            const formattedLeaderboard = await formatData(leaderBoard)
+
+            // console.log("formattedLeaderboard", leaderBoard, formattedLeaderboard)
+            // return res.status(200).json({
+            //     status: 'success',
+            //     results: formattedLeaderboard.length,
+            //     data: formattedLeaderboard
+            // });
+
+            return formattedLeaderboard;
+
+
+        }
+    } catch (e) {
+        console.log("redis error", e);
+    }
+
+    async function formatData(arr) {
+        const formattedLeaderboard = [];
+
+        for (let i = 0; i < arr.length; i += 2) {
+            // Parse the JSON string to an object
+            const obj = JSON.parse(arr[i]);
+            // Add the npnl property to the object
+            let data = await client.get(`${obj.name} investedAmount`)
+            data = JSON.parse(data);
+            obj.npnl = Number(arr[i + 1]);
+            // obj.investedAmount = Number(investedAmount);
+            obj.userName = data.userName;
+            obj.photo = data.photo;
+            // Add the object to the formattedLeaderboard array
+            formattedLeaderboard.push(obj);
+        }
+
+        return formattedLeaderboard;
+    }
+
+}
+
+exports.dailyContestLeaderBoard = async (id) => {
+    // const { id } = req.params;
+    // const appSetting = await AppSetting.find();
+
+
+    try {
+        if (!await client.exists(`${id.toString()}employeeid`)) {
+            let allUsers = await User.find({ status: "Active" });
+
+            let obj = {};
+            for (let i = 0; i < allUsers.length; i++) {
+                let data = {
+                    employeeid: allUsers[i].employeeid,
+                    name: allUsers[i].first_name + " " + allUsers[i].last_name,
+                    photo: allUsers[i]?.profilePhoto?.url,
+                };
+
+                obj[allUsers[i]._id.toString()] = data;
+            }
+
+            try {
+                let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
+
+            } catch (err) {
+                console.log(err)
+            }
+        }
+
+        if (await client.exists(`leaderboard:${id}`)) {
+            // console.log("in if con")
+            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+            const formattedLeaderboard = await formatData(leaderBoard)
+            // console.log("app setting", appSetting[0].leaderBoardTimming)
+            // console.log('cached', formattedLeaderboard);
+            // return res.status(200).json({
+            //     status: 'success',
+            //     results: formattedLeaderboard.length,
+            //     data: formattedLeaderboard
+            // });
+            return formattedLeaderboard;
+        }
+        else {
+            //get ltp for the contest instruments
+            // const contestInstruments = await Contest.findById(id).select('instruments');
+            let addUrl;
+            let livePrices = {};
+            let dummyTesting = false;
+            if (dummyTesting) {
+                let filteredTicks = getFilteredTicks();
+                // console.log('filtered ticks received', filteredTicks);
+                if (filteredTicks.length > 0) {
+                    for (tick of filteredTicks) {
+                        livePrices[tick.instrument_token] = tick.last_price;
+                    }
+                    // console.log(livePrices);
+                }
+            } else {
+                const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
+                const data = await getKiteCred.getAccess();
+                contestInstruments.forEach((elem, index) => {
+                    if (index === 0) {
+                        addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+                    } else {
+                        addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+                    }
+                });
+                // console.log(addUrl);
+                const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
+                let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
+
+                let authOptions = {
+                    headers: {
+                        'X-Kite-Version': '3',
+                        Authorization: auth,
+                    },
+                };
+
+                const response = await axios.get(ltpBaseUrl, authOptions);
+                for (let instrument in response.data.data) {
+                    livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+                }
+            }
+
+            let ranks;
+
+            // if (await client.exists(`${id.toString()} allranks`)) {
+            //     ranks = await client.get(`${id.toString()} allranks`);
+            //     ranks = JSON.parse(ranks);
+            //     // console.log('ranks in redis',ranks);
+            // } else {
+
+                ranks = await DailyContestMockUser.aggregate([
+                    // Match documents for the given contestId
+                    {
+                        $match: {
+                            contestId: new ObjectId(id),
+                            status: "COMPLETE",
+                        }
+                    },
+                    // Group by userId and sum the amount
+                    {
+                        $group: {
+                            _id: {
+                                trader: "$trader",
+                                // employeeid: "$employeeid",
+                                instrumentToken: "$instrumentToken",
+                                exchangeInstrumentToken: "$exchangeInstrumentToken",
+                                symbol: "$symbol",
+                                product: "$Product",
+                            },
+                            totalAmount: { $sum: { $multiply: ["$amount", -1] } },
+                            investedAmount: {
+                                $sum: {
+                                    $cond: {
+                                        if: { $gte: ["$amount", 0] },
+                                        then: "$amount",
+                                        else: 0
+                                    }
+                                }
+                            },
+                            brokerage: {
+                                $sum: {
+                                    $toDouble: "$brokerage",
+                                },
+                            },
+                            lots: {
+                                $sum: { $toInt: "$Quantity" }
+                            }
+                        }
+                    },
+                    // Sort by totalAmount in descending order
+
+                    // Project the result to include only userId and totalAmount
+                    {
+                        $project: {
+                            _id: 0,
+                            userId: "$_id",
+                            totalAmount: 1,
+                            investedAmount: 1,
+                            brokerage: 1,
+                            lots: 1
+                        }
+                    },
+                    {
+                        $addFields: {
+                            rpnl: {
+                                $multiply: ["$lots",]
+                            }
+                        }
+                    },
+                ]);
+                // console.log("ranks from db", ranks, id)
+                await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
+
+            // }
+
+            // console.log(livePrices);
+
+            for (doc of ranks) {
+                // console.log('doc is', doc);
+                doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
+                doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
+                // console.log('npnl is', doc?.npnl);
+            }
+
+
+            async function aggregateRanks(ranks) {
+                const result = {};
+                for (const curr of ranks) {
+                    const { userId, npnl, investedAmount } = curr;
+                    const traderId = userId.trader;
+                    let employeeidObj = await client.get(`${(id).toString()}employeeid`);
+
+                    employeeidObj = JSON.parse(employeeidObj);
+                    // console.log("employeeid", employeeidObj)
+                    if (!result[traderId]) {
+                        result[traderId] = {
+                            traderId,
+                            name: employeeidObj[traderId.toString()]?.employeeid,
+                            npnl: 0,
+                            userName: employeeidObj[traderId.toString()]?.name,
+                            photo: employeeidObj[traderId.toString()]?.photo,
+                            investedAmount: 0,
+
+                        };
+                    }
+                    result[traderId].npnl += npnl;
+                    result[traderId].investedAmount += investedAmount
+                    // console.log("result", result)
+                }
+                return Object.entries(result).map(([key, value]) => value);
+            }
+
+            const result = await aggregateRanks(ranks);
+
+            // console.log("rsult", result)
+            for (rank of result) {
+                // console.log(rank);
+                // console.log(`leaderboard${id}`);
+                await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
+                await client.ZADD(`leaderboard:${id}`, {
+                    score: rank.npnl,
+                    value: JSON.stringify({ name: rank.name })
+                });
+            }
+
+            // await pipeline.exec();
+            // console.log("app setting", appSetting[0].leaderBoardTimming)
+            await client.expire(`leaderboard:${id}`, 3);
+
+            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+            // console.log("leaderBoard", leaderBoard)
+            const formattedLeaderboard = await formatData(leaderBoard)
+
+            return formattedLeaderboard;
+        }
+    } catch (e) {
+        console.log("redis error", e);
+    }
+
+    async function formatData(arr) {
+        const formattedLeaderboard = [];
+
+        for (let i = 0; i < arr.length; i += 2) {
+            // Parse the JSON string to an object
+            const obj = JSON.parse(arr[i]);
+            // Add the npnl property to the object
+            let data = await client.get(`${obj.name} investedAmount`)
+            data = JSON.parse(data);
+            obj.npnl = Number(arr[i + 1]);
+            // obj.investedAmount = Number(investedAmount);
+            obj.userName = data.userName;
+            obj.photo = data.photo;
+            // Add the object to the formattedLeaderboard array
+            formattedLeaderboard.push(obj);
+        }
+
+        return formattedLeaderboard;
+    }
+
+}
+
+
+
+exports.getRedisMyRank = async(id, employeeId) => {
+    
+    console.log(id, employeeId)
+    try{
+      if(await client.exists(`leaderboard:${id}`)){
+  
+        const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({name:employeeId}));
+        // const leaderBoardScore = await client.ZSCORE(`leaderboard:${id}`, JSON.stringify({name:employeeId}));
+        // const investedAmount = await client.get(`${employeeId} investedAmount`)
+  
+        console.log("leaderBoardRank", leaderBoardRank)
+
+        if(leaderBoardRank == null) return null
+        return leaderBoardRank+1
+        // return res.status(200).json({
+        //   status: 'success',
+        //   data: {rank: leaderBoardRank+1, npnl: leaderBoardScore}
+        // }); 
+    
+      }else{
+        //   res.status(200).json({
+        //   status: 'loading',
+        //   message:'loading rank'
+        // }); 
+        console.log("loading rank")
+      }
+  
+    } catch(err){
+      console.log(err);
+    }
+  
+  }

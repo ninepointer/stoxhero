@@ -60,6 +60,8 @@ const {updateUserWallet} = require("../../controllers/internshipTradeController"
 const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
 // const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
+const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
+const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
 
 
 
@@ -271,11 +273,15 @@ router.get("/updateFeild", async (req, res) => {
 })
 
 router.get("/deleteTrades", async (req, res) => {
-  const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
-  const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
-  const del3 = await InfinityLiveCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
-  const del4 = await InfinityLiveUser.deleteMany({trade_time: {$gte: new Date("2023-06-19"), $lt: new Date("2023-06-20")}, createdOn: {$gte: new Date("2023-06-28"), $lt: new Date("2023-06-29")}})
-  console.log(del.length, del2.length);
+  // const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+  // const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+
+  const del3 = await DailyContestMockCompany.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+  const del4 = await DailyContestMockUser.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+
+  // const del3 = await InfinityLiveCompany.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+  // const del4 = await InfinityLiveUser.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+  console.log(del3.length, del4.length);// 
 })
 
 router.get("/instrument", async (req, res) => {
