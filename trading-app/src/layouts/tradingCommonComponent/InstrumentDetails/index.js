@@ -64,7 +64,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
         return new Error(err);
     })
     socket?.on("tick-room", (data) => {
-
       marketDetails.setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -73,6 +72,18 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
         return Array.from(instrumentMap.values());
       });
     })
+
+    socket?.on("contest-leaderboardData", (data) => {
+      // marketDetails.setMarketData(prevInstruments => {
+      //   const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+      //   data.forEach(instrument => {
+      //     instrumentMap.set(instrument.instrument_token, instrument);
+      //   });
+      //   return Array.from(instrumentMap.values());
+      // });
+      console.log("this is leaderboard data", data)
+    })
+
   }, [])
 
   useEffect(() => {

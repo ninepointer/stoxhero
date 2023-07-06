@@ -111,19 +111,16 @@ const PopupTrading = ({elem, timeDifference}) => {
 
     return (
         <div>
+            {timeDifference &&
             <MDButton
                 variant='outlined'
                 color='warning'
                 size='small'
-                // component={Link}
                 disabled={timeDifference > 0}
-                // to={{
-                //     pathname: `/contest/alphaavengers`,
-                // }}
                 onClick={() => { participateUserToContest(elem) }}
             >
                 <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
-            </MDButton>
+            </MDButton>}
             <div>
                 <Dialog
                     fullScreen={fullScreen}

@@ -47,7 +47,7 @@ const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
 const {creditAmountToWallet} = require("./controllers/dailyContestController");
 const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
-
+const {dailyContestLeaderBoard} = require("./controllers/dailyContestTradeController");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -115,13 +115,28 @@ client.connect()
 // console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
+  let interval ;
   await createNewTicker(data.getApiKey, data.getAccessToken);
   io.on("connection", async (socket) => {
-    // console.log(socket.id, "socket id")
+    // console.log(socket.id, "socket id") 
     socket.on('userId', async (data) => {
       socket.join(`${data}`)
       // console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
+    })
+
+    socket.on('dailyContestLeaderboard', async (data) => {
+      // socket.join(`${data}`)
+      // console.log("in index.js ", socket.id, data)
+      // await client.set(socket.id, data);
+
+      const emitLeaderboardData = async () => {
+        const leaderBoard = await dailyContestLeaderBoard(data);
+        // console.log("leaderBoard", leaderBoard)
+        socket.emit('contest-leaderboardData', leaderBoard); // Emit the leaderboard data to the client
+      };
+
+      interval = setInterval(emitLeaderboardData, 5000);
     })
 
     socket.on('GetHistory', async(data) => {
@@ -141,20 +156,17 @@ getKiteCred.getAccess().then(async (data)=>{
 
     socket.on('disconnect', () => {
       console.log("disconnecting socket")
-      // client.del(socket.id);
+
+      if(interval) clearInterval(interval);
+      client.expire(socket.id, 10);
     })
 
     socket.on('hi', async (data) => {
-      // getKiteCred.getAccess().then(async (data)=>{
-      // console.log("in hii event");
-        // await getTicks(socket);
-        // await getDummyTicks(socket);
-        // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
 
-      // });
     });
+
     socket.on('company-ticks', async (data) => {
       console.log("in company-ticks event")
       if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
@@ -166,6 +178,7 @@ getKiteCred.getAccess().then(async (data)=>{
       await onError();
       // await onOrderUpdate();
     });
+
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
       // await getTicksForUserPosition(socket, data);
@@ -182,6 +195,7 @@ getKiteCred.getAccess().then(async (data)=>{
       await onOrderUpdate();
 
     });
+
     socket.on('contest', async (data) => {
       // console.log("in contest event")
         await getTicksForContest(socket);
