@@ -65,21 +65,13 @@ import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import Chart from './layouts/charts/index';
-import DailyContest from "./layouts/dailyContest-Trading";
-import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
+// import DailyContest from "./layouts/dailyContest-Trading";
+// import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
 
 const routes = [
 
-  {
-    // type: "collapse",
-    // name: "DashBoard",
-    // key: "Dashboard",
-    // icon: <HomeIcon/>,
-    route: "/dailycontest/trade",
-    component: <DailyContest />,
-  },
   {
     // type: "collapse",
     // name: "DashBoard",
