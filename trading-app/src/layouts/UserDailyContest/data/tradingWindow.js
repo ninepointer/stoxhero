@@ -42,6 +42,8 @@ import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { dailyContest } from '../../../variables';
 import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
 import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/StockIndexDailyContest";
+import Leaderboard from '../data/dailyContestLeaderboard'
+import DailyContestMyRank from '../data/dailyContestMyRank'
 // import { NetPnlContext } from '../../../PnlContext';
 
 
@@ -149,44 +151,8 @@ function Header({ socket, data }) {
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
                         <Grid container spacing={1} xs={12} md={12} lg={12}>
                             <Grid item xs={12} md={6} lg={3}>
-                                {/* <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={Chain} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Option Chain</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton> */}
                                 <OptionChain socket={socket} data={data}/>
                             </Grid>
-
-                            {/* <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={Nifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>NIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}>1,000,000</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={BNifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>BANK NIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}>1,000,000</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={FNifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>FINNIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}>1,000,000</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid> */}
-
-                            {/* <StockIndexDailyContest /> */}
                             {memoizedStockIndex}
                         </Grid>
                     </MDBox>
@@ -202,6 +168,22 @@ function Header({ socket, data }) {
                     <Grid item xs={12} md={6} lg={12} >
                         {memoizedInstrumentDetails}
                     </Grid>
+                </Grid>
+
+                <Grid container spacing={0.5} p={0} mt={0.5}>
+                    
+                    <Grid item xs={12} md={6} lg={8} >
+                        <MDBox sx={{ backgroundColor: '#1A73E8' }} borderRadius={3}>
+                            <Leaderboard/>
+                        </MDBox>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6} lg={4} >
+                        <MDBox sx={{ backgroundColor: '#1A73E8' }} borderRadius={3}>
+                            <DailyContestMyRank/>
+                        </MDBox>
+                    </Grid>
+                    
                 </Grid>
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
