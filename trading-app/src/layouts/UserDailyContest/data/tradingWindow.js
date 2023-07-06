@@ -66,6 +66,14 @@ function Header({ socket, data }) {
         return <StockIndexDailyContest socket={socket} />;
       }, [socket]);
 
+      const memoizedLeaderboard = useMemo(() => {
+        return <Leaderboard socket={socket} name={data?.name} />;
+      }, [socket, data?.name]);
+
+      const memoizedDailyContestMyRank = useMemo(() => {
+        return <DailyContestMyRank socket={socket} />;
+      }, [socket]);
+
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
           socket={socket}
@@ -174,13 +182,15 @@ function Header({ socket, data }) {
                     
                     <Grid item xs={12} md={6} lg={8} >
                         <MDBox sx={{ backgroundColor: '#1A73E8' }} borderRadius={3}>
-                            <Leaderboard/>
+                            {/* <Leaderboard/> */}
+                            {memoizedLeaderboard}
                         </MDBox>
                     </Grid>
                     
                     <Grid item xs={12} md={6} lg={4} >
                         <MDBox sx={{ backgroundColor: '#1A73E8' }} borderRadius={3}>
-                            <DailyContestMyRank/>
+                            {/* <DailyContestMyRank/> */}
+                            {memoizedDailyContestMyRank}
                         </MDBox>
                     </Grid>
                     

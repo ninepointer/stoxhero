@@ -47,7 +47,7 @@ const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
 const {creditAmountToWallet} = require("./controllers/dailyContestController");
 const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
-const {dailyContestLeaderBoard} = require("./controllers/dailyContestTradeController");
+const {dailyContestLeaderBoard, getRedisMyRank} = require("./controllers/dailyContestTradeController");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -129,11 +129,14 @@ getKiteCred.getAccess().then(async (data)=>{
       // socket.join(`${data}`)
       // console.log("in index.js ", socket.id, data)
       // await client.set(socket.id, data);
+      let {id, employeeId} = data;
 
       const emitLeaderboardData = async () => {
-        const leaderBoard = await dailyContestLeaderBoard(data);
+        const leaderBoard = await dailyContestLeaderBoard(id);
+        const myRank = await getRedisMyRank(id, employeeId);
         // console.log("leaderBoard", leaderBoard)
-        socket.emit('contest-leaderboardData', leaderBoard); // Emit the leaderboard data to the client
+        socket.emit('contest-leaderboardData', leaderBoard);
+        socket.emit('contest-myrank', myRank); // Emit the leaderboard data to the client
       };
 
       interval = setInterval(emitLeaderboardData, 5000);

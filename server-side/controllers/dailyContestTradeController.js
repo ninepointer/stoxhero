@@ -1384,7 +1384,7 @@ exports.dailyContestLeaderBoard = async (id) => {
                         }
                     },
                 ]);
-                console.log("ranks from db", ranks, id)
+                // console.log("ranks from db", ranks, id)
                 await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
 
             // }
@@ -1428,7 +1428,7 @@ exports.dailyContestLeaderBoard = async (id) => {
 
             const result = await aggregateRanks(ranks);
 
-            console.log("rsult", result)
+            // console.log("rsult", result)
             for (rank of result) {
                 // console.log(rank);
                 // console.log(`leaderboard${id}`);
@@ -1481,3 +1481,37 @@ exports.dailyContestLeaderBoard = async (id) => {
     }
 
 }
+
+
+
+exports.getRedisMyRank = async(id, employeeId) => {
+    
+    console.log(id, employeeId)
+    try{
+      if(await client.exists(`leaderboard:${id}`)){
+  
+        const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({name:employeeId}));
+        // const leaderBoardScore = await client.ZSCORE(`leaderboard:${id}`, JSON.stringify({name:employeeId}));
+        // const investedAmount = await client.get(`${employeeId} investedAmount`)
+  
+        console.log("leaderBoardRank", leaderBoardRank)
+
+        return leaderBoardRank+1
+        // return res.status(200).json({
+        //   status: 'success',
+        //   data: {rank: leaderBoardRank+1, npnl: leaderBoardScore}
+        // }); 
+    
+      }else{
+        //   res.status(200).json({
+        //   status: 'loading',
+        //   message:'loading rank'
+        // }); 
+        console.log("loading rank")
+      }
+  
+    } catch(err){
+      console.log(err);
+    }
+  
+  }
