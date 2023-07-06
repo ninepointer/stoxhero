@@ -1443,7 +1443,7 @@ exports.dailyContestLeaderBoard = async (id) => {
             // console.log("app setting", appSetting[0].leaderBoardTimming)
             await client.expire(`leaderboard:${id}`, 3);
 
-            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "5", 'WITHSCORES'])
+            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
             // console.log("leaderBoard", leaderBoard)
             const formattedLeaderboard = await formatData(leaderBoard)
 
@@ -1496,6 +1496,7 @@ exports.getRedisMyRank = async(id, employeeId) => {
   
         console.log("leaderBoardRank", leaderBoardRank)
 
+        if(leaderBoardRank == null) return null
         return leaderBoardRank+1
         // return res.status(200).json({
         //   status: 'success',
