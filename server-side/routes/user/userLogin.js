@@ -8,35 +8,36 @@ const {sendSMS, sendOTP} = require('../../utils/smsService');
 const otpGenerator = require('otp-generator');
 const moment = require('moment');
 
-router.post("/login", async (req, res)=>{
-    const {userId, pass} = req.body;
+router.post("/login", async (req, res) => {
+    const { userId, pass } = req.body;
 
-    if(!userId || !pass){
-        return res.status(422).json({status: 'error', message : "Please provide login credentials"});
+    if (!userId || !pass) {
+        return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
     }
 
-    const userLogin = await UserDetail.findOne({email : userId, status: "Active"})
+    const userLogin = await UserDetail.findOne({ email: userId, status: "Active" })
     //console.log(userLogin);
-    if(!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))){
-        return res.status(422).json({error : "invalid details"})
-    }else{
-    
-     //REMINDER ---> HAVE TO FIX ACCORDING ABOVE COMMENTED CODE.
-        if(!userLogin ){
-            return res.status(422).json({status: 'error', message : "Invalid credentials"});
-        }else{
-        
-        const token = await userLogin.generateAuthToken();
-        //console.log(token);
-        
-        res.cookie("jwtoken", token, {
-            expires: new Date(Date.now() + 25892000000),
-            // httpOnly: true
-        });
-        // res.json(token);
-        res.status(201).json({status:'success', message : "user logged in succesfully", token: token});
+
+
+    if (!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))) {
+        return res.status(422).json({ error: "invalid details" })
+    } else {
+
+        if (!userLogin) {
+            return res.status(422).json({ status: 'error', message: "Invalid credentials" });
+        } else {
+
+            const token = await userLogin.generateAuthToken();
+            //console.log(token);
+
+            res.cookie("jwtoken", token, {
+                expires: new Date(Date.now() + 25892000000),
+                // httpOnly: true
+            });
+            // res.json(token);
+            res.status(201).json({ status: 'success', message: "user logged in succesfully", token: token });
+        }
     }
-}
 })
 
 router.post('/phonelogin', async (req,res, next)=>{
