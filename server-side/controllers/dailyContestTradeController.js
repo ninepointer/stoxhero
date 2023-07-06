@@ -1263,7 +1263,7 @@ exports.dailyContestLeaderBoard = async (id) => {
 
         if (await client.exists(`leaderboard:${id}`)) {
             // console.log("in if con")
-            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "19", 'WITHSCORES'])
+            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
             const formattedLeaderboard = await formatData(leaderBoard)
             // console.log("app setting", appSetting[0].leaderBoardTimming)
             // console.log('cached', formattedLeaderboard);
@@ -1446,13 +1446,6 @@ exports.dailyContestLeaderBoard = async (id) => {
             const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
             // console.log("leaderBoard", leaderBoard)
             const formattedLeaderboard = await formatData(leaderBoard)
-
-            // console.log("formattedLeaderboard", leaderBoard, formattedLeaderboard)
-            // return res.status(200).json({
-            //     status: 'success',
-            //     results: formattedLeaderboard.length,
-            //     data: formattedLeaderboard
-            // });
 
             return formattedLeaderboard;
         }
