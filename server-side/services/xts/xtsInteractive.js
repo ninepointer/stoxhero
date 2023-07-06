@@ -62,7 +62,7 @@ const interactiveLogin = async () => {
       if(process.env.PROD){
         await ifServerCrashAfterOrder();
       }
-      // await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
+      await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
     })();
   } catch (err) {
