@@ -39,13 +39,6 @@ function Leaderboard({socket, name}) {
 
             setLeaderboard(data)
             setIsLoading(false);
-          // marketDetails.setMarketData(prevInstruments => {
-          //   const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-          //   data.forEach(instrument => {
-          //     instrumentMap.set(instrument.instrument_token, instrument);
-          //   });
-          //   return Array.from(instrumentMap.values());
-          // });
           console.log("this is leaderboard data", data)
         })
     
@@ -54,8 +47,9 @@ function Leaderboard({socket, name}) {
     return (
         <>
             {loading ?
-                <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-                    <CircularProgress color="light" />
+                <MDBox display="flex" justifyContent="center" alignItems="center">
+                    <MDBox display="flex" justifyContent="center" alignItems="center"><MDTypography fontSize={15} fontWeight='bold' color='light'>Loading Contest Leaderboard</MDTypography></MDBox>
+                    <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="light" /></MDBox>
                 </MDBox>
                 :
                 <MDBox color="light" mt={0} mb={0} borderRadius={10} minHeight='auto'>
@@ -64,14 +58,14 @@ function Leaderboard({socket, name}) {
 
                             <Grid container spacing={0.5} xs={12} md={12} lg={12}>
 
-                                <Grid item lg={12} mt={2}>
+                                <Grid item xs={12} lg={12} mt={2}>
 
-                                    <Grid item lg={12}>
+                                    <Grid item xs={12} lg={12}>
 
                                         <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
 
 
-                                            <Grid item lg={2} display='flex' justifyContent='center' alignItems='center'>
+                                            <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
                                                 <MDAvatar
                                                     src={logo}
                                                     alt="Profile"
@@ -88,10 +82,10 @@ function Leaderboard({socket, name}) {
                                                     })}
                                                 />
                                             </Grid>
-                                            <Grid item lg={6} display='flex' justifyContent='left' alignItems='center'>
+                                            <Grid item xs={12} lg={6} display='flex' justifyContent='left' alignItems='center'>
                                                 <MDTypography fontSize={15} color='light' fontWeight='bold'>StoxHero {name} Contest Leaderboard</MDTypography>
                                             </Grid>
-                                            <Grid item lg={4} display='flex' justifyContent='right' alignItems='center'>
+                                            <Grid item xs={12} lg={4} display='flex' justifyContent='right' alignItems='center'>
                                                 <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}><MDButton variant='text' size='small'><TwitterIcon /></MDButton></MDTypography></MDBox>
                                                 <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}><MDButton variant='text' size='small'><FacebookIcon /></MDButton></MDTypography></MDBox>
                                                 <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}><MDButton variant='text' size='small'><WhatsAppIcon /></MDButton></MDTypography></MDBox>
@@ -104,12 +98,12 @@ function Leaderboard({socket, name}) {
 
                                 </Grid>
 
-                                <Grid item lg={12} mb={1}>
+                                <Grid item xs={12} lg={12} mb={-2}>
 
                                     {leaderboard?.map((elem, index) => {
                                         return (
                                             <div key={elem?.name}>
-                                                <Grid container spacing={0.5} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                <Grid container spacing={0.5} xs={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
 
                                                     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
                                                         <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#{index + 1}</MDTypography></MDBox>
