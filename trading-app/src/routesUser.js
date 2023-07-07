@@ -69,6 +69,7 @@ import Chart from './layouts/charts/index';
 // import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
+import ContestScoreboard from './layouts/contestScoreboard'
 
 const routes = [
 
@@ -252,6 +253,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "battlestreet/history/:name",
     component: <ContestHistoryCard />,
+  },
+  {
+    type: "collapse",
+    name: "Contest Scoreboard",
+    key: "contestscoreboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/contestscoreboard",
+    component: <ContestScoreboard />,
   },
   // {
   //   // type: "collapse",

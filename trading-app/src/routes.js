@@ -73,6 +73,7 @@ import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import InfinityMining from './layouts/InfinityMining'
+import ContestScoreboard from './layouts/contestScoreboard'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -201,6 +202,14 @@ const routes = [
     icon: <EmojiEventsIcon/>,
     route: "/contestdashboard",
     component: <DailyContestDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Contest Scoreboard",
+    key: "contestscoreboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/contestscoreboard",
+    component: <ContestScoreboard />,
   },
   {
     type: "collapse",
