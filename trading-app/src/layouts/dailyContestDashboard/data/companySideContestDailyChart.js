@@ -3,9 +3,39 @@ import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 import moment, { min } from 'moment';
 
-export default function TraderDetails() {
+export default function TraderDetails({completedContest, isLoading}) {
   const chartRef = useRef(null);
-  
+  console.log("Completed Contest Data:", completedContest, isLoading);
+
+  let dates = []
+  let npnl = []
+  let payout = []
+  let numberOfContests = []
+
+  dates = completedContest?.map((e)=>{
+    let tradeDate = new Date(e?.contestDate)
+    let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
+    return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
+  })
+
+  npnl = completedContest?.map((e)=>{
+    return (e?.totalNpnl/100)?.toFixed(0)
+  })
+
+  payout = completedContest?.map((e)=>{
+    return (e?.totalPayout)?.toFixed(0)
+  })
+
+  numberOfContests = completedContest?.map((e)=>{
+    return (e?.numberOfContests)
+  })
+
+  let npnlMax = Math.max(...npnl)
+  let npnlMin = Math.max(...npnl)
+
+  let maxValue = npnlMax > (npnlMin  > 0 ? npnlMin : -npnlMin) ? npnlMax : (npnlMin  > 0 ? npnlMin : -npnlMin)
+  let minValue = -maxValue
+
   useEffect(() => {
     const chart = echarts.init(chartRef.current);
 
@@ -28,10 +58,10 @@ export default function TraderDetails() {
         }
       },
       legend: {
-        data: ['Net P&L', 'Payout']
+        data: ['Net P&L/100', 'Payout','# of Contests']
       },
       grid: {
-        right: '2%', // Adjust the right margin as per your requirement
+        right: '2.5%', // Adjust the right margin as per your requirement
         left: '2%',
         bottom: '2%',
         containLabel: true
@@ -39,7 +69,7 @@ export default function TraderDetails() {
       xAxis: [
         {
           type: 'category',
-          data: ['1-Jan','2-Jan','3-Jan','4-Jan','5-Jan'],
+          data: dates,
           axisPointer: {
             type: 'shadow'
           }
@@ -48,23 +78,33 @@ export default function TraderDetails() {
       yAxis: [
         {
           type: 'value',
-          name: 'Net P&L',
-          min: -100000,
-          max: 100000,
+          name: 'Net P&L/100',
+          // min: npnlMin,
+          // max: npnlMax,
           // interval: parseInt(interval),
           axisLabel: {
             formatter: `{value} ₹`
           }
         },
+        {
+          type: 'value',
+          name: '# of Contests',
+          min: -8,
+          max: 8,
+          interval: 2,
+          axisLabel: {
+            formatter: `{value}`
+          }
+        },
       ],
       series: [
         {
-          name: 'Net P&L',
+          name: 'Net P&L/100',
           type: 'bar',
           tooltip: {
             formatter: '{c} ₹'
           },
-          data: [-20000,23000,34000,-10000,-25000]
+          data: npnl
         },
         {
           name: 'Payout',
@@ -72,7 +112,16 @@ export default function TraderDetails() {
           tooltip: {
             formatter: '{c} ₹'
           },
-          data: [2000,3000,3200,2000,1500]
+          data: payout
+        },
+        {
+          name: '# of Contests',
+          type: 'bar',
+          yAxisIndex: 1,
+          tooltip: {
+            formatter: '{c}'
+          },
+          data: numberOfContests
         },
       ]
     };
@@ -82,7 +131,7 @@ export default function TraderDetails() {
     return () => {
       chart.dispose();
     };
-  }, []);
+  }, [completedContest]);
 
-  return false ? <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px', filter: 'blur(2px)' }} /> : <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
+  return isLoading ? <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px', filter: 'blur(2px)' }} /> : <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };
