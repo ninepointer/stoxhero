@@ -1221,6 +1221,134 @@ exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
     res.status(201).json({ message: "data received", data: x, user: user[0] });
 }
 
+exports.DailyContestPayoutChart = async (req, res, next) => {
+
+    // let { id } = req.params
+    let pipeline = [
+        {
+          $match: {
+            status: "COMPLETE",
+          },
+        },
+        {
+          $lookup: {
+            from: "daily-contests",
+            localField: "contestId",
+            foreignField: "_id",
+            as: "contestData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$contestData",
+          },
+        },
+        {
+          $match:
+            {
+              "contestData.contestStatus": "Completed",
+            },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$trader",
+              contestId: "$contestId",
+              contestName: "$contestData.contestName",
+              date: {
+                $substr: [
+                  "$contestData.contestStartTime",
+                  0,
+                  10,
+                ],
+              },
+              payoutPer:
+                "$contestData.payoutPercentage",
+            },
+            gpnl: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: "$brokerage",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            contest: "$_id.contestId",
+            contestName: "$_id.contestName",
+            date: "$_id.date",
+            npnl: {
+              $subtract: ["$gpnl", "$brokerage"],
+            },
+            payout: {
+              $divide: [
+                {
+                  $multiply: [
+                    {
+                      $subtract: [
+                        "$gpnl",
+                        "$brokerage",
+                      ],
+                    },
+                    "$_id.payoutPer",
+                  ],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $match: {
+            payout: {
+              $gt: 0,
+            },
+          },
+        },
+        {
+          $group:
+            {
+              _id: {
+                contestId: "$contest",
+                contestName: "$contestName",
+                date: "$date",
+              },
+              totalNpnl: {
+                $sum: "$npnl",
+              },
+              totalPayout: {
+                $sum: "$payout",
+              },
+            },
+        },
+        {
+          $project:
+            {
+              contestId: "$_id.contestId",
+              contestName: "$_id.contestName",
+              contestDate: "$_id.date",
+              totalNpnl: 1,
+              totalPayout: 1,
+              _id: 0,
+            },
+        },
+        {
+          $sort:
+            {
+              contestDate: -1,
+            },
+        },
+      ]
+
+    let x = await DailyContestMockUser.aggregate(pipeline)
+
+    res.status(201).json({ message: "data received", data: x });
+}
+
 exports.getRedisLeaderBoard = async (req, res, next) => {
     const { id } = req.params;
     // const appSetting = await AppSetting.find();

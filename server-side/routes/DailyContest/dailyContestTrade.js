@@ -3,11 +3,12 @@ const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
 const {liveTotalTradersCount, overallDailyContestTraderPnl, 
     overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, 
-    myPnlAndPayout, overallDailyContestPnlYesterday, 
+    myPnlAndPayout, overallDailyContestPnlYesterday, DailyContestPayoutChart,
     liveTotalTradersCountYesterday, traderWiseMockCompanySide, DailyContestPnlTWiseTraderSide,
     DailyContestPnlTWise, traderWiseMockTraderSide, getRedisLeaderBoard } = require('../../controllers/dailyContestTradeController');
 
 
+router.route('/payoutchart').get(DailyContestPayoutChart)
 router.route('/virtualoveralltraderpnltoday').get(overallDailyContestTraderPnl)
 router.route('/virtualoveralltraderpnlyesterday').get(overallDailyContestPnlYesterday)
 router.route('/liveandtotaltradercounttoday').get(liveTotalTradersCount)
