@@ -74,9 +74,9 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Contest Dashboard"
   } else if(title === "virtualdashboard"){
     title = "Virtual Trading Dashboard"
+  } else if(title === "contestscoreboard"){
+    title = "Contest Scoreboard"
   } 
-
-  
 
   
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"

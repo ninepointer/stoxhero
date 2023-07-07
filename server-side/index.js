@@ -291,7 +291,7 @@ app.use('/api/v1/dailycontest', require("./routes/DailyContest/dailyContestRoute
 app.use('/api/v1/dailycontest/trade', require("./routes/DailyContest/dailyContestTrade"))
 app.use('/api/v1/optionChain', require("./routes/optionChain/optionChainRoute"))
 app.use('/api/v1/brokerreport', require("./routes/BrokerReport/brokerReportRoutes"))
-
+app.use('/api/v1/contestscoreboard', require("./routes/DailyContest/contestScoreboard"))
 app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
