@@ -916,9 +916,6 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
 exports.DailyContestPnlTWise = async (req, res, next) => {
 
     let { id } = req.params
-    // startDate = startDate + "T00:00:00.000Z";
-    // endDate = endDate + "T23:59:59.000Z";
-    // console.log("startDate", startDate,endDate )
     let pipeline = [
 
         {
@@ -974,13 +971,254 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
         },
     ]
 
+    let pipeline1 = [
+        {
+            $match:
+            {
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            },
+        },
+        {
+            $lookup:
+            {
+                from: "daily-contests",
+                localField: "contestId",
+                foreignField: "_id",
+                as: "contestData",
+            },
+        },
+        {
+            $unwind:
+            {
+                path: "$contestData",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader",
+                    payoutPer:
+                        "$contestData.payoutPercentage",
+                },
+                gpnl: {
+                    $sum: {
+                        $multiply: ["$amount", -1],
+                    },
+                },
+                brokerage: {
+                    $sum: "$brokerage",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+                npnl: {
+                    $subtract: ["$gpnl", "$brokerage"],
+                },
+                payout: {
+                    $divide: [
+                        {
+                            $multiply: [
+                                {
+                                    $subtract: [
+                                        "$gpnl",
+                                        "$brokerage",
+                                    ],
+                                },
+                                "$_id.payoutPer",
+                            ],
+                        },
+                        100,
+                    ],
+                },
+            },
+        },
+        {
+            $match:
+            {
+                payout: {
+                    $gt: 0,
+                },
+            },
+        },
+        {
+            $group:
+            {
+                _id: {},
+                totalPayout: {
+                    $sum: "$payout",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+            },
+        },
+    ]
 
-    // let userData = await User.find().select("referrals")
+    let user = await DailyContestMockUser.aggregate(pipeline1)
     let x = await DailyContestMockCompany.aggregate(pipeline)
 
-    // res.status(201).json(x);
+    res.status(201).json({ message: "data received", data: x, user: user[0] });
+}
 
-    res.status(201).json({ message: "data received", data: x });
+exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
+
+    let { id } = req.params
+    let pipeline = [
+
+        {
+            $lookup: {
+                from: "user-personal-details",
+                localField: "trader",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+
+        {
+            $match: {
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    userId: "$trader",
+                    name: {
+                        $concat: [
+                            { $arrayElemAt: ["$user.first_name", 0] },
+                            " ",
+                            { $arrayElemAt: ["$user.last_name", 0] },
+                        ],
+                    },
+                },
+                gpnl: { $sum: { $multiply: ["$amount", -1] } },
+                brokerage: { $sum: { $toDouble: "$brokerage" } },
+                trades: { $count: {} },
+                tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+                
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                userId: "$_id.userId",
+                name: "$_id.name",
+                tradingDays: { $size: "$tradingDays" },
+                gpnl: 1,
+                brokerage: 1,
+                npnl: { $subtract: ["$gpnl", "$brokerage"] },
+                noOfTrade: "$trades"
+            },
+        },
+        {
+            $sort: {
+                npnl: -1,
+            },
+        },
+    ]
+
+    let pipeline1 = [
+        {
+            $match:
+            {
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            },
+        },
+        {
+            $lookup:
+            {
+                from: "daily-contests",
+                localField: "contestId",
+                foreignField: "_id",
+                as: "contestData",
+            },
+        },
+        {
+            $unwind:
+            {
+                path: "$contestData",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader",
+                    payoutPer:
+                        "$contestData.payoutPercentage",
+                },
+                gpnl: {
+                    $sum: {
+                        $multiply: ["$amount", -1],
+                    },
+                },
+                brokerage: {
+                    $sum: "$brokerage",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+                npnl: {
+                    $subtract: ["$gpnl", "$brokerage"],
+                },
+                payout: {
+                    $divide: [
+                        {
+                            $multiply: [
+                                {
+                                    $subtract: [
+                                        "$gpnl",
+                                        "$brokerage",
+                                    ],
+                                },
+                                "$_id.payoutPer",
+                            ],
+                        },
+                        100,
+                    ],
+                },
+            },
+        },
+        {
+            $match:
+            {
+                payout: {
+                    $gt: 0,
+                },
+            },
+        },
+        {
+            $group:
+            {
+                _id: {},
+                totalPayout: {
+                    $sum: "$payout",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+            },
+        },
+    ]
+
+    let user = await DailyContestMockUser.aggregate(pipeline1)
+    let x = await DailyContestMockUser.aggregate(pipeline)
+
+    res.status(201).json({ message: "data received", data: x, user: user[0] });
 }
 
 exports.getRedisLeaderBoard = async (req, res, next) => {

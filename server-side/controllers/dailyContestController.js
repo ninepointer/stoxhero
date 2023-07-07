@@ -165,7 +165,7 @@ exports.getCommpletedContestsAdmin = async (req, res) => {
         .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-
+        .sort({contestStartTime: -1})
         res.status(200).json({
             status:"success",
             message: "Upcoming contests fetched successfully",

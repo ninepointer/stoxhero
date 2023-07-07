@@ -21,13 +21,13 @@ function TraderwiseTraderPNL({socket }) {
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [subscriptions,setSubscription] = useState([]);
-  const [selectedContest, setselectedContest] = useState();
+  const [selectedContest, setselectedContest] = useState({});
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/dailycontest/contests`, {withCredentials: true})
     .then((res)=>{
       setSubscription(res.data.data);
-      setselectedContest(res.data.data[0]?._id)
+      setselectedContest(res.data.data[0])
     }).catch(e => console.log(e));
   },[])
 
@@ -52,17 +52,18 @@ function TraderwiseTraderPNL({socket }) {
   }, [])
 
   useEffect(()=>{
-    if(!selectedContest){
+    if(!selectedContest?._id){
       return;
     }
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/${selectedContest}/traderWisePnlTside`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/${selectedContest?._id}/traderWisePnlTside`, {withCredentials: true})
     .then((res) => {
+      console.log("contest data", res.data.data)
         setAllTrade(res.data.data);
     }).catch((err)=>{
         return new Error(err);
     })
 
-  }, [selectedContest]) 
+  }, [selectedContest?._id]) 
 
   useEffect(() => {
     return () => {
@@ -119,6 +120,7 @@ function TraderwiseTraderPNL({socket }) {
   let totalTrades = 0;
   let totalLotsUsed = 0;
   let totalTraders = 0;
+  let totalPayout = 0;
 
 
 
@@ -130,7 +132,8 @@ finalTraderPnl.map((subelem, index)=>{
   let runninglotscolor = subelem.runninglots > 0 ? "info" : (subelem.runninglots < 0 ? "error" : "dark")
   let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : ""
   let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5"
-
+  
+  totalPayout += ((subelem?.totalPnl-subelem?.brokerage)*selectedContest?.payoutPercentage)/100 > 0 && ((subelem?.totalPnl-subelem?.brokerage)*selectedContest?.payoutPercentage)/100;
   totalGrossPnl += (subelem.totalPnl);
   totalTransactionCost += (subelem.brokerage);
   totalNoRunningLots += (subelem.runninglots);
@@ -177,6 +180,12 @@ finalTraderPnl.map((subelem, index)=>{
   obj.netPnl = (
     <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
       {((subelem.totalPnl)-(subelem.brokerage)) >= 0.00 ? "+₹" + (((subelem.totalPnl)-(subelem.brokerage)).toFixed(2)): "-₹" + ((-((subelem.totalPnl)-(subelem.brokerage))).toFixed(2))}
+    </MDTypography>
+  );
+
+  obj.payout = (
+    <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
+      {((subelem?.totalPnl-subelem?.brokerage)*selectedContest?.payoutPercentage)/100 > 0.00 ? "+₹" + ((((subelem?.totalPnl-subelem?.brokerage)*selectedContest?.payoutPercentage)/100).toFixed(2)): "₹" + 0.00}
     </MDTypography>
   );
 
@@ -243,6 +252,12 @@ obj.netPnl = (
   </MDTypography>
 );
 
+obj.payout = (
+  <MDTypography component="a" variant="caption"  color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+   +₹{totalPayout?.toFixed(2)}
+  </MDTypography>
+);
+
 
 
 rows.push(obj);
@@ -268,7 +283,7 @@ rows.push(obj);
                 // helperText="Please select subscription"
                 variant="outlined"
                 sx={{margin: 1, padding: 1, width: "300px"}}
-                onChange={(e)=>{setselectedContest(subscriptions.filter((item)=>item.contestName == e.target.value)[0]._id)}}
+                onChange={(e)=>{setselectedContest(subscriptions.filter((item)=>item.contestName == e.target.value)[0])}}
         >
           {subscriptions?.map((option) => (
                 <MenuItem key={option.contestName} value={option.contestName} minHeight="4em">

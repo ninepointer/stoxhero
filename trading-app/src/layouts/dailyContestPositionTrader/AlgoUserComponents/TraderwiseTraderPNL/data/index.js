@@ -10,6 +10,7 @@ export default function data() {
       { Header: "Lots Used", accessor: "lotUsed", width: "12.5%", align: "center" },
       { Header: "Brokegrage", accessor: "brokerage", width: "12.5%", align: "center" },
       { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
+      { Header: "Payout", accessor: "payout", width: "12.5%", align: "center" },
       { Header: "Email", accessor: "email", width: "12.5%", align: "center" },
       { Header: "Mobile", accessor: "mobile", width: "12.5%", align: "center" },
 

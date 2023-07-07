@@ -278,7 +278,7 @@ export default function InfinityMining() {
                           style: { color: 'white' }, // set text color to white
                         }}
                         InputLabelProps={{
-                          style: { color: 'white' }, // set label color to white
+                          style: { color: 'white' },
                         }}
                       />
                     )}

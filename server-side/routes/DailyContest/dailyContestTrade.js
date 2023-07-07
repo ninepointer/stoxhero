@@ -4,7 +4,7 @@ const router = express.Router({mergeParams: true});
 const {liveTotalTradersCount, overallDailyContestTraderPnl, 
     overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, 
     myPnlAndPayout, overallDailyContestPnlYesterday, 
-    liveTotalTradersCountYesterday, traderWiseMockCompanySide, 
+    liveTotalTradersCountYesterday, traderWiseMockCompanySide, DailyContestPnlTWiseTraderSide,
     DailyContestPnlTWise, traderWiseMockTraderSide, getRedisLeaderBoard } = require('../../controllers/dailyContestTradeController');
 
 
@@ -18,6 +18,7 @@ router.route('/:id/leaderboard').get( getRedisLeaderBoard)
 router.route('/:id/traderWisePnl').get(Authenticate, traderWiseMockCompanySide)
 router.route('/:id/traderWisePnlTside').get(Authenticate, traderWiseMockTraderSide)
 router.route('/:id/traderwisecompanypnlreport').get(DailyContestPnlTWise)
+router.route('/:id/traderwisetraderpnlreport').get(DailyContestPnlTWiseTraderSide)
 
 router.route('/:id/pnl').get(Authenticate, overallPnlTrader);
 router.route('/:id/pnl').get(Authenticate, overallPnlTrader);
