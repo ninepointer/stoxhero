@@ -125,18 +125,18 @@ getKiteCred.getAccess().then(async (data)=>{
       await client.set(socket.id, data);
     })
 
-    socket.on('dailyContestLeaderboard', async (data) => {
-      let {id, employeeId} = data;
+    // socket.on('dailyContestLeaderboard', async (data) => {
+    //   let {id, employeeId} = data;
 
-      const emitLeaderboardData = async () => {
-        const leaderBoard = await dailyContestLeaderBoard(id);
-        const myRank = await getRedisMyRank(id, employeeId);
-        socket.emit('contest-leaderboardData', leaderBoard);
-        socket.emit('contest-myrank', myRank); // Emit the leaderboard data to the client
-      };
-      emitLeaderboardData();
-      interval = setInterval(emitLeaderboardData, 5000);
-    })
+    //   const emitLeaderboardData = async () => {
+    //     const leaderBoard = await dailyContestLeaderBoard(id);
+    //     const myRank = await getRedisMyRank(id, employeeId);
+    //     socket.emit('contest-leaderboardData', leaderBoard);
+    //     socket.emit('contest-myrank', myRank); // Emit the leaderboard data to the client
+    //   };
+    //   emitLeaderboardData();
+    //   interval = setInterval(emitLeaderboardData, 5000);
+    // })
 
     socket.on('GetHistory', async(data) => {
       console.log('event received', data);

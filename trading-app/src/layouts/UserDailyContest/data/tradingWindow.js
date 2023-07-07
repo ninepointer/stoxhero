@@ -178,23 +178,21 @@ function Header({ socket, data }) {
                     </Grid>
                 </Grid>
 
-                <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
+                {/* <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
                     
                     <Grid item xs={12} md={12} lg={8} >
                         <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
-                            {/* <Leaderboard/> */}
                             {memoizedLeaderboard}
                         </MDBox>
                     </Grid>
                     
                     <Grid item xs={12} md={12} lg={4} >
                         <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
-                            {/* <DailyContestMyRank/> */}
                             {memoizedDailyContestMyRank}
                         </MDBox>
                     </Grid>
                     
-                </Grid>
+                </Grid> */}
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >
