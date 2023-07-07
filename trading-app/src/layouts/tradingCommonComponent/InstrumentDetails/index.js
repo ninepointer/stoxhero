@@ -73,17 +73,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       });
     })
 
-    socket?.on("contest-leaderboardData", (data) => {
-      // marketDetails.setMarketData(prevInstruments => {
-      //   const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-      //   data.forEach(instrument => {
-      //     instrumentMap.set(instrument.instrument_token, instrument);
-      //   });
-      //   return Array.from(instrumentMap.values());
-      // });
-      console.log("this is leaderboard data", data)
-    })
-
   }, [])
 
   useEffect(() => {

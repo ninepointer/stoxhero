@@ -252,7 +252,7 @@ rows.push(obj);
       <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDBox>
           <MDTypography variant="h6" gutterBottom p={3}>
-            Daily Contest Traders Position
+            Daily Contest Company Position
           </MDTypography>
         </MDBox>
 

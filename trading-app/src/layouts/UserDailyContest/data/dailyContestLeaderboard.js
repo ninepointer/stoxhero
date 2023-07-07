@@ -34,15 +34,21 @@ function Leaderboard({socket, name}) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setIsLoading] = useState(true);
 
-    useEffect(()=>{
+    useEffect(() => {
         socket?.on("contest-leaderboardData", (data) => {
 
-            setLeaderboard(data)
+            setLeaderboard(data);
             setIsLoading(false);
-          console.log("this is leaderboard data", data)
+
+            if(!data){
+                let timer = setTimeout(() => {
+                    setIsLoading(false);
+                }, 5000);
+            }
+            //   console.log("this is leaderboard data", data)
         })
-    
-      }, [])
+
+    }, [])
 
     return (
         <>
@@ -98,6 +104,7 @@ function Leaderboard({socket, name}) {
 
                                 </Grid>
 
+                                {leaderboard?.length >= 3 ?
                                 <Grid item xs={12} lg={12} mb={-2}>
 
                                     {leaderboard?.map((elem, index) => {
@@ -105,122 +112,55 @@ function Leaderboard({socket, name}) {
                                             <div key={elem?.name}>
                                                 <Grid container spacing={0.5} xs={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
 
-                                                    <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-                                                        <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#{index + 1}</MDTypography></MDBox>
+                                                        <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+                                                            <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#{index + 1}</MDTypography></MDBox>
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+
+                                                            {/* <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox> */}
+                                                            <MDAvatar
+                                                                src={elem?.photo ? elem?.photo : DefaultProfilePic}
+                                                                alt="Profile"
+                                                                size="sm"
+                                                                sx={({ borders: { borderWidth }, palette: { white } }) => ({
+                                                                    border: `${borderWidth[2]} solid ${white.main}`,
+                                                                    cursor: "pointer",
+                                                                    position: "relative",
+                                                                    ml: 0,
+
+                                                                    "&:hover, &:focus": {
+                                                                        zIndex: "10",
+                                                                    },
+                                                                })}
+                                                            />
+
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
+                                                            <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{elem?.userName}</MDTypography></MDBox>
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
+                                                            <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography></MDBox>
+                                                        </Grid>
+
                                                     </Grid>
 
-                                                    <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+                                                    <Divider style={{ backgroundColor: 'white' }} />
+                                                </div>
+                                            )
+                                        })}
 
-                                                        {/* <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox> */}
-                                                        <MDAvatar
-                                                            src={elem?.photo ? elem?.photo : DefaultProfilePic}
-                                                            alt="Profile"
-                                                            size="sm"
-                                                            sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                                                border: `${borderWidth[2]} solid ${white.main}`,
-                                                                cursor: "pointer",
-                                                                position: "relative",
-                                                                ml: 0,
-
-                                                                "&:hover, &:focus": {
-                                                                    zIndex: "10",
-                                                                },
-                                                            })}
-                                                        />
-
-                                                    </Grid>
-
-                                                    <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                                        <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{elem?.userName}</MDTypography></MDBox>
-                                                    </Grid>
-
-                                                    <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                                        <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography></MDBox>
-                                                    </Grid>
-
-                                                </Grid>
-
-                                                <Divider style={{ backgroundColor: 'white' }} />
-                                            </div>
-                                        )
-                                    })}
-
-
-                                    {/* <Grid container spacing={0.5} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            
-                                    <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-                                        <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#2</MDTypography></MDBox>
                                     </Grid>
 
-                                    <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-        
-                                                <MDAvatar
-                                                    src={AMargin}
-                                                    alt="Profile"
-                                                    size="sm"
-                                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                                    border: `${borderWidth[2]} solid ${white.main}`,
-                                                    cursor: "pointer",
-                                                    position: "relative",
-                                                    ml: 0,
+                                    :
 
-                                                    "&:hover, &:focus": {
-                                                        zIndex: "10",
-                                                    },
-                                                    })}
-                                                />
-                                        
+                                    <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
+                                        <MDBox mb={2}><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}>The Contest Leaderboard will be displayed here!</MDTypography></MDBox>
                                     </Grid>
 
-                                    <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                        <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>Anshuman Sharma</MDTypography></MDBox>
-                                    </Grid>
-
-                                    <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                        <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>+₹1,10,000</MDTypography></MDBox>     
-                                    </Grid>
-
-                                </Grid>
-
-                                <Divider style={{backgroundColor:'white'}}/>
-
-                                <Grid container spacing={0.5} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                            
-                                    <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-                                        <MDBox><MDTypography fontSize={25} color='light' fontWeight='bold'>#3</MDTypography></MDBox>
-                                    </Grid>
-
-                                    <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
-        
-                                                <MDAvatar
-                                                    src={AMargin}
-                                                    alt="Profile"
-                                                    size="sm"
-                                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                                    border: `${borderWidth[2]} solid ${white.main}`,
-                                                    cursor: "pointer",
-                                                    position: "relative",
-                                                    ml: 0,
-
-                                                    "&:hover, &:focus": {
-                                                        zIndex: "10",
-                                                    },
-                                                    })}
-                                                />
-                                        
-                                    </Grid>
-
-                                    <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                        <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>Vijay Verma</MDTypography></MDBox>
-                                    </Grid>
-
-                                    <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                                        <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold'>+₹1,20,000</MDTypography></MDBox>     
-                                    </Grid>
-
-                                </Grid> */}
-
-                                </Grid>
+                                }
 
                             </Grid>
 

@@ -102,62 +102,72 @@ function Leaderboard({socket}) {
 
                                 </Grid>
 
-                                <Grid item xs={12} lg={12}>
+                                {myRank !== null ?
+                                    <>
+                                        <Grid item xs={12} lg={12}>
 
-                                    <Grid item xs={12} lg={12}>
-                                        <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                            <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
-                                                <MDTypography fontSize={25} color='light' fontWeight='bold'>#{myRank}</MDTypography>
+                                            <Grid item xs={12} lg={12}>
+                                                <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                    <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDTypography fontSize={25} color='light' fontWeight='bold'>#{myRank}</MDTypography>
+                                                    </Grid>
+                                                </Grid>
+                                                <Divider style={{ backgroundColor: 'white' }} />
                                             </Grid>
+
                                         </Grid>
-                                        <Divider style={{ backgroundColor: 'white' }} />
-                                    </Grid>
 
-                                </Grid>
+                                        <Grid item xs={12} lg={12}>
 
-                                <Grid item xs={12} lg={12}>
+                                            <Grid item xs={12} lg={12} display='flex' justifyContent='center'>
+                                                <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                    <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDAvatar
+                                                            src={getDetails?.userDetails?.profilePhoto?.url ? getDetails?.userDetails?.profilePhoto?.url : DefaultProfilePic}
+                                                            alt="Profile"
+                                                            size="sm"
+                                                            sx={({ borders: { borderWidth }, palette: { white } }) => ({
+                                                                border: `${borderWidth[2]} solid ${white.main}`,
+                                                                cursor: "pointer",
+                                                                position: "relative",
+                                                                ml: 0,
 
-                                    <Grid item xs={12} lg={12} display='flex' justifyContent='center'>
-                                        <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                            <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                <MDAvatar
-                                                    src={getDetails?.userDetails?.profilePhoto?.url ? getDetails?.userDetails?.profilePhoto?.url : DefaultProfilePic}
-                                                    alt="Profile"
-                                                    size="sm"
-                                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                                        border: `${borderWidth[2]} solid ${white.main}`,
-                                                        cursor: "pointer",
-                                                        position: "relative",
-                                                        ml: 0,
-
-                                                        "&:hover, &:focus": {
-                                                            zIndex: "10",
-                                                        },
-                                                    })}
-                                                />
-                                            <MDBox ml={1}><MDTypography fontSize={20} color='light' fontWeight='bold'>{getDetails?.userDetails?.first_name + " " + getDetails?.userDetails?.last_name}</MDTypography></MDBox>
-                                            </Grid>
-                                            {/* <Grid item xs={12} lg={8} ml={1} display='flex' justifyContent='center'>
+                                                                "&:hover, &:focus": {
+                                                                    zIndex: "10",
+                                                                },
+                                                            })}
+                                                        />
+                                                        <MDBox ml={1}><MDTypography fontSize={20} color='light' fontWeight='bold'>{getDetails?.userDetails?.first_name + " " + getDetails?.userDetails?.last_name}</MDTypography></MDBox>
+                                                    </Grid>
+                                                    {/* <Grid item xs={12} lg={8} ml={1} display='flex' justifyContent='center'>
                                                 <MDTypography fontSize={20} color='light' fontWeight='bold'>{getDetails?.userDetails?.first_name + " " + getDetails?.userDetails?.last_name}</MDTypography>
                                             </Grid> */}
-                                        </Grid>
-                                        <Divider style={{ backgroundColor: 'white' }} />
-                                    </Grid>
-                                    <Divider style={{ backgroundColor: 'white' }} />
-                                </Grid>
-
-                                <Grid item xs={12} lg={12} mt={-1} mb={1.5} display='flex' justifyContent='center' alignItems='center'>
-
-                                    <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                        <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                            <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                                <MDTypography fontSize={25} color='light' fontWeight='bold'>Net P&L: {(pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.netPnl))}</MDTypography>
+                                                </Grid>
+                                                <Divider style={{ backgroundColor: 'white' }} />
                                             </Grid>
+                                            <Divider style={{ backgroundColor: 'white' }} />
                                         </Grid>
-                                        {/* <Divider style={{backgroundColor:'white'}}/> */}
+
+                                        <Grid item xs={12} lg={12} mt={-1} mb={1.5} display='flex' justifyContent='center' alignItems='center'>
+
+                                            <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                                                <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                                                    <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                                                        <MDTypography fontSize={25} color='light' fontWeight='bold'>Net P&L: {(pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.netPnl))}</MDTypography>
+                                                    </Grid>
+                                                </Grid>
+                                                {/* <Divider style={{backgroundColor:'white'}}/> */}
+                                            </Grid>
+
+                                        </Grid>
+                                    </>
+                                    :
+
+                                    <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
+                                        <MDBox mb={2}><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}>Your ranking will be displayed here.</MDTypography></MDBox>
                                     </Grid>
 
-                                </Grid>
+                                }
 
                             </Grid>
 

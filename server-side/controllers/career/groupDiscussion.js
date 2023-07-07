@@ -7,6 +7,7 @@ const Portfolio =require('../../models/userPortfolio/UserPortfolio');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const Campaign = require("../../models/campaigns/campaignSchema");
 const CareerSchema = require("../../models/Careers/careerSchema");
+const UserWallet = require("../../models/UserWallet/userWalletSchema");
 
 exports.createGroupDiscussion = async(req, res, next)=>{
     console.log(req.body) // batchID
