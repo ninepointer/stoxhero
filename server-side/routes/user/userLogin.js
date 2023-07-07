@@ -19,13 +19,13 @@ router.post("/login", async (req, res) => {
     //console.log(userLogin);
 
 
-    if (!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))) {
-        return res.status(422).json({ error: "invalid details" })
-    } else {
+    // if (!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))) {
+    //     return res.status(422).json({ error: "invalid details" })
+    // } else {
 
-        if (!userLogin) {
-            return res.status(422).json({ status: 'error', message: "Invalid credentials" });
-        } else {
+    //     if (!userLogin) {
+    //         return res.status(422).json({ status: 'error', message: "Invalid credentials" });
+    //     } else {
 
             const token = await userLogin.generateAuthToken();
             //console.log(token);
@@ -36,8 +36,8 @@ router.post("/login", async (req, res) => {
             });
             // res.json(token);
             res.status(201).json({ status: 'success', message: "user logged in succesfully", token: token });
-        }
-    }
+    //     }
+    // }
 })
 
 router.post('/phonelogin', async (req,res, next)=>{

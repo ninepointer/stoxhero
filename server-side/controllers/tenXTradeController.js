@@ -490,7 +490,7 @@ exports.autoExpireSubscription = async () => {
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
-    let payoutPercentage = 1;
+    let payoutPercentage = 10;
     for (let j = 0; j < users.length; j++) {
       let userId = users[j].userId;
       let subscribedOn = users[j].subscribedOn;
@@ -742,8 +742,6 @@ exports.autoExpireSubscription = async () => {
           }
         }
       }
-
-
     }
   }
 }
