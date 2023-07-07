@@ -47,7 +47,7 @@ const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
 const {creditAmountToWallet} = require("./controllers/dailyContestController");
 const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
-const {dailyContestLeaderBoard, getRedisMyRank} = require("./controllers/dailyContestTradeController");
+const {sendLeaderboardData, sendMyRankData} = require("./controllers/dailyContestTradeController");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -125,18 +125,11 @@ getKiteCred.getAccess().then(async (data)=>{
       await client.set(socket.id, data);
     })
 
-    // socket.on('dailyContestLeaderboard', async (data) => {
-    //   let {id, employeeId} = data;
-
-    //   const emitLeaderboardData = async () => {
-    //     const leaderBoard = await dailyContestLeaderBoard(id);
-    //     const myRank = await getRedisMyRank(id, employeeId);
-    //     socket.emit('contest-leaderboardData', leaderBoard);
-    //     socket.emit('contest-myrank', myRank); // Emit the leaderboard data to the client
-    //   };
-    //   emitLeaderboardData();
-    //   interval = setInterval(emitLeaderboardData, 5000);
-    // })
+    socket.on('dailyContestLeaderboard', async (data) => {
+      let {id, employeeId, userId} = data;
+      socket.join(`${id}`)
+      await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
+    })
 
     socket.on('GetHistory', async(data) => {
       console.log('event received', data);
@@ -217,6 +210,10 @@ getKiteCred.getAccess().then(async (data)=>{
   }
 
 });
+
+//emitting leaderboard for contest.
+sendLeaderboardData().then(()=>{});
+sendMyRankData().then(()=>{});
 
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
 

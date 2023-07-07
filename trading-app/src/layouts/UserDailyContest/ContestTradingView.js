@@ -32,7 +32,7 @@ function Tables() {
       console.log("socket connected", socket.id)
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id);
-      // socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid});
+      socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});
     })
     ReactGA.pageview(window.location.pathname)
   }, []);
