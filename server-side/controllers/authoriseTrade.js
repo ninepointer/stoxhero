@@ -1160,7 +1160,7 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 
 //         4. user sell any quantity.
 
-//         1. 10 --> 5, 45, 90
+//         1. 10 --> 5, 45, 
 //         2. 20 --> 10 35, 70
 //         3. 50 --> 25 10, 20
 
@@ -1186,15 +1186,24 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 //         // console.log(runningLots, userFunds)
 
 
-
+//         let isSquareOff = false;
+//         let isReleaseFund = false;
+//         let isAddMoreFund = false;
 //         if ((runningLots[0]?._id?.symbol === symbol) && (transactionTypeRunningLot !== buyOrSell)) {
-//             if()
+//             if(Math.abs(Number(Quantity)) == Math.abs(runningLots[0]?.runningLots)){
+//                 isSquareOff = true;
+//             }
+//             if(Math.abs(Number(Quantity)) < Math.abs(runningLots[0]?.runningLots)){
+//                 isReleaseFund = true;
+//             }
+//             if(Math.abs(Number(Quantity)) > Math.abs(runningLots[0]?.runningLots)){
+//                 isAddMoreFund = true;
+//             }
 //         }
 
 
 
 //         if (((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-//             //console.log("checking runninglot- reverse trade");
 //             return next();
 //         }
 //         let marginData;
@@ -1207,8 +1216,9 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 //             // console.log("error fetching zerodha margin", e);
 //         }
 
-//         let pnlDetails = [];
 
+
+//         let pnlDetails = [];
 //         let totalAmount = 0;
 //         for (const element of todayPnlData) {
 //             if (element.lots < 0) {
@@ -1230,7 +1240,6 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 //         }
 
 //         let userNetPnl = pnlDetails[0]?.npnl;
-//         // console.log(userFunds, userNetPnl, totalAmount, todayPnlData)
 
 //         console.log(userFunds, userNetPnl, zerodhaMargin)
 //         console.log((userFunds + userNetPnl - zerodhaMargin))
