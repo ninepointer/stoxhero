@@ -74,6 +74,7 @@ import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import InfinityMining from './layouts/InfinityMining'
 import ContestScoreboard from './layouts/contestScoreboard'
+import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -162,6 +163,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
     component: <InfinityDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "StoxHero Dashboard",
+    key: "stoxherouserdashboard",
+    icon: <AllInclusiveIcon/>,
+    route: "/stoxherouserdashboard",
+    component: <StoxHeroUserDashboard />,
   },
   {
     type: "collapse",
