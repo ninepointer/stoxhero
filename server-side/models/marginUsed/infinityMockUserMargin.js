@@ -56,8 +56,8 @@ const liveMargin = new mongoose.Schema({
         required: true
     },
     parent_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'infinity-mock-user-margins',
+        type: String,
+        // required: true
     }
 });
 

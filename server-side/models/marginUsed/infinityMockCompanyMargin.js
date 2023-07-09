@@ -57,7 +57,7 @@ const liveMargin = new mongoose.Schema({
     },
     parent_id: {
         type: String,
-        required: true
+        // required: true
     }
 });
 
