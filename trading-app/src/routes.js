@@ -73,6 +73,7 @@ import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import InfinityMining from './layouts/InfinityMining'
+import PaymentTest from './layouts/paymentTest/index'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -970,6 +971,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/chart",
     component: <Chart/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/paymenttest",
+    component: <PaymentTest/>,
   },
 
 ];

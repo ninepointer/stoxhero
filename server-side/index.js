@@ -307,6 +307,7 @@ app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMinin
 app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtualTradingRoute"));
 app.use('/api/v1/user', require("./routes/user/userRoutes"));
 app.use('/api/v1/withdrawals', require("./routes/withdrawal/withdrawalRoutes"));
+app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
 
 
 require('./db/conn');
