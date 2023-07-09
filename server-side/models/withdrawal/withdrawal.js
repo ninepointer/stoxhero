@@ -39,6 +39,7 @@ const WithDrawalSchema = new mongoose.Schema({
     settlementTransactionId:{
         type:'String'
     },
+    recipientReference: String,
     settlementAccount:String,
     tickets:[{type:Schema.Types.ObjectId, ref:'ticket'}],
     createdBy:{

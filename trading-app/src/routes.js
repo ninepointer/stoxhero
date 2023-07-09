@@ -74,6 +74,8 @@ import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import InfinityMining from './layouts/InfinityMining'
 import PaymentTest from './layouts/paymentTest/index'
+import ContestScoreboard from './layouts/contestScoreboard'
+import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -152,7 +154,8 @@ import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
 import AdminLiveReport from './layouts/adminSideReportLive'
 import WorkShopOrders from './layouts/userorders/workshopOrder';
-import Chart from './layouts/charts/index'
+import Chart from './layouts/charts/index';
+import Withdrawal from "./layouts/withdrawals";
 
 const routes = [
   {
@@ -162,6 +165,14 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
     component: <InfinityDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "StoxHero Dashboard",
+    key: "stoxherouserdashboard",
+    icon: <AllInclusiveIcon/>,
+    route: "/stoxherouserdashboard",
+    component: <StoxHeroUserDashboard />,
   },
   {
     type: "collapse",
@@ -202,6 +213,14 @@ const routes = [
     icon: <EmojiEventsIcon/>,
     route: "/contestdashboard",
     component: <DailyContestDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Contest Scoreboard",
+    key: "contestscoreboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/contestscoreboard",
+    component: <ContestScoreboard />,
   },
   {
     type: "collapse",
@@ -979,6 +998,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/paymenttest",
     component: <PaymentTest/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/withdrawals",
+    component: <Withdrawal/>,
   },
 
 ];

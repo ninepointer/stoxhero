@@ -34,15 +34,21 @@ function Leaderboard({socket, name}) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setIsLoading] = useState(true);
 
-    useEffect(()=>{
+    useEffect(() => {
         socket?.on("contest-leaderboardData", (data) => {
 
             setLeaderboard(data);
             setIsLoading(false);
-        //   console.log("this is leaderboard data", data)
+
+            if(!data){
+                let timer = setTimeout(() => {
+                    setIsLoading(false);
+                }, 5000);
+            }
+            //   console.log("this is leaderboard data", data)
         })
-    
-      }, [])
+
+    }, [])
 
     return (
         <>

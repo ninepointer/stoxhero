@@ -7,11 +7,15 @@ import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
 import CachedIcon from '@mui/icons-material/Cached';
 
+//data
+import CompanySideContestDailyChart from '../data/companySideContestDailyChart'
+
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
+  const [completedContest,setCompletedContest] = useState();
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
   const [liveTraderCount, setLiveTraderCount] = useState(0);
   const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
@@ -41,6 +45,16 @@ export default function LabTabs({socket}) {
         });
         return Array.from(instrumentMap.values());
       });
+    })
+
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`)
+    .then((res) => {
+        console.log("Inside Payout chart data");
+        setCompletedContest(res.data.data);
+        console.log("Completed Contest Res:",res.data.data)
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
     })
   }, [])
 
@@ -91,6 +105,15 @@ export default function LabTabs({socket}) {
         setIsLoading(false)
         return new Error(err);
     }) 
+
+    // axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`)
+    // .then((res) => {
+    //     setCompletedContest(res?.data?.data);
+    //     console.log("Completed Contest Red:",res.data)
+    // }).catch((err) => {
+    //     setIsLoading(false)
+    //     return new Error(err);
+    // })
   }, [trackEvent])
 
   useEffect(() => {
@@ -136,12 +159,12 @@ export default function LabTabs({socket}) {
   const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
 
   return (
-    <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
-        <MDBox>
+    <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} display='flex' flexDirection='column' justifyContent='center' alignItems='center' minHeight='auto' maxWidth='100%'>
+        <MDBox display='flex' justifyContent='left'>
             <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Contest Dashboard</MDTypography>
         </MDBox>
 
-        <Grid container lg={12}>
+        <Grid container xs={12} md={12} lg={12}>
             <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
                 {isLoading ? 
                     <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
@@ -151,7 +174,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Contest Position</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Contest Position (Company Side)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -210,7 +233,7 @@ export default function LabTabs({socket}) {
                     </Grid>
 
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's Contest Position</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day Contest Position (Company Side)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -260,7 +283,7 @@ export default function LabTabs({socket}) {
             </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={1}>
+        <Grid container spacing={1} xs={12} md={12} lg={12} mt={0.5} mb={0.5} display='flex' justifyContent='center' alignItems='center'>
 
             <Grid item xs={12} md={6} lg={3}>
 
@@ -570,7 +593,18 @@ export default function LabTabs({socket}) {
 
         </Grid>
 
-        <Grid container spacing={2} mt={1}>
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox display='flex' justifyContent='center' mt={1}>
+                    <MDTypography fontSize={18} fontWeight='bold' color='dark'>Daily Contest Net P&L and Payout (Trader Side)</MDTypography>
+                </MDBox>
+                <MDBox>
+                    { completedContest && <CompanySideContestDailyChart completedContest={completedContest}/>}
+                </MDBox>
+            </Grid>
+        </Grid>
+
+        <Grid container spacing={2} xs={12} md={12} lg={12} mt={1}>
             <Grid item lg={3}>
                 <MDBox p={2} bgColor='text' borderRadius={5}>
                     <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>

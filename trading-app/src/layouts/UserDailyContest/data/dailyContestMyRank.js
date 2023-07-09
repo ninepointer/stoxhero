@@ -38,7 +38,7 @@ function Leaderboard({socket}) {
     const [loading, setIsLoading] = useState(true);
 
     useEffect(()=>{
-        socket?.on("contest-myrank", (data) => {
+        socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
 
             setMyRank(data)
             setIsLoading(false);

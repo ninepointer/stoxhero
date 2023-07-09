@@ -9,7 +9,7 @@ const User = require("../models/User/userDetailSchema")
 const Instrument = require("../models/Instruments/instrumentSchema")
 const getKiteCred = require('../marketData/getKiteCred');
 const axios = require("axios")
-
+const io = require('../marketData/socketio');
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -916,9 +916,6 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
 exports.DailyContestPnlTWise = async (req, res, next) => {
 
     let { id } = req.params
-    // startDate = startDate + "T00:00:00.000Z";
-    // endDate = endDate + "T23:59:59.000Z";
-    // console.log("startDate", startDate,endDate )
     let pipeline = [
 
         {
@@ -974,11 +971,400 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
         },
     ]
 
+    let pipeline1 = [
+        {
+            $match:
+            {
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            },
+        },
+        {
+            $lookup:
+            {
+                from: "daily-contests",
+                localField: "contestId",
+                foreignField: "_id",
+                as: "contestData",
+            },
+        },
+        {
+            $unwind:
+            {
+                path: "$contestData",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader",
+                    payoutPer:
+                        "$contestData.payoutPercentage",
+                },
+                gpnl: {
+                    $sum: {
+                        $multiply: ["$amount", -1],
+                    },
+                },
+                brokerage: {
+                    $sum: "$brokerage",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+                npnl: {
+                    $subtract: ["$gpnl", "$brokerage"],
+                },
+                payout: {
+                    $divide: [
+                        {
+                            $multiply: [
+                                {
+                                    $subtract: [
+                                        "$gpnl",
+                                        "$brokerage",
+                                    ],
+                                },
+                                "$_id.payoutPer",
+                            ],
+                        },
+                        100,
+                    ],
+                },
+            },
+        },
+        {
+            $match:
+            {
+                payout: {
+                    $gt: 0,
+                },
+            },
+        },
+        {
+            $group:
+            {
+                _id: {},
+                totalPayout: {
+                    $sum: "$payout",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+            },
+        },
+    ]
 
-    // let userData = await User.find().select("referrals")
+    let user = await DailyContestMockUser.aggregate(pipeline1)
     let x = await DailyContestMockCompany.aggregate(pipeline)
 
-    // res.status(201).json(x);
+    res.status(201).json({ message: "data received", data: x, user: user[0] });
+}
+
+exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
+
+    let { id } = req.params
+    let pipeline = [
+
+        {
+            $lookup: {
+                from: "user-personal-details",
+                localField: "trader",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+
+        {
+            $match: {
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    userId: "$trader",
+                    name: {
+                        $concat: [
+                            { $arrayElemAt: ["$user.first_name", 0] },
+                            " ",
+                            { $arrayElemAt: ["$user.last_name", 0] },
+                        ],
+                    },
+                },
+                gpnl: { $sum: { $multiply: ["$amount", -1] } },
+                brokerage: { $sum: { $toDouble: "$brokerage" } },
+                trades: { $count: {} },
+                tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+                
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                userId: "$_id.userId",
+                name: "$_id.name",
+                tradingDays: { $size: "$tradingDays" },
+                gpnl: 1,
+                brokerage: 1,
+                npnl: { $subtract: ["$gpnl", "$brokerage"] },
+                noOfTrade: "$trades"
+            },
+        },
+        {
+            $sort: {
+                npnl: -1,
+            },
+        },
+    ]
+
+    let pipeline1 = [
+        {
+            $match:
+            {
+                status: "COMPLETE",
+                contestId: new ObjectId(id)
+            },
+        },
+        {
+            $lookup:
+            {
+                from: "daily-contests",
+                localField: "contestId",
+                foreignField: "_id",
+                as: "contestData",
+            },
+        },
+        {
+            $unwind:
+            {
+                path: "$contestData",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader",
+                    payoutPer:
+                        "$contestData.payoutPercentage",
+                },
+                gpnl: {
+                    $sum: {
+                        $multiply: ["$amount", -1],
+                    },
+                },
+                brokerage: {
+                    $sum: "$brokerage",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+                npnl: {
+                    $subtract: ["$gpnl", "$brokerage"],
+                },
+                payout: {
+                    $divide: [
+                        {
+                            $multiply: [
+                                {
+                                    $subtract: [
+                                        "$gpnl",
+                                        "$brokerage",
+                                    ],
+                                },
+                                "$_id.payoutPer",
+                            ],
+                        },
+                        100,
+                    ],
+                },
+            },
+        },
+        {
+            $match:
+            {
+                payout: {
+                    $gt: 0,
+                },
+            },
+        },
+        {
+            $group:
+            {
+                _id: {},
+                totalPayout: {
+                    $sum: "$payout",
+                },
+            },
+        },
+        {
+            $project:
+            {
+                _id: 0,
+            },
+        },
+    ]
+
+    let user = await DailyContestMockUser.aggregate(pipeline1)
+    let x = await DailyContestMockUser.aggregate(pipeline)
+
+    res.status(201).json({ message: "data received", data: x, user: user[0] });
+}
+
+exports.DailyContestPayoutChart = async (req, res, next) => {
+
+    // let { id } = req.params
+    let pipeline = [
+        {
+          $match: {
+            status: "COMPLETE",
+          },
+        },
+        {
+          $lookup: {
+            from: "daily-contests",
+            localField: "contestId",
+            foreignField: "_id",
+            as: "contestData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$contestData",
+          },
+        },
+        {
+          $match: {
+            "contestData.contestStatus": "Completed",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$trader",
+              contestId: "$contestId",
+              contestName: "$contestData.contestName",
+              date: {
+                $substr: [
+                  "$contestData.contestStartTime",
+                  0,
+                  10,
+                ],
+              },
+              payoutPer:
+                "$contestData.payoutPercentage",
+            },
+            gpnl: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: "$brokerage",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            npnl: {
+              $subtract: ["$gpnl", "$brokerage"],
+            },
+            positiveNpnl: {
+              $max: [
+                0,
+                {
+                  $subtract: ["$gpnl", "$brokerage"],
+                },
+              ],
+            },
+            payoutPer: "$_id.payoutPer",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              contestId: "$_id.contestId",
+              contestName: "$_id.contestName",
+              date: "$_id.date",
+              payoutPer: "$payoutPer",
+            },
+            totalNpnl: {
+              $sum: "$npnl",
+            },
+            totalPositiveNpnl: {
+              $sum: "$positiveNpnl",
+            },
+          },
+        },
+        {
+          $project: {
+            contestId: "$_id.contestId",
+            contestName: "$_id.contestName",
+            contestDate: "$_id.date",
+            totalNpnl: 1,
+            totalPayout: {
+              $multiply: [
+                "$totalPositiveNpnl",
+                {
+                  $divide: ["$_id.payoutPer", 100],
+                },
+              ],
+            },
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            contestDate: -1,
+          },
+        },
+        {
+          $group:
+            {
+              _id: {
+                contestDate: "$contestDate",
+              },
+              totalNpnl: {
+                $sum: "$totalNpnl",
+              },
+              totalPayout: {
+                $sum: "$totalPayout",
+              },
+              numberOfContests: {
+                $sum: 1,
+              },
+            },
+        },
+        {
+            $project:
+              {
+                _id: 0,
+                contestDate: "$_id.contestDate",
+                totalNpnl: 1,
+                totalPayout: 1,
+                numberOfContests: 1,
+              },
+          },
+        {
+            $sort:
+            {
+                contestDate : 1
+            }
+        }
+      ] 
+
+    let x = await DailyContestMockUser.aggregate(pipeline)
 
     res.status(201).json({ message: "data received", data: x });
 }
@@ -1233,9 +1619,7 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
 
 }
 
-exports.dailyContestLeaderBoard = async (id) => {
-    // const { id } = req.params;
-    // const appSetting = await AppSetting.find();
+const dailyContestLeaderBoard = async (id) => {
 
 
     try {
@@ -1261,194 +1645,162 @@ exports.dailyContestLeaderBoard = async (id) => {
             }
         }
 
-        if (await client.exists(`leaderboard:${id}`)) {
-            // console.log("in if con")
-            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
-            const formattedLeaderboard = await formatData(leaderBoard)
-            // console.log("app setting", appSetting[0].leaderBoardTimming)
-            // console.log('cached', formattedLeaderboard);
-            // return res.status(200).json({
-            //     status: 'success',
-            //     results: formattedLeaderboard.length,
-            //     data: formattedLeaderboard
-            // });
-            return formattedLeaderboard;
+        let addUrl;
+        let livePrices = {};
+        let dummyTesting = false;
+        if (dummyTesting) {
+            let filteredTicks = getFilteredTicks();
+            if (filteredTicks.length > 0) {
+                for (tick of filteredTicks) {
+                    livePrices[tick.instrument_token] = tick.last_price;
+                }
+                // console.log(livePrices);
+            }
+        } else {
+            const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
+            const data = await getKiteCred.getAccess();
+            contestInstruments.forEach((elem, index) => {
+                if (index === 0) {
+                    addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+                } else {
+                    addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+                }
+            });
+            // console.log(addUrl);
+            const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
+            let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
+
+            let authOptions = {
+                headers: {
+                    'X-Kite-Version': '3',
+                    Authorization: auth,
+                },
+            };
+
+            const response = await axios.get(ltpBaseUrl, authOptions);
+            for (let instrument in response.data.data) {
+                livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+            }
         }
-        else {
-            //get ltp for the contest instruments
-            // const contestInstruments = await Contest.findById(id).select('instruments');
-            let addUrl;
-            let livePrices = {};
-            let dummyTesting = false;
-            if (dummyTesting) {
-                let filteredTicks = getFilteredTicks();
-                // console.log('filtered ticks received', filteredTicks);
-                if (filteredTicks.length > 0) {
-                    for (tick of filteredTicks) {
-                        livePrices[tick.instrument_token] = tick.last_price;
-                    }
-                    // console.log(livePrices);
+
+        let ranks;
+
+
+        ranks = await DailyContestMockUser.aggregate([
+            // Match documents for the given contestId
+            {
+                $match: {
+                    contestId: new ObjectId(id),
+                    status: "COMPLETE",
                 }
-            } else {
-                const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
-                const data = await getKiteCred.getAccess();
-                contestInstruments.forEach((elem, index) => {
-                    if (index === 0) {
-                        addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
-                    } else {
-                        addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
-                    }
-                });
-                // console.log(addUrl);
-                const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
-                let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
-
-                let authOptions = {
-                    headers: {
-                        'X-Kite-Version': '3',
-                        Authorization: auth,
+            },
+            // Group by userId and sum the amount
+            {
+                $group: {
+                    _id: {
+                        trader: "$trader",
+                        // employeeid: "$employeeid",
+                        instrumentToken: "$instrumentToken",
+                        exchangeInstrumentToken: "$exchangeInstrumentToken",
+                        symbol: "$symbol",
+                        product: "$Product",
                     },
-                };
-
-                const response = await axios.get(ltpBaseUrl, authOptions);
-                for (let instrument in response.data.data) {
-                    livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
-                }
-            }
-
-            let ranks;
-
-            // if (await client.exists(`${id.toString()} allranks`)) {
-            //     ranks = await client.get(`${id.toString()} allranks`);
-            //     ranks = JSON.parse(ranks);
-            //     // console.log('ranks in redis',ranks);
-            // } else {
-
-                ranks = await DailyContestMockUser.aggregate([
-                    // Match documents for the given contestId
-                    {
-                        $match: {
-                            contestId: new ObjectId(id),
-                            status: "COMPLETE",
-                        }
-                    },
-                    // Group by userId and sum the amount
-                    {
-                        $group: {
-                            _id: {
-                                trader: "$trader",
-                                // employeeid: "$employeeid",
-                                instrumentToken: "$instrumentToken",
-                                exchangeInstrumentToken: "$exchangeInstrumentToken",
-                                symbol: "$symbol",
-                                product: "$Product",
-                            },
-                            totalAmount: { $sum: { $multiply: ["$amount", -1] } },
-                            investedAmount: {
-                                $sum: {
-                                    $cond: {
-                                        if: { $gte: ["$amount", 0] },
-                                        then: "$amount",
-                                        else: 0
-                                    }
-                                }
-                            },
-                            brokerage: {
-                                $sum: {
-                                    $toDouble: "$brokerage",
-                                },
-                            },
-                            lots: {
-                                $sum: { $toInt: "$Quantity" }
+                    totalAmount: { $sum: { $multiply: ["$amount", -1] } },
+                    investedAmount: {
+                        $sum: {
+                            $cond: {
+                                if: { $gte: ["$amount", 0] },
+                                then: "$amount",
+                                else: 0
                             }
                         }
                     },
-                    // Sort by totalAmount in descending order
-
-                    // Project the result to include only userId and totalAmount
-                    {
-                        $project: {
-                            _id: 0,
-                            userId: "$_id",
-                            totalAmount: 1,
-                            investedAmount: 1,
-                            brokerage: 1,
-                            lots: 1
-                        }
+                    brokerage: {
+                        $sum: {
+                            $toDouble: "$brokerage",
+                        },
                     },
-                    {
-                        $addFields: {
-                            rpnl: {
-                                $multiply: ["$lots",]
-                            }
-                        }
-                    },
-                ]);
-                // console.log("ranks from db", ranks, id)
-                await client.set(`${id.toString()} allranks`, JSON.stringify(ranks))
-
-            // }
-
-            // console.log(livePrices);
-
-            for (doc of ranks) {
-                // console.log('doc is', doc);
-                doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
-                doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
-                // console.log('npnl is', doc?.npnl);
-            }
-
-
-            async function aggregateRanks(ranks) {
-                const result = {};
-                for (const curr of ranks) {
-                    const { userId, npnl, investedAmount } = curr;
-                    const traderId = userId.trader;
-                    let employeeidObj = await client.get(`${(id).toString()}employeeid`);
-
-                    employeeidObj = JSON.parse(employeeidObj);
-                    // console.log("employeeid", employeeidObj)
-                    if (!result[traderId]) {
-                        result[traderId] = {
-                            traderId,
-                            name: employeeidObj[traderId.toString()]?.employeeid,
-                            npnl: 0,
-                            userName: employeeidObj[traderId.toString()]?.name,
-                            photo: employeeidObj[traderId.toString()]?.photo,
-                            investedAmount: 0,
-
-                        };
+                    lots: {
+                        $sum: { $toInt: "$Quantity" }
                     }
-                    result[traderId].npnl += npnl;
-                    result[traderId].investedAmount += investedAmount
-                    // console.log("result", result)
                 }
-                return Object.entries(result).map(([key, value]) => value);
+            },
+            // Sort by totalAmount in descending order
+
+            // Project the result to include only userId and totalAmount
+            {
+                $project: {
+                    _id: 0,
+                    userId: "$_id",
+                    totalAmount: 1,
+                    investedAmount: 1,
+                    brokerage: 1,
+                    lots: 1
+                }
+            },
+            {
+                $addFields: {
+                    rpnl: {
+                        $multiply: ["$lots",]
+                    }
+                }
+            },
+        ]);
+
+        for (doc of ranks) {
+            doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
+            doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
+        }
+
+
+        async function aggregateRanks(ranks) {
+            const result = {};
+            for (const curr of ranks) {
+                const { userId, npnl, investedAmount } = curr;
+                const traderId = userId.trader;
+                let employeeidObj = await client.get(`${(id).toString()}employeeid`);
+
+                employeeidObj = JSON.parse(employeeidObj);
+                // console.log("employeeid", employeeidObj)
+                if (!result[traderId]) {
+                    result[traderId] = {
+                        traderId,
+                        name: employeeidObj[traderId.toString()]?.employeeid,
+                        npnl: 0,
+                        userName: employeeidObj[traderId.toString()]?.name,
+                        photo: employeeidObj[traderId.toString()]?.photo,
+                        investedAmount: 0,
+
+                    };
+                }
+                result[traderId].npnl += npnl;
+                result[traderId].investedAmount += investedAmount
+                // console.log("result", result)
             }
+            return Object.entries(result).map(([key, value]) => value);
+        }
 
-            const result = await aggregateRanks(ranks);
+        const result = await aggregateRanks(ranks);
 
-            // console.log("rsult", result)
-            for (rank of result) {
-                // console.log(rank);
-                // console.log(`leaderboard${id}`);
+        // console.log("rsult", result)
+        for (rank of result) {
+
+            try {
                 await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
                 await client.ZADD(`leaderboard:${id}`, {
                     score: rank.npnl,
                     value: JSON.stringify({ name: rank.name })
                 });
+            } catch (err) {
+                console.log(err);
             }
 
-            // await pipeline.exec();
-            // console.log("app setting", appSetting[0].leaderBoardTimming)
-            await client.expire(`leaderboard:${id}`, 3);
-
-            const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
-            // console.log("leaderBoard", leaderBoard)
-            const formattedLeaderboard = await formatData(leaderBoard)
-
-            return formattedLeaderboard;
         }
+
+        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
+        const formattedLeaderboard = await formatData(leaderBoard)
+
+        return formattedLeaderboard;
     } catch (e) {
         console.log("redis error", e);
     }
@@ -1475,37 +1827,83 @@ exports.dailyContestLeaderBoard = async (id) => {
 
 }
 
+const getRedisMyRank = async (id, employeeId) => {
 
+    console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
+    try {
+        if (await client.exists(`leaderboard:${id}`)) {
 
-exports.getRedisMyRank = async(id, employeeId) => {
-    
-    console.log(id, employeeId)
-    try{
-      if(await client.exists(`leaderboard:${id}`)){
-  
-        const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({name:employeeId}));
-        // const leaderBoardScore = await client.ZSCORE(`leaderboard:${id}`, JSON.stringify({name:employeeId}));
-        // const investedAmount = await client.get(`${employeeId} investedAmount`)
-  
-        console.log("leaderBoardRank", leaderBoardRank)
+            const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
+            console.log("leaderBoardRank", leaderBoardRank)
 
-        if(leaderBoardRank == null) return null
-        return leaderBoardRank+1
-        // return res.status(200).json({
-        //   status: 'success',
-        //   data: {rank: leaderBoardRank+1, npnl: leaderBoardScore}
-        // }); 
-    
-      }else{
-        //   res.status(200).json({
-        //   status: 'loading',
-        //   message:'loading rank'
-        // }); 
-        console.log("loading rank")
-      }
-  
-    } catch(err){
-      console.log(err);
+            if (leaderBoardRank == null) return null
+            return leaderBoardRank + 1
+        } else {
+            console.log("loading rank")
+        }
+
+    } catch (err) {
+        console.log(err);
     }
-  
-  }
+
+}
+
+exports.sendLeaderboardData = async () => {
+
+    try{
+        const activeContest = await DailyContest.find({contestStatus: "Active"});
+        if(activeContest.length){
+            const emitLeaderboardData = async () => {
+                const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
+    
+                for(let i = 0; i < contest?.length; i++){
+                    const leaderBoard = await dailyContestLeaderBoard(contest[i]?._id?.toString());
+                    io.to(`${contest[i]?._id?.toString()}`).emit('contest-leaderboardData', leaderBoard);
+                }
+            };
+            emitLeaderboardData();
+            interval = setInterval(emitLeaderboardData, 5000);    
+        }
+    } catch(err){
+        console.log(err);
+    }
+
+}
+
+exports.sendMyRankData = async () => {
+    try{
+        const activeContest = await DailyContest.find({contestStatus: "Active"});
+
+
+        if(activeContest.length){
+            const emitLeaderboardData = async () => {
+                const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
+    
+                for(let i = 0; i < contest?.length; i++){
+                    const room = io.sockets.adapter.rooms.get(contest[i]?._id?.toString());
+                    const socketIds = Array.from(room ?? []);
+                    // console.log("socketIds", socketIds)
+                    for(let j = 0; j < socketIds?.length; j++){
+                        userId = await client.get(socketIds[j]);
+                        // console.log("userId", userId)
+                        let data = await client.get(`dailyContestData:${userId}`);
+                        data = JSON.parse(data);
+                        // console.log("data", data);
+                        if(data){
+                            let {id, employeeId} = data;
+                            const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);
+                            io.emit(`contest-myrank${userId}`, myRank); // Emit the leaderboard data to the client
+                        }
+    
+                    }
+        
+                }
+            };
+            emitLeaderboardData();
+            interval = setInterval(emitLeaderboardData, 5000);    
+        }
+    } catch(err){
+        console.log(err);
+    }
+
+}

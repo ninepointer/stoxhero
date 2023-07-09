@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const checksum = require('paytmchecksum')
+const checksum = require('paytmchecksum');
 
 
 const Authenticate = require('../../authentication/authentication');

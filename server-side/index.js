@@ -47,7 +47,7 @@ const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
 const {creditAmountToWallet} = require("./controllers/dailyContestController");
 const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
-const {dailyContestLeaderBoard, getRedisMyRank} = require("./controllers/dailyContestTradeController");
+const {sendLeaderboardData, sendMyRankData} = require("./controllers/dailyContestTradeController");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -126,16 +126,9 @@ getKiteCred.getAccess().then(async (data)=>{
     })
 
     socket.on('dailyContestLeaderboard', async (data) => {
-      let {id, employeeId} = data;
-
-      const emitLeaderboardData = async () => {
-        const leaderBoard = await dailyContestLeaderBoard(id);
-        const myRank = await getRedisMyRank(id, employeeId);
-        socket.emit('contest-leaderboardData', leaderBoard);
-        socket.emit('contest-myrank', myRank); // Emit the leaderboard data to the client
-      };
-      emitLeaderboardData();
-      interval = setInterval(emitLeaderboardData, 5000);
+      let {id, employeeId, userId} = data;
+      socket.join(`${id}`)
+      await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
     })
 
     socket.on('GetHistory', async(data) => {
@@ -218,6 +211,10 @@ getKiteCred.getAccess().then(async (data)=>{
 
 });
 
+//emitting leaderboard for contest.
+sendLeaderboardData().then(()=>{});
+sendMyRankData().then(()=>{});
+
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
 
 // autoCutMainManually().then(()=>{})
@@ -294,7 +291,7 @@ app.use('/api/v1/dailycontest', require("./routes/DailyContest/dailyContestRoute
 app.use('/api/v1/dailycontest/trade', require("./routes/DailyContest/dailyContestTrade"))
 app.use('/api/v1/optionChain', require("./routes/optionChain/optionChainRoute"))
 app.use('/api/v1/brokerreport', require("./routes/BrokerReport/brokerReportRoutes"))
-
+app.use('/api/v1/contestscoreboard', require("./routes/DailyContest/contestScoreboard"))
 app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
@@ -308,6 +305,7 @@ app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtu
 app.use('/api/v1/user', require("./routes/user/userRoutes"));
 app.use('/api/v1/withdrawals', require("./routes/withdrawal/withdrawalRoutes"));
 app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
+app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
 
 
 require('./db/conn');

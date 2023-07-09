@@ -72,10 +72,10 @@ router.get("/afterContest", async (req, res) => {
   res.send("ok");
 });
 
-// router.get("/wallet", async (req, res) => {
-//   await creditAmountToWallet();
-//   res.send("ok");
-// });
+router.get("/updateLotSize", async (req, res) => {
+  const update = await TradableInstrumentSchema.updateMany({ lot_size: 15 }, { lot_size: 25 });
+  res.send(update);
+});
 
 
 router.get("/updateGuid", async (req, res) => {

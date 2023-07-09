@@ -64,15 +64,12 @@ exports.fundCheck = async (req, res, next) => {
         let runningLots = [];
         let todayPnlData = [];
         try {
-
-
             if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
                 todayPnlData = await client.get(`${req.user._id.toString()} overallpnl`)
                 todayPnlData = JSON.parse(todayPnlData);
 
                 for (let i = 0; i < todayPnlData?.length; i++) {
                     if (todayPnlData[i]?._id?.symbol === symbol) {
-                        // runningLots = todayPnlData[i]?.lots;
                         runningLots.push({
                             _id: {
                                 symbol: symbol
@@ -80,7 +77,6 @@ exports.fundCheck = async (req, res, next) => {
                             runningLots: todayPnlData[i]?.lots
                         })
                     }
-                    // console.log("runningLots", runningLots)
                 }
             }
         } catch (e) {
@@ -99,7 +95,33 @@ exports.fundCheck = async (req, res, next) => {
             isOpposite = true;
         }
 
-        // console.log(runningLots, userFunds)
+
+        let isSquareOff = false;
+        let isReleaseFund = false;
+        let isAddMoreFund = false;
+        if ((runningLots[0]?._id?.symbol === symbol) && (transactionTypeRunningLot !== buyOrSell)) {
+            if(Math.abs(Number(Quantity)) == Math.abs(runningLots[0]?.runningLots)){
+                isSquareOff = true;
+            }
+            if(Math.abs(Number(Quantity)) < Math.abs(runningLots[0]?.runningLots)){
+                isReleaseFund = true;
+            }
+            if(Math.abs(Number(Quantity)) > Math.abs(runningLots[0]?.runningLots)){
+                isAddMoreFund = true;
+            }
+        }
+
+        if ((runningLots[0]?._id?.symbol === symbol) && (transactionTypeRunningLot == buyOrSell)) {
+            isAddMoreFund = true;
+        }
+
+        req.body.marginData = {
+            isReleaseFund: isReleaseFund,
+            isAddMoreFund: runningLots[0]?.runningLots ? isAddMoreFund : true,
+            isSquareOff: isSquareOff,
+            runningLots: runningLots[0]?.runningLots ? runningLots[0]?.runningLots : 0
+        }
+
         if (((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
             //console.log("checking runninglot- reverse trade");
             return next();
@@ -112,6 +134,14 @@ exports.fundCheck = async (req, res, next) => {
             zerodhaMargin = marginData.data.data.orders[0].total;
         } catch (e) {
             // console.log("error fetching zerodha margin", e);
+        }
+
+        req.body.marginData = {
+            isReleaseFund: isReleaseFund,
+            isAddMoreFund: runningLots[0]?.runningLots ? isAddMoreFund : true,
+            isSquareOff: isSquareOff,
+            zerodhaMargin: zerodhaMargin,
+            runningLots: runningLots[0]?.runningLots ? runningLots[0]?.runningLots : 0
         }
 
         let pnlDetails = [];
@@ -1160,7 +1190,7 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 
 //         4. user sell any quantity.
 
-//         1. 10 --> 5, 45, 90
+//         1. 10 --> 5, 45, 
 //         2. 20 --> 10 35, 70
 //         3. 50 --> 25 10, 20
 
@@ -1186,15 +1216,24 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 //         // console.log(runningLots, userFunds)
 
 
-
+//         let isSquareOff = false;
+//         let isReleaseFund = false;
+//         let isAddMoreFund = false;
 //         if ((runningLots[0]?._id?.symbol === symbol) && (transactionTypeRunningLot !== buyOrSell)) {
-//             if()
+//             if(Math.abs(Number(Quantity)) == Math.abs(runningLots[0]?.runningLots)){
+//                 isSquareOff = true;
+//             }
+//             if(Math.abs(Number(Quantity)) < Math.abs(runningLots[0]?.runningLots)){
+//                 isReleaseFund = true;
+//             }
+//             if(Math.abs(Number(Quantity)) > Math.abs(runningLots[0]?.runningLots)){
+//                 isAddMoreFund = true;
+//             }
 //         }
 
 
 
 //         if (((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-//             //console.log("checking runninglot- reverse trade");
 //             return next();
 //         }
 //         let marginData;
@@ -1207,8 +1246,9 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 //             // console.log("error fetching zerodha margin", e);
 //         }
 
-//         let pnlDetails = [];
 
+
+//         let pnlDetails = [];
 //         let totalAmount = 0;
 //         for (const element of todayPnlData) {
 //             if (element.lots < 0) {
@@ -1230,7 +1270,6 @@ exports.fundCheckDailyContest = async (req, res, next) => {
 //         }
 
 //         let userNetPnl = pnlDetails[0]?.npnl;
-//         // console.log(userFunds, userNetPnl, totalAmount, todayPnlData)
 
 //         console.log(userFunds, userNetPnl, zerodhaMargin)
 //         console.log((userFunds + userNetPnl - zerodhaMargin))

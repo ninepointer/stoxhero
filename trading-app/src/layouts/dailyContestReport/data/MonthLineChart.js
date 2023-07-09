@@ -8,6 +8,8 @@ const EChartsDemo = ({monthWiseData}) => {
   const chartRef = useRef(null);
   const [chartInstance, setChartInstance] = useState(null);
 
+  // console.log("monthWiseData", monthWiseData)
+
   useEffect(() => {
     if (!chartInstance) {
       setChartInstance(echarts.init(chartRef.current));
@@ -18,7 +20,7 @@ const EChartsDemo = ({monthWiseData}) => {
     if (chartInstance) {
       chartInstance.setOption({
         title: {
-          text: 'Month wise P&L',
+          text: 'Trader wise P&L',
         },
         tooltip: {
           trigger: 'axis',
@@ -31,7 +33,7 @@ const EChartsDemo = ({monthWiseData}) => {
               yAxisIndex: 'none',
             },
             dataView: { readOnly: true },
-            magicType: { type: ['line', 'bar'] },
+            magicType: { type: ['bar'] },
             restore: {},
             saveAsImage: {},
           },
@@ -39,7 +41,7 @@ const EChartsDemo = ({monthWiseData}) => {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: monthWiseData.map((e)=>dayjs(e?._id?.date).format('DD MMM YYYY')),
+          data: monthWiseData.map((e)=>(e?.name)),
         },
         yAxis: {
           type: 'value',
@@ -49,22 +51,8 @@ const EChartsDemo = ({monthWiseData}) => {
         },
         series: [
           {
-            name: 'Gorss P&L',
-            type: 'line',
-            data: monthWiseData.map((e)=>e?.gpnl.toFixed(2)),
-            markPoint: {
-              data: [
-                { type: 'max', name: 'Max' },
-                { type: 'min', name: 'Min' },
-              ],
-            },
-            markLine: {
-              data: [{ type: 'average', name: 'Avg' }],
-            },
-          },
-          {
             name: 'Net P&L',
-            type: 'line',
+            type: 'bar',
             data: monthWiseData.map((e)=>e.npnl.toFixed(2)),
             markPoint: {
               data: [

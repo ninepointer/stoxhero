@@ -84,10 +84,9 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
     const handleSubmit = async() =>{
 
         //check if user has kyc verified
-        // if(getDetails?.userDetails?.KYCStatus!='Approved'){
-        //     return openErrorSB('KYC Status not verified', 'Please get your KYC Verified before proceeding');
-        //     console.log(getDetails?.userDetails);
-        // }
+        if(getDetails?.userDetails?.KYCStatus!='Approved'){
+            return openErrorSB('KYC Status not verified', 'Please get your KYC Verified before proceeding');
+        }
 
         //check if the amount is greater than wallet balance
         if(amount>walletBalance){

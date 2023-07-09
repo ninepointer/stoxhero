@@ -92,8 +92,6 @@ const contestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
-
-
     contestExpiry:{
         type:String,
         required: true,
