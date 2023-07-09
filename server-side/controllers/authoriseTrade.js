@@ -109,6 +109,10 @@ exports.fundCheck = async (req, res, next) => {
             if(Math.abs(Number(Quantity)) > Math.abs(runningLots[0]?.runningLots)){
                 isAddMoreFund = true;
             }
+            if(Math.abs(Number(Quantity)) > Math.abs(runningLots[0]?.runningLots) && Math.abs(runningLots[0]?.runningLots)){
+                isAddMoreFund = true;
+                isReleaseFund = true;
+            }
         }
 
         if ((runningLots[0]?._id?.symbol === symbol) && (transactionTypeRunningLot == buyOrSell)) {
