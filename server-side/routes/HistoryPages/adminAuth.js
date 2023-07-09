@@ -66,8 +66,8 @@ const DailyContestMockUser = require("../../models/DailyContest/dailyContestMock
 
 
 router.get("/afterContest", async (req, res) => {
-  await autoCutMainManually();
-  await autoCutMainManuallyMock();
+  // await autoCutMainManually();
+  // await autoCutMainManuallyMock();
   await creditAmountToWallet();
   res.send("ok");
 });

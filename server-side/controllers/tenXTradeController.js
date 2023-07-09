@@ -678,7 +678,7 @@ exports.autoExpireSubscription = async () => {
   
 
         // console.log(Math.floor(tradingDays[0]?.actualRemainingDay), tradingDays)
-        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) < 0) {
+        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
           console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
           // "subscription.subscribedOn": {$gte: new Date(subscribedOn)}
           console.log(new Date(subscribedOn))
@@ -688,33 +688,14 @@ exports.autoExpireSubscription = async () => {
           let len = user.subscription.length;
           
           for (let k = len - 1; k >= 0; k--) {
+            // for (let k = 0; k < len; k) {
             if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
               user.subscription[k].status = "Expired";
-              // console.log("this is user", user)
+              console.log("this is user", user)
               await user.save();
               break;
             }
           }
-          // const updateUser = await User.findOneAndUpdate(
-          //   { _id: new ObjectId(userId), "subscription.subscriptionId": new ObjectId(subscription[i]._id),  },
-          //   {
-          //     $set: {
-          //       'subscription.$.status': "Expired"
-          //     }
-          //   },
-          //   { new: true }
-          // );
-  
-          // const updateSubscription = await Subscription.findOneAndUpdate(
-          //   { _id: new ObjectId(subscription[i]._id), "users.userId": new ObjectId(userId), "users.subscribedOn": {$eq: new Date(subscribedOn)} },
-          //   {
-          //     $set: {
-          //       'users.$.status': "Expired"
-          //     }
-          //   },
-          //   { new: true }
-          // );
-
 
           const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
           let Subslen = subs.users.length;
@@ -722,7 +703,7 @@ exports.autoExpireSubscription = async () => {
           for (let k = Subslen - 1; k >= 0; k--) {
             if (subs.users[k].userId?.toString() === userId?.toString()) {
               subs.users[k].status = "Expired";
-              // console.log("this is subs", subs)
+              console.log("this is subs", subs)
               await subs.save();
               break;
             }

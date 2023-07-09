@@ -564,6 +564,8 @@ exports.creditAmountToWallet = async () => {
                             transactionType: 'Cash'
                         }];
                         wallet.save();
+
+                        contest[j].participants[i].payout = payoutAmount?.toFixed(2)
                     }
                     contest[j].payoutStatus = 'Completed'
                     contest[j].contestStatus = "Completed";

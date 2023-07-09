@@ -162,7 +162,7 @@ exports.marginCalculationTrader = async (marginData, data, ltp, order_id) => {
     }
 
     const insertMarginData = await InfinityMockUserMargin.create({trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
-        open_lots: runningLots-Math.abs(Quantity), amount: ltp*Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
+        open_lots: Math.abs(runningLots-Math.abs(Quantity)), amount: ltp*Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
 
 }
 
@@ -268,6 +268,6 @@ exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
         open_lots: runningLots, amount: ltp*Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id })
 
     const insertMarginData = await InfinityMockCompanyMargin.create({trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
-        open_lots: runningLots-Math.abs(realQuantity), amount: ltp*Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
+        open_lots: Math.abs(runningLots-Math.abs(realQuantity)), amount: ltp*Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
 
 }
