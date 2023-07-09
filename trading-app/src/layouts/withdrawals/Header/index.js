@@ -65,21 +65,21 @@ function WithdrawalHeader({ children }) {
         minHeight="10rem"
         borderRadius="x1"
         sx={{
-          backgroundImage: ({ functions: { rgba, linearGradient }, palette: { gradients } }) =>
-            `${linearGradient(
-              rgba(gradients.info.main, 0.6),
-              rgba(gradients.info.state, 0.6)
-            )}, url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "50%",
-          overflow: "hidden",
+        //   backgroundImage: ({ functions: { rgba, linearGradient }, palette: { gradients } }) =>
+        //     `${linearGradient(
+        //       rgba(gradients.info.main, 0.6),
+        //       rgba(gradients.info.state, 0.6)
+        //     )}, url(${backgroundImage})`,
+        //   backgroundSize: "cover",
+        //   backgroundPosition: "50%",
+        //   overflow: "hidden",
         }}
       />
       <Card
         sx={{
           position: "relative",
-          mt: -8,
-          mx: 3,
+          mt: -18,
+          mx: 0,
           py: 2,
           px: 2,
         }}

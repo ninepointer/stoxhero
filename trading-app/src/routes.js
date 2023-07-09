@@ -99,7 +99,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 // import CampaignIcon from '@mui/icons-material/Campaign';
 // import FolderSharedIcon from '@mui/icons-material/FolderShared';
 // import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
-// import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 // import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 // import AccountBoxIcon from '@mui/icons-material/AccountBox';
 // import WalletIcon from '@mui/icons-material/Wallet';
@@ -1000,10 +1000,10 @@ const routes = [
     component: <PaymentTest/>,
   },
   {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+    type: "collapse",
+    name: "Withdrawals",
+    key: "withdrawals",
+    icon: <MonetizationOnIcon/>,
     route: "/withdrawals",
     component: <Withdrawal/>,
   },

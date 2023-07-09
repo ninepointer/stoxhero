@@ -145,7 +145,7 @@ exports.rejectWithdrawal = async(req,res,next) => {
 
 exports.approveWithdrawal = async(req, res, next) => {
     const withdrawalId = req.params.id;
-    const{transactionId, settlementMethod, settlementAccount} = req.body;
+    const{transactionId, settlementMethod, settlementAccount, recipientReference} = req.body;
     const withdrawal = await Withdrawal.findById(withdrawalId);
     if(!withdrawal) return res.status(404).json({status:'error', message: 'No withdrawal found.'})
     withdrawal.withdrawalStatus = 'Processed';
@@ -154,6 +154,8 @@ exports.approveWithdrawal = async(req, res, next) => {
     withdrawal. settlementTransactionId = transactionId;
     withdrawal.settlementMethod = settlementMethod;
     withdrawal.settlementAccount = settlementAccount;
+    withdrawal.recipientReference = recipientReference;
+
     withdrawal.withdrawalSettlementDate = new Date();
     if(withdrawal?.actions[withdrawal?.actions?.length-1]?.actionStatus=='Processing'){
         withdrawal.actions.push({
