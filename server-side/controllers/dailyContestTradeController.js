@@ -1244,10 +1244,9 @@ exports.DailyContestPayoutChart = async (req, res, next) => {
           },
         },
         {
-          $match:
-            {
-              "contestData.contestStatus": "Completed",
-            },
+          $match: {
+            "contestData.contestStatus": "Completed",
+          },
         },
         {
           $group: {
@@ -1277,72 +1276,93 @@ exports.DailyContestPayoutChart = async (req, res, next) => {
         },
         {
           $project: {
-            _id: 0,
-            contest: "$_id.contestId",
-            contestName: "$_id.contestName",
-            date: "$_id.date",
+            _id: 1,
             npnl: {
               $subtract: ["$gpnl", "$brokerage"],
             },
-            payout: {
-              $divide: [
+            positiveNpnl: {
+              $max: [
+                0,
                 {
-                  $multiply: [
-                    {
-                      $subtract: [
-                        "$gpnl",
-                        "$brokerage",
-                      ],
-                    },
-                    "$_id.payoutPer",
-                  ],
+                  $subtract: ["$gpnl", "$brokerage"],
                 },
-                100,
               ],
+            },
+            payoutPer: "$_id.payoutPer",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              contestId: "$_id.contestId",
+              contestName: "$_id.contestName",
+              date: "$_id.date",
+              payoutPer: "$payoutPer",
+            },
+            totalNpnl: {
+              $sum: "$npnl",
+            },
+            totalPositiveNpnl: {
+              $sum: "$positiveNpnl",
             },
           },
         },
         {
-          $match: {
-            payout: {
-              $gt: 0,
+          $project: {
+            contestId: "$_id.contestId",
+            contestName: "$_id.contestName",
+            contestDate: "$_id.date",
+            totalNpnl: 1,
+            totalPayout: {
+              $multiply: [
+                "$totalPositiveNpnl",
+                {
+                  $divide: ["$_id.payoutPer", 100],
+                },
+              ],
             },
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            contestDate: -1,
           },
         },
         {
           $group:
             {
               _id: {
-                contestId: "$contest",
-                contestName: "$contestName",
-                date: "$date",
+                contestDate: "$contestDate",
               },
               totalNpnl: {
-                $sum: "$npnl",
+                $sum: "$totalNpnl",
               },
               totalPayout: {
-                $sum: "$payout",
+                $sum: "$totalPayout",
+              },
+              numberOfContests: {
+                $sum: 1,
               },
             },
         },
         {
-          $project:
-            {
-              contestId: "$_id.contestId",
-              contestName: "$_id.contestName",
-              contestDate: "$_id.date",
-              totalNpnl: 1,
-              totalPayout: 1,
-              _id: 0,
-            },
-        },
+            $project:
+              {
+                _id: 0,
+                contestDate: "$_id.contestDate",
+                totalNpnl: 1,
+                totalPayout: 1,
+                numberOfContests: 1,
+              },
+          },
         {
-          $sort:
+            $sort:
             {
-              contestDate: -1,
-            },
-        },
-      ]
+                contestDate : 1
+            }
+        }
+      ] 
 
     let x = await DailyContestMockUser.aggregate(pipeline)
 

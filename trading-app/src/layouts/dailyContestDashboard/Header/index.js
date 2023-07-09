@@ -15,6 +15,7 @@ export default function LabTabs({socket}) {
   const [trackEvent, setTrackEvent] = useState({});
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
+  const [completedContest,setCompletedContest] = useState();
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
   const [liveTraderCount, setLiveTraderCount] = useState(0);
   const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
@@ -44,6 +45,16 @@ export default function LabTabs({socket}) {
         });
         return Array.from(instrumentMap.values());
       });
+    })
+
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`)
+    .then((res) => {
+        console.log("Inside Payout chart data");
+        setCompletedContest(res.data.data);
+        console.log("Completed Contest Res:",res.data.data)
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
     })
   }, [])
 
@@ -94,6 +105,15 @@ export default function LabTabs({socket}) {
         setIsLoading(false)
         return new Error(err);
     }) 
+
+    // axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`)
+    // .then((res) => {
+    //     setCompletedContest(res?.data?.data);
+    //     console.log("Completed Contest Red:",res.data)
+    // }).catch((err) => {
+    //     setIsLoading(false)
+    //     return new Error(err);
+    // })
   }, [trackEvent])
 
   useEffect(() => {
@@ -576,10 +596,10 @@ export default function LabTabs({socket}) {
         <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox display='flex' justifyContent='center' mt={1}>
-                    <MDTypography fontSize={18} fontWeight='bold' color='dark'>Daily Contest Net P&L and Payout (Company Side)</MDTypography>
+                    <MDTypography fontSize={18} fontWeight='bold' color='dark'>Daily Contest Net P&L and Payout (Trader Side)</MDTypography>
                 </MDBox>
                 <MDBox>
-                    <CompanySideContestDailyChart/>
+                    { completedContest && <CompanySideContestDailyChart completedContest={completedContest}/>}
                 </MDBox>
             </Grid>
         </Grid>
