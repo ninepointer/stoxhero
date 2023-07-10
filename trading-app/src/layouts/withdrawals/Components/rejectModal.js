@@ -18,7 +18,7 @@ import MDSnackbar from '../../../components/MDSnackbar';
 import { userContext } from "../../../AuthContext";
 
 
-const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, withdrawalId, action, setAction}) => {
+const RejectModal = ( {open, handleClose, user, withdrawalRequestDate, amount, withdrawalId, action, setAction}) => {
     const style = {
       position: 'absolute',
       top: '50%',
@@ -26,7 +26,7 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
       transform: 'translate(-50%, -50%)',
       // width: 400,
       bgcolor: 'background.paper',
-      height: '70vh',
+      height: '50vh',
     //   border: '2px solid #000',
       borderRadius:2,
       boxShadow: 24,
@@ -36,10 +36,7 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
     const getDetails = useContext(userContext);
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
-    const [settlementAccount,setSettlementAccount] = useState('');
-    const [transactionId,setTransactionId] = useState('');
-    const [recipientReference,setRecipientReference] = useState('');
-    const [transactionDocument, setTransactionDocument]=useState('');
+    const [rejectionReason,setRejectionReason] = useState('');
   
     const [successSB, setSuccessSB] = useState(false);
     const openSuccessSB = (title,content) => {
@@ -85,30 +82,21 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
         );
 
     const handleSubmit = async() =>{
-        if(!settlementMethod || !settlementAccount || !recipientReference || !transactionId|| !transactionDocument){
-            return openErrorSB('error', 'Please fill the required fields');
+        if(!rejectionReason){
+            return openErrorSB('error', 'Rejection reason is required.')
         }
-        const formData = new FormData();
-        formData.append('settlementMethod', settlementMethod)
-        formData.append('settlementAccount', settlementAccount)
-        formData.append('recipientReference', recipientReference)
-        formData.append('transactionId', transactionId)
-        formData.append('transactionDocument', transactionDocument)
-        const res = await axios.patch(`${apiUrl}withdrawals/approve/${withdrawalId}`, formData, {withCredentials:true});
+        const res = await axios.patch(`${apiUrl}withdrawals/reject/${withdrawalId}`, 
+        {rejectionReason}, {withCredentials:true});
         console.log(res.data);
         if(res.data.status == 'success'){
-            openSuccessSB('Success', 'Withdrawal approved.');
+            openSuccessSB('Success', 'Withdrawal rejected.');
             setAction(!action);
             handleClose();
         } else{
           openErrorSB('Error', res.data.message)
         }
     }
-    const [settlementMethod, setSettlementMethod] = useState('');
-
-    const handleChange = (event) => {
-        setSettlementMethod(event.target.value);
-    };        
+      
     return (
       <>
      <Modal
@@ -120,27 +108,10 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
       <Box sx={style}>
         <MDTypography>Enter transaction details</MDTypography>
         <MDBox mt={1} style={{height:'85vh', display:'flex', flexDirection:'column'}}>
-          <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Withdrawal request for {amount} by {user.first_name} {user.last_name}</MDTypography>  
+          <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Reject Withdrawal request for {amount} by {user.first_name} {user.last_name}?</MDTypography>  
           <MDTypography style={{fontSize:'14px', marginBottom:'24px'}}>Withdrawal request on: {withdrawalRequestDate}</MDTypography>  
           {/* <InputLabel id="demo-simple-select-filled-label">Payment Method</InputLabel> */}
-            <TextField
-                label='Payment Method'
-                hiddenLabel
-                select
-                value={settlementMethod}
-                onChange={handleChange}
-                outerWidth='40%'
-                sx={{marginBottom:'12px'}}
-            >
-                <MenuItem value="UPI">UPI</MenuItem>
-                <MenuItem value="NEFT">NEFT</MenuItem>
-                <MenuItem value="Cheque">Cheque</MenuItem>
-                <MenuItem value="Cash">Cash</MenuItem>
-            </TextField>
-          <TextField label='Settlement Account' value={settlementAccount} onChange={(e)=>{setSettlementAccount(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
-          <TextField label='Recipient Reference' value={recipientReference} onChange={(e)=>{setRecipientReference(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
-          <TextField label='Transaction Id' value={transactionId} onChange={(e)=>{setTransactionId(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
-          <TextField type='file' onChange={(e)=>{setTransactionDocument(e.target.files[0])}}/>
+          <TextField label='Rejection Reason' type='text' value={rejectionReason} onChange={(e)=>{setRejectionReason(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
           <MDBox sx={{display:'flex', justifyContent:'flex-end', marginTop:'12px' }}>
             <MDButton onClick={()=>{handleClose()}}>Cancel</MDButton>
             <MDButton color='success' onClick={()=>{handleSubmit()}}>Confirm</MDButton>
@@ -154,4 +125,4 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
     )
   }
 
-export default ApproveModal
+export default RejectModal
