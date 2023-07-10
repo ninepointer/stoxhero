@@ -55,17 +55,21 @@ exports.getAllWithdrwals = async (req, res, next) => {
 }
 
 exports.getPendingWithdrawals = async (req,res,next) => {
-    const pendingWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'});
+    const pendingWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'}).populate('user', 'first_name last_name mobile');
     res.status(200).json({status:'success', data: pendingWithdrawals, results: pendingWithdrawals.length})
 }
 
 exports.getRejectedWithdrawals = async (req,res,next) => {
-    const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'});
+    const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Rejected'}).populate('user', 'first_name last_name mobile');
+    res.status(200).json({status:'success', data: rejectedWithdrawals, results: rejectedWithdrawals.length})
+}
+exports.getApprovedWithdrawals = async (req,res,next) => {
+    const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Processed'}).populate('user', 'first_name last_name mobile');
     res.status(200).json({status:'success', data: rejectedWithdrawals, results: rejectedWithdrawals.length})
 }
 
 exports.getInitiatedWithdrawals = async (req, res, next) => {
-    const initiatedWithdrawals = await Withdrawal.find({withdrawalStatus:'Initiated'});
+    const initiatedWithdrawals = await Withdrawal.find({withdrawalStatus:'Initiated'}).populate('user', 'first_name last_name mobile');
     res.status(200).json({status:'success', data: initiatedWithdrawals, results: initiatedWithdrawals.length})
 }
 
@@ -141,7 +145,7 @@ exports.rejectWithdrawal = async(req,res,next) => {
 
 exports.approveWithdrawal = async(req, res, next) => {
     const withdrawalId = req.params.id;
-    const{transactionId, settlementMethod, settlementAccount} = req.body;
+    const{transactionId, settlementMethod, settlementAccount, recipientReference} = req.body;
     const withdrawal = await Withdrawal.findById(withdrawalId);
     if(!withdrawal) return res.status(404).json({status:'error', message: 'No withdrawal found.'})
     withdrawal.withdrawalStatus = 'Processed';
@@ -150,6 +154,8 @@ exports.approveWithdrawal = async(req, res, next) => {
     withdrawal. settlementTransactionId = transactionId;
     withdrawal.settlementMethod = settlementMethod;
     withdrawal.settlementAccount = settlementAccount;
+    withdrawal.recipientReference = recipientReference;
+
     withdrawal.withdrawalSettlementDate = new Date();
     if(withdrawal?.actions[withdrawal?.actions?.length-1]?.actionStatus=='Processing'){
         withdrawal.actions.push({

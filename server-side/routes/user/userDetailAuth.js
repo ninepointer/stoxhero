@@ -510,7 +510,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
-        'ifscCode','profilePhoto','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode','KYCStatus'
+        'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode'
         );
 
         filteredBody.lastModifiedBy = req.user._id;
@@ -570,7 +570,12 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         }
         // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
         if((req).incomeProofDocumentUrl) filteredBody.incomeProofDocument = (req).incomeProofDocumentUrl;
-        console.log(filteredBody)
+        console.log(filteredBody);
+        for(key of Object.keys(filteredBody)){
+          if(filteredBody[key]=='undefined'){
+            filteredBody[key]=""
+          }
+        }
         const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
         console.log(userData);
     
