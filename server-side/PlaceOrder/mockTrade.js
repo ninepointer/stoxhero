@@ -134,7 +134,7 @@ exports.mockTrade = async (req, res) => {
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
 
-        console.log("marginData", marginData)
+        // console.log("marginData", marginData)
         const saveMarginCompany = await marginCalculationCompany(marginData, req.body, originalLastPriceCompany, order_id);
         const saveMarginUser = await marginCalculationTrader(marginData, req.body, originalLastPriceUser, order_id);
 

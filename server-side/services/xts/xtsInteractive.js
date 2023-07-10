@@ -247,7 +247,8 @@ console.log({
       instrumentToken: req.body.instrumentToken,
       dontSendResp: req.body.dontSendResp,
       tradedBy: req.user._id,
-      uniqueId: `${req.user.first_name}${req.user.mobile}`
+      uniqueId: `${req.user.first_name}${req.user.mobile}`,
+      marginData: req.body.marginData
     }
 
     // console.log(traderDataObj, response?.result?.AppOrderID)
@@ -484,7 +485,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   let isRedisConnected = getValue();
 
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-    instrumentToken, dontSendResp, tradedBy, autoTrade } = traderData
+    instrumentToken, dontSendResp, tradedBy, autoTrade, marginData } = traderData
 
   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
@@ -586,6 +587,10 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       order_type = "MARKET";
     }
 
+    traderData.realBuyOrSell = transaction_type;
+    traderData.realQuantity = Math.abs(OrderQuantity);
+
+
     function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
       let brokerage = Number(buyBrokerData.brokerageCharge);
       let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
@@ -625,6 +630,9 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
 
     let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
+
+    const saveMarginCompany = await marginCalculationCompany(marginData, traderData, OrderAverageTradedPrice, order_id);
+    const saveMarginUser = await marginCalculationTrader(marginData, traderData, OrderAverageTradedPrice, order_id);
 
     const companyDoc = {
       appOrderId: AppOrderID, order_id: order_id,

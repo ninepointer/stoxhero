@@ -64,6 +64,13 @@ const redisBackup = new Schema({
         default: false
         // required: true
     },
+    marginData: {
+        isReleaseFund: {type: Boolean},
+        isAddMoreFund: {type: Boolean},
+        isSquareOff: {type: Boolean},
+        runningLots: {type: Number},
+        zerodhaMargin: {type: Number}
+    }
 })
 
 const RedisDetail = mongoose.model("liveOrder-key-backup", redisBackup);
