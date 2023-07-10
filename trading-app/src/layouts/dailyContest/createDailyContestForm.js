@@ -396,7 +396,7 @@ function Index() {
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        payoutPercentage: parseInt(e.target.value, 10)
+                        payoutPercentage: (e.target.value)
                       }))
                     }}
                   />
