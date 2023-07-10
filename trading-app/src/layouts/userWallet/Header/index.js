@@ -19,11 +19,13 @@ import DefaultProfilePic from "../../../assets/images/default-profile.png";
 import WithdrawalModal from './withdrawalModal';
 import { userContext } from '../../../AuthContext';
 import {InfinityTraderRole} from "../../../variables"
+import { apiUrl } from '../../../constants/constants';
 
 export default function Wallet() {
   let name = 'Prateek Pawan'
   const [photo,setPhoto] = useState(DefaultProfilePic)
   const [myWallet,setMyWallet] = useState([]);
+  const [mywithdrawals, setMyWithdrawals] = useState([]);
   const [open, setOpen] = useState(false);
     const[selectedGd, setSelectedGd] = useState();
     const handleClose = () => {
@@ -61,8 +63,16 @@ export default function Wallet() {
       console.error(error);
     });
 
+  },[open]);
 
-  },[open])
+  useEffect(()=>{
+    axios.get(`${apiUrl}withdrawals/mywithdrawals`, {withCredentials:true}).then((res)=>{
+      console.log(res.data.data);
+      setMyWithdrawals(res.data.data.filter((item)=>item.withdrawalStatus == 'Processed'));
+    })
+  },[open]);
+
+  console.log('myWith', mywithdrawals);
 
   const cashTransactions = myWallet?.transactions?.filter((transaction) => {
     return transaction.transactionType === "Cash";
@@ -196,6 +206,23 @@ export default function Wallet() {
               </Grid>
 
             </Grid>
+
+            {mywithdrawals.length > 0 &&<Grid item xs={12} md={6} lg={12} style={{marginTop:'12px', display:'flex', justifyContent:'center'}}>
+              <MDTypography color='light' fontSize={18}>Successful Withdrawals</MDTypography>
+0
+            </Grid>}
+            {mywithdrawals.length>0 && mywithdrawals.map((elem)=>{
+              return(
+                <Grid item xs={12} md={6} lg={12} style={{border:'1px solid white', borderRadius:5, marginBottom:'12px'}}>
+                  <MDTypography color='light' fontSize={15}>Amount:₹{elem.amount}</MDTypography>
+                  <MDTypography color='light' fontSize={15}>Transfer Date:{new Date(elem?.withdrawalSettlementDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.withdrawalSettlementDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
+                  <MDTypography color='light' fontSize={15}>Status:{elem.withdrawalStatus}</MDTypography>
+                  <MDTypography color='light' fontSize={15}>WalletTransactionId:{elem.walletTransactionId}</MDTypography>
+                  <MDTypography color='light' fontSize={15}>Transfer TransactionId:{elem.settlementTransactionId}</MDTypography>
+                  <MDTypography color='light' fontSize={15}>Transferred via:{elem.settlementMethod}</MDTypography>
+                </Grid>
+              )
+            })}
 
           </Grid>
         </Grid>

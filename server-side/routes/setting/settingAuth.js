@@ -74,7 +74,9 @@ router.patch("/settings/:id", Authentication, async (req, res)=>{
                 leaderBoardTimming: req.body.leaderBoardTimming,
                 AppStartTime: req.body.AppStartTime,
                 AppEndTime: req.body.AppEndTime,
-                infinityPrice: req.body.infinityPrice
+                infinityPrice: req.body.infinityPrice,
+                maxWithdrawal:req.body.maxWithdrawal,
+                minWithdrawal:req.body.minWithdrawal
             }
         })
         console.log("this is role", setting);

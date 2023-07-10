@@ -40,7 +40,10 @@ const settingSchema = new mongoose.Schema({
     infinityPrice: {
         type: Number,
         required: true,
-    }
+    },
+    minWithdrawal: Number,
+    maxWithdrawal: Number,
+
 })
 
 const settingDetail = mongoose.model("setting-detail", settingSchema);
