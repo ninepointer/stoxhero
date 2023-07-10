@@ -26,7 +26,7 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
       transform: 'translate(-50%, -50%)',
       // width: 400,
       bgcolor: 'background.paper',
-      height: '70vh',
+      height: '80vh',
     //   border: '2px solid #000',
       borderRadius:2,
       boxShadow: 24,
@@ -140,6 +140,7 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
           <TextField label='Settlement Account' value={settlementAccount} onChange={(e)=>{setSettlementAccount(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
           <TextField label='Recipient Reference' value={recipientReference} onChange={(e)=>{setRecipientReference(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
           <TextField label='Transaction Id' value={transactionId} onChange={(e)=>{setTransactionId(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
+          <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Transaction Document(image/pdf)</MDTypography>
           <TextField type='file' onChange={(e)=>{setTransactionDocument(e.target.files[0])}}/>
           <MDBox sx={{display:'flex', justifyContent:'flex-end', marginTop:'12px' }}>
             <MDButton onClick={()=>{handleClose()}}>Cancel</MDButton>

@@ -2,7 +2,8 @@ const Withdrawal = require('../models/withdrawal/withdrawal');
 const User = require('../models/User/userDetailSchema');
 const Wallet = require('../models/UserWallet/userWalletSchema');
 const uuid = require('uuid');
-const sendMail = require('../utils/emailService')
+const sendMail = require('../utils/emailService');
+const Settings = require('../models/settings/setting');
 
 const multer = require('multer');
 const AWS = require('aws-sdk');
@@ -96,17 +97,36 @@ exports.createWithdrawal = async(req,res,next) => {
     if(!amount){
         return res.status(200).json({status:'error', message:'Enter a valid amount'});
     }
+    const currentDate = new Date();
+    const yesterdayDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
+    yesterdayDate.setHours(18, 30, 0, 0);
 
+    const currentDateTime = new Date();
+    currentDateTime.setHours(18, 29, 59, 0);
+
+    const withdrawals = await Withdrawal.find({
+    user: user?._id,
+    $lte: currentDateTime,
+    $gte: yesterdayDate
+    });
+
+    if (withdrawals.length > 1) {
+        return res.status(400).json({status:'error', message:'Only one withdrawal can be made in a day. Try again tomorrow.'})
+    }
+    const appSettings = await Settings.findOne({});
     const userWallet = await Wallet.findOne({userId});
-    const walletBalance = userWallet?.transactions.reduce((acc, obj) => (obj?.transactionStatus != 'Failed'?acc + obj.amount:acc), 0);
+    const walletBalance = userWallet?.transactions.reduce((acc, obj) => (acc + obj.amount), 0);
     console.log('the wallet balance', walletBalance);
     
     if(amount>walletBalance){
-        return res.status(400).json({status:'error', message:'You don\'t have enough funds for the withdrawal.'})
+        return res.status(400).json({status:'error', message:'You don\'t have enough funds for the withdrawal.'});
     }
 
-    if(amount<200){
-        return res.status(400).json({status:'error', message:'The minimum amount that can be withdrawn is ₹200'})
+    if(amount<appSettings.minWithdrawal){
+        return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
+    }
+    if(amount>appSettings.maxWithdrawal){
+        return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings.maxWithdrawal}`});
     }
     const transactionId = uuid.v4();
     await Withdrawal.create({
