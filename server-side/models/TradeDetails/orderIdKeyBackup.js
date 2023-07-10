@@ -70,7 +70,15 @@ const redisBackup = new Schema({
         isSquareOff: {type: Boolean},
         runningLots: {type: Number},
         zerodhaMargin: {type: Number}
-    }
+    },
+    OrderType:{
+        type: String,
+        required: true
+    },
+    Product:{
+        type: String,
+        required: true
+    },
 })
 
 const RedisDetail = mongoose.model("liveOrder-key-backup", redisBackup);

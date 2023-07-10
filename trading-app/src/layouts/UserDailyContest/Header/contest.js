@@ -49,7 +49,7 @@ function Header({ e }) {
     // const [copied, setCopied] = useState(false);
 
     const handleCopy = async (id) => {
-        let text = 'https://www.stoxhero.com/contest'
+        let text = 'https://stoxhero.com/contest'
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);

@@ -353,7 +353,7 @@ exports.marginDetail = async (req, res, next) => {
           },
         },
       },
-    ])
+     ])
 
       if (subscription.length > 0) {
         if (isRedisConnected) {
@@ -795,6 +795,7 @@ exports.autoExpireSubscription = async () => {
             // for (let k = 0; k < len; k) {
             if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
               user.subscription[k].status = "Expired";
+              user.subscription[k].expiredOn = new Date();
               console.log("this is user", user)
               await user.save();
               break;
