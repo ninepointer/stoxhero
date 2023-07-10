@@ -199,7 +199,7 @@ export default function App() {
       <SettingsIcon/>
     </MDBox>
   );
-  
+
   if (isLoading) {
     return <div></div>; // Replace this with your actual loading component or spinner
   }

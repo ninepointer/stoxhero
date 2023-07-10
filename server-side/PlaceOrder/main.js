@@ -13,7 +13,7 @@ const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
 const DailyContest = require("../models/DailyContest/dailyContest");
 
-router.post("/placingOrder", isInfinityLive, authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
+router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
     const setting = await Setting.find();
     // console.log("settings", setting, req.user?.role?.roleName )

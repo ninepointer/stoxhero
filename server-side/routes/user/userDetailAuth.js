@@ -509,7 +509,7 @@ const currentUser = (req,res, next) =>{
     next();
 };
 
-router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, resizePhoto, uploadToS3, async(req,res,next)=>{
+router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, uploadToS3, async(req,res,next)=>{
     console.log(req.body)
     try{
         const user = await UserDetail.findById(req.user._id);
