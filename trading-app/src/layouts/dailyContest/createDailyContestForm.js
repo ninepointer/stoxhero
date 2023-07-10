@@ -402,19 +402,6 @@ function Index() {
                   />
                 </Grid>
 
-                {/* <Grid item xs={12} md={6} xl={3} mb={2}>
-                  <TextField
-                    disabled={((isSubmitted || contest) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Contest On *'
-                    name='contestOn'
-                    fullWidth
-                    type='text'
-                    defaultValue={editing ? formState?.contestOn : contest?.contestOn}
-                    onChange={handleChange}
-                  />
-                </Grid> */}
-
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
