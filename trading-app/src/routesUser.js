@@ -18,7 +18,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 // import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-
+import AutoFixNormalIcon from '@mui/icons-material/AutoFixNormal';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 
@@ -160,7 +160,7 @@ const routes = [
     name: "Collage Contest",
     key: "collagecontest",
     // 
-    icon: <EmojiEventsIcon/>,
+    icon: <AutoFixNormalIcon/>,
     route: "/collagecontest",
     component: <UserDailyContestCollage />,
   },
