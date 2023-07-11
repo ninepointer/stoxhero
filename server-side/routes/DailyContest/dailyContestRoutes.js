@@ -11,6 +11,8 @@ router.get('/contest/:id', contestController.getContest);
 router.put('/contest/:id', contestController.editContest);
 router.delete('/contest/:id', contestController.deleteContest);
 router.put('/contest/:id/participate', Authenticate, contestController.participateUsers);
+router.put('/contest/:id/varifycodeandparticipate', Authenticate, contestController.verifyCollageCode);
+
 router.put('/contest/:id/register',Authenticate, contestController.registerUserToContest);
 router.put('/contest/:id/share',Authenticate, contestController.copyAndShare);
 
@@ -21,6 +23,10 @@ router.put('/contest/:id/remove/:userId', contestController.removeAllowedUser);
 router.get('/contests', contestController.getAllContests);
 router.get('/contests/upcoming', contestController.getUpcomingContests);
 router.get('/contests/completed', Authenticate, contestController.getCompletedContests);
+
+router.get('/contests/collegeupcoming', contestController.getUpcomingCollegeContests);
+router.get('/contests/collegecompleted', Authenticate, contestController.getCompletedCollegeContests);
+
 router.get('/contests/completedadmin', Authenticate, contestController.getCommpletedContestsAdmin);
 router.get('/contests/draft', contestController.getDraftContests);
 

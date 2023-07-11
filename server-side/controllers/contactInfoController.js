@@ -15,7 +15,7 @@ exports.createContact = async (req, res) => {
 // Get all contacts
 exports.getContacts = async (req, res) => {
     try {
-        const contacts = await Contact.find({});
+        const contacts = await Contact.find({}).sort({_id:-1});
         res.status(201).json({status:'success', data:contacts});
     } catch (error) {
         res.status(500).json({status:'error', message:'Something went wrong.'});

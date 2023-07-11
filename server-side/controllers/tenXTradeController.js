@@ -251,109 +251,103 @@ exports.marginDetail = async (req, res, next) => {
       //   },
       // ])
 
-     const subscription = await Subscription.aggregate( [
-      {
-        $match: {
-          _id: new ObjectId(subscriptionId),
-        },
-      },
-      {
-        $lookup: {
-          from: "user-portfolios",
-          localField: "portfolio",
-          foreignField: "_id",
-          as: "portfolioData",
-        },
-      },
-      {
-        $lookup: {
-          from: "tenx-trade-users",
-          localField: "_id",
-          foreignField: "subscriptionId",
-          as: "trades",
-        },
-      },
-      {
-        $unwind: {
-          path: "$users",
-        },
-      },
-      {
-        $match: {
-          "users.userId": new ObjectId(req.user._id),
-          "users.status": "Live",
-        },
-      },
-      {
-        $unwind: {
-          path: "$trades",
-          includeArrayIndex: "string",
-        },
-      },
-      {
-        $match: {
-          $expr: {
-            $gte: [
-              "$trades.trade_time",
-              "$users.subscribedOn",
-            ],
+      const subscription = await Subscription.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(subscriptionId),
           },
-          $expr: {
-            $lt: [
-              "$users.subscribedOn",
-              today,
-            ],
-          },
-          "trades.status": "COMPLETE",
-          "trades.trader": new ObjectId(req.user._id),
         },
-      },
-      {
-        $group: {
-          _id: {
-            subscriptionId: "$_id",
-            totalFund: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioValue",
-                0,
+        {
+          $lookup: {
+            from: "user-portfolios",
+            localField: "portfolio",
+            foreignField: "_id",
+            as: "portfolioData",
+          },
+        },
+        {
+          $lookup: {
+            from: "tenx-trade-users",
+            localField: "_id",
+            foreignField: "subscriptionId",
+            as: "trades",
+          },
+        },
+        {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $match: {
+            "users.userId": new ObjectId(req.user._id),
+            "users.status": "Live",
+          },
+        },
+        {
+          $unwind: {
+            path: "$trades",
+            includeArrayIndex: "string",
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                { $gt: ["$trades.trade_time", "$users.subscribedOn"] },
+                { $lt: ["$trades.trade_time", today] }
+              ]
+            },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(req.user._id),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              subscriptionId: "$_id",
+              totalFund: {
+                $arrayElemAt: [
+                  "$portfolioData.portfolioValue",
+                  0,
+                ],
+              },
+            },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              },
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            subscriptionId: "$_id.subscriptionId",
+            totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                {
+                  $subtract: [
+                    "$totalAmount",
+                    "$totalBrokerage",
+                  ],
+                },
               ],
             },
           },
-          totalAmount: {
-            $sum: {
-              $multiply: ["$trades.amount", -1],
-            },
-          },
-          totalBrokerage: {
-            $sum: "$trades.brokerage",
-          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          subscriptionId: "$_id.subscriptionId",
-          totalFund: "$_id.totalFund",
-          npnl: {
-            $subtract: [
-              "$totalAmount",
-              "$totalBrokerage",
-            ],
-          },
-          openingBalance: {
-            $sum: [
-              "$_id.totalFund",
-              {
-                $subtract: [
-                  "$totalAmount",
-                  "$totalBrokerage",
-                ],
-              },
-            ],
-          },
-        },
-      },
-     ])
+      ])
 
       if (subscription.length > 0) {
         if (isRedisConnected) {
