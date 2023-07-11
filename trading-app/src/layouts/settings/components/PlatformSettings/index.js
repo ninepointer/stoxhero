@@ -20,7 +20,7 @@ import MDTypography from "../../../../components/MDTypography";
 // import MDButton from "../../../../components/MDButton";
 
 import React, {useState, useEffect, useContext} from 'react'
-
+import axios from "axios";
 // import Grid from "@mui/material/Grid";
 // import { useMaterialUIController } from "../../../../context";
 
@@ -39,6 +39,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [infinityPrice, setInfinityPrice] = useState(0);
   const [maxWithdrawal, setMaxWithdrawal] = useState(0);
   const [minWithdrawal, setMinWithdrawal] = useState(0);
+  const [fund, setFund] = useState(0);
+  const [usedMargin, setUsedMargin] = useState(0);
 
   // const [successSB, setSuccessSB] = useState(false);
   // const openSuccessSB = () => setSuccessSB(true);
@@ -47,6 +49,19 @@ function PlatformSettings({settingData, setReRender, reRender}) {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
+
+  useEffect(()=>{
+    // setIsLoadMockMargin(false)
+
+    axios.get(`${baseUrl}api/v1/usedMargin/infinity`)
+      .then((res) => {
+        // console.log(res.data);
+        setUsedMargin(res.data.data)
+        // setIsLoadMockMargin(true)
+      }).catch((err) => {
+        return new Error(err);
+      })
+  }, [])
 
   useEffect(()=>{
     // console.log("settingData", settingData)
@@ -140,26 +155,6 @@ function PlatformSettings({settingData, setReRender, reRender}) {
 
   }
 
-
-  // let appstatus = settingData[0]?.isAppLive === true ? "Online" : "Offline"
-  // let today = new Date();
-  // let timestamp = `${(today.getHours())}:${String(today.getMinutes()).padStart(2, '0')}:${String(today.getSeconds()).padStart(2, '0')}`
-  // let title =  "App " + appstatus
-  // let enablestatus = settingData[0]?.isAppLive === true ? "enabled" : "disabled"
-  // let content = "Trading is " + enablestatus + " now"
-  // const renderSuccessSB = (
-  //   <MDSnackbar
-  //     color="success"
-  //     icon="check"
-  //     title={title}
-  //     content={content}
-  //     dateTime={timestamp}
-  //     open={successSB}
-  //     onClose={closeSuccessSB}
-  //     close={closeSuccessSB}
-  //     bgWhite="info"
-  //   />
-  // );
 
   const [messageObj, setMessageObj] = useState({
     color: '',
@@ -326,6 +321,33 @@ function PlatformSettings({settingData, setReRender, reRender}) {
             
           </Stack>
         </LocalizationProvider>
+        </MDBox>
+
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Fund'
+          fullWidth
+          // defaultValue={LeaderBoardTimming ? LeaderBoardTimming : settingData[0]?.leaderBoardTimming}
+          value={fund}
+          type="number"
+          onChange={(e)=>{setFund(e.target.value)}}
+        />
+
+        {/* <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='LeaderBoard Timming(second)'
+          fullWidth
+          value={usedMargin}
+          type="number"
+          onChange={(e) => { setUsedMargin(fund - e.target.value) }}
+        /> */}
+
+        <MDBox display="flex" alignItems="center" mb={0.5} mt={1}>
+          <MDTypography variant="button" fontWeight="regular" color="dark">
+            Availble Fund: {fund-usedMargin}
+          </MDTypography>
         </MDBox>
 
         <MDBox display="flex" alignItems="center" mb={0.5} ml={-1.5}>

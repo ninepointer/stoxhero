@@ -307,6 +307,7 @@ app.use('/api/v1/withdrawals', require("./routes/withdrawal/withdrawalRoutes"));
 app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
 app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
 app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
+app.use('/api/v1/marginused', require("./routes/marginUsed/marginUsed"));
 
 
 require('./db/conn');

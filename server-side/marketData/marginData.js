@@ -12,11 +12,11 @@ const marginApi = async (tradeData, quantity) => {
     const { exchange, symbol, realBuyOrSell, variety,
             Product, OrderType } = tradeData;
 
-    console.log("inside margin api")
+    // console.log("inside margin api")
     try {
         let data = await getKiteCred.getAccess();
 
-        console.log("inside kite cred", data)
+        // console.log("inside kite cred", data)
 
         let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
         let headers = {
@@ -92,7 +92,7 @@ exports.marginCalculationTrader = async (marginData, data, ltp, order_id) => {
                 quantityPrev = quantityPrev + elem.quantity;
             }
 
-            console.log("previousData previousDataForAvgPrice", previousData, previousDataForAvgPrice)
+            // console.log("previousData previousDataForAvgPrice", previousData, previousDataForAvgPrice)
             avg_price = (Math.abs(amountPrev) + Math.abs(previousData[0]?.amount))/(Math.abs(quantityPrev) + Math.abs(previousData[0]?.quantity))
     
         }
@@ -105,7 +105,7 @@ exports.marginCalculationTrader = async (marginData, data, ltp, order_id) => {
         if(isAddMoreFund && isReleaseFund){
             let marginQuantity = Math.abs(Math.abs(runningLots) - Math.abs(Quantity));
             margin_utilize = await marginApi(data, marginQuantity);
-            console.log("marginQuantity", marginQuantity, margin_utilize)
+            // console.log("marginQuantity", marginQuantity, margin_utilize)
 
         } else{
             margin_utilize = await marginApi(data, Math.abs(Quantity));
@@ -167,22 +167,30 @@ exports.marginCalculationTrader = async (marginData, data, ltp, order_id) => {
             }    
         }
     }
-
+    // console.log("Quantity + runningLots", Quantity , runningLots)
     const insertMarginData = await InfinityMockUserMargin.create({trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
         open_lots: Quantity + runningLots, amount: ltp*Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
 
 }
 
 exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
+    // console.log("marginData", marginData)
     let {Quantity, userQuantity, symbol, realBuyOrSell, realQuantity, trader, autoTrade} = data;
     let {isReleaseFund, isAddMoreFund, isSquareOff, zerodhaMargin, runningLots} = marginData;
 
     if(autoTrade){
         realQuantity = Quantity;
     }
+    if(!autoTrade){
+        runningLots = -runningLots;
+    }
     if(autoTrade && realBuyOrSell === "SELL"){
         runningLots = -runningLots;
     }
+    
+
+    // console.log(symbol, realBuyOrSell, realQuantity, trader, isReleaseFund, isAddMoreFund, isSquareOff, runningLots)
+
     // console.log(symbol, realBuyOrSell, realQuantity, trader, isReleaseFund, isAddMoreFund, isSquareOff, runningLots)
     let margin_released = 0;
     let margin_utilize = 0;
@@ -220,7 +228,7 @@ exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
         if(isAddMoreFund && isReleaseFund){
             let marginQuantity = Math.abs(Math.abs(runningLots) - Math.abs(realQuantity));
             margin_utilize = await marginApi(data, marginQuantity);
-            console.log("marginQuantity", marginQuantity, margin_utilize)
+            // console.log("marginQuantity", marginQuantity, margin_utilize)
 
         } else{
             margin_utilize = await marginApi(data, Math.abs(realQuantity));
@@ -278,7 +286,7 @@ exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
         }
     }
 
-
+    // console.log("realQuantity + runningLots", realQuantity , runningLots)
     const insertMarginData = await InfinityMockCompanyMargin.create({trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
         open_lots: realQuantity + runningLots, amount: ltp*Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
 
@@ -319,7 +327,7 @@ exports.marginCalculationTraderLive = async (marginData, data, ltp, order_id) =>
                 quantityPrev = quantityPrev + elem.quantity;
             }
 
-            console.log("previousData previousDataForAvgPrice", previousData, previousDataForAvgPrice)
+            // console.log("previousData previousDataForAvgPrice", previousData, previousDataForAvgPrice)
             avg_price = (Math.abs(amountPrev) + Math.abs(previousData[0]?.amount))/(Math.abs(quantityPrev) + Math.abs(previousData[0]?.quantity))
     
         }
@@ -332,7 +340,7 @@ exports.marginCalculationTraderLive = async (marginData, data, ltp, order_id) =>
             // if release and add both happens then like 100 buy then sell -200.
             let marginQuantity = Math.abs(Math.abs(runningLots) - Math.abs(Quantity));
             margin_utilize = await marginApi(data, marginQuantity);
-            console.log("marginQuantity", marginQuantity, margin_utilize)
+            // console.log("marginQuantity", marginQuantity, margin_utilize)
 
         } else{
             margin_utilize = await marginApi(data, Math.abs(Quantity));
@@ -395,10 +403,10 @@ exports.marginCalculationTraderLive = async (marginData, data, ltp, order_id) =>
         }
     }
 
-    console.log("insertMarginData user", {
-        trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
-        open_lots: Quantity + runningLots, amount: ltp * Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
-    })
+    // console.log("insertMarginData user", {
+    //     trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
+    //     open_lots: Quantity + runningLots, amount: ltp * Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
+    // })
 
 
     const insertMarginData = await InfinityMockUserMargin.create({
@@ -418,6 +426,10 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
     let {isReleaseFund, isAddMoreFund, isSquareOff, zerodhaMargin, runningLots} = marginData;
 
     if(autoTrade && realBuyOrSell === "SELL"){
+        runningLots = -runningLots;
+    }
+
+    if(!autoTrade){
         runningLots = -runningLots;
     }
 
@@ -457,7 +469,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
         if(isAddMoreFund && isReleaseFund){
             let marginQuantity = Math.abs(Math.abs(runningLots) - Math.abs(realQuantity));
             margin_utilize = await marginApi(data, marginQuantity);
-            console.log("marginQuantity", marginQuantity, margin_utilize)
+            // console.log("marginQuantity", marginQuantity, margin_utilize)
 
         } else{
             margin_utilize = await marginApi(data, Math.abs(realQuantity));
@@ -478,7 +490,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
         parent_id = previousData[0]?.order_id;
 
         const previousDataForAvgPrice = await InfinityMockCompanyMargin.find({instrument: symbol, parent_id: previousData[0]?.order_id, trader: trader}).sort({date: -1})
-        console.log("previousData", previousData, previousDataForAvgPrice)
+        // console.log("previousData", previousData, previousDataForAvgPrice)
         if(!previousDataForAvgPrice?.length){
             avg_price = ltp;
             if(isSquareOff) margin_released = previousData[0]?.margin_utilize;
@@ -516,10 +528,10 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
         }
     }
 
-    console.log("insertMarginData", {
-        trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
-        open_lots: realQuantity + runningLots, amount: ltp * Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
-    })
+    // console.log("insertMarginData", {
+    //     trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
+    //     open_lots: realQuantity + runningLots, amount: ltp * Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
+    // })
 
 
     const insertMarginData = await InfinityMockCompanyMargin.create({

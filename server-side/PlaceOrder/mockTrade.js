@@ -134,9 +134,9 @@ exports.mockTrade = async (req, res) => {
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
 
-        // console.log("marginData", marginData)
-        const saveMarginCompany = await marginCalculationCompany(marginData, req.body, originalLastPriceCompany, order_id);
-        const saveMarginUser = await marginCalculationTrader(marginData, req.body, originalLastPriceUser, order_id);
+        // console.log("marginData", marginData, req.body)
+        const saveMarginCompany = await marginCalculationCompany(req.body?.marginData, req.body, originalLastPriceCompany, order_id);
+        const saveMarginUser = await marginCalculationTrader(req.body?.marginData, req.body, originalLastPriceUser, order_id);
 
         let settingRedis ;
         const session = await mongoose.startSession();
@@ -225,6 +225,8 @@ exports.mockTrade = async (req, res) => {
             
 
         } catch(err){
+            console.error('Transaction failed, documents not saved:', err);
+
             if(isRedisConnected){
                 const pipeline = clientForIORedis.pipeline();
 
@@ -236,7 +238,6 @@ exports.mockTrade = async (req, res) => {
                 const results = await pipeline.exec();
             }
             await session.abortTransaction();
-            console.error('Transaction failed, documents not saved:', err);
             res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
         } finally {
         // End the session

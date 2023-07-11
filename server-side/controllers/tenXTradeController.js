@@ -251,109 +251,103 @@ exports.marginDetail = async (req, res, next) => {
       //   },
       // ])
 
-     const subscription = await Subscription.aggregate( [
-      {
-        $match: {
-          _id: new ObjectId(subscriptionId),
-        },
-      },
-      {
-        $lookup: {
-          from: "user-portfolios",
-          localField: "portfolio",
-          foreignField: "_id",
-          as: "portfolioData",
-        },
-      },
-      {
-        $lookup: {
-          from: "tenx-trade-users",
-          localField: "_id",
-          foreignField: "subscriptionId",
-          as: "trades",
-        },
-      },
-      {
-        $unwind: {
-          path: "$users",
-        },
-      },
-      {
-        $match: {
-          "users.userId": new ObjectId(req.user._id),
-          "users.status": "Live",
-        },
-      },
-      {
-        $unwind: {
-          path: "$trades",
-          includeArrayIndex: "string",
-        },
-      },
-      {
-        $match: {
-          $expr: {
-            $gte: [
-              "$trades.trade_time",
-              "$users.subscribedOn",
-            ],
+      const subscription = await Subscription.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(subscriptionId),
           },
-          $expr: {
-            $lt: [
-              "$users.subscribedOn",
-              today,
-            ],
-          },
-          "trades.status": "COMPLETE",
-          "trades.trader": new ObjectId(req.user._id),
         },
-      },
-      {
-        $group: {
-          _id: {
-            subscriptionId: "$_id",
-            totalFund: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioValue",
-                0,
+        {
+          $lookup: {
+            from: "user-portfolios",
+            localField: "portfolio",
+            foreignField: "_id",
+            as: "portfolioData",
+          },
+        },
+        {
+          $lookup: {
+            from: "tenx-trade-users",
+            localField: "_id",
+            foreignField: "subscriptionId",
+            as: "trades",
+          },
+        },
+        {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $match: {
+            "users.userId": new ObjectId(req.user._id),
+            "users.status": "Live",
+          },
+        },
+        {
+          $unwind: {
+            path: "$trades",
+            includeArrayIndex: "string",
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                { $gt: ["$trades.trade_time", "$users.subscribedOn"] },
+                { $lt: ["$trades.trade_time", today] }
+              ]
+            },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(req.user._id),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              subscriptionId: "$_id",
+              totalFund: {
+                $arrayElemAt: [
+                  "$portfolioData.portfolioValue",
+                  0,
+                ],
+              },
+            },
+            totalAmount: {
+              $sum: {
+                $multiply: ["$trades.amount", -1],
+              },
+            },
+            totalBrokerage: {
+              $sum: "$trades.brokerage",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            subscriptionId: "$_id.subscriptionId",
+            totalFund: "$_id.totalFund",
+            npnl: {
+              $subtract: [
+                "$totalAmount",
+                "$totalBrokerage",
+              ],
+            },
+            openingBalance: {
+              $sum: [
+                "$_id.totalFund",
+                {
+                  $subtract: [
+                    "$totalAmount",
+                    "$totalBrokerage",
+                  ],
+                },
               ],
             },
           },
-          totalAmount: {
-            $sum: {
-              $multiply: ["$trades.amount", -1],
-            },
-          },
-          totalBrokerage: {
-            $sum: "$trades.brokerage",
-          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          subscriptionId: "$_id.subscriptionId",
-          totalFund: "$_id.totalFund",
-          npnl: {
-            $subtract: [
-              "$totalAmount",
-              "$totalBrokerage",
-            ],
-          },
-          openingBalance: {
-            $sum: [
-              "$_id.totalFund",
-              {
-                $subtract: [
-                  "$totalAmount",
-                  "$totalBrokerage",
-                ],
-              },
-            ],
-          },
-        },
-      },
-     ])
+      ])
 
       if (subscription.length > 0) {
         if (isRedisConnected) {
@@ -1490,3 +1484,74 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
 //     },
 //   },
 // ]
+
+exports.getDailyTenXUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$_id.trader" },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
+
+    const tenXTraders = await TenXTrader.aggregate(pipeline);
+
+    // Create a date-wise mapping of DAUs for different products
+    const dateWiseDAUs = {};
+
+    tenXTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            tenXTrading: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].tenXTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    // Calculate the date-wise total DAUs and unique users
+    Object.keys(dateWiseDAUs).forEach(date => {
+      const { tenXTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].total = tenXTrading
+      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+    });
+
+    const response = {
+      status: "success",
+      message: "Contest Scoreboard fetched successfully",
+      data: Object.values(dateWiseDAUs),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};

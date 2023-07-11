@@ -7,6 +7,7 @@ import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
+import MarginDetails from "./layouts/margindetails";
 import Instruments from "./layouts/instruments";
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 // import Contests from "./layouts/contests";
@@ -747,12 +748,20 @@ const routes = [
     component: <TradersReportLive/>,
   },
   {
-    // type: "collapse",
+    // type: "collapse",MarginDetails
     // name: "All Orders",
     key: "orders",
     // icon: <TableViewIcon/>,
     route: "/orders",
     component: <Orders />,
+  },
+  {
+    // type: "collapse",
+    // name: "All Orders",
+    key: "margindetails",
+    // icon: <TableViewIcon/>,
+    route: "/margindetails",
+    component: <MarginDetails />,
   },
   {
     // type: "collapse",

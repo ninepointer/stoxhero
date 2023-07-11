@@ -18,7 +18,7 @@ export default function Charts({monthlyActiveUsers}) {
 
   const options = {
     title: {
-      text: 'Monthly Active Users (Product Wise)',
+      text: 'MAUs (Product Wise)',
       left: 'left',
     },
     tooltip: {
@@ -39,7 +39,7 @@ export default function Charts({monthlyActiveUsers}) {
       }
     },
     legend: {
-        data: ['Virtual Trading', 'Contest', 'TenX Trading', 'Total'],
+        data: ['Virtual Trading', 'Contest', 'TenX Trading', 'Internship Trading', 'Total'],
     },
     grid: {
         right: '2%', // Adjust the right margin as per your requirement
@@ -95,6 +95,11 @@ export default function Charts({monthlyActiveUsers}) {
         name: 'TenX Trading',
         type: 'bar',
         data: monthlyActiveUsers.map(item => item.tenXTrading),
+      },
+      {
+        name: 'Internship Trading',
+        type: 'bar',
+        data: monthlyActiveUsers.map(item => item.internshipTrading),
       },
     ],
   };

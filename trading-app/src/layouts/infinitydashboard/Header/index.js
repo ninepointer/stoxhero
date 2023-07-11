@@ -264,7 +264,7 @@ export default function LabTabs({socket}) {
   const liveTotalGrossPnlcolor = liveTotalGrossPnl >= 0 ? "success" : "error"
   const liveTotalnetPnlcolor = (liveTotalGrossPnl-liveTotalTransactionCost) >= 0 ? "success" : "error"
   const liveTotalquantitycolor = liveTotalRunningLots >= 0 ? "success" : "error"
-
+  const addInMargin = (totalGrossPnl - totalTransactionCost) >= 0 ? 0 : Math.abs(totalGrossPnl - totalTransactionCost);
 
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
@@ -328,7 +328,7 @@ export default function LabTabs({socket}) {
                                         {( !isLoadMockMargin) ?
                                             <CircularProgress color="inherit" size={10} sx={{marginRight: "10px"}}/>
                                          :
-                                         <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData)}</span>
+                                         <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData+addInMargin)}</span>
                                         }
                                          <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMockMargin(!refreshMockMargin) }} />
                                     </MDTypography>
@@ -1218,6 +1218,20 @@ export default function LabTabs({socket}) {
                                   }}
                               >
                                   Margin Allocation
+                              </MDButton>
+                          </Grid>
+
+                          <Grid item>
+                              <MDButton
+                                  variant="contained"
+                                  color={"primary"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/margindetails`,
+                                  }}
+                              >
+                                  Margin Details
                               </MDButton>
                           </Grid>
                       </Grid>

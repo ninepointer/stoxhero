@@ -9,9 +9,11 @@ import MDTypography from '../../../components/MDTypography';
 // import man from '../../../assets/images/man.png'
 // import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { Link, useLocation } from "react-router-dom";
+import { suppressDeprecationWarnings } from 'moment';
 // import RunningPNLChart from '../data/runningpnlchart'
 
 //data
+import DailyTenXUsers from '../data/dailyTenXUsers'
 
 export default function LabTabs({socket}) {
 //   const [value, setValue] = React.useState('1');
@@ -19,6 +21,7 @@ export default function LabTabs({socket}) {
   const [trackEvent, setTrackEvent] = useState({});
   const [lastTenXTradingDate, setLastTenXTradingDate] = useState("");
   const [liveDetail, setLiveDetail] = useState([]);
+  const [dailyTenXUsers, setDailyTenXUsers] = useState();
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
@@ -76,11 +79,9 @@ export default function LabTabs({socket}) {
   }, [])
 
   useEffect(()=>{
-    console.log("Loading: ",isLoading)
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnltoday`)
     .then((res) => {
-        console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data);
         // setTimeout(()=>{
         //     setIsLoading(false)
@@ -90,10 +91,8 @@ export default function LabTabs({socket}) {
         setIsLoading(false)
         return new Error(err);
     })
-    console.log("Loading: ",isLoading)
     axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercounttoday`)
     .then((res) => {
-        console.log("TenX Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
         // setTimeout(()=>{
@@ -107,7 +106,6 @@ export default function LabTabs({socket}) {
 
     axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnlyesterday`)
     .then((res) => {
-        console.log("Yesterday's Data:",res.data.data)
         setTradeDataYesterday(res.data.data);
         setLastTenXTradingDate(res.data.date);        
     }).catch((err) => {
@@ -115,9 +113,16 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
+    axios.get(`${baseUrl}api/v1/tenxtrade/dailytenxusers`)
+    .then((res) => {
+        setDailyTenXUsers(res.data.data);        
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
     axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercountyesterday`)
     .then((res) => {
-        console.log("TenX Count Yesterday: ",res.data.data)
         setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
         setTimeout(()=>{
@@ -163,7 +168,7 @@ export default function LabTabs({socket}) {
             <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>TenX Dashboard</MDTypography>
         </MDBox>
 
-        <Grid container lg={12}>
+        <Grid container xs={12} md={12} lg={12}>
             <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
                 {isLoading ? 
                     <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
@@ -272,8 +277,16 @@ export default function LabTabs({socket}) {
                 }
             </Grid>
         </Grid>
+        
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    { dailyTenXUsers && <DailyTenXUsers dailyTenXUsers={dailyTenXUsers}/>}
+                </MDBox>
+            </Grid>
+        </Grid>
 
-        <Grid container spacing={2} mt={1}>
+        <Grid container xs={12} md={12} lg={12} spacing={2} mt={1}>
             
             <Grid item xs={12} md={6} lg={3}>
                     
@@ -675,7 +688,7 @@ export default function LabTabs({socket}) {
             
         </Grid>
 
-        <Grid container spacing={2} mt={1}>
+        <Grid container xs={12} md={12} lg={12} spacing={2} mt={1}>
             <Grid item lg={3}>
                 <MDBox p={2} bgColor='text' borderRadius={5}>
                     <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>

@@ -18,7 +18,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 // import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-
+import AutoFixNormalIcon from '@mui/icons-material/AutoFixNormal';
 // import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 // import { GiNinjaHeroicStance } from 'react-icons/gi';
 
@@ -63,6 +63,8 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
+import UserDailyContestCollage from './layouts/UserDailyContestCollage';
+
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import Chart from './layouts/charts/index';
 // import DailyContest from "./layouts/dailyContest-Trading";
@@ -148,10 +150,19 @@ const routes = [
     type: "collapse",
     name: "Contest",
     key: "contest",
-    // icon: <Icon fontSize="small">person</Icon>,
+    // UserDailyContestCollage
     icon: <EmojiEventsIcon/>,
     route: "/contest",
     component: <UserDailyContest />,
+  },
+  {
+    type: "collapse",
+    name: "College Contest",
+    key: "collegecontest",
+    // 
+    icon: <AutoFixNormalIcon/>,
+    route: "/collegecontest",
+    component: <UserDailyContestCollage />,
   },
   {
     type: "collapse",

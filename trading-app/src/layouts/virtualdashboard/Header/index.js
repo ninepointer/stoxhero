@@ -5,11 +5,13 @@ import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
+import DailyVirtualUsers from '../data/dailyVirtualUsers'
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [marketData, setMarketData] = useState([]);
+  const [dailyVirtualUsers, setDailyVirtualUsers] = useState();
   const [lastVirtualTradingDate,setLastVirtualTradingDate] = useState("");
   const [tradeData, setTradeData] = useState([]);
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
@@ -57,7 +59,6 @@ export default function LabTabs({socket}) {
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/papertrade/virtualoveralltraderpnltoday`)
     .then((res) => {
-        console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data); 
     }).catch((err) => {
         setIsLoading(false)
@@ -66,9 +67,16 @@ export default function LabTabs({socket}) {
     console.log("Loading: ",isLoading)
     axios.get(`${baseUrl}api/v1/papertrade/liveandtotaltradercounttoday`)
     .then((res) => {
-        console.log("Virtual Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/papertrade/dailyvirtualusers`)
+    .then((res) => {
+        setDailyVirtualUsers(res.data.data)
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -235,6 +243,14 @@ export default function LabTabs({socket}) {
                 </Grid>
                 </>
                 }
+            </Grid>
+        </Grid>
+
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    { dailyVirtualUsers && <DailyVirtualUsers dailyVirtualUsers={dailyVirtualUsers}/>}
+                </MDBox>
             </Grid>
         </Grid>
 
