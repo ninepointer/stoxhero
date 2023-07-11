@@ -62,8 +62,58 @@ const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
 const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
+const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCompanyMargin")
 
 
+
+ 
+
+router.get("/margin", async (req, res) => {
+  let pipeline = [
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          date: {
+            $gte: new Date("2023-07-11"),
+          },
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            trader: "$trader",
+          },
+          margin_utilize: {
+            $sum: "$margin_utilize",
+          },
+          margin_released: {
+            $sum: "$margin_released",
+          },
+        },
+    },
+    // {
+    //   $match:
+    //     /**
+    //      * query: The query in MQL.
+    //      */
+    //     {
+    //       margin_utilize: {
+    //         $ne: "$margin_released",
+    //       },
+    //     },
+    // },
+  ]
+  const x = await MarginDetailMockCompany.aggregate(pipeline)
+  res.send(x);
+});
 
 router.get("/afterContest", async (req, res) => {
   // await autoCutMainManually();

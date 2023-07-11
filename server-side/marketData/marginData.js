@@ -174,6 +174,7 @@ exports.marginCalculationTrader = async (marginData, data, ltp, order_id) => {
 }
 
 exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
+    console.log("marginData", marginData)
     let {Quantity, userQuantity, symbol, realBuyOrSell, realQuantity, trader, autoTrade} = data;
     let {isReleaseFund, isAddMoreFund, isSquareOff, zerodhaMargin, runningLots} = marginData;
 
