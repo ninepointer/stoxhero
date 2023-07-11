@@ -463,7 +463,6 @@ const autoPlaceOrder = (obj, res) => {
         marginData: marginData,
         OrderType: OrderType,
         Product: Product
-  
       }
 
       if (response?.result?.AppOrderID) {
@@ -539,14 +538,11 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     return; // Terminate recursion
   }
 
-
-
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T23:59:59.999Z";
   const today = new Date(todayDate);
   const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
-
 
   const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: xtsAccountType });
   const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: xtsAccountType });

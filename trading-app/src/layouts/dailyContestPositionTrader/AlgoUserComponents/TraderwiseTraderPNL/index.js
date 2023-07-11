@@ -22,6 +22,7 @@ function TraderwiseTraderPNL({socket }) {
   const [marketData, setMarketData] = useState([]);
   const [subscriptions,setSubscription] = useState([]);
   const [selectedContest, setselectedContest] = useState({});
+  const [trackEvent, setTrackEvent] = useState({});
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/dailycontest/contests`, {withCredentials: true})
@@ -52,6 +53,14 @@ function TraderwiseTraderPNL({socket }) {
   }, [])
 
   useEffect(()=>{
+    socket.on('updatePnl', (data)=>{
+      setTimeout(()=>{
+        setTrackEvent(data);
+      })
+    })
+  }, [])
+
+  useEffect(()=>{
     if(!selectedContest?._id){
       return;
     }
@@ -63,7 +72,7 @@ function TraderwiseTraderPNL({socket }) {
         return new Error(err);
     })
 
-  }, [selectedContest?._id]) 
+  }, [selectedContest?._id, trackEvent]) 
 
   useEffect(() => {
     return () => {
@@ -267,7 +276,7 @@ rows.push(obj);
       <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDBox>
           <MDTypography variant="h6" gutterBottom p={3}>
-            Daily Contest Traders Position
+            Daily Contest Trader Position(Trader Side)
           </MDTypography>
         </MDBox>
 
