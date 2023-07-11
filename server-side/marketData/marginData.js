@@ -163,7 +163,7 @@ exports.marginCalculationTrader = async (marginData, data, ltp, order_id) => {
             }    
         }
     }
-
+    console.log("Quantity + runningLots", Quantity , runningLots)
     const insertMarginData = await InfinityMockUserMargin.create({trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
         open_lots: Quantity + runningLots, amount: ltp*Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
 
@@ -176,6 +176,11 @@ exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
     if(autoTrade){
         realQuantity = Quantity;
     }
+    if(!autoTrade){
+        runningLots = -runningLots;
+    }
+    
+
     console.log(symbol, realBuyOrSell, realQuantity, trader, isReleaseFund, isAddMoreFund, isSquareOff, runningLots)
     let margin_released = 0;
     let margin_utilize = 0;
@@ -271,7 +276,7 @@ exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
         }
     }
 
-
+    console.log("realQuantity + runningLots", realQuantity , runningLots)
     const insertMarginData = await InfinityMockCompanyMargin.create({trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
         open_lots: realQuantity + runningLots, amount: ltp*Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price })
 
@@ -410,7 +415,11 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
     let {Quantity, userQuantity, symbol, realBuyOrSell, realQuantity, trader, autoTrade, buyOrSell} = data;
     let {isReleaseFund, isAddMoreFund, isSquareOff, zerodhaMargin, runningLots} = marginData;
 
-    if(autoTrade && buyOrSell === "SELL"){
+    if(autoTrade && realBuyOrSell === "SELL"){
+        runningLots = -runningLots;
+    }
+
+    if(!autoTrade){
         runningLots = -runningLots;
     }
 

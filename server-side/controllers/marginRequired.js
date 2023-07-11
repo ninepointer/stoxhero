@@ -850,3 +850,138 @@ exports.saveXtsMargin = async ()=>{
     }
   }
 }
+
+exports.companyMarginToday = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTraderCompany.countDocuments({ trade_time: { $gte: today } })
+
+  try{
+    let x = await InfinityTraderCompany.aggregate([
+      { $match: {trade_time: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.traderMarginToday = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTrader.countDocuments({ trade_time: { $gte: today } })
+
+  try{
+    let x = await InfinityTrader.aggregate([
+      { $match: {trade_time: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.compnayMarginHistory = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTraderCompany.countDocuments({ trade_time: { $lt: today } })
+
+  try{
+    let x = await InfinityTraderCompany.aggregate([
+      { $match: {trade_time: { $lt: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
