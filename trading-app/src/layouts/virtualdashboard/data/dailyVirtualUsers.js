@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import MDBox from '../../../components/MDBox';
 import moment from 'moment';
 
-export default function Charts({weeklyActiveUsers}) {
+export default function Charts({dailyVirtualUsers}) {
     const chartRef = useRef(null);
   // Dummy data for example purposes
   const data = [
@@ -18,7 +18,7 @@ export default function Charts({weeklyActiveUsers}) {
 
   const options = {
     title: {
-      text: 'WAUs (Product Wise)',
+      text: 'Daily Unique Virtual Users',
       left: 'left',
     },
     tooltip: {
@@ -33,13 +33,13 @@ export default function Charts({weeklyActiveUsers}) {
     toolbox: {
       feature: {
         dataView: { show: true, readOnly: true },
-        magicType: { show: true, type: ['line', 'bar'] },
+        magicType: { show: true, type: ['bar', 'line'] },
         restore: { show: true },
         saveAsImage: { show: true }
       }
     },
     legend: {
-        data: ['Virtual Trading', 'Contest', 'TenX Trading', 'Internship Trading', 'Total'],
+        data: ['Contest'],
     },
     grid: {
         right: '2%', // Adjust the right margin as per your requirement
@@ -54,7 +54,8 @@ export default function Charts({weeklyActiveUsers}) {
     xAxis: [
         {
           type: 'category',
-          data: weeklyActiveUsers.map(item => item.week),
+          data: dailyVirtualUsers.map(item => 
+            moment.utc(((new Date(item.date)).toLocaleString("en-US", { timeZone: "UTC" }))).utcOffset('+00:00').format('DD-MMM')),
           axisPointer: {
             type: 'shadow'
           }
@@ -77,29 +78,9 @@ export default function Charts({weeklyActiveUsers}) {
     ],
     series: [
       {
-        name: 'Total',
+        name: 'Virtual Users',
         type: 'line',
-        data: weeklyActiveUsers.map(item => item.total),
-      },
-      {
-        name: 'Virtual Trading',
-        type: 'bar',
-        data: weeklyActiveUsers.map(item => item.virtualTrading),
-      },
-      {
-        name: 'Contest',
-        type: 'bar',
-        data: weeklyActiveUsers.map(item => item.contest),
-      },
-      {
-        name: 'TenX Trading',
-        type: 'bar',
-        data: weeklyActiveUsers.map(item => item.tenXTrading),
-      },
-      {
-        name: 'Internship Trading',
-        type: 'bar',
-        data: weeklyActiveUsers.map(item => item.internshipTrading),
+        data: dailyVirtualUsers.map(item => item.virtualTrading),
       },
     ],
   };
@@ -109,7 +90,7 @@ export default function Charts({weeklyActiveUsers}) {
   return () => {
     chart.dispose();
   };
-}, [weeklyActiveUsers]);
+}, [dailyVirtualUsers]);
 
   return <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };

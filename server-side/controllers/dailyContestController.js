@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Contest = require('../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
 const User = require("../models/User/userDetailSchema");
+const ContestTrading = require('../models/DailyContest/dailyContestMockUser');
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const { ObjectId } = require('mongodb');
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
@@ -264,7 +265,7 @@ exports.getCompletedCollegeContests = async (req, res) => {
 // Controller for getting draft contests
 exports.getDraftContests = async (req, res) => {
     try {
-        const contests = await Contest.find({ contestStatus: 'Draft' });
+        const contests = await Contest.find({ contestStatus: 'Draft' }).sort({contestStartTime: -1});
 
         res.status(200).json({
             status:"success",
@@ -710,3 +711,74 @@ exports.creditAmountToWallet = async () => {
         // });
     }
 };
+
+exports.getDailyContestUsers = async (req, res) => {
+    try {
+      const pipeline = [
+        {
+          $group: {
+            _id: {
+              date: {
+                $substr: ["$trade_time", 0, 10],
+              },
+              trader: "$trader",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { date: "$_id.date" },
+            traders: { $sum: 1 },
+            uniqueUsers: { $addToSet: "$_id.trader" },
+          },
+        },
+        {
+          $sort: {
+            "_id.date": 1,
+          },
+        },
+      ];
+  
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+  
+      // Create a date-wise mapping of DAUs for different products
+      const dateWiseDAUs = {};
+  
+      contestTraders.forEach(entry => {
+        const { _id, traders, uniqueUsers } = entry;
+        const date = _id.date;
+        if (date !== "1970-01-01") {
+          if (!dateWiseDAUs[date]) {
+            dateWiseDAUs[date] = {
+              date,
+              contest: 0,
+              uniqueUsers: [],
+            };
+          }
+          dateWiseDAUs[date].contest = traders;
+          dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+        }
+      });
+  
+      // Calculate the date-wise total DAUs and unique users
+      Object.keys(dateWiseDAUs).forEach(date => {
+        const { contest, uniqueUsers } = dateWiseDAUs[date];
+        dateWiseDAUs[date].total = contest
+        dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+      });
+  
+      const response = {
+        status: "success",
+        message: "Contest Scoreboard fetched successfully",
+        data: Object.values(dateWiseDAUs),
+      };
+  
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Something went wrong",
+        error: error.message,
+      });
+    }
+  };

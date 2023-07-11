@@ -753,3 +753,74 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     ])
     res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
+
+exports.getDailyVirtualUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$_id.trader" },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
+
+    const virtualTraders = await PaperTrade.aggregate(pipeline);
+
+    // Create a date-wise mapping of DAUs for different products
+    const dateWiseDAUs = {};
+
+    virtualTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            virtualTrading: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].virtualTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    // Calculate the date-wise total DAUs and unique users
+    Object.keys(dateWiseDAUs).forEach(date => {
+      const { virtualTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].total = virtualTrading
+      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+    });
+
+    const response = {
+      status: "success",
+      message: "Contest Scoreboard fetched successfully",
+      data: Object.values(dateWiseDAUs),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};

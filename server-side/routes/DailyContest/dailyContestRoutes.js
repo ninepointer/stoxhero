@@ -4,6 +4,7 @@ const router = express.Router({mergeParams: true});
 const contestController = require('../../controllers/dailyContestController');
 
 router.post('/contest', Authenticate, contestController.createContest);
+router.get('/contest/dailycontestusers', contestController.getDailyContestUsers);
 router.get('/contestusers', contestController.getUsers);
 router.get('/contest/:id', contestController.getContest);
 

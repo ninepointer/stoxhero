@@ -15,7 +15,7 @@ exports.createCollege = async(req, res, next)=>{
 
 exports.getColleges = async(req, res, next)=>{
     try{
-        const colleges = await College.find();
+        const colleges = await College.find().sort({collegeName:1});
         res.status(200).json({status: 'success', data: colleges, results: colleges.length});    
     }catch(e){
         console.log(e);

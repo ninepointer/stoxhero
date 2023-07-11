@@ -40,6 +40,10 @@ export default function TraderDetails({completedContest, isLoading}) {
     const chart = echarts.init(chartRef.current);
 
     const option = {
+      title: {
+        text: 'Contest NPNL & Payouts(Trader)',
+        left: 'left',
+      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {

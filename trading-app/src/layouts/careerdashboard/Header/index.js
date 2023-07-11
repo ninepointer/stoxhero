@@ -6,11 +6,14 @@ import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
 
+import DailyInternshipUsers from '../data/dailyInternshipUsers'
+
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [marketData, setMarketData] = useState([]);
+  const [dailyInternshipUsers, setDailyInternshipUsers] = useState();
   const [lastInternshipTradingDate,setLastInternshipTradingDate] = useState("");
   const [tradeData, setTradeData] = useState([]);
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
@@ -90,6 +93,14 @@ export default function LabTabs({socket}) {
             setIsLoading(false)
         },500)
         
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/internship/dailyinternshipusers`)
+    .then((res) => {
+        setDailyInternshipUsers(res.data.data);   
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -253,6 +264,14 @@ export default function LabTabs({socket}) {
                 </Grid>
                 </>
                 }
+            </Grid>
+        </Grid>
+
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    { dailyInternshipUsers && <DailyInternshipUsers dailyInternshipUsers={dailyInternshipUsers}/>}
+                </MDBox>
             </Grid>
         </Grid>
 
