@@ -157,21 +157,21 @@ exports.getAllWithdrwals = async (req, res, next) => {
 }
 
 exports.getPendingWithdrawals = async (req,res,next) => {
-    const pendingWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'}).populate('user', 'first_name last_name mobile');
+    const pendingWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount');
     res.status(200).json({status:'success', data: pendingWithdrawals, results: pendingWithdrawals.length})
 }
 
 exports.getRejectedWithdrawals = async (req,res,next) => {
-    const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Rejected'}).populate('user', 'first_name last_name mobile');
+    const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Rejected'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount');
     res.status(200).json({status:'success', data: rejectedWithdrawals, results: rejectedWithdrawals.length})
 }
 exports.getApprovedWithdrawals = async (req,res,next) => {
-    const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Processed'}).populate('user', 'first_name last_name mobile');
+    const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Processed'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount');
     res.status(200).json({status:'success', data: rejectedWithdrawals, results: rejectedWithdrawals.length})
 }
 
 exports.getInitiatedWithdrawals = async (req, res, next) => {
-    const initiatedWithdrawals = await Withdrawal.find({withdrawalStatus:'Initiated'}).populate('user', 'first_name last_name mobile');
+    const initiatedWithdrawals = await Withdrawal.find({withdrawalStatus:'Initiated'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount');
     res.status(200).json({status:'success', data: initiatedWithdrawals, results: initiatedWithdrawals.length})
 }
 

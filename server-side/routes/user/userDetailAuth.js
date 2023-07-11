@@ -65,20 +65,20 @@ const resizePhoto = async (req, res, next) => {
     
       if (aadhaarCardFrontImage && aadhaarCardFrontImage[0].buffer) {
         const resizedAadhaarCardFrontImage = await sharp(aadhaarCardFrontImage[0].buffer)
-          .resize({ width: 1024, height: 720 })
+          // .resize({ width: 1024, height: 720 })
           .toBuffer();
           (req.files).aadhaarCardFrontImageBuffer = resizedAadhaarCardFrontImage;
       }
       if (aadhaarCardBackImage && aadhaarCardBackImage[0].buffer) {
         const resizedAadhaarCardBackImage = await sharp(aadhaarCardBackImage[0].buffer)
-          .resize({ width: 1024, height: 720 })
+          // .resize({ width: 1024, height: 720 })
           .toBuffer();
           (req.files).aadhaarCardBackImageBuffer = resizedAadhaarCardBackImage;
       }
 
       if (panCardFrontImage && panCardFrontImage[0].buffer) {
         const resizedPanCardFrontImage = await sharp(panCardFrontImage[0].buffer)
-          .resize({ width: 1024, height: 720 })
+          // .resize({ width: 1024, height: 720 })
           .toBuffer();
           (req.files).panCardFrontImageBuffer = resizedPanCardFrontImage;
       }
@@ -90,7 +90,7 @@ const resizePhoto = async (req, res, next) => {
       }
       if (addressProofDocument && addressProofDocument[0].buffer) {
         const resizedAddressProofDocument = await sharp(addressProofDocument[0].buffer)
-          .resize({ width: 1024, height: 720 })
+          // .resize({ width: 1024, height: 720 })
           .toBuffer();
           (req.files).addressProofDocumentBuffer = resizedAddressProofDocument;
       }
