@@ -135,7 +135,19 @@ const InfinityMockCompanyMargin = require("../models/marginUsed/infinityMockComp
 
 exports.infinityMargin = async (req, res) => {
 
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
   let total = await InfinityMockCompanyMargin.aggregate([
+    {
+      $match: {
+        date: {
+          $gte: today
+        },
+      },
+    },
     {
       $group:
   
