@@ -10,14 +10,23 @@ const uuid = require("uuid")
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const {contestStatus, contestEndTime, contestStartTime, contestOn, description, college,
+        const {contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
             maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex} = req.body;
         console.log(req.body)
 
+        const getContest = await Contest.findOne({collegeCode: collegeCode});
+        if(getContest?.collegeCode){
+            return res.status(500).json({
+                status:'error',
+                message: "College Code is already exist.",
+                
+            });
+        }
+
         const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex});
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode});
 
             console.log(contest)
         res.status(201).json({
@@ -135,7 +144,34 @@ exports.getContest = async (req, res) => {
 exports.getUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gt: new Date() }
+            contestEndTime: { $gt: new Date() }, contestFor: "StoxHero"
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('college', 'collegeName zone')
+
+
+        res.status(200).json({
+            status:"success",
+            message: "Upcoming contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+};
+
+// Controller for getting upcoming contests 
+exports.getUpcomingCollegeContests = async (req, res) => {
+    try {
+        const contests = await Contest.find({
+            contestEndTime: { $gt: new Date() }, contestFor: "College"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -186,7 +222,29 @@ exports.getCompletedContests = async (req, res) => {
     const userId = req.user._id;
     try {
         const contests = await Contest.find({
-            contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId)
+            contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "StoxHero"
+        });
+
+        res.status(200).json({
+            status:"success",
+            message: "Completed contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+// Controller for getting completed contests
+exports.getCompletedCollegeContests = async (req, res) => {
+    const userId = req.user._id;
+    try {
+        const contests = await Contest.find({
+            contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "College"
         });
 
         res.status(200).json({
@@ -340,13 +398,6 @@ exports.registerUserToContest = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({status:"error", message: "Invalid contest ID or user ID" });
         }
-
-        // const result = await Contest.findByIdAndUpdate(
-        //     id,
-        //     { $push: { interestedUsers: { userId: userId, registeredOn: new Date(), status: 'Joined' } } },
-        //     { new: true }  // This option ensures the updated document is returned
-        // );
-
         const result = await Contest.findByIdAndUpdate(
             id,
             {
@@ -463,6 +514,80 @@ exports.participateUsers = async (req, res) => {
             return res.status(404).json({ status: "error", message: "You can participate in another contest once the current contest ends." });
         }
 
+
+        
+        if (contest?.maxParticipants <= contest?.participants?.length) {
+            if (!contest.potentialParticipants.includes(userId)) {
+                contest.potentialParticipants.push(userId);
+                contest.save();
+            }
+            return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
+        }
+
+        const result = await Contest.findByIdAndUpdate(
+            id,
+            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
+            { new: true }  // This option ensures the updated document is returned
+        );
+
+        if (!result) {
+            return res.status(404).json({status:"error", message: "Something went wrong." });
+        }
+
+        res.status(200).json({
+            status:"success",
+            message: "Participate successfully",
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.verifyCollageCode = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the contest 
+        const userId = req.user._id;
+        const {collegeCode} = req.body;
+
+        const contest = await Contest.findOne({_id: id});
+
+        const getActiveContest = await Contest.find({
+            participants: {
+                $elemMatch: {
+                    userId: new ObjectId(userId)
+                }
+            },
+            contestStatus: "Active",
+            $or: [
+                { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
+                { contestEndTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
+                {
+                    $and: [
+                        { contestStartTime: { $lte: new Date(contest.contestStartTime) } },
+                        { contestEndTime: { $gte: new Date(contest.contestEndTime) } }
+                    ]
+                }
+            ]
+        })
+
+        if(getActiveContest.length > 0){
+            if (!contest.potentialParticipants.includes(userId)) {
+                contest.potentialParticipants.push(userId);
+                contest.save();
+            }
+            return res.status(404).json({ status: "error", message: "You can participate in another contest once the current contest ends." });
+        }
+
+        console.log("collageCode", collegeCode, contest?.collegeCode)
+
+        if(collegeCode !== contest?.collegeCode){
+            return res.status(404).json({ status: "error", message: "The College Code which you have entered is incorrect. Please contact your college POC for the correct College Code." }); 
+        }
 
         
         if (contest?.maxParticipants <= contest?.participants?.length) {

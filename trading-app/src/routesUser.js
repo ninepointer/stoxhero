@@ -63,6 +63,8 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
+import UserDailyContestCollage from './layouts/UserDailyContestCollage';
+
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import Chart from './layouts/charts/index';
 // import DailyContest from "./layouts/dailyContest-Trading";
@@ -148,10 +150,19 @@ const routes = [
     type: "collapse",
     name: "Contest",
     key: "contest",
-    // icon: <Icon fontSize="small">person</Icon>,
+    // UserDailyContestCollage
     icon: <EmojiEventsIcon/>,
     route: "/contest",
     component: <UserDailyContest />,
+  },
+  {
+    type: "collapse",
+    name: "Collage Contest",
+    key: "collagecontest",
+    // 
+    icon: <EmojiEventsIcon/>,
+    route: "/collagecontest",
+    component: <UserDailyContestCollage />,
   },
   {
     type: "collapse",
