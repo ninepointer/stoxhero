@@ -14,7 +14,7 @@ exports.getAccess = async () => {
     const today2 = new Date(todayDate2);
     const secondsRemaining = Math.round((today2.getTime() - date.getTime()) / 1000);
 
-    console.log(today)
+    // console.log(today)
 
     // if(await client.exists(`kiteCredToday:${process.env.PROD}`)){
     //     let credentials = await client.get(`kiteCredToday:${process.env.PROD}`)
@@ -51,7 +51,7 @@ exports.getAccess = async () => {
     const apiKey = await Account.find({status: "Active"});
     const accessToken = await RequestToken.find({status: "Active"});
     // console.log("accessToken", accessToken);
-    console.log("in kite cred")
+    // console.log("in kite cred")
     let getApiKey, getAccessToken;
     for(let elem of accessToken){
         for(let subElem of apiKey){

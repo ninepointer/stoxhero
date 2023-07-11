@@ -372,13 +372,13 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             // console.log("in else")
             if (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0) {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
-                    instrumentToken, trader, order_id } = req.body;
+                    instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
 
                 try {
 
                     const paperTrade = new PaperTrade({
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
-                        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+                        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", exchangeInstrumentToken,
                         order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id,
                         trader: trader, amount: null, trade_time: new Date()
 
@@ -514,7 +514,7 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
             // console.log("in else")
             if (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0) {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
-                    instrumentToken, trader, order_id } = req.body;
+                    instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
 
                 try {
 
@@ -733,7 +733,7 @@ exports.contestFundCheck = async (req, res, next) => {
                     const mockTradeContest = new MockTradeContest({
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                        order_id: req.body.order_id, instrumentToken, brokerage: null, contestId: req.params.id,
+                        order_id: req.body.order_id, instrumentToken, brokerage: null, contestId: req.params.id, exchangeInstrumentToken,
                         createdBy: req.user._id, trader: trader, amount: null, trade_time: new Date(), portfolioId: req.body.portfolioId
 
                     });
@@ -872,7 +872,7 @@ exports.fundCheckInternship = async (req, res, next) => {
             // console.log("in else")
             if (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0) {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
-                    instrumentToken, trader, order_id } = req.body;
+                    instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
 
                 try {
 
@@ -1012,51 +1012,6 @@ exports.fundCheckDailyContest = async (req, res, next) => {
         }
 
 
-        // console.log(firstDayOfMonthDate, lastDayOfMonthDate);
-        // let pnlDetails = await DailyContestMockUser.aggregate([
-        //     {
-        //     $match:
-        //         {
-        //             // trade_time: {
-        //             //     $gte: (firstDayOfMonthDate),
-        //             //     $lte: (lastDayOfMonthDate)
-        //             //     },
-        //             trader: req.user._id,
-        //             status: "COMPLETE",
-        //             contestId: new ObjectId(contestId)
-        //         },
-        //     },
-        //     {
-        //     $group:
-        //         {
-        //             _id: {
-        //                 trader: "$trader",
-        //                 // trader: "$createdBy",
-        //             },
-        //             gpnl: {
-        //                 $sum: {
-        //                 $multiply: ["$amount", -1],
-        //                 },
-        //             },
-        //             brokerage: {
-        //                 $sum: {
-        //                 $toDouble: "$brokerage",
-        //                 },
-        //             },
-        //         },
-        //     },
-        //     {
-        //     $addFields:
-        //         {
-        //         npnl: {
-        //             $subtract: ["$gpnl", "$brokerage"],
-        //         },
-        //         },
-        //     },
-        // ])
-
-        // let userNetPnl = pnlDetails[0]?.npnl;
-
         console.log(userFunds, userNetPnl, zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
 
@@ -1067,9 +1022,8 @@ exports.fundCheckDailyContest = async (req, res, next) => {
             // console.log("in else")
             if (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0) {
                 let { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType,
-                    TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, realTrade,
-                    realBuyOrSell, realQuantity, apiKey, accessToken, userId, checkingMultipleAlgoFlag,
-                    real_instrument_token, realSymbol, trader, order_id, contestId } = req.body;
+                    TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, 
+                    realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, order_id, contestId, exchangeInstrumentToken } = req.body;
 
                 try {
 

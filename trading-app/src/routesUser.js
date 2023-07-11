@@ -157,11 +157,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Collage Contest",
-    key: "collagecontest",
+    name: "College Contest",
+    key: "collegecontest",
     // 
     icon: <AutoFixNormalIcon/>,
-    route: "/collagecontest",
+    route: "/collegecontest",
     component: <UserDailyContestCollage />,
   },
   {

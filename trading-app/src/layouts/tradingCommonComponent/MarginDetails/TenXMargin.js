@@ -21,7 +21,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  // console.log("margin", todayAmount)
+  console.log("todayAmount", todayAmount, pnlData)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`,{
@@ -38,14 +38,14 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
       
   }, [render, subscriptionId]);
 
-  console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail?.openingBalance)
+  // console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail?.openingBalance)
 
   let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
 
   let runningPnl = Number(netPnl?.toFixed(0));
   let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
   let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)+runningPnl-todayAmount) : fundDetail?.totalFund;
+  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
   let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
   // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
 
