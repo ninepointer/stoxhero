@@ -57,12 +57,16 @@ const marginApi = async (tradeData, quantity) => {
 }
 
 exports.marginCalculationTrader = async (marginData, data, ltp, order_id) => {
-    let {userQuantity, symbol, buyOrSell, Quantity, trader} = data;
+    let {userQuantity, symbol, buyOrSell, Quantity, trader, autoTrade} = data;
     let {isReleaseFund, isAddMoreFund, isSquareOff, zerodhaMargin, runningLots} = marginData;
     
     if(userQuantity){
         Quantity = userQuantity;
     }
+    if(autoTrade && buyOrSell === "SELL"){
+        runningLots = -runningLots;
+    }
+    
     let margin_released = 0;
     let margin_utilize = 0;
     let type, parent_id;
@@ -179,9 +183,14 @@ exports.marginCalculationCompany = async (marginData, data, ltp, order_id) => {
     if(!autoTrade){
         runningLots = -runningLots;
     }
+    if(autoTrade && realBuyOrSell === "SELL"){
+        runningLots = -runningLots;
+    }
     
 
     console.log(symbol, realBuyOrSell, realQuantity, trader, isReleaseFund, isAddMoreFund, isSquareOff, runningLots)
+
+    // console.log(symbol, realBuyOrSell, realQuantity, trader, isReleaseFund, isAddMoreFund, isSquareOff, runningLots)
     let margin_released = 0;
     let margin_utilize = 0;
     let type, parent_id;

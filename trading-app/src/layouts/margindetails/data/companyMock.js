@@ -3,7 +3,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 // import { userContext } from '../../../AuthContext';
 import moment from 'moment';
-//
+import { withStyles } from '@mui/styles';
+
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -24,12 +25,27 @@ export default function UserTodayTradeData() {
   const [data, setData] = useState([]);
   // const getDetails = useContext(userContext);
   // console.log("getDetails", getDetails)
-  let url = selectTimeline === "Today" ? "infinityTrade/mock/companyorderstoday" : "infinityTrade/mock/companyorders";
+  let url = selectTimeline === "Today" ? "marginused/mock/companymargintoday" : "marginused/mock/companymarginhistory";
   
+  const CustomTextField = withStyles({
+    root: {
+      '& .MuiInputBase-input': {
+        color: '#ffffff', // Replace 'red' with your desired text color
+        textAlign: 'center',
+      },
+      '& .MuiInput-underline:before': {
+        borderBottomColor: '#ffffff', // Replace 'red' with your desired text color
+      },
+      '& .MuiInput-underline:after': {
+        borderBottomColor: '#ffffff', // Replace 'red' with your desired text color
+      },
+    },
+  })(TextField);
+
   useEffect(()=>{
       setIsLoading(true)
       console.log("Inside Use Effect")
-      axios.get(`${baseUrl}api/v1/${url}?skip=${skip}&limit=${limitSetting}`)
+      axios.get(`${baseUrl}api/v1/${url}?skip=${skip}&limit=${limitSetting}`, {withCredentials: true})
       .then((res)=>{
           console.log(res.data)
           setData(res.data.data);
@@ -52,7 +68,7 @@ export default function UserTodayTradeData() {
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/${url}?skip=${skip-limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -83,7 +99,7 @@ export default function UserTodayTradeData() {
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/${url}?skip=${skip+limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -109,7 +125,7 @@ export default function UserTodayTradeData() {
     <MDBox bgColor="dark" color="light" mb={0} borderRadius={10} minWidth='100%' minHeight='auto'>
       <MDBox sx={{ display: 'flex', alignItems: 'center', marginBottom: "10px" }}>
         <MDTypography color="light" fontSize={15}>Select Timeline</MDTypography>
-        <TextField
+        <CustomTextField
           select
           label=""
           color= "success"
@@ -127,6 +143,9 @@ export default function UserTodayTradeData() {
           variant="outlined"
           // sx={{ marginḶeft: 1, padding: 1, width: "150px", color: "success" }}
           onChange={(e) => { setSelectTimeline(e.target.value) }}
+          InputLabelProps={{
+            style: { color: '#ffffff' },
+          }}
         >
           <MenuItem value={"Today"} minHeight="4em">
             {"Today"}
@@ -134,47 +153,47 @@ export default function UserTodayTradeData() {
           <MenuItem value={"History"} minHeight="4em">
             {"History"}
           </MenuItem>
-        </TextField>
+        </CustomTextField>
       </MDBox>
       <Grid container spacing={1}>
         <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Name</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923}>
+          <Grid item xs={12} md={2} lg={1.2}>
             <MDTypography color="light" fontSize={9} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Contract</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={0.80} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Quantity</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={0.80} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Open Lots</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={0.80} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Avg. Price</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Amount</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Txn Type</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          {/* <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Order Id</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          </Grid> */}
+          <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Parent Id</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">M. Utilise</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">M. Released</MDTypography>
           </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          {/* <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Type</MDTypography>
-          </Grid>
-          <Grid item xs={12} md={2} lg={0.923} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+          </Grid> */}
+          <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
             <MDTypography color="light" fontSize={9} fontWeight="bold">Date</MDTypography>
           </Grid>
         </Grid>
@@ -183,37 +202,49 @@ export default function UserTodayTradeData() {
             {!isLoading ?
              data?.map((elem)=>{
                 // const fullName = elem?.trader?.first_name + ' ' + elem?.trader?.last_name
-                const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
+                const typecolor = elem?.transaction_type === 'BUY' ? 'success' : 'error'
                 return(
               
                     
                     <Grid container mt={1} p={1} style={{border:'1px solid white', borderRadius:5}}>
-                        <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.createdBy}</MDTypography>
+                        <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">{elem?.createdBy}</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={2} lg={2}>
-                            <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
+                        <Grid item xs={12} md={2} lg={1.2}>
+                            <MDTypography color="light" fontSize={8} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.instrument}</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color={typecolor} fontSize={10} fontWeight="bold">{elem?.Quantity}</MDTypography>
+                        <Grid item xs={12} md={2} lg={0.80} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color={"light"} fontSize={8} fontWeight="bold">{elem?.quantity}</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.average_price))}</MDTypography>
+                        <Grid item xs={12} md={2} lg={0.80} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color={"light"} fontSize={8} fontWeight="bold">{elem?.open_lots}</MDTypography>
                         </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.amount))}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color={typecolor} fontSize={10} fontWeight="bold">{elem?.buyOrSell}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1.6} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.order_id}</MDTypography>
+                        <Grid item xs={12} md={2} lg={0.80} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">{elem?.avg_price}</MDTypography>
                         </Grid>
                         <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.status}</MDTypography>
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.amount))}</MDTypography>
                         </Grid>
                         <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}</MDTypography>
+                            <MDTypography color={typecolor} fontSize={8} fontWeight="bold">{elem?.transaction_type}</MDTypography>
+                        </Grid>
+                        {/* <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">{elem?.order_id}</MDTypography>
+                        </Grid> */}
+                        <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">{elem?.parent_id ? elem?.parent_id : "-"}</MDTypography>
+                        </Grid>
+                        <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.margin_utilize)}</MDTypography>
+                        </Grid>
+                        <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(elem?.margin_released)}</MDTypography>
+                        </Grid>
+                        {/* <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color={"light"} fontSize={8} fontWeight="bold">{elem?.type}</MDTypography>
+                        </Grid> */}
+                        <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                            <MDTypography color="light" fontSize={8} fontWeight="bold">{moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}</MDTypography>
                         </Grid>
                     </Grid>
                     

@@ -21,8 +21,9 @@ const Approved = () => {
     {approved.length>0?
         approved.map((withdrawal)=><WithDrawalCard key={withdrawal._id} 
             amount={withdrawal.amount} user={withdrawal?.user} withdrawalRequestDate={withdrawal.withdrawalRequestDate}
-            walletTransactionId={withdrawal.walletTransactionId}  withdrawalStatus={withdrawal.withdrawalStatus}
-            withdrawalId={withdrawal?._id} action={action} setAction={setAction}
+            walletTransactionId={withdrawal.walletTransactionId}  withdrawalStatus={withdrawal.withdrawalStatus} 
+            transactionId = {withdrawal.settlementTransactionId} withdrawalId={withdrawal?._id} action={action} setAction={setAction}
+            transactionDocument={withdrawal.transactionDocument}
         />):<MDBox sx={{display:'flex', justifyContent:'center', alignItems:'center', height:'60vh'}}>
         <MDTypography>
             No Approved Withdrawals

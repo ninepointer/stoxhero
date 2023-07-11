@@ -19,6 +19,7 @@ import { userContext } from "../../../AuthContext";
 
 
 const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
+    console.log('modal')
     const style = {
       position: 'absolute',
       top: '50%',
@@ -37,6 +38,8 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
     const [title,setTitle] = useState('')
     const [content,setContent] = useState('')
     const [amount,setAmount] = useState(200);
+    const [minWithdrawal, setMinWithdrawal] = useState(200);
+    const [maxWithdrawal, setMaxWithdrawal] = useState(1000);
   
     const [successSB, setSuccessSB] = useState(false);
     const openSuccessSB = (title,content) => {
@@ -80,32 +83,45 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
             bgWhite
         />
         );
+        useEffect(()=>{
+            axios.get(`${apiUrl}readsetting`).then((res)=>{
+                setMinWithdrawal(res.data[0].minWithdrawal);
+                setMaxWithdrawal(res.data[0].maxWithdrawal);
+            });
+        },[open])
 
     const handleSubmit = async() =>{
-
+        try{
+            if(getDetails?.userDetails?.KYCStatus!='Approved'){
+                return openErrorSB('KYC Status not verified', 'Please get your KYC Verified before proceeding');
+            }
+    
+            //check if the amount is greater than wallet balance
+            if(amount>walletBalance){
+                return openErrorSB('Insufficient funds', 'You don\'t have the amount in your wallet for this withdrawal')
+            }
+    
+            //check if the amount is less than 200
+            if(amount<minWithdrawal){
+                return openErrorSB('Amount too low', `Minimum withdrawal amount is ₹${minWithdrawal}`);
+            }
+            if(amount>maxWithdrawal){
+                return openErrorSB('Amount too high', `Maximum withdrawal amount is ₹${maxWithdrawal}`);
+            }
+            const res = await axios.post(`${apiUrl}withdrawals`, {amount}, {withCredentials: true});
+            console.log(res.data, res.status, res.statusCode);
+            if(res.data.status == 'success'){
+                openSuccessSB('Withdrawal Request Successful', 'Request has been submitted. Please wait for 1-2 business days to get the amount in your account')
+                handleClose();
+            } else{
+              openErrorSB('Error', res.data.message)
+            }    
+        }catch(e){
+            console.log(e.response.data);
+            openErrorSB('Error', e.response.data.message);
+        }
         //check if user has kyc verified
-        if(getDetails?.userDetails?.KYCStatus!='Approved'){
-            return openErrorSB('KYC Status not verified', 'Please get your KYC Verified before proceeding');
-        }
-
-        //check if the amount is greater than wallet balance
-        if(amount>walletBalance){
-            return openErrorSB('Insufficient funds', 'You don\'t have the amount in your wallet for this withdrawal')
-        }
-
-        //check if the amount is less than 200
-        if(amount<200){
-            return openErrorSB('Amount too low', 'Minimum withdrawal amount is ₹200');
-        }
-        const res = await axios.post(`${apiUrl}withdrawals`, {amount}, {withCredentials: true});
-        console.log(res.data, res.status, res.statusCode);
-        if(res.data.status == 'success'){
-            openSuccessSB('Withdrawal Request Successful', 'Request has been submitted. Please wait for 1-2 business days to get the amount in your account')
-            handleClose();
-        } else{
-          openErrorSB('Error', res.data.message)
-        }
-
+        
     }        
     return (
       <>

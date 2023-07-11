@@ -1144,7 +1144,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="Aadhaar Number *"
                 value={formStateKYC?.aadhaarNumber}
@@ -1158,7 +1158,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="PAN Number *"
                 value={formStateKYC?.panNumber}
@@ -1201,7 +1201,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <Grid item xs={12} md={6} xl={2.4}>
               <MuiFileInput 
                 value={null} 
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 placeholder={(formStateKYC?.aadhaarCardFrontImage ? formStateKYC?.aadhaarCardFrontImage?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.aadhaarCardFrontImage?.name?.length > 15 ? "..." : "")}
                 label="Aadhaar Card Front"
@@ -1212,7 +1212,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <Grid item xs={12} md={6} xl={2.4}>
               <MuiFileInput 
                 value={null} 
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 placeholder={(formStateKYC?.aadhaarCardBackImage ? formStateKYC?.aadhaarCardBackImage?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.aadhaarCardBackImage?.name?.length > 15 ? "..." : "")}
                 label="Aadhaar Card Back"
@@ -1225,7 +1225,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 value={null}
                 placeholder={(formStateKYC?.panCardFrontImage ? formStateKYC?.panCardFrontImage?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.panCardFrontImage?.name?.length > 15 ? "..." : "")}
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 label="PAN Card Photo"
                 onChange={(e)=>{handleFileSelect(e,"panCardFront")}}
               />

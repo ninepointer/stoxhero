@@ -26,7 +26,7 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
       transform: 'translate(-50%, -50%)',
       // width: 400,
       bgcolor: 'background.paper',
-      height: '70vh',
+      height: '80vh',
     //   border: '2px solid #000',
       borderRadius:2,
       boxShadow: 24,
@@ -39,6 +39,7 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
     const [settlementAccount,setSettlementAccount] = useState('');
     const [transactionId,setTransactionId] = useState('');
     const [recipientReference,setRecipientReference] = useState('');
+    const [transactionDocument, setTransactionDocument]=useState('');
   
     const [successSB, setSuccessSB] = useState(false);
     const openSuccessSB = (title,content) => {
@@ -84,9 +85,16 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
         );
 
     const handleSubmit = async() =>{
-        console.log('deets', settlementMethod, settlementAccount, recipientReference, transactionId);
-        const res = await axios.patch(`${apiUrl}withdrawals/approve/${withdrawalId}`, 
-        {transactionId, settlementMethod, settlementAccount, recipientReference}, {withCredentials:true});
+        if(!settlementMethod || !settlementAccount || !recipientReference || !transactionId|| !transactionDocument){
+            return openErrorSB('error', 'Please fill the required fields');
+        }
+        const formData = new FormData();
+        formData.append('settlementMethod', settlementMethod)
+        formData.append('settlementAccount', settlementAccount)
+        formData.append('recipientReference', recipientReference)
+        formData.append('transactionId', transactionId)
+        formData.append('transactionDocument', transactionDocument)
+        const res = await axios.patch(`${apiUrl}withdrawals/approve/${withdrawalId}`, formData, {withCredentials:true});
         console.log(res.data);
         if(res.data.status == 'success'){
             openSuccessSB('Success', 'Withdrawal approved.');
@@ -132,6 +140,8 @@ const ApproveModal = ( {open, handleClose, user, withdrawalRequestDate, amount, 
           <TextField label='Settlement Account' value={settlementAccount} onChange={(e)=>{setSettlementAccount(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
           <TextField label='Recipient Reference' value={recipientReference} onChange={(e)=>{setRecipientReference(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
           <TextField label='Transaction Id' value={transactionId} onChange={(e)=>{setTransactionId(e.target.value)}}  sx={{marginBottom:'12px'}} outerWidth='40%'/>
+          <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Transaction Document(image/pdf)</MDTypography>
+          <TextField type='file' onChange={(e)=>{setTransactionDocument(e.target.files[0])}}/>
           <MDBox sx={{display:'flex', justifyContent:'flex-end', marginTop:'12px' }}>
             <MDButton onClick={()=>{handleClose()}}>Cancel</MDButton>
             <MDButton color='success' onClick={()=>{handleSubmit()}}>Confirm</MDButton>

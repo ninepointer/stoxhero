@@ -136,6 +136,9 @@ const uploadToS3 = async (req, res, next) => {
       if ((req.files).aadhaarCardFrontImage) {
         let userName;
         const user = await UserDetail.findById(req.params.id);
+        if(user.KYCStatus == 'Approved'){
+          return res.status(400).json({status:'error', message:'KYC is completed. Can\'t change documents after approval.'})
+        }
         userName = `${user?.first_name}`+`${user?.last_name}`+ `${user?.name}`+`${user?._id}` ;
         const key = `users/${userName}/photos/aadharFront/${Date.now() + (req.files).aadhaarCardFrontImage[0].originalname}`;
         const params = {
@@ -157,6 +160,9 @@ const uploadToS3 = async (req, res, next) => {
       if ((req.files).aadhaarCardBackImage) {
         let userName;
         const user = await UserDetail.findById(req.params.id);
+        if(user.KYCStatus == 'Approved'){
+          return res.status(400).json({status:'error', message:'KYC is completed. Can\'t change documents after approval.'})
+        }
         userName = `${user?.first_name}`+`${user?.last_name}`+ `${user?.name}`+`${user?._id}` ;
         const key = `users/${userName}/photos/aadharBack/${Date.now() + (req.files).aadhaarCardBackImage[0].originalname}`;
         const params = {
@@ -177,6 +183,9 @@ const uploadToS3 = async (req, res, next) => {
       if ((req.files).panCardFrontImage) {
         let userName;
         const user = await UserDetail.findById(req.params.id);
+        if(user.KYCStatus == 'Approved'){
+          return res.status(400).json({status:'error', message:'KYC is completed. Can\'t change documents after approval.'})
+        }
         userName = `${user?.first_name}`+`${user?.last_name}`+ `${user?.name}`+`${user?._id}` ;
         const key = `users/${userName}/photos/panFront/${Date.now() + (req.files).panCardFrontImage[0].originalname}`;
         const params = {
@@ -500,7 +509,7 @@ const currentUser = (req,res, next) =>{
     next();
 };
 
-router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, resizePhoto, uploadToS3, async(req,res,next)=>{
+router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, uploadToS3, async(req,res,next)=>{
     console.log(req.body)
     try{
         const user = await UserDetail.findById(req.user._id);

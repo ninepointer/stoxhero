@@ -13,8 +13,11 @@ const SaveXTSLive = require("../models/marginUsed/xtsOverallMarginUsed")
 const RequestToken = require("../models/Trading Account/requestTokenSchema");
 const axios = require("axios");
 const {xtsAccountType} = require("../constant");
-const InfinityMockCompanyMargin = require("../models/marginUsed/infinityMockCompanyMargin");
-
+// const InfinityMockCompanyMargin = require("../models/marginUsed/infinityMockCompanyMargin");
+const InfinityMarginCompanyMock = require("../models/marginUsed/infinityMockCompanyMargin")
+const InfinityMarginCompanyLive = require("../models/marginUsed/infinityLiveCompanyMargin")
+const InfinityMarginTraderMock = require("../models/marginUsed/infinityMockUserMargin")
+const InfinityMarginTraderLive = require("../models/marginUsed/infinityLiveUserMargin")
 
 // exports.infinityMargin = async (req, res) => {
 //   getKiteCred.getAccess().then(async (data) => {
@@ -135,7 +138,19 @@ const InfinityMockCompanyMargin = require("../models/marginUsed/infinityMockComp
 
 exports.infinityMargin = async (req, res) => {
 
-  let total = await InfinityMockCompanyMargin.aggregate([
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  let total = await InfinityMarginCompanyMock.aggregate([
+    {
+      $match: {
+        date: {
+          $gte: today
+        },
+      },
+    },
     {
       $group:
   
@@ -851,18 +866,18 @@ exports.saveXtsMargin = async ()=>{
   }
 }
 
-exports.companyMarginToday = async (req, res)=>{
+exports.companyMarginTodayMock = async (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await InfinityTraderCompany.countDocuments({ trade_time: { $gte: today } })
+  const count = await InfinityMarginCompanyMock.countDocuments({ date: { $gte: today } })
 
   try{
-    let x = await InfinityTraderCompany.aggregate([
-      { $match: {trade_time: { $gte: today } } },
+    let x = await InfinityMarginCompanyMock.aggregate([
+      { $match: {date: { $gte: today } } },
       {
         $lookup: {
           from: "user-personal-details",
@@ -873,8 +888,8 @@ exports.companyMarginToday = async (req, res)=>{
       },
       {
         $project: {
-          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
-          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
           "createdBy": {
             $concat: [{
               $arrayElemAt: ["$user.first_name", 0],
@@ -896,18 +911,18 @@ exports.companyMarginToday = async (req, res)=>{
   }
 }
 
-exports.traderMarginToday = async (req, res)=>{
+exports.traderMarginTodayMock = async (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await InfinityTrader.countDocuments({ trade_time: { $gte: today } })
+  const count = await InfinityMarginTraderMock.countDocuments({ date: { $gte: today } })
 
   try{
-    let x = await InfinityTrader.aggregate([
-      { $match: {trade_time: { $gte: today } } },
+    let x = await InfinityMarginTraderMock.aggregate([
+      { $match: {date: { $gte: today } } },
       {
         $lookup: {
           from: "user-personal-details",
@@ -918,8 +933,8 @@ exports.traderMarginToday = async (req, res)=>{
       },
       {
         $project: {
-          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
-          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
           "createdBy": {
             $concat: [{
               $arrayElemAt: ["$user.first_name", 0],
@@ -941,30 +956,30 @@ exports.traderMarginToday = async (req, res)=>{
   }
 }
 
-exports.compnayMarginHistory = async (req, res)=>{
+exports.compnayMarginHistoryMock = async (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await InfinityTraderCompany.countDocuments({ trade_time: { $lt: today } })
+  const count = await InfinityMarginCompanyMock.countDocuments({ date: { $lt: today } })
 
   try{
-    let x = await InfinityTraderCompany.aggregate([
-      { $match: {trade_time: { $lt: today } } },
+    let x = await InfinityMarginCompanyMock.aggregate([
+      { $match: {date: { $lt: today } } },
       {
         $lookup: {
           from: "user-personal-details",
           localField: "trader",
           foreignField: "_id",
           as: "user",
-        }
+        },
       },
       {
         $project: {
-          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
-          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
           "createdBy": {
             $concat: [{
               $arrayElemAt: ["$user.first_name", 0],
@@ -984,4 +999,232 @@ exports.compnayMarginHistory = async (req, res)=>{
   }catch(e){
     console.log(e);
   }
+}
+
+exports.traderMarginHistoryMock = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityMarginTraderMock.countDocuments({ date: { $lt: today } })
+
+  try{
+    let x = await InfinityMarginTraderMock.aggregate([
+      { $match: {date: { $lt: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+
+}
+
+exports.companyMarginTodayLive = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityMarginCompanyLive.countDocuments({ date: { $gte: today } })
+
+  try{
+    let x = await InfinityMarginCompanyLive.aggregate([
+      { $match: {date: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.traderMarginTodayLive = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityMarginTraderLive.countDocuments({ date: { $gte: today } })
+
+  try{
+    let x = await InfinityMarginTraderLive.aggregate([
+      { $match: {date: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.compnayMarginHistoryLive = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+
+  const count = await InfinityMarginCompanyLive.countDocuments({ date: { $lt: today } })
+
+  try {
+    let x = await InfinityMarginCompanyLive.aggregate([
+      { $match: { date: { $lt: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.traderMarginHistoryLive = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityMarginTraderLive.countDocuments({ date: { $lt: today } })
+
+  try{
+    let x = await InfinityMarginTraderLive.aggregate([
+      { $match: {date: { $lt: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "avg_price":1, "order_id": 1, "instrument": 1, "quantity": 1, "transaction_type": 1, "type": 1, "parent_id": 1,
+          "date": 1, "open_lots": 1, "margin_released": 1, "amount": 1, "margin_utilize": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+
 }

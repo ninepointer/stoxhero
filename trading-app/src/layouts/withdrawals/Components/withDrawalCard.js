@@ -5,13 +5,21 @@ import MDTypography from '../../../components/MDTypography';
 import axios from 'axios';
 import { apiUrl } from '../../../constants/constants';
 import ApproveModal from './approveModal';
+import RejectModal from './rejectModal';
 
-const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, walletTransactionId, withdrawalId, setAction, action}) => {
+const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, walletTransactionId, withdrawalId, setAction, action, transactionId, transactionDocument, rejectionReason}) => {
   const requestTime = new Date(withdrawalRequestDate);
   const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const[open,setOpen] = useState(false);
+  const[openReject,setOpenReject] = useState(false);
   const handleClose =() =>{
     setOpen(false);
+  }
+  const handleCloseReject =() =>{
+    setOpenReject(false);
+  }
+  const handleOpenReject = (e) => {
+    setOpenReject(true);
   }
   const handleOpen = (e) => {
     setOpen(true);
@@ -53,14 +61,18 @@ const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, 
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Status:{withdrawalStatus}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Request Date:{localRequestTime}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Wallet Transaction Id:{walletTransactionId}</MDTypography>
+            {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Transfer Transaction Id:{transactionId}</MDTypography>}
+            {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Transaction Document:<a href={transactionDocument} target="_blank">{transactionDocument}</a></MDTypography>}
+            {withdrawalStatus == 'Rejected' && <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Rejection Reason:{rejectionReason}</MDTypography>}
         </MDBox>
         {(withdrawalStatus == 'Pending' || withdrawalStatus == 'Initiated')&&<MDBox>
             <MDButton onClick={handleOpen} color='success' sx={{marginRight:'6px'}}>Approve</MDButton>
             {(withdrawalStatus == 'Pending') && <MDButton onClick={process} color='warning' sx={{marginRight:'6px'}} >Process</MDButton>}
-            <MDButton onClick={reject} sx={{marginRight:'6px'}} color='error'>Reject</MDButton>
+            <MDButton onClick={handleOpenReject} sx={{marginRight:'6px'}} color='error'>Reject</MDButton>
         </MDBox>}
        {open && <ApproveModal open={open} handleClose={handleClose} user={user} amount={amount} action={action} setAction={setAction} withdrawalRequestDate={localRequestTime} withdrawalId={withdrawalId} />} 
-    </MDBox>
+       {openReject && <RejectModal open={openReject} handleClose={handleCloseReject} user={user} amount={amount} action={action} setAction={setAction} withdrawalRequestDate={localRequestTime} withdrawalId={withdrawalId} />} 
+       </MDBox>
   )
 }
 
