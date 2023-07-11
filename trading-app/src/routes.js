@@ -144,7 +144,7 @@ import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
 import CareerDashboard from './layouts/careerdashboard'
 import VirtualDashboard from './layouts/virtualdashboard'
 import InternshipOrders from './layouts/internshipOrders'
-// import ContactInfo from './layouts/ContactInfo'
+import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
 import TenxReport from "./layouts/tenXReport";
 import DailyContestReport from "./layouts/dailyContestReport";
@@ -825,14 +825,14 @@ const routes = [
     route: "/virtualtrading",
     component: <UserPosition />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Contact Info",
-  //   key: "contactinfo",
-  //   icon: <BusinessIcon/>,
-  //   route: "/contactinfo",
-  //   component: <ContactInfo />,
-  // },
+  {
+    type: "collapse",
+    name: "Contact Info",
+    key: "contactinfo",
+    icon: <BusinessIcon/>,
+    route: "/contactinfo",
+    component: <ContactInfo />,
+  },
   {
     // type: "collapse",
     // name: "Infinity Trading",
