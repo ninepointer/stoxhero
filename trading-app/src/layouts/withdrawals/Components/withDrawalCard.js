@@ -56,14 +56,27 @@ const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, 
   return (
     <MDBox style={{display:'flex', justifyContent:'space-between', marginBottom:'12px', padding:'12px', borderRadius:'16px', boxShadow:"0px 4px 6px -2px rgba(0, 0, 0, 0.5)"}}>
         <MDBox>
-            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >Name:{`${user?.first_name} ${user?.last_name}`}</MDTypography>
-            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Amount:{amount}</MDTypography>
-            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Status:{withdrawalStatus}</MDTypography>
-            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Request Date:{localRequestTime}</MDTypography>
-            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Wallet Transaction Id:{walletTransactionId}</MDTypography>
-            {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Transfer Transaction Id:{transactionId}</MDTypography>}
-            {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Transaction Document:<a href={transactionDocument} target="_blank">{transactionDocument}</a></MDTypography>}
-            {withdrawalStatus == 'Rejected' && <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Rejection Reason:{rejectionReason}</MDTypography>}
+            <MDTypography style={{fontSize:'14px', marginBottom:'8px'}} >Name:{`${user?.first_name} ${user?.last_name}`}</MDTypography>
+            <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Amount:{amount}</MDTypography>
+            <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Status:{withdrawalStatus}</MDTypography>
+            <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Request Date:{localRequestTime}</MDTypography>
+            <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Wallet Transaction Id:{walletTransactionId}</MDTypography>
+            <MDTypography style={{fontSize:'16px', marginBottom:'12px', fontWeight:'700'}}>Payment Details</MDTypography>
+            <MDBox sx={{display:'flex', justifyContent:'space-between'}}>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px', marginRight:'16px'}}>UPI ID:{user?.upiId}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>PhonePe:{user?.phonePe_number}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Gpay:{user?.googlePay_number}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>PayTM:{user?.payTM_number}</MDTypography>
+            </MDBox>
+            <MDBox sx={{display:'flex', justifyContent:'space-between'}}>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px', marginRight:'16px'}}>Bank Name:{user?.bankName}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account Name:{user?.nameAsPerBankAccount}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Ifsc:{user?.ifscCode}</MDTypography>
+                <MDTypography style={{fontSize:'14px', marginBottom:'8px',marginRight:'16px'}}>Account No.:{user?.accountNumber}</MDTypography>
+            </MDBox>
+            {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Transfer Transaction Id:{transactionId}</MDTypography>}
+            {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Transaction Document:<a href={transactionDocument} target="_blank">{transactionDocument}</a></MDTypography>}
+            {withdrawalStatus == 'Rejected' && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Rejection Reason:{rejectionReason}</MDTypography>}
         </MDBox>
         {(withdrawalStatus == 'Pending' || withdrawalStatus == 'Initiated')&&<MDBox>
             <MDButton onClick={handleOpen} color='success' sx={{marginRight:'6px'}}>Approve</MDButton>
