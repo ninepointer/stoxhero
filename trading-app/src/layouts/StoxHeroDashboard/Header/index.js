@@ -14,6 +14,7 @@ import DAUMAU from '../data/DAUMAU'
 import WAUMAU from '../data/WAUMAU'
 import DAUPlatform from '../data/DAUPlatform'
 import MAUPlatform from '../data/MAUPlatform'
+import ActiveUsersToday from '../data/ActiveUsersToday'
 
 
 export default function Dashboard() {
@@ -92,6 +93,13 @@ export default function Dashboard() {
    
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight='auto'>
   
+          {/* <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' flexDirection='column'>
+                <MDBox display='flex' justifyContent='center'><MDTypography color='dark' fontSize={13} fontWeight='bold'>Today's Live Metrics</MDTypography></MDBox>
+                <MDBox display='flex' justifyContent='center'><ActiveUsersToday/></MDBox>
+            </Grid>
+          </Grid> */}
+
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={6} lg={12}>
                 {/* <MDTypography>User Stickiness Metrics</MDTypography> */}
