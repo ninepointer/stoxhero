@@ -11,6 +11,7 @@ import MDButton from "../../components/MDButton"
 import { CircularProgress, formLabelClasses } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
+import { styled } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -20,6 +21,7 @@ import AllowedUsers from './data/notifyUsers';
 import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import dayjs from 'dayjs';
+import Autocomplete from '@mui/material/Autocomplete';
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -28,6 +30,12 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
 import PotentialUser from "./data/potentialUsers"
 import Shared from "./data/shared";
+
+const CustomAutocomplete = styled(Autocomplete)`
+  .MuiAutocomplete-clearIndicator {
+    color: white;
+  }
+`;
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -43,6 +51,7 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const contest = location?.state?.data;
+  const [collegeSelectedOption, setCollegeSelectedOption] = useState();
   console.log('id hai', contest);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -56,6 +65,7 @@ function Index() {
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [dailyContest, setDailyContest] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
+  const [college, setCollege] = useState([]);
   // const [careers,setCareers] = useState([]);
   const [action, setAction] = useState(false);
   // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
@@ -67,13 +77,15 @@ function Index() {
     allowedUsers: [{ addedOn: '', userId: '' }],
     contestStatus: '' || contest?.contestStatus,
     contestType: '' || contest?.contestType,
+    contestFor: '' || contest?.contestFor,
+    collegeCode: '' || contest?.collegeCode,
     contestOn: '' || contest?.contestOn,
     maxParticipants: '' || contest?.maxParticipants,
     payoutPercentage: '' || contest?.payoutPercentage,
     entryFee: '' || contest?.entryFee,
     description: '' || contest?.description,
     portfolio: "" || contest?.portfolio?._id,
-
+    college: "" || contest?.college?._id,
     contestExpiry: "" || contest?.contestExpiry,
     isNifty: "" || contest?.isNifty,
     isBankNifty: "" || contest?.isBankNifty,
@@ -105,9 +117,25 @@ function Index() {
         return new Error(err)
       })
 
+    axios.get(`${baseUrl}api/v1/college`)
+    .then((res) => {
+      console.log("College Lists :", res?.data?.data)
+      setCollege(res?.data?.data);
+    }).catch((err) => {
+      return new Error(err)
+    })
+
+    axios.get(`${baseUrl}api/v1/college/${contest?.college?._id}`)
+    .then((res) => {
+      console.log("College :", res?.data?.data)
+      setCollegeSelectedOption(res?.data?.data);
+    }).catch((err) => {
+      return new Error(err)
+    })
+
   }, [])
 
-
+  console.log("College:", collegeSelectedOption)
   const handlePortfolioChange = (event) => {
     const {
       target: { value },
@@ -117,11 +145,39 @@ function Index() {
     })
     setFormState(prevState => ({
       ...prevState,
-      // portfolio: { id: portfolioId[0]?._id, portfolioName: portfolioId[0]?.portfolioName, portfolioValue: portfolioId[0]?.portfolioValue }
       portfolio: portfolioId[0]?._id
 
     }))
     console.log("portfolioId", portfolioId, formState)
+  };
+
+  // const handleCollegeChange = (event) => {
+  //   const {
+  //     target: { value },
+  //   } = event;
+  //   console.log("College in onChange:",college, value)
+  //   let collegeId = college?.filter((elem) => {
+  //     return elem.collegeName === value;
+  //   })
+  //   setFormState(prevState => ({
+  //     ...prevState,
+  //     college: collegeId[0]?._id
+
+  //   }))
+  //   setCollegeSelectedOption(collegeId[0]);
+  //   console.log("College Selection set to:",collegeId[0])
+  //   console.log("collegeId", collegeId, formState)
+  // };
+
+  const handleCollegeChange = (event, newValue) => {
+    console.log("College Selection:",newValue)
+    setCollegeSelectedOption(newValue);
+    setFormState(prevState => ({
+      ...prevState,
+      college: newValue?._id
+
+    }))
+    // setTraderId(newValue);
   };
 
 
@@ -129,13 +185,13 @@ function Index() {
     console.log("inside submit")
     e.preventDefault()
     console.log(formState)
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.portfolio) {
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -144,7 +200,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -171,11 +227,11 @@ function Index() {
     console.log("Edited FormState: ", formState, contest?._id)
     setSaving(true)
     console.log(formState)
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.portfolio) {
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestFor || !formState.contestType || !formState.portfolio) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
       method: "PUT",
@@ -185,7 +241,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -286,7 +342,7 @@ function Index() {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
@@ -308,7 +364,7 @@ function Index() {
                 </Grid>
 
 
-                <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
@@ -329,7 +385,126 @@ function Index() {
                   </LocalizationProvider>
                 </Grid>
 
-                {!contest && <Grid item xs={12} md={3} xl={3}>
+                <Grid item xs={12} md={3} xl={3}>
+                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
+                    <InputLabel id="demo-multiple-name-label">Contest For</InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name='contestFor'
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      // defaultValue={id ? portfolios?.portfolio : ''}
+                      value={formState?.contestFor}
+                      // onChange={handleTypeChange}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          contestFor: e.target.value
+                        }))
+                      }}
+                      input={<OutlinedInput label="Contest For" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      <MenuItem
+                        value='StoxHero'
+                      >
+                        StoxHero
+                      </MenuItem>
+                      <MenuItem
+                        value='College'
+                      >
+                        College
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                {/* <Grid item xs={12} md={3} xl={6}>
+                  <FormControl sx={{ minHeight: 10, minWidth: 526 }}>
+                    <InputLabel id="demo-multiple-name-label">College</InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name='college'
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      value={formState?.college?.collegeName || dailyContest?.college?.collegeName}
+                      onChange={handleCollegeChange}
+                      input={<OutlinedInput label="College" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      {college?.map((college) => (
+                        <MenuItem
+                          key={college?.collegeName}
+                          value={college?.collegeName}
+                        >
+                          {college.collegeName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid> */}
+
+                <Grid item xs={12} md={3} xl={6}>
+                  <CustomAutocomplete
+                    id="country-select-demo"
+                    sx={{ 
+                      width: 526,
+                      height: 10,
+                      '& .MuiAutocomplete-clearIndicator': {
+                        color: 'black',
+                      },
+                     }}
+                    options={college}
+                    disabled={((isSubmitted || contest) && (!editing || saving))}
+                    value={collegeSelectedOption}
+                    onChange={handleCollegeChange}
+                    autoHighlight
+                    getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
+                    renderOption={(props, option) => (
+                      <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                        {option.collegeName + ' - ' + option.zone}
+                      </MDBox>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="College"
+                        inputProps={{
+                          ...params.inputProps,
+                          autoComplete: 'new-password', // disable autocomplete and autofill
+                          style: { color: 'grey', height: 11 }, // set text color to white
+                        }}
+                        InputLabelProps={{
+                          style: { color: 'grey' },
+                        }}
+                        // SelectProps={{
+                        //   MenuProps: {
+                        //     PaperProps: {
+                        //       style: { height: '10px' }, // Replace '200px' with your desired width
+                        //     },
+                        //   },
+                        // }}
+                      />
+                    )}
+                  />
+              </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                    disabled={((isSubmitted || contest) && (!editing || saving))}
+                    id="outlined-required"
+                    label='College Code *'
+                    name='collegeCode'
+                    fullWidth
+                    defaultValue={editing ? formState?.collegeCode : contest?.collegeCode}
+                    onChange={handleChange}
+                  />
+                </Grid>
+
+                {!contest && 
+                <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
                     <Select
