@@ -1490,3 +1490,74 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
 //     },
 //   },
 // ]
+
+exports.getDailyTenXUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$_id.trader" },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
+
+    const tenXTraders = await TenXTrader.aggregate(pipeline);
+
+    // Create a date-wise mapping of DAUs for different products
+    const dateWiseDAUs = {};
+
+    tenXTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            tenXTrading: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].tenXTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    // Calculate the date-wise total DAUs and unique users
+    Object.keys(dateWiseDAUs).forEach(date => {
+      const { tenXTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].total = tenXTrading
+      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+    });
+
+    const response = {
+      status: "success",
+      message: "Contest Scoreboard fetched successfully",
+      data: Object.values(dateWiseDAUs),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
