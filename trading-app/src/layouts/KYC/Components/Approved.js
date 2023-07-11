@@ -20,13 +20,10 @@ const Approved = () => {
    <MDBox sx={{minHeight:'60vh'}}>
     {approved.length>0?
         approved.map((kyc)=><KYCCard key={kyc._id} 
-            aadhaarNumber={kyc.aadhaarCardNumber} user={withdrawal?.user} withdrawalRequestDate={withdrawal.withdrawalRequestDate}
-            walletTransactionId={withdrawal.walletTransactionId}  withdrawalStatus={withdrawal.withdrawalStatus} 
-            transactionId = {withdrawal.settlementTransactionId} withdrawalId={withdrawal?._id} action={action} setAction={setAction}
-            transactionDocument={withdrawal.transactionDocument}
+           user={kyc}
         />):<MDBox sx={{display:'flex', justifyContent:'center', alignItems:'center', height:'60vh'}}>
         <MDTypography>
-            No Approved Withdrawals
+            No Approved KYCs
             </MDTypography> 
     </MDBox>
     }

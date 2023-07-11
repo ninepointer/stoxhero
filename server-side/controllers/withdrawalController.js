@@ -244,6 +244,91 @@ exports.rejectWithdrawal = async(req,res,next) => {
     );
     await userWallet.save({validateBeforeSave:false});
     await withdrawal.save({validateBeforeSave:false});
+    const user = await User.findById(withdrawal.user);
+    await sendMail(user?.email, 'Withdrawal Rejected', `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Withdrawal Approved</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin: 0 0 20px;
+        }
+
+        .userid {
+            display: inline-block;
+            background-color: #f5f5f5;
+            padding: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .password {
+            display: inline-block;
+            background-color: #f5f5f5;
+            padding: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .login-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .login-button:hover {
+            background-color: #0069d9;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+        <h1>Withdrawal Rejected</h1>
+        <p>Hello ${user.first_name},</p>
+        <p>Your withdrawal request for ₹${withdrawal.amount} is rejected by stoxhero.</p>
+        <p>Reason for rejection: <span class="userid">${rejectionReason}</span></p>
+        <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+        <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+        <br/><br/>
+        <p>Thanks,</p>
+        <p>StoxHero Team</p>
+
+        </div>
+    </body>
+    </html>
+
+` )
     res.status(200).json({status:'success', message:'Withdrawal request rejected'});
 } 
 
