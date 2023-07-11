@@ -136,6 +136,9 @@ const uploadToS3 = async (req, res, next) => {
       if ((req.files).aadhaarCardFrontImage) {
         let userName;
         const user = await UserDetail.findById(req.params.id);
+        if(user.KYCStatus == 'Approved'){
+          return res.status(400).json({status:'error', message:'KYC is completed. Can\'t change documents after approval.'})
+        }
         userName = `${user?.first_name}`+`${user?.last_name}`+ `${user?.name}`+`${user?._id}` ;
         const key = `users/${userName}/photos/aadharFront/${Date.now() + (req.files).aadhaarCardFrontImage[0].originalname}`;
         const params = {
@@ -157,6 +160,9 @@ const uploadToS3 = async (req, res, next) => {
       if ((req.files).aadhaarCardBackImage) {
         let userName;
         const user = await UserDetail.findById(req.params.id);
+        if(user.KYCStatus == 'Approved'){
+          return res.status(400).json({status:'error', message:'KYC is completed. Can\'t change documents after approval.'})
+        }
         userName = `${user?.first_name}`+`${user?.last_name}`+ `${user?.name}`+`${user?._id}` ;
         const key = `users/${userName}/photos/aadharBack/${Date.now() + (req.files).aadhaarCardBackImage[0].originalname}`;
         const params = {
@@ -177,6 +183,9 @@ const uploadToS3 = async (req, res, next) => {
       if ((req.files).panCardFrontImage) {
         let userName;
         const user = await UserDetail.findById(req.params.id);
+        if(user.KYCStatus == 'Approved'){
+          return res.status(400).json({status:'error', message:'KYC is completed. Can\'t change documents after approval.'})
+        }
         userName = `${user?.first_name}`+`${user?.last_name}`+ `${user?.name}`+`${user?._id}` ;
         const key = `users/${userName}/photos/panFront/${Date.now() + (req.files).panCardFrontImage[0].originalname}`;
         const params = {
@@ -510,7 +519,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
-        'ifscCode','profilePhoto','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode','KYCStatus'
+        'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode'
         );
 
         filteredBody.lastModifiedBy = req.user._id;
@@ -570,7 +579,12 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         }
         // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
         if((req).incomeProofDocumentUrl) filteredBody.incomeProofDocument = (req).incomeProofDocumentUrl;
-        console.log(filteredBody)
+        console.log(filteredBody);
+        for(key of Object.keys(filteredBody)){
+          if(filteredBody[key]=='undefined'){
+            filteredBody[key]=""
+          }
+        }
         const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
         console.log(userData);
     

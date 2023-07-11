@@ -12,7 +12,7 @@ const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompa
 const mongoose = require('mongoose');
 const io = require('../../marketData/socketio');
 const { xtsAccountType, zerodhaAccountType } = require("../../constant");
-
+const {marginCalculationTrader, marginCalculationCompany} = require("../../marketData/marginData");
 
 const takeAutoTenxTrade = async (tradeDetails) => {
   // tradeDetails = JSON.parse(tradeDetails)
@@ -523,7 +523,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
     let { exchange, symbol, buyOrSell, userQuantity, Product, OrderType, subscriptionId,
       validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
       realBuyOrSell, Quantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
-      dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
+      dontSendResp, exchangeInstrumentToken, createdBy, marginData } = tradeDetails;
 
 
     const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: xtsAccountType });
@@ -614,6 +614,8 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
       brokerageUser = sellBrokerage(Math.abs(Number(userQuantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
 
+
+
     let settingRedis;
     const session = await mongoose.startSession();
     try {
@@ -625,6 +627,9 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
         return;
         // res.status(422).json({ message: "data already exist", error: "Fail to trade" })
       }
+
+      const saveTraderMargin = await marginCalculationTrader(marginData, tradeDetails, originalLastPriceUser, order_id)
+      const saveCompanyMargin = await marginCalculationCompany(marginData, tradeDetails, originalLastPriceCompany, order_id)
 
 
       session.startTransaction();
@@ -647,13 +652,10 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
       const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
       const algoTrader = await InfinityTrader.create([traderDoc], { session });
-      // console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
-      // console.log("above if", isRedisConnected, await client.exists(`${trader.toString()} overallpnl`))
       if (isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)) {
         console.log("in if")
         let pnl = await client.get(`${trader.toString()} overallpnl`)
         pnl = JSON.parse(pnl);
-        // console.log("redis pnl", pnl)
         const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product));
         // if instrument is same then just updating value
         if (matchingElement) {

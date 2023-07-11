@@ -37,7 +37,7 @@ router.post("/setmargin", Authentication, async (req, res)=>{
 
     marginDetail.totalFund = fund;
 
-    await client.set(`${userId.toString()} openingBalanceAndMargin`, JSON.stringify(marginDetail))
+    await client.del(`${userId.toString()} openingBalanceAndMargin`);
     // res.status(201).json({ message: "pnl received", data: marginDetail });
 
   }

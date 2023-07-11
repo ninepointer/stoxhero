@@ -587,6 +587,7 @@ const infinityTrade = async () => {
         Obj.Quantity = quantity;
         Obj.userQuantity = quantity / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+        Obj.marginData = {isSquareOff: true, isAddMoreFund: false, isReleaseFund: false, zerodhaMargin: 0, runningLots: quantity};
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInfinityTrade(Obj);
         if(data.length > 0 && i == data.length-1){
@@ -598,6 +599,8 @@ const infinityTrade = async () => {
         Obj.Quantity = 1800;
         Obj.userQuantity = 1800 / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+        Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
+
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInfinityTrade(Obj);
         return recursiveFunction(quantity - 1800);
@@ -902,6 +905,8 @@ const infinityTradeLive = async () => {
             Obj.userQuantity = 1800 / algoBox.lotMultipler;
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
             console.log("before autoplaceorder in elseif");
+            Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
+
             await autoPlaceOrder(Obj);
             quantity = quantity - 1800;
             await delay(300);
@@ -910,6 +915,8 @@ const infinityTradeLive = async () => {
             Obj.Quantity = quantity;
             Obj.userQuantity = quantity / algoBox.lotMultipler;
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+            Obj.marginData = {isSquareOff: true, isAddMoreFund: false, isReleaseFund: false, zerodhaMargin: 0, runningLots: quantity};
+
             console.log("before autoplaceorder in else");
             await autoPlaceOrder(Obj);
           }

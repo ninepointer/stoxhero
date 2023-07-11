@@ -259,8 +259,11 @@ const userDetailSchema = new mongoose.Schema({
     profilePhoto:{url:String,name:String},
     KYCStatus:{
         type: String,
-        enum: ['Not Initiated','Submitted','Approved','Rejected','Under Verification'],
+        enum: ['Not Initiated','Submitted','Approved','Rejected','Under Verification', 'Pending Approval'],
         default: 'Not Initiated',
+    },
+    KYCActionDate:{
+        type: Date,
     },
     myReferralCode:{
         type: String,

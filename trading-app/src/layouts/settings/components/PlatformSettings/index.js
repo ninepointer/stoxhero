@@ -37,6 +37,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [infinityLiveValue, setInfinityLiveValue] = useState();
   const [editable, setEditable] = useState(false);
   const [infinityPrice, setInfinityPrice] = useState(0);
+  const [maxWithdrawal, setMaxWithdrawal] = useState(0);
+  const [minWithdrawal, setMinWithdrawal] = useState(0);
 
   // const [successSB, setSuccessSB] = useState(false);
   // const openSuccessSB = () => setSuccessSB(true);
@@ -55,6 +57,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setAppLiveValue(settingData[0]?.isAppLive)
       setInfinityLiveValue(settingData[0]?.infinityLive)
       setInfinityPrice(settingData[0]?.infinityPrice)
+      setMaxWithdrawal(settingData[0]?.maxWithdrawal)
+      setMinWithdrawal(settingData[0]?.minWithdrawal)
 
   },[reRender, settingData])
 
@@ -118,6 +122,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         ...settingData[0],
         leaderBoardTimming: LeaderBoardTimming,
         infinityPrice: infinityPrice,
+        maxWithdrawal,
+        minWithdrawal
       }),
   }); 
   const dataResp = await res.json();
@@ -261,6 +267,30 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           sx={{marginTop: "15px"}}
           // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
           onChange={(e)=>{setInfinityPrice(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Maximum Withdrawal Amount'
+          fullWidth
+          type="number"
+          value={maxWithdrawal}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setMaxWithdrawal(e.target.value)}}
+        />
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Minimum Withdrawal Amount'
+          fullWidth
+          type="number"
+          value={minWithdrawal}
+          
+          sx={{marginTop: "15px"}}
+          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
+          onChange={(e)=>{setMinWithdrawal(e.target.value)}}
         />
 
         <MDBox>

@@ -8,6 +8,7 @@ const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany"
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
 const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockCompany");
 
+
 // const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
 const {client, getValue, clientForIORedis} = require('../marketData/redisClient');
@@ -17,6 +18,8 @@ const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 const InternshipTrade = require("../models/mock-trade/internshipTrade");
 const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers, lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../services/adminRedis/infinityMock");
+const {marginCalculationTrader, marginCalculationCompany} = require("../marketData/marginData");
+
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -27,15 +30,13 @@ exports.mockTrade = async (req, res) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
-
-    // let stoxheroTrader ;
-    // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
-    // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
+        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId, marginData,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
+
+        order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
         console.log("caseStudy 8: mocktrade", )
 
         if(exchange === "NFO"){
@@ -71,31 +72,20 @@ exports.mockTrade = async (req, res) => {
     let originalLastPriceCompany;
     let newTimeStamp = "";
     let trade_time = "";
-    try{
-        // console.log("above data")
-        // let liveData = await singleLivePrice(exchange, symbol) TODO toggle
-        // let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+    try {
         let liveData;
-        if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
-            // console.log("inside setting")
+        if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
             liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
-        } else{
-            // console.log("inside setting else case")
+        } else {
             liveData = await singleLivePrice(exchange, symbol)
         }
-        // console.log("live data", liveData)
-        // for(let elem of liveData){
-        //     if(elem.instrument_token == instrumentToken){
-                newTimeStamp = liveData[0]?.timestamp;
-                // console.log("zerodha date", liveData[0].timestamp)
-                originalLastPriceUser = liveData[0]?.last_price;
-                originalLastPriceCompany = liveData[0]?.last_price;
-        //     }
-        // }
+        newTimeStamp = liveData[0]?.timestamp;
+        originalLastPriceUser = liveData[0]?.last_price;
+        originalLastPriceCompany = liveData[0]?.last_price;
 
         trade_time = new Date(newTimeStamp);
 
-    } catch(err){
+    } catch (err) {
         console.log(err)
         return new Error(err);
     }
@@ -107,7 +97,6 @@ exports.mockTrade = async (req, res) => {
         let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
         let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
         let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
-        
         let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
         let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
         let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
@@ -118,7 +107,6 @@ exports.mockTrade = async (req, res) => {
         let brokerage = Number(sellBrokerData.brokerageCharge);
         let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
         let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
-
         let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
         let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
         let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
@@ -142,13 +130,13 @@ exports.mockTrade = async (req, res) => {
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
 
-    // console.log(brokerageUser, brokerageCompany, Number(realQuantity), originalLastPriceCompany, brokerageDetailBuy[0])
-
-    
-    // console.log(paperTrade, isAlgoTrader); dailyContest
 
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
+
+        // console.log("marginData", marginData)
+        const saveMarginCompany = await marginCalculationCompany(marginData, req.body, originalLastPriceCompany, order_id);
+        const saveMarginUser = await marginCalculationTrader(marginData, req.body, originalLastPriceUser, order_id);
 
         let settingRedis ;
         const session = await mongoose.startSession();
@@ -211,10 +199,6 @@ exports.mockTrade = async (req, res) => {
             await pipelineForSet.exec();
 
             if(isRedisConnected){
-                // await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-                // await client.expire(`overallMockPnlCompany`, secondsRemaining);
-                // await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-                // await client.expire(`lastTradeDataMock`, secondsRemaining);
 
                 const pipeline = clientForIORedis.pipeline();
 
@@ -225,7 +209,6 @@ exports.mockTrade = async (req, res) => {
 
                 await pipeline.exec();
             }
-            // Commit the transaction
             
             io.emit("updatePnl", mockTradeDetails)
             if(fromAdmin){
@@ -233,16 +216,10 @@ exports.mockTrade = async (req, res) => {
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
-            // console.log(settingRedis, redisValueOverall,redisValueTrader )
-
-            // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
-
-            // console.log("pipelineForSet", pipelineForSet)
             if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
                 await session.commitTransaction();
                 res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
             } else {
-                // await session.commitTransaction();
                 throw new Error();
             }
             

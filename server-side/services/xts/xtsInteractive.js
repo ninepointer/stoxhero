@@ -19,6 +19,7 @@ const axios = require("axios");
 const {overallLivePnlRedis, overallLivePnlTraderWiseRedis, letestTradeLive} = require("../adminRedis/infinityLive")
 const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../adminRedis/infinityMock");
 const UserPermission = require("../../models/User/permissionSchema");
+const {marginCalculationCompanyLive, marginCalculationTraderLive} = require("../../marketData/marginData");
 
 let xtsInteractiveWS;
 let xtsInteractiveAPI;
@@ -247,7 +248,10 @@ console.log({
       instrumentToken: req.body.instrumentToken,
       dontSendResp: req.body.dontSendResp,
       tradedBy: req.user._id,
-      uniqueId: `${req.user.first_name}${req.user.mobile}`
+      uniqueId: `${req.user.first_name}${req.user.mobile}`,
+      marginData: req.body.marginData,
+      OrderType: req.body.OrderType,
+      Product: req.body.Product
     }
 
     // console.log(traderDataObj, response?.result?.AppOrderID)
@@ -408,7 +412,8 @@ const autoPlaceOrder = (obj, res) => {
         Quantity,
         userQuantity,
         instrumentToken,
-        singleUser
+        singleUser,
+        marginData
       } = obj;
       let isRedisConnected = getValue();
       isReverseTrade = false;
@@ -454,7 +459,11 @@ const autoPlaceOrder = (obj, res) => {
         dontSendResp: dontSendResp,
         tradedBy: createdBy,
         autoTrade: autoTrade,
-        singleUser: singleUser
+        singleUser: singleUser,
+        marginData: marginData,
+        OrderType: OrderType,
+        Product: Product
+  
       }
 
       if (response?.result?.AppOrderID) {
@@ -484,7 +493,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   let isRedisConnected = getValue();
 
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-    instrumentToken, dontSendResp, tradedBy, autoTrade } = traderData
+    instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity } = traderData
 
   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
@@ -586,6 +595,10 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       order_type = "MARKET";
     }
 
+    traderData.realBuyOrSell = transaction_type;
+    traderData.realQuantity = Math.abs(OrderQuantity);
+
+
     function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
       let brokerage = Number(buyBrokerData.brokerageCharge);
       let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
@@ -625,6 +638,12 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
 
     let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
+
+    // console.log(marginData, traderData)
+    if(Object.keys(marginData).length !== 0 && Object.keys(traderData).length !== 0 ){
+      const saveMarginCompany = await marginCalculationCompanyLive(marginData, traderData, OrderAverageTradedPrice, order_id);
+      const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
+    }
 
     const companyDoc = {
       appOrderId: AppOrderID, order_id: order_id,

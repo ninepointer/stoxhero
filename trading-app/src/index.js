@@ -15,9 +15,10 @@ import RenderContext from "./renderContext";
 
 
 
+
 ReactDOM.render(
-//   const root = ReactDOM.createRoot(document.getElementById("root"));
-// root.render(
+  // const root = ReactDOM.createRoot(document.getElementById("root"));
+  // root.render(
   
   <AuthContext>
     <NetPnlProvider>

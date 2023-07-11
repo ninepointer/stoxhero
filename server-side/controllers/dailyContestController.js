@@ -10,13 +10,13 @@ const uuid = require("uuid")
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const {contestStatus, contestEndTime, contestStartTime, contestOn, description, 
-            contestType, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
+        const {contestStatus, contestEndTime, contestStartTime, contestOn, description, college,
+            contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
             maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex} = req.body;
         console.log(req.body)
 
         const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
-            contestType, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
+            contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
             contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex});
 
             console.log(contest)
@@ -115,7 +115,7 @@ exports.getAllContests = async (req, res) => {
 exports.getContest = async (req, res) => {
     const {id} = req.params;
     try {
-        const contests = await Contest.findOne({_id: id}).populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
+        const contests = await Contest.findOne({_id: id}).populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess').populate('college','collegeName zone')
 
         res.status(200).json({
             status:"success",
@@ -141,6 +141,7 @@ exports.getUpcomingContests = async (req, res) => {
         .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('college', 'collegeName zone')
 
 
         res.status(200).json({
@@ -564,6 +565,8 @@ exports.creditAmountToWallet = async () => {
                             transactionType: 'Cash'
                         }];
                         wallet.save();
+
+                        contest[j].participants[i].payout = payoutAmount?.toFixed(2)
                     }
                     contest[j].payoutStatus = 'Completed'
                     contest[j].contestStatus = "Completed";

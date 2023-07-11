@@ -73,6 +73,7 @@ import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import InfinityMining from './layouts/InfinityMining'
+import PaymentTest from './layouts/paymentTest/index'
 import ContestScoreboard from './layouts/contestScoreboard'
 import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 
@@ -98,7 +99,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 // import CampaignIcon from '@mui/icons-material/Campaign';
 // import FolderSharedIcon from '@mui/icons-material/FolderShared';
 // import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
-// import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 // import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 // import AccountBoxIcon from '@mui/icons-material/AccountBox';
 // import WalletIcon from '@mui/icons-material/Wallet';
@@ -153,7 +154,8 @@ import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
 import AdminLiveReport from './layouts/adminSideReportLive'
 import WorkShopOrders from './layouts/userorders/workshopOrder';
-import Chart from './layouts/charts/index'
+import Chart from './layouts/charts/index';
+import Withdrawal from "./layouts/withdrawals";
 
 const routes = [
   {
@@ -988,6 +990,22 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/chart",
     component: <Chart/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/paymenttest",
+    component: <PaymentTest/>,
+  },
+  {
+    type: "collapse",
+    name: "Withdrawals",
+    key: "withdrawals",
+    icon: <MonetizationOnIcon/>,
+    route: "/withdrawals",
+    component: <Withdrawal/>,
   },
 
 ];
