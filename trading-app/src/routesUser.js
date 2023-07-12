@@ -64,6 +64,7 @@ import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
 import UserDailyContestCollage from './layouts/UserDailyContestCollage';
+import SchoolIcon from '@mui/icons-material/School';
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import Chart from './layouts/charts/index';
@@ -160,7 +161,7 @@ const routes = [
     name: "College Contest",
     key: "collegecontest",
     // 
-    icon: <AutoFixNormalIcon/>,
+    icon: <SchoolIcon/>,
     route: "/collegecontest",
     component: <UserDailyContestCollage />,
   },
