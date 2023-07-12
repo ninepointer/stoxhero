@@ -55,7 +55,13 @@ function Header({ socket, data }) {
     const [portfolio, setPortfolio] = useState();
     // const [showOption, setShowOption] = useState(false);
     const pnl = useContext(NetPnlContext);
-    // const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+
+    // useEffect(()=>{
+    //     socket.on("serverTime", (time)=>{
+
+    //     })
+    // }, [])
+
 
     let contestId = data?.data;
     const handleSetIsGetStartedClicked = useCallback((value) => {

@@ -276,8 +276,6 @@ router.post("/subscribeInstrument",authentication, async (req, res)=>{
         console.log("subscribed", instrumentToken)
         res.status(200).json({message: "subscribed"});
     } catch(err) {
-        // res.status(500).json({error:"Failed to enter data Check access token"});
-        // res.status(500).json({error:err});
         return new Error(err);
     }
 })

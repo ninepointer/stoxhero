@@ -60,9 +60,9 @@ const PopupTrading = ({elem, timeDifference}) => {
     console.log("main data", open)
     const navigate = useNavigate();
 
-    const handleClickOpen = async () => {
-        setOpen(true);
-    };
+    // const handleClickOpen = async () => {
+    //     setOpen(true);
+    // };
 
     const handleClose = async (e) => {
 
@@ -78,7 +78,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         // console.log("isParticipated", isParticipated)
         if (isParticipated) {
             navigate(`/contest/${elem.contestName}`, {
-                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime }
             });
             return;
         }
@@ -103,7 +103,7 @@ const PopupTrading = ({elem, timeDifference}) => {
             // return(<PopupTrading isInterested={true} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} initialValue={true}/>)
         } else {
             navigate(`/contest/${elem.contestName}`, {
-                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime }
             });
         }
     }

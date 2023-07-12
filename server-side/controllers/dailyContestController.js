@@ -198,6 +198,34 @@ exports.getAdminUpcomingContests = async (req, res) => {
     }
 };
 
+// Controller for getting todaysContest contests getAdminUpcomingContests
+exports.todaysContest = async (req, res) => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+  
+    try {
+        const contests = await Contest.find({
+            contestEndTime: { $gte: today }
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .sort({contestStartTime: 1})
+
+        res.status(200).json({
+            status:"success",
+            message: "Today's contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+};
+
 // Controller for getting upcoming contests 
 exports.getUpcomingCollegeContests = async (req, res) => {
     try {
@@ -542,7 +570,7 @@ exports.participateUsers = async (req, res) => {
                 contest.potentialParticipants.push(userId);
                 contest.save();
             }
-            return res.status(404).json({ status: "error", message: "You can participate in another contest once the current contest ends." });
+            return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
         }
 
 
@@ -611,7 +639,7 @@ exports.verifyCollageCode = async (req, res) => {
                 contest.potentialParticipants.push(userId);
                 contest.save();
             }
-            return res.status(404).json({ status: "error", message: "You can participate in another contest once the current contest ends." });
+            return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
         }
 
         console.log("collageCode", collegeCode, contest?.collegeCode)

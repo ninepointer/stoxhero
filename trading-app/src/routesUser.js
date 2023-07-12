@@ -75,7 +75,7 @@ import DailyCollegeContestOrder from "./layouts/UserDailyContestCollage/Orders"
 
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
 import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/pastContestMain"
-
+import DailyContestResultPage from "./layouts/UserDailyContest/data/result-page/resultIndex"
 import ContestScoreboard from './layouts/contestScoreboard'
 
 const routes = [
@@ -213,6 +213,11 @@ const routes = [
 
     route: "battlestreet/result",
     component: <ResultPage />,
+  },
+  {
+
+    route: "contest/result",
+    component: <DailyContestResultPage />,
   },
   {
 

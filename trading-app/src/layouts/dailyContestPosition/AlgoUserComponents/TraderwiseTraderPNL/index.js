@@ -25,7 +25,7 @@ function TraderwiseTraderPNL({socket }) {
   const [trackEvent, setTrackEvent] = useState({});
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/dailycontest/contests`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/dailycontest/contests/today`, {withCredentials: true})
     .then((res)=>{
       setSubscription(res.data.data);
       setselectedContest(res.data.data[0]?._id)

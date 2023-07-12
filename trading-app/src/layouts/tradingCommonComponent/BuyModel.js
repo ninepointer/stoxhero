@@ -126,6 +126,9 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     
     setButtonClicked(false);
     setOpen(true);
+    // if(isOption){
+    //   setOpenOptionChain(false)
+    // }
   }; 
 
   const handleClose = async (e) => {
@@ -136,7 +139,10 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     
     setOpen(false);
     if(isOption){
-      setOpenOptionChain(false)
+      // setTimeout(()=>{
+      //   setOpenOptionChain(false)
+      // }, 2000)
+      
     }
     
     setBuyState(false);
@@ -153,9 +159,9 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     setButtonClicked(true);
     e.preventDefault()
     setOpen(false);
-    if(isOption){
-      setOpenOptionChain(false)
-    }
+    // if(isOption){
+    //   setOpenOptionChain(false)
+    // }
     setBuyState(false);
 
     buyFormDetails.buyOrSell = "BUY";
