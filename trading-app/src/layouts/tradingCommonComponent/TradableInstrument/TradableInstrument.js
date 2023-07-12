@@ -89,6 +89,10 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   const [state, dispatch] = useReducer(reducer, initialState);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
+  // const [addButtonClicked, setAddButtonClicked] = useState({
+  //   isClicked: false,
+  //   instrument: ""
+  // })
   const getDetails = useContext(userContext);
 
   const openSuccessSB = () => {
@@ -127,10 +131,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       },
     })
     .then((res) => {
-        ////console.log("live price data", res)
         dispatch({ type: 'setUserInstrumentData', payload: (res.data.data) });
-        // setUserInstrumentData(res.data);
-        // setDetails.setMarketData(data);
     }).catch((err) => {
         return new Error(err);
     })
@@ -138,8 +139,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
 
   function sendSearchReq(e) {
-    // let newData += data
-    // clear previous timeout if there is one
     const value = e?.target?.value ? e.target.value : e;
     if (timeoutId) {
       clearTimeout(timeoutId);
@@ -160,8 +159,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
   function sendRequest(data){
 
-
-    //console.log("input value", data)
     if(data == ""){
       dispatch({ type: 'setEmptyInstrumentsData', payload: [] });
       return;
@@ -187,8 +184,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       url = `&isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`;
     }
 
-    // console.log("url", url, contestData)
-
     if(from === dailyContest){
       endPoint = `${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}${url}&dailyContest=${dailyContest}`
     } else{
@@ -204,11 +199,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       },
     })
     .then((res)=>{
-      //console.log("instrumentData", res.data)
-      // setInstrumentsData(res.data)
       dispatch({ type: 'setInstrumentsData', payload: (res.data) });
-
-
     }).catch((err)=>{
       //console.log(err);
     })
@@ -217,15 +208,15 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   async function subscribeInstrument(instrumentData, addOrRemove){
 
     const {exchange_token, instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry, accountType, segment} = instrumentData
-    console.log("instrumentData", instrumentData, segment)
 
     let maxLot = (tradingsymbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (tradingsymbol)?.includes("FINNIFTY") ? maxLot_FinNifty :  maxLot_Nifty;
 
-    // socket.emit("subscribeToken", instrument_token);
     dispatch({ type: 'setInstrumentName', payload: `${strike} ${instrument_type}` });
     if(addOrRemove === "Add"){
+      // if(addButtonClicked.isClicked && addButtonClicked.instrument == instrument_token){
+      //   return;
+      // }
       dispatch({ type: 'setAddOrRemoveCheckTrue', payload: true });
-
       const res = await fetch(`${baseUrl}api/v1/addInstrument`, {
         method: "POST",
         credentials:"include",
@@ -243,11 +234,13 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       });
     
       const data = await res.json();
-      ////console.log(data);
       if(data.status === 422 || data.error || !data){
           window.alert(data.error);
       }else{
         openSuccessSB();
+        // addButtonClicked.isClicked = true;
+        // addButtonClicked.instrument = instrument_token;
+        // setAddButtonClicked(addButtonClicked);
         //console.log(data.message)
       }
       
@@ -268,13 +261,9 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       });
   
       const permissionData = await response.json();
-      //console.log("remove", permissionData)
       if (permissionData.status === 422 || permissionData.error || !permissionData) {
           window.alert(permissionData.error);
       }else {
-          // let instrumentTokenArr = [];
-          // instrumentTokenArr.push(instrument_token)
-          // socket.emit("unSubscribeToken", instrumentTokenArr);
           openSuccessSB();
       }
       

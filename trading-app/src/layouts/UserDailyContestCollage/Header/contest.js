@@ -211,7 +211,7 @@ function Header({ e }) {
                             <MDButton bgColor='dark' color={"warning"} size='small' 
                                 component={Link}
                                 to={{
-                                    pathname: `/completedcontests`,
+                                    pathname: `/completedcollegecontests`,
                                 }}
                             >
                                 {"View Past Contest"}

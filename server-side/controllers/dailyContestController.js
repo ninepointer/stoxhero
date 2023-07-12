@@ -14,16 +14,16 @@ exports.createContest = async (req, res) => {
         const {contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
             maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex} = req.body;
-        console.log(req.body)
+        // console.log(req.body)
 
-        const getContest = await Contest.findOne({collegeCode: collegeCode});
-        if(getContest?.collegeCode){
-            return res.status(500).json({
-                status:'error',
-                message: "College Code is already exist.",
+        // const getContest = await Contest.findOne({collegeCode: collegeCode});
+        // if(getContest?.collegeCode){
+        //     return res.status(500).json({
+        //         status:'error',
+        //         message: "College Code is already exist.",
                 
-            });
-        }
+        //     });
+        // }
 
         const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
@@ -125,7 +125,10 @@ exports.getAllContests = async (req, res) => {
 exports.getContest = async (req, res) => {
     const {id} = req.params;
     try {
-        const contests = await Contest.findOne({_id: id}).populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess').populate('college','collegeName zone')
+        const contests = await Contest.findOne({_id: id})
+        .populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('college','collegeName zone')
+        .sort({contestStartTime: -1})
 
         res.status(200).json({
             status:"success",
@@ -141,7 +144,7 @@ exports.getContest = async (req, res) => {
     }
 };
 
-// Controller for getting upcoming contests 
+// Controller for getting upcoming contests getAdminUpcomingContests
 exports.getUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
@@ -152,7 +155,34 @@ exports.getUpcomingContests = async (req, res) => {
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
         .populate('college', 'collegeName zone')
+        .sort({contestStartTime: 1})
 
+        res.status(200).json({
+            status:"success",
+            message: "Upcoming contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+};
+
+// Controller for getting upcoming contests getAdminUpcomingContests
+exports.getAdminUpcomingContests = async (req, res) => {
+    try {
+        const contests = await Contest.find({
+            contestEndTime: { $gt: new Date() }
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('college', 'collegeName zone')
+        .sort({contestStartTime: 1})
 
         res.status(200).json({
             status:"success",
@@ -179,7 +209,7 @@ exports.getUpcomingCollegeContests = async (req, res) => {
         .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
         .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
         .populate('college', 'collegeName zone')
-
+        .sort({contestStartTime: 1})
 
         res.status(200).json({
             status:"success",
@@ -224,7 +254,7 @@ exports.getCompletedContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "StoxHero"
-        });
+        }).sort({contestStartTime: -1})
 
         res.status(200).json({
             status:"success",
@@ -246,7 +276,7 @@ exports.getCompletedCollegeContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "College"
-        });
+        }).sort({contestStartTime: -1})
 
         res.status(200).json({
             status:"success",
@@ -714,71 +744,71 @@ exports.creditAmountToWallet = async () => {
 
 exports.getDailyContestUsers = async (req, res) => {
     try {
-      const pipeline = [
-        {
-          $group: {
-            _id: {
-              date: {
-                $substr: ["$trade_time", 0, 10],
-              },
-              trader: "$trader",
+        const pipeline = [
+            {
+                $group: {
+                    _id: {
+                        date: {
+                            $substr: ["$trade_time", 0, 10],
+                        },
+                        trader: "$trader",
+                    },
+                },
             },
-          },
-        },
-        {
-          $group: {
-            _id: { date: "$_id.date" },
-            traders: { $sum: 1 },
-            uniqueUsers: { $addToSet: "$_id.trader" },
-          },
-        },
-        {
-          $sort: {
-            "_id.date": 1,
-          },
-        },
-      ];
-  
-      const contestTraders = await ContestTrading.aggregate(pipeline);
-  
-      // Create a date-wise mapping of DAUs for different products
-      const dateWiseDAUs = {};
-  
-      contestTraders.forEach(entry => {
-        const { _id, traders, uniqueUsers } = entry;
-        const date = _id.date;
-        if (date !== "1970-01-01") {
-          if (!dateWiseDAUs[date]) {
-            dateWiseDAUs[date] = {
-              date,
-              contest: 0,
-              uniqueUsers: [],
-            };
-          }
-          dateWiseDAUs[date].contest = traders;
-          dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-        }
-      });
-  
-      // Calculate the date-wise total DAUs and unique users
-      Object.keys(dateWiseDAUs).forEach(date => {
-        const { contest, uniqueUsers } = dateWiseDAUs[date];
-        dateWiseDAUs[date].total = contest
-        dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
-      });
-  
-      const response = {
-        status: "success",
-        message: "Contest Scoreboard fetched successfully",
-        data: Object.values(dateWiseDAUs),
-      };
-  
-      res.status(200).json(response);
+            {
+                $group: {
+                    _id: { date: "$_id.date" },
+                    traders: { $sum: 1 },
+                    uniqueUsers: { $addToSet: "$_id.trader" },
+                },
+            },
+            {
+                $sort: {
+                    "_id.date": 1,
+                },
+            },
+        ];
+
+        const contestTraders = await ContestTrading.aggregate(pipeline);
+
+        // Create a date-wise mapping of DAUs for different products
+        const dateWiseDAUs = {};
+
+        contestTraders.forEach(entry => {
+            const { _id, traders, uniqueUsers } = entry;
+            const date = _id.date;
+            if (date !== "1970-01-01") {
+                if (!dateWiseDAUs[date]) {
+                    dateWiseDAUs[date] = {
+                        date,
+                        contest: 0,
+                        uniqueUsers: [],
+                    };
+                }
+                dateWiseDAUs[date].contest = traders;
+                dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+            }
+        });
+
+        // Calculate the date-wise total DAUs and unique users
+        Object.keys(dateWiseDAUs).forEach(date => {
+            const { contest, uniqueUsers } = dateWiseDAUs[date];
+            dateWiseDAUs[date].total = contest
+            dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+        });
+
+        const response = {
+            status: "success",
+            message: "Contest Scoreboard fetched successfully",
+            data: Object.values(dateWiseDAUs),
+        };
+
+        res.status(200).json(response);
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: "Something went wrong",
-        error: error.message,
-      });
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
     }
-  };
+};

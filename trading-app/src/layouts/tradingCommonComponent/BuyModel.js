@@ -145,7 +145,7 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
 
   async function buyFunction(e, uId) {
     //console.log("caseStudy 1: buy")
-    console.log("buttonClicked inside", buttonClicked)
+    // console.log("buttonClicked inside", buttonClicked)
     if(buttonClicked){
       // setButtonClicked(false);
       return;

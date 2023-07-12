@@ -32,6 +32,7 @@ import MyReferrals from "./layouts/referrals"
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
+
 // import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
 // import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
@@ -66,61 +67,53 @@ import UserDailyContest from './layouts/UserDailyContest'
 import UserDailyContestCollage from './layouts/UserDailyContestCollage';
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
+import CollegeContestTradingWindow from './layouts/UserDailyContestCollage/ContestTradingView'
+
 import Chart from './layouts/charts/index';
-// import DailyContest from "./layouts/dailyContest-Trading";
-// import OptionChain from "./layouts/dailyContest-Trading/data/optionChain";
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
+import DailyCollegeContestOrder from "./layouts/UserDailyContestCollage/Orders"
+
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
+import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/pastContestMain"
+
 import ContestScoreboard from './layouts/contestScoreboard'
 
 const routes = [
 
   {
-    // type: "collapse",
-    // name: "DashBoard",
-    // key: "Dashboard",
-    // icon: <HomeIcon/>,
     route: "/completedcontests",
     component: <CompletedDailyContest />,
   },
   {
-    // type: "collapse",
-    // name: "DashBoard",
-    // key: "Dashboard",
-    // icon: <HomeIcon/>,
+    route: "/completedcollegecontests",
+    component: <CompletedDailyCollegeContest />,
+  },
+  {
     route: "/completedcontests/:name",
     component: <DailyContestOrder />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+    route: "/completedcollegecontests/:name",
+    component: <DailyCollegeContestOrder />,
+  },
+  {
+
     route: "about",
     component: <About />,
   },
   
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "jobdescription",
     component: <JD />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "home",
     component: <Home />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "apply",
     component: <CareerForm />,
   },
@@ -132,7 +125,6 @@ const routes = [
     type: "collapse",
     name: "Dashboard",
     key: "stoxherodashboard",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <DashboardIcon/>,
     route: "/stoxherodashboard",
     component: <StoxHeroDashboard />,
@@ -141,7 +133,6 @@ const routes = [
     type: "collapse",
     name: "Virtual Trading",
     key: "virtualtrading",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <MilitaryTechIcon/>,
     route: "/virtualtrading",
     component: <UserPosition />,
@@ -150,7 +141,6 @@ const routes = [
     type: "collapse",
     name: "Contest",
     key: "contest",
-    // UserDailyContestCollage
     icon: <EmojiEventsIcon/>,
     route: "/contest",
     component: <UserDailyContest />,
@@ -168,7 +158,6 @@ const routes = [
     type: "collapse",
     name: "TenX Trading",
     key: "tenxtrading",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
     component: <TenXTrading />,
@@ -177,91 +166,61 @@ const routes = [
     type: "collapse",
     name: "Internship/WorkShop",
     key: "internship",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <MenuBookIcon/>,
     route: "/internship",
     component: <Internship />,
   },
   {
-    // type: "collapse",
-    // name: "Internship/WorkShop",
-    // key: "internship",
-    // icon: <Icon fontSize="small">person</Icon>,
-    // icon: <MenuBookIcon/>,
     route: "/workshop",
     component: <Internship />,
   },
   {
-    // type: "collapse",
-    // name: "TenX Trading",
-    // key: "tenxtrading",
-    // // icon: <Icon fontSize="small">person</Icon>,
-    // icon: <CurrencyRupeeIcon/>,
+
     route: "/tenxtrading/:name",
     component: <TradeViewTenX />,
   },
   {
-    // type: "collapse",
-    // name: "TenX Trading",
-    // key: "tenxtrading",
-    // // icon: <Icon fontSize="small">person</Icon>,
-    // icon: <CurrencyRupeeIcon/>,
+
     route: "/tutorials/:category",
     component: <CategoryVideos />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "/battlestreet/:name",
     component: <ContestPage />,
   },
   {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "/contest/:name",
     component: <ContestTradingWindow />,
   },
   {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
+    route: "/collegecontest/:name",
+    component: <CollegeContestTradingWindow />,
+  },
+  {
+
     route: "battlestreet/:name/register",
     component: <ContestRegisterPage />,
   },
   {
-    // type: "collapse",
-    // name: "Arena", 
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "battlestreet/:name/trade",
     component: <ContestTradePage />,
   },
   {
-    // type: "collapse",
-    // name: "Arena", 
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "battlestreet/result",
     component: <ResultPage />,
   },
   {
-    // type: "collapse",
-    // name: "Arena", 
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "battlestreet/history",
     component: <ContestHistory />,
   },
   {
-    // type: "collapse",
-    // name: "Arena", 
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "battlestreet/history/:name",
     component: <ContestHistoryCard />,
   },
@@ -273,19 +232,10 @@ const routes = [
     route: "/contestscoreboard",
     component: <ContestScoreboard />,
   },
-  // {
-  //   // type: "collapse",
-  //   // name: "Arena", 
-  //   // key: "arena",
-  //   // icon: <BusinessIcon/>, DummyTradePage
-  //   route: "arena/notstarted",
-  //   component: <ContestTradePage />,
-  // },
   {
     type: "collapse",
     name: "Orders",
     key: "orders",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <ReorderIcon/>,
     route: "/orders",
     component: <UserOrders />,
@@ -302,19 +252,10 @@ const routes = [
     type: "collapse",
     name: "Analytics",
     key: "analytics",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <AnalyticsIcon/>,
     route: "/analytics",
     component: <UserAnalytics />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Portfolio",
-  //   key: "funds",
-  //   icon: <BusinessCenterIcon/>,
-  //   route: "/funds",
-  //   component: <Funds/>,
-  // },
   {
     type: "collapse",
     name: "Portfolio",
@@ -324,10 +265,7 @@ const routes = [
     component: <MyPortfolio />,
   },
   {
-    // type: "collapse",
-    // name: "Wallet",
     key: "wallet",
-    // icon: <AccountBalanceWalletIcon/>,
     route: "/wallet",
     component: <UserWallet />,
   },
@@ -335,7 +273,6 @@ const routes = [
     type: "collapse",
     name: "FAQs",
     key: "faqs",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <HelpIcon/>,
     route: "/faqs",
     component: <FAQs />,
@@ -349,74 +286,45 @@ const routes = [
     component: <TutorialVideo />,
   },
   {
-    // type: "collapse",
-    // name: "Profile",
     key: "profile",
-    // icon: <Icon fontSize="small">person</Icon>,
-    // icon: <PersonPinIcon/>,
     route: "/profile",
     component: <Profile />,
   },
   {
-    // type: "collapse",
-    // name: "Terms",
-    // key: "terms",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <PersonPinIcon/>,
     route: "/terms",
     component: <Tnc />,
   },
   {
-    // type: "collapse",
-    // name: "Terms",
-    // key: "terms",
-    // icon: <Icon fontSize="small">person</Icon>,
     icon: <PersonPinIcon/>,
     route: "/terms",
     component: <Tnc />,
   },
   {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
     route: "/internship/trade",
     component: <InternshipTrade/>,
   },
   {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "/workshop/trade",
     component: <InternshipTrade/>,
   },
   {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "/workshop/orders",
     component: <WorkShopOrders/>,
   },
   {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "/internship/analytics",
     component: <InternshipAnalytics/>,
   },
   {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
+
     route: "/chart",
     component: <Chart/>,
   },
 ];
 
-// console.log(routes)
 
 export default routes;
