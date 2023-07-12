@@ -184,9 +184,6 @@ const OptionChain = ({ socket, data }) => {
                                 <Grid display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%" }}>
 
                                     <Grid container p={1} lg={5.25}>
-                                        {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                            <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                        </Grid> */}
                                         <Grid item xs={12} md={2} lg={3}>
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">OI(Lakh)</MDTypography>
                                         </Grid>
@@ -220,9 +217,6 @@ const OptionChain = ({ socket, data }) => {
                                         <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(Lakh)</MDTypography>
                                         </Grid>
-                                        {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                            <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                        </Grid> */}
                                     </Grid>
                                 </Grid>
 
@@ -262,9 +256,6 @@ const OptionChain = ({ socket, data }) => {
                                                 display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%", cursor: "pointer" }}>
 
                                                 <Grid container p={1} lg={5.25} sx={{ backgroundColor: '#FFFFE0' }}>
-                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                                        <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid> */}
                                                     {isRowHovered && liveData[0]?.last_price ?
                                                         <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
                                                             <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
@@ -319,9 +310,6 @@ const OptionChain = ({ socket, data }) => {
                                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? (liveDataPE[0]?.oi / 100000)?.toFixed(2) : "-"}</MDTypography>
                                                         </Grid>
                                                     }
-                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                                        <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid> */}
                                                 </Grid>
                                             </Grid>
 
