@@ -199,7 +199,7 @@ function Header({ e }) {
                     </MDBox>
                     :
                     <>
-                        <MDBox mt={0} mb={0} width='100%' bgColor='light' minHeight='auto' borderRadius={7} display='flex'>
+                        <MDBox mt={0} p={0.5} mb={0} width='100%' bgColor='light' minHeight='auto' borderRadius={7} display='flex'>
                             <MDButton bgColor='dark' color={"success"} size='small'
                                 component={Link}
                                 to={{
