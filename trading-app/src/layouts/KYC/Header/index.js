@@ -20,7 +20,7 @@ import breakpoints from "../../../assets/theme/base/breakpoints";
 // Images
 import backgroundImage from "../../../assets/images/trading.jpg";
 import Pending from "../Components/Pending";
-import Initiated from "../Components/Initiated";
+// import Initiated from "../Components/Initiated";
 import Approved from "../Components/Approved";
 import Rejected from "../Components/Rejected";
 
@@ -93,9 +93,9 @@ function WithdrawalHeader({ children }) {
                 <Tab
                   label="Pending"
                 />
-                <Tab
+                {/* <Tab
                   label="Initiated"
-                />           
+                />            */}
                 <Tab
                   label="Approved"
                 />           
@@ -105,9 +105,9 @@ function WithdrawalHeader({ children }) {
               </Tabs>
             </AppBar>
             <TabPanel value={tabValue} index={0}><Pending/></TabPanel>
-            <TabPanel value={tabValue} index={1}><Initiated/></TabPanel>
-            <TabPanel value={tabValue} index={2}><Approved/></TabPanel>
-            <TabPanel value={tabValue} index={3}><Rejected/></TabPanel>
+            {/* <TabPanel value={tabValue} index={1}><Initiated/></TabPanel> */}
+            <TabPanel value={tabValue} index={1}><Approved/></TabPanel>
+            <TabPanel value={tabValue} index={2}><Rejected/></TabPanel>
             {/* <TabPaneltwo/> */}
           </Grid>
         </Grid>
