@@ -9,7 +9,7 @@ exports.isAppLive = async(req,res,next) => {
     // let isPermitted;
     try{
         if(req?.user?._id.toString() == "63987453e88caa645cc98e44" || req?.user?._id.toString() == "63788f7591fc4bf629de6e59"){
-            next();
+            return next();
         }
 
         const appSettings = await AppSettings.find();
@@ -29,8 +29,7 @@ exports.isInfinityLive = async(req,res,next) => {
     // console.log("restrict", req?.user?._id.toString())
     try{
         if(req?.user?._id.toString() == "63987453e88caa645cc98e44" || req?.user?._id.toString() == "63788f7591fc4bf629de6e59"){
-            // console.log("in if")
-            next();
+            return next();
         }
         
         const appSettings = await AppSettings.find();

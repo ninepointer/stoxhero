@@ -509,7 +509,7 @@ const currentUser = (req,res, next) =>{
     next();
 };
 
-router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, uploadToS3, async(req,res,next)=>{
+router.patch('/userdetail/me', authController.protect, currentUser, uploadMultiple, resizePhoto, uploadToS3, async(req,res,next)=>{
     console.log(req.body)
     try{
         const user = await UserDetail.findById(req.user._id);
@@ -519,9 +519,9 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         const filteredBody = filterObj(req.body, 'name', 'first_name', 'last_name', 'email', 'mobile','gender', 
         'whatsApp_number', 'dob', 'address', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
-        'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode'
+        'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
         );
-
+        if(filteredBody.KYCStatus == 'Approved') filteredBody.KYCStatus = 'Rejected';
         filteredBody.lastModifiedBy = req.user._id;
         console.log("Profile Photo Url: ",req.profilePhotoUrl)
         // if((req).profilePhotoUrl) filteredBody.profilePhoto = (req).profilePhotoUrl;

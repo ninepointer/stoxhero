@@ -7,7 +7,6 @@ import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
-import MarginDetails from "./layouts/margindetails";
 import Instruments from "./layouts/instruments";
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 // import Contests from "./layouts/contests";
@@ -85,7 +84,7 @@ import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 // @mui icons
 // import StadiumIcon from '@mui/icons-material/Stadium';
 import Shop2Icon from '@mui/icons-material/Shop2';
-// import ReportIcon from '@mui/icons-material/Assessment';
+import ReportIcon from '@mui/icons-material/Assessment';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 // import SummarizeIcon from '@mui/icons-material/Summarize';
 import InventoryIcon from '@mui/icons-material/Inventory'; 
@@ -97,7 +96,7 @@ import PersonIcon from '@mui/icons-material/Person';
 // import DashboardIcon from '@mui/icons-material/Dashboard';
 // import TableViewIcon from '@mui/icons-material/TableView';
 import BusinessIcon from '@mui/icons-material/Business';
-// import CampaignIcon from '@mui/icons-material/Campaign';
+import CampaignIcon from '@mui/icons-material/Campaign';
 // import FolderSharedIcon from '@mui/icons-material/FolderShared';
 // import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
@@ -139,6 +138,7 @@ import VirtualPosition from "./layouts/virtualtradePosition";
 import TenxPosition from "./layouts/tenxPosition";
 import DailyContestPosition from "./layouts/dailyContestPosition";
 import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
+import KYC from './layouts/KYC/index';
 
 // import BadgeIcon from '@mui/icons-material/Badge';
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
@@ -747,20 +747,12 @@ const routes = [
     component: <TradersReportLive/>,
   },
   {
-    // type: "collapse",MarginDetails
+    // type: "collapse",
     // name: "All Orders",
     key: "orders",
     // icon: <TableViewIcon/>,
     route: "/orders",
     component: <Orders />,
-  },
-  {
-    // type: "collapse",
-    // name: "All Orders",
-    key: "margindetails",
-    // icon: <TableViewIcon/>,
-    route: "/margindetails",
-    component: <MarginDetails />,
   },
   {
     // type: "collapse",
@@ -838,7 +830,7 @@ const routes = [
     type: "collapse",
     name: "Contact Info",
     key: "contactinfo",
-    icon: <BusinessIcon/>,
+    icon: <CampaignIcon/>,
     route: "/contactinfo",
     component: <ContactInfo />,
   },
@@ -1015,6 +1007,14 @@ const routes = [
     icon: <MonetizationOnIcon/>,
     route: "/withdrawals",
     component: <Withdrawal/>,
+  },
+  {
+    type: "collapse",
+    name: "KYC",
+    key: "kyc",
+    icon: <ReportIcon/>,
+    route: "/kyc",
+    component: <KYC/>,
   },
 
 ];

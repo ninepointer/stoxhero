@@ -100,12 +100,17 @@ exports.getRejectedKYCS = async (req,res,next) => {
 
 exports.approveKYC = async(req,res,next) => {
     const userId = req.params.id;
-    const user = await User.findById(userId);
-    user.KYCStatus = 'Approved';
-    user.KYCActionDate = new Date()
-    await user.save({validateBeforeSave:'false'});
-
-    res.status(200).json({status:'success', message:'KYC Approved'});
+    try{
+      const user = await User.findById(userId);
+      user.KYCStatus = 'Approved';
+      user.KYCActionDate = new Date();
+      console.log('user',user?.dob);
+      await user.save({validateBeforeSave:false});
+  
+      res.status(200).json({status:'success', message:'KYC Approved'});
+    }catch(e){
+      console.log(e);
+    }
 
 }
 
@@ -114,7 +119,7 @@ exports.rejectKYC = async(req,res,next) => {
     const user = await User.findById(userId);
     user.KYCStatus = 'Rejected';
     user.KYCActionDate = new Date()
-    await user.save({validateBeforeSave:'false'});
+    await user.save({validateBeforeSave:false});
 
     res.status(200).json({status:'success', message:'KYC Rejected'});
 
