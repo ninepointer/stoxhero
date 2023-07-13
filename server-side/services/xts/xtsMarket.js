@@ -84,7 +84,7 @@ const subscribeInstrument = async()=>{
     instruments: token,
     xtsMessageCode: 1512,
   });
-  console.log("subscription info", response4);
+  // console.log("subscription info", response4);
 }
 
 const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
@@ -108,7 +108,7 @@ const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
     ],
     xtsMessageCode: 1502,
   });
-  console.log(response3)
+  // console.log(response3)
 }
 
 const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
@@ -278,7 +278,7 @@ const emitTicks = async (userId) => {
     clearInterval(intervalId);
   }
 
-  console.log("Will emit filteredTicks in 2 seconds...");
+  // console.log("Will emit filteredTicks in 2 seconds...");
   intervalId = setInterval(() => {
     if (filteredTicks && filteredTicks.length > 0) {
       io.to(`${userId}`).emit("tick-room", filteredTicks);
@@ -331,7 +331,7 @@ const tradableInstrument = async(req, res)=>{
         createdBy: req.user._id,
 
       }
-      console.log("docs", docs)
+      // console.log("docs", docs)
       const tradableInstrument = await TradableInstrument.create(docs);
       // console.log(tradableInstrument)
     }

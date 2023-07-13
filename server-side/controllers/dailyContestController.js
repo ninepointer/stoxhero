@@ -29,7 +29,7 @@ exports.createContest = async (req, res) => {
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
             contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode});
 
-            console.log(contest)
+            // console.log(contest)
         res.status(201).json({
             status:'success',
             message: "Contest created successfully",
@@ -387,7 +387,7 @@ exports.removeAllowedUser = async (req, res) => {
         }
         let participants = contest?.allowedUsers?.filter((item) => (item._id).toString() != userId.toString());
         contest.allowedUsers = [...participants];
-        console.log(contest.allowedUsers, userId)
+        // console.log(contest.allowedUsers, userId)
         await contest.save({ validateBeforeSave: false });
 
         // const result = await Contest.findByIdAndUpdate(
@@ -642,7 +642,7 @@ exports.verifyCollageCode = async (req, res) => {
             return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
         }
 
-        console.log("collageCode", collegeCode, contest?.collegeCode)
+        // console.log("collageCode", collegeCode, contest?.collegeCode)
 
         if(collegeCode !== contest?.collegeCode){
             return res.status(404).json({ status: "error", message: "The College Code which you have entered is incorrect. Please contact your college POC for the correct College Code." }); 
@@ -737,7 +737,7 @@ exports.creditAmountToWallet = async () => {
                         },
                     ])
                     
-                    console.log(pnlDetails[0]);
+                    // console.log(pnlDetails[0]);
                     if (pnlDetails[0]?.npnl > 0) {
                         const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
                         const wallet = await Wallet.findOne({ userId: userId });

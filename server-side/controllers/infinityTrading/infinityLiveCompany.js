@@ -584,7 +584,7 @@ exports.overallInfinityLiveCompanyPnlYesterday = async (req, res, next) => {
   while (!pnlDetailsData && i <= maxDaysBack) {
     let day = new Date();
     day.setDate(day.getDate() - i);
-    console.log("i",i)
+    // console.log("i",i)
     let startTime = new Date(day.setHours(0, 0, 0, 0));
     let endTime = new Date(day.setHours(23, 59, 59, 999));
     date = startTime;
@@ -634,7 +634,7 @@ exports.overallInfinityLiveCompanyPnlYesterday = async (req, res, next) => {
       i++;  // increment the day counter
     }
   }
-  console.log("PNL Data:",pnlDetailsData)
+  // console.log("PNL Data:",pnlDetailsData)
   res.status(201).json({
     message: "pnl received", 
     data: pnlDetailsData, 
@@ -1248,7 +1248,7 @@ exports.companyPnlReportLive = async (req, res, next) => {
 
   const result = [];
   for (let currentDate = startDate; currentDate < endDate; currentDate.setDate(currentDate.getDate() + 1)) {
-    console.log(currentDate, endDate)
+    // console.log(currentDate, endDate)
 
     currentDate.setHours(23, 59, 59, 0);
     
@@ -2361,11 +2361,11 @@ exports.traderMatrixPnlLive = async (req, res, next) => {
 exports.brokerReportMatchLive = async (req, res, next) => {
   let { printDate, fromDate } = req.params
 
-  console.log("Print Date & From Date 1:", printDate,fromDate)
+  // console.log("Print Date & From Date 1:", printDate,fromDate)
   const printDateEnd = new Date(printDate + "T23:59:59.000Z");
   printDate = new Date(printDate + "T23:59:59.000Z");
   fromDate = new Date(fromDate + "T00:00:00.000Z");
-  console.log("Print Date, From Date & Print Date End 2:", printDate,fromDate, printDateEnd)
+  // console.log("Print Date, From Date & Print Date End 2:", printDate,fromDate, printDateEnd)
 
   let pipeline = [
     {
@@ -2467,7 +2467,7 @@ exports.brokerReportMatchLive = async (req, res, next) => {
 
 
   async function getCumulativeData(fromDate,printDate){
-    console.log("From Date & Print Date: ",fromDate,printDate)
+    // console.log("From Date & Print Date: ",fromDate,printDate)
     let pipelineCommulative = [
       {
         $match: {

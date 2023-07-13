@@ -28,11 +28,11 @@ exports.overallPnlTrader = async (req, res, next) => {
 
 
     try {
-        console.log(req.user._id.toString(), id.toString())
+        // console.log(req.user._id.toString(), id.toString())
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)) {
             let pnl = await client.get(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)
             pnl = JSON.parse(pnl);
-            console.log("pnl redis", pnl)
+            // console.log("pnl redis", pnl)
 
             res.status(201).json({ message: "pnl received", data: pnl });
 
@@ -250,7 +250,7 @@ exports.myTodaysTrade = async (req, res, next) => {
 
     const { id } = req.params;
     const userId = req.user._id;
-    console.log(id, userId);
+    // console.log(id, userId);
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -838,7 +838,7 @@ exports.traderWiseMockCompanySide = async (req, res, next) => {
     ]
 
     let x = await DailyContestMockCompany.aggregate(pipeline)
-    console.log(id, x)
+    // console.log(id, x)
     res.status(201).json({ message: "data received", data: x });
 }
 
@@ -909,7 +909,7 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
     ]
 
     let x = await DailyContestMockUser.aggregate(pipeline)
-    console.log(id, x)
+    // console.log(id, x)
     res.status(201).json({ message: "data received", data: x });
 }
 
@@ -1564,7 +1564,7 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
 
             const result = await aggregateRanks(ranks);
 
-            console.log("rsult", result)
+            // console.log("rsult", result)
             for (rank of result) {
                 // console.log(rank);
                 // console.log(`leaderboard${id}`);
@@ -1827,12 +1827,12 @@ const dailyContestLeaderBoard = async (id) => {
 
 const getRedisMyRank = async (id, employeeId) => {
 
-    console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
+    // console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
     try {
         if (await client.exists(`leaderboard:${id}`)) {
 
             const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
-            console.log("leaderBoardRank", leaderBoardRank)
+            // console.log("leaderBoardRank", leaderBoardRank)
 
             if (leaderBoardRank == null) return null
             return leaderBoardRank + 1

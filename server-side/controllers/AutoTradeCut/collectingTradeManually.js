@@ -85,7 +85,7 @@ const tenx = async () => {
   );
 
   if(data.length == 0){
-    console.log("in base case")
+    // console.log("in base case")
     return;
   }
 
@@ -133,7 +133,7 @@ const tenx = async () => {
     //   createdBy = trader
     // }
 
-    console.log("quantity", quantity)
+    // console.log("quantity", quantity)
     await recursiveFunction(quantity)
 
     async function recursiveFunction(quantity) {
@@ -142,20 +142,20 @@ const tenx = async () => {
       }
       else if (quantity <= 1800) {
 
-        console.log("in else if", quantity)
+        // console.log("in else if", quantity)
         Obj.Quantity = quantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
-        console.log("before takeAutoTenxTrade")
+        // console.log("before takeAutoTenxTrade")
         const auto = await takeAutoTenxTrade(Obj);
-        console.log("before recursive calling", auto)
+        // console.log("before recursive calling", auto)
         if(data.length > 0 && i == data.length-1){
-          console.log("recursive calling")
+          // console.log("recursive calling")
           await tenx();
         }
         return;
       } else {
-        console.log("in else", quantity)
+        // console.log("in else", quantity)
 
         Obj.Quantity = 1800;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
@@ -242,7 +242,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
   );
 
   if(data.length == 0){
-    console.log("in base case")
+    // console.log("in base case")
     return;
   }
 
@@ -292,7 +292,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
         await takeAutoInternshipTrade(Obj);
 
         if(data.length > 0 && i == data.length-1){
-          console.log("recursive calling")
+          // console.log("recursive calling")
           await internship();
         }
 
@@ -591,7 +591,7 @@ const infinityTrade = async () => {
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInfinityTrade(Obj);
         if(data.length > 0 && i == data.length-1){
-          console.log("recursive calling")
+          // console.log("recursive calling")
           await infinityTrade();
         }
         return;
@@ -691,7 +691,7 @@ const dailyContestMock = async () => {
     ]
   );
 
-  console.log("data", data)
+  
 
   if(data.length == 0){
     return;
@@ -759,7 +759,7 @@ const dailyContestMock = async () => {
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoDailyContestMockTrade(Obj);
         if(data.length > 0 && i == data.length-1){
-          console.log("recursive calling")
+          // console.log("recursive calling")
           await infinityTrade();
         }
         return;
@@ -849,7 +849,7 @@ const infinityTradeLive = async () => {
         }
       ]);
 
-      console.log("collectiong", data);
+      // console.log("collectiong", data);
 
       for (let i = 0; i < data.length; i++) {
         let date = new Date();
@@ -904,7 +904,7 @@ const infinityTradeLive = async () => {
             Obj.Quantity = 1800;
             Obj.userQuantity = 1800 / algoBox.lotMultipler;
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
-            console.log("before autoplaceorder in elseif");
+            // console.log("before autoplaceorder in elseif");
             Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
 
             await autoPlaceOrder(Obj);
@@ -917,7 +917,7 @@ const infinityTradeLive = async () => {
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
             Obj.marginData = {isSquareOff: true, isAddMoreFund: false, isReleaseFund: false, zerodhaMargin: 0, runningLots: quantity};
 
-            console.log("before autoplaceorder in else");
+            // console.log("before autoplaceorder in else");
             await autoPlaceOrder(Obj);
           }
         };

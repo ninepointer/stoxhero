@@ -53,7 +53,7 @@ async function singleLivePrice (exchange, symbol){
           return arr;
     
         } catch (err){
-          // console.log(err)
+          console.log(err)
         }  
   
 

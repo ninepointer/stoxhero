@@ -7,7 +7,7 @@ function init(io) {
 }
 
 async function getMessages(io, socket){
-  console.log('getMessages function called with', socket.id);
+  // console.log('getMessages function called with', socket.id);
   const incoming = async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
@@ -72,7 +72,7 @@ function connect(io) {
 }
 
 function send(message) {
-  console.log('sending message', JSON.stringify(message));
+  // console.log('sending message', JSON.stringify(message));
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(message));
   } else {
