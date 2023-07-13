@@ -1654,7 +1654,6 @@ const dailyContestLeaderBoard = async (id) => {
                 for (tick of filteredTicks) {
                     livePrices[tick.instrument_token] = tick.last_price;
                 }
-                // console.log(livePrices);
             }
         } else {
             const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
@@ -1666,7 +1665,6 @@ const dailyContestLeaderBoard = async (id) => {
                     addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
                 }
             });
-            // console.log(addUrl);
             const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
             let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
 
@@ -1848,6 +1846,38 @@ const getRedisMyRank = async (id, employeeId) => {
 
 }
 
+exports.getRedisMyRankHTTP = async (req, res) => {
+
+    const {id} = req.params;
+    const employeeId = req.user.employeeid;
+    console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
+    try {
+        if (await client.exists(`leaderboard:${id}`)) {
+
+            const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
+            console.log("leaderBoardRank", leaderBoardRank)
+
+            if (leaderBoardRank == null) return null
+
+            res.status(200).json({
+                message: "success",
+                data: leaderBoardRank+1
+            })
+            // return leaderBoardRank + 1
+        } else {
+            console.log("loading rank")
+            res.status(200).json({
+                message: "error",
+                data: "Loading rank"
+            })
+        }
+
+    } catch (err) {
+        console.log(err);
+    }
+
+}
+
 exports.sendLeaderboardData = async () => {
 
     try{
@@ -1906,4 +1936,10 @@ exports.sendMyRankData = async () => {
         console.log(err);
     }
 
+}
+
+exports.emitServerTime = async () => {
+    const interval = setInterval(() => {
+        io.emit('serverTime', new Date());
+    }, 1000); // Emit every second (adjust as needed)
 }

@@ -32,7 +32,7 @@ import { NetPnlContext } from "../../../PnlContext";
 
 function Leaderboard({socket}) {
 
-    const [myRank, setMyRank] = useState();
+    const [myRank, setMyRankData] = useState();
     const getDetails = useContext(userContext);
     const pnl = useContext(NetPnlContext);
     const [loading, setIsLoading] = useState(true);
@@ -40,7 +40,7 @@ function Leaderboard({socket}) {
     useEffect(()=>{
         socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
 
-            setMyRank(data)
+            setMyRankData(data);
             setIsLoading(false);
           console.log("this is leaderboard data", data)
         })
