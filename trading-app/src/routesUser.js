@@ -78,7 +78,7 @@ import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
 import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/pastContestMain"
 import DailyContestResultPage from "./layouts/UserDailyContest/data/result-page/resultIndex"
 import ContestScoreboard from './layouts/contestScoreboard'
-
+import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/data/result-page/resultIndex"
 const routes = [
 
   {
@@ -216,9 +216,12 @@ const routes = [
     component: <ResultPage />,
   },
   {
-
     route: "contest/result",
     component: <DailyContestResultPage />,
+  },
+  {
+    route: "collegecontest/result",
+    component: <DailyCollegeContestResultPage />,
   },
   {
 

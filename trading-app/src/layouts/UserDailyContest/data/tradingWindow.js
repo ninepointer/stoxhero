@@ -48,21 +48,21 @@ function Header({ socket, data }) {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
-            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString, myRank);
+            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
                 navigate(`/contest/result`, {
-                    state: { contestId: contestId, pnl: pnl?.netPnl, rank: myRank}
+                    state: { contestId: contestId}
                 })
             }
         });
     }, []);
 
-    useEffect(()=>{
-        socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
-            setMyRank(data);
-          console.log("this is leaderboard data", data)
-        })
-    }, [])
+    // useEffect(()=>{
+    //     socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
+    //         setMyRank(data);
+    //       console.log("this is leaderboard data", data)
+    //     })
+    // }, [])
 
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);

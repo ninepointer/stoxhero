@@ -97,7 +97,7 @@ function ContestResultPage () {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6} lg={1} mb={2}>
                             <MDBox display="flex" alignItems="center" gap={"130px"} mt={1.3} >
-                                <Button color="light" style={{ border: "1px solid white", borderRadius: "7px" }} onClick={() => { nevigate('/contest') }}>< FastRewindIcon /></Button>
+                                <Button color="light" style={{ border: "1px solid white", borderRadius: "7px" }} onClick={() => { nevigate('/collegecontest') }}>< FastRewindIcon /></Button>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={6} lg={11} mb={2}>

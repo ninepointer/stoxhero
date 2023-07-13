@@ -20,6 +20,7 @@ const saveMissedData = async () => {
                     $lt: new Date("2023-07-11"),
                 },
             },
+            status: "COMPLETE"
         },
         {
             $lookup: {
