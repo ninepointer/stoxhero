@@ -579,7 +579,7 @@ exports.overallInfinityLiveCompanyPnlYesterday = async (req, res, next) => {
   let date;
   let i = 1;
   let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
-  let pnlDetailsData;
+  let pnlDetailsData = [];
 
   while (!pnlDetailsData && i <= maxDaysBack) {
     let day = new Date();
