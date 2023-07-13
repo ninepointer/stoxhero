@@ -939,7 +939,11 @@ router.get("/dailyPnl", async (req, res)=>{
 
 
 router.get("/cronjob", async (req, res)=>{
-  await cronjob();
+  // for(let i = 0; i < 4; i++){
+  //   let date = `2023-07-1${i}`
+    await cronjob(date);
+  // }
+  
 })
 
 router.get("/dbbackup", async (req, res)=>{

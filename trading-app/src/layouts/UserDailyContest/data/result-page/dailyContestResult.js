@@ -26,12 +26,15 @@ import { NetPnlContext } from "../../../../PnlContext";
 function ContestResultPage () {
     const getDetails = useContext(userContext);
     const [myRank, setMyRankProps] = useState([]);
-    const [myPnl, setMyPnl] = useState([]);
+    // const [myPnl, setMyPnl] = useState([]);
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
     const nevigate = useNavigate();
     const [isLoading,setIsLoading] = useState(true)
     const [contestData, setContest] = useState([]);
+    const pnl = useContext(NetPnlContext);
+
+    console.log("pnl data is", pnl?.netPnl, pnl)
 
     let style = {
       textAlign: "center", 
@@ -67,22 +70,22 @@ function ContestResultPage () {
           return new Error(err);
       })
 
-      axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/pnl`, {withCredentials: true})
-      .then((res)=>{
-            setMyPnl(res?.data?.data);
-            // console.log("data is", res?.data?.data)
-            // setIsLoading(false)
-      }).catch((err)=>{
-          return new Error(err);
-      })
+    //   axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/pnl`, {withCredentials: true})
+    //   .then((res)=>{
+    //         setMyPnl(res?.data?.data);
+    //         // console.log("data is", res?.data?.data)
+    //         // setIsLoading(false)
+    //   }).catch((err)=>{
+    //       return new Error(err);
+    //   })
     },[])
 
-    const totalAmount = myPnl.reduce((total, acc) => {
-          return total + (acc.amount - acc.brokerage);
-    }, 0);
+    // const totalAmount = myPnl.reduce((total, acc) => {
+    //       return total + (acc.amount - acc.brokerage);
+    // }, 0);
 
 
-    const reward = totalAmount > 0 ? totalAmount*contestData?.payoutPercentage/100 : 0;
+    const reward = (pnl?.netPnl) > 0 ? (pnl?.netPnl)*contestData?.payoutPercentage/100 : 0;
     // console.log("my data", contestData, reward, myRank, totalAmount)  
 
     return (
@@ -233,13 +236,13 @@ function ContestResultPage () {
                                                             <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                 <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                     <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Net P&L: {(totalAmount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalAmount))}</MDTypography>
+                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Net P&L: {((pnl?.netPnl)) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((pnl?.netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(pnl?.netPnl)))}</MDTypography>
                                                                     </Grid>
                                                                 </Grid>
                                                                 <Divider style={{ backgroundColor: 'white' }} />
                                                                 <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                     <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Payout: {(reward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(reward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-reward))}</MDTypography>
+                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Payout: {(reward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(reward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-reward))}</MDTypography>
                                                                     </Grid>
                                                                 </Grid>
                                                             </Grid>
