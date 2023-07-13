@@ -635,11 +635,10 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
     let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
 
-    // console.log(marginData, traderData)
-    if(Object.keys(marginData).length !== 0 && Object.keys(traderData).length !== 0 ){
-      const saveMarginCompany = await marginCalculationCompanyLive(marginData, traderData, OrderAverageTradedPrice, order_id);
-      const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
-    }
+    // if(Object.keys(marginData).length !== 0 && Object.keys(traderData).length !== 0 ){
+    //   const saveMarginCompany = await marginCalculationCompanyLive(marginData, traderData, OrderAverageTradedPrice, order_id);
+    //   const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
+    // }
 
     const companyDoc = {
       appOrderId: AppOrderID, order_id: order_id,
