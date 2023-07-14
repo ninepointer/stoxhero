@@ -9,9 +9,9 @@ const devDB = process.env.DEVDATABASE;
 const stagingDB = process.env.STAGINGDB;
 
 
-    mongoose.connect(devDB, {
+    // mongoose.connect(devDB, {
         //  mongoose.connect(DB, {
-        // mongoose.connect(stagingDB, {
+        mongoose.connect(stagingDB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     // useFindAndModify: false

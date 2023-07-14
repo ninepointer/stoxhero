@@ -114,9 +114,8 @@ const CareerForm = () => {
 
   async function generateOTP(){
 
-    setOTPGenerated(true)
     // setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
-
+    
     const { 
       firstName,
       lastName,
@@ -130,28 +129,29 @@ const CareerForm = () => {
       career,
       campaignCode,
     } = detail;
-
-    // if(mobile.length !== 10){
-
-    //     setOTPGenerated(false)
-    //     return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
-    //   }
-    if(!firstName || !lastName || !email || !mobile || !dob || !collegeName || !linkedInProfileLink || !priorTradingExperience || !source){
-      return openSuccessSB("Data Incomplete", "Please fill all the required fields", "Error"); 
-    }
-    if(mobile.length !== 10){
-
-      if(mobile.length === 12 && mobile.startsWith('91')){
-        
-      }else if(mobile.length === 11 && mobile.startsWith('0')){
-
-      }
-       else{
-        setOTPGenerated(false)
-        return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
-      }
-    }
     
+    // if(mobile.length !== 10){
+      
+      //     setOTPGenerated(false)
+      //     return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
+      //   }
+      if(!firstName || !lastName || !email || !mobile || !dob || !collegeName || !linkedInProfileLink || !priorTradingExperience || !source){
+        return openSuccessSB("Data Incomplete", "Please fill all the required fields", "Error"); 
+      }
+      if(mobile.length !== 10){
+        
+        if(mobile.length === 12 && mobile.startsWith('91')){
+          
+        }else if(mobile.length === 11 && mobile.startsWith('0')){
+          
+        }
+        else{
+          setOTPGenerated(false)
+          return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
+        }
+      }
+      
+    setOTPGenerated(true)
     const res = await fetch(`${baseUrl}api/v1/career/generateotp`, {
       method: "POST",
       // credentials:"include",

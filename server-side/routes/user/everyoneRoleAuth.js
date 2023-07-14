@@ -33,7 +33,6 @@ router.get("/role", async (req, res)=>{
         })
         .populate('createdBy', 'name')
         if (!role) {
-            console.log("in if of role")
           return res.status(200).json({ status: 'success', message: 'role not found.', data: {} });
         }
         return res.status(200).json({ status: 'success', message: 'Successful', data: role });
@@ -44,7 +43,7 @@ router.get("/role", async (req, res)=>{
 })
 
 router.get("/role/:id", (req, res)=>{
-    //console.log(req.params)
+
     const {id} = req.params
     Role.findOne({_id : id, status: "Active"})
     .then((data)=>{
@@ -56,8 +55,7 @@ router.get("/role/:id", (req, res)=>{
 })
 
 router.put("/role/:id", authentication, async (req, res)=>{
-    //console.log(req.params)
-    //console.log("this is body", req.body);
+
     let lastModifiedBy = req.user._id;
     try{
         const {id} = req.params
@@ -69,8 +67,7 @@ router.put("/role/:id", authentication, async (req, res)=>{
                 lastModifiedOn: role.lastModifiedOn
             }
         })
-        //console.log("this is role", role);
-        // res.send(role)
+        
         res.status(201).json({massage : "Role edited succesfully"});
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
@@ -78,12 +75,11 @@ router.put("/role/:id", authentication, async (req, res)=>{
 })
 
 router.delete("/role/:id", async (req, res)=>{
-    //console.log(req.params)
+    
     try{
         const {id} = req.params
         const role = await Role.deleteOne({_id : id})
-        //console.log("this is userdetail", role);
-        // res.send(userDetail)
+        
         res.status(201).json({massage : "Role deleted succesfully"});
     } catch (e){
         res.status(500).json({error:"Failed to delete data"});
