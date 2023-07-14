@@ -117,7 +117,6 @@ const CareerForm = () => {
     setOTPGenerated(true)
     // setDetails(prevState => ({...prevState, mobile_otp: detail.mobile_otp}));
 
-
     const { 
       firstName,
       lastName,
@@ -137,6 +136,9 @@ const CareerForm = () => {
     //     setOTPGenerated(false)
     //     return openSuccessSB("Invalid mobile Number","Enter 10 digit mobile number","Error")
     //   }
+    if(!firstName || !lastName || !email || !mobile || !dob || !collegeName || !linkedInProfileLink || !priorTradingExperience || !source){
+      return openSuccessSB("Data Incomplete", "Please fill all the required fields", "Error"); 
+    }
     if(mobile.length !== 10){
 
       if(mobile.length === 12 && mobile.startsWith('91')){

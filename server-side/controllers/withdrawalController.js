@@ -97,17 +97,19 @@ exports.createWithdrawal = async(req,res,next) => {
     if(!amount){
         return res.status(200).json({status:'error', message:'Enter a valid amount'});
     }
-    const currentDate = new Date();
-    const yesterdayDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
-    yesterdayDate.setHours(18, 30, 0, 0);
+    const tomorrowDate = new Date();
+    tomorrowDate.setHours(18, 29, 59, 0);
 
-    const currentDateTime = new Date();
-    currentDateTime.setHours(18, 29, 59, 0);
+    const currentDate = new Date();
+    const currentDateTime = new Date(currentDate.setDate(currentDate.getDate() - 1));
+    currentDateTime.setHours(18, 30, 00, 0);
 
     const withdrawals = await Withdrawal.find({
     user: user?._id,
-    $lte: currentDateTime,
-    $gte: yesterdayDate
+    $and: [
+        { withdrawalRequestDate: { $lte: tomorrowDate } },
+        { withdrawalRequestDate: { $gte: currentDate } }
+    ]
     });
 
     if (withdrawals.length > 1) {
@@ -184,6 +186,9 @@ exports.getWithdrawalsUser = async (req,res,next) => {
 exports.processWithdrawal = async(req,res,next) => {
     const withdrawalId = req.params.id;
     const withdrawal = await Withdrawal.findById(withdrawalId);
+    if(withdrawal.withdrawalStatus!='Initiated'){
+        return res.status(400).json({status:'error', message:'Already initiated'})
+    }
     withdrawal.withdrawalStatus = 'Initiated';
     withdrawal.actions.push({
         actionDate: new Date(),
@@ -202,6 +207,7 @@ exports.rejectWithdrawal = async(req,res,next) => {
     const withdrawalId = req.params.id;
     const withdrawal = await Withdrawal.findById(withdrawalId);
     if(!withdrawal) return res.status(404).json({status:'error', message: 'No withdrawal found.'})
+    if(withdrawal.withdrawalStatus == 'Rejected') return res.status(404).json({status:'error', message: 'Already rejected.'});
     withdrawal.withdrawalStatus = 'Rejected';
     withdrawal.lastModifiedBy = req.user._id;
     withdrawal.lastModifiedOn= new Date();
@@ -386,93 +392,95 @@ exports.approveWithdrawal = async(req, res, next) => {
     await userWallet.save({validateBeforeSave:false});
     await withdrawal.save({validateBeforeSave:false});
     const user = await User.findById(withdrawal.user);
-    await sendMail(user.email, 
-        "Withdrawal Approved - StoxHero",
-        `
-                <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>Withdrawal Approved</title>
-                        <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            font-size: 16px;
-                            line-height: 1.5;
-                            margin: 0;
-                            padding: 0;
-                        }
+    if(process.env.PROD==true){
+        await sendMail(user.email, 
+            "Withdrawal Approved - StoxHero",
+            `
+                    <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>Withdrawal Approved</title>
+                            <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                font-size: 16px;
+                                line-height: 1.5;
+                                margin: 0;
+                                padding: 0;
+                            }
+        
+                            .container {
+                                max-width: 600px;
+                                margin: 0 auto;
+                                padding: 20px;
+                                border: 1px solid #ccc;
+                            }
+        
+                            h1 {
+                                font-size: 24px;
+                                margin-bottom: 20px;
+                            }
+        
+                            p {
+                                margin: 0 0 20px;
+                            }
+        
+                            .userid {
+                                display: inline-block;
+                                background-color: #f5f5f5;
+                                padding: 10px;
+                                font-size: 15px;
+                                font-weight: bold;
+                                border-radius: 5px;
+                                margin-right: 10px;
+                            }
+        
+                            .password {
+                                display: inline-block;
+                                background-color: #f5f5f5;
+                                padding: 10px;
+                                font-size: 15px;
+                                font-weight: bold;
+                                border-radius: 5px;
+                                margin-right: 10px;
+                            }
+        
+                            .login-button {
+                                display: inline-block;
+                                background-color: #007bff;
+                                color: #fff;
+                                padding: 10px 20px;
+                                font-size: 18px;
+                                font-weight: bold;
+                                text-decoration: none;
+                                border-radius: 5px;
+                            }
+        
+                            .login-button:hover {
+                                background-color: #0069d9;
+                            }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                            <h1>Withdrawal Approved</h1>
+                            <p>Hello ${user.first_name},</p>
+                            <p>Your withdrawal request for ₹${withdrawal.amount} is approved by stoxhero. It'll be reflected in your bank account soon.</p>
+                            <p>Transaction ID for the transfer: <span class="userid">${transactionId}</span></p>
+                            <p>Mode of payment: <span class="userid">${settlementMethod}</span></p>
+                            <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                            <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                            <br/><br/>
+                            <p>Thanks,</p>
+                            <p>StoxHero Team</p>
     
-                        .container {
-                            max-width: 600px;
-                            margin: 0 auto;
-                            padding: 20px;
-                            border: 1px solid #ccc;
-                        }
-    
-                        h1 {
-                            font-size: 24px;
-                            margin-bottom: 20px;
-                        }
-    
-                        p {
-                            margin: 0 0 20px;
-                        }
-    
-                        .userid {
-                            display: inline-block;
-                            background-color: #f5f5f5;
-                            padding: 10px;
-                            font-size: 15px;
-                            font-weight: bold;
-                            border-radius: 5px;
-                            margin-right: 10px;
-                        }
-    
-                        .password {
-                            display: inline-block;
-                            background-color: #f5f5f5;
-                            padding: 10px;
-                            font-size: 15px;
-                            font-weight: bold;
-                            border-radius: 5px;
-                            margin-right: 10px;
-                        }
-    
-                        .login-button {
-                            display: inline-block;
-                            background-color: #007bff;
-                            color: #fff;
-                            padding: 10px 20px;
-                            font-size: 18px;
-                            font-weight: bold;
-                            text-decoration: none;
-                            border-radius: 5px;
-                        }
-    
-                        .login-button:hover {
-                            background-color: #0069d9;
-                        }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                        <h1>Withdrawal Approved</h1>
-                        <p>Hello ${user.first_name},</p>
-                        <p>Your withdrawal request for ₹${withdrawal.amount} is approved by stoxhero. It'll be reflected in your bank account soon.</p>
-                        <p>Transaction ID for the transfer: <span class="userid">${transactionId}</span></p>
-                        <p>Mode of payment: <span class="userid">${settlementMethod}</span></p>
-                        <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                        <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                        <br/><br/>
-                        <p>Thanks,</p>
-                        <p>StoxHero Team</p>
-
-                        </div>
-                    </body>
-                    </html>
-    
-                ` 
-    )
+                            </div>
+                        </body>
+                        </html>
+        
+                    ` 
+        )
+    }
     res.status(200).json({status:'success', message:'Withdrawal request approved'});
 }

@@ -136,8 +136,8 @@ router.post("/resendmobileotp", async(req, res)=>{
         await user.save({validateBeforeSave: false});
     
         // sendSMS([mobile.toString()], `Your OTP is ${mobile_otp}`);
-        if(process.env.PROD==true)sendOTP(mobile.toString(), mobile_otp);
-        if(process.env.PROD !== true)sendOTP("9319671094", mobile_otp);
+        if(true)sendOTP(mobile.toString(), mobile_otp);
+        //if(process.env.PROD !== true)sendOTP("9319671094", mobile_otp);
         res.status(200).json({status: 'success', message : "Otp sent. Check again."});
     }catch(e){
         console.log(e);
