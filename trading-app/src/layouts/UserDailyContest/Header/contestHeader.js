@@ -21,6 +21,11 @@ import MDTypography from "../../../components/MDTypography";
 import {InfinityTraderRole, tenxTrader} from "../../../variables";
 import ContestCup from '../../../assets/images/candlestick-chart.png'
 import { Divider } from "@mui/material";
+import TelegramIcon from '@mui/icons-material/Telegram';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 
 
@@ -49,6 +54,27 @@ function Header({ children }) {
                         मान्यता के हिसाब से वास्तविक नकदी रिवार्ड्स जीतें।
                     </MDTypography>
                     
+                </Grid>
+                <Grid mt={1} item xs={12} md={12} lg={12} display='flex' justifyContent='center' textAlign='center' alignItems='center'>
+                    <Grid container display='flex' justifyContent='center' alignItems='center'>
+                    <Grid item xs={12} md={12} lg={7}>
+                        <MDTypography fontSize={15}>
+                            Join our communities to stay updated on contests regularly.
+                        </MDTypography>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={5}>
+                    <MDButton size='small' varaint='Outlined' color='success' onClick={() => window.open('https://chat.whatsapp.com/CbRHo9BP3SO5fIHI2nM6jq', '_blank')}><WhatsAppIcon/></MDButton>
+                    <span style={{ margin: '0 5px' }}></span> {/* Add space between buttons */}
+                    <MDButton size='small' varaint='Outlined' color='info' onClick={() => window.open('https://t.me/stoxhero_official', '_blank')}><TelegramIcon/></MDButton>
+                    <span style={{ margin: '0 5px' }}></span> {/* Add space between buttons */}
+                    <MDButton size='small' varaint='Outlined' color='info' onClick={() => window.open('https://www.linkedin.com/company/stoxhero', '_blank')}><LinkedInIcon/></MDButton>
+                    <span style={{ margin: '0 5px' }}></span> {/* Add space between buttons */}
+                    <MDButton size='small' varaint='Outlined' color='error' onClick={() => window.open('https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA==', '_blank')}><InstagramIcon/></MDButton>
+                    <span style={{ margin: '0 5px' }}></span> {/* Add space between buttons */}
+                    <MDButton size='small' varaint='Outlined' color='info' onClick={() => window.open('https://www.facebook.com/profile.php?id=100091564856087&mibextid=ZbWKwL', '_blank')}><FacebookIcon/></MDButton>
+                    </Grid>
+
+                    </Grid>
                 </Grid>
             </Grid>
             </MDBox>

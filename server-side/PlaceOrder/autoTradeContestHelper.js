@@ -13,8 +13,6 @@ exports.autoTradeHelper = async (data, contestId) => {
             buyOrSell = "BUY";
         }
 
-        // console.log("this is data", data[i])
-        // realSymbol: data[i]._id.symbol,
         let Obj = {};
         Obj.symbol = data[i]._id.symbol ;
         Obj.Product = data[i]._id.product ;

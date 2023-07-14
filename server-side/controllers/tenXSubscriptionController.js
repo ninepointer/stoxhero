@@ -28,7 +28,7 @@ exports.createTenXSubscription = async(req, res, next)=>{
 exports.editTanx = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const tenx = await TenXSubscription.findById(id);
 
     const filteredBody = filterObj(req.body, "plan_name", "actual_price", "discounted_price", "validity", "validityPeriod", 

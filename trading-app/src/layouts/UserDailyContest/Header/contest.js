@@ -43,10 +43,6 @@ function Header({ e }) {
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
-    // let [isPast, setIsPast] = useState(false);
-    // const navigate = useNavigate();
-
-    // const [copied, setCopied] = useState(false);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -56,7 +52,6 @@ function Header({ e }) {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        // setCopied(true);
         openSuccessSB('success', 'Copied', 'Share this link to your friend');
         const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${id}/share`, {
             method: "PUT",
@@ -207,7 +202,7 @@ function Header({ e }) {
                     </MDBox>
                     :
                     <>
-                        <MDBox mt={-1} mb={0} width='100%' bgColor='light' minHeight='auto' display='flex' borderRadius={7}>
+                        <MDBox mt={-1} p={0.5} mb={0} width='100%' bgColor='light' minHeight='auto' display='flex' borderRadius={7}>
                             <MDButton bgColor='dark' color={"warning"} size='small' 
                                 component={Link}
                                 to={{
@@ -293,11 +288,11 @@ function Header({ e }) {
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹"+elem?.entryFee : "FREE"}</MDTypography></MDBox>
+                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹"+elem?.entryFee : "FREE"}</MDTypography></MDBox>
                                                         </MDBox>
 
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
+                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
                                                         </MDBox>
                                                     </Grid>
 

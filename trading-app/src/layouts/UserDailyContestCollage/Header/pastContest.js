@@ -47,16 +47,6 @@ function Header({ e }) {
     let [pnlData, setPnlData] = useState([]);
     const navigate = useNavigate();
 
-    // const handleButtonClick = () => {
-    //     const textToCopy = 'https://www.stoxhero.com/contest';
-    //     navigator.clipboard.writeText(textToCopy)
-    //       .then(() => {
-    //         console.log(textToCopy);
-    //       })
-    //       .catch((error) => {
-    //         console.error('Error copying text:', error);
-    //       });
-    //   };
 
     useEffect(() => {
 
@@ -105,21 +95,6 @@ function Header({ e }) {
         })
     }, [])
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //       axios.get(`${baseUrl}api/v1/servertime`)
-    //         .then((res) => {
-    //             console.log("server time", res.data.data)
-    //           setServerTime(res.data.data);
-    //         });
-    //     });
-      
-    //     return () => {
-    //       clearInterval(interval);
-    //     };
-    //   }, []);
-
-    // console.log("serverTime", serverTime)
 
     function changeDateFormat(givenDate) {
 
@@ -168,22 +143,14 @@ function Header({ e }) {
             }
         })
         .then((res) => {
-            //   console.log(res.data)
-            //   setData(res.data.data);
-            // setCount(res.data.count);
             if (res.data.count > 0) {
-                navigate(`/completedcontests/${name}`, {
+                navigate(`/completedcollegecontests/${name}`, {
                     state: { data: id }
                 });
             } else {
                 openSuccessSB("error", "You dont have any trade for this contest.")
             }
-            //   setIsLoading(false)
         }).catch((err) => {
-            //window.alert("Server Down");
-            //   setTimeout(()=>{
-            //     setIsLoading(false)
-            //   },500) 
             return new Error(err);
         })
     }
@@ -232,11 +199,11 @@ function Header({ e }) {
                     </MDBox>
                     :
                     <>
-                        <MDBox mt={0} mb={0} width='100%' bgColor='light' minHeight='auto' borderRadius={7} display='flex'>
+                        <MDBox mt={0} p={0.5} mb={0} width='100%' bgColor='light' minHeight='auto' borderRadius={7} display='flex'>
                             <MDButton bgColor='dark' color={"success"} size='small'
                                 component={Link}
                                 to={{
-                                    pathname: `/contest`,
+                                    pathname: `/collegecontest`,
                                 }}
                             >
                                 {"View Upcoming Contest"}
@@ -329,35 +296,13 @@ function Header({ e }) {
                                                             </MDBox>
                                                         </Grid>
     
-                                                        {/* <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                                            <ProgressBar progress={progressBar} />
-                                                        </MDBox>
-                                                    </Grid> */}
-    
-                                                        {/* <Grid item xs={12} md={12} lg={12} display="flex" mt={1} mb={1} justifyContent="space-between" alignItems="center" alignContent="center">
-                                                        {particularContestTime[0]?.value > 0 ?
-                                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST AND {elem?.maxParticipants - elem?.participants?.length} SEATS GRABBED</MDBox>
-                                                            </MDBox>
-                                                             :
-                                                             particularContestTime[0]?.value <= 0 &&
-                                                             <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                 <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
-                                                             </MDBox>} 
-                                                    </Grid> */}
     
                                                         <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
                                                             <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
     
     
                                                                 <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                                                    {/* {particularContestTime[0]?.value > 0 &&
-                                                            <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
-                                                            } */}
-                                                                    {/* {checkIsInterested &&
-                                                                <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
-                                                            } */}
+
                                                                 </MDBox>
     
                                                                 <MDBox mt={1} display='flex' justifyContent='flex-end' width='50%'>
@@ -366,19 +311,12 @@ function Header({ e }) {
                                                                         color='warning'
                                                                         size='small'
                                                                         component={Link}
-                                                                        // disabled={timeDifference > 0}
-                                                                        // to={{
-                                                                        //     pathname: `/completedcontests/${elem.contestName}`,
-                                                                        // }}
-                                                                        // state={{ data: elem._id }}
     
                                                                         onClick={()=>{handleNavigate(elem?._id, elem?.contestName)}}
     
-                                                                    // onClick={() => { participateUserToContest(elem) }}
                                                                     >
                                                                         <MDTypography color='warning' fontWeight='bold' fontSize={10}>VIEW ORDERS</MDTypography>
                                                                     </MDButton>
-                                                                    {/* <DailyContestOrders elem={elem} /> */}
                                                                 </MDBox>
                                                             </MDBox>
                                                         </Grid>

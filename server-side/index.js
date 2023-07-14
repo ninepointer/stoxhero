@@ -47,7 +47,7 @@ const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
 const {creditAmountToWallet} = require("./controllers/dailyContestController");
 const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
-const {sendLeaderboardData, sendMyRankData} = require("./controllers/dailyContestTradeController");
+const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./controllers/dailyContestTradeController");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -159,6 +159,10 @@ getKiteCred.getAccess().then(async (data)=>{
 
     });
 
+    // socket.emit('serverTime', new Date());
+
+
+
     socket.on('company-ticks', async (data) => {
       console.log("in company-ticks event")
       if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
@@ -214,6 +218,7 @@ getKiteCred.getAccess().then(async (data)=>{
 //emitting leaderboard for contest.
 sendLeaderboardData().then(()=>{});
 sendMyRankData().then(()=>{});
+emitServerTime().then(()=>{});
 
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
 

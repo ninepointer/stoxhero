@@ -1,12 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { memo } from 'react';
-// import axios from "axios"
-// import uniqid from "uniqid"
-// import { userContext } from "../../AuthContext";
 import axios from "axios";
 import { debounce } from 'lodash';
-
-// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -14,22 +9,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-// import TextField from '@mui/material/TextField';
-// import Select from '@mui/material/Select';
-// import MenuItem from '@mui/material/MenuItem';
-// import InputLabel from '@mui/material/InputLabel';
-// import FormControl from '@mui/material/FormControl';
 import MDButton from '../../../components/MDButton';
-// import MDSnackbar from '../../components/MDSnackbar';
-// import Radio from '@mui/material/Radio';
-// import RadioGroup from '@mui/material/RadioGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import FormLabel from '@mui/material/FormLabel';
-// import { Box } from '@mui/material';
-// import { renderContext } from "../../renderContext";
-// import {Howl} from "howler";
-// import sound from "../../assets/sound/tradeSound.mp3"
-// import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../variables";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import Chain from '../../../assets/images/chain.png'
@@ -38,10 +18,6 @@ import BuyModel from "../../tradingCommonComponent/BuyModel";
 import SellModel from "../../tradingCommonComponent/SellModel";
 import { dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Nifty_DailyContest } from "../../../variables";
 
-
-// import MDBox from '../../../../../components/MDBox';
-// import { borderBottom } from '@mui/system';
-// import { marketDataContext } from "../../../../../MarketDataContext";
 
 const OptionChain = ({ socket, data }) => {
     let isNifty = data?.isNifty;
@@ -208,9 +184,6 @@ const OptionChain = ({ socket, data }) => {
                                 <Grid display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%" }}>
 
                                     <Grid container p={1} lg={5.25}>
-                                        {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                            <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                        </Grid> */}
                                         <Grid item xs={12} md={2} lg={3}>
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">OI(Lakh)</MDTypography>
                                         </Grid>
@@ -244,9 +217,6 @@ const OptionChain = ({ socket, data }) => {
                                         <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(Lakh)</MDTypography>
                                         </Grid>
-                                        {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                            <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                        </Grid> */}
                                     </Grid>
                                 </Grid>
 
@@ -286,9 +256,6 @@ const OptionChain = ({ socket, data }) => {
                                                 display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{ border: '1px solid white', borderRadius: 5, width: "100%", cursor: "pointer" }}>
 
                                                 <Grid container p={1} lg={5.25} sx={{ backgroundColor: '#FFFFE0' }}>
-                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                                        <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid> */}
                                                     {isRowHovered && liveData[0]?.last_price ?
                                                         <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center">
                                                             <BuyModel isOption={true} setOpenOptionChain={setOpen} setBuyState={setBuyState} buyState={buyState} contestId={contestId} from={dailyContest} socket={socket} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(liveData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} />
@@ -343,9 +310,6 @@ const OptionChain = ({ socket, data }) => {
                                                             <MDTypography color="dark" fontSize={11} fontWeight="bold">{liveDataPE[0]?.last_price ? (liveDataPE[0]?.oi / 100000)?.toFixed(2) : "-"}</MDTypography>
                                                         </Grid>
                                                     }
-                                                    {/* <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                                                        <MDTypography color="dark" fontSize={11} fontWeight="bold">OI(%)</MDTypography>
-                                                    </Grid> */}
                                                 </Grid>
                                             </Grid>
 
