@@ -207,11 +207,11 @@ function Header({ e }) {
                     </MDBox>
                     :
                     <>
-                        <MDBox mt={-1} mb={0} width='100%' bgColor='light' minHeight='auto' display='flex' borderRadius={7}>
+                        <MDBox mt={-1} p={0.5} mb={0} width='100%' bgColor='light' minHeight='auto' display='flex' borderRadius={7}>
                             <MDButton bgColor='dark' color={"warning"} size='small' 
                                 component={Link}
                                 to={{
-                                    pathname: `/completedcontests`,
+                                    pathname: `/completedcollegecontests`,
                                 }}
                             >
                                 {"View Past Contest"}
@@ -293,11 +293,11 @@ function Header({ e }) {
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹"+elem?.entryFee : "FREE"}</MDTypography></MDBox>
+                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹"+elem?.entryFee : "FREE"}</MDTypography></MDBox>
                                                         </MDBox>
 
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
+                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
                                                         </MDBox>
                                                     </Grid>
 

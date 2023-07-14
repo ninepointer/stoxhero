@@ -57,7 +57,6 @@ exports.mockTrade = async (req, res) => {
     
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
-        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
         return res.status(422).json({error : "please fill all the feilds..."})
     }
 
@@ -212,7 +211,7 @@ exports.mockTrade = async (req, res) => {
             
             io.emit("updatePnl", mockTradeDetails)
             if(fromAdmin){
-                console.log("in admin side")
+                // console.log("in admin side")
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
@@ -325,7 +324,7 @@ exports.mockTrade = async (req, res) => {
             io.emit("updatePnl", mockTradeDetails)
             // console.log("after")
             if(fromAdmin){
-                console.log("in admin side")
+                // console.log("in admin side")
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
@@ -452,7 +451,7 @@ exports.mockTrade = async (req, res) => {
     
             //console.log("mockTradeDetails", paperTrade);
             tenx.save().then(async ()=>{
-                console.log("sending response");
+                // console.log("sending response");
                 if(isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)){
                     //console.log("in the if condition")
                     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
@@ -526,7 +525,7 @@ exports.mockTrade = async (req, res) => {
     
             //console.log("mockTradeDetails", paperTrade);
             internship.save().then(async ()=>{
-                console.log("sending response");
+                // console.log("sending response");
                 if(isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)){
                     //console.log("in the if condition")
                     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)

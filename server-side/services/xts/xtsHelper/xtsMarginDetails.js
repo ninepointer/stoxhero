@@ -27,8 +27,7 @@ router.get("/xtsMargin", async (req, res) => {
 
   try {
     const response = await axios.get(url, authOptions)
-    let position = response.data?.result?.BalanceList[0]?.limitObject?.RMSSubLimits?.marginUtilized;
-    // console.log(response.data?.result?.BalanceList[0]?.limitObject?.RMSSubLimits?.marginUtilized, position)
+    let position = response?.data?.result?.BalanceList[0]?.limitObject?.RMSSubLimits?.marginUtilized;
 
     res.status(200).json({ message: "position data", data: Number(position) })
   } catch (err) {

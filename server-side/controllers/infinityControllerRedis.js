@@ -23,7 +23,7 @@ exports.overallCompanySidePnlRedis = async (req, res, next) => {
     if (isRedisConnected && await client.exists(`overallMockPnlCompany`)) {
       let pnl = await client.get(`overallMockPnlCompany`)
       pnl = JSON.parse(pnl);
-      console.log("pnl overall redis", pnl)
+      // console.log("pnl overall redis", pnl)
 
       res.status(201).json(pnl);
 
@@ -115,7 +115,7 @@ exports.treaderWiseMockTraderRedis = async (req, res, next) => {
     if (isRedisConnected && await client.exists(`traderWiseMockPnlCompany`)) {
       let pnl = await client.get(`traderWiseMockPnlCompany`)
       pnl = JSON.parse(pnl);
-      console.log("pnl redis trader wise", pnl)
+      // console.log("pnl redis trader wise", pnl)
 
       res.status(201).json(pnl);
 
@@ -211,7 +211,7 @@ exports.overallCompanySideLivePnlRedis = async (req, res, next) => {
     if (isRedisConnected && await client.exists(`overallLivePnlCompany`)) {
       let pnl = await client.get(`overallLivePnlCompany`)
       pnl = JSON.parse(pnl);
-      console.log("pnl overall redis", pnl)
+      // console.log("pnl overall redis", pnl)
 
       res.status(201).json({message: 'Live Trader Data Company.', data: pnl});
 
@@ -316,7 +316,7 @@ exports.treaderWiseLiveTraderRedis = async (req, res, next) => {
     if (isRedisConnected && await client.exists(`traderWiseLivePnlCompany`)) {
       let pnl = await client.get(`traderWiseLivePnlCompany`)
       pnl = JSON.parse(pnl);
-      console.log("pnl redis trader wise", pnl)
+      // console.log("pnl redis trader wise", pnl)
 
       res.status(201).json({message: 'Live Trader Data Company.', data: pnl});
 
@@ -433,7 +433,7 @@ exports.getLetestLiveTradeCompany = async(req, res, next)=>{
     if (isRedisConnected && await client.exists(`lastTradeLive`)) {
       let trade = await client.get(`lastTradeLive`)
       trade = JSON.parse(trade);
-      console.log("trade redis trader wise", trade)
+      // console.log("trade redis trader wise", trade)
 
       res.status(201).json({message: 'Letest Live Trade.', data: trade});
 
@@ -508,7 +508,7 @@ exports.getLetestMockTradeCompany = async (req, res, next) => {
     if (isRedisConnected && await client.exists(`lastTradeDataMock`)) {
       let trade = await client.get(`lastTradeDataMock`)
       trade = JSON.parse(trade);
-      console.log("trade redis trader wise", trade)
+      // console.log("trade redis trader wise", trade)
 
       res.status(201).json({message: 'Letest Live Trade.', data: trade});
 

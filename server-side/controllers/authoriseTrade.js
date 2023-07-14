@@ -187,6 +187,13 @@ exports.fundCheck = async (req, res, next) => {
                     realBuyOrSell, realQuantity, apiKey, accessToken, userId, checkingMultipleAlgoFlag,
                     real_instrument_token, realSymbol, trader, order_id } = req.body;
 
+                    let myDate = new Date();
+                    order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+                    myDate.setHours(myDate.getHours() + 5);       // Add 5 hours
+                    myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
+
+
                 try {
                     if (req.user.isAlgoTrader) {
 
@@ -195,7 +202,7 @@ exports.fundCheck = async (req, res, next) => {
                             Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
                             placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, exchangeInstrumentToken,
                             brokerage: null, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: null,
-                            trade_time: new Date(),
+                            trade_time: myDate,
                         });
                         await mockTradeCompany.save();
                     }
@@ -203,7 +210,7 @@ exports.fundCheck = async (req, res, next) => {
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: req.body.order_id, instrumentToken, brokerage: null, exchangeInstrumentToken,
-                        createdBy: req.user._id, trader: req.user._id, amount: null, trade_time: new Date(),
+                        createdBy: req.user._id, trader: req.user._id, amount: null, trade_time: myDate,
 
                     });
                     console.log("margincall saving")
@@ -374,13 +381,20 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
                     instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
 
+                    let myDate = new Date();
+                    order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+                    myDate.setHours(myDate.getHours() + 5);       // Add 5 hours
+                    myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
+
+
                 try {
 
                     const paperTrade = new PaperTrade({
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", exchangeInstrumentToken,
                         order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id,
-                        trader: trader, amount: null, trade_time: new Date()
+                        trader: trader, amount: null, trade_time: myDate
 
                     });
                     console.log("margincall saving")
@@ -516,13 +530,19 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
                     instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
 
+                    let myDate = new Date();
+                    order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+                    myDate.setHours(myDate.getHours() + 5);       // Add 5 hours
+                    myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
+
                 try {
 
                     const tenXTrade = new TenXTrader({
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id, exchangeInstrumentToken,
-                        trader: trader, amount: null, trade_time: new Date(), subscriptionId
+                        trader: trader, amount: null, trade_time: myDate, subscriptionId
 
                     });
                     console.log("margincall saving")
@@ -727,6 +747,11 @@ exports.contestFundCheck = async (req, res, next) => {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType,
                     validity, variety, instrumentToken, realSymbol, trader } = req.body;
 
+                    let myDate = new Date();
+                    order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+                    myDate.setHours(myDate.getHours() + 5);       // Add 5 hours
+                    myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
 
                 try {
 
@@ -734,7 +759,7 @@ exports.contestFundCheck = async (req, res, next) => {
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: req.body.order_id, instrumentToken, brokerage: null, contestId: req.params.id, exchangeInstrumentToken,
-                        createdBy: req.user._id, trader: trader, amount: null, trade_time: new Date(), portfolioId: req.body.portfolioId
+                        createdBy: req.user._id, trader: trader, amount: null, trade_time: myDate, portfolioId: req.body.portfolioId
 
                     });
 
@@ -874,13 +899,19 @@ exports.fundCheckInternship = async (req, res, next) => {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
                     instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
 
+                    let myDate = new Date();
+                    order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+                    myDate.setHours(myDate.getHours() + 5);       // Add 5 hours
+                    myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
+
                 try {
 
                     const internshipTrade = new InternshipTrade({
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id, exchangeInstrumentToken,
-                        trader: trader, amount: null, trade_time: new Date(), batch: subscriptionId
+                        trader: trader, amount: null, trade_time: myDate, batch: subscriptionId
 
                     });
                     console.log("margincall saving")
@@ -1025,6 +1056,12 @@ exports.fundCheckDailyContest = async (req, res, next) => {
                     TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, 
                     realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, order_id, contestId, exchangeInstrumentToken } = req.body;
 
+                    let myDate = new Date();
+                    order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+                    myDate.setHours(myDate.getHours() + 5);       // Add 5 hours
+                    myDate.setMinutes(myDate.getMinutes() + 30); // Add 30 minutes
+                    
                 try {
 
                     const mockTradeCompany = new DailyContestMockCompany({
@@ -1032,7 +1069,7 @@ exports.fundCheckDailyContest = async (req, res, next) => {
                         Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
                         placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, contestId,
                         brokerage: null, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: null,
-                        trade_time: new Date(), exchangeInstrumentToken
+                        trade_time: myDate, exchangeInstrumentToken
                     });
                     await mockTradeCompany.save();
 
@@ -1040,7 +1077,7 @@ exports.fundCheckDailyContest = async (req, res, next) => {
                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
                         order_id: req.body.order_id, instrumentToken, brokerage: null, contestId, exchangeInstrumentToken,
-                        createdBy: req.user._id, trader: req.user._id, amount: null, trade_time: new Date(),
+                        createdBy: req.user._id, trader: req.user._id, amount: null, trade_time: myDate,
 
                     });
                     console.log("margincall saving")
@@ -1060,222 +1097,3 @@ exports.fundCheckDailyContest = async (req, res, next) => {
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-// exports.marginUsed = async (req, res, next) => {
-//     let isRedisConnected = getValue();
-
-//     const { exchange, symbol, buyOrSell, variety,
-//         Product, OrderType, Quantity } = req.body;
-
-//     getKiteCred.getAccess().then(async (data) => {
-
-//         const userId = req.user._id;
-//         let date = new Date();
-//         let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//         todayDate = todayDate + "T00:00:00.000Z";
-//         const today = new Date(todayDate);
-
-//         let auth = 'token ' + data.getApiKey + ':' + data.getAccessToken;
-//         let headers = {
-//             'X-Kite-Version': '3',
-//             'Authorization': auth,
-//             "content-type": "application/json"
-//         }
-//         let orderData = [{
-//             "exchange": exchange,
-//             "tradingsymbol": symbol,
-//             "transaction_type": buyOrSell,
-//             "variety": variety,
-//             "product": Product,
-//             "order_type": OrderType,
-//             "quantity": Quantity,
-//             "price": 0,
-//             "trigger_price": 0
-//         }]
-//         let userFunds;
-//         try {
-//             const user = await UserDetail.findOne({ _id: new ObjectId(req.user._id) });
-//             userFunds = user.fund;
-
-//         } catch (e) {
-//             console.log("errro fetching user", e);
-//         }
-
-//         let runningLots = [];
-//         let todayPnlData = [];
-//         try {
-
-
-//             if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
-//                 todayPnlData = await client.get(`${req.user._id.toString()} overallpnl`)
-//                 todayPnlData = JSON.parse(todayPnlData);
-
-//                 for (let i = 0; i < todayPnlData?.length; i++) {
-//                     if (todayPnlData[i]?._id?.symbol === symbol) {
-//                         // runningLots = todayPnlData[i]?.lots;
-//                         runningLots.push({
-//                             _id: {
-//                                 symbol: symbol
-//                             },
-//                             runningLots: todayPnlData[i]?.lots
-//                         })
-//                     }
-//                     // console.log("runningLots", runningLots)
-//                 }
-//             }
-//         } catch (e) {
-//             console.log("errro fetching pnl 1", e);
-//         }
-
-//         /*
-//         user sell 100 quantity of nifty
-
-//         1. user buy or sell on other instrument.
-        
-
-//         1. user buy 100 quantity --> square off
-//         2. user buy 50 quantity  --> release amount in percentage
-//         3. user buy 200 quantity --> margin required only on 100 buy
-
-//         4. user sell any quantity.
-
-//         1. 10 --> 5, 45, 
-//         2. 20 --> 10 35, 70
-//         3. 50 --> 25 10, 20
-
-//         */
-
-
-
-
-
-
-
-//         let transactionTypeRunningLot = runningLots[0]?.runningLots > 0 ? "BUY" : "SELL";
-//         if (runningLots[0]?._id?.symbol !== symbol) {
-//             isSymbolMatch = false;
-//         }
-//         if (Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots)) {
-//             isLesserQuantity = true;
-//         }
-//         if (transactionTypeRunningLot !== buyOrSell) {
-//             isOpposite = true;
-//         }
-
-//         // console.log(runningLots, userFunds)
-
-
-//         let isSquareOff = false;
-//         let isReleaseFund = false;
-//         let isAddMoreFund = false;
-//         if ((runningLots[0]?._id?.symbol === symbol) && (transactionTypeRunningLot !== buyOrSell)) {
-//             if(Math.abs(Number(Quantity)) == Math.abs(runningLots[0]?.runningLots)){
-//                 isSquareOff = true;
-//             }
-//             if(Math.abs(Number(Quantity)) < Math.abs(runningLots[0]?.runningLots)){
-//                 isReleaseFund = true;
-//             }
-//             if(Math.abs(Number(Quantity)) > Math.abs(runningLots[0]?.runningLots)){
-//                 isAddMoreFund = true;
-//             }
-//         }
-
-
-
-//         if (((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-//             return next();
-//         }
-//         let marginData;
-//         let zerodhaMargin;
-
-//         try {
-//             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
-//             zerodhaMargin = marginData.data.data.orders[0].total;
-//         } catch (e) {
-//             // console.log("error fetching zerodha margin", e);
-//         }
-
-
-
-//         let pnlDetails = [];
-//         let totalAmount = 0;
-//         for (const element of todayPnlData) {
-//             if (element.lots < 0) {
-//                 element.amount = -element.amount;
-//             }
-//             totalAmount += (element.amount - element.brokerage);
-//         }
-//         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMargin`)) {
-//             let marginDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMargin`)
-//             marginDetail = JSON.parse(marginDetail);
-
-//             if (marginDetail?.openingBalance) {
-//                 // userNetPnl = ( pnl?.openingBalance - userFunds) + totalAmount
-//                 pnlDetails.push({ npnl: ((marginDetail?.openingBalance - userFunds) + totalAmount) })
-//             } else {
-//                 pnlDetails.push({ npnl: (totalAmount) })
-//                 // userNetPnl = totalAmount
-//             }
-//         }
-
-//         let userNetPnl = pnlDetails[0]?.npnl;
-
-//         console.log(userFunds, userNetPnl, zerodhaMargin)
-//         console.log((userFunds + userNetPnl - zerodhaMargin))
-
-//         if (Number(userFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-//             console.log("user wants square off")
-//             return next();
-//         } else {
-//             // console.log("in else", Boolean(!userFunds))
-//             if (!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0)) {
-//                 let { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, exchangeInstrumentToken,
-//                     TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, realTrade,
-//                     realBuyOrSell, realQuantity, apiKey, accessToken, userId, checkingMultipleAlgoFlag,
-//                     real_instrument_token, realSymbol, trader, order_id } = req.body;
-
-//                 try {
-//                     if (req.user.isAlgoTrader) {
-
-//                         const mockTradeCompany = new InfinityTradeCompany({
-//                             status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity: realQuantity,
-//                             Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
-//                             placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, exchangeInstrumentToken,
-//                             brokerage: null, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: null,
-//                             trade_time: new Date(),
-//                         });
-//                         await mockTradeCompany.save();
-//                     }
-//                     const algoTrader = new InfinityTrader({
-//                         status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
-//                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-//                         order_id: req.body.order_id, instrumentToken, brokerage: null, exchangeInstrumentToken,
-//                         createdBy: req.user._id, trader: req.user._id, amount: null, trade_time: new Date(),
-
-//                     });
-//                     console.log("margincall saving")
-//                     await algoTrader.save();
-//                 } catch (e) {
-//                     console.log("error saving margin call", e);
-//                 }
-
-//                 //console.log("sending response from authorise trade");
-//                 return res.status(401).json({ status: 'Failed', message: 'You dont have sufficient funds to take this trade. Please try with smaller lot size.' });
-//             }
-//             else {
-//                 console.log("if user have enough funds")
-//                 // console.log("caseStudy 7: fund check")
-//                 return next();
-//             }
-//         }
-//     });
-// }

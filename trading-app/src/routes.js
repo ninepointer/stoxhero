@@ -139,7 +139,7 @@ import TenxPosition from "./layouts/tenxPosition";
 import DailyContestPosition from "./layouts/dailyContestPosition";
 import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
 import KYC from './layouts/KYC/index';
-
+import MarginDetails from './layouts/margindetails'
 // import BadgeIcon from '@mui/icons-material/Badge';
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
@@ -256,14 +256,14 @@ const routes = [
     route: "/backreportxts",
     component: <BackReportXTS />,
   },
-  // {
-  //   // type: "collapse",
-  //   // name: "Company Dashboard",
-  //   key: "adminmockreport",
-  //   // icon: <DashboardIcon/>,
-  //   route: "/adminmockreport",
-  //   component: <AdminMockReport />,
-  // },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "margindetails",
+    // icon: <DashboardIcon/>,
+    route: "/margindetails",
+    component: <MarginDetails />,
+  },
 
   {
     // type: "collapse",

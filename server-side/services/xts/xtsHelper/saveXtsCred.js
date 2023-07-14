@@ -13,7 +13,7 @@ exports.save = async (accountId, token, xtsType) => {
     const requestTokens = new RequestToken({accountId, accessToken: token, status: "Active", lastModifiedBy: new ObjectId(user._id), createdBy: new ObjectId(user._id), accountType: xtsAccountType, xtsType: xtsType});
 
     requestTokens.save().then(async ()=>{
-        console.log("xts cred saved")
+        // console.log("xts cred saved")
         // res.status(201).json({massage : "xts-Token enter succesfully"});
     }).catch((err)=> {
         console.log("fail in save", err)

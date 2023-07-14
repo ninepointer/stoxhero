@@ -32,7 +32,6 @@
     // const redis = require('redis');
     // client = redis.createClient(
     //     {
-    //         // url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }
     // )

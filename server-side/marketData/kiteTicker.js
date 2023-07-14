@@ -103,7 +103,7 @@ const getTicks = async (socket) => {
         let instruments = await client.SMEMBERS((userId).toString())
         instrumentTokenArr = new Set(instruments)
       } else{
-        console.log("in else part")
+        // console.log("in else part")
         const user = await User.findById(new ObjectId(userId))
         .populate('watchlistInstruments')
   

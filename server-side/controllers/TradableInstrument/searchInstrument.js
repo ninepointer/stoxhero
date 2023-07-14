@@ -59,7 +59,7 @@ exports.search = async (searchString, res, req) => {
 
     let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     let data ;
-    console.log(roleObj.roleName , infinityTrader, searchString)
+    // console.log(roleObj.roleName , infinityTrader, searchString)
 
     if(roleObj.roleName === infinityTrader){
       data = await TradableInstrument.find({
