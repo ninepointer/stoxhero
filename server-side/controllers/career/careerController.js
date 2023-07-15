@@ -79,7 +79,7 @@ exports.generateOTP = async(req, res, next)=>{
       priorTradingExperience: priorTradingExperience,
       source: source.trim(),
       career: career,
-      campaignCode: campaignCode.trim(),
+      campaignCode: campaignCode?.trim(),
       mobile_otp: mobile_otp,
       status: 'OTP Verification Pending',
       applicationStatus: 'Applied'

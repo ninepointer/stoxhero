@@ -1017,6 +1017,7 @@ const routes = [
     component: <KYC/>,
   },
 
+
 ];
 
 export default routes;

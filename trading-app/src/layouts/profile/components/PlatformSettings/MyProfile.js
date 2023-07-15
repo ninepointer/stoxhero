@@ -1172,7 +1172,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="Passport Number"
                 value={formStateKYC?.passportNumber}
@@ -1186,7 +1186,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="Driving License Number"
                 value={formStateKYC?.drivingLicenseNumber}
@@ -1234,7 +1234,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <Grid item xs={12} md={6} xl={2.4}>
           <MuiFileInput 
                 value={null} 
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 placeholder={(formStateKYC?.passportPhoto ? formStateKYC?.passportPhoto?.name?.slice(0, 10)  : "Click to upload") +
                 (formStateKYC?.passportPhoto?.name?.length > 15 ? "..." : "")}
                 label="Passport Size Photo"
@@ -1247,7 +1247,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 placeholder={(formStateKYC?.addressProofDocument ? formStateKYC?.addressProofDocument?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.addressProofDocument?.name?.length > 15 ? "..." : "")}
                 value={null}
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 label="Address Proof"
                 onChange={(e)=>{handleFileSelect(e,"addressProofDocument")}}
               />

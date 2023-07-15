@@ -202,8 +202,10 @@ exports.approveKYC = async(req,res,next) => {
 
 exports.rejectKYC = async(req,res,next) => {
     const userId = req.params.id;
+    const {rejectionReason} = req.body;
     const user = await User.findById(userId);
     user.KYCStatus = 'Rejected';
+    user.KYCRejectionReason = rejectionReason;
     user.KYCActionDate = new Date()
     await user.save({validateBeforeSave:false});
     if(process.env.PROD == 'true'){
@@ -278,7 +280,7 @@ exports.rejectKYC = async(req,res,next) => {
           <div class="container">
           <h1>Withdrawal Approved</h1>
           <p>Hello ${user.first_name},</p>
-          <p>Your KYC approval request is rejected by stoxhero.</p>
+          <p>Your KYC approval request is rejected by stoxhero. The rejection reason is ${rejectionReason}</p>
           <p>Please double check your documents and inputs and make sure you've uploaded the correct doucments in the right formats.</p>
           <p>If you're sure there is an error on our part, contact the admin or POC.</p>
           <p>Or in case of discrepencies, raise a ticket or reply to this message.</p>

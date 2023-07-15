@@ -111,10 +111,12 @@ const KYCCard = ({user, action, setAction}) => {
     <MDBox style={{display:'flex', justifyContent:'space-between', marginBottom:'12px', padding:'12px', borderRadius:'16px', boxShadow:"0px 4px 6px -2px rgba(0, 0, 0, 0.5)"}}>
         <MDBox>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >Name:{`${user?.first_name} ${user?.last_name}`}</MDTypography>
+            <MDTypography style={{fontSize:'14px', marginBottom:'12px'}} >Phone: {user?.mobile}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Aadhaar:{user?.aadhaarNumber}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>PAN:{user?.panNumber}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>KYC Action Date:{new Date(user?.KYCActionDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(user?.KYCActionDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}</MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>KYC Status:{user?.KYCStatus}</MDTypography>
+            {user?.KYCStatus == 'Rejected' && <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>KYC Rejection Reason:{user?.KYCRejectionReason}</MDTypography>}
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Aadhar front:<a href={user?.aadhaarCardFrontImage?.url} target='_blank'>Aadhar Front</a></MDTypography>
             <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Pan:<a href={user?.panCardFrontImage?.url} target='_blank'>Pan Card</a></MDTypography>
             <MDTypography style={{fontSize:'16px', marginBottom:'12px', fontWeight:'700'}}>Payment Details</MDTypography>
@@ -133,7 +135,7 @@ const KYCCard = ({user, action, setAction}) => {
         </MDBox>
         {(user?.KYCStatus == 'Pending Approval')&&<MDBox>
             <MDButton onClick={approve} color='success' sx={{marginRight:'6px'}}>Approve</MDButton>
-            <MDButton onClick={reject} sx={{marginRight:'6px'}} color='error'>Reject</MDButton>
+            <MDButton onClick={()=>{setOpenReject(true)}} sx={{marginRight:'6px'}} color='error'>Reject</MDButton>
         </MDBox>}
        {/* {open && <ApproveModal open={open} handleClose={handleClose} user={user} amount={amount} action={action} setAction={setAction} withdrawalRequestDate={localRequestTime} withdrawalId={withdrawalId} />}  */}
        {openReject && <RejectModal open={openReject} handleClose={handleCloseReject} user={user} action={action} setAction={setAction} />} 

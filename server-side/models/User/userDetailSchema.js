@@ -265,6 +265,7 @@ const userDetailSchema = new mongoose.Schema({
     KYCActionDate:{
         type: Date,
     },
+    KYCRejectionReason: String,
     myReferralCode:{
         type: String,
     },
