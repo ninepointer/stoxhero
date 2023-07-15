@@ -135,7 +135,8 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
         <MDTypography>Withdraw from wallet to bank account</MDTypography>
         <MDBox mt={1} style={{height:'85vh', display:'flex', flexDirection:'column'}}>
           <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>Please ensure you have completed your KYC before proceeding with your withdrawal</MDTypography>  
-          <MDTypography style={{fontSize:'14px', marginBottom:'24px'}}>Your wallet balance: {walletBalance}</MDTypography>  
+          <MDTypography style={{fontSize:'14px', marginBottom:'12px'}}>You can only make one withdrawal in a day. The minimum amount is ₹{minWithdrawal} and the maximum amount is ₹{maxWithdrawal}.</MDTypography>  
+          <MDTypography style={{fontSize:'14px', marginBottom:'24px'}}>Your wallet balance: ₹{walletBalance}</MDTypography>   
           <TextField label='Amount' type= "number" value={amount} onChange={(e)=>{setAmount(e.target.value)}} outerWidth='40%'/>
           <MDBox sx={{display:'flex', justifyContent:'flex-end', marginTop:'12px' }}>
             <MDButton onClick={()=>{handleClose()}}>Cancel</MDButton>
