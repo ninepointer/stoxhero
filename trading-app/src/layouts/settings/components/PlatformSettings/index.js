@@ -41,18 +41,16 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [minWithdrawal, setMinWithdrawal] = useState(0);
   const [fund, setFund] = useState(0);
   const [usedMargin, setUsedMargin] = useState(0);
-
-  // const [successSB, setSuccessSB] = useState(false);
-  // const openSuccessSB = () => setSuccessSB(true);
-  // const closeSuccessSB = () => setSuccessSB(false);
+  const [accountData, setAccountData] = useState({
+    upiId: "",
+    email: ""
+  });
   const [LeaderBoardTimming, setLeaderBoardTimming] = useState(0);
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   
 
   useEffect(()=>{
-    // setIsLoadMockMargin(false)
-
     axios.get(`${baseUrl}api/v1/usedMargin/infinity`)
       .then((res) => {
         // console.log(res.data);
@@ -74,6 +72,9 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setInfinityPrice(settingData[0]?.infinityPrice)
       setMaxWithdrawal(settingData[0]?.maxWithdrawal)
       setMinWithdrawal(settingData[0]?.minWithdrawal)
+      accountData.upiId = settingData[0]?.contest?.upiId
+      accountData.email = settingData[0]?.contest?.email
+      setAccountData(accountData);
 
   },[reRender, settingData])
 
@@ -126,6 +127,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
 
   async function saveSetting(){
     setEditable(false);
+    const {upiId, email} = accountData;
+    console.log("upiId, email", upiId, email)
     const res = await fetch(`${baseUrl}api/v1/settings/${ settingData[0]?._id}`, {
       method: "PATCH",
       credentials:"include",
@@ -138,7 +141,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         leaderBoardTimming: LeaderBoardTimming,
         infinityPrice: infinityPrice,
         maxWithdrawal,
-        minWithdrawal
+        minWithdrawal,
+        upiId, email
       }),
   }); 
   const dataResp = await res.json();
@@ -146,7 +150,6 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   if (dataResp.status === 422 || dataResp.error || !dataResp) {
       // window.alert(dataResp.error);
       openSuccessSB('err', "")
-      // console.log("Failed to Edit");
   } else {
       setEditable(false)
       openSuccessSB("saveOthers", "");
@@ -334,21 +337,39 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           onChange={(e)=>{setFund(e.target.value)}}
         />
 
-        {/* <TextField
+        <TextField
+          disabled={true}
+          id="outlined-required"
+          label='Availble Fund:'
+          fullWidth
+          value={fund-usedMargin}
+          sx={{marginTop: "15px"}}
+          type="number"
+          onChange={(e)=>{setFund(e.target.value)}}
+        />
+
+        <TextField
           disabled={!editable}
           id="outlined-required"
-          label='LeaderBoard Timming(second)'
+          label="Upi Id"
           fullWidth
-          value={usedMargin}
-          type="number"
-          onChange={(e) => { setUsedMargin(fund - e.target.value) }}
-        /> */}
+          value={accountData.upiId}
+          sx={{marginTop: "15px"}}
+          type="text"
+          onChange={(e) => setAccountData({ ...accountData, upiId: e.target.value })}
+        />
 
-        <MDBox display="flex" alignItems="center" mb={0.5} mt={1}>
-          <MDTypography variant="button" fontWeight="regular" color="dark">
-            Availble Fund: {fund-usedMargin}
-          </MDTypography>
-        </MDBox>
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Email Id'
+          fullWidth
+          value={accountData.email}
+          sx={{marginTop: "15px"}}
+          type="text"
+          onChange={(e) => { setAccountData({ ...accountData, email: e.target.value }) }}
+        />
+
 
         <MDBox display="flex" alignItems="center" mb={0.5} ml={-1.5}>
           <MDBox mt={0.5}>

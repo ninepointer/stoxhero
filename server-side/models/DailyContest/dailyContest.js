@@ -69,6 +69,10 @@ const contestSchema = new Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         addedOn:{type:Date},
     }],
+    purchaseIntent:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        date:{type:Date},
+    }],
     participants:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         participatedOn:{type:Date},

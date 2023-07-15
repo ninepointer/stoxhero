@@ -43,6 +43,10 @@ const settingSchema = new mongoose.Schema({
     },
     minWithdrawal: Number,
     maxWithdrawal: Number,
+    contest: {
+        upiId: {type: String},
+        email: {type: String},
+    },
 
 })
 

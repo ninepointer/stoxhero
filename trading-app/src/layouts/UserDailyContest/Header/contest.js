@@ -1,14 +1,6 @@
 import { React, useState, useEffect, useContext } from "react";
 import axios from "axios";
-// import { Link, useNavigate } from "react-router-dom";
 import { userContext } from '../../../AuthContext';
-// import moment from 'moment'
-
-// prop-types is a library for typechecking of props.
-// import PropTypes from "prop-types";
-// import tradesicon from '../../../assets/images/tradesicon.png'
-
-// @mui material components
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
 
@@ -20,8 +12,6 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-// import {InfinityTraderRole, tenxTrader} from "../../../variables";
-// import ContestCup from '../../../assets/images/candlestick-chart.png'
 import ContestCarousel from '../../../assets/images/target.png'
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
@@ -31,9 +21,8 @@ import { Box, CircularProgress, Divider, Tooltip, Typography } from "@mui/materi
 import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
-import PastContest from "../data/pastContest";
 import { Link } from "react-router-dom";
-
+import Payment from "../data/payment"
 
 function Header({ e }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -43,6 +32,7 @@ function Header({ e }) {
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
+    const [showPay, setShowPay] = useState(true);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -85,7 +75,7 @@ function Header({ e }) {
             setIsLoading(false)
             return new Error(err);
         })
-    }, [isInterested])
+    }, [isInterested, showPay])
 
     useEffect(()=>{
         if(serverTime){
@@ -240,6 +230,10 @@ function Header({ e }) {
                                         return subelem?.id?.toString() === elem?._id?.toString();
                                     })
 
+                                    let isParticipated = elem?.participants.some(elem => {
+                                        return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
+                                    })
+
                                     // console.log("timeDifference", particularContestTime[0]?.value )
                                     return (
                                         <Grid item py={1} px={1} xs={12} md={12} lg={6} borderRadius={3}>
@@ -328,7 +322,13 @@ function Header({ e }) {
                                                             </MDBox>
 
                                                             <MDBox display='flex' justifyContent='flex-end' width='50%' alignItems='center'>
-                                                                <MDBox><PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value} /></MDBox>
+                                                                <MDBox>
+                                                                    {(isParticipated || !showPay || elem.entryFee === 0) ?
+                                                                    <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value} />
+                                                                    :
+                                                                    <Payment elem={elem} showPay={showPay} setShowPay={setShowPay}/>
+                                                                    }
+                                                                </MDBox>
                                                                 <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={()=>{handleCopy(elem?._id)}}><ShareIcon size='large' /></MDButton></MDBox></Tooltip>
                                                             </MDBox>
                                                         </MDBox>
