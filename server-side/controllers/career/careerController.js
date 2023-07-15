@@ -79,14 +79,14 @@ exports.generateOTP = async(req, res, next)=>{
       priorTradingExperience: priorTradingExperience,
       source: source.trim(),
       career: career,
-      campaignCode: campaignCode.trim(),
+      campaignCode: campaignCode?.trim(),
       mobile_otp: mobile_otp,
       status: 'OTP Verification Pending',
       applicationStatus: 'Applied'
       });
       // console.log(data)
-      if(true)sendOTP(mobile.toString(), mobile_otp);
-     // if(process.env.PROD!==true)sendOTP("9319671094", mobile_otp);
+      if(process.env.PROD == 'true')sendOTP(mobile.toString(), mobile_otp);
+     if(process.env.PROD!=='true')sendOTP("9319671094", mobile_otp);
       res.status(201).json({info: "OTP Sent on your mobile number!"}); 
   }catch(error){
     console.log(error)
