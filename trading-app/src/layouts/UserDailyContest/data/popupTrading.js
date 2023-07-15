@@ -60,10 +60,6 @@ const PopupTrading = ({elem, timeDifference}) => {
     console.log("main data", open)
     const navigate = useNavigate();
 
-    // const handleClickOpen = async () => {
-    //     setOpen(true);
-    // };
-
     const handleClose = async (e) => {
 
         setOpen(false);
@@ -72,7 +68,6 @@ const PopupTrading = ({elem, timeDifference}) => {
 
     async function participateUserToContest(elem) {
         let isParticipated = elem?.participants.some(elem => {
-            // console.log("isParticipated", elem?.userId?._id?.toString(), getDetails?.userDetails?._id?.toString())
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })
         // console.log("isParticipated", isParticipated)

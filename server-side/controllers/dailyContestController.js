@@ -6,6 +6,7 @@ const Wallet = require("../models/UserWallet/userWalletSchema");
 const { ObjectId } = require('mongodb');
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
 const uuid = require("uuid")
+const UserWallet = require("../models/UserWallet/userWalletSchema")
 
 
 // Controller for creating a contest
@@ -493,6 +494,36 @@ exports.registerUserToContest = async (req, res) => {
     }
 };
 
+//save purchase intent
+exports.purchaseIntent = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the contest 
+        const userId = req.user._id;
+
+        const result = await Contest.findByIdAndUpdate(
+            id,
+            { $push: { purchaseIntent: { userId: userId, date: new Date() } } },
+            { new: true }  // This option ensures the updated document is returned
+        );
+
+        if (!result) {
+            return res.status(404).json({status:"error", message: "Something went wrong." });
+        }
+
+        res.status(200).json({
+            status:"success",
+            message: "Intent Saved successfully",
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
 exports.copyAndShare = async (req, res) => {
     try {
         const { id } = req.params; // ID of the contest and the user to register
@@ -840,3 +871,54 @@ exports.getDailyContestUsers = async (req, res) => {
         });
     }
 };
+
+exports.deductSubscriptionAmount = async(req,res,next) => {
+
+    try {
+        const {contestFee, contestName, contestId} = req.body
+        const userId = req.user._id;
+
+        const contest = await Contest.findOne({_id: contestId});
+
+        if (contest?.maxParticipants <= contest?.participants?.length) {
+            if (!contest.potentialParticipants.includes(userId)) {
+                contest.potentialParticipants.push(userId);
+                contest.save();
+            }
+            return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
+        }
+
+        const result = await Contest.findByIdAndUpdate(
+            contestId,
+            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
+            { new: true }  // This option ensures the updated document is returned
+        );
+
+        const wallet = await UserWallet.findOne({userId: userId});
+        wallet.transactions = [...wallet.transactions, {
+              title: 'Contest Fee',
+              description: `Amount deducted for the contest fee of ${contestName} contest`,
+              amount: (-contestFee),
+              transactionId: uuid.v4(),
+              transactionType: 'Cash'
+        }];
+        wallet.save();
+
+        if (!result || !wallet) {
+            return res.status(404).json({status:"error", message: "Something went wrong." });
+        }
+
+        res.status(200).json({
+            status:"success",
+            message: "Paid successfully",
+            data: result
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+}
