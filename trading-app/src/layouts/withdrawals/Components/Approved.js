@@ -23,7 +23,7 @@ const Approved = () => {
             amount={withdrawal.amount} user={withdrawal?.user} withdrawalRequestDate={withdrawal.withdrawalRequestDate}
             walletTransactionId={withdrawal.walletTransactionId}  withdrawalStatus={withdrawal.withdrawalStatus} 
             transactionId = {withdrawal.settlementTransactionId} withdrawalId={withdrawal?._id} action={action} setAction={setAction}
-            transactionDocument={withdrawal.transactionDocument}
+            transactionDocument={withdrawal.transactionDocument} withdrawalSettlementDate={withdrawal?.withdrawalSettlementDate}
         />):<MDBox sx={{display:'flex', justifyContent:'center', alignItems:'center', height:'60vh'}}>
         <MDTypography>
             No Approved Withdrawals

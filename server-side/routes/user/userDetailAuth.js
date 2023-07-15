@@ -12,6 +12,7 @@ const Authenticate = require("../../authentication/authentication");
 const Wallet = require('../../models/UserWallet/userWalletSchema');
 const { ObjectId } = require("mongodb");
 const Role = require("../../models/User/everyoneRoleSchema");
+const sendMail = require('../../utils/emailService');
 
 
 const storage = multer.memoryStorage();
@@ -492,6 +493,92 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
         );
         if(filteredBody.KYCStatus == 'Approved') filteredBody.KYCStatus = 'Rejected';
+        if(filteredBody.KYCStatus == 'Pending Approval' && process.env.PROD == 'true'){
+          await sendMail(user?.email, 'KYC Verification Request Received', `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>KYC Request Received</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
+        
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
+        
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+        
+                p {
+                    margin: 0 0 20px;
+                }
+        
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+        
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+        
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+        
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>KYC Verification Request Received</h1>
+                <p>Hello ${user.first_name},</p>
+                <p>Your request for KYC verification is received by stoxhero team.</p>
+                <p>We will be verifying your documents and information in the next 3-4 business days. The final KYC Status will be intimated to you via mail and it will also be reflected in your profile section.</p>
+                <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                <br/><br/>
+                <p>Thanks,</p>
+                <p>StoxHero Team</p>
+        
+                </div>
+            </body>
+            </html>
+        
+        ` )
+        }
         filteredBody.lastModifiedBy = req.user._id;
         // if((req).profilePhotoUrl) filteredBody.profilePhoto = (req).profilePhotoUrl;
         // if((req).aadhaarCardFrontImageUrl) filteredBody.aadhaarCardFrontImage = (req).aadhaarCardFrontImageUrl;

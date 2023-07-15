@@ -111,7 +111,7 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
             const res = await axios.post(`${apiUrl}withdrawals`, {amount}, {withCredentials: true});
             console.log(res.data, res.status, res.statusCode);
             if(res.data.status == 'success'){
-                openSuccessSB('Withdrawal Request Successful', 'Request has been submitted. Please wait for 1-2 business days to get the amount in your account')
+                openSuccessSB('Withdrawal Request Successful', 'Request has been submitted. Please wait for 3-4 business days to get the amount in your account')
                 handleClose();
             } else{
               openErrorSB('Error', res.data.message)
