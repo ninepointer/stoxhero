@@ -43,7 +43,8 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   const [usedMargin, setUsedMargin] = useState(0);
   const [accountData, setAccountData] = useState({
     upiId: "",
-    email: ""
+    email: "",
+    mobile: ""
   });
   const [LeaderBoardTimming, setLeaderBoardTimming] = useState(0);
 
@@ -74,6 +75,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       setMinWithdrawal(settingData[0]?.minWithdrawal)
       accountData.upiId = settingData[0]?.contest?.upiId
       accountData.email = settingData[0]?.contest?.email
+      accountData.mobile = settingData[0]?.contest?.mobile
       setAccountData(accountData);
 
   },[reRender, settingData])
@@ -127,7 +129,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
 
   async function saveSetting(){
     setEditable(false);
-    const {upiId, email} = accountData;
+    const {upiId, email, mobile} = accountData;
     console.log("upiId, email", upiId, email)
     const res = await fetch(`${baseUrl}api/v1/settings/${ settingData[0]?._id}`, {
       method: "PATCH",
@@ -142,7 +144,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         infinityPrice: infinityPrice,
         maxWithdrawal,
         minWithdrawal,
-        upiId, email
+        upiId, email, mobile
       }),
   }); 
   const dataResp = await res.json();
@@ -368,6 +370,17 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           sx={{marginTop: "15px"}}
           type="text"
           onChange={(e) => { setAccountData({ ...accountData, email: e.target.value }) }}
+        />
+        
+        <TextField
+          disabled={!editable}
+          id="outlined-required"
+          label='Mobile'
+          fullWidth
+          value={accountData.mobile}
+          sx={{marginTop: "15px"}}
+          type="text"
+          onChange={(e) => { setAccountData({ ...accountData, mobile: e.target.value }) }}
         />
 
 

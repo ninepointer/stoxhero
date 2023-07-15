@@ -46,6 +46,7 @@ const settingSchema = new mongoose.Schema({
     contest: {
         upiId: {type: String},
         email: {type: String},
+        mobile: {type: String},
     },
 
 })
