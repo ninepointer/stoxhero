@@ -54,7 +54,7 @@ const option = {
             barWidth: '60%',
             color: '#344767',
             data: dateWiseData.map((e)=>e.noOfTrade)
-        }
+        },
     ]
 };
 chartInstance.setOption(option);

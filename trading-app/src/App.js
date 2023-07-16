@@ -295,7 +295,7 @@ export default function App() {
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={getDetails?.userDetails.role?.roleName === adminRole ? "/infinitydashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/virtualtrading'} 
+            to={getDetails?.userDetails.role?.roleName === adminRole ? "/infinitydashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard'} 
             />} />
             :
             <Route path="/" element={<Home />} />

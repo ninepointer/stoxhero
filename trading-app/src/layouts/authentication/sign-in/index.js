@@ -160,7 +160,7 @@ function Basic() {
               navigate("/analytics");
             } 
             else if(userData.role?.roleName === userRole){
-              navigate("/virtualtrading");
+              navigate("/stoxherodashboard");
             }
             else if(userData.role?.roleName === InfinityTraderRole){
               navigate("/infinitytrading");

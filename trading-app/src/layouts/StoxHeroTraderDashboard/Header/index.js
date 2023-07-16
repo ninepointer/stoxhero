@@ -22,6 +22,10 @@ export default function Dashboard() {
   const userId = getDetails.userDetails._id;
   const [posts, setPosts] = useState([]);
   const [postCount, setPostCount] = useState(true);
+  const [stats, setStats] = useState();
+  const [timeframe, setTimeframe] = useState('this month');
+  const [tradeType, setTradeType] = useState('virtual');
+  const [summary, setSummary] = useState();
 
   useEffect(() => {
     setIsLoading(true);
@@ -62,7 +66,28 @@ export default function Dashboard() {
         setIsLoading(false);
       });
   }, []);
-
+  const getTraderStats = async() =>{
+    try{
+      const res = await axios.get(`${baseUrl}api/v1/userdashboard/stats?tradeType=${tradeType}&timeframe=${timeframe}`, {withCredentials:true});
+      setStats(res.data.data);
+    }catch(e){
+      console.log(e);
+    }
+  }
+  const getTraderSummary = async() => {
+    try{
+    const res = await axios.get(`${baseUrl}api/v1/userdashboard/summary`, {withCredentials:true});
+    setSummary(res.data.data);
+  }catch(e){
+    console.log(e);
+  }
+  }
+  useEffect(()=>{
+    getTraderSummary()
+  },[])
+  useEffect(()=>{
+    getTraderStats();
+  },[timeframe, tradeType])  
   const CarouselImages = [];
 
   carouselData.forEach((e) => {
@@ -92,13 +117,13 @@ export default function Dashboard() {
           
           <Grid item xs={12} md={6} lg={12}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
-              <Summary/>
+              <Summary summary={summary}/>
             </MDBox>
           </Grid>
 
           <Grid item xs={12} md={6} lg={12} mt={1}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
-              {tradingData && <Performance tradingData={tradingData}/>}
+              {stats && <Performance tradingData={stats} timeframe={timeframe} setTimeframe={setTimeframe} tradeType={tradeType} setTradeType={setTradeType}/>}
             </MDBox>
           </Grid>
 

@@ -12,7 +12,7 @@ const Portfolio = require('../models/userPortfolio/UserPortfolio');
 exports.getDashboardStats = async (req, res, next) => {
     try{
 
-        const {timeframe, tradeType} = req.body;
+        const {timeframe, tradeType} = req.query;
         let startDate, endDate, Model;
         const userId = req.user._id;
         const user = await UserDetails.findById(userId);
@@ -225,20 +225,20 @@ exports.getDashboardStats = async (req, res, next) => {
         const maxLossOpeningBalance = maxLossIndex != 0?portfolio?.portfolioValue??0+result[maxLossIndex-1]?.npnl:portfolio.portfolioValue??0+result[maxLossIndex];
         console.log(maxProfitOpeningBalance, maxLossOpeningBalance, maxProfitIndex);
         const data = {
-          firstName: user.first_name,
-          lastName: user.last_name,
-          dob: user.dob,
-          joiningDate: user.joining_date,
+        //   firstName: user.first_name,
+        //   lastName: user.last_name,
+        //   dob: user.dob,
+        //   joiningDate: user.joining_date,
           totalGPNL: result.reduce((total, trade) => total + trade.total_gpnl, 0),
           totalBrokerage: result.reduce((total, trade) => total + trade.total_brokerage, 0),
           totalNPNL: result.reduce((total, trade) => total + trade.npnl, 0),
           totalTrades: result.reduce((total, trade) => total + trade.number_of_trades, 0),
           maxProfit: maxProfitDay ? maxProfitDay.npnl : null,
           maxProfitDay: maxProfitDay ? maxProfitDay._id : null,
-          maxProfitIndex: maxProfitIndex,
+        //   maxProfitIndex: maxProfitIndex,
           maxLoss: maxLossDay ? maxLossDay.npnl : null,
           maxLossDay: maxLossDay ? maxLossDay._id : null,
-          maxLossIndex: maxLossIndex,
+        //   maxLossIndex: maxLossIndex,
           profitDays: profitDays,
           lossDays: lossDays,
           totalTradingDays: result.length,
@@ -247,8 +247,9 @@ exports.getDashboardStats = async (req, res, next) => {
           maxLossStreak: maxLossStreak,
           averageProfit: averageProfit,
           averageLoss: averageLoss,
-          medianProfit: medianProfit,
-          medianLoss: medianLoss,
+          portfolio: portfolio?.portfolioValue??0,
+        //   medianProfit: medianProfit,
+        //   medianLoss: medianLoss,
           maxProfitDayProfitPercent: maxProfitDay?.npnl/maxProfitOpeningBalance *100,
           maxLossDayLossPercent: Math.abs(maxLossDay?.npnl/maxLossOpeningBalance) *100
         };
@@ -286,4 +287,106 @@ async function countTradingDays(startDate, endDate) {
     }
 
     return count;
+}
+
+exports.getUserSummary = async(req,res,next) => {
+    try{
+        const userId = req.user._id;
+        let endDate = new Date().getHours()>=10?
+        moment().subtract(1, 'days'):moment();
+        const virtualData = await VirtualTrade.aggregate([
+            {
+                $match: {
+                  trade_time: {
+                    $lte: endDate.toDate(),
+                  },
+                  trader: new ObjectId(userId),
+                  status:'COMPLETE'
+                },
+              },
+              { $addFields: { 
+                'gpnl': { $multiply: ['$amount', -1] }, 
+                'brokerage_double': { $toDouble: '$brokerage' } 
+            }},
+            { $group: { 
+                _id: null,
+                'total_gpnl': { $sum: '$gpnl' },
+                'total_brokerage': { $sum: '$brokerage_double' },
+                'number_of_trades': { $sum: 1 },
+                'portfolio': { $first: '$portfolioId' },
+            }},
+            { $addFields: { 
+                'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
+            }},
+        ]);
+
+        const tenxData = await TenXTrade.aggregate([
+            {
+                $match: {
+                  trade_time: {
+                    $lte: endDate.toDate(),
+                  },
+                  trader: new ObjectId(userId),
+                  status:'COMPLETE'
+                },
+              },
+              { $addFields: { 
+                'gpnl': { $multiply: ['$amount', -1] }, 
+                'brokerage_double': { $toDouble: '$brokerage' } 
+            }},
+            { $group: { 
+                _id: null,
+                'total_gpnl': { $sum: '$gpnl' },
+                'total_brokerage': { $sum: '$brokerage_double' },
+                'number_of_trades': { $sum: 1 },
+                'portfolio': { $first: '$portfolioId' },
+            }},
+            { $addFields: { 
+                'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
+            }},
+        ]);
+        const contestData = await ContestTrade.aggregate([
+            {
+                $match: {
+                  trade_time: {
+                    $lte: endDate.toDate(),
+                  },
+                  trader: new ObjectId(userId),
+                  status:'COMPLETE'
+                },
+              },
+              { $addFields: { 
+                'gpnl': { $multiply: ['$amount', -1] }, 
+                'brokerage_double': { $toDouble: '$brokerage' } 
+            }},
+            { $group: { 
+                _id: null,
+                'total_gpnl': { $sum: '$gpnl' },
+                'total_brokerage': { $sum: '$brokerage_double' },
+                'number_of_trades': { $sum: 1 },
+                'portfolio': { $first: '$portfolioId' },
+            }},
+            { $addFields: { 
+                'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
+            }},
+        ]);
+        const user = await UserDetails.findById(userId).populate({
+            path: 'subscription.subscriptionId',  // populate 'subscriptionId'
+            model: 'tenx-subscription', 
+            select:'portfolio', // specify model for 'subscriptionId'
+            populate: {  // nested populate for 'portfolio' in 'subscriptionId'
+                path: 'portfolio',
+                model: 'user-portfolio',
+                select: 'portfolioValue'  // specify the field you want to include
+            }
+        }).select('subscriptions');
+        let totalTenXPortfolioValue = user.subscription.reduce((total, subscription) => {
+            return total + subscription.subscriptionId.portfolio.portfolioValue;
+          }, 0);
+        console.log('user data', virtualData, tenxData, contestData, user);
+        res.status(200).json({status:'success', data:{totalTenXPortfolioValue, tenxData: tenxData[0]??{}, virtualData:virtualData[0]??{}, contestData:contestData[0]??{}}});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong'});
+    }
 }

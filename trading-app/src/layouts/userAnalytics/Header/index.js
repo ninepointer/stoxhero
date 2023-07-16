@@ -274,7 +274,7 @@ export default function LabTabs() {
           </MDBox>
           </Grid>
           
-          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          {/* <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <NetPNLChart traderType={alignment} dateWiseData ={dateWiseData}/>
           </MDBox>
@@ -284,7 +284,7 @@ export default function LabTabs() {
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <BrokerageChart traderType={alignment} dateWiseData={dateWiseData}/>
           </MDBox>
-          </Grid>
+          </Grid> */}
           
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
