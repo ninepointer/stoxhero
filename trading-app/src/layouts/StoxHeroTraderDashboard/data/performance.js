@@ -10,7 +10,7 @@ import Select from '@mui/material/Select';
 
 
 function Performance({tradingData}) {
-
+  console.log("Trading Data:",tradingData)
   const [monthYear, setMonthYear] = React.useState('Jun 23');
   const [trading, setTrading] = React.useState('Virtual Trading');
   const [open, setOpen] = React.useState(false);
@@ -45,12 +45,30 @@ function Performance({tradingData}) {
         <Grid container spacing={1} display='flex' justifyContent='space-between' alignItems='center'>
             <Grid item xs={12} md={6} lg={12} ml={1} mr={1} mb={1}>
                 <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
-                <Grid container spacing={0} alignItems='center'>
-                    <Grid item xs={12} md={6} lg={8}>
-                    <MDTypography m={1} fontSize={13} fontWeight="bold">Performance - Virtual Trading (Till Yesterday)</MDTypography>
+                <Grid container spacing={1} alignItems='center'>
+                    <Grid item xs={12} md={6} lg={6}>
+                    <MDTypography m={1} fontSize={13} fontWeight="bold">Performance</MDTypography>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='flex-end'>
-                    <FormControl sx={{ m: 1, minWidth: 200 }}>
+                    <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='flex-end'>
+                    <FormControl sx={{ m: 1, minWidth: 175 }}>
+                        <Select
+                        labelId="demo-controlled-open-select-label"
+                        id="demo-controlled-open-select"
+                        open={open}
+                        onClose={handleClose}
+                        onOpen={handleOpen}
+                        value={trading}
+                        // defaultValue="Jun 23"
+                        onChange={handleChange}
+                        >
+                        <MenuItem value="Virtual Trading">Virtual Trading</MenuItem>
+                        <MenuItem value="TenX Trading">TenX Trading</MenuItem>
+                        <MenuItem value="Contest Trading">Contest Trading</MenuItem>
+                        </Select>
+                    </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='flex-end'>
+                    <FormControl sx={{ m: 1, minWidth: 150 }}>
                         <Select
                         labelId="demo-controlled-open-select-label"
                         id="demo-controlled-open-select"
@@ -64,90 +82,88 @@ function Performance({tradingData}) {
                         <MenuItem value="Apr 23">Apr 23</MenuItem>
                         <MenuItem value="May 23">May 23</MenuItem>
                         <MenuItem value="Jun 23">Jun 23</MenuItem>
+                        <MenuItem value="Lifetime">Lifetime</MenuItem>
                         </Select>
                     </FormControl>
                     </Grid>
                 </Grid>
                 </MDBox>
-                <MDBox bgColor="lightgrey" borderRadius={5} mt={2} minHeight='auto'>
-                    <Grid container spacing={2} p={1}>
+                <MDBox bgColor="lightgrey" borderRadius={5} minHeight='auto'>
+                    <Grid container spacing={1} p={1}>
+                        
                         <Grid item xs={12} md={4} lg={6}>
-                            <MDBox bgColor='light' p={1} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='50%' fontSize={13} fontWeight="bold">Realised P&L</MDTypography>
-                                <MDTypography minWidth='50%' fontSize={13} color='success' fontWeight="bold">Coming Soon</MDTypography>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Market Days</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>{tradingData?.totalMarketDays}</MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
-                            <MDBox bgColor='light' p={1} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='66.66%' fontSize={13} fontWeight="bold">Trading Days</MDTypography>
-                                <MDTypography minWidth='33.33%' fontSize={13} color='success' fontWeight="bold">Coming Soon</MDTypography>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Trading Days</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>{tradingData?.totalTradingDays}</MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
-                            <MDBox bgColor='light' p={1} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} fontWeight="bold">Max Profit</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">{tradingData?.maxProfit}</MDTypography>
-                                </MDBox>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Max Loss</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">Coming Soon</MDTypography>
-                                </MDBox>
-                            </MDBox>
-                            <MDBox bgColor='light' p={1} mt={1} borderRadius={5} display='flex'>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} fontWeight="bold">Profit %</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">Coming Soon</MDTypography>
-                                </MDBox>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Loss %</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">Coming Soon</MDTypography>
-                                </MDBox>
-                            </MDBox>
-                            <MDBox bgColor='light' p={1} mt={1} borderRadius={5} display='flex'>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} fontWeight="bold">Avg. Profit</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">Coming Soon</MDTypography>
-                                </MDBox>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Avg. Loss</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">Coming Soon</MDTypography>
-                                </MDBox>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Profit Days</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>{tradingData?.profitDays}</MDTypography>
                             </MDBox>
                         </Grid>
-
                         <Grid item xs={12} md={4} lg={6}>
-                            <MDBox bgColor='light' p={1} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDBox display='flex' flexDirection='column' minWidth='33.33%'>
-                                    <MDTypography fontSize={13} fontWeight="bold">Profit Days</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">{tradingData?.profitDays}</MDTypography>
-                                </MDBox>
-                                <MDBox display='flex' flexDirection='column' minWidth='33.33%'>
-                                    <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Loss Days</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">{tradingData?.lossDays}</MDTypography>
-                                </MDBox>
-                                <MDBox display='flex' flexDirection='column' minWidth='33.33%'>
-                                    <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Trading Days</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">{tradingData?.totalTradingDays}</MDTypography>
-                                </MDBox>
-                            </MDBox>
-                            <MDBox bgColor='light' p={1} mt={1} borderRadius={5} display='flex'>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} fontWeight="bold">Max Win Streak</MDTypography>
-                                    <MDTypography fontSize={13} color='success' fontWeight="bold">{tradingData?.maxWinStreak === undefined ? 0 : tradingData?.maxWinStreak}</MDTypography>
-                                </MDBox>
-                                <MDBox display='flex' flexDirection='column' minWidth='50%'>
-                                    <MDTypography fontSize={13} style={{textAlign:'left'}} fontWeight="bold">Max Loss Streak</MDTypography>
-                                    <MDTypography fontSize={13} color='error' style={{textAlign:'left'}} fontWeight="bold">{tradingData?.maxLossStreak === undefined ? 0 : tradingData?.maxLossStreak}</MDTypography>
-                                </MDBox>
-                            </MDBox>
-                            <MDBox bgColor='light' p={1} mt={1} borderRadius={5} display='flex'>
-                                <MDBox display='flex' flexDirection='column' minWidth='100%'>
-                                    <MDTypography fontSize={13} fontWeight="bold">Risk Reward</MDTypography>
-                                    <MDTypography fontSize={13} color='info' fontWeight="bold">Coming Soon</MDTypography>
-                                </MDBox>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Loss Days</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>{tradingData?.lossDays}</MDTypography>
                             </MDBox>
                         </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Profit & Loss</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon(+10%)</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Portfolio</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Max Profit</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon(10%)</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Max Loss</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon(12%)</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Avg. Profit</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Avg. Loss</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Max. Win Streak</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        <Grid item xs={12} md={4} lg={6}>
+                            <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Max. Loss Streak</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>Coming Soon</MDTypography>
+                            </MDBox>
+                        </Grid>
+                        
                     </Grid>
                 </MDBox>
             </Grid>
