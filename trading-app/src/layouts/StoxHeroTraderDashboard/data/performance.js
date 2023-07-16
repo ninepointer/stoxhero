@@ -134,7 +134,10 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Market Days</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color={tradingData?.totalMarketDays>=0?'success':'error'} fontWeight="bold" textAlign='right'>{tradingData?.totalMarketDays}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color={tradingData?.totalMarketDays>=0?'success':'error'} 
+                                fontWeight="bold" textAlign='right'>
+                                    {tradingData?.totalMarketDays}
+                                </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
@@ -158,37 +161,62 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Profit & Loss</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color={tradingData?.totalNPNL>=0?'success':'error'} fontWeight="bold" textAlign='right'>{tradingData?.totalNPNL.toFixed(2)}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color={tradingData?.totalNPNL>=0?'success':'error'} 
+                                fontWeight="bold" textAlign='right'>
+                                    { (tradingData?.totalNPNL?.toFixed(2)) >= 0 ? 
+                                    "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format((tradingData?.totalNPNL?.toFixed(2)))) : 
+                                    "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format(-(tradingData?.totalNPNL?.toFixed(2))))}
+                                </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Portfolio</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>{tradingData?.portfolio}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>
+                                { (tradingData?.portfolio) >= 0 ? 
+                                    "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format((tradingData?.portfolio))) : 
+                                    "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format(-(tradingData?.portfolio)))}
+                                </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Max Profit</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>{tradingData?.maxProfit?.toFixed(2)??'NA'}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>
+                                 {tradingData?.maxProfit?`+₹${(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format((tradingData?.maxProfit?.toFixed(2))))}`:'NA'}
+                                </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Max Loss</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color='error' fontWeight="bold" textAlign='right'>{tradingData?.maxLoss?.toFixed(2)??'NA'}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='error' fontWeight="bold" textAlign='right'>
+                                {tradingData?.maxLoss?`-₹${(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format((-tradingData?.maxLoss?.toFixed(2))))}`:'NA'}
+                                </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Avg. Profit</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>{tradingData?.averageProfit?.toFixed(2)??0}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='success' fontWeight="bold" textAlign='right'>
+                                {tradingData?.averageProfit ? `+₹${(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format((tradingData?.averageProfit?.toFixed(2))))}`:0}
+                                </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Avg. Loss</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color='error' fontWeight="bold" textAlign='right'>{tradingData?.averageLoss.toFixed(2)??0}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color='error' fontWeight="bold" textAlign='right'>
+                                {tradingData?.averageLoss ? `-₹${(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
+                                    format((-tradingData?.averageLoss?.toFixed(2))))}`:0}
+                                    </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
