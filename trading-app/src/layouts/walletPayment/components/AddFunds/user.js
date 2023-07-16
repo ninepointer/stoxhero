@@ -44,7 +44,7 @@ function Users({ setPaymentBy }) {
             <MDBox display="flex" flexDirection="column" justifyContent="space-between" sx={{ width: "100%" }}>
 
                 <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Autocomplete
+                    {/* <Autocomplete
                         value={Object.keys(value ? value : {}).length !== 0 ? value : ""}
                         onChange={(event, newValue) => {
                             if (typeof newValue === 'string') {
@@ -89,7 +89,63 @@ function Users({ setPaymentBy }) {
                         renderInput={(params) => (
                             <TextField {...params} label="Select User for payment" />
                         )}
-                    />
+                    /> */}
+
+<Autocomplete
+  value={Object.keys(value ? value : {}).length !== 0 ? value : ""}
+  onChange={(event, newValue) => {
+    
+    if (typeof newValue === 'string') {
+      setValue({
+        title: newValue,
+      });
+      setPaymentBy({
+        title: newValue,
+      });
+    } else if (newValue && newValue.inputValue) {
+      // Create a new value from the user input
+      setValue({
+        title: newValue.inputValue,
+      });
+      setPaymentBy({
+        title: newValue.inputValue,
+      });
+    } else {
+      setPaymentBy(newValue);
+      setValue(newValue);
+    }
+  }}
+  selectOnFocus
+  clearOnBlur
+  handleHomeEndKeys
+  id="traders"
+  options={trader}
+  getOptionLabel={(option) => {
+    
+    if (typeof option === 'string') {
+      return option;
+    }
+    if (option.inputValue) {
+      return option.inputValue;
+    }
+    // Regular option
+    return `${option.first_name} ${option.last_name} (${option.mobile})`;
+  }}
+  renderOption={(props, option) => (
+    // console.log("option", option)  
+    <li {...props}>
+      {`${option.first_name} ${option.last_name} (${option.mobile})`}
+    </li>
+  )}
+  sx={{ width: "100%" }}
+  freeSolo
+  renderInput={(params) => (
+    <TextField {...params} label="Search by name or mobile" />
+  )}
+/>
+
+
+
                 </MDBox>
 
                 {
