@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const Payment = new mongoose.Schema({
-    orderId: {
+    transactionId: {
         type: String,
         required: true,
     },
@@ -10,30 +10,26 @@ const Payment = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    referenceNo: {
+    currency: {
         type: String,
         required: true,
-    },
-    transactionId: {
-        type: String,
-        required: true,
+        enum: ['INR', 'Other']
     },
     amount: {
         type: Number,
         required: true,
     },
-    userId: {
+    paymentBy: {
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
     },
-    subscriptionId: {
-        type: Schema.Types.ObjectId,
-        ref: 'tenx-subscription'
+    paymentFor: {
+        type: String,
     },
     paymentMode: {
         type: String,
         required: true,
-        enum: ['GooglePay', 'PhonePay', 'Upi', 'PayTM', 'AmazonPay', 'Other']
+        enum: ['UPI', 'Account Transfer', 'Other']
     },
     paymentStatus:{
         type: String,
@@ -41,9 +37,21 @@ const Payment = new mongoose.Schema({
     },
     createdOn: {
         type: Date,
-        default: Date.now()
+        default: function() {
+          return Date.now();
+        }
     },
     createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'user-personal-detail'
+    },
+    modifiedOn: {
+        type: Date,
+        default: function() {
+            return Date.now();
+        }
+    },
+    modifiedBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
     }

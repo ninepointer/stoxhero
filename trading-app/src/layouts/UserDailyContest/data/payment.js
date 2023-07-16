@@ -39,7 +39,8 @@ export default function Payment({ elem, showPay, setShowPay }) {
   const [setting, setSetting] = useState([]);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
-    thanksMessege: ""
+    thanksMessege: "",
+    error: ""
   })
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -131,7 +132,11 @@ export default function Payment({ elem, showPay, setShowPay }) {
     const dataResp = await res.json();
     console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
-      openSuccessSB("error", dataResp.message)
+      // openSuccessSB("error", dataResp.message)
+      setMessege({
+        ...messege,
+        error: dataResp.message
+      })
     } else {
       setMessege({
         ...messege,
@@ -189,7 +194,7 @@ export default function Payment({ elem, showPay, setShowPay }) {
       onClose={closeSuccessSB}
       close={closeSuccessSB}
       bgWhite="info"
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto" }}
+      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "50px" }}
     />
   );
 
@@ -227,8 +232,9 @@ export default function Payment({ elem, showPay, setShowPay }) {
           {messege.thanksMessege ?
 
           <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
-
-            
+          :
+          messege.error ?
+          <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
             :
             <>
               <DialogContentText id="alert-dialog-description">

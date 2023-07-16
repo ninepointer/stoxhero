@@ -897,6 +897,14 @@ router.get("/infinityTraders", Authenticate, async (req, res)=>{
 
 });
 
+router.get("/normalusers", Authenticate, async (req, res)=>{
+
+  const newuser = await UserDetail.find({designation: 'Trader'})
+                        .select('first_name last_name employeeid _id email mobile')
+  return res.status(200).json({data : newuser, count: newuser.length});
+
+});
+
 module.exports = router;
 
 

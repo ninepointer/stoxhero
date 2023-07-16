@@ -368,7 +368,6 @@ exports.myTodaysTrade = async (req, res, next) => {
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-    // //console.log(myTodaysTrade)
     res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
   } catch (e) {
     console.log(e);
