@@ -1790,7 +1790,7 @@ const dailyContestLeaderBoard = async (id) => {
                     value: JSON.stringify({ name: rank.name })
                 });
             } catch (err) {
-                console.log(err);
+                // console.log(err);
             }
 
         }

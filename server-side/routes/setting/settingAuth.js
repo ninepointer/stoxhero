@@ -75,7 +75,8 @@ router.patch("/settings/:id", Authentication, async (req, res)=>{
                 maxWithdrawal:req.body.maxWithdrawal,
                 minWithdrawal:req.body.minWithdrawal,
                 "contest.upiId": req.body.upiId,
-                "contest.email": req.body.email
+                "contest.email": req.body.email,
+                "contest.mobile": req.body.mobile
             }
         })
         console.log("this is role", setting);

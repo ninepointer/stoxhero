@@ -23,8 +23,6 @@ export default function UserTodayTradeData() {
 
   const [data, setData] = useState([]);
   const getDetails = useContext(userContext);
-  console.log("getDetails", getDetails)
-//   let url = getDetails.userDetails.isAlgoTrader ? "gettodaysmocktradesparticularuser" : "gettodaysmocktradesparticulartrader"
   let url = "internbatch/todaysorders"
   
   useEffect(()=>{

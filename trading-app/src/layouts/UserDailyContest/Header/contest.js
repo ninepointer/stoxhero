@@ -323,11 +323,12 @@ function Header({ e }) {
 
                                                             <MDBox display='flex' justifyContent='flex-end' width='50%' alignItems='center'>
                                                                 <MDBox>
-                                                                    {(isParticipated || !showPay || elem.entryFee === 0) ?
+                                                                    {(isParticipated || elem.entryFee === 0) ?
                                                                     <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value} />
                                                                     :
                                                                     <Payment elem={elem} showPay={showPay} setShowPay={setShowPay}/>
                                                                     }
+                                                                    {/* || !showPay */}
                                                                 </MDBox>
                                                                 <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={()=>{handleCopy(elem?._id)}}><ShareIcon size='large' /></MDButton></MDBox></Tooltip>
                                                             </MDBox>

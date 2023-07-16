@@ -260,7 +260,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
                     <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >
                       {
                       (walletCash < amount) ?
-                      `Your wallet balance is low, kindly add money to your wallet by making an UPI payment to ${setting?.contest?.upiId} and sending the screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp).`
+                      `Your wallet balance is low, kindly add money to your wallet by making an UPI payment to ${setting?.contest?.upiId} and sending the screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp) or call @ ${setting?.contest?.mobile}`
                       :
                       `To add money in your wallet please make the UPI payment to ${setting?.contest?.upiId} and share the payment screenshot at ${setting?.contest?.email}`
                       }
