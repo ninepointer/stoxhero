@@ -223,7 +223,7 @@ exports.getTraderStats = async (req, res) => {
     ];
 
     const result = await InfinityTrade.aggregate(pipeline);
-    console.log(result);
+    // console.log(result);
 
     let maxProfitStreak = 0;
     let maxLossStreak = 0;
