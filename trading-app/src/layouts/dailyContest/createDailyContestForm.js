@@ -151,24 +151,6 @@ function Index() {
     console.log("portfolioId", portfolioId, formState)
   };
 
-  // const handleCollegeChange = (event) => {
-  //   const {
-  //     target: { value },
-  //   } = event;
-  //   console.log("College in onChange:",college, value)
-  //   let collegeId = college?.filter((elem) => {
-  //     return elem.collegeName === value;
-  //   })
-  //   setFormState(prevState => ({
-  //     ...prevState,
-  //     college: collegeId[0]?._id
-
-  //   }))
-  //   setCollegeSelectedOption(collegeId[0]);
-  //   console.log("College Selection set to:",collegeId[0])
-  //   console.log("collegeId", collegeId, formState)
-  // };
-
   const handleCollegeChange = (event, newValue) => {
     console.log("College Selection:",newValue)
     setCollegeSelectedOption(newValue);
@@ -185,7 +167,8 @@ function Index() {
     console.log("inside submit")
     e.preventDefault()
     console.log(formState)
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio) {
+    // || (formState.isNifty !== "false" || formState.isBankNifty !== "false" || formState.isFinNifty !== "false" || formState.isAllIndex !== "false")
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -227,8 +210,9 @@ function Index() {
     console.log("Edited FormState: ", formState, contest?._id)
     setSaving(true)
     console.log(formState)
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestFor || !formState.contestType || !formState.portfolio) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+    
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || !formState.entryFee || !formState.contestFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
     const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
@@ -247,8 +231,9 @@ function Index() {
 
     const data = await res.json();
     console.log(data);
-    if (data.status === 422 || data.error || !data) {
+    if (data.status === 500 || data.error || !data) {
       openErrorSB("Error", data.error)
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else {
       openSuccessSB("Contest Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
@@ -311,6 +296,8 @@ function Index() {
       }));
     }
   };
+
+  console.log("check stoxhero", formState?.isNifty , contest?.contestFor , dailyContest?.contestFor )
 
   return (
     <>
@@ -420,88 +407,66 @@ function Index() {
                   </FormControl>
                 </Grid>
 
-                {/* <Grid item xs={12} md={3} xl={6}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 526 }}>
-                    <InputLabel id="demo-multiple-name-label">College</InputLabel>
-                    <Select
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      name='college'
-                      disabled={((isSubmitted || contest) && (!editing || saving))}
-                      value={formState?.college?.collegeName || dailyContest?.college?.collegeName}
-                      onChange={handleCollegeChange}
-                      input={<OutlinedInput label="College" />}
-                      sx={{ minHeight: 45 }}
-                      MenuProps={MenuProps}
-                    >
-                      {college?.map((college) => (
-                        <MenuItem
-                          key={college?.collegeName}
-                          value={college?.collegeName}
-                        >
-                          {college.collegeName}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid> */}
-
-                <Grid item xs={12} md={3} xl={6}>
-                  <CustomAutocomplete
-                    id="country-select-demo"
-                    sx={{ 
-                      width: 526,
-                      height: 10,
-                      '& .MuiAutocomplete-clearIndicator': {
-                        color: 'black',
-                      },
-                     }}
-                    options={college}
-                    disabled={((isSubmitted || contest) && (!editing || saving))}
-                    value={collegeSelectedOption}
-                    onChange={handleCollegeChange}
-                    autoHighlight
-                    getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
-                    renderOption={(props, option) => (
-                      <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                        {option.collegeName + ' - ' + option.zone}
-                      </MDBox>
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="College"
-                        inputProps={{
-                          ...params.inputProps,
-                          autoComplete: 'new-password', // disable autocomplete and autofill
-                          style: { color: 'grey', height: 11 }, // set text color to white
+                {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
+                  <>
+                    <Grid item xs={12} md={3} xl={6}>
+                      <CustomAutocomplete
+                        id="country-select-demo"
+                        sx={{
+                          width: 526,
+                          height: 10,
+                          '& .MuiAutocomplete-clearIndicator': {
+                            color: 'black',
+                          },
                         }}
-                        InputLabelProps={{
-                          style: { color: 'grey' },
-                        }}
-                        // SelectProps={{
-                        //   MenuProps: {
-                        //     PaperProps: {
-                        //       style: { height: '10px' }, // Replace '200px' with your desired width
-                        //     },
-                        //   },
-                        // }}
+                        options={college}
+                        disabled={((isSubmitted || contest) && (!editing || saving))}
+                        value={collegeSelectedOption}
+                        onChange={handleCollegeChange}
+                        autoHighlight
+                        getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
+                        renderOption={(props, option) => (
+                          <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                            {option.collegeName + ' - ' + option.zone}
+                          </MDBox>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="College"
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                              style: { color: 'grey', height: 11 }, // set text color to white
+                            }}
+                            InputLabelProps={{
+                              style: { color: 'grey' },
+                            }}
+                          // SelectProps={{
+                          //   MenuProps: {
+                          //     PaperProps: {
+                          //       style: { height: '10px' }, // Replace '200px' with your desired width
+                          //     },
+                          //   },
+                          // }}
+                          />
+                        )}
                       />
-                    )}
-                  />
-              </Grid>
+                    </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
-                  <TextField
-                    disabled={((isSubmitted || contest) && (!editing || saving))}
-                    id="outlined-required"
-                    label='College Code *'
-                    name='collegeCode'
-                    fullWidth
-                    defaultValue={editing ? formState?.collegeCode : contest?.collegeCode}
-                    onChange={handleChange}
-                  />
-                </Grid>
+                    <Grid item xs={12} md={6} xl={3}>
+                      <TextField
+                        disabled={((isSubmitted || contest) && (!editing || saving))}
+                        id="outlined-required"
+                        label='College Code *'
+                        name='collegeCode'
+                        fullWidth
+                        defaultValue={editing ? formState?.collegeCode : contest?.collegeCode}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                  </>
+                }
 
                 {!contest && 
                 <Grid item xs={12} md={3} xl={3}>
@@ -590,7 +555,7 @@ function Index() {
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        entryFee: parseInt(e.target.value, 10)
+                        entryFee: e.target.value
                       }))
                     }}
                   />
@@ -616,7 +581,7 @@ function Index() {
                       id="demo-multiple-name"
                       name='portfolio'
                       disabled={((isSubmitted || contest) && (!editing || saving))}
-                      value={formState?.portfolio?.name || dailyContest?.portfolio?.portfolioName}
+                      value={formState?.portfolio?.name || dailyContest?.portfolio?.portfolioName || contest?.portfolio?.portfolioName}
                       onChange={handlePortfolioChange}
                       input={<OutlinedInput label="Portfolio" />}
                       sx={{ minHeight: 45 }}
@@ -691,7 +656,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isNifty'
-                      value={formState?.isNifty || contest?.isNifty}
+                      value={(contest?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? contest?.isNifty : formState?.isNifty}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -702,8 +667,8 @@ function Index() {
                       label="Is Nifty"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -715,7 +680,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isBankNifty'
-                      value={formState?.isBankNifty || contest?.isBankNifty}
+                      value={(contest?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? contest?.isBankNifty : formState?.isBankNifty}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -726,8 +691,8 @@ function Index() {
                       label="Is BankNifty"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -739,7 +704,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isFinNifty'
-                      value={formState?.isFinNifty || contest?.isFinNifty}
+                      value={(contest?.isFinNifty !== undefined && !editing && formState?.isFinNifty === undefined) ? contest?.isFinNifty : formState?.isFinNifty}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -750,8 +715,8 @@ function Index() {
                       label="Is FinNifty"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -763,7 +728,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isAllIndex'
-                      value={formState?.isAllIndex || contest?.isAllIndex}
+                      value={(contest?.isAllIndex !== undefined && !editing && formState?.isAllIndex === undefined) ? contest?.isAllIndex : formState?.isAllIndex}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -774,8 +739,8 @@ function Index() {
                       label="Is All Index"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -837,24 +802,6 @@ function Index() {
                   </>
                 )}
               </Grid>
-
-              {/* {(isSubmitted || contest) && !editing &&
-                <Grid item xs={12} md={6} xl={12}>
-
-                  <Grid container spacing={2}>
-
-                    <Grid item xs={12} md={6} xl={12} mb={1}>
-                      <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                        Add Allowed Users
-                      </MDTypography>
-                    </Grid>
-
-                    <User contestId={contest?._id ? contest?._id : dailyContest?._id} setUpdatedDocument={setUpdatedDocument} />
-
-
-                  </Grid>
-
-                </Grid>} */}
 
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>

@@ -582,6 +582,7 @@ exports.participateUsers = async (req, res) => {
                 }
             },
             contestStatus: "Active",
+            entryFee: 0,
             $or: [
                 { contestStartTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },
                 { contestEndTime: { $gte: new Date(contest.contestStartTime), $lte: new Date(contest.contestEndTime) } },

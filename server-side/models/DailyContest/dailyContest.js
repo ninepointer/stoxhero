@@ -37,8 +37,8 @@ const contestSchema = new Schema({
         // required: true,
     },
     entryFee:{
-        amount:Number,
-        currency:{type:String,enum:['INR']}
+        type:Number,
+        default: 0
     },
     payoutPercentage:{
         type: Number,

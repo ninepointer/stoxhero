@@ -102,7 +102,7 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 // import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 // import AccountBoxIcon from '@mui/icons-material/AccountBox';
-// import WalletIcon from '@mui/icons-material/Wallet';
+import WalletIcon from '@mui/icons-material/Wallet';
 // import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 // import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
@@ -157,6 +157,7 @@ import AdminLiveReport from './layouts/adminSideReportLive'
 import WorkShopOrders from './layouts/userorders/workshopOrder';
 import Chart from './layouts/charts/index';
 import Withdrawal from "./layouts/withdrawals";
+import WalletPayment from "./layouts/walletPayment";
 
 const routes = [
   {
@@ -616,6 +617,14 @@ const routes = [
     // icon: <WalletIcon/>,
     route: "/tradersMarginAllocation",
     component: <TradersMarginAllocation />,
+  },
+  {
+    type: "collapse",
+    name: "Wallet Payment",
+    key: "walletpayment",
+    icon: <WalletIcon/>,
+    route: "/walletpayment",
+    component: <WalletPayment />,
   },
   // {
   //   type: "collapse",
