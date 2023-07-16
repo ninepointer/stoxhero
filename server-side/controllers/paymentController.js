@@ -37,7 +37,7 @@ exports.getPayment = async(req, res, next)=>{
     const limit = parseInt(req.query.limit) || 10
 
     const count = await Payment.countDocuments();
-    const payment = await Payment.find().select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency')
+    const payment = await Payment.find().select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn')
     .populate('paymentBy', 'first_name last_name email mobile')
     .sort({ _id: -1 })
     .skip(skip)

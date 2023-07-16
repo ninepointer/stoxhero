@@ -105,19 +105,55 @@ function BillingInformation({render}) {
     })
   }
 
+  function changeDateFormat(givenDate) {
+
+    const date = new Date(givenDate);
+
+    // Convert the date to IST
+    date.setHours(date.getHours());
+    date.setMinutes(date.getMinutes());
+
+    // Format the date as "dd Month yyyy | hh:mm AM/PM"
+    const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
+
+    console.log(formattedDate);
+
+    // Helper function to get the month name
+    function getMonthName(month) {
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      return monthNames[month];
+    }
+
+    // Helper function to format time as "hh:mm AM/PM"
+    function formatTime(hours, minutes) {
+      const meridiem = hours >= 12 ? "PM" : "AM";
+      const formattedHours = hours % 12 || 12;
+      const formattedMinutes = minutes.toString().padStart(2, "0");
+      return `${formattedHours}:${formattedMinutes} ${meridiem}`;
+    }
+
+    return formattedDate;
+
+  }
   let rows = [];
 
   data.map((elem)=>{
     let obj = {};
     let amountstring = elem.amount > 0 ? "+₹" + (elem.amount).toLocaleString() : "-₹" + (-(elem.amount)).toLocaleString()
     let color = elem.amount > 0 ? "success" : "error"
+    let paymentOn = changeDateFormat(elem?.paymentTime);
+    let createdOn = changeDateFormat(elem?.createdOn);
     obj = (
       <Bill
             name={`${elem.paymentBy?.first_name} ${elem.paymentBy?.last_name}`}
             email={elem.paymentBy?.email}
             vat={elem.transactionId}
-            creditedOn={moment.utc(elem?.paymentOn).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
+            creditedOn={paymentOn}
             amount={amountstring}
+            createdOn={createdOn}
             color={color}
             totalCredit=''
             mobile={elem.paymentBy?.mobile}

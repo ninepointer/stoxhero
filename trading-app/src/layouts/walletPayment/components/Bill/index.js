@@ -13,7 +13,7 @@ import MDButton from "../../../../components/MDButton";
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "../../../../context";
 
-function Bill({ name, mobile, email, vat,creditedOn,amount,color,totalCredit, noGutter }) {
+function Bill({ createdOn, name, mobile, email, vat,creditedOn,amount,color,totalCredit, noGutter }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -56,9 +56,17 @@ function Bill({ name, mobile, email, vat,creditedOn,amount,color,totalCredit, no
         </MDBox>
         <MDBox mb={1} lineHeight={0}>
           <MDTypography variant="caption" color="text">
-            Credited on:&nbsp;&nbsp;&nbsp;
+            Payment on:&nbsp;&nbsp;&nbsp;
             <MDTypography variant="caption" fontWeight="medium">
               {creditedOn}
+            </MDTypography>
+          </MDTypography>
+        </MDBox>
+        <MDBox mb={1} lineHeight={0}>
+          <MDTypography variant="caption" color="text">
+            Created on:&nbsp;&nbsp;&nbsp;
+            <MDTypography variant="caption" fontWeight="medium">
+              {createdOn}
             </MDTypography>
           </MDTypography>
         </MDBox>

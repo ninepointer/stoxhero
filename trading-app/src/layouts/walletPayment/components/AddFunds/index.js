@@ -49,7 +49,9 @@ function AddFunds({setRender, render}) {
   // const [controller] = useMaterialUIController();
   // const { darkMode } = controller;
   // const [traders, setTraders] = useState([]);
-  const [formState, setFormState] = useState({})
+  const [formState, setFormState] = useState({
+    paymentTime: dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0)
+  })
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [paymentBy, setPaymentBy] = useState("");
 
@@ -171,8 +173,7 @@ function AddFunds({setRender, render}) {
                   <DemoItem>
                     <MobileDateTimePicker
                       label="Payment Time"
-                      // disabled={((isSubmitted || contest) && (!editing || saving))}
-                      value={formState?.paymentTime || dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0)}
+                      value={formState?.paymentTime}
                       onChange={(newValue) => {
                         if (newValue && newValue.isValid()) {
                           setFormState(prevState => ({ ...prevState, paymentTime: newValue }))
