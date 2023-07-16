@@ -110,7 +110,7 @@ export default function Dashboard() {
         </Grid>
       )}
       
-        <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' flexDirection='row'>
+        <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='start' flexDirection='row'>
         
         <Grid item xs={12} md={12} lg={8} display='flex' justifyContent="center" alignItems="center">
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="center">
