@@ -44,7 +44,6 @@ router.post('/phonelogin', async (req,res, next)=>{
         if(!user){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'})
         }
-        // console.log(user);
         if (user?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(user?.lastOtpTime)) {
             return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
           }
@@ -53,16 +52,15 @@ router.post('/phonelogin', async (req,res, next)=>{
     
         user.mobile_otp = mobile_otp;
         user.lastOtpTime = new Date();
-        // console.log(user);
         await user.save({validateBeforeSave: false});
     
         // sendSMS([mobile.toString()], `Your otp to login to StoxHero is: ${mobile_otp}`);
-        if(true) sendOTP(mobile.toString(), mobile_otp);
+        if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
         console.log(process.env.PROD, mobile_otp, 'sending');
-        // if(process.env.PROD!==true){
-        //     console.log('sending kamal ji')
-        //     sendOTP("9319671094", mobile_otp)
-        // }
+        if(process.env.PROD!=='true'){
+            console.log('sending kamal ji')
+            sendOTP("9319671094", mobile_otp)
+        }
     
         res.status(200).json({status: 'Success', message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`});
     }catch(e){
@@ -80,8 +78,7 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
         if(!user){
             return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
         }
-        if(process.env.PROD!=true && mobile == '7737384957' && mobile_otp== '987654'){
-            console.log('inside check');
+        if(process.env.PROD!='true' && mobile == '7737384957' && mobile_otp== '987654'){
           const token = await user.generateAuthToken();
 
         res.cookie("jwtoken", token, {
@@ -96,7 +93,6 @@ router.post('/verifyphonelogin', async(req,res,next)=>{
         // console.log(user);
 
         if(user.mobile_otp != mobile_otp){
-            console.log(user.mobile_otp, mobile_otp);
             return res.status(400).json({status: 'error', message: 'OTP didn\'t match. Please check again.'});
         }
 
@@ -136,8 +132,8 @@ router.post("/resendmobileotp", async(req, res)=>{
         await user.save({validateBeforeSave: false});
     
         // sendSMS([mobile.toString()], `Your OTP is ${mobile_otp}`);
-        if(process.env.PROD==true)sendOTP(mobile.toString(), mobile_otp);
-        if(process.env.PROD !== true)sendOTP("9319671094", mobile_otp);
+        if(process.env.PROD == 'true')sendOTP(mobile.toString(), mobile_otp);
+        if(process.env.PROD !== 'true')sendOTP("9319671094", mobile_otp);
         res.status(200).json({status: 'success', message : "Otp sent. Check again."});
     }catch(e){
         console.log(e);
@@ -191,9 +187,6 @@ router.get("/logout", authentication, (req, res)=>{
     res
     .status(200)
     .json({ success: true, message: "User logged out successfully" });
-    // //console.log("hello my about", req.user);
-    // res.json({message: "data"});
-    // res.json(req.user);
 })
 
 

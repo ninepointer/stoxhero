@@ -38,6 +38,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
   const getDetails = React.useContext(userContext);
   const [updatedUser, setUpdatedUser] = React.useState({});
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [setting, setSetting] = useState([]);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
     thanksMessege: ""
@@ -73,6 +74,21 @@ export default function Dialogue({amount, name, id, walletCash}) {
       }
 
     }).catch((err)=>{
+      console.log("Fail to fetch data of user", err);
+    })
+
+    axios.get(`${baseUrl}api/v1/readsetting`, {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    .then((res) => {
+      setSetting(res?.data[0]);
+
+    }).catch((err) => {
       console.log("Fail to fetch data of user", err);
     })
   }, [])
@@ -239,9 +255,16 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
                   <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
                     <Title variant={{xs:"h2",md:"h3"}} style={{color:"#000",fontWeight:"bold",marginTop:"10px"}} >Choose how to pay</Title>
-                    <Typography textAlign="center" sx={{mt:"12px", width:"75%",mb:"12px"}} color="#000" variant="body2">Your payment is encrypted and you can change your payment method at anytime.</Typography>
-                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography>
-                    {/* <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Cancel easily online.</Typography> */}
+                    {/* <Typography textAlign="center" sx={{mt:"12px", width:"75%",mb:"12px"}} color="#000" variant="body2">Your payment is encrypted and you can change your payment method at anytime.</Typography>
+                    <Typography amount, name, id, walletCash variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography> */}
+                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >
+                      {
+                      (walletCash < amount) ?
+                      `Your wallet balance is low, kindly add money to your wallet by making an UPI payment to ${setting?.contest?.upiId} and sending the screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp).`
+                      :
+                      `To add money in your wallet please make the UPI payment to ${setting?.contest?.upiId} and share the payment screenshot at ${setting?.contest?.email}`
+                      }
+                    </Typography>
                   </MDBox>
                 </DialogContentText>
 
@@ -251,7 +274,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
                     <MDBox display="flex" justifyContent="center">
                     <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft:"8px" }} >Stoxhero Wallet</Typography>
                     <AccountBalanceWalletIcon sx={{marginTop:"5px",color:"#000",marginRight:"4px"}} />
-                    <Typography variant="body2" sx={{fontSize:"16.4px",fontWeight:"550"}} color="#000" > {` ₹${walletCash}`}</Typography>
+                    <Typography variant="body2" sx={{fontSize:"16.4px",fontWeight:"550"}} color="#000" > {` ₹${walletCash.toFixed(2)}`}</Typography>
                     </MDBox>
 
                     <MDBox>
@@ -261,7 +284,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
                   </MDBox>
 
 
-                      {(walletCash < amount) &&
+                      {/* {(walletCash < amount) &&
                       <MDBox border="1px solid red" borderRadius="10px" mt={5} p={1}>
 
                       <MDBox>
@@ -272,7 +295,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
                             alignItems='center' justifyContent='center'
 
                             style={{
-                                // backgroundColor:'#c3c3c3', 
                                 padding: '10px',
                                 borderRadius: '10px'
                             }}
@@ -290,7 +312,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
                 
                    </MDBox>
                     
-                    }
+                    } */}
 
 
                 </MDBox>

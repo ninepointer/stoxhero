@@ -17,10 +17,8 @@ const Campaign = require("../../models/campaigns/campaignSchema")
 const uuid = require('uuid');
 
 router.post("/signup", async (req, res) => {
-    // console.log("Inside SignUp Routes")
     const { first_name, last_name, email, mobile } = req.body;
-    // console.log(req.body)
-    // console.log(!first_name || !last_name || !email || !mobile)
+
     if (!first_name || !last_name || !email || !mobile) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
@@ -59,7 +57,7 @@ router.post("/signup", async (req, res) => {
             status: 'success'
         });
 
-        if(true){
+        if(process.env.PROD == 'true'){
             sendOTP(mobile.toString(), mobile_otp);
         } else{
             sendOTP("9319671094", mobile_otp);
@@ -123,8 +121,7 @@ router.patch("/verifyotp", async (req, res) => {
     if (referrerCode) {
         const referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
         const campaignCodeMatch = await Campaign.findOne({ campaignCode: referrerCode })
-        // console.log(!referrerCodeMatch, !campaignCodeMatch, !referrerCodeMatch || !campaignCodeMatch)
-
+        
         if (!referrerCodeMatch && !campaignCodeMatch) {
             return res.status(404).json({ status: 'error', message: "No such referrer code exists. Please enter a valid referrer code" });
         }
@@ -143,7 +140,7 @@ router.patch("/verifyotp", async (req, res) => {
     // const count = await User.countDocuments();
     const userId = email.split('@')[0]
     const userIds = await User.find({ employeeid: userId })
-    console.log("User Ids: ", userIds)
+   
     if (userIds.length > 0) {
         userId = userId.toString() + (userIds.length + 1).toString()
     }
@@ -188,7 +185,7 @@ router.patch("/verifyotp", async (req, res) => {
         //     expires: new Date(Date.now() + 25892000000),
         // });
 
-        // console.log("token", token);
+        
         res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials." });
         
         // now inserting userId in free portfolio's
@@ -204,10 +201,10 @@ router.patch("/verifyotp", async (req, res) => {
 
         //inserting user details to referredBy user and updating wallet balance
         if (referredBy) {
-            // console.log("Inside User update in referral: ", referredBy)
+            
             referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             referral.save();
-            // console.log(referral?.users)
+            
             const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
                 $set: {
                     users: referral?.users
@@ -237,9 +234,7 @@ router.patch("/verifyotp", async (req, res) => {
             }
         }
 
-        // console.log("Campaign: ", campaign)
         if (campaign) {
-            // console.log("Inside setting user to campaign")
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             campaign.save();
             // const campaignData = await Campaign.findOneAndUpdate({ _id: campaign._id }, {
@@ -247,7 +242,6 @@ router.patch("/verifyotp", async (req, res) => {
             //         users: campaign?.users
             //     }
             // })
-            // console.log(campaignData)
         }
 
         // let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
@@ -448,8 +442,8 @@ router.patch("/resendotp", async (req, res)=>{
     if(type == 'mobile'){
         user.mobile_otp = mobile_otp;
         // sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);
-        if(true)sendOTP(mobile.toString(), mobile_otp);
-       // if(process.env.PROD!==true)sendOTP("9319671094", mobile_otp);    
+        if(process.env.PROD=='true')sendOTP(mobile.toString(), mobile_otp);
+       if(process.env.PROD!=='true')sendOTP("9319671094", mobile_otp);    
     }
     else if(type == 'email'){
         user.email_otp = email_otp;
@@ -475,15 +469,12 @@ router.get("/signedupusers", (req, res)=>{
 })
 
 router.put("/updatesignedupuser/:id", async (req, res)=>{
-    console.log(req.params)
-    console.log("this is body", req.body);
 
     try{
         const {id} = req.params
-        //console.log(id)
 
         const signedupuser = await SignedUpUser.findOne({_id: id})
-        //console.log("user", user)
+
         signedupuser.status = req.body.Status,
 
         await signedupuser.save();

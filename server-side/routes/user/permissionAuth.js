@@ -66,7 +66,6 @@ router.get("/readpermission/:id", (req, res)=>{
 router.get("/readpermissionbyemail/:email", (req, res)=>{
     //console.log(req.params)
     const {email} = req.params
-    console.log(email)
     Permission.findOne({userId : email})
     .then((data)=>{
         return res.status(200).send(data);
