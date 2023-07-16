@@ -29,7 +29,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
       realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
       dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
 
-    // console.log("tradeDetails", tradeDetails)
+    // 
 
     //console.log("req.body", tradeDetails)
 
@@ -40,7 +40,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
 
     if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
-      ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+      
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
         // return res.status(422).json({error : "please fill all the feilds..."})
@@ -61,7 +61,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
       //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      // console.log("liveData", liveData)
+      // 
       for (let elem of liveData) {
         if (elem.instrument_token == instrumentToken) {
           newTimeStamp = elem.timestamp;
@@ -71,7 +71,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
 
       trade_time = new Date(newTimeStamp);
-      // console.log("trade_time", trade_time)
+      // 
     } catch (err) {
       console.log(err)
       return new Error(err);
@@ -111,7 +111,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
       brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
 
-    // console.log("brokerageUser", brokerageUser)
+    // 
     TenxTrader.findOne({ order_id: order_id })
       .then((dateExist) => {
         if (dateExist) {
@@ -169,7 +169,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
           }
 
           io.emit(`${trader.toString()}autoCut`, tenx);
-          console.log("tenx", tenx);
+          
           resolve();
         }).catch((err) => {
           console.log("in err autotrade", err)
@@ -205,7 +205,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
 
     if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
-      ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+      
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
         // return res.status(422).json({error : "please fill all the feilds..."})
@@ -226,7 +226,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
       //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      // console.log("liveData", liveData)
+      // 
       for (let elem of liveData) {
         if (elem.instrument_token == instrumentToken) {
           newTimeStamp = elem.timestamp;
@@ -236,7 +236,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
 
       trade_time = new Date(newTimeStamp);
-      // console.log("trade_time", trade_time)
+      // 
     } catch (err) {
       console.log(err)
       return new Error(err);
@@ -276,7 +276,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
       brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
 
-    // console.log("brokerageUser", brokerageUser)
+    // 
     InternshipTrade.findOne({ order_id: order_id })
       .then((dataExist) => {
         if (dataExist) {
@@ -292,7 +292,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
         });
 
         internship.save().then(async () => {
-          console.log("sending response");
+          
           if (isRedisConnected && await client.exists(`${trader.toString()}${batch.toString()}: overallpnlIntern`)) {
             //console.log("in the if condition")
             let pnl = await client.get(`${trader.toString()}${batch.toString()}: overallpnlIntern`)
@@ -368,7 +368,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
 
     if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
-      ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+      
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
         // return res.status(422).json({error : "please fill all the feilds..."})
@@ -389,7 +389,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
       //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      console.log("liveData", liveData)
+      
       for (let elem of liveData) {
         if (elem.instrument_token == instrumentToken) {
           newTimeStamp = elem.timestamp;
@@ -399,7 +399,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
 
       trade_time = new Date(newTimeStamp);
-      console.log("trade_time", trade_time)
+      
     } catch (err) {
       console.log(err)
       return new Error(err);
@@ -437,7 +437,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
       brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
 
-    console.log("brokerageUser", brokerageUser)
+    
     PaperTrade.findOne({ order_id: order_id })
       .then((dateExist) => {
         if (dateExist) {
@@ -455,7 +455,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
         //console.log("mockTradeDetails", paperTrade);
         paperTrade.save().then(async () => {
-          console.log("sending response");
+          
           if (isRedisConnected && await client.exists(`${trader.toString()}: overallpnlPaperTrade`)) {
             //console.log("in the if condition")
             let pnl = await client.get(`${trader.toString()}: overallpnlPaperTrade`)
@@ -533,7 +533,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
 
     if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !OrderType || !validity || !variety) {
-      ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+      
       if (!dontSendResp) {
         console.log("Please fill all fields, autotrade");
         // return res.status(422).json({error : "please fill all the feilds..."})
@@ -559,7 +559,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
       //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      // console.log("liveData", liveData)
+      // 
       for (let elem of liveData) {
         if (elem.instrument_token == instrumentToken) {
           newTimeStamp = elem.timestamp;
@@ -570,7 +570,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
 
       trade_time = new Date(newTimeStamp);
-      console.log("trade_time", trade_time)
+      
     } catch (err) {
       console.log(err)
       return new Error(err);
@@ -653,7 +653,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
       const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
       const algoTrader = await InfinityTrader.create([traderDoc], { session });
       if (isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)) {
-        console.log("in if")
+        
         let pnl = await client.get(`${trader.toString()} overallpnl`)
         pnl = JSON.parse(pnl);
         const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product));
@@ -734,7 +734,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
       realBuyOrSell, Quantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
       dontSendResp, exchangeInstrumentToken, createdBy } = tradeDetails;
 
-      console.log("tradeDetails", tradeDetails)
+      
 
     const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: xtsAccountType });
     const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: xtsAccountType });
@@ -766,7 +766,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
 
       //console.log("above")
       let liveData = await singleLivePrice(exchange, symbol)
-      console.log("liveData", liveData)
+      
       newTimeStamp = liveData[0]?.timestamp;
       // console.log("zerodha date", liveData[0].timestamp)
       originalLastPriceUser = liveData[0]?.last_price;
@@ -775,7 +775,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
 
 
       trade_time = new Date(newTimeStamp);
-      console.log("trade_time", trade_time)
+      
     } catch (err) {
       console.log(err)
       return new Error(err);
@@ -854,7 +854,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
       const algoTrader = await DailyContestMockUser.create([traderDoc], { session });
 
       if (isRedisConnected && await client.exists(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)) {
-        console.log("in if")
+        
         let pnl = await client.get(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)
         pnl = JSON.parse(pnl);
         // console.log("redis pnl", pnl)

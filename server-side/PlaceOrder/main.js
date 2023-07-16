@@ -36,7 +36,7 @@ router.post("/placingOrderDailyContest", isAppLive, authentication, DailyContest
     req.dailyContest = true;
     const setting = await Setting.find();
     const dailyContest = await DailyContest.findById(req.body.contestId);
-    console.log("dailyContest", dailyContest)
+    // console.log("dailyContest", dailyContest)
 
     if(dailyContest?.contestEndTime < new Date()){
         return res.status(201).json({ status: 'error', message: 'This contest has ended.' });

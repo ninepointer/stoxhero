@@ -14,12 +14,12 @@ const filterObj = (obj, ...allowedFields) => {
 
 // date = '2023-01-17'
 async function instrumentpnlcreator(date){
-    console.log("PNL Date: ",date)
+    // console.log("PNL Date: ",date)
     const date1 = new Date(date)
     const date2 = new Date(date)
     date2.setDate(date2.getDate() + 1)
     const date3 = date + 'T' + '09:17:00+0530'
-    console.log("Dates:",date1,date2,date3)
+    // console.log("Dates:",date1,date2,date3)
 
     const pipeline = [
         {
@@ -231,15 +231,15 @@ async function instrumentpnlcreator(date){
 
     const data = await InfinityTradeCompany.aggregate(pipeline)
     const instrumentdatacheck = await InstrumentPNL.find({date:date})
-    console.log("Data Length: ",instrumentdatacheck.length)
+    // console.log("Data Length: ",instrumentdatacheck.length)
     if(instrumentdatacheck.length > 0){
         return;
     }
     else{
-        console.log("Generated Data :",data)
+        // console.log("Generated Data :",data)
         await InstrumentPNL.create(data);
     }
-    console.log("Data generated for :",date)
+    // console.log("Data generated for :",date)
     
 
 }
@@ -250,14 +250,14 @@ exports.createInstrumentPNLData = async(req, res, next)=>{
     //startDate = '2023-01-17'
     startDate = new Date(startDate)
     endDate = new Date(endDate)
-    console.log("Start & End Date: ",startDate,endDate)
+    // console.log("Start & End Date: ",startDate,endDate)
 
     for (let currentDate = startDate; currentDate <= endDate; currentDate.setDate(currentDate.getDate() + 1)) {
         let newDate = new Date(currentDate).toISOString()
-        console.log("New Date & Current Date: ", newDate, currentDate)
+        // console.log("New Date & Current Date: ", newDate, currentDate)
 
         await instrumentpnlcreator(newDate.split('T')[0]);
-        console.log("Function called")
+        // console.log("Function called")
 
       }
 

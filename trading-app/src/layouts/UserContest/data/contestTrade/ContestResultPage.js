@@ -37,13 +37,10 @@ import { CircularProgress } from "@mui/material";
 
 function ContestResultPage () {
     const getDetails = useContext(userContext);
-    // const [contest,setContest] = useState();
     const [myRank, setMyRankProps] = useState([]);
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
     const contest = location?.state?.contest
-    // const  isDummy  = location?.state?.isDummy;
-    // const redirect = useRef(true);
     const nevigate = useNavigate();
     const [isLoading,setIsLoading] = useState(true)
     const isFromResult = true
@@ -116,14 +113,6 @@ function ContestResultPage () {
                           Battle Ended
                     </MDTypography>
 
-                    {/* <img style={{ marginTop: "10px",  maxWidth: '100%', height: 'auto', borderRadius: "5px" }} src={winnerCup} />
-
-                    <MDTypography  mt={8}  style={{fontWeight:500}} color="light" display="flex" justifyContent="center">
-                          {(myReward?.length && myReward[0]?.reward) && `Congratulation's ${getDetails?.userDetails?.name} you have won`}
-                    </MDTypography>
-                    <MDTypography  mt={3}  style={{fontWeight:700}} color="light" display="flex" justifyContent="center">
-                          {(myReward?.length && myReward[0]?.reward) && `${myReward[0]?.reward} ${myReward[0]?.currency}`}
-                    </MDTypography> */}
 
                     {(myReward?.length && myReward[0]?.reward) ?
                     <div style={{position: 'relative'}}>
@@ -147,9 +136,6 @@ function ContestResultPage () {
                       <MDTypography mb={3.5} style={{fontWeight: 700, fontSize: "15px"}} color="dark" display="flex" justifyContent="center">
                         {rank ? `Hey ${getDetails?.userDetails?.employeeid}, Your rank is ${rank}` : "Please wait while your rank is loading"}
                       </MDTypography>
-                      {/* <MDTypography style={{fontWeight: 600, fontSize: "13px"}} color="dark" display="flex" justifyContent="center">
-                        {`Your rank is ${rank}`}
-                      </MDTypography> */}
 
                     </div>
                     <MDTypography   style={{fontWeight:600}} color="light" display="flex" justifyContent="center">

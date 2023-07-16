@@ -43,10 +43,6 @@ function Header({ e }) {
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
-    // let [isPast, setIsPast] = useState(false);
-    // const navigate = useNavigate();
-
-    // const [copied, setCopied] = useState(false);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -56,7 +52,6 @@ function Header({ e }) {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        // setCopied(true);
         openSuccessSB('success', 'Copied', 'Share this link to your friend');
         const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${id}/share`, {
             method: "PUT",

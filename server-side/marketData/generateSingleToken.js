@@ -63,7 +63,7 @@ async function fetchToken (exchange, symbol){
 
 
 
-    console.log(getAccessToken, getApiKey)
+    // console.log(getAccessToken, getApiKey)
     const addUrl = 'i=' + exchange + ':' + symbol;
     const url = `https://api.kite.trade/quote?${addUrl}`
     // console.log("URL: ",url)

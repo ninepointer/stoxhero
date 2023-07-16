@@ -28,11 +28,11 @@ exports.overallPnlTrader = async (req, res, next) => {
 
 
     try {
-        console.log(req.user._id.toString(), id.toString())
+        // console.log(req.user._id.toString(), id.toString())
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)) {
             let pnl = await client.get(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)
             pnl = JSON.parse(pnl);
-            console.log("pnl redis", pnl)
+            // console.log("pnl redis", pnl)
 
             res.status(201).json({ message: "pnl received", data: pnl });
 
@@ -250,7 +250,7 @@ exports.myTodaysTrade = async (req, res, next) => {
 
     const { id } = req.params;
     const userId = req.user._id;
-    console.log(id, userId);
+    // console.log(id, userId);
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -838,7 +838,7 @@ exports.traderWiseMockCompanySide = async (req, res, next) => {
     ]
 
     let x = await DailyContestMockCompany.aggregate(pipeline)
-    console.log(id, x)
+    // console.log(id, x)
     res.status(201).json({ message: "data received", data: x });
 }
 
@@ -909,7 +909,7 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
     ]
 
     let x = await DailyContestMockUser.aggregate(pipeline)
-    console.log(id, x)
+    // console.log(id, x)
     res.status(201).json({ message: "data received", data: x });
 }
 
@@ -1564,7 +1564,7 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
 
             const result = await aggregateRanks(ranks);
 
-            console.log("rsult", result)
+            // console.log("rsult", result)
             for (rank of result) {
                 // console.log(rank);
                 // console.log(`leaderboard${id}`);
@@ -1654,7 +1654,6 @@ const dailyContestLeaderBoard = async (id) => {
                 for (tick of filteredTicks) {
                     livePrices[tick.instrument_token] = tick.last_price;
                 }
-                // console.log(livePrices);
             }
         } else {
             const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
@@ -1666,7 +1665,6 @@ const dailyContestLeaderBoard = async (id) => {
                     addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
                 }
             });
-            // console.log(addUrl);
             const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
             let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
 
@@ -1829,6 +1827,29 @@ const dailyContestLeaderBoard = async (id) => {
 
 const getRedisMyRank = async (id, employeeId) => {
 
+    // console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
+    try {
+        if (await client.exists(`leaderboard:${id}`)) {
+
+            const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
+            // console.log("leaderBoardRank", leaderBoardRank)
+
+            if (leaderBoardRank == null) return null
+            return leaderBoardRank + 1
+        } else {
+            console.log("loading rank")
+        }
+
+    } catch (err) {
+        console.log(err);
+    }
+
+}
+
+exports.getRedisMyRankHTTP = async (req, res) => {
+
+    const {id} = req.params;
+    const employeeId = req.user.employeeid;
     console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
     try {
         if (await client.exists(`leaderboard:${id}`)) {
@@ -1837,9 +1858,18 @@ const getRedisMyRank = async (id, employeeId) => {
             console.log("leaderBoardRank", leaderBoardRank)
 
             if (leaderBoardRank == null) return null
-            return leaderBoardRank + 1
+
+            res.status(200).json({
+                message: "success",
+                data: leaderBoardRank+1
+            })
+            // return leaderBoardRank + 1
         } else {
             console.log("loading rank")
+            res.status(200).json({
+                message: "error",
+                data: "Loading rank"
+            })
         }
 
     } catch (err) {
@@ -1906,4 +1936,10 @@ exports.sendMyRankData = async () => {
         console.log(err);
     }
 
+}
+
+exports.emitServerTime = async () => {
+    const interval = setInterval(() => {
+        io.emit('serverTime', new Date());
+    }, 1000); // Emit every second (adjust as needed)
 }

@@ -45,6 +45,7 @@ import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/Stoc
 import Leaderboard from '../data/dailyContestLeaderboard'
 import DailyContestMyRank from '../data/dailyContestMyRank'
 // import { NetPnlContext } from '../../../PnlContext';
+import {useNavigate} from "react-router-dom"
 
 
 
@@ -55,9 +56,24 @@ function Header({ socket, data }) {
     const [portfolio, setPortfolio] = useState();
     // const [showOption, setShowOption] = useState(false);
     const pnl = useContext(NetPnlContext);
-    // const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
-
     let contestId = data?.data;
+    const navigate = useNavigate();
+
+    let endTime = data?.endTime;
+    useEffect(() => {
+        socket.on("serverTime", (time) => {
+            const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
+            const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
+            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            if (serverTimeString === endTimeString) {
+                navigate(`/collegecontest/result`, {
+                    state: { contestId: contestId}
+                })
+            }
+        });
+    }, []);
+
+
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
