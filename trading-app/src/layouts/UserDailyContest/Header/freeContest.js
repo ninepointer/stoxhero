@@ -309,12 +309,12 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
                                                                     <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
                                                                 </MDBox>
                                                                 <MDBox color="light" fontSize={10}>
-                                                                    <MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOT LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
+                                                                    <MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOTS LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
                                                                 </MDBox>
                                                             </MDBox>
                                                             :
                                                             particularContestTime[0]?.value <= 0 &&
-                                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
+                                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="flex-start" alignItems='center'>
                                                                 <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
                                                             </MDBox>}
                                                     </Grid>

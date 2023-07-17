@@ -6,13 +6,13 @@ import MDTypography from '../../../components/MDTypography';
 import MDAvatar from '../../../components/MDAvatar';
 import MDButton from '../../../components/MDButton'
 import {Link} from 'react-router-dom'
-import moment from 'moment-timezone';
+import moment from 'moment';
 
 
 import wallet from '../../../assets/images/wallet.png'
 import bonus from '../../../assets/images/bonus.png'
 import rupee from '../../../assets/images/rupee.png'
-import referral from '../../../assets/images/referralt.png'
+// import referral from '../../../assets/images/referralt.png'
 import battle from '../../../assets/images/battlet.png'
 import CashFlow from '../../../assets/images/transaction.png'
 import DefaultProfilePic from "../../../assets/images/default-profile.png";
@@ -27,7 +27,7 @@ export default function Wallet() {
   const [myWallet,setMyWallet] = useState([]);
   const [mywithdrawals, setMyWithdrawals] = useState([]);
   const [open, setOpen] = useState(false);
-    const[selectedGd, setSelectedGd] = useState();
+    // const[selectedGd, setSelectedGd] = useState();
     const handleClose = () => {
       setOpen(false);
     };
@@ -72,7 +72,7 @@ export default function Wallet() {
     })
   },[open]);
 
-  console.log('myWith', mywithdrawals);
+  // console.log('myWith', mywithdrawals);
 
   const cashTransactions = myWallet?.transactions?.filter((transaction) => {
     return transaction.transactionType === "Cash";
@@ -93,7 +93,7 @@ export default function Wallet() {
     return total + transaction?.amount;
   }, 0);
   
-  console.log("Total bonus amount: ", totalBonusAmount);
+  // console.log("Total bonus amount: ", totalBonusAmount);
 
   return (
     <>
@@ -116,7 +116,7 @@ export default function Wallet() {
                       <MDBox display="flex" flexDirection="column">
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={15} fontWeight="bold">{elem?.title}</MDTypography>
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={10} fontWeight="bold">
-                          {new Date(elem?.transactionDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} {(new Date(elem?.transactionDate).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata',hour12: true, timeStyle: 'medium' }).toUpperCase())}
+                        {moment.utc(elem?.transactionDate).utcOffset('+05:30').format('DD-MMM HH:mm:ss')}
                         </MDTypography>
                         <MDTypography style={{alignContent:'center'}} ml={1} color="light" fontSize={10} fontWeight="bold">{elem?.description}</MDTypography>
                       </MDBox>

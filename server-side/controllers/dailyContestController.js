@@ -26,6 +26,16 @@ exports.createContest = async (req, res) => {
         //     });
         // }
 
+        const getContest = await Contest.findOne({contestName: contestName});
+
+        if(getContest){
+            res.status(500).json({
+                status:'error',
+                message: "Contest is already exist with this name.",
+                error: error.message
+            });
+        }
+
         const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
             contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode});
@@ -54,6 +64,16 @@ exports.editContest = async (req, res) => {
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status:"error", message: "Invalid contest ID" });
+        }
+
+        const getContest = await Contest.findOne({contestName: updates?.contestName});
+
+        if(getContest){
+            res.status(500).json({
+                status:'error',
+                message: "Contest is already exist with this name.",
+                error: error.message
+            });
         }
 
         const result = await Contest.findByIdAndUpdate(id, updates, { new: true }); 
@@ -605,6 +625,12 @@ exports.participateUsers = async (req, res) => {
 
         const contest = await Contest.findOne({_id: id});
 
+        for(let i = 0; i < contest.participants?.length; i++){
+            if(contest.participants[i]?.userId?.toString() === userId?.toString()){
+                return res.status(404).json({ status: "error", message: "You have already participated in this contest."}); 
+            }
+        }
+
         const getActiveContest = await Contest.find({
             participants: {
                 $elemMatch: {
@@ -806,6 +832,7 @@ exports.creditAmountToWallet = async () => {
                         wallet.transactions = [...wallet.transactions, {
                             title: 'Contest Credit',
                             description: `Amount credited for contest ${contest[j].contestName}`,
+                            transactionDate: new Date(),
                             amount: payoutAmount?.toFixed(2),
                             transactionId: uuid.v4(),
                             transactionType: 'Cash'
@@ -933,11 +960,12 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
 
         const wallet = await UserWallet.findOne({userId: userId});
         wallet.transactions = [...wallet.transactions, {
-              title: 'Contest Fee',
-              description: `Amount deducted for the contest fee of ${contestName} contest`,
-              amount: (-contestFee),
-              transactionId: uuid.v4(),
-              transactionType: 'Cash'
+            title: 'Contest Fee',
+            description: `Amount deducted for the contest fee of ${contestName} contest`,
+            transactionDate: new Date(),
+            amount: (-contestFee),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
         }];
         wallet.save();
 

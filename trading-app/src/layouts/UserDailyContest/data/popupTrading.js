@@ -109,12 +109,12 @@ const PopupTrading = ({elem, timeDifference}) => {
             {timeDifference &&
             <MDButton
                 variant='outlined'
-                color='warning'
+                color= {elem?.entryFee>0 ? "light" :'warning'}
                 size='small'
                 disabled={timeDifference > 0}
                 onClick={() => { participateUserToContest(elem) }}
             >
-                <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
+                <MDTypography color={elem?.entryFee>0 ? "light" :'warning'} fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
             </MDButton>}
             <div>
                 <Dialog

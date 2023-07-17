@@ -141,7 +141,7 @@ function OnGoingContests() {
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Spot Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
+                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Spots Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
                                                             {/* <MDTypography fontSize={12} color='light' fontWeight="bold">Payout: {elem?.payoutPercentage}%</MDTypography> */}
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
