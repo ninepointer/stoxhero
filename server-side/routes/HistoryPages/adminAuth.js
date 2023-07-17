@@ -66,6 +66,66 @@ const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCom
 
 
 
+router.get("/uniqueusers", async (req, res) => {
+  let pipeline = [
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $gte: new Date("2023-07-17"),
+          },
+        },
+    },
+    {
+      $lookup:
+        /**
+         * from: The target collection.
+         * localField: The local join field.
+         * foreignField: The target join field.
+         * as: The name for the results.
+         * pipeline: Optional pipeline to run on the foreign collection.
+         * let: Optional variables to use in the pipeline field stages.
+         */
+        {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+    },
+    {
+      $unwind:
+        /**
+         * path: Path to the array field.
+         * includeArrayIndex: Optional name for index.
+         * preserveNullAndEmptyArrays: Optional
+         *   toggle to unwind null and empty values.
+         */
+        {
+          path: "$user",
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            trader: "$trader",
+            first_name: "$user.first_name",
+            last_name: "$user.last_name",
+          },
+        },
+    },
+  ]
+  const x = await DailyContestMockUser.aggregate(pipeline)
+  res.send(x);
+});
  
 
 router.get("/margin", async (req, res) => {
@@ -737,7 +797,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-07-09T00:00:00.000+00:00"
+  let expiryDate = "2023-07-16T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})

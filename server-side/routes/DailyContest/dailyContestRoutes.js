@@ -26,6 +26,7 @@ router.put('/contest/:id/remove/:userId', contestController.removeAllowedUser);
 router.get('/contests', contestController.getAllContests);
 router.get('/contests/upcoming', contestController.getUpcomingContests);
 router.get('/contests/today', contestController.todaysContest);
+router.get('/contests/ongoing', contestController.ongoingContest);
 
 router.get('/contests/adminupcoming', contestController.getAdminUpcomingContests);
 router.get('/contests/completed', Authenticate, contestController.getCompletedContests);

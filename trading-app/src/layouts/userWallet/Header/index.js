@@ -83,7 +83,7 @@ export default function Wallet() {
     return total + transaction?.amount;
   }, 0);
   
-  console.log("Total cash amount: ", totalCashAmount);
+  // console.log("Total cash amount: ", totalCashAmount);
 
   const bonusTransactions = myWallet?.transactions?.filter((transaction) => {
     return transaction?.transactionType === "Bonus";
@@ -188,7 +188,7 @@ export default function Wallet() {
                   <MDAvatar src={rupee} name={name} size="sm" />
                   <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">Cash</MDTypography>
                 </Grid>
-                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalCashAmount ? totalCashAmount : 0}</MDTypography></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalCashAmount ? totalCashAmount?.toFixed(2) : 0}</MDTypography></Grid>
                 <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}} onClick={()=>{handleOpen()}}>Withdraw</MDButton></Grid>
               </Grid>
 
@@ -201,7 +201,7 @@ export default function Wallet() {
                   <MDAvatar src={bonus} name={name} size="sm" />
                   <MDTypography ml={1} color="light" fontSize={15} fontWeight="bold">Bonus</MDTypography>
                 </Grid>
-                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalBonusAmount ? totalBonusAmount : 0}</MDTypography></Grid>
+                <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center"><MDTypography color="light" fontSize={15} fontWeight="bold">₹{totalBonusAmount ? totalBonusAmount?.toFixed(2) : 0}</MDTypography></Grid>
                 <Grid item xs={3} md={6} lg={3} display="flex" justifyContent="center" alignItems="center" mr={1}><MDButton size="small" style={{width:'95%'}}>Redeem</MDButton></Grid>
               </Grid>
 
