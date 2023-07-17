@@ -371,83 +371,83 @@ exports.getUserSummary = async(req,res,next) => {
                 'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
             }},
         ]);
-        const contestDataa = await ContestTrade.aggregate([
-          {
-            $match: {
-              trade_time: {
-                $lte: endDate.toDate(),
-              },
-              trader: new ObjectId(userId),
-              status:'COMPLETE'
-            },
-          },
-          {
-            $addFields: { 
-              'gpnl': { $multiply: ['$amount', -1] }, 
-              'brokerage_double': { $toDouble: '$brokerage' } 
-            }
-          },
-          {
-            $lookup: {
-              from: 'daily-contests',
-              localField: 'contestId',
-              foreignField: '_id',
-              as: 'contest_data'
-            },
-          },
-          {
-            $unwind: {
-              path: '$contest_data',
-              preserveNullAndEmptyArrays: true,
-            }
-          },
-          {
-            $lookup: {
-              from: 'user-portfolios',
-              localField: 'contest_data.portfolioId',
-              foreignField: '_id',
-              as: 'portfolio_data'
-            },
-          },
-          {
-            $unwind: {
-              path: '$portfolio_data',
-              preserveNullAndEmptyArrays: true,
-            }
-          },
-          { 
-            $group: { 
-              _id: {
-                contestId: '$contestId', 
-                // date: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } }
-              },
-              'total_gpnl': { $sum: '$gpnl' },
-              'total_brokerage': { $sum: '$brokerage_double' },
-              'number_of_trades': { $sum: 1 },
-              'total_portfolio_value': '$portfolio_data.portfolioValue'
-            }
-          },
-          {
-            $group: {
-              _id: null,
-              'total_gpnl': { $sum: '$total_gpnl' },
-              'total_brokerage': { $sum: '$total_brokerage' },
-              'number_of_trades': { $sum: '$number_of_trades' },
-              'contests': {
-                $push: {
-                  contestId: '$_id.contestId',
-                  portfolio_value: '$total_portfolio_value'
-                }
-              }
-            }
-          },
-          {
-            $addFields: {
-              'total_portfolio_value': { $sum: '$contests.portfolio_value' },
-              'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
-            }
-          },
-        ]);
+        // const contestDataa = await ContestTrade.aggregate([
+        //   {
+        //     $match: {
+        //       trade_time: {
+        //         $lte: endDate.toDate(),
+        //       },
+        //       trader: new ObjectId(userId),
+        //       status:'COMPLETE'
+        //     },
+        //   },
+        //   {
+        //     $addFields: { 
+        //       'gpnl': { $multiply: ['$amount', -1] }, 
+        //       'brokerage_double': { $toDouble: '$brokerage' } 
+        //     }
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: 'daily-contests',
+        //       localField: 'contestId',
+        //       foreignField: '_id',
+        //       as: 'contest_data'
+        //     },
+        //   },
+        //   {
+        //     $unwind: {
+        //       path: '$contest_data',
+        //       preserveNullAndEmptyArrays: true,
+        //     }
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: 'user-portfolios',
+        //       localField: 'contest_data.portfolioId',
+        //       foreignField: '_id',
+        //       as: 'portfolio_data'
+        //     },
+        //   },
+        //   {
+        //     $unwind: {
+        //       path: '$portfolio_data',
+        //       preserveNullAndEmptyArrays: true,
+        //     }
+        //   },
+        //   { 
+        //     $group: { 
+        //       _id: {
+        //         contestId: '$contestId', 
+        //         // date: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } }
+        //       },
+        //       'total_gpnl': { $sum: '$gpnl' },
+        //       'total_brokerage': { $sum: '$brokerage_double' },
+        //       'number_of_trades': { $sum: 1 },
+        //       'total_portfolio_value': '$portfolio_data.portfolioValue'
+        //     }
+        //   },
+        //   {
+        //     $group: {
+        //       _id: null,
+        //       'total_gpnl': { $sum: '$total_gpnl' },
+        //       'total_brokerage': { $sum: '$total_brokerage' },
+        //       'number_of_trades': { $sum: '$number_of_trades' },
+        //       'contests': {
+        //         $push: {
+        //           contestId: '$_id.contestId',
+        //           portfolio_value: '$total_portfolio_value'
+        //         }
+        //       }
+        //     }
+        //   },
+        //   {
+        //     $addFields: {
+        //       'total_portfolio_value': { $sum: '$contests.portfolio_value' },
+        //       'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
+        //     }
+        //   },
+        // ]);
         
         
       // console.log('contest data',contestData);      

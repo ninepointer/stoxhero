@@ -44,7 +44,8 @@ function Summary({summary}) {
                         <Grid item xs={12} md={4} lg={4} >
                             <MDBox bgColor='lightgrey' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='70%' fontSize={12} fontWeight="bold">TenX Trading</MDTypography>
-                                <MDTypography minWidth='30%' fontSize={12} color={summary?.tenxData?.npnl?'success':'error'} fontWeight="bold" style={{textAlign:'center'}}>{((summary?.tenxData?.npnl??0)/summary?.totalTenXPortfolioValue).toFixed(2)}%</MDTypography>
+                                <MDTypography minWidth='30%' fontSize={12} color={summary?.tenxData?.npnl?'success':'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                    {isNaN(((summary?.tenxData?.npnl??0)/summary?.totalTenXPortfolioValue).toFixed(2))?0:((summary?.tenxData?.npnl??0)/summary?.totalTenXPortfolioValue).toFixed(2)}%</MDTypography>
                             </MDBox>
                         </Grid>
                        

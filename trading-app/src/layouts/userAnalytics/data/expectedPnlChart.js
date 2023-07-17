@@ -27,6 +27,9 @@ const option = {
           saveAsImage: {}
         }
       },
+    legend: {
+        data: ['Expected Net P&L', 'Risk-Reward Ratio']
+    },  
     grid: {
         left: '3%',
         right: '4%',
