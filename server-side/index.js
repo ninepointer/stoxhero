@@ -351,7 +351,7 @@ let weekDay = date.getDay();
           autoCutMainManuallyMock();
           // await creditAmountToWallet();
         });
-        const creditAmount = nodeCron.schedule(`51 9 * * *`, async () => {
+        const creditAmount = nodeCron.schedule(`53 9 * * *`, async () => {
           creditAmountToWallet();
         });
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
