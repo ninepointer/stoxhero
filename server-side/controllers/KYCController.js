@@ -176,7 +176,7 @@ exports.approveKYC = async(req,res,next) => {
         </head>
         <body>
             <div class="container">
-            <h1>Withdrawal Approved</h1>
+            <h1>KYC Approved</h1>
             <p>Hello ${user.first_name},</p>
             <p>Your KYC Approval request is approved by stoxhero.</p>
             <p>You can now add or withdraw money from your wallet and get more in app privileges.</p>
@@ -278,7 +278,7 @@ exports.rejectKYC = async(req,res,next) => {
       </head>
       <body>
           <div class="container">
-          <h1>Withdrawal Approved</h1>
+          <h1>KYC Rejected</h1>
           <p>Hello ${user.first_name},</p>
           <p>Your KYC approval request is rejected by stoxhero. The rejection reason is ${rejectionReason}</p>
           <p>Please double check your documents and inputs and make sure you've uploaded the correct doucments in the right formats.</p>

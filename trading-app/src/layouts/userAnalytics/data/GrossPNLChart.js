@@ -44,17 +44,45 @@ const option = {
     ],
     yAxis: [
         {
-        type: 'value'
+        type: 'value',
+        name:'PNL Axis'
+        },
+        {
+        type: 'value',
+        name: 'Brokerage Axis',
+        axisLine: {
+            show: true,
+            lineStyle: {
+                color:'#344767',
+            }
+          },
         }
     ],
     series: [
         {
             name: 'Gross P&L',
             type: 'bar',
+            yAxisIndex:0,
             color:'#2e7d32',
-            barWidth: '60%',
+            barWidth: '40%',
             data: dateWiseData.map((e)=>e.gpnl)
-        }
+        },
+        {
+            name: 'Net P&L',
+            type: 'bar',
+            yAxisIndex:0,
+            color:'#2e7d95',
+            barWidth: '40%',
+            data: dateWiseData.map((e)=>e.npnl)
+        },
+        {
+            name: 'Brokerage',
+            yAxisIndex:1,
+            type: 'line',
+            color:'#344767',
+            barWidth: '40%',
+            data: dateWiseData.map((e)=>e.brokerage)
+        },
     ]
 };
 chartInstance.setOption(option);
