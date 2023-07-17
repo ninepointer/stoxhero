@@ -18,7 +18,7 @@ function OnGoingContests() {
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get(`${baseUrl}api/v1/dailycontest/contests/upcoming`, {
+        axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -26,16 +26,16 @@ function OnGoingContests() {
                 "Access-Control-Allow-Credentials": true
             },
         })
-        .then((res) => {
-            setContest(res.data.data);
-            setTimeout(()=>{
+            .then((res) => {
+                setContest(res.data.data);
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 1000)
+
+            }).catch((err) => {
                 setIsLoading(false)
-            },1000)
-            
-        }).catch((err) => {
-            setIsLoading(false)
-            return new Error(err);
-        })
+                return new Error(err);
+            })
     }, [])
 
     function changeDateFormat(givenDate) {
@@ -100,31 +100,31 @@ function OnGoingContests() {
                                                         {/* <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                             <MDTypography fontSize={15} color='light' fontWeight="bold">Hurry up limited seats</MDTypography>
                                                         </Grid> */}
-<Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
-  <MDTypography
-    fontSize={15}
-    color='light'
-    fontWeight="bold"
-    style={{ animation: 'blinking .8s infinite' }}
-  >
-    Limited seats available - Join now!
-  </MDTypography>
-  <style>
-    {`
-    @keyframes blinking {
-      0% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
-    `}
-  </style>
-</Grid>
+                                                        <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                            <MDTypography
+                                                                fontSize={15}
+                                                                color='light'
+                                                                fontWeight="bold"
+                                                                style={{ animation: 'blinking .8s infinite' }}
+                                                            >
+                                                                Limited seats available - Join now!
+                                                            </MDTypography>
+                                                            <style>
+                                                                {`
+                                                                    @keyframes blinking {
+                                                                    0% {
+                                                                        opacity: 1;
+                                                                    }
+                                                                    50% {
+                                                                        opacity: 0;
+                                                                    }
+                                                                    100% {
+                                                                        opacity: 1;
+                                                                    }
+                                                                    }
+                                                                `}
+                                                            </style>
+                                                        </Grid>
 
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                             <img src={ContestCarousel} width='40px' height='40px' />
@@ -135,19 +135,19 @@ function OnGoingContests() {
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Start On: {changeDateFormat(elem?.contestStartTime)}</MDTypography>
+                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Starts On: {changeDateFormat(elem?.contestStartTime)}</MDTypography>
                                                         </Grid>
 
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Max Prticipant: {elem?.maxParticipants}</MDTypography>
+                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Spot Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
                                                             {/* <MDTypography fontSize={12} color='light' fontWeight="bold">Payout: {elem?.payoutPercentage}%</MDTypography> */}
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Payout: {elem?.payoutPercentage}%</MDTypography>
+                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Payout: {elem?.payoutPercentage}% of Net P&L</MDTypography>
                                                         </Grid>
 
                                                         {/* <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='center' alignItems='center'>

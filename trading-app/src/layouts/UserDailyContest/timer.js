@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 
-const Timer = ({date, setTimeDifference, serverTime, id}) => {
+const Timer = ({date, setTimeDifference, serverTime, id, elem}) => {
   const [remainingTime, setRemainingTime] = useState(null);
   // const [serverTime, setServerTime] = useState();
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -47,7 +47,7 @@ const Timer = ({date, setTimeDifference, serverTime, id}) => {
 
   return (
     <div>
-      <p>{remainingTime}</p>
+      <p style={{color: elem.entryFee>0 ? "white" : "black"}}>{remainingTime}</p>
     </div>
   );
 };

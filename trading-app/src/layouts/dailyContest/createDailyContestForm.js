@@ -84,7 +84,10 @@ function Index() {
     payoutPercentage: '' || contest?.payoutPercentage,
     entryFee: '' || contest?.entryFee,
     description: '' || contest?.description,
-    portfolio: "" || contest?.portfolio?._id,
+    portfolio: {
+      id: "" || contest?.portfolio?._id,
+      name: "" || contest?.portfolio?.portfolioName
+    },
     college: "" || contest?.college?._id,
     contestExpiry: "" || contest?.contestExpiry,
     isNifty: "" || contest?.isNifty,
@@ -135,7 +138,7 @@ function Index() {
 
   }, [])
 
-  console.log("College:", collegeSelectedOption)
+  // console.log("College:", collegeSelectedOption)
   const handlePortfolioChange = (event) => {
     const {
       target: { value },
@@ -145,10 +148,13 @@ function Index() {
     })
     setFormState(prevState => ({
       ...prevState,
-      portfolio: portfolioId[0]?._id
-
-    }))
-    console.log("portfolioId", portfolioId, formState)
+      portfolio: {
+        ...prevState.portfolio,
+        id: portfolioId[0]?._id,
+        name: portfolioId[0]?.portfolioName
+      }
+    }));
+    // console.log("portfolioId", portfolioId, formState)
   };
 
   const handleCollegeChange = (event, newValue) => {
@@ -168,7 +174,7 @@ function Index() {
     e.preventDefault()
     console.log(formState)
     // || (formState.isNifty !== "false" || formState.isBankNifty !== "false" || formState.isFinNifty !== "false" || formState.isAllIndex !== "false")
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -183,7 +189,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -203,7 +209,7 @@ function Index() {
     }
   }
 
-  console.log("dailyContest", dailyContest)
+  // console.log("dailyContest", dailyContest)
 
   async function onEdit(e, formState) {
     e.preventDefault()
@@ -225,7 +231,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -297,7 +303,7 @@ function Index() {
     }
   };
 
-  console.log("check stoxhero", formState?.isNifty , contest?.contestFor , dailyContest?.contestFor )
+  // console.log("check stoxhero", formState?.isNifty , contest?.contestFor , dailyContest?.contestFor )
 
   return (
     <>
@@ -325,7 +331,12 @@ function Index() {
                     name='contestName'
                     fullWidth
                     defaultValue={editing ? formState?.contestName : contest?.contestName}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        contestName: e.target.value
+                      }))
+                    }}
                   />
                 </Grid>
 

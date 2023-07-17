@@ -227,6 +227,36 @@ exports.todaysContest = async (req, res) => {
     }
 };
 
+// Controller for getting ongoing contest
+exports.ongoingContest = async (req, res) => {
+    // let date = new Date();
+    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    // todayDate = todayDate + "T00:00:00.000Z";
+    // const today = new Date(todayDate);
+  
+    try {
+        const contests = await Contest.find({
+            contestStartTime: { $lte: new Date() },
+            contestEndTime: {$gte: new Date()}
+        })
+        // .populate('portfolio', 'portfolioName _id portfolioValue')
+        // .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .sort({contestStartTime: 1})
+
+        res.status(200).json({
+            status:"success",
+            message: "ongoing contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Error in fetching ongoing contests",
+            error: error.message
+        });
+    }
+};
+
 // Controller for getting upcoming contests 
 exports.getUpcomingCollegeContests = async (req, res) => {
     try {
@@ -880,6 +910,12 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         const userId = req.user._id;
 
         const contest = await Contest.findOne({_id: contestId});
+
+        for(let i = 0; i < contest.participants?.length; i++){
+            if(contest.participants[i]?.userId?.toString() === userId?.toString()){
+                return res.status(404).json({ status: "error", message: "You have already participated in this contest."}); 
+            }
+        }
 
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {

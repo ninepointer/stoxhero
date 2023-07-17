@@ -232,7 +232,7 @@ export default function Payment({ elem, showPay, setShowPay }) {
                     (userWallet < elem.entryFee) ?
                     `Your wallet balance is low, kindly add money to your wallet by making an UPI payment to ${setting?.contest?.upiId} and sending the screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp) or call @ ${setting?.contest?.mobile}`
                     :
-                    `To add money in your wallet please make the UPI payment to ${setting?.contest?.upiId} and share the payment screenshot at ${setting?.contest?.email}`
+                    `To add money in your wallet please make the UPI payment to ${setting?.contest?.upiId} and share the payment screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp) or call @ ${setting?.contest?.mobile}`
                     }
                   </Typography>
                 </MDBox>

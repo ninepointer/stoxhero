@@ -11,7 +11,7 @@ const {liveTrade} = require("../services/xts/xtsHelper/xtsLiveOrderPlace");
 const { xtsAccountType, zerodhaAccountType } = require("../constant");
 const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
-const DailyContest = require("../models/DailyContest/dailyContest");
+const {contestChecks} = require("../PlaceOrder/dailyContestChecks")
 
 router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
@@ -31,16 +31,11 @@ router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoize
     
 })
 
-router.post("/placingOrderDailyContest", isAppLive, authentication, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
+router.post("/placingOrderDailyContest", isAppLive, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
     // console.log("caseStudy 4: placing", req.body)
     req.dailyContest = true;
     const setting = await Setting.find();
-    const dailyContest = await DailyContest.findById(req.body.contestId);
-    // console.log("dailyContest", dailyContest)
 
-    if(dailyContest?.contestEndTime < new Date()){
-        return res.status(201).json({ status: 'error', message: 'This contest has ended.' });
-    }
     // console.log("settings", setting, req.user?.role?.roleName )
     if(req.body.apiKey && req.body.accessToken){
         if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){

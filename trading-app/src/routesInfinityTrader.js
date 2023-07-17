@@ -31,15 +31,15 @@ import Analytics from "./layouts/userAnalytics/index"
 
 const routes = [
 
-    {
-      type: "collapse",
-      name: "Dashboard",
-      key: "stoxherodashboard",
-      // icon: <Icon fontSize="small">person</Icon>,
-      icon: <DashboardIcon/>,
-      route: "/stoxherodashboard",
-      component: <StoxHeroDashboard />,
-    },
+    // {
+    //   type: "collapse",
+    //   name: "Dashboard",
+    //   key: "stoxherodashboard",
+    //   // icon: <Icon fontSize="small">person</Icon>,
+    //   icon: <DashboardIcon/>,
+    //   route: "/stoxherodashboard",
+    //   component: <StoxHeroDashboard />,
+    // },
   {
     type: "collapse",
     name: "Infinity Trading",
