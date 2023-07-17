@@ -29,10 +29,9 @@ exports.createContest = async (req, res) => {
         const getContest = await Contest.findOne({contestName: contestName});
 
         if(getContest){
-            res.status(500).json({
+            return res.status(500).json({
                 status:'error',
                 message: "Contest is already exist with this name.",
-                error: error.message
             });
         }
 
@@ -69,10 +68,9 @@ exports.editContest = async (req, res) => {
         const getContest = await Contest.findOne({contestName: updates?.contestName});
 
         if(getContest){
-            res.status(500).json({
+            return res.status(500).json({
                 status:'error',
                 message: "Contest is already exist with this name.",
-                error: error.message
             });
         }
 

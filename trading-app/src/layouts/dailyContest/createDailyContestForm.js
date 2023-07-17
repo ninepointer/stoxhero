@@ -174,7 +174,7 @@ function Index() {
     e.preventDefault()
     console.log(formState)
     if(formState.contestStartTime > formState.contestEndTime){
-      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+      return openErrorSB("Error", "Date range is not valid.")
     }
     if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
@@ -221,7 +221,7 @@ function Index() {
 
     if(new Date(formState.contestStartTime).toISOString() > new Date(formState.contestEndTime).toISOString()){
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
-      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+      return openErrorSB("Error", "Date range is not valid.")
     }
     
     if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || !formState.entryFee || !formState.contestFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {

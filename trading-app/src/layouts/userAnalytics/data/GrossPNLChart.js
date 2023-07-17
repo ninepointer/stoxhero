@@ -9,7 +9,7 @@ useEffect(() => {
 const chartInstance = echarts.init(chartRef.current);
 const option = {
     title: {
-        text: 'Gross P&L'
+        text: 'Gross P&L, Net P&L, Brokerage'
       },
     tooltip: {
         trigger: 'axis',
@@ -26,7 +26,7 @@ const option = {
           magicType: { type: ['line', 'bar'] },
           saveAsImage: {}
         }
-      },
+      },    
     grid: {
         left: '3%',
         right: '4%',

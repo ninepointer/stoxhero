@@ -8,6 +8,7 @@ const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
 const Margin = require('../models/marginAllocation/marginAllocationSchema');
 const liveTradeDetails = require('../models/TradeDetails/infinityLiveUser');
 const Portfolio = require('../models/userPortfolio/UserPortfolio'); 
+const InfinityTrader = require('../models/mock-trade/infinityTrader');
 
 exports.getDashboardStats = async (req, res, next) => {
     try{
@@ -370,6 +371,86 @@ exports.getUserSummary = async(req,res,next) => {
                 'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
             }},
         ]);
+        // const contestDataa = await ContestTrade.aggregate([
+        //   {
+        //     $match: {
+        //       trade_time: {
+        //         $lte: endDate.toDate(),
+        //       },
+        //       trader: new ObjectId(userId),
+        //       status:'COMPLETE'
+        //     },
+        //   },
+        //   {
+        //     $addFields: { 
+        //       'gpnl': { $multiply: ['$amount', -1] }, 
+        //       'brokerage_double': { $toDouble: '$brokerage' } 
+        //     }
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: 'daily-contests',
+        //       localField: 'contestId',
+        //       foreignField: '_id',
+        //       as: 'contest_data'
+        //     },
+        //   },
+        //   {
+        //     $unwind: {
+        //       path: '$contest_data',
+        //       preserveNullAndEmptyArrays: true,
+        //     }
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: 'user-portfolios',
+        //       localField: 'contest_data.portfolioId',
+        //       foreignField: '_id',
+        //       as: 'portfolio_data'
+        //     },
+        //   },
+        //   {
+        //     $unwind: {
+        //       path: '$portfolio_data',
+        //       preserveNullAndEmptyArrays: true,
+        //     }
+        //   },
+        //   { 
+        //     $group: { 
+        //       _id: {
+        //         contestId: '$contestId', 
+        //         // date: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } }
+        //       },
+        //       'total_gpnl': { $sum: '$gpnl' },
+        //       'total_brokerage': { $sum: '$brokerage_double' },
+        //       'number_of_trades': { $sum: 1 },
+        //       'total_portfolio_value': '$portfolio_data.portfolioValue'
+        //     }
+        //   },
+        //   {
+        //     $group: {
+        //       _id: null,
+        //       'total_gpnl': { $sum: '$total_gpnl' },
+        //       'total_brokerage': { $sum: '$total_brokerage' },
+        //       'number_of_trades': { $sum: '$number_of_trades' },
+        //       'contests': {
+        //         $push: {
+        //           contestId: '$_id.contestId',
+        //           portfolio_value: '$total_portfolio_value'
+        //         }
+        //       }
+        //     }
+        //   },
+        //   {
+        //     $addFields: {
+        //       'total_portfolio_value': { $sum: '$contests.portfolio_value' },
+        //       'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
+        //     }
+        //   },
+        // ]);
+        
+        
+      // console.log('contest data',contestData);      
         const user = await UserDetails.findById(userId).populate({
             path: 'subscription.subscriptionId',  // populate 'subscriptionId'
             model: 'tenx-subscription', 
@@ -383,10 +464,94 @@ exports.getUserSummary = async(req,res,next) => {
         let totalTenXPortfolioValue = user.subscription.reduce((total, subscription) => {
             return total + subscription.subscriptionId.portfolio.portfolioValue;
           }, 0);
-        console.log('user data', virtualData, tenxData, contestData, user);
+        // console.log('user data', virtualData, tenxData, contestData, user);
         res.status(200).json({status:'success', data:{totalTenXPortfolioValue, tenxData: tenxData[0]??{}, virtualData:virtualData[0]??{}, contestData:contestData[0]??{}}});
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});
     }
+}
+
+exports.getExpectedPnl = async(req,res,next) => {
+  try{
+    const {start, end, tradeType} = req.query;
+    let startDate, endDate, Model;
+    switch (tradeType) {
+      case 'virtual':
+        Model = VirtualTrade
+        break;
+      case 'tenX':
+        Model = TenXTrade
+        break;
+      case 'contest':
+        Model = ContestTrade
+        break;
+      default:
+        return res.status(400).send({ error: 'Invalid trade type'});
+    }
+    new Date().getHours>=10?endDate=new Date():endDate=new Date(new Date().setDate(new Date().getDate()-1))
+    const traderId = req.user._id;
+    const pipeline = [
+      { $match: { 'trader': new  ObjectId(traderId), status:'COMPLETE', trade_time:{$lt: new Date(endDate.toISOString().substring(0,10))} } },
+      { $addFields: { 
+          'gpnl': { $multiply: ['$amount', -1] }, 
+          'brokerage_double': { $toDouble: '$brokerage' } 
+      }},
+      { $group: { 
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$trade_time' } },
+          'total_gpnl': { $sum: '$gpnl' },
+          'total_brokerage': { $sum: '$brokerage_double' },
+          'number_of_trades': { $sum: 1 }
+      }},
+      { $addFields: { 
+          'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
+      }},
+      { $sort: { '_id': 1 } }
+  ];
+
+  let tradeData = await Model.aggregate(pipeline);
+  
+  // Second query: go over each day and calculate the cumulative average npnl until that day
+  let cumulativeNpnl = 0;
+    let sumPositiveNpnl = 0;
+    let sumNegativeNpnl = 0;
+    let countPositiveNpnl = 0;
+    let countNegativeNpnl = 0;
+    let riskRewardRatio = 0;
+
+    for (let i = 0; i < tradeData.length; i++) {
+      if (i == 0) {
+          tradeData[i].expected_pnl = 0;
+      } else {
+          tradeData[i].expected_pnl = cumulativeNpnl / i;
+          tradeData[i].riskRewardRatio = riskRewardRatio; // assign previous day's riskRewardRatio
+      }
+
+      cumulativeNpnl += tradeData[i].npnl;
+
+      if (tradeData[i].npnl > 0) {
+          sumPositiveNpnl += tradeData[i].npnl;
+          countPositiveNpnl += 1;
+      } else if (tradeData[i].npnl < 0) {
+          sumNegativeNpnl += tradeData[i].npnl;
+          countNegativeNpnl += 1;
+      }
+
+      if (i > 0) {
+          const avgPositiveNpnl = countPositiveNpnl > 0 ? sumPositiveNpnl/ countPositiveNpnl : 0;
+          const avgNegativeNpnl = countNegativeNpnl > 0 ? sumNegativeNpnl/ countNegativeNpnl : 0;
+          riskRewardRatio = avgNegativeNpnl !== 0 ? avgPositiveNpnl / Math.abs(avgNegativeNpnl) : 0;
+      }
+  }
+
+  // For the last day, set the riskRewardRatio
+  if (tradeData.length > 0) {
+      tradeData[tradeData.length - 1].riskRewardRatio = riskRewardRatio;
+  }
+
+  res.status(200).json({status:'success', data: tradeData});
+  }catch(e){
+    console.log(e);
+    res.status(200).json({status:'error', message:'Something went wrong'});
+  }
 }
