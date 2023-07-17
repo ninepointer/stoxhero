@@ -209,7 +209,6 @@ export default function Wallet() {
 
             {mywithdrawals.length > 0 &&<Grid item xs={12} md={6} lg={12} style={{marginTop:'12px', display:'flex', justifyContent:'center'}}>
               <MDTypography color='light' fontSize={18}>Successful Withdrawals</MDTypography>
-0
             </Grid>}
             {mywithdrawals.length>0 && mywithdrawals.map((elem)=>{
               return(
