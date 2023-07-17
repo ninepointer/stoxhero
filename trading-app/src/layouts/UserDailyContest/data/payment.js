@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-// import { userContext } from '../../../AuthContext';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import Dialog from '@mui/material/Dialog';
@@ -8,24 +7,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-
-
-//icons
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Title from '../../HomePage/components/Title'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-
-// import Box from '@mui/material/Box';
-// import Card from '@mui/material/Card';
-// import CardActions from '@mui/material/CardActions';
-// import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-// import MDTypography from '../../../components/MDTypography';
-// import { CopyToClipboard } from 'react-copy-to-clipboard';
-// import {BiCopy} from 'react-icons/bi'
-import MDSnackbar from '../../../components/MDSnackbar';
-// import {useNavigate} from 'react-router-dom';
+// import MDSnackbar from '../../../components/MDSnackbar';
 import { Typography } from '@mui/material';
 
 
@@ -34,7 +21,6 @@ import { Typography } from '@mui/material';
 
 export default function Payment({ elem, showPay, setShowPay }) {
   const [open, setOpen] = React.useState(false);
-  // const getDetails = React.useContext(userContext);
   const [userWallet, setUserWallet] = useState(0);
   const [setting, setSetting] = useState([]);
   const [messege, setMessege] = useState({
@@ -90,7 +76,6 @@ export default function Payment({ elem, showPay, setShowPay }) {
 
   }, [])
 
-
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -145,58 +130,58 @@ export default function Payment({ elem, showPay, setShowPay }) {
     }
   }
 
-  const [messageObj, setMessageObj] = useState({
-    color: '',
-    icon: '',
-    title: '',
-    content: ''
-  })
-  const [successSB, setSuccessSB] = useState(false);
-  const openSuccessSB = (value, content) => {
-    if (value === "success") {
-      messageObj.color = 'success'
-      messageObj.icon = 'check'
-      messageObj.title = "Successfull";
-      messageObj.content = content
-    };
-    if (value === "reject") {
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
-      messageObj.title = "REJECTED";
-      messageObj.content = content;
-    };
+  // const [messageObj, setMessageObj] = useState({
+  //   color: '',
+  //   icon: '',
+  //   title: '',
+  //   content: ''
+  // })
+  // const [successSB, setSuccessSB] = useState(false);
+  // const openSuccessSB = (value, content) => {
+  //   if (value === "success") {
+  //     messageObj.color = 'success'
+  //     messageObj.icon = 'check'
+  //     messageObj.title = "Successfull";
+  //     messageObj.content = content
+  //   };
+  //   if (value === "reject") {
+  //     messageObj.color = 'error'
+  //     messageObj.icon = 'error'
+  //     messageObj.title = "REJECTED";
+  //     messageObj.content = content;
+  //   };
 
-    if (value === "else") {
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
-      messageObj.title = "REJECTED";
-      messageObj.content = content;
-    };
-    if (value === "error") {
-      messageObj.color = 'error'
-      messageObj.icon = 'error'
-      messageObj.title = "Error";
-      messageObj.content = content;
-    };
+  //   if (value === "else") {
+  //     messageObj.color = 'error'
+  //     messageObj.icon = 'error'
+  //     messageObj.title = "REJECTED";
+  //     messageObj.content = content;
+  //   };
+  //   if (value === "error") {
+  //     messageObj.color = 'error'
+  //     messageObj.icon = 'error'
+  //     messageObj.title = "Error";
+  //     messageObj.content = content;
+  //   };
 
-    setMessageObj(messageObj);
-    setSuccessSB(true);
-  }
-  const closeSuccessSB = () => setSuccessSB(false);
+  //   setMessageObj(messageObj);
+  //   setSuccessSB(true);
+  // }
+  // const closeSuccessSB = () => setSuccessSB(false);
 
-  const renderSuccessSB = (
-    <MDSnackbar
-      color={messageObj.color}
-      icon={messageObj.icon}
-      title={messageObj.title}
-      content={messageObj.content}
-      open={successSB}
-      onClose={closeSuccessSB}
-      close={closeSuccessSB}
-      bgWhite="info"
-      sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "50px" }}
-    />
-  );
+  // const renderSuccessSB = (
+  //   <MDSnackbar
+  //     color={messageObj.color}
+  //     icon={messageObj.icon}
+  //     title={messageObj.title}
+  //     content={messageObj.content}
+  //     open={successSB}
+  //     onClose={closeSuccessSB}
+  //     close={closeSuccessSB}
+  //     bgWhite="info"
+  //     sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "50px" }}
+  //   />
+  // );
 
 
 
@@ -278,7 +263,7 @@ export default function Payment({ elem, showPay, setShowPay }) {
           </Button>
         </DialogActions>
       </Dialog>
-      {renderSuccessSB}
+      {/* {renderSuccessSB} */}
     </>
   );
 

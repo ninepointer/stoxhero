@@ -163,7 +163,7 @@ export default function InfinityMining() {
     }); 
   }
 
-  console.log(traderSelectedOption)
+  // console.log(traderSelectedOption)
 
   let startDate
   let endDate
