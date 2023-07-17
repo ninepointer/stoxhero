@@ -16,6 +16,7 @@ import BrokerageChart from '../data/BrokerageChart'
 import OrdersChart from '../data/OrderChart'
 import NetPNLChart from '../data/NetPNLChart'
 import GrossPNLChart from '../data/GrossPNLChart'
+import ExpectedPnlChart from '../data/expectedPnlChart'
 import DateRangeComponent from '../data/dateRangeSelection'
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -44,15 +45,19 @@ export default function LabTabs() {
   const [endDate,setEndDate] = React.useState(dayjs(date));
   const [monthWiseData, setMonthWiseData] = useState([]);
   const [dateWiseData, setDateWiseData] = useState([]);
+  const[expected, setExpected] = useState([]);
+  const[tradeType, setTradeType] = useState('virtual');
 
 
   let endpoint ;
   if(alignment === paperTrading){
     endpoint = "papertrade";
+    // setTradeType('virtual');
   } else if(alignment === infinityTrading){
     endpoint = "infinity"
   } else if(alignment === stoxheroTrading){
     endpoint = "stoxhero"
+    // setTradeType('tenX')
   }
 
   const handleChangeView = (event, newAlignment) => {
@@ -64,9 +69,20 @@ export default function LabTabs() {
     const res = await axios.get(`${apiUrl}analytics/${endpoint}/mymonthlypnl`,{withCredentials:true});
     // console.log('res data', res.data.data);
     setMonthWiseData(res.data.data);
-  } 
+  }
+  const getExpectedPnlStats = async()=>{
+    try{
+      const res = await axios.get(`${apiUrl}userdashboard/expectedpnl?tradeType=${tradeType}`, {withCredentials:true});
+      setExpected(res.data.data);
+    }catch(err){
+      console.log(err)
+    }
+  }
+
+  
   useEffect(()=>{
-    getMonthWiseStats()
+    getMonthWiseStats();
+    getExpectedPnlStats();
   },[endpoint])
 
   const handleChange = (event, newValue) => {
@@ -289,6 +305,11 @@ export default function LabTabs() {
           <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <OrdersChart traderType={alignment} dateWiseData={dateWiseData}/>
+          </MDBox>
+          </Grid>
+          <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <ExpectedPnlChart traderType={alignment} dateWiseData = {expected}/>
           </MDBox>
           </Grid>
           
