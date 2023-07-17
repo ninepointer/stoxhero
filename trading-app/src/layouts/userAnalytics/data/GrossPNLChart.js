@@ -9,7 +9,7 @@ useEffect(() => {
 const chartInstance = echarts.init(chartRef.current);
 const option = {
     title: {
-        text: 'Gross P&L'
+        text: 'Gross P&l, Net P&l, Brokerage'
       },
     tooltip: {
         trigger: 'axis',

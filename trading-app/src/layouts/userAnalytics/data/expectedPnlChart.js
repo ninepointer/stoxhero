@@ -9,7 +9,7 @@ useEffect(() => {
 const chartInstance = echarts.init(chartRef.current);
 const option = {
     title: {
-        text: 'Expected P&L'
+        text: 'Expected P&L and Risk to Reward Ratio'
       },
     tooltip: {
         trigger: 'axis',
@@ -45,15 +45,21 @@ const option = {
     yAxis: [
         {
         type: 'value',
-        name:'PNL Axis'
+        name:'PNL Axis',
+        axisLine: {
+            // show: true,
+            lineStyle: {
+                color:'#2e7d95',
+            }
+          },
         },
         {
         type: 'value',
         name: 'Risk-Reward Axis',
         axisLine: {
-            show: true,
+            // show: true,
             lineStyle: {
-                color:'#344767',
+                color:'#ff0000',
             }
           },
         }
@@ -71,7 +77,7 @@ const option = {
             name: 'Risk-Reward Ratio',
             yAxisIndex:1,
             type: 'line',
-            color:'#344767',
+            color:'#ff0000',
             barWidth: '40%',
             data: dateWiseData.map((e)=>e.riskRewardRatio)
         },

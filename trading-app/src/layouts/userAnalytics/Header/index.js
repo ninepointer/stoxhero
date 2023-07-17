@@ -49,14 +49,16 @@ export default function LabTabs() {
   const[tradeType, setTradeType] = useState('virtual');
 
 
-  let endpoint ;
+  let endpoint, trade ;
   if(alignment === paperTrading){
     endpoint = "papertrade";
+    trade='virtual'
     // setTradeType('virtual');
   } else if(alignment === infinityTrading){
     endpoint = "infinity"
   } else if(alignment === stoxheroTrading){
     endpoint = "stoxhero"
+    trade = 'tenX'
     // setTradeType('tenX')
   }
 
@@ -72,7 +74,7 @@ export default function LabTabs() {
   }
   const getExpectedPnlStats = async()=>{
     try{
-      const res = await axios.get(`${apiUrl}userdashboard/expectedpnl?tradeType=${tradeType}`, {withCredentials:true});
+      const res = await axios.get(`${apiUrl}userdashboard/expectedpnl?tradeType=${trade}`, {withCredentials:true});
       setExpected(res.data.data);
     }catch(err){
       console.log(err)
@@ -82,7 +84,9 @@ export default function LabTabs() {
   
   useEffect(()=>{
     getMonthWiseStats();
-    getExpectedPnlStats();
+    if(endpoint!='infinity'){
+      getExpectedPnlStats();
+    }
   },[endpoint])
 
   const handleChange = (event, newValue) => {
@@ -307,11 +311,11 @@ export default function LabTabs() {
             <OrdersChart traderType={alignment} dateWiseData={dateWiseData}/>
           </MDBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          {expected.length>0 && endpoint!='infinity' && <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <ExpectedPnlChart traderType={alignment} dateWiseData = {expected}/>
           </MDBox>
-          </Grid>
+          </Grid>}
           
           {/* <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
