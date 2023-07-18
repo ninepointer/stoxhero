@@ -196,7 +196,7 @@ exports.getUpcomingContests = async (req, res) => {
 exports.getOnlyUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestStartTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
+            contestStartTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active", contestFor: "StoxHero"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -284,7 +284,8 @@ exports.ongoingContest = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestStartTime: { $lte: new Date() },
-            contestEndTime: { $gte: new Date() }
+            contestEndTime: { $gte: new Date() },
+            contestFor: "StoxHero"
         })
             // .populate('portfolio', 'portfolioName _id portfolioValue')
             // .populate('participants.userId', 'first_name last_name email mobile creationProcess')
