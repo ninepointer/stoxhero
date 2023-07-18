@@ -512,6 +512,37 @@ exports.getExpectedPnl = async(req,res,next) => {
   let tradeData = await Model.aggregate(pipeline);
   
   // Second query: go over each day and calculate the cumulative average npnl until that day
+  // let cumulativeNpnl = 0;
+  //   let sumPositiveNpnl = 0;
+  //   let sumNegativeNpnl = 0;
+  //   let countPositiveNpnl = 0;
+  //   let countNegativeNpnl = 0;
+  //   let riskRewardRatio = 0;
+
+  //   for (let i = 0; i < tradeData.length; i++) {
+  //     if (i == 0) {
+  //         tradeData[i].expected_pnl = 0;
+  //     } else {
+  //         tradeData[i].expected_pnl = cumulativeNpnl / i;
+  //         tradeData[i].riskRewardRatio = riskRewardRatio; // assign previous day's riskRewardRatio
+  //     }
+
+  //     cumulativeNpnl += tradeData[i].npnl;
+
+  //     if (tradeData[i].npnl > 0) {
+  //         sumPositiveNpnl += tradeData[i].npnl;
+  //         countPositiveNpnl += 1;
+  //     } else if (tradeData[i].npnl < 0) {
+  //         sumNegativeNpnl += tradeData[i].npnl;
+  //         countNegativeNpnl += 1;
+  //     }
+
+  //     if (i > 0) {
+  //         const avgPositiveNpnl = countPositiveNpnl > 0 ? sumPositiveNpnl/ countPositiveNpnl : 0;
+  //         const avgNegativeNpnl = countNegativeNpnl > 0 ? sumNegativeNpnl/ countNegativeNpnl : 0;
+  //         riskRewardRatio = avgNegativeNpnl !== 0 ? avgPositiveNpnl / Math.abs(avgNegativeNpnl) : 0;
+  //     }
+  // }
   let cumulativeNpnl = 0;
     let sumPositiveNpnl = 0;
     let sumNegativeNpnl = 0;
@@ -520,29 +551,41 @@ exports.getExpectedPnl = async(req,res,next) => {
     let riskRewardRatio = 0;
 
     for (let i = 0; i < tradeData.length; i++) {
-      if (i == 0) {
-          tradeData[i].expected_pnl = 0;
-      } else {
-          tradeData[i].expected_pnl = cumulativeNpnl / i;
-          tradeData[i].riskRewardRatio = riskRewardRatio; // assign previous day's riskRewardRatio
-      }
+        if (i == 0) {
+            tradeData[i].expected_pnl = 0;
+            tradeData[i].expected_avg_profit = 0;
+            tradeData[i].expected_avg_loss = 0;
+        } else {
+            tradeData[i].expected_pnl = cumulativeNpnl / i;
+            tradeData[i].expected_avg_profit = countPositiveNpnl > 0 ? sumPositiveNpnl / countPositiveNpnl : 0;
+            tradeData[i].expected_avg_loss = countNegativeNpnl > 0 ? sumNegativeNpnl / countNegativeNpnl : 0;
+            tradeData[i].riskRewardRatio = riskRewardRatio; // assign previous day's riskRewardRatio
+        }
 
-      cumulativeNpnl += tradeData[i].npnl;
+        cumulativeNpnl += tradeData[i].npnl;
 
-      if (tradeData[i].npnl > 0) {
-          sumPositiveNpnl += tradeData[i].npnl;
-          countPositiveNpnl += 1;
-      } else if (tradeData[i].npnl < 0) {
-          sumNegativeNpnl += tradeData[i].npnl;
-          countNegativeNpnl += 1;
-      }
+        if (tradeData[i].npnl > 0) {
+            sumPositiveNpnl += tradeData[i].npnl;
+            countPositiveNpnl += 1;
+        } else if (tradeData[i].npnl < 0) {
+            sumNegativeNpnl += tradeData[i].npnl;
+            countNegativeNpnl += 1;
+        }
 
-      if (i > 0) {
-          const avgPositiveNpnl = countPositiveNpnl > 0 ? sumPositiveNpnl/ countPositiveNpnl : 0;
-          const avgNegativeNpnl = countNegativeNpnl > 0 ? sumNegativeNpnl/ countNegativeNpnl : 0;
-          riskRewardRatio = avgNegativeNpnl !== 0 ? avgPositiveNpnl / Math.abs(avgNegativeNpnl) : 0;
-      }
-  }
+        if (i > 0) {
+            const avgPositiveNpnl = countPositiveNpnl > 0 ? sumPositiveNpnl / countPositiveNpnl : 0;
+            const avgNegativeNpnl = countNegativeNpnl > 0 ? sumNegativeNpnl / countNegativeNpnl : 0;
+            riskRewardRatio = avgNegativeNpnl !== 0 ? avgPositiveNpnl / Math.abs(avgNegativeNpnl) : 0;
+        }
+    }
+
+    // For the last day, set the riskRewardRatio, expected_avg_profit, and expected_avg_loss
+    if (tradeData.length > 0) {
+        tradeData[tradeData.length - 1].riskRewardRatio = riskRewardRatio;
+        tradeData[tradeData.length - 1].expected_avg_profit = countPositiveNpnl > 0 ? sumPositiveNpnl / countPositiveNpnl : 0;
+        tradeData[tradeData.length - 1].expected_avg_loss = countNegativeNpnl > 0 ? sumNegativeNpnl / countNegativeNpnl : 0;
+    }
+
 
   // For the last day, set the riskRewardRatio
   if (tradeData.length > 0) {
