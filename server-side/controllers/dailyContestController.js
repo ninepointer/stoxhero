@@ -65,14 +65,14 @@ exports.editContest = async (req, res) => {
             return res.status(400).json({ status:"error", message: "Invalid contest ID" });
         }
 
-        const getContest = await Contest.findOne({contestName: updates?.contestName});
+        // const getContest = await Contest.findOne({contestName: updates?.contestName});
 
-        if(getContest){
-            return res.status(500).json({
-                status:'error',
-                message: "Contest is already exist with this name.",
-            });
-        }
+        // if(getContest){
+        //     return res.status(500).json({
+        //         status:'error',
+        //         message: "Contest is already exist with this name.",
+        //     });
+        // }
 
         const result = await Contest.findByIdAndUpdate(id, updates, { new: true }); 
 

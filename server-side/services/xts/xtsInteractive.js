@@ -635,7 +635,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
     let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
 
-    if(Object.keys(marginData).length !== 0 && Object.keys(traderData).length !== 0 ){
+    if(Object.keys(marginData).length !== 0 && Object.keys(traderData).length !== 0 && status == "COMPLETE"){
       const saveMarginCompany = await marginCalculationCompanyLive(marginData, traderData, OrderAverageTradedPrice, order_id);
       const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
     }
@@ -832,7 +832,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
   // let isRedisConnected = getValue();
 
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-    instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser } = traderData
+    instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData } = traderData
 
   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
@@ -973,6 +973,11 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
 
     let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
 
+    if(Object.keys(marginData).length !== 0 && Object.keys(traderData).length !== 0 && status == "COMPLETE"){
+      const saveMarginCompany = await marginCalculationCompanyLive(marginData, traderData, OrderAverageTradedPrice, order_id);
+      const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
+    }
+    
     const companyDoc = {
       appOrderId: AppOrderID, order_id: order_id,
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,

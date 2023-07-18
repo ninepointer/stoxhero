@@ -63,8 +63,16 @@ const {creditAmountToWallet} = require("../../controllers/dailyContestController
 const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
 const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
 const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCompanyMargin")
+const MarginDetailLiveCompany = require("../../models/marginUsed/infinityLiveCompanyMargin")
+const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMargin")
 
 
+
+router.get("/del", async (req, res) => {
+  const compnay = await MarginDetailLiveCompany.deleteMany({trader: new ObjectId("6454bd032a2c3b3e4c07e057")})
+  const user = await MarginDetailLiveUser.deleteMany({trader: new ObjectId("6454bd032a2c3b3e4c07e057")})
+  res.send({data: compnay.length, dat: user.length});
+});
 
 router.get("/uniqueusers", async (req, res) => {
   let pipeline = [
@@ -1001,7 +1009,7 @@ router.get("/dailyPnl", async (req, res)=>{
 router.get("/cronjob", async (req, res)=>{
   // for(let i = 0; i < 4; i++){
   //   let date = `2023-07-1${i}`
-    await cronjob(date);
+    await cronjob();
   // }
   
 })
