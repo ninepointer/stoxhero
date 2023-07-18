@@ -83,7 +83,7 @@ router.get("/uniqueusers", async (req, res) => {
          */
         {
           trade_time: {
-            $gte: new Date("2023-07-17"),
+            $gte: new Date("2023-07-18"),
           },
         },
     },

@@ -256,70 +256,76 @@ function TraderwiseTraderPNL({ socket }) {
 
   rows.push(obj);
 
+  console.log("rows", rows)
+
   return (
-    <Card>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center">
-        <MDBox>
-          <MDTypography variant="h6" gutterBottom p={3}>
-            Daily Contest Trader Position(Company Side)
-          </MDTypography>
-        </MDBox>
+    <>
+      {selectedContest &&
+        <Card>
+          <MDBox display="flex" justifyContent="space-between" alignItems="center">
+            <MDBox>
+              <MDTypography variant="h6" gutterBottom p={3}>
+                Daily Contest Trader Position(Company Side)
+              </MDTypography>
+            </MDBox>
 
-      </MDBox>
+          </MDBox>
 
-      <MDBox sx={{ display: 'flex', alignItems: 'center', marginLeft: '24px' }}>
-        {/* <MDTypography fontSize={15}>Select Contest</MDTypography> */}
-        <TextField
-          select
-          label=""
-          value={selectedContest?.contestName ? selectedContest?.contestName : subscriptions[0]?.contestName}
-          minHeight="4em"
-          // helperText="Please select subscription"
-          variant="outlined"
-          sx={{ margin: 1, padding: 1, width: "300px" }}
-          onChange={(e) => { setselectedContest(subscriptions.filter((item) => item.contestName == e.target.value)[0]) }}
-        >
-          {subscriptions?.map((option) => (
-            <MenuItem key={option.contestName} value={option.contestName} minHeight="4em">
-              {option.contestName}
-            </MenuItem>
-          ))}
-        </TextField>
-        <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-          <MDTypography fontSize={11}>Payout%:&nbsp;</MDTypography>
-          <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.payoutPercentage}</MDTypography>
-        </MDBox>
+          <MDBox sx={{ display: 'flex', alignItems: 'center', marginLeft: '24px' }}>
+            {/* <MDTypography fontSize={15}>Select Contest</MDTypography> */}
+            <TextField
+              select
+              label=""
+              value={selectedContest?.contestName ? selectedContest?.contestName : subscriptions[0]?.contestName}
+              minHeight="4em"
+              // helperText="Please select subscription"
+              variant="outlined"
+              sx={{ margin: 1, padding: 1, width: "300px" }}
+              onChange={(e) => { setselectedContest(subscriptions.filter((item) => item.contestName == e.target.value)[0]) }}
+            >
+              {subscriptions?.map((option) => (
+                <MenuItem key={option.contestName} value={option.contestName} minHeight="4em">
+                  {option.contestName}
+                </MenuItem>
+              ))}
+            </TextField>
+            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDTypography fontSize={11}>Payout%:&nbsp;</MDTypography>
+              <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.payoutPercentage}</MDTypography>
+            </MDBox>
 
-        <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-          <MDTypography fontSize={11}>Entry Fee:&nbsp;</MDTypography>
-          <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee}</MDTypography>
-        </MDBox>
+            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDTypography fontSize={11}>Entry Fee:&nbsp;</MDTypography>
+              <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee}</MDTypography>
+            </MDBox>
 
-        <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-          <MDTypography fontSize={11}>Max Participant:&nbsp;</MDTypography>
-          <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.maxParticipants}</MDTypography>
-        </MDBox>
+            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDTypography fontSize={11}>Max Participant:&nbsp;</MDTypography>
+              <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.maxParticipants}</MDTypography>
+            </MDBox>
 
-        <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-          <MDTypography fontSize={11}>Expected Collection:&nbsp;</MDTypography>
-          <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee * selectedContest?.maxParticipants}</MDTypography>
-        </MDBox>
+            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDTypography fontSize={11}>Expected Collection:&nbsp;</MDTypography>
+              <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee * selectedContest?.maxParticipants}</MDTypography>
+            </MDBox>
 
-        <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-          <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
-          <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * totalTraders)}</MDTypography>
-        </MDBox>
-      </MDBox>
+            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+              <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
+              <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * selectedContest?.participants?.length)}</MDTypography>
+            </MDBox>
+          </MDBox>
 
-      <MDBox>
-        <DataTable
-          table={{ columns, rows }}
-          showTotalEntries={false}
-          isSorted={false}
-          noEndBorder
-        />
-      </MDBox>
-    </Card>
+          <MDBox>
+            <DataTable
+              table={{ columns, rows }}
+              showTotalEntries={false}
+              isSorted={false}
+              noEndBorder
+            />
+          </MDBox>
+        </Card>
+      }
+    </>
   );
 }
 export default TraderwiseTraderPNL;

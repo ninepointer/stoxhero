@@ -13,53 +13,90 @@ import { useNavigate } from "react-router-dom";
 function OnGoingContests() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
+    const [ongoing, setOngoing] = useState([]);
     const [upcoming, setUpcoming] = useState([]);
     const [loading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get(`${baseUrl}api/v1/dailycontest/contests/onlyupcoming`, {
-            withCredentials: true,
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Credentials": true
-            },
-        })
-            .then((res) => {
-                setContest(res.data.data);
-                setTimeout(() => {
-                    setIsLoading(false)
-                }, 1000)
+        // axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`, {
+        //     withCredentials: true,
+        //     headers: {
+        //         Accept: "application/json",
+        //         "Content-Type": "application/json",
+        //         "Access-Control-Allow-Credentials": true
+        //     },
+        // })
+        //     .then((res) => {
+        //         setContest(res.data.data);
+                // setTimeout(() => {
+                //     setIsLoading(false)
+                // }, 1000)
 
-            }).catch((err) => {
-                setIsLoading(false)
-                return new Error(err);
-            })
+        //     }).catch((err) => {
+        //         setIsLoading(false)
+        //         return new Error(err);
+        //     })
 
 
-        axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`, {
-            withCredentials: true,
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Credentials": true
-            },
-        })
-            .then((res) => {
-                setUpcoming(res.data.data);
-                if (contest.length === 0) {
-                    setContest(res.data.data)
+        // axios.get(`${baseUrl}api/v1/dailycontest/contests/onlyupcoming`, {
+        //     withCredentials: true,
+        //     headers: {
+        //         Accept: "application/json",
+        //         "Content-Type": "application/json",
+        //         "Access-Control-Allow-Credentials": true
+        //     },
+        // })
+        //     .then((res) => {
+        //         setUpcoming(res.data.data);
+        //         if (contest.length === 0) {
+        //             setContest(res.data.data)
+        //         }
+        //         setTimeout(() => {
+        //             setIsLoading(false)
+        //         }, 1000)
+
+        //     }).catch((err) => {
+        //         setIsLoading(false)
+        //         return new Error(err);
+        //     })
+
+
+            let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/onlyupcoming`,{
+                withCredentials: true,
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credentials": true
+                    },
+                })
+            let call2 = axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`,{
+                withCredentials: true,
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credentials": true
+                    },
+                })
+            Promise.all([call1, call2])
+            .then(([api1Response, api1Response1]) => {
+
+                setUpcoming(api1Response.data.data)
+                setOngoing(api1Response1.data.data)
+                if(api1Response.data.data?.length === 0){
+                    setContest(api1Response1.data.data)
+                } else if(api1Response1.data.data?.length === 0){
+                    setContest(api1Response.data.data)
                 }
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 1000)
-
-            }).catch((err) => {
-                setIsLoading(false)
-                return new Error(err);
             })
+            .catch((error) => {
+              // Handle errors here
+              console.error(error);
+            });
     }, [])
 
     function changeDateFormat(givenDate) {
@@ -96,6 +133,9 @@ function OnGoingContests() {
 
     }
 
+    let isContestFull;
+    // console.log("upcoming", upcoming, contest)
+
     return (
         <>
             {loading ?
@@ -103,18 +143,19 @@ function OnGoingContests() {
                     <CircularProgress color="info" />
                 </MDBox>
                 :
-                <MDBox bgColor="light" border='1px solid lightgrey' borderRadius={5} minHeight='auto'>
+                <MDBox border='1px solid lightgrey' borderRadius={5} minHeight='auto'>
                     <Grid container display='flex' justifyContent='space-between' alignItems='center'>
                         <Grid item xs={12} md={6} lg={12} m={1}>
                             <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                                 <Grid container alignItems='center'>
                                     <Grid item xs={12} md={6} lg={12}>
-                                        <MDTypography ml={1} fontSize={15} fontWeight="bold">{(upcoming.length === 0 && contest.length !== 0) ? "Ongoing Contests" : contest.length !== 0 ? "Upcoming Contests" : "Contests"}</MDTypography>
+                                        <MDTypography ml={1} fontSize={15} fontWeight="bold" >{(upcoming.length === 0 && ongoing.length !==0) ? "Ongoing Contests" : (upcoming.length !== 0 && ongoing.length ===0) ? "Upcoming Contests" : "Contests"}</MDTypography>
                                     </Grid>
                                 </Grid>
                             </MDBox>
                             {contest.length !== 0 ?
                                 contest.map((elem) => {
+                                    let isContestFull = (elem.maxParticipants - elem.participants.length) === 0;
                                     return (
                                         <MDBox key={elem._id} bgColor="light" borderRadius={5} minHeight='auto' mt={2}>
                                             <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center'>
@@ -128,11 +169,11 @@ function OnGoingContests() {
                                                             <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                                 <MDTypography
                                                                     fontSize={15}
-                                                                    color='light'
+                                                                    
                                                                     fontWeight="bold"
-                                                                    style={{ animation: 'blinking .8s infinite' }}
+                                                                    style={{ color: isContestFull ? "black" : 'light', animation: isContestFull ? '' : 'blinking .8s infinite' }}
                                                                 >
-                                                                    Limited seats available - Join now!
+                                                                    {isContestFull ? "Contest Full" : "Limited seats available - Join now!"}
                                                                 </MDTypography>
                                                                 <style>
                                                                     {`
@@ -163,12 +204,16 @@ function OnGoingContests() {
                                                                 <MDTypography fontSize={12} color='light' fontWeight="bold">Starts On: {changeDateFormat(elem?.contestStartTime)}</MDTypography>
                                                             </Grid>
 
-                                                            <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            {!isContestFull &&
+                                                            <>
+                                                                                                                        <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                             </Grid>
+
                                                             <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
                                                                 <MDTypography fontSize={12} color='light' fontWeight="bold">Spots Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
-                                                                {/* <MDTypography fontSize={12} color='light' fontWeight="bold">Payout: {elem?.payoutPercentage}%</MDTypography> */}
                                                             </Grid>
+                                                            </>
+                                                           }
                                                             <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                             </Grid>
                                                             <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>

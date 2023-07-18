@@ -169,7 +169,7 @@ exports.getContest = async (req, res) => {
 exports.getUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gt: new Date() }, contestFor: "StoxHero"
+            contestEndTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -196,7 +196,7 @@ exports.getUpcomingContests = async (req, res) => {
 exports.getOnlyUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestStartTime: { $gt: new Date() }, contestEndTime: { $gt: new Date() }, contestFor: "StoxHero"
+            contestStartTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -852,7 +852,7 @@ exports.creditAmountToWallet = async () => {
                         },
                     ])
 
-                    // console.log(pnlDetails[0]);
+                    console.log(pnlDetails[0]);
                     if (pnlDetails[0]?.npnl > 0) {
                         const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
                         const wallet = await Wallet.findOne({ userId: userId });
