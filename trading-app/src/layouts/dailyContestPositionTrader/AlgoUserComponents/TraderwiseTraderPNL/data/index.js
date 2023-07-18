@@ -8,7 +8,7 @@ export default function data() {
       { Header: "# of Trades", accessor: "noOfTrade", width: "12.5%", align: "center" },
       { Header: "Running Lots", accessor: "runningLots", width: "12.5%", align: "center" },
       { Header: "Lots Used", accessor: "lotUsed", width: "12.5%", align: "center" },
-      { Header: "Brokegrage", accessor: "brokerage", width: "12.5%", align: "center" },
+      { Header: "Brokerage", accessor: "brokerage", width: "12.5%", align: "center" },
       { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
       { Header: "Payout", accessor: "payout", width: "12.5%", align: "center" },
       { Header: "Email", accessor: "email", width: "12.5%", align: "center" },

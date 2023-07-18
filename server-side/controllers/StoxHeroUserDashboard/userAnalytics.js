@@ -608,7 +608,7 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
             year: "$_id.year",
             month: "$_id.month",
           },
-          totalActiveUsers: { $sum: 1 },
+          uniqueTraders: { $addToSet: "$_id.trader" },
         },
       },
       {
@@ -629,24 +629,43 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
     const contestTraders = await ContestTrading.aggregate(pipeline);
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
 
-    // Combine the results from all collections
-    const combinedResults = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders];
-
-    // Calculate the total unique active users per month
-    const monthlyActiveUsers = combinedResults.reduce((result, { _id, totalActiveUsers }) => {
-      const { year, month } = _id;
-      const formattedMonth = `${year}-${month.toString().padStart(2, "0")}`;
-
-      const existingMonth = result.find(entry => entry.month === formattedMonth);
-      if (existingMonth) {
-        existingMonth.activeUsers += totalActiveUsers;
-      } else {
-        result.push({ month: formattedMonth, activeUsers: totalActiveUsers });
+    let monthlyActiveUsers = [];
+    for (let elem of tenXTraders) {
+      let arr = [];
+      arr = arr.concat(elem?.uniqueTraders);
+      for (let subelem of virtualTraders) {
+        if (elem._id?.year === subelem._id?.year && elem._id?.month === subelem._id?.month) {
+          arr = arr.concat(subelem?.uniqueTraders);
+        }
       }
 
-      return result;
-    }, []);
+      for (let subelem of contestTraders) {
+        if (elem._id?.year === subelem._id?.year && elem._id?.month === subelem._id?.month) {
+          arr = arr.concat(subelem?.uniqueTraders);
+        }
+      }
 
+      for (let subelem of internshipTraders) {
+        if (elem._id?.year === subelem._id?.year && elem._id?.month === subelem._id?.month) {
+          arr = arr.concat(subelem?.uniqueTraders);
+        }
+      }
+
+      // console.log(arr.length)
+
+      // const uniqueArray = [...new Set(arr)];
+      const uniqueArray = arr.filter((value, index, self) => {
+        console.log(self)
+        return index === self.findIndex(obj => obj.toString() === value.toString());
+      });
+
+      // console.log(uniqueArray.length)
+      const { year, month } = elem?._id;
+      const formattedMonth = `${year}-${month.toString().padStart(2, "0")}`;
+      monthlyActiveUsers.push({ month: formattedMonth, activeUsers: uniqueArray.length });
+    }
+
+    // console.log(monthlyActiveUsers)
     // Sort the array in increasing order of year and month
     monthlyActiveUsers.sort((a, b) => {
       return a.month.localeCompare(b.month);
@@ -667,6 +686,28 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
     });
   }
 };
+
+
+
+
+    // Combine the results from all collections
+    // console.log(monthlyActiveUsers)
+    // const combinedResults = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders];
+
+    // // Calculate the total unique active users per month
+    // const monthlyActiveUsers = combinedResults.reduce((result, { _id, totalActiveUsers }) => {
+    //   const { year, month } = _id;
+    //   const formattedMonth = `${year}-${month.toString().padStart(2, "0")}`;
+
+    //   const existingMonth = result.find(entry => entry.month === formattedMonth);
+    //   if (existingMonth) {
+    //     existingMonth.activeUsers += totalActiveUsers;
+    //   } else {
+    //     result.push({ month: formattedMonth, activeUsers: totalActiveUsers });
+    //   }
+
+    //   return result;
+    // }, []);
 
 
 

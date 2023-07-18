@@ -241,7 +241,7 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
                                     // console.log("timeDifference", particularContestTime[0]?.value )
                                     return (
                                         <Grid item py={1} px={1} xs={12} md={12} lg={6} borderRadius={3}>
-                                            <MDButton variant="contained" style={{ backgroundColor: elem?.entryFee > 0 ? "#252525" : "light" }} color={"#252525"} size="small">
+                                            <MDButton variant="contained" style={{ backgroundColor: "#252525" }} color={"#252525"} size="small">
                                                 <Grid container display='flex' justifyContent='space-between' alignItems='center'>
                                                     <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         <img src={elem?.entryFee > 0 ? WinnerImage : ContestCarousel} width='40px' height='40px' />
@@ -249,11 +249,11 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
                                                     <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: elem?.entryFee > 0 ? "#DBB670" : "dark" }}>{elem.contestName}</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' sx={{color:  "#DBB670" }}>{elem.contestName}</MDTypography></MDBox>
                                                             </MDBox>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>
-                                                                <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} sx={{ color: elem?.entryFee > 0 ? "#DBB670" : "dark" }}>{changeDateFormat(elem.contestStartTime)}</MDTypography></MDBox>
-                                                                <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} sx={{ color: elem?.entryFee > 0 ? "#DBB670" : "dark" }}>{changeDateFormat(elem.contestEndTime)}</MDTypography></MDBox>
+                                                                <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} sx={{color:  "#DBB670" }}>{changeDateFormat(elem.contestStartTime)}</MDTypography></MDBox>
+                                                                <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} sx={{color:  "#DBB670" }}>{changeDateFormat(elem.contestEndTime)}</MDTypography></MDBox>
                                                                 {
                                                                     contestOn.map((elem, index) => {
                                                                         return (
@@ -271,7 +271,7 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color={elem?.entryFee > 0 ? "#DBB670" : "#DBB670"} sx={{ color: elem?.entryFee > 0 ? "#DBB670" : "dark" }}>{elem?.payoutPercentage}% of the net P&L</MDTypography></MDBox>
+                                                                <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold'sx={{color:  "#DBB670" }}>{elem?.payoutPercentage}% of the net P&L</MDTypography></MDBox>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -286,11 +286,11 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color={elem?.entryFee > 0 ? "#DBB670" : "dark"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹" + elem?.entryFee : "FREE"}</MDTypography></MDBox>
+                                                            <MDBox color={ "#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: '#DBB670', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹" + elem?.entryFee : "FREE"}</MDTypography></MDBox>
                                                         </MDBox>
 
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color={elem?.entryFee > 0 ? "#DBB670" : "dark"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
+                                                            <MDBox color={ "#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: '#DBB670', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Portfolio: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolio?.portfolioValue)}</MDTypography></MDBox>
                                                         </MDBox>
                                                     </Grid>
 
@@ -305,16 +305,16 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
 
                                                             <MDBox display="flex" justifyContent="space-between">
                                                                 <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                    <HiUserGroup color='light' /><MDBox color={elem?.entryFee > 0 ? "#DBB670" : "dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
+                                                                    <HiUserGroup color="#DBB670" /><MDBox color={ "#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
                                                                 </MDBox>
                                                                 <MDBox color="light" fontSize={10}>
-                                                                    <MDBox color={elem?.entryFee > 0 ? "#DBB670" : "dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOT LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
+                                                                    <MDBox color={ "#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOTS LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
                                                                 </MDBox>
                                                             </MDBox>
                                                             :
                                                             particularContestTime[0]?.value <= 0 &&
-                                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                <HiUserGroup color='light' /><MDBox color={elem?.entryFee > 0 ? "#DBB670" : "dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
+                                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="flex-start" alignItems='center'>
+                                                                <HiUserGroup color="#DBB670" /><MDBox color={ "#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
                                                             </MDBox>}
                                                     </Grid>
 

@@ -170,10 +170,12 @@ function Index() {
 
 
   async function onSubmit(e, formState) {
-    console.log("inside submit")
+    // console.log("inside submit")
     e.preventDefault()
     console.log(formState)
-    // || (formState.isNifty !== "false" || formState.isBankNifty !== "false" || formState.isFinNifty !== "false" || formState.isAllIndex !== "false")
+    if(formState.contestStartTime > formState.contestEndTime){
+      return openErrorSB("Error", "Date range is not valid.")
+    }
     if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
@@ -213,11 +215,16 @@ function Index() {
 
   async function onEdit(e, formState) {
     e.preventDefault()
-    console.log("Edited FormState: ", formState, contest?._id)
+    console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
     setSaving(true)
-    console.log(formState)
+    console.log("formstate", formState)
+
+    if(new Date(formState.contestStartTime).toISOString() > new Date(formState.contestEndTime).toISOString()){
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+      return openErrorSB("Error", "Date range is not valid.")
+    }
     
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || !formState.entryFee || !formState.contestFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || !formState.contestFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }

@@ -13,12 +13,13 @@ import { useNavigate } from "react-router-dom";
 function OnGoingContests() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
+    const [upcoming, setUpcoming] = useState([]);
     const [loading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         setIsLoading(true)
-        axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`, {
+        axios.get(`${baseUrl}api/v1/dailycontest/contests/onlyupcoming`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -36,6 +37,29 @@ function OnGoingContests() {
                 setIsLoading(false)
                 return new Error(err);
             })
+
+
+            axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`, {
+                withCredentials: true,
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credentials": true
+                },
+            })
+                .then((res) => {
+                    setUpcoming(res.data.data);
+                    if(contest.length === 0){
+                        setContest(res.data.data)
+                    }
+                    setTimeout(() => {
+                        setIsLoading(false)
+                    }, 1000)
+    
+                }).catch((err) => {
+                    setIsLoading(false)
+                    return new Error(err);
+                })
     }, [])
 
     function changeDateFormat(givenDate) {
@@ -85,7 +109,7 @@ function OnGoingContests() {
                             <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                                 <Grid container alignItems='center'>
                                     <Grid item xs={12} md={6} lg={12}>
-                                        <MDTypography ml={1} fontSize={15} fontWeight="bold">Ongoing Contests</MDTypography>
+                                        <MDTypography ml={1} fontSize={15} fontWeight="bold">{contest.length === 0 ? "Ongoing Contests" : upcoming.length === 0 ? "Upcoming Contests" : "Contests"}</MDTypography>
                                     </Grid>
                                 </Grid>
                             </MDBox>
@@ -141,7 +165,7 @@ function OnGoingContests() {
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Spot Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
+                                                            <MDTypography fontSize={12} color='light' fontWeight="bold">Spots Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
                                                             {/* <MDTypography fontSize={12} color='light' fontWeight="bold">Payout: {elem?.payoutPercentage}%</MDTypography> */}
                                                         </Grid>
                                                         <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>

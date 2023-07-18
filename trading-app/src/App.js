@@ -65,6 +65,8 @@ import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
+import Contests from "../src/layouts/UserDailyContest/Header/contests"
+
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID)
@@ -118,7 +120,8 @@ export default function App() {
       console.log("Fail to fetch data of user");
       noCookie = true;
       console.log(err);
-      pathname === '/login' ? navigate("/login") : navigate(pathname);
+      pathname === '/contest' ? navigate("/") : pathname === '/collegecontest' ? navigate("/") : navigate(pathname);
+      // navigate("/")
       setIsLoading(false);
     })
   }, [])
@@ -204,6 +207,8 @@ export default function App() {
     return <div></div>; // Replace this with your actual loading component or spinner
   }
 
+  // console.log("cookieValue", cookieValue, pathname)
+
   return direction === "rtl" ? (
     
       <CacheProvider value={rtlCache}>
@@ -241,8 +246,6 @@ export default function App() {
         {layout === "dashboard" && (
           <>
           {
-                // console.log(getDetails?.userDetails?.role?.roleName , adminRole , getDetails?.userDetails?.role?.roleName , userRole, getDetails?.userDetails?.role?.roleName , InfinityTraderRole , getDetails?.userDetails?.role?.roleName , "data")
-
             (getDetails?.userDetails?.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
             <Sidenav
               color={sidenavColor}
@@ -282,12 +285,6 @@ export default function App() {
           pathname == "/signup" ?
           <Route path="/signup" element={<SignUp location={myLocation.current} />} />
           :
-          // pathname == "/careers" ?
-          // <Route path="/careers" element={<Navigate to='/careers'/>} />
-          // :
-          // pathname == "/workshops" ?
-          // <Route path="/workshops" element={<Navigate to='/workshops'/>} />
-          // :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :
@@ -303,6 +300,8 @@ export default function App() {
           // <Route path="/" element={<Navigate to="/virtualtrading" />} />
           
           }
+
+
           <Route path='/resetpassword' element={<ResetPassword/>}/>
           <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
           <Route path='/privacy' element={<Privacy/>}/>
@@ -313,7 +312,7 @@ export default function App() {
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
-            
+
         </Routes>
       </ThemeProvider>
   );

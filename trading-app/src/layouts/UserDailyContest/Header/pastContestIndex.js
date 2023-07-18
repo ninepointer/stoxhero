@@ -22,7 +22,7 @@ import MDBox from "../../../components/MDBox";
 // import ContestCup from '../../../assets/images/candlestick-chart.png'
 // import { Divider } from "@mui/material";
 import ContestHeader from './contestHeader'
-import Contests from './pastContest'
+import Contests from './completedContest/completed'
 
 
 

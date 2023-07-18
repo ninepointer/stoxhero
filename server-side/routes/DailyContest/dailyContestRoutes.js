@@ -25,6 +25,8 @@ router.put('/contest/:id/remove/:userId', contestController.removeAllowedUser);
 // Routes for getting contests 
 router.get('/contests', contestController.getAllContests);
 router.get('/contests/upcoming', contestController.getUpcomingContests);
+router.get('/contests/onlyupcoming', contestController.getOnlyUpcomingContests);
+
 router.get('/contests/today', contestController.todaysContest);
 router.get('/contests/ongoing', contestController.ongoingContest);
 

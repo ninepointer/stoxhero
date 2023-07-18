@@ -4,6 +4,7 @@ import MDBox from '../../../components/MDBox';
 import moment from 'moment';
 
 export default function Charts({monthlyActiveUsers}) {
+
     const chartRef = useRef(null);
   // Dummy data for example purposes
   const data = [

@@ -15,7 +15,7 @@ exports.contestChecks = async(req,res,next) => {
         })
 
         if(user.length === 0){
-            return res.status(404).json({ status: "error", message: "You are not participated in this contest."}); 
+            return res.status(404).json({ status: "error", message: "You have not participated in this contest."}); 
         }
 
         next();
