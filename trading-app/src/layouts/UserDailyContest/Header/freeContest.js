@@ -58,28 +58,6 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
         });
     };
 
-    // useEffect(() => {
-    //     setIsLoading(true)
-    //     axios.get(`${baseUrl}api/v1/dailycontest/contests/upcoming`, {
-    //         withCredentials: true,
-    //         headers: {
-    //             Accept: "application/json",
-    //             "Content-Type": "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //         },
-    //     })
-    //     .then((res) => {
-    //         setContest(res.data.data);
-    //         setTimeout(()=>{
-    //             setIsLoading(false)
-    //         },1000)
-
-    //     }).catch((err) => {
-    //         setIsLoading(false)
-    //         return new Error(err);
-    //     })
-    // }, [isInterested, showPay])
-
     useEffect(() => {
         if (serverTime) {
             setTimeout(() => {
@@ -189,22 +167,7 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
         <>
             <MDBox mr={1}>
 
-                {/* {loading && serverTime ?
-                    <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-                        <CircularProgress color="light" />
-                    </MDBox>
-                    : */}
                 <>
-                    {/* <MDBox mt={-1} p={0.5} mb={0} width='100%' bgColor='light' minHeight='auto' display='flex' borderRadius={7}>
-                            <MDButton bgColor='dark' color={"warning"} size='small' 
-                                component={Link}
-                                to={{
-                                    pathname: `/completedcontests`,
-                                }}
-                            >
-                                {"View Past Contest"}
-                            </MDButton>
-                        </MDBox> */}
                     <Grid container xs={12} md={12} lg={12}>
                         {
                             contest?.map((elem) => {

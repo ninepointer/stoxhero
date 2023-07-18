@@ -87,7 +87,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={1.4} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>Paymeny Status: <span style={{fontSize:11,fontWeight:700}}>{e?.paymentStatus ? e?.paymentStatus : 'Status not available'}</span></MDTypography>
+                              <MDTypography fontSize={9} style={{color:"black"}}>Contest Type: <span style={{fontSize:11,fontWeight:700}}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
                               </Grid>
       
                           </Grid>

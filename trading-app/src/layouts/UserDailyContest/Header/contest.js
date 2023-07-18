@@ -58,7 +58,7 @@ export default function LabTabs() {
 
             {isLoading ?
                 <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
-                    <CircularProgress color='info' />
+                    <CircularProgress color='light' />
                 </MDBox>
                 :
                 <>
@@ -74,21 +74,25 @@ export default function LabTabs() {
                     </MDBox>
                     <Grid container >
                         <Grid item xs={12} md={6} lg={12}>
-                            {paid.length &&
-                            <MDTypography color="light" fontWeight="bold">Premium Contest(s)</MDTypography>
+                            {paid.length !== 0 &&
+                            <>
+                                <MDTypography color="light" fontWeight="bold">Premium Contest(s)</MDTypography>
+                                <PaidContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
+                            </>
                             }
-                            <PaidContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
                         </Grid>
 
-                        <Divider style={{ backgroundColor: 'light' }}/>
+                        {/* <Divider style={{ backgroundColor: 'light' }}/> */}
 
                         <Grid item xs={12} md={6} lg={12}>
-                            {free.length &&
-                            <MDTypography  color="light" fontWeight="bold" mt={1}>Free Contest(s)</MDTypography>
+                            {free.length !== 0 &&
+                            <>
+                                <MDTypography  color="light" fontWeight="bold" mt={1}>Free Contest(s)</MDTypography>
+                                <MDBox style={{ minWidth: '100%' }}>
+                                    <FreeContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} />
+                                </MDBox>
+                            </>
                             }
-                            <MDBox style={{ minWidth: '100%' }}>
-                                <FreeContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} />
-                            </MDBox>
                         </Grid>
                     </Grid>
                 </>

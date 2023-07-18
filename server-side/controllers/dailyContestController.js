@@ -12,9 +12,9 @@ const UserWallet = require("../models/UserWallet/userWalletSchema")
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const {contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
+        const { contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex} = req.body;
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex } = req.body;
         // console.log(req.body)
 
         // const getContest = await Contest.findOne({collegeCode: collegeCode});
@@ -22,33 +22,35 @@ exports.createContest = async (req, res) => {
         //     return res.status(500).json({
         //         status:'error',
         //         message: "College Code is already exist.",
-                
+
         //     });
         // }
 
-        const getContest = await Contest.findOne({contestName: contestName});
+        const getContest = await Contest.findOne({ contestName: contestName });
 
-        if(getContest){
+        if (getContest) {
             return res.status(500).json({
-                status:'error',
+                status: 'error',
                 message: "Contest is already exist with this name.",
             });
         }
 
-        const contest = await Contest.create({maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
-            contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy:req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode});
+        const contest = await Contest.create({
+            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
+            contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode
+        });
 
-            // console.log(contest)
+        // console.log(contest)
         res.status(201).json({
-            status:'success',
+            status: 'success',
             message: "Contest created successfully",
             data: contest
         });
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            status:'error',
+            status: 'error',
             message: "Something went wrong",
             error: error.message
         });
@@ -62,7 +64,7 @@ exports.editContest = async (req, res) => {
         const updates = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ status:"error", message: "Invalid contest ID" });
+            return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
 
         // const getContest = await Contest.findOne({contestName: updates?.contestName});
@@ -74,19 +76,19 @@ exports.editContest = async (req, res) => {
         //     });
         // }
 
-        const result = await Contest.findByIdAndUpdate(id, updates, { new: true }); 
+        const result = await Contest.findByIdAndUpdate(id, updates, { new: true });
 
         if (!result) {
-            return res.status(404).json({ status:"error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "Contest not found" });
         }
 
         res.status(200).json({
-            status:'success',
+            status: 'success',
             message: "Contest updated successfully",
         });
     } catch (error) {
         res.status(500).json({
-            status:'error',
+            status: 'error',
             message: "Error in updating contest",
             error: error.message
         });
@@ -99,23 +101,23 @@ exports.deleteContest = async (req, res) => {
         const { id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ status:"error", message: "Invalid contest ID" });
+            return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
 
         const result = await Contest.findByIdAndDelete(id);
 
         if (!result) {
-            return res.status(404).json({ status:"error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "Contest not found" });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Contest deleted successfully",
             data: result
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -124,16 +126,16 @@ exports.deleteContest = async (req, res) => {
 // Controller for getting all contests
 exports.getAllContests = async (req, res) => {
     try {
-        const contests = await Contest.find({}).sort({contestStartTime: -1})
+        const contests = await Contest.find({}).sort({ contestStartTime: -1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -142,21 +144,21 @@ exports.getAllContests = async (req, res) => {
 
 // Controller for getting all contests
 exports.getContest = async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     try {
-        const contests = await Contest.findOne({_id: id})
-        .populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('college','collegeName zone')
-        .sort({contestStartTime: -1})
+        const contests = await Contest.findOne({ _id: id })
+            .populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('college', 'collegeName zone')
+            .sort({ contestStartTime: -1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -169,21 +171,21 @@ exports.getUpcomingContests = async (req, res) => {
         const contests = await Contest.find({
             contestEndTime: { $gt: new Date() }, contestFor: "StoxHero"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-        .populate('college', 'collegeName zone')
-        .sort({contestStartTime: 1})
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+            .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+            .populate('college', 'collegeName zone')
+            .sort({ contestStartTime: 1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Upcoming contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Error in fetching upcoming contests",
             error: error.message
         });
@@ -196,21 +198,21 @@ exports.getAdminUpcomingContests = async (req, res) => {
         const contests = await Contest.find({
             contestEndTime: { $gt: new Date() }
         }).populate('portfolio', 'portfolioName _id portfolioValue')
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-        .populate('college', 'collegeName zone')
-        .sort({contestStartTime: 1})
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+            .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+            .populate('college', 'collegeName zone')
+            .sort({ contestStartTime: 1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Upcoming contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Error in fetching upcoming contests",
             error: error.message
         });
@@ -223,22 +225,22 @@ exports.todaysContest = async (req, res) => {
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
-  
+
     try {
         const contests = await Contest.find({
             contestEndTime: { $gte: today }
         }).populate('portfolio', 'portfolioName _id portfolioValue')
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .sort({contestStartTime: 1})
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .sort({ contestStartTime: 1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Today's contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Error in fetching upcoming contests",
             error: error.message
         });
@@ -251,24 +253,24 @@ exports.ongoingContest = async (req, res) => {
     // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     // todayDate = todayDate + "T00:00:00.000Z";
     // const today = new Date(todayDate);
-  
+
     try {
         const contests = await Contest.find({
             contestStartTime: { $lte: new Date() },
-            contestEndTime: {$gte: new Date()}
+            contestEndTime: { $gte: new Date() }
         })
-        // .populate('portfolio', 'portfolioName _id portfolioValue')
-        // .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .sort({contestStartTime: 1})
+            // .populate('portfolio', 'portfolioName _id portfolioValue')
+            // .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .sort({ contestStartTime: 1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "ongoing contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Error in fetching ongoing contests",
             error: error.message
         });
@@ -281,21 +283,21 @@ exports.getUpcomingCollegeContests = async (req, res) => {
         const contests = await Contest.find({
             contestEndTime: { $gt: new Date() }, contestFor: "College"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-        .populate('college', 'collegeName zone')
-        .sort({contestStartTime: 1})
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+            .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+            .populate('college', 'collegeName zone')
+            .sort({ contestStartTime: 1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Upcoming contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Error in fetching upcoming contests",
             error: error.message
         });
@@ -304,21 +306,21 @@ exports.getUpcomingCollegeContests = async (req, res) => {
 
 exports.getCommpletedContestsAdmin = async (req, res) => {
     try {
-        const contests = await Contest.find({contestStatus : 'Completed'})
-        .populate('portfolio', 'portfolioName _id portfolioValue')
-        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-        .sort({contestStartTime: -1})
+        const contests = await Contest.find({ contestStatus: 'Completed' })
+            .populate('portfolio', 'portfolioName _id portfolioValue')
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+            .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+            .sort({ contestStartTime: -1 })
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Upcoming contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Error in fetching upcoming contests",
             error: error.message
         });
@@ -331,16 +333,16 @@ exports.getCompletedContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "StoxHero"
-        }).sort({contestStartTime: -1})
+        }).sort({ contestStartTime: -1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Completed contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -353,16 +355,16 @@ exports.getCompletedCollegeContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "College"
-        }).sort({contestStartTime: -1})
+        }).sort({ contestStartTime: -1 })
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Completed contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -372,16 +374,16 @@ exports.getCompletedCollegeContests = async (req, res) => {
 // Controller for getting draft contests
 exports.getDraftContests = async (req, res) => {
     try {
-        const contests = await Contest.find({ contestStatus: 'Draft' }).sort({contestStartTime: -1});
+        const contests = await Contest.find({ contestStatus: 'Draft' }).sort({ contestStartTime: -1 });
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Draft contests fetched successfully",
             data: contests
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -394,7 +396,7 @@ exports.addAllowedUser = async (req, res) => {
         const { id, userId } = req.params; // ID of the contest and the user to add
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({status:"success", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
         }
 
         const result = await Contest.findByIdAndUpdate(
@@ -404,17 +406,17 @@ exports.addAllowedUser = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({status:"error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "Contest not found" });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "User added to allowedUsers successfully",
             data: result
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -504,38 +506,38 @@ exports.registerUserToContest = async (req, res) => {
         const userId = req.user._id;
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({status:"error", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "error", message: "Invalid contest ID or user ID" });
         }
         const result = await Contest.findByIdAndUpdate(
             id,
             {
-              $addToSet: {
-                interestedUsers: {
-                  $each: [
-                    {
-                      userId: userId,
-                      registeredOn: new Date(),
-                      status: 'Joined',
+                $addToSet: {
+                    interestedUsers: {
+                        $each: [
+                            {
+                                userId: userId,
+                                registeredOn: new Date(),
+                                status: 'Joined',
+                            },
+                        ],
                     },
-                  ],
                 },
-              },
             },
             { new: true }
-          );
+        );
 
         if (!result) {
-            return res.status(404).json({status:"error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "Contest not found" });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "User registered to contest successfully",
             data: result
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -555,17 +557,17 @@ exports.purchaseIntent = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({status:"error", message: "Something went wrong." });
+            return res.status(404).json({ status: "error", message: "Something went wrong." });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Intent Saved successfully",
             data: result
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -578,38 +580,38 @@ exports.copyAndShare = async (req, res) => {
         const userId = req.user._id;
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({status:"error", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "error", message: "Invalid contest ID or user ID" });
         }
 
         const result = await Contest.findByIdAndUpdate(
             id,
             {
-              $addToSet: {
-                contestSharedBy: {
-                  $each: [
-                    {
-                      userId: userId,
-                      sharedAt: new Date(),
+                $addToSet: {
+                    contestSharedBy: {
+                        $each: [
+                            {
+                                userId: userId,
+                                sharedAt: new Date(),
+                            },
+                        ],
                     },
-                  ],
                 },
-              },
             },
             { new: true }
-          );
+        );
 
         if (!result) {
-            return res.status(404).json({status:"error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "Contest not found" });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "User share to contest successfully",
             data: result
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -621,11 +623,11 @@ exports.participateUsers = async (req, res) => {
         const { id } = req.params; // ID of the contest 
         const userId = req.user._id;
 
-        const contest = await Contest.findOne({_id: id});
+        const contest = await Contest.findOne({ _id: id });
 
-        for(let i = 0; i < contest.participants?.length; i++){
-            if(contest.participants[i]?.userId?.toString() === userId?.toString()){
-                return res.status(404).json({ status: "error", message: "You have already participated in this contest."}); 
+        for (let i = 0; i < contest.participants?.length; i++) {
+            if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
+                return res.status(404).json({ status: "error", message: "You have already participated in this contest." });
             }
         }
 
@@ -651,7 +653,7 @@ exports.participateUsers = async (req, res) => {
 
         // console.log("getActiveContest", getActiveContest)
 
-        if(getActiveContest.length > 0){
+        if (getActiveContest.length > 0) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
                 contest.save();
@@ -660,7 +662,7 @@ exports.participateUsers = async (req, res) => {
         }
 
 
-        
+
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
@@ -676,17 +678,17 @@ exports.participateUsers = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({status:"error", message: "Something went wrong." });
+            return res.status(404).json({ status: "error", message: "Something went wrong." });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Participate successfully",
             data: result
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -697,9 +699,9 @@ exports.verifyCollageCode = async (req, res) => {
     try {
         const { id } = req.params; // ID of the contest 
         const userId = req.user._id;
-        const {collegeCode} = req.body;
+        const { collegeCode } = req.body;
 
-        const contest = await Contest.findOne({_id: id});
+        const contest = await Contest.findOne({ _id: id });
 
         const getActiveContest = await Contest.find({
             participants: {
@@ -720,7 +722,7 @@ exports.verifyCollageCode = async (req, res) => {
             ]
         })
 
-        if(getActiveContest.length > 0){
+        if (getActiveContest.length > 0) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
                 contest.save();
@@ -730,11 +732,11 @@ exports.verifyCollageCode = async (req, res) => {
 
         // console.log("collageCode", collegeCode, contest?.collegeCode)
 
-        if(collegeCode !== contest?.collegeCode){
-            return res.status(404).json({ status: "error", message: "The College Code which you have entered is incorrect. Please contact your college POC for the correct College Code." }); 
+        if (collegeCode !== contest?.collegeCode) {
+            return res.status(404).json({ status: "error", message: "The College Code which you have entered is incorrect. Please contact your college POC for the correct College Code." });
         }
 
-        
+
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
@@ -750,17 +752,17 @@ exports.verifyCollageCode = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({status:"error", message: "Something went wrong." });
+            return res.status(404).json({ status: "error", message: "Something went wrong." });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Participate successfully",
             data: result
         });
     } catch (error) {
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
@@ -775,14 +777,14 @@ exports.creditAmountToWallet = async () => {
         let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
-    
+
         // const { id } = req.params; // ID of the contest 
         // const userId = req.user._id; Wallet
-        const contest = await Contest.find({contestStatus: "Active"});
+        const contest = await Contest.find({ contestStatus: "Active" });
 
-        for(let j = 0; j < contest.length; j++){
-            if(contest[j].contestEndTime < new Date()){
-                for(let i = 0; i < contest[j]?.participants?.length; i++){
+        for (let j = 0; j < contest.length; j++) {
+            if (contest[j].contestEndTime < new Date()) {
+                for (let i = 0; i < contest[j]?.participants?.length; i++) {
                     let userId = contest[j]?.participants[i]?.userId;
                     let payoutPercentage = contest[j]?.payoutPercentage
                     let id = contest[j]._id;
@@ -822,7 +824,7 @@ exports.creditAmountToWallet = async () => {
                             },
                         },
                     ])
-                    
+
                     // console.log(pnlDetails[0]);
                     if (pnlDetails[0]?.npnl > 0) {
                         const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
@@ -928,17 +930,30 @@ exports.getDailyContestUsers = async (req, res) => {
     }
 };
 
-exports.deductSubscriptionAmount = async(req,res,next) => {
+exports.deductSubscriptionAmount = async (req, res, next) => {
 
     try {
-        const {contestFee, contestName, contestId} = req.body
+        const { contestFee, contestName, contestId } = req.body
         const userId = req.user._id;
 
-        const contest = await Contest.findOne({_id: contestId});
+        const contest = await Contest.findOne({ _id: contestId });
+        const wallet = await UserWallet.findOne({ userId: userId });
 
-        for(let i = 0; i < contest.participants?.length; i++){
-            if(contest.participants[i]?.userId?.toString() === userId?.toString()){
-                return res.status(404).json({ status: "error", message: "You have already participated in this contest."}); 
+        const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Cash";
+        });
+
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+
+        if (totalCashAmount < contest?.entryFee) {
+            return res.status(404).json({ status: "error", message: "You have not enough balance to join this contest. Please add money to your wallet." });
+        }
+
+        for (let i = 0; i < contest.participants?.length; i++) {
+            if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
+                return res.status(404).json({ status: "error", message: "You have already participated in this contest." });
             }
         }
 
@@ -956,7 +971,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             { new: true }  // This option ensures the updated document is returned
         );
 
-        const wallet = await UserWallet.findOne({userId: userId});
+
         wallet.transactions = [...wallet.transactions, {
             title: 'Contest Fee',
             description: `Amount deducted for the contest fee of ${contestName} contest`,
@@ -968,18 +983,18 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         wallet.save();
 
         if (!result || !wallet) {
-            return res.status(404).json({status:"error", message: "Something went wrong." });
+            return res.status(404).json({ status: "error", message: "Something went wrong." });
         }
 
         res.status(200).json({
-            status:"success",
+            status: "success",
             message: "Paid successfully",
             data: result
         });
     } catch (error) {
         console.log(error)
         res.status(500).json({
-            status:"error",
+            status: "error",
             message: "Something went wrong",
             error: error.message
         });
