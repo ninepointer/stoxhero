@@ -207,7 +207,7 @@ export default function App() {
     return <div></div>; // Replace this with your actual loading component or spinner
   }
 
-  console.log("cookieValue", cookieValue, pathname)
+  // console.log("cookieValue", cookieValue, pathname)
 
   return direction === "rtl" ? (
     
@@ -246,8 +246,6 @@ export default function App() {
         {layout === "dashboard" && (
           <>
           {
-                // console.log(getDetails?.userDetails?.role?.roleName , adminRole , getDetails?.userDetails?.role?.roleName , userRole, getDetails?.userDetails?.role?.roleName , InfinityTraderRole , getDetails?.userDetails?.role?.roleName , "data")
-
             (getDetails?.userDetails?.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
             <Sidenav
               color={sidenavColor}

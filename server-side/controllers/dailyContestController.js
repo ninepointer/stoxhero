@@ -193,6 +193,33 @@ exports.getUpcomingContests = async (req, res) => {
 };
 
 // Controller for getting upcoming contests getAdminUpcomingContests
+exports.getOnlyUpcomingContests = async (req, res) => {
+    try {
+        const contests = await Contest.find({
+            contestStartTime: { $gt: new Date() }, contestEndTime: { $gt: new Date() }, contestFor: "StoxHero"
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+            .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+            .populate('college', 'collegeName zone')
+            .sort({ contestStartTime: 1 })
+
+        res.status(200).json({
+            status: "success",
+            message: "Upcoming contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+};
+
+// Controller for getting upcoming contests getAdminUpcomingContests
 exports.getAdminUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({

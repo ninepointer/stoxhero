@@ -8,10 +8,10 @@ import Carousel from '../data/carouselItems'
 import Performance from '../data/performance'
 import Summary from '../data/summary'
 import { userContext } from '../../../AuthContext';
-import Post from '../data/postForm'
-import Posts from '../data/posts'
-import MDTypography from '../../../components/MDTypography';
-import UpcomingContest from '../data/upcomingContest'
+// import Post from '../data/postForm'
+// import Posts from '../data/posts'
+// import MDTypography from '../../../components/MDTypography';
+import UpcomingContest from '../data/ongoingContest'
 
 export default function Dashboard() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
