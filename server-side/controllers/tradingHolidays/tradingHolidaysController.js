@@ -119,3 +119,15 @@ exports.deleteTradingHoliday = async(req, res, next) => {
 
     res.status(200).json({message: 'Successfully deleted trading holiday.', data: holiday});
 }
+
+exports.getTradingHolidayBetweenDates = async(req, res, next) => {
+    const {startDate, endDate} = req.params;
+
+    try {
+        const holiday = await TradingHoliday.find({holidayDate: {$gte: startDate, $lte: endDate}});
+        res.status(200).json({status: 'success', data: holiday.length});
+    } catch (e) {
+      
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+}
