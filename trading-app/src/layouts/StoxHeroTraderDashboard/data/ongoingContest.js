@@ -88,6 +88,8 @@ function OnGoingContests() {
                     setContest(api1Response1.data.data)
                 } else if(api1Response1.data.data?.length === 0){
                     setContest(api1Response.data.data)
+                } else{
+                    setContest(api1Response1.data.data)
                 }
                 setTimeout(() => {
                     setIsLoading(false)
@@ -149,7 +151,7 @@ function OnGoingContests() {
                             <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
                                 <Grid container alignItems='center'>
                                     <Grid item xs={12} md={6} lg={12}>
-                                        <MDTypography ml={1} fontSize={15} fontWeight="bold" >{(upcoming.length === 0 && ongoing.length !==0) ? "Ongoing Contests" : (upcoming.length !== 0 && ongoing.length ===0) ? "Upcoming Contests" : "Contests"}</MDTypography>
+                                        <MDTypography ml={1} fontSize={15} fontWeight="bold" >{(ongoing.length !==0) ? "Ongoing Contests" : (upcoming.length !== 0) ? "Upcoming Contests" : "Contests"}</MDTypography>
                                     </Grid>
                                 </Grid>
                             </MDBox>

@@ -28,7 +28,7 @@ exports.createPayment = async(req, res, next)=>{
         wallet.save();
 
 
-        // if(process.env.PROD == 'true'){
+        if(process.env.PROD == 'true'){
             sendMail(user?.email, 'Amount Credited - StoxHero', `
             <!DOCTYPE html>
             <html>
@@ -113,7 +113,7 @@ exports.createPayment = async(req, res, next)=>{
             </body>
             </html>
             `);
-        //   }
+          }
 
 
         res.status(201).json({message: 'Payment successfully.', data:payment, count:payment.length});
