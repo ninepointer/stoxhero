@@ -171,7 +171,7 @@ function OnGoingContests() {
                                                                     fontSize={15}
                                                                     
                                                                     fontWeight="bold"
-                                                                    style={{ color: isContestFull ? "black" : 'light', animation: isContestFull ? '' : 'blinking .8s infinite' }}
+                                                                    style={{ color: isContestFull ? "black" : 'white', animation: isContestFull ? '' : 'blinking .8s infinite' }}
                                                                 >
                                                                     {isContestFull ? "Contest Full" : "Limited seats available - Join now!"}
                                                                 </MDTypography>
