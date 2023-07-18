@@ -630,6 +630,7 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
     const internshipTraders = await InternshipTrading.aggregate(pipeline);
 
     // Combine the results from all collections
+    console.log(internshipTraders)
     const combinedResults = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders];
 
     // Calculate the total unique active users per month

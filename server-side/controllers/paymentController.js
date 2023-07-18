@@ -98,9 +98,9 @@ exports.createPayment = async(req, res, next)=>{
             </head>
             <body>
                 <div class="container">
-                <h1>KYC Approved</h1>
+                <h1>Amount Credited</h1>
                 <p>Hello ${user.first_name},</p>
-                <p>Your amount has been credited in you wallet</p>
+                <p>Amount of ${amount}INR has been credited in you wallet</p>
                 <p>You can now purchase Tenx and play contest.</p>
                 
                 <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
