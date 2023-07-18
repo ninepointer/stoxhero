@@ -9,7 +9,7 @@ useEffect(() => {
 const chartInstance = echarts.init(chartRef.current);
 const option = {
     title: {
-        text: 'Expected P&L and Risk-Reward Ratio'
+        text: 'Expected Average Profit and Loss'
       },
     tooltip: {
         trigger: 'axis',
@@ -28,7 +28,7 @@ const option = {
         }
       },
     legend: {
-        data: ['Expected Net P&L', 'Risk-Reward Ratio']
+        data: ['Expected Average Profit', 'Expected Average Loss']
     },  
     grid: {
         left: '3%',
@@ -48,41 +48,22 @@ const option = {
     yAxis: [
         {
         type: 'value',
-        name:'PNL Axis',
-        axisLine: {
-            // show: true,
-            lineStyle: {
-                color:'#2e7d95',
-            }
-          },
         },
-        {
-        type: 'value',
-        name: 'Risk-Reward Axis',
-        axisLine: {
-            // show: true,
-            lineStyle: {
-                color:'#ff0000',
-            }
-          },
-        }
     ],
     series: [
         {
-            name: 'Expected Net P&L',
+            name: 'Expected Average Profit',
             type: 'line',
-            yAxisIndex:0,
             color:'#2e7d95',
             barWidth: '40%',
-            data: dateWiseData.map((e)=>e.expected_pnl?.toFixed(2))
+            data: dateWiseData.map((e)=>e.expected_avg_profit?.toFixed(2))
         },
         {
-            name: 'Risk-Reward Ratio',
-            yAxisIndex:1,
+            name: 'Expected Average Loss',
             type: 'line',
             color:'#ff0000',
             barWidth: '40%',
-            data: dateWiseData.map((e)=>e.riskRewardRatio?.toFixed(2))
+            data: dateWiseData.map((e)=>e.expected_avg_loss?.toFixed(2))
         },
     ]
 };

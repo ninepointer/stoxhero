@@ -17,6 +17,7 @@ import OrdersChart from '../data/OrderChart'
 import NetPNLChart from '../data/NetPNLChart'
 import GrossPNLChart from '../data/GrossPNLChart'
 import ExpectedPnlChart from '../data/expectedPnlChart'
+import ExpectedProfitLossChart from '../data/expectedProfitLossChart'
 import DateRangeComponent from '../data/dateRangeSelection'
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -288,9 +289,14 @@ export default function LabTabs() {
 
         <Grid mt={0} container spacing={3}>
           
-          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <GrossPNLChart traderType={alignment} dateWiseData = {dateWiseData}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Gross P&L- Total profit and loss based on buy and sell prices</MDTypography>
+              <MDTypography fontSize={12}>Net P&L - Total profit and loss after deducting transaction charges for trades</MDTypography>
+            </MDBox>
           </MDBox>
           </Grid>
           
@@ -306,14 +312,34 @@ export default function LabTabs() {
           </MDBox>
           </Grid> */}
           
-          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <OrdersChart traderType={alignment} dateWiseData={dateWiseData}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Orders - Total orders for the day</MDTypography>
+              <MDTypography fontSize={12}>Brokerage - Total transaction charges for trades for the day</MDTypography>
+            </MDBox>
           </MDBox>
           </Grid>
           {expected.length>0 && endpoint!='infinity' && <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
+            <ExpectedProfitLossChart traderType={alignment} dateWiseData = {expected}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Expected Average Profit- Your expected profit on the day based on past data.</MDTypography>
+              <MDTypography fontSize={12}>Expected Average Loss - Your expected loss on the day based on past data.</MDTypography>
+            </MDBox>
+          </MDBox>
+          </Grid>}
+          {expected.length>0 && endpoint!='infinity' && <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
             <ExpectedPnlChart traderType={alignment} dateWiseData = {expected}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Expected Net P&L- Your expected net p&l on the day based on past data</MDTypography>
+              <MDTypography fontSize={12}>Risk-Reward Ratio - The ratio of your average profit to your average loss. Higher the ratio, more the chances of you making a higher profit than the loss.</MDTypography>
+            </MDBox>
           </MDBox>
           </Grid>}
           
@@ -326,6 +352,11 @@ export default function LabTabs() {
           <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <MonthLineChart traderType={alignment} monthWiseData ={monthWiseData}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Gross P&L- Total profit and loss based on buy and sell prices</MDTypography>
+              <MDTypography fontSize={12}>Net P&L - Total profit and loss after deducting transaction charges for trades</MDTypography>
+            </MDBox>
           </MDBox>
           </Grid>
 

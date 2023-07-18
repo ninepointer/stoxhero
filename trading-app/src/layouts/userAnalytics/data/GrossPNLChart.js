@@ -9,7 +9,7 @@ useEffect(() => {
 const chartInstance = echarts.init(chartRef.current);
 const option = {
     title: {
-        text: 'Gross P&L, Net P&L, Brokerage'
+        text: 'Gross P&L and Net P&L'
       },
     tooltip: {
         trigger: 'axis',
@@ -26,7 +26,10 @@ const option = {
           magicType: { type: ['line', 'bar'] },
           saveAsImage: {}
         }
-      },    
+      },
+    legend: {
+        data: ['Gross P&L', 'Net P&L']
+    },  
     grid: {
         left: '3%',
         right: '4%',
@@ -47,41 +50,23 @@ const option = {
         type: 'value',
         name:'PNL Axis'
         },
-        {
-        type: 'value',
-        name: 'Brokerage Axis',
-        axisLine: {
-            show: true,
-            lineStyle: {
-                color:'#344767',
-            }
-          },
-        }
     ],
     series: [
         {
             name: 'Gross P&L',
-            type: 'bar',
+            type: 'line',
             yAxisIndex:0,
             color:'#2e7d32',
             barWidth: '40%',
-            data: dateWiseData.map((e)=>e.gpnl)
+            data: dateWiseData.map((e)=>e.gpnl?.toFixed(2))
         },
         {
             name: 'Net P&L',
-            type: 'bar',
+            type: 'line',
             yAxisIndex:0,
             color:'#2e7d95',
             barWidth: '40%',
-            data: dateWiseData.map((e)=>e.npnl)
-        },
-        {
-            name: 'Brokerage',
-            yAxisIndex:1,
-            type: 'line',
-            color:'#344767',
-            barWidth: '40%',
-            data: dateWiseData.map((e)=>e.brokerage)
+            data: dateWiseData.map((e)=>e.npnl?.toFixed(2))
         },
     ]
 };

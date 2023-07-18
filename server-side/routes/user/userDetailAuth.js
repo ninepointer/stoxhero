@@ -492,7 +492,20 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         'employeed', 'upiId','googlePay_number','payTM_number','phonePe_number','bankName','nameAsPerBankAccount','accountNumber',
         'ifscCode','aadhaarNumber','degree','panNumber','passportNumber','drivingLicenseNumber','pincode', 'KYCStatus'
         );
-        if(filteredBody.KYCStatus == 'Approved') filteredBody.KYCStatus = 'Rejected';
+        if(filteredBody.KYCStatus == 'Approved') {
+          filteredBody.KYCStatus = 'Rejected';
+          filteredBody.rejectionReason = 'API Abuse'
+        }
+        if(filteredBody.KYCStatus == 'Pending Approval'){
+          let aadhaarNumber, panNumber;
+          aadhaarNumber = filteredBody.aadhaarNumber;
+          panNumber = filteredBody.panNumber;
+          const users = await UserDetail.find({KYCStatus:'Approved', $or:[{aadhaarNumber:aadhaarNumber}, {panNumber:panNumber}]});
+          if(users.length>1){
+            filteredBody.KYCStatus = 'Rejected';
+            filteredBody.rejectionReason = 'Aadhaar or PAN number is already in use.'
+          }
+        }
         if(filteredBody.KYCStatus == 'Pending Approval' && process.env.PROD == 'true'){
           await sendMail(user?.email, 'KYC Verification Request Received', `
             <!DOCTYPE html>
