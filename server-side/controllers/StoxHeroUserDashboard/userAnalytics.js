@@ -655,7 +655,7 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
 
       // const uniqueArray = [...new Set(arr)];
       const uniqueArray = arr.filter((value, index, self) => {
-        console.log(self)
+        // console.log(self)
         return index === self.findIndex(obj => obj.toString() === value.toString());
       });
 
