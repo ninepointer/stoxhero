@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Role = require("../../models/User/everyoneRoleSchema");
-const authentication = require('../../authentication/authentication')
+const Authenticate = require('../../authentication/authentication')
+const restrictTo = require('../../authentication/authorization');
 
 
-router.post("/role",authentication, (req, res)=>{
+router.post("/role", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {roleName, status} = req.body;
     let lastModifiedBy = req.user._id;
     let createdBy = req.user._id;
@@ -26,7 +27,7 @@ router.post("/role",authentication, (req, res)=>{
     }).catch(err => {console.log( "fail in role auth")});
 })
 
-router.get("/role", async (req, res)=>{
+router.get("/role",  Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     try {
         const role = await Role.find({
             status: "Active"
@@ -42,7 +43,7 @@ router.get("/role", async (req, res)=>{
       }
 })
 
-router.get("/role/:id", (req, res)=>{
+router.get("/role/:id",  Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
     const {id} = req.params
     Role.findOne({_id : id, status: "Active"})
@@ -54,7 +55,7 @@ router.get("/role/:id", (req, res)=>{
     })
 })
 
-router.put("/role/:id", authentication, async (req, res)=>{
+router.put("/role/:id",  Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
     let lastModifiedBy = req.user._id;
     try{
@@ -74,7 +75,7 @@ router.put("/role/:id", authentication, async (req, res)=>{
     }
 })
 
-router.delete("/role/:id", async (req, res)=>{
+router.delete("/role/:id",  Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     
     try{
         const {id} = req.params

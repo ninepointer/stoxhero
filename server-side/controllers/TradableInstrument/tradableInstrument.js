@@ -51,9 +51,7 @@ exports.tradableInstrument = async (req,res,next) => {
                 if (!existingInstrument) {
                   if((row.name == "NIFTY" || row.name == "BANKNIFTY" || row.name == "FINNIFTY") && row.segment == "NFO-OPT"){
                     
-                    if(row.name === "NIFTY"){
-                      row.name = row.name+"50"
-                    } //FUTIDX_BANKNIFTY_29JUL2021_XX_0
+
                     row.lastModifiedBy = userId;
                     row.createdBy = userId;
                     let date = changeDate(row.expiry);
@@ -62,7 +60,10 @@ exports.tradableInstrument = async (req,res,next) => {
                     let strike = row.strike;
 
                     row.chartInstrument = `${prefix}_${date}_${type}_${strike}`;
-                    // console.log("getting row in instrument", row);
+                    if(row.name === "NIFTY"){
+                        row.name = row.name+"50"
+                    }
+                    console.log("getting row in instrument", row);
                     try{
                         const x = await TradableInstrument.create([row]);
                         console.log(x)

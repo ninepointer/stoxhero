@@ -15,6 +15,9 @@ const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const Campaign = require("../../models/campaigns/campaignSchema")
 const uuid = require('uuid');
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
+
 
 router.post("/signup", async (req, res) => {
     const { first_name, last_name, email, mobile } = req.body;
@@ -456,7 +459,7 @@ router.patch("/resendotp", async (req, res)=>{
     });
 });
 
-router.get("/signedupusers", (req, res)=>{
+router.get("/signedupusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     SignedUpUser.find()
     .sort({createdOn:-1})
     .exec((err, data)=>{
@@ -468,7 +471,7 @@ router.get("/signedupusers", (req, res)=>{
     })
 })
 
-router.put("/updatesignedupuser/:id", async (req, res)=>{
+router.put("/updatesignedupuser/:id", Authenticate, async (req, res)=>{
 
     try{
         const {id} = req.params
