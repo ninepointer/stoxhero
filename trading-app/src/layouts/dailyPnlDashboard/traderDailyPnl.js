@@ -49,7 +49,7 @@ const TraderDailypnldata = () => {
       })
  
 
-        axios.get(`${baseUrl}api/v1/traderdailypnldata/${firstDate}/${traderName}`)
+        axios.get(`${baseUrl}api/v1/traderdailypnldata/${firstDate}/${traderName}`, {withCredentials: true})
         .then((res)=>{
                   //console.log("Data on first come: ",res.data)
                   setData(res.data);
@@ -59,7 +59,7 @@ const TraderDailypnldata = () => {
             return new Error(err);
         })
 
-        axios.get(`${baseUrl}api/v1/readuserdetails`)
+        axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
           let traderdata = data.filter((elem) => {
@@ -148,7 +148,7 @@ const TraderDailypnldata = () => {
         setFirstDate(e.target.value)
         //console.log(e.target.value)
         //console.log(`${baseUrl}api/v1/dailypnldata/${e.target.value}`)
-        axios.get(`${baseUrl}api/v1/traderdailypnldata/${e.target.value}`)
+        axios.get(`${baseUrl}api/v1/traderdailypnldata/${e.target.value}`, {withCredentials: true})
         .then((res)=>{
                   setData(res.data);
             // Getting row wise data

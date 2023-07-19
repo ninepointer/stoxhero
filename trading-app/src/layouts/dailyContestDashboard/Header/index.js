@@ -49,7 +49,7 @@ export default function LabTabs({socket}) {
       });
     })
 
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`, {withCredentials: true})
     .then((res) => {
         console.log("Inside Payout chart data");
         setCompletedContest(res.data.data);
@@ -91,7 +91,7 @@ export default function LabTabs({socket}) {
   useEffect(()=>{
     console.log("Loading: ",isLoading)
     setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/virtualoveralltraderpnltoday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnltoday`, {withCredentials: true})
     .then((res) => {
         setTradeData(res.data.data); 
     }).catch((err) => {
@@ -99,7 +99,7 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
     console.log("Loading: ",isLoading)
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercounttoday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercounttoday`, {withCredentials: true})
     .then((res) => {
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
@@ -108,7 +108,7 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/virtualoveralltraderpnlyesterday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnlyesterday`, {withCredentials: true})
     .then((res) => {
         setTradeDataYesterday(res?.data?.data);
     }).catch((err) => {
@@ -116,7 +116,7 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercountyesterday`)
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercountyesterday`, {withCredentials: true})
     .then((res) => {
         setNotLiveTraderCountYesterday(res?.data?.data[0]?.zeroLotsTraderCount)
         setLiveTraderCountYesterday(res?.data?.data[0]?.nonZeroLotsTraderCount)

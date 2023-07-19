@@ -40,7 +40,7 @@ const SignedUpUser = () => {
   
     useEffect(()=>{
   
-        axios.get(`${baseUrl}api/v1/signedupusers`)
+        axios.get(`${baseUrl}api/v1/signedupusers`, {withCredentials: true})
         .then((res)=>{
            setSignedUpUserData(res.data);
         }).catch((err)=>{

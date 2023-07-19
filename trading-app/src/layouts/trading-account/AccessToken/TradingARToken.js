@@ -40,7 +40,7 @@ const TradingARToken = () => {
   useEffect(()=>{
 
       // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
-      axios.get(`${baseUrl}api/v1/readRequestToken`)
+      axios.get(`${baseUrl}api/v1/readRequestToken`, {withCredentials: true})
       .then((res)=>{
         let data = res.data;
                 let active = data.filter((elem) => {

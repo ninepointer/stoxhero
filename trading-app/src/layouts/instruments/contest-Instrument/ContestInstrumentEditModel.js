@@ -152,6 +152,7 @@ const InstrumentEditModel = ({Render, data, id}) => {
         setOpen(false);
         const res = await fetch(`${baseUrl}api/v1/readInstrumentDetails/${id}`, {
             method: "DELETE",
+            credentials: "include"
         });
 
         const dataResp = await res.json();

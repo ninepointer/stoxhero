@@ -42,7 +42,7 @@ const InstrumentActiveTable = () => {
   
     useEffect(()=>{
   
-        axios.get(`${baseUrl}api/v1/contestInstrument`)
+        axios.get(`${baseUrl}api/v1/contestInstrument`, {withCredentials: true})
         .then((res)=>{
               setActiveData(res.data);
               console.log(res.data);

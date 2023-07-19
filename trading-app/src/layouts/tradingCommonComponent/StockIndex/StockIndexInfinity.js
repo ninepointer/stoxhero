@@ -26,7 +26,7 @@ function StockIndex({socket}) {
     // const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
 
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/stockindex`)
+        axios.get(`${baseUrl}api/v1/stockindex`, {withCredentials: true})
         .then((res) => {
             setIndexData(res.data);
         }).catch((err) => {

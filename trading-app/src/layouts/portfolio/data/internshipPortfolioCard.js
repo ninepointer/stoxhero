@@ -19,10 +19,10 @@ const InternshipPortfolioCard = ({isObjectNew,setIsObjectNew}) => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/portfolio/internship`)
+      axios.get(`${baseUrl}api/v1/portfolio/internship`, {withCredentials: true})
       .then((res)=>{
-                setInternshipPortfolioData(res.data.data);
-                console.log(res.data.data)
+          setInternshipPortfolioData(res.data.data);
+                // console.log(res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })

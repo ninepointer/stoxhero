@@ -68,7 +68,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                             }
                         })
                         try {
-                            console.log((_id).toString(), instrumentToken)
+                            // console.log((_id).toString(), instrumentToken)
                             // const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
                             if (isRedisConnected) {
                                 let obj = {
@@ -171,7 +171,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
 
                         })
                         try {
-                            console.log((_id).toString(), instrumentToken)
+                            // console.log((_id).toString(), instrumentToken)
                             // const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
                             if (isRedisConnected) {
                                 let obj = {
@@ -197,7 +197,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 // accountType: dataExist.accountType,
                             }))
 
-                            console.log("instrument", instrument)
+                            // console.log("instrument", instrument)
                             // }
 
                         } catch (err) {
@@ -245,7 +245,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                         let getInstruments = await User.findOne({ _id: _id });
                         getInstruments.watchlistInstruments.push(addingInstruments._id)
-                        console.log("instrument is", addingInstruments._id)
+                        // console.log("instrument is", addingInstruments._id)
 
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
@@ -273,7 +273,7 @@ router.post("/subscribeInstrument",authentication, async (req, res)=>{
 
     try{
         await subscribeSingleToken(instrumentToken);
-        console.log("subscribed", instrumentToken)
+        // console.log("subscribed", instrumentToken)
         res.status(200).json({message: "subscribed"});
     } catch(err) {
         return new Error(err);
@@ -286,7 +286,7 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
 
     try{
         await unSubscribeTokens(instrumentToken);
-        console.log("unsubscribed", instrumentToken)
+        // console.log("unsubscribed", instrumentToken)
         res.status(200).json({message: "unSubscribed"});
     } catch(err) {
         // res.status(500).json({error:"Failed to enter data Check access token"});
@@ -394,7 +394,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
     const from = req.params.from;
     const {role} = req.user;
     let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
-    console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
+    // console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
     let url;
     let roleObj;
 

@@ -5,13 +5,14 @@ const {getDailyActiveUsers, getMonthlyActiveUsers,
     getMonthlyActiveUsersOnPlatform} = require('../../controllers/StoxHeroUserDashboard/userAnalytics');
 
 const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
 
-router.route('/dailyactiveusers').get(getDailyActiveUsers);
-router.route('/monthlyactiveusers').get(getMonthlyActiveUsers);
-router.route('/weeklyactiveusers').get(getWeeklyActiveUsers);
-router.route('/dailyactiveusersonplatform').get(getDailyActiveUsersOnPlatform);
-router.route('/monthlyactiveusersonplatform').get(getMonthlyActiveUsersOnPlatform);
+router.route('/dailyactiveusers').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDailyActiveUsers);
+router.route('/monthlyactiveusers').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getMonthlyActiveUsers);
+router.route('/weeklyactiveusers').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getWeeklyActiveUsers);
+router.route('/dailyactiveusersonplatform').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDailyActiveUsersOnPlatform);
+router.route('/monthlyactiveusersonplatform').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getMonthlyActiveUsersOnPlatform);
 
 
 module.exports = router;

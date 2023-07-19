@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const ProductMapping = require("../../models/AlgoBox/productMappingSchema");
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
-router.post("/productMapping", (req, res)=>{
+router.post("/productMapping", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {ProductNameIncoming, IncomingProductCode, ProductNameOutgoing, OutgoingProductCode, Status, lastModified, uId, createdBy, createdOn} = req.body;
 
     if(!ProductNameIncoming || !IncomingProductCode || !ProductNameOutgoing || !OutgoingProductCode || !Status || !lastModified || !uId || !createdBy || !createdOn){
@@ -26,7 +28,7 @@ router.post("/productMapping", (req, res)=>{
     }).catch(err => {console.log( "fail")});
 })
 
-router.get("/readProductMapping", (req, res)=>{
+router.get("/readProductMapping", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     ProductMapping.find((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -36,7 +38,7 @@ router.get("/readProductMapping", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/readProductMapping/:id", (req, res)=>{
+router.get("/readProductMapping/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     ProductMapping.findOne({_id : id})
@@ -48,7 +50,7 @@ router.get("/readProductMapping/:id", (req, res)=>{
     })
 })
 
-router.put("/readProductMapping/:id", async (req, res)=>{
+router.put("/readProductMapping/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{
@@ -70,7 +72,7 @@ router.put("/readProductMapping/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readProductMapping/:id", async (req, res)=>{
+router.delete("/readProductMapping/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params

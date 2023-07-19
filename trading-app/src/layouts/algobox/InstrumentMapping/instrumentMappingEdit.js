@@ -84,6 +84,7 @@ const InstrumentMappingEdit = ({ data, id, Render }) => {
 
       const res = await fetch(`${baseUrl}api/v1/readInstrumentAlgo/${id}`, {
           method: "PUT",
+          credentials: "include",
           headers: {
               "Accept": "application/json",
               "content-type": "application/json"
@@ -111,6 +112,7 @@ const InstrumentMappingEdit = ({ data, id, Render }) => {
       //console.log(editData)
       const res = await fetch(`${baseUrl}api/v1/readInstrumentAlgo/${id}`, {
           method: "DELETE",
+          credentials: "include"
       });
 
       const dataResp = await res.json();

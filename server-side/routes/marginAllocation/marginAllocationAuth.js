@@ -4,11 +4,13 @@ require("../../db/conn");
 const Margin = require("../../models/marginAllocation/marginAllocationSchema");
 const UserDetail = require("../../models/User/userDetailSchema");
 const { default: mongoose } = require("mongoose");
-const Authentication = require("../../authentication/authentication")
+// const Authentication = require("../../authentication/authentication")
 const ObjectId = require('mongodb').ObjectId;
 const { client, getValue } = require('../../marketData/redisClient');
+const authentication = require("../../authentication/authentication")
+const restrictTo = require('../../authentication/authorization');
 
-router.post("/setmargin", Authentication, async (req, res)=>{
+router.post("/setmargin", authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
   let isRedisConnected = getValue();
     const {amount, userId} = req.body;
     console.log(amount, userId)
@@ -44,9 +46,7 @@ router.post("/setmargin", Authentication, async (req, res)=>{
     
 })
 
-
-
-router.get("/getUserMarginDetails/:id", (req, res)=>{
+router.get("/getUserMarginDetails/:id", authentication, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {id} = req.params
     Margin.find({userId: mongoose.Types.ObjectId(id)}).sort({creditedOn: -1})
     .then((data)=>{
@@ -57,7 +57,7 @@ router.get("/getUserMarginDetails/:id", (req, res)=>{
     })
 })
 
-router.get("/getUserMarginDetailsAll", (req, res)=>{
+router.get("/getUserMarginDetailsAll", authentication, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     Margin.find()
     .populate('userId', 'name email')
     .populate('createdBy', 'name')
@@ -70,8 +70,7 @@ router.get("/getUserMarginDetailsAll", (req, res)=>{
     })
 })
 
-
-router.get("/getUserTotalCreditDetails", async(req, res)=>{
+router.get("/getUserTotalCreditDetails", authentication, restrictTo('Admin', 'SuperAdmin'), async(req, res)=>{
     let pnlDetails = await Margin.aggregate([
         {
           $group: {
@@ -94,7 +93,7 @@ router.get("/getUserTotalCreditDetails", async(req, res)=>{
  
 })
 
-router.get("/getUserPayInDetails/:id", async(req, res)=>{
+router.get("/getUserPayInDetails/:id", authentication, restrictTo('Admin', 'SuperAdmin'), async(req, res)=>{
     const {id} = req.params; 
     dayStart = new Date(new Date().setHours(00, 00, 00));
     dayEnd = new Date(new Date().setHours(23, 59, 59));
@@ -131,7 +130,7 @@ router.get("/getUserPayInDetails/:id", async(req, res)=>{
  
 })
 
-router.get("/getTotalFundsCredited", async(req, res)=>{ 
+router.get("/getTotalFundsCredited", authentication, restrictTo('Admin', 'SuperAdmin'), async(req, res)=>{ 
 
     let totalCredit = await Margin.aggregate([
         {

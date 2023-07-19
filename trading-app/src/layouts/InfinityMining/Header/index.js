@@ -85,7 +85,7 @@ export default function InfinityMining() {
   };
   
   useEffect(()=>{
-    console.log("Inside Use Effect")
+    // console.log("Inside Use Effect")
     setIsLoading(true)
     let call2 = axios.get((`${baseUrl}api/v1/infinityTraders`),{
       withCredentials: true,
@@ -98,7 +98,7 @@ export default function InfinityMining() {
     Promise.all([call2])
     .then(([api1Response2]) => {
       // Process the responses here
-      console.log(api1Response2.data.data);
+      // console.log(api1Response2.data.data);
       setTraderSelectedOption(traderSelectedOption ? traderSelectedOption : api1Response2.data.data[0]);
       setTraderId(traderSelectedOption ? traderSelectedOption : api1Response2.data.data[0]);
       setInfinityTraders(api1Response2.data.data)
@@ -112,7 +112,7 @@ export default function InfinityMining() {
   },[traderId])
 
   async function InfinityMining(traderId){
-    console.log("Infinity Mining Function Called")
+    // console.log("Infinity Mining Function Called")
     let call1 = await axios.get((`${baseUrl}api/v1/infinitymining/traderstats/${traderId?._id}`),{
       withCredentials: true,
       headers: {
@@ -148,8 +148,8 @@ export default function InfinityMining() {
     Promise.all([call1, call3, call4, call5])
     .then(([api1Response1, api1Response3, api1Response4,api1Response5]) => {
       // Process the responses here
-      console.log("Infinity Mining Data:",api1Response1.data.data);
-      console.log("PNL Summary:",api1Response3.data.data)
+      // console.log("Infinity Mining Data:",api1Response1.data.data);
+      // console.log("PNL Summary:",api1Response3.data.data)
       setInfinityMiningData(api1Response1.data.data)
       setPNLSummary(api1Response3.data.data);
       setBothSideTradeData(api1Response4.data.data)
@@ -195,7 +195,7 @@ export default function InfinityMining() {
   }
 
   csvData = [[...csvData,...csvDataFile]]
-  console.log("CSV PNL Data: ",csvData)
+  // console.log("CSV PNL Data: ",csvData)
 
   let weekday = []
   let stoxHeroNpnl1 = []
@@ -218,18 +218,18 @@ export default function InfinityMining() {
     }
 
   csvData1 = [[...csvData1,...csvDataFile1]]
-  console.log("CSV PNL Data Weekday: ",csvData1)
+  // console.log("CSV PNL Data Weekday: ",csvData1)
   
   let csvDataFile2 = [[]]
   let csvData2 = [['Period','Gross P&L','Net P&L','Brokerage', 'Trades']]
 
   const handleSideOptionChange = (event, newValue) => {
-    console.log("Side Selection:",newValue)
+    // console.log("Side Selection:",newValue)
     setSideSelectedOption(newValue);
   };
 
   const handleTraderOptionChange = (event, newValue) => {
-    console.log("Trader Selection:",newValue)
+    // console.log("Trader Selection:",newValue)
     setTraderSelectedOption(newValue);
     setTraderId(newValue);
   };

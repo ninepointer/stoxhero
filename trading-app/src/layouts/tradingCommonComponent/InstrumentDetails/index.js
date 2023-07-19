@@ -77,7 +77,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   useEffect(() => {
     console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
-    axios.get(`${baseUrl}api/v1/readsetting`)
+    axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
       .then((res) => {
         if(InfinityTraderRole == getDetail.userDetails.role.roleName){
           setisAppLive(res.data[0].infinityLive);

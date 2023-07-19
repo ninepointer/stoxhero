@@ -42,15 +42,10 @@ const AutoLogin = ({data}) => {
   let generatedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
   let lastModified = generatedOn;
   let createdBy = getDetails.userDetails.name
-
-  // const [activeApiKey, setActiveApiKey] = useState([]);
-  // const [formstate, setformstate] = useState({
-  //     AccountID: "",
-  // });
   const [accessAndRequest, setAccessAndRequest] = useState([])
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/readRequestToken`)
+    axios.get(`${baseUrl}api/v1/readRequestToken`, {withCredentials: true})
     .then((res)=>{
       let data = res.data;
       let active = data.filter((elem) => {

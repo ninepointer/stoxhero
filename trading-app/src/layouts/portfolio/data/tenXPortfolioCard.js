@@ -19,10 +19,10 @@ const TenXPortfolioCard = ({isObjectNew,setIsObjectNew}) => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/portfolio/tenx`)
+      axios.get(`${baseUrl}api/v1/portfolio/tenx`, {withCredentials: true})
       .then((res)=>{
                 setTenXPortfolioData(res.data.data);
-                console.log(res.data.data)
+                // console.log(res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })

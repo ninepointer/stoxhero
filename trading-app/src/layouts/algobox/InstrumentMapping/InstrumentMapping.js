@@ -33,7 +33,7 @@ const InstrumentMapping = () => {
 
 
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/readInstrumentAlgo`)
+        axios.get(`${baseUrl}api/v1/readInstrumentAlgo`, {withCredentials: true})
         .then((res)=>{
             setMappingData(res.data)
             console.log(res.data);

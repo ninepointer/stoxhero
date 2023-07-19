@@ -19,10 +19,10 @@ const DailyContestPortfolioCard = ({isObjectNew,setIsObjectNew}) => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`)
+      axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`, {withCredentials: true})
       .then((res)=>{
-                setDailyContestPortfolioData(res.data.data);
-                console.log("Daily Contest Portfolio:",res.data.data)
+          setDailyContestPortfolioData(res.data.data);
+                // console.log("Daily Contest Portfolio:",res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })

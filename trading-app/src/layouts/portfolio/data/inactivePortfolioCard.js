@@ -19,10 +19,10 @@ const InactivePortfolioCard = ({isObjectNew,setIsObjectNew}) => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/portfolio/inactive`)
+      axios.get(`${baseUrl}api/v1/portfolio/inactive`, {withCredentials: true})
       .then((res)=>{
-                setInactivePortfolioData(res.data.data);
-                console.log(res.data.data)
+          setInactivePortfolioData(res.data.data);
+                // console.log(res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })

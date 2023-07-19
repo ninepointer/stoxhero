@@ -38,7 +38,7 @@ const TradingAlgo = () => {
 
 
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/readtradingAlgo`)
+        axios.get(`${baseUrl}api/v1/readtradingAlgo`, {withCredentials: true})
         .then((res)=>{
             setAlgoData(res.data)
             console.log(res.data);
@@ -56,6 +56,7 @@ const TradingAlgo = () => {
         }
         const res = await fetch(`${baseUrl}api/v1/updatemargindeduction/${id}`, {
             method: "PATCH",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"
@@ -88,6 +89,7 @@ const TradingAlgo = () => {
         console.log("isDefault", isDefault)
         const res = await fetch(`${baseUrl}api/v1/updatedefaultalgo/${id}`, {
             method: "PATCH",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"
@@ -121,6 +123,7 @@ const TradingAlgo = () => {
         }
         const res = await fetch(`${baseUrl}api/v1/updatetransactionChange/${id}`, {
             method: "PATCH",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"
@@ -152,6 +155,7 @@ const TradingAlgo = () => {
         }
         const res = await fetch(`${baseUrl}api/v1/updateinstrumentChange/${id}`, {
             method: "PATCH",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"
@@ -183,6 +187,7 @@ const TradingAlgo = () => {
         }
         const res = await fetch(`${baseUrl}api/v1/updateexchangeChange/${id}`, {
             method: "PATCH",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"
@@ -215,6 +220,7 @@ const TradingAlgo = () => {
         }
         const res = await fetch(`${baseUrl}api/v1/updateproductChange/${id}`, {
             method: "PATCH",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"

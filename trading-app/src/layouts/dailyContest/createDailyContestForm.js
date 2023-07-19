@@ -112,7 +112,7 @@ function Index() {
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`)
+    axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`, {withCredentials: true})
       .then((res) => {
         console.log("Contest Portfolios :", res?.data?.data)
         setPortfolios(res?.data?.data);

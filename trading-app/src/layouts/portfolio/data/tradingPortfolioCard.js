@@ -19,10 +19,10 @@ const TradingPortfolioCard = ({isObjectNew,setIsObjectNew}) => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/portfolio/trading`)
+      axios.get(`${baseUrl}api/v1/portfolio/trading`, {withCredentials: true})
       .then((res)=>{
-                setTradingPortfolioData(res.data.data);
-                console.log(res.data.data)
+          setTradingPortfolioData(res.data.data);
+                // console.log(res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })

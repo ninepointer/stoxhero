@@ -81,9 +81,10 @@ const TradingARTokenEditModel = ({data, id, Render}) => {
 
 
       const { AccountID, AccesToken, RequestToken, Status} = formstate;
-                                      
+
       const res = await fetch(`${baseUrl}api/v1/readRequestToken/${id}`, {
           method: "PUT",
+          credentials: "include",
           headers: {
               "Accept": "application/json",
               "content-type": "application/json"
@@ -111,6 +112,7 @@ const TradingARTokenEditModel = ({data, id, Render}) => {
       //console.log(editData)
       const res = await fetch(`${baseUrl}api/v1/readRequestToken/${id}`, {
           method: "DELETE",
+          credentials: "include"
       });
 
       const dataResp = await res.json();
