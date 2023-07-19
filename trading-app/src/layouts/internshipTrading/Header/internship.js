@@ -58,34 +58,55 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   // const [open, setOpen] = React.useState(false);
   // const [isLoading,setIsLoading] = useState(false);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
+  const [holiday, setHoliday] = useState();
   // const getDetails = React.useContext(userContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   function calculateWorkingDays(startDate, endDate) {
     const start = moment(startDate);
     const end = moment(endDate);
-  
-    // Check if the start date is after the end date
+
+    // const res = await axios.get(`${baseUrl}api/v1/tradingholiday/dates/${start}/${end}`);
+    // return 
+
+
     if (start.isAfter(end)) {
       return 0;
     }
-  
+
     let workingDays = 0;
     let currentDate = start;
-  
+
     // Iterate over each day between the start and end dates
     while (currentDate.isSameOrBefore(end)) {
       // Check if the current day is a weekday (Monday to Friday)
       if (currentDate.isoWeekday() <= 5) {
         workingDays++;
       }
-  
+
       // Move to the next day
       currentDate = currentDate.add(1, 'day');
     }
-  
+
     return workingDays;
+
+
+
   }
+
+  useEffect(()=>{
+    const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
+    const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
+  
+    axios.get(`${baseUrl}api/v1/tradingholiday/dates/${startDate}/${endDate}`)
+      .then((res) => {
+        // Check if the start date is after the end date
+        setHoliday(res.data.data)
+      })
+      .catch((err) => {
+        throw new Error(err);
+      });
+  }, [currentBatch])
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -212,10 +233,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
   const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
   const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
-  // console.log(startDate)
-  // console.log(endDate)
-  const workingDays = calculateWorkingDays(startDate, endDate);
-
+  let workingDays = calculateWorkingDays(startDate, endDate)
+  workingDays = workingDays - holiday
+  console.log("workingDays", workingDays, holiday)
   tradeData.map((subelem, index)=>{
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem)=>{
@@ -437,7 +457,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
                       <GaugeChartReturns availableMargin={availableMargin} portfolioValue={currentBatch?.portfolio?.portfolioValue}/>
                   </Grid>
                   <Grid item xs={12} md={6} lg={4} display="flex" justifyContent="center">
+                    {workingDays &&
                       <GaugeChartAttendance myTradingDays={myTradingDays} totalTradingDays={workingDays} />
+                    }
                   </Grid>
             </Grid>
 
