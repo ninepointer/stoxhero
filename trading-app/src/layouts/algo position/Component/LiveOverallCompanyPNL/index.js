@@ -75,7 +75,7 @@ function LiveOverallCompantPNL({socket, algoId, algoName}) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/getoverallpnllivetradecompanytoday/algowisedata/${algoId}`)
+    axios.get(`${baseUrl}api/v1/getoverallpnllivetradecompanytoday/algowisedata/${algoId}`,{withCredentials:true})
     .then((res) => {
         setTradeData(res.data);
         res.data.map((elem)=>{
@@ -92,7 +92,7 @@ function LiveOverallCompantPNL({socket, algoId, algoName}) {
     })
 
       // Get Lastest Trade timestamp
-      axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`)
+      axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`, {withCredentials:true})
       .then((res)=>{
           console.log("Latest Live Trade:",res.data);
           setLatestTradeTimearr(res.data);

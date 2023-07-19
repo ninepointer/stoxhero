@@ -35,7 +35,7 @@ export default function MockRealSwitch({userId, props}) {
 
     useEffect(()=>{
 
-        axios.get(`${baseUrl}api/v1/getMockTradeDetailsUser/${userId}`)
+        axios.get(`${baseUrl}api/v1/getMockTradeDetailsUser/${userId}`,{withCredentials:true})
         .then((res)=>{
             setTradeDetail(res.data)
             console.log(res.data);
@@ -43,7 +43,7 @@ export default function MockRealSwitch({userId, props}) {
             return new Error(err);
         })
 
-        axios.get(`${baseUrl}api/v1/getLiveTradeDetailsUser/${userId}`)
+        axios.get(`${baseUrl}api/v1/getLiveTradeDetailsUser/${userId}`,{withCredentials:true})
         .then((res)=>{
             setLiveTradeDetail(res.data)
             console.log(res.data);

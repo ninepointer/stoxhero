@@ -121,7 +121,7 @@ function TradersReport() {
 
   function pnlCalculation(firstDate, secondDate,traderName){
     console.log(firstDate,secondDate,traderName)
-    axios.get(`${baseUrl}api/v1/getuserreportdatewisenameLive/${traderName}/${firstDate}/${secondDate}`)
+    axios.get(`${baseUrl}api/v1/getuserreportdatewisenameLive/${traderName}/${firstDate}/${secondDate}`,{withCredentials:true})
     .then((res) => {
       let data = res.data;
       console.log(res.data);

@@ -74,7 +74,7 @@ function Index() {
           setIsLoading(false);
       },500)
 
-      axios.get(`${baseUrl}api/v1/carousels/${id}`)
+      axios.get(`${baseUrl}api/v1/carousels/${id}`, {withCredentials:true})
       .then((res)=>{
         setCarousel(res?.data?.data);
         setFormState({

@@ -382,8 +382,41 @@ exports.changePassword = async (req, res) => {
         token: token
       });
     } catch (error) {
+      console.log(error);
       res.status(500).json({
         error: 'An error occurred while changing password'
       });
     }
   };
+
+  exports.changePassword = async (req, res) => {
+    try {
+      // Check if user exists
+      const user = await UserDetail.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          error: 'User not found'
+        });
+      }
+      
+      
+      // Update the password and save the user
+      user.password = req.body.newPassword;
+      user.passwordChangedAt = new Date();
+      const updatedUser = await user.save({validateBeforeSave:false});
+  
+      // Generate a new JWT token for the user
+      const token = await updatedUser.generateAuthToken();
+      
+      res.status(200).json({
+        status:'success',
+        message: 'Password updated successfully',
+        token: token
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        error: 'An error occurred while changing password'
+      });
+    }
+  };  

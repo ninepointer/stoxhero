@@ -214,7 +214,7 @@ const userDetailSchema = new mongoose.Schema({
         type: Date,
     },
     passwordChangedAt:{
-        type: String,
+        type: Date,
         // required: true
     },
     watchlistInstruments: [
@@ -382,7 +382,18 @@ userDetailSchema.pre('save', async function(next){
         next();
     }
 });
-
+userDetailSchema.methods.changedPasswordAfter = function(JWTiat) {
+    if (this.passwordChangedAt) {
+        const changedTimeStamp = parseInt(
+            this.passwordChangedAt.getTime() / 1000, // Convert to UNIX timestamp
+            10
+        );
+        console.log('changed at', changedTimeStamp);
+        return JWTiat < changedTimeStamp; // True if the password was changed after token issuance
+    }
+    // False means not changed
+    return false;
+};
 const userPersonalDetail = mongoose.model("user-personal-detail", userDetailSchema);
 module.exports = userPersonalDetail;
 

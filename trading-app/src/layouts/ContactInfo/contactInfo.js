@@ -9,7 +9,7 @@ import ContactInfoCard from './components/contactInfoCard';
 const ContactInfo = () => {
     const [contactInfos, setContactInfos] = useState([]);
     const getAllContactInfo = async () =>{
-        const res = await axios.get(`${apiUrl}contactus`);
+        const res = await axios.get(`${apiUrl}contactus`,{withCredentials:true});
         console.log(res.data.data);
         setContactInfos(res.data.data);
     }

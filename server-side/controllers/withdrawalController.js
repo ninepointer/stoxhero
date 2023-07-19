@@ -158,7 +158,7 @@ exports.getAllWithdrwals = async (req, res, next) => {
 
 exports.getPendingWithdrawals = async (req,res,next) => {
     try{
-        const pendingWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').sort({_id:-1});
+        const pendingWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').populate('userWallet', 'transactions').sort({_id:-1});
         res.status(200).json({status:'success', data: pendingWithdrawals, results: pendingWithdrawals.length})
     }catch(e){
         console.log(e);
@@ -187,7 +187,7 @@ exports.getApprovedWithdrawals = async (req,res,next) => {
 
 exports.getInitiatedWithdrawals = async (req, res, next) => {
     try{
-        const initiatedWithdrawals = await Withdrawal.find({withdrawalStatus:'Initiated'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').sort({_id:-1});
+        const initiatedWithdrawals = await Withdrawal.find({withdrawalStatus:'Initiated'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').populate('userWallet', 'transactions').sort({_id:-1});
         res.status(200).json({status:'success', data: initiatedWithdrawals, results: initiatedWithdrawals.length})
     }catch(e){
         console.log(e);

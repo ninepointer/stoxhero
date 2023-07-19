@@ -7,7 +7,7 @@ import { apiUrl } from '../../../constants/constants';
 import ApproveModal from './approveModal';
 import RejectModal from './rejectModal';
 
-const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, walletTransactionId, withdrawalId, setAction, action, transactionId, transactionDocument, rejectionReason, withdrawalSettlementDate}) => {
+const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, userWallet, walletTransactionId, withdrawalId, setAction, action, transactionId, transactionDocument, rejectionReason, withdrawalSettlementDate}) => {
   const requestTime = new Date(withdrawalRequestDate);
   let settleMentTime = withdrawalSettlementDate?new Date(withdrawalSettlementDate):new Date();
   
@@ -75,6 +75,7 @@ const WithDrawalCard = ({amount, withdrawalStatus, withdrawalRequestDate, user, 
             <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Request Date:{localRequestTime}</MDTypography>
             {withdrawalStatus == 'Processed' && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Settlement Date:{localSettlementTime}</MDTypography>}
             <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Wallet Transaction Id:{walletTransactionId}</MDTypography>
+            {(withdrawalStatus == 'Pending' || withdrawalStatus == 'Initiated') && <MDTypography style={{fontSize:'14px', marginBottom:'8px'}}>Wallet Balance:{(userWallet?.transactions.reduce((acc,num)=> { if(num?.transactionType=='Cash') return acc+num.amount}, 0))?.toFixed(2)}</MDTypography>}
         </MDBox>
         {(withdrawalStatus == 'Pending' || withdrawalStatus == 'Initiated')&&<MDBox>
             <MDButton onClick={handleOpen} color='success' sx={{marginRight:'6px'}}>Approve</MDButton>
