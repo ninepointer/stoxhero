@@ -30,7 +30,7 @@ function BillingInformation({render}) {
   
   useEffect(()=>{
       setIsLoading(true)
-      axios.get(`${baseUrl}api/v1/payment?skip=${skip}&limit=${limitSetting}`)
+      axios.get(`${baseUrl}api/v1/payment?skip=${skip}&limit=${limitSetting}`, {withCredentials: true})
       .then((res)=>{
           console.log(res.data)
           setData(res.data.data);
@@ -53,7 +53,7 @@ function BillingInformation({render}) {
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/payment?skip=${skip-limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -61,7 +61,7 @@ function BillingInformation({render}) {
         },
     })
     .then((res) => {
-        console.log("Orders:",res.data)
+        // console.log("Orders:",res.data)
         setData(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
@@ -76,15 +76,15 @@ function BillingInformation({render}) {
 
   function nextHandler(){
     if(skip+limitSetting >= count){
-      console.log("inside skip",count,skip+limitSetting)  
+      // console.log("inside skip",count,skip+limitSetting)  
       return;
     }
-    console.log("inside next handler")
+    // console.log("inside next handler")
     setSkip(prev => prev+limitSetting);
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/payment?skip=${skip+limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -92,7 +92,7 @@ function BillingInformation({render}) {
         },
     })
     .then((res) => {
-        console.log("orders",res.data)
+        // console.log("orders",res.data)
         setData(res.data.data)
         setCount(res.data.count)
         setTimeout(()=>{
@@ -116,7 +116,7 @@ function BillingInformation({render}) {
     // Format the date as "dd Month yyyy | hh:mm AM/PM"
     const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
 
-    console.log(formattedDate);
+    // console.log(formattedDate);
 
     // Helper function to get the month name
     function getMonthName(month) {

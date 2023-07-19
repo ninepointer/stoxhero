@@ -1,4 +1,4 @@
-import React,{useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import CandlestickChart from './chart';
 import io from 'socket.io-client';
 import { userContext } from "../../AuthContext";
@@ -6,19 +6,19 @@ import { useLocation } from 'react-router-dom';
 
 
 const Index = () => {
-    const [response, setResponse] = useState("");
-    const getDetails = useContext(userContext);
-    const location = useLocation();
-    console.log('location', location);
-    const[timeFrame, setTimeFrame] = useState(15);
-    const [minuteTimeframe, setMinuteTimeframe] = useState(15);
-    const [period, setPeriod] = useState('MINUTE'); // Change this to set the timeframe
+  const [response, setResponse] = useState("");
+  const getDetails = useContext(userContext);
+  const location = useLocation();
+  console.log('location', location);
+  const [timeFrame, setTimeFrame] = useState(15);
+  const [minuteTimeframe, setMinuteTimeframe] = useState(15);
+  const [period, setPeriod] = useState('MINUTE'); // Change this to set the timeframe
   const [historicalData, setHistoricalData] = useState([]);
-  const [instrument ,setInstrument] = useState(location?.search?.split('=')[1]??'NIFTY-I')
+  const [instrument, setInstrument] = useState(location?.search?.split('=')[1] ?? 'NIFTY-I')
   const [livePoints, setLivePoints] = useState([]);
   const [liveData, setLiveData] = useState();
   const socketUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
-  
+
   useEffect(() => {
     const socket = io.connect(socketUrl);
 
@@ -38,7 +38,7 @@ const Index = () => {
 
     socket.on('RealtimeResult', data => {
       // Set the live data
-      if(data.InstrumentIdentifier == instrument){
+      if (data.InstrumentIdentifier == instrument) {
         setLiveData(convertLive(data));
         setLivePoints([...livePoints, data.LastTradePrice]);
       }
@@ -48,8 +48,8 @@ const Index = () => {
       return {
         time: data.LastTradeTime + 19800,
         open: data.Open,
-        high: Math.max(...livePoints)??data.high,
-        low: Math.min(...livePoints)??data.low,
+        high: Math.max(...livePoints) ?? data.high,
+        low: Math.min(...livePoints) ?? data.low,
         close: data.LastTradePrice,
       };
     }
@@ -65,7 +65,7 @@ const Index = () => {
     }
 
     const getHistory = () => {
-      console.log('calling getHistory', period, timeFrame); 
+      console.log('calling getHistory', period, timeFrame);
       socket.emit('GetHistory', {
         MessageType: 'GetHistory',
         Exchange: 'NFO',
@@ -128,32 +128,32 @@ const Index = () => {
     };
   }, [minuteTimeframe]);
 
-    const handleChange = (event) =>{
-        const selectedValue = parseInt(event.target.value, 10);
-        setMinuteTimeframe(selectedValue);
-        setTimeFrame(selectedValue/60 >= 1? Math.floor(selectedValue/60):selectedValue); 
-        if(selectedValue/60 >= 1){
-          setPeriod('HOUR')
-        }else{
-          setPeriod('MINUTE')
-        }
-        console.log("Selected timeframe:", selectedValue);
+  const handleChange = (event) => {
+    const selectedValue = parseInt(event.target.value, 10);
+    setMinuteTimeframe(selectedValue);
+    setTimeFrame(selectedValue / 60 >= 1 ? Math.floor(selectedValue / 60) : selectedValue);
+    if (selectedValue / 60 >= 1) {
+      setPeriod('HOUR')
+    } else {
+      setPeriod('MINUTE')
     }
-  
+    console.log("Selected timeframe:", selectedValue);
+  }
+
   return (
-    <div style={{padding:'20px'}}>
-        <h2 style={{display:'flex', justifyContent:'center', margin:'0px', padding:'0px'}}>{instrument}</h2>
-        <span>Time frame</span>
-        <select style={{margin:'20px'}}onChange={handleChange}>
-            <option value={1} selected={timeFrame==1 && period == 'MINUTE'}>1 minute</option>
-            <option value={2} selected={timeFrame==2 && period == 'MINUTE'}>2 minutes</option>
-            <option value={5} selected={timeFrame==5 && period == 'MINUTE'}>5 minutes</option>
-            <option value={15} selected={timeFrame==15 && period == 'MINUTE'}>15 minutes</option>
-            <option value={30} selected={timeFrame==30 && period == 'MINUTE'}>30 minutes</option>
-            <option value={60} selected={timeFrame==1 && period == 'HOUR'}>1 hour</option>
-            <option value={240} selected={timeFrame==4 && period =='HOUR'}>4 hours</option>
-        </select>
-        <CandlestickChart historicalData={historicalData} liveData={liveData} minuteTimeframe={minuteTimeframe}/>
+    <div style={{ padding: '20px' }}>
+      <h2 style={{ display: 'flex', justifyContent: 'center', margin: '0px', padding: '0px' }}>{instrument}</h2>
+      <span>Time frame</span>
+      <select style={{ margin: '20px' }} onChange={handleChange}>
+        <option value={1} selected={timeFrame == 1 && period == 'MINUTE'}>1 minute</option>
+        <option value={2} selected={timeFrame == 2 && period == 'MINUTE'}>2 minutes</option>
+        <option value={5} selected={timeFrame == 5 && period == 'MINUTE'}>5 minutes</option>
+        <option value={15} selected={timeFrame == 15 && period == 'MINUTE'}>15 minutes</option>
+        <option value={30} selected={timeFrame == 30 && period == 'MINUTE'}>30 minutes</option>
+        <option value={60} selected={timeFrame == 1 && period == 'HOUR'}>1 hour</option>
+        <option value={240} selected={timeFrame == 4 && period == 'HOUR'}>4 hours</option>
+      </select>
+      <CandlestickChart historicalData={historicalData} liveData={liveData} minuteTimeframe={minuteTimeframe} />
     </div>
   )
 }
