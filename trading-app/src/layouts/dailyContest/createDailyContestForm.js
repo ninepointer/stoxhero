@@ -120,7 +120,7 @@ function Index() {
         return new Error(err)
       })
 
-    axios.get(`${baseUrl}api/v1/college`)
+    axios.get(`${baseUrl}api/v1/college`,{withCredentials: true})
     .then((res) => {
       console.log("College Lists :", res?.data?.data)
       setCollege(res?.data?.data);
@@ -128,7 +128,7 @@ function Index() {
       return new Error(err)
     })
 
-    axios.get(`${baseUrl}api/v1/college/${contest?.college?._id}`)
+    axios.get(`${baseUrl}api/v1/college/${contest?.college?._id}`,{withCredentials: true})
     .then((res) => {
       console.log("College :", res?.data?.data)
       setCollegeSelectedOption(res?.data?.data);
