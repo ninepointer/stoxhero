@@ -12,7 +12,7 @@ export default function RoleData(reRender) {
   useEffect(()=>{
 
       // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
-      axios.get(`${baseUrl}api/v1/role`)
+      axios.get(`${baseUrl}api/v1/role`, {withCredentials: true})
       .then((res)=>{
             setRole(res?.data?.data);
             console.log(res?.data?.data);

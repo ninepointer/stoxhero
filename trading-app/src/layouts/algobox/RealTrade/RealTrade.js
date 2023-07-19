@@ -13,7 +13,7 @@ export default function RealTrade({ Render, id, tradingAlgo }) {
 
 
     useEffect(() => {
-        axios.get(`${baseUrl}api/v1/getLiveUser/${id}`)
+        axios.get(`${baseUrl}api/v1/getLiveUser/${id}`, {withCredentials: true})
         .then((res) => {
             setIsReal(res?.data?.result ? true : false)
         }).catch((err) => {

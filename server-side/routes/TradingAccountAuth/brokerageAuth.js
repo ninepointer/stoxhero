@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Brokerage = require("../../models/Trading Account/brokerageSchema");
-const authentication = require("../../authentication/authentication")
+const restrictTo = require('../../authentication/authorization');
+const Authenticate = require('../../authentication/authentication');
 
-router.post("/brokerage", authentication, (req, res)=>{
+router.post("/brokerage", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {accountType, brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, transaction, exchange, ctt, dpCharge} = req.body;
     //console.log(req.body);
     if(!brokerName || !type || !brokerageCharge || !exchangeCharge || !gst || !sebiCharge || !stampDuty || !sst || !transaction || !exchange || !ctt || !dpCharge){
@@ -32,7 +33,7 @@ router.post("/brokerage", authentication, (req, res)=>{
     
 })
 
-router.get("/readBrokerage", (req, res)=>{
+router.get("/readBrokerage", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     Brokerage.find((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -42,7 +43,7 @@ router.get("/readBrokerage", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/readBrokerage/:id", (req, res)=>{
+router.get("/readBrokerage/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     Brokerage.findOne({_id : id})
@@ -54,7 +55,7 @@ router.get("/readBrokerage/:id", (req, res)=>{
     })
 })
 
-router.put("/readBrokerage/:id", authentication, async (req, res)=>{
+router.put("/readBrokerage/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -86,7 +87,7 @@ router.put("/readBrokerage/:id", authentication, async (req, res)=>{
     }
 })
 
-router.delete("/readBrokerage/:id", async (req, res)=>{
+router.delete("/readBrokerage/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params

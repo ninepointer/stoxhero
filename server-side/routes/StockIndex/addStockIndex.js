@@ -8,8 +8,9 @@ const RequestToken = require("../../models/Trading Account/requestTokenSchema");
 const {subscribeTokens, unSubscribeTokens, subscribeSingleToken} = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
+const restrictTo = require('../../authentication/authorization');
 
-router.post("/stockindex",authentication, async (req, res)=>{
+router.post("/stockindex",authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
     let date = new Date();
     // console.log(req.body);
@@ -57,7 +58,7 @@ router.post("/stockindex",authentication, async (req, res)=>{
     }
 })
 
-router.get("/stockindex", (req, res)=>{
+router.get("/stockindex", authentication, (req, res)=>{
     StockIndex.find({status: "Active"}, (err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -67,7 +68,7 @@ router.get("/stockindex", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.put("/stockindex/:id",authentication, (req, res)=>{
+router.put("/stockindex/:id",authentication, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {id} = req.params;
     let {displayName, exchange, instrumentSymbol, status} = req.body;
     const modifiedBy = req.user._id;
@@ -86,7 +87,7 @@ router.put("/stockindex/:id",authentication, (req, res)=>{
     })
 })
 
-router.get("/stockindex/:id", (req, res)=>{
+router.get("/stockindex/:id", authentication, (req, res)=>{
     const {id} = req.params;
 
     StockIndex.find({ _id: id })

@@ -43,7 +43,7 @@ const Dailypnldata = () => {
       })
 
 
-        axios.get(`${baseUrl}api/v1/dailypnldata/${firstDate}`)
+        axios.get(`${baseUrl}api/v1/dailypnldata/${firstDate}`, {withCredentials: true})
         .then((res)=>{
                   //console.log("Data on first come: "+res.data)
                   setData(res.data);
@@ -128,7 +128,7 @@ const Dailypnldata = () => {
         setFirstDate(e.target.value)
         //console.log(e.target.value)
         //console.log(`${baseUrl}api/v1/dailypnldata/${e.target.value}`)
-        axios.get(`${baseUrl}api/v1/dailypnldata/${e.target.value}`)
+        axios.get(`${baseUrl}api/v1/dailypnldata/${e.target.value}`, {withCredentials: true})
         .then((res)=>{
                   setData(res.data);
             // Getting row wise data

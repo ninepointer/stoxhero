@@ -4,18 +4,16 @@ require("../../db/conn");
 const RequestToken = require("../../models/Trading Account/requestTokenSchema");
 const {disconnectTicker, createNewTicker}  = require('../../marketData/kiteTicker');
 const getKiteCred = require('../../marketData/getKiteCred');
-// const puppeteer = require("puppeteer");
-const KiteConnect = require('kiteconnect').KiteConnect;
-// const totp = require("totp-generator");
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
-const authentication = require("../../authentication/authentication");
 const {client, getValue} = require("../../marketData/redisClient");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const {xtsInteractive} = require("../../services/xts/xtsInteractive");
 const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 const { ObjectId } = require("mongodb");
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
-router.post("/requestToken", authentication, (req, res)=>{
+router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
     const {accountId, accessToken, requestToken, status, accountType} = req.body;
 
@@ -47,7 +45,7 @@ router.post("/requestToken", authentication, (req, res)=>{
     
 })
 
-router.post("/autologin", authentication, async (req, res)=>{
+router.post("/autologin", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     // await client.del(`kiteCredToday:${process.env.PROD}`);
     let isRedisConnected = getValue();
     await deletePnlKey();
@@ -79,7 +77,7 @@ router.post("/autologin", authentication, async (req, res)=>{
     }
 })
 
-router.get("/autoLoginXTS", authentication, async (req, res)=>{
+router.get("/autoLoginXTS", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
     const data = await xtsInteractive();
 
@@ -94,7 +92,7 @@ router.get("/autoLoginXTS", authentication, async (req, res)=>{
     }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
 })
 
-router.get("/readRequestToken", (req, res)=>{
+router.get("/readRequestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     RequestToken.find({accountType: zerodhaAccountType}, (err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -104,18 +102,18 @@ router.get("/readRequestToken", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/xtsTokenActive", async (req, res)=>{
+router.get("/xtsTokenActive", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     const token = await RequestToken.find({status: "Active", accountType: xtsAccountType}).sort({$natural: -1})
     res.status(200).send({status: "success", data: token, result: token.length});
 })
 
-router.get("/xtsTokenInactive", async (req, res)=>{
+router.get("/xtsTokenInactive", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     const token = await RequestToken.find({status: "Inactive", accountType: xtsAccountType}).sort({$natural: -1})
     res.status(200).send({status: "success", data: token, result: token.length});
 
 })
 
-router.get("/readRequestToken/:id", (req, res)=>{
+router.get("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     RequestToken.findOne({_id : id})
@@ -127,7 +125,7 @@ router.get("/readRequestToken/:id", (req, res)=>{
     })
 })
 
-router.put("/readRequestToken/:id", async (req, res)=>{
+router.put("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{
@@ -155,7 +153,7 @@ router.put("/readRequestToken/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readRequestToken/:id", async (req, res)=>{
+router.delete("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params
@@ -169,7 +167,7 @@ router.delete("/readRequestToken/:id", async (req, res)=>{
 
 })
 
-router.patch("/inactiveRequestToken/:id", async (req, res)=>{
+router.patch("/inactiveRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ // Broker, AccountID, AccountName, APIKey, APISecret, Status, lastModified
@@ -189,7 +187,7 @@ router.patch("/inactiveRequestToken/:id", async (req, res)=>{
     }
 })
 
-router.patch("/changeStatus/:id", authentication, async (req, res)=>{
+router.patch("/changeStatus/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     try{
         const {id} = req.params
 

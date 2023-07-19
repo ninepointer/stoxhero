@@ -38,7 +38,7 @@ const PnlMaxMinData = () => {
 
     useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/dailypnlmaxmindata`)
+      axios.get(`${baseUrl}api/v1/dailypnlmaxmindata`, {withCredentials: true})
       .then((res)=>{
                 console.log("First Date PNL Data: "+res.data)
                 setFDPNLData(JSON.parse(JSON.stringify(res.data)));

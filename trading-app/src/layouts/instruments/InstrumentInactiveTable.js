@@ -26,7 +26,7 @@ const InstrumentInactiveTable = () => {
     const [inactiveData, setInactiveData] = useState([]);
   
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/readInstrumentDetails`)
+        axios.get(`${baseUrl}api/v1/readInstrumentDetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
                   let inActive = data.filter((elem) => {

@@ -66,7 +66,7 @@ function TraderwiseTraderPNL({ socket }) {
     }
     axios.get(`${baseUrl}api/v1/dailycontest/trade/${selectedContest?._id}/traderWisePnlTside`, { withCredentials: true })
       .then((res) => {
-        console.log("contest data", res.data.data)
+        // console.log("contest data", res.data.data)
         setAllTrade(res.data.data);
       }).catch((err) => {
         return new Error(err);

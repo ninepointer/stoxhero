@@ -228,7 +228,7 @@ function Index() {
     const getPnlDetails = async (e, fromDate)=>{
       console.log('ee hai',e.toDate().toISOString().substr(0,10), fromDate);
       try {
-        const res = await axios.get(`${baseUrl}api/v1/infinityTrade/live/brokerreportmatch/${e.toDate().toISOString().substr(0,10)}/${fromDate.toDate().toISOString().substr(0,10)}`);
+        const res = await axios.get(`${baseUrl}api/v1/infinityTrade/live/brokerreportmatch/${e.toDate().toISOString().substr(0,10)}/${fromDate.toDate().toISOString().substr(0,10)}`, {withCredentials: true});
         if(res.data.data[0]){
           setPnlDetails(res.data.data[0]);
           setCummulativePnlDetails(res.data.cumulative[0])

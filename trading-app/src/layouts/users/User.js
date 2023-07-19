@@ -42,7 +42,7 @@ const User = () => {
   
     useEffect(()=>{
   
-        axios.get(`${baseUrl}api/v1/readuserdetails`)
+        axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
                   let active = data.filter((elem) => {

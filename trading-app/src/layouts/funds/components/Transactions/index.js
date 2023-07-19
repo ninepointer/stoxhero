@@ -28,7 +28,7 @@ function Transactions() {
 
   useEffect(()=>{
       console.log(getDetails?.userDetails?._id)
-      axios.get(`${baseUrl}api/v1/getUserMarginDetails/${id}`)
+      axios.get(`${baseUrl}api/v1/getUserMarginDetails/${id}`, {withCredentials: true})
         .then((res)=>{
                 console.log(res.data);
                 setMarginDetails(res.data);
@@ -52,7 +52,7 @@ function Transactions() {
     return formattedDate;
     }}
 
-  console.log("Margin Details: ",marginDetails)
+  // console.log("Margin Details: ",marginDetails)
 
   let totalCredit = 0;
   marginDetails?.map((elem)=>{
@@ -78,7 +78,7 @@ function Transactions() {
   rows.push(obj);
   })
 
-  console.log(rows)
+  // console.log(rows)
 
   return (
     <Card sx={{ height: "100%" }}>

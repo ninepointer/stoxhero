@@ -98,7 +98,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
     const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
   
-    axios.get(`${baseUrl}api/v1/tradingholiday/dates/${startDate}/${endDate}`)
+    axios.get(`${baseUrl}api/v1/tradingholiday/dates/${startDate}/${endDate}`, {withCredentials: true})
       .then((res) => {
         // Check if the start date is after the end date
         setHoliday(res.data.data)

@@ -122,7 +122,7 @@ const SellModel = ({setSellState, exchange, symbol, instrumentToken, symbolName,
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/readsetting`)
+    axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
     .then((res) => {
         setAppLive(res.data);
     }).catch((err) => {

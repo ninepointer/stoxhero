@@ -64,7 +64,7 @@ function AlgoBoxMain({id, algoName}) {
   
       useEffect(()=>{
 
-          axios.get(`${baseUrl}api/v1/readpermission`)
+          axios.get(`${baseUrl}api/v1/readpermission`, {withCredentials: true})
           .then((res)=>{
             setUserPermission((res.data));            
               //setOrderCountTodayCompany((res.data).length);

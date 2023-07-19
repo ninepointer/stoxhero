@@ -41,7 +41,7 @@ useEffect(()=>{
             return new Error(err);
         })
 
-        axios.get(`${baseUrl}api/v1/readuserdetails`)
+        axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
           let traderdata = data.filter((elem) => {

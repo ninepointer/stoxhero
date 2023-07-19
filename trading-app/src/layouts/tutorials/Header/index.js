@@ -23,7 +23,7 @@ function YouTubeVideo() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     React.useEffect(()=>{
       setIsLoading(true)
-      axios.get(`${baseUrl}api/v1/tutorialcategory/`)
+      axios.get(`${baseUrl}api/v1/tutorialcategory/`, {withCredentials: true})
       .then((res)=>{
         console.log(res?.data?.data)
         setTutorialCategories(res?.data?.data);

@@ -37,7 +37,7 @@ const TableFour = () => {
     let totalNegativeTrader = 0;
    
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/infinityTrade/traderwisetraderpnlreport/${firstDate}/${secondDate}`)
+        axios.get(`${baseUrl}api/v1/infinityTrade/traderwisetraderpnlreport/${firstDate}/${secondDate}`, {withCredentials: true})
         .then((res)=>{
           //console.log(res.data)
           setTraderPNLData(res.data?.data);

@@ -67,7 +67,7 @@ const [formState,setFormState] = useState({
 });
 
 React.useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/portfolio/tenx`)
+    axios.get(`${baseUrl}api/v1/portfolio/tenx`, {withCredentials: true})
     .then((res)=>{
       console.log(res?.data?.data)
       setPortfolios(res?.data?.data);
@@ -75,7 +75,7 @@ React.useEffect(()=>{
         return new Error(err)
     })
 
-    axios.get(`${baseUrl}api/v1/tenX/${id}`)
+    axios.get(`${baseUrl}api/v1/tenX/${id}`, {withCredentials: true})
     .then((res)=>{
       console.log(res?.data?.data)
       setTenXSubs(res?.data?.data);
@@ -90,7 +90,7 @@ React.useEffect(()=>{
 
 React.useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/tenX/${id}`)
+    axios.get(`${baseUrl}api/v1/tenX/${id}`, {withCredentials: true})
     .then((res)=>{
         setTenXData(res.data.data);
         setUpdatedDocument(res.data.data)

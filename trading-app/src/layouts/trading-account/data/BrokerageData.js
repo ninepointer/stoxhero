@@ -17,32 +17,20 @@ export default function AllActiveBrokerages() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const [activeData, setActiveData] = useState([]);
-  // const [inactiveData, setInactiveData] = useState([]);
 
   useEffect(()=>{
-
-      // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
-      axios.get(`${baseUrl}api/v1/readBrokerage`)
+      axios.get(`${baseUrl}api/v1/readBrokerage`, {withCredentials: true})
       .then((res)=>{
-        // let data = res.data;
-                setActiveData(res.data);
-                console.log(activeData);
+          setActiveData(res.data);
       }).catch((err)=>{
-          //window.alert("Server Down");
           return new Error(err);
       })
   },[])
 
-  console.log(activeData);
-
   
-  // numberOfClickForRemoveNext = Math.ceil(((orderCountHistoryCompany))/limit);
-  // console.log(numberOfClickForRemoveNext, clickToRemove, orderCountHistoryCompany)
-
   let activebrokeragearr = [];
   
   activeData.map((elem)=>{
-    console.log("elem", elem)
     let activebrokerage = {}
     // const exchangecolor = elem.exchange == "NFO" ? "info" : "error"
     const statuscolor = elem.status == "Active" ? "success" : "error"

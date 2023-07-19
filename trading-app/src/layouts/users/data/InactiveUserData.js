@@ -21,7 +21,7 @@ export default function AllInActiveUsers() {
   useEffect(()=>{
 
       // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
-      axios.get(`${baseUrl}api/v1/readuserdetails`)
+      axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
       .then((res)=>{
         let data = res.data;
           console.log(data);

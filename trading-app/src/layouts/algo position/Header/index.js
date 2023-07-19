@@ -38,7 +38,7 @@ function AlgoPositionHeader({ children }) {
   const [algoBox, setAlgoBox] = useState([]);
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/readtradingAlgo`)
+    axios.get(`${baseUrl}api/v1/readtradingAlgo`, {withCredentials: true})
     .then((res)=>{
         setAlgoBox(res.data)
         // console.log(res.data);
