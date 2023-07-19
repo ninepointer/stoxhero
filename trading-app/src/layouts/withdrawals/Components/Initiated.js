@@ -22,7 +22,7 @@ const Initiated = () => {
         initiated.map((withdrawal)=><WithDrawalCard key={withdrawal._id} 
             amount={withdrawal.amount} user={withdrawal?.user} withdrawalRequestDate={withdrawal.withdrawalRequestDate}
             walletTransactionId={withdrawal.walletTransactionId}  withdrawalStatus={withdrawal.withdrawalStatus}
-            withdrawalId={withdrawal?._id} action={action} setAction={setAction}
+            withdrawalId={withdrawal?._id} action={action} setAction={setAction} userWallet={withdrawal?.userWallet}
         />):<MDBox sx={{display:'flex', justifyContent:'center', alignItems:'center', height:'60vh'}}>
             <MDTypography>
                 No Initiated Withdrawals

@@ -109,7 +109,7 @@ function Index() {
             return new Error(err)
         })
     
-        axios.get(`${baseUrl}api/v1/internbatch/${id?._id}`)
+        axios.get(`${baseUrl}api/v1/internbatch/${id?._id}`, {withCredentials:true})
         .then((res)=>{
           setBatch(res?.data?.data);
           setTimeout(()=>{

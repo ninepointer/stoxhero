@@ -73,7 +73,7 @@ useEffect(()=>{
 
   function pnlCalculation(firstWeek, secondWeek){
     console.log(firstWeek,secondWeek)
-    axios.get(`${baseUrl}api/v1/getweeklytraderpnlLive/${firstWeek}/${secondWeek}`)
+    axios.get(`${baseUrl}api/v1/getweeklytraderpnlLive/${firstWeek}/${secondWeek}`,{withCredentials:true})
     .then((res) => {
       let data = res.data;
       console.log(res.data);
@@ -83,7 +83,7 @@ useEffect(()=>{
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/getuniqueweeksLive/${firstWeek}/${secondWeek}`)
+    axios.get(`${baseUrl}api/v1/getuniqueweeksLive/${firstWeek}/${secondWeek}`, {withCredentials:true})
     .then((res) => {
       let data = res.data;
       console.log(res.data);

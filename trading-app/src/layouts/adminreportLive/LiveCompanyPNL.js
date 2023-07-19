@@ -40,7 +40,7 @@ const TableOne = () => {
     let redDaysAvgPnl = 0;
    
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/companypnlreportLive/${firstDate}/${secondDate}`)
+        axios.get(`${baseUrl}api/v1/companypnlreportLive/${firstDate}/${secondDate}`, {withCredentials:true})
         .then((res)=>{
           //console.log(res.data)
           setCompanyPNLData(res.data);

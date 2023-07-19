@@ -28,7 +28,7 @@ export default function UserTodayTradeData() {
   useEffect(()=>{
       setIsLoading(true)
       console.log("Inside Use Effect")
-      axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip}&limit=${limitSetting}`)
+      axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip}&limit=${limitSetting}`, {withCredentials:true})
       .then((res)=>{
           console.log(res.data)
           setData(res.data.data);
@@ -51,7 +51,7 @@ export default function UserTodayTradeData() {
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip-limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export default function UserTodayTradeData() {
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip+limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",

@@ -43,7 +43,7 @@ const [orderData, setOrderData] = useState([]);
 
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/getusertrades/${userId}`)
+    axios.get(`${baseUrl}api/v1/getusertrades/${userId}`,{withCredentials:true})
     .then((res) => {
         if(open){
           setOrderData(res.data);

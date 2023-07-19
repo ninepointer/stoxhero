@@ -3,9 +3,11 @@ const { restart } = require("nodemon");
 const router = express.Router();
 require("../../db/conn");
 const LiveCompanyTradeData = require("../../models/TradeDetails/liveTradeSchema");
+const Authenticate = require('../../authentication/authentication')
+const restrictTo = require('../../authentication/authorization')
 
 
-router.get("/companylivetradedatatodaywithemail/:email", (req, res)=>{
+router.get("/companylivetradedatatodaywithemail/:email", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {email} = req.params
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
@@ -19,7 +21,7 @@ router.get("/companylivetradedatatodaywithemail/:email", (req, res)=>{
     })
 })
 
-router.get("/readlivetradecompanyDate", (req, res)=>{
+router.get("/readlivetradecompanyDate", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     const {email} = req.params
@@ -33,7 +35,7 @@ router.get("/readlivetradecompanyDate", (req, res)=>{
     })
 })
 
-router.get("/updatelivetradedata", async(req, res)=>{
+router.get("/updatelivetradedata", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     // let date = new Date();
     // let id = data._id;
     // let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
@@ -57,7 +59,7 @@ router.get("/updatelivetradedata", async(req, res)=>{
         }
 })
 
-router.get("/updatelivetradedataamount", async(req, res)=>{
+router.get("/updatelivetradedataamount", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let datatoupdate = await LiveCompanyTradeData.find()
     //console.log(datatoupdate);
 
@@ -76,7 +78,7 @@ router.get("/updatelivetradedataamount", async(req, res)=>{
         }
 })
 
-router.get("/readliveTradecompany", (req, res)=>{
+router.get("/readliveTradecompany", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     LiveCompanyTradeData.find((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -87,7 +89,7 @@ router.get("/readliveTradecompany", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanycount", (req, res)=>{
+router.get("/readliveTradecompanycount", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     LiveCompanyTradeData.count((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -97,7 +99,7 @@ router.get("/readliveTradecompanycount", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanycountToday", (req, res)=>{
+router.get("/readliveTradecompanycountToday", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
 
@@ -110,7 +112,7 @@ router.get("/readliveTradecompanycountToday", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompany/:id", (req, res)=>{
+router.get("/readliveTradecompany/:id", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     LiveCompanyTradeData.findOne({_id : id})
@@ -122,7 +124,7 @@ router.get("/readliveTradecompany/:id", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanyemail/:email", (req, res)=>{
+router.get("/readliveTradecompanyemail/:email", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {email} = req.params
     LiveCompanyTradeData.find({userId: email}).sort({trade_time: -1})
     .then((data)=>{
@@ -133,7 +135,7 @@ router.get("/readliveTradecompanyemail/:email", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanyDate", (req, res)=>{
+router.get("/readliveTradecompanyDate", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     const {email} = req.params
@@ -147,7 +149,7 @@ router.get("/readliveTradecompanyDate", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanypariculardate/:date", (req, res)=>{
+router.get("/readliveTradecompanypariculardate/:date", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {date} = req.params
     LiveCompanyTradeData.find({order_timestamp: {$regex: date}})
     .then((data)=>{
@@ -158,7 +160,7 @@ router.get("/readliveTradecompanypariculardate/:date", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanypagination/:skip/:limit", (req, res)=>{
+router.get("/readliveTradecompanypagination/:skip/:limit", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     //console.log(req.params)
     const {limit, skip} = req.params
     LiveCompanyTradeData.find().sort({trade_time:-1}).skip(skip).limit(limit)
@@ -170,7 +172,7 @@ router.get("/readliveTradecompanypagination/:skip/:limit", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanytodaydatapagination/:skip/:limit", (req, res)=>{
+router.get("/readliveTradecompanytodaydatapagination/:skip/:limit", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     const {limit, skip} = req.params
@@ -183,7 +185,7 @@ router.get("/readliveTradecompanytodaydatapagination/:skip/:limit", (req, res)=>
     })
 })
 
-router.get("/readliveTradecompanypariculardatewithemail/:date/:email", (req, res)=>{
+router.get("/readliveTradecompanypariculardatewithemail/:date/:email", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {date, email} = req.params
     LiveCompanyTradeData.find({order_timestamp: {$regex: date}, userId: email})
     .then((data)=>{
@@ -194,7 +196,7 @@ router.get("/readliveTradecompanypariculardatewithemail/:date/:email", (req, res
     })
 })
 
-router.get("/readliveTradecompanyDate/:email", (req, res)=>{
+router.get("/readliveTradecompanyDate/:email", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {email} = req.params
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
@@ -208,7 +210,7 @@ router.get("/readliveTradecompanyDate/:email", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanyThisMonth", (req, res)=>{
+router.get("/readliveTradecompanyThisMonth", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
     const {email} = req.params
@@ -224,7 +226,7 @@ router.get("/readliveTradecompanyThisMonth", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanyThisWeek/:email", (req, res)=>{
+router.get("/readliveTradecompanyThisWeek/:email", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {email} = req.params
     let date = new Date();
     //console.log(date);
@@ -257,7 +259,7 @@ router.get("/readliveTradecompanyThisWeek/:email", (req, res)=>{
 
 })
 
-router.get("/readliveTradecompanyThisMonth/:email", (req, res)=>{
+router.get("/readliveTradecompanyThisMonth/:email", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {email} = req.params
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -280,7 +282,7 @@ router.get("/readliveTradecompanyThisMonth/:email", (req, res)=>{
     })
 })
 
-router.get("/readliveTradecompanyThisYear/:email", (req, res)=>{
+router.get("/readliveTradecompanyThisYear/:email", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     const {email} = req.params
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -315,7 +317,7 @@ router.get("/readlivetradecompanycount", (req, res)=>{
     })
 
 })
-router.get("/readlivetradecompanycountToday", (req, res)=>{
+router.get("/readlivetradecompanycountToday", Authenticate, restrictTo('Admin', 'Super Admin'), (req, res)=>{
     let date = new Date();
     let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
 
@@ -328,7 +330,7 @@ router.get("/readlivetradecompanycountToday", (req, res)=>{
     })
 })
 
-router.get("/getoverallpnllivetradecompanytoday", async(req, res)=>{
+router.get("/getoverallpnllivetradecompanytoday", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     
@@ -381,7 +383,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
  
 })
 
-router.get("/gettraderwisepnllivetradecompanytoday", async(req, res)=>{
+router.get("/gettraderwisepnllivetradecompanytoday", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     let pnlDetails = await LiveCompanyTradeData.aggregate([
@@ -422,7 +424,7 @@ router.get("/gettraderwisepnllivetradecompanytoday", async(req, res)=>{
  
 })
 
-router.get("/gettraderwisepnllivetradecompanytoday", async(req, res)=>{
+router.get("/gettraderwisepnllivetradecompanytoday", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     console.log(todayDate)
@@ -464,7 +466,7 @@ router.get("/gettraderwisepnllivetradecompanytoday", async(req, res)=>{
 })
 
 
-router.get("/getavgpricelivetradecompany", async(req, res)=>{
+router.get("/getavgpricelivetradecompany", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     
     let date = new Date();
     const days = date.getDay();
@@ -496,7 +498,7 @@ router.get("/getavgpricelivetradecompany", async(req, res)=>{
         
 })
 
-router.get("/getlastestlivetradecompany", async(req, res)=>{
+router.get("/getlastestlivetradecompany", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     //console.log("Inside Aggregate API - Latest Live Trade API")
     
     let date = new Date();
@@ -515,7 +517,7 @@ router.get("/getlastestlivetradecompany", async(req, res)=>{
         
 })
 
-router.get("/getpnllivetradecompanylastfivedays", async(req, res)=>{
+router.get("/getpnllivetradecompanylastfivedays", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     //console.log("Inside Aggregate API - Last 5 days chart data live pnl")
     const days = 6
     let date = new Date();
@@ -553,7 +555,7 @@ router.get("/getpnllivetradecompanylastfivedays", async(req, res)=>{
         
 })
 
-router.get("/getpnllivetradecompanydailythismonth", async(req, res)=>{
+router.get("/getpnllivetradecompanydailythismonth", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     //console.log("Inside Aggregate API - Last 5 days chart data")
     const days = 6
     let date = new Date();
@@ -591,7 +593,7 @@ router.get("/getpnllivetradecompanydailythismonth", async(req, res)=>{
         
 })
 
-router.get("/readlivetradecompanyagg",async (req, res)=>{
+router.get("/readlivetradecompanyagg", Authenticate, restrictTo('Admin', 'Super Admin'), async (req, res)=>{
     let date = new Date();
     let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
 //$gte : `${todayDate} 00:00:00`, 
@@ -604,7 +606,7 @@ router.get("/readlivetradecompanyagg",async (req, res)=>{
         res.status(201).json(x);
 })
 //{ trade_time: {$gte : `${yesterdayDate} 00:00:00`, $lte : `${yesterdayDate} 23:59:59`} }
-router.get("/readlivetradecompanytodayagg",async (req, res)=>{
+router.get("/readlivetradecompanytodayagg", Authenticate, restrictTo('Admin', 'Super Admin'), async (req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     let x = await LiveCompanyTradeData.aggregate([
@@ -617,7 +619,7 @@ router.get("/readlivetradecompanytodayagg",async (req, res)=>{
  })
 
 
-router.get("/getoverallpnllivetradeparticularusertodaycompanyside/:email", async(req, res)=>{
+router.get("/getoverallpnllivetradeparticularusertodaycompanyside/:email", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     const {email} = req.params
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -672,7 +674,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
  
 })
 
-router.get("/getLiveTradeDetailsUser/:email", async(req, res)=>{
+router.get("/getLiveTradeDetailsUser/:email", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     const {email} = req.params
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -714,7 +716,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
 })
 
 
-router.get("/getLiveTradeDetailsAllUser", async(req, res)=>{
+router.get("/getLiveTradeDetailsAllUser", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     
@@ -753,7 +755,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     res.status(201).json(pnlDetails);
 })
 
-router.get("/getoverallpnllivetradecompanytoday/algowisedata/:id", async(req, res)=>{
+router.get("/getoverallpnllivetradecompanytoday/algowisedata/:id", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     const {id} = req.params;
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -807,7 +809,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
  
 })
 
-router.get("/gettraderwisepnllivetradecompanytoday/algowisedata/:id", async(req, res)=>{
+router.get("/gettraderwisepnllivetradecompanytoday/algowisedata/:id", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     const {id} = req.params;
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -845,7 +847,7 @@ router.get("/gettraderwisepnllivetradecompanytoday/algowisedata/:id", async(req,
  
 })
 
-router.get("/updatealgoidlive", async(req, res)=>{
+router.get("/updatealgoidlive", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
   // let date = new Date();
   // let id = data._id;
   // let todayDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
@@ -871,7 +873,7 @@ router.get("/updatealgoidlive", async(req, res)=>{
   }
 })
 
-router.get("/traderwisecompanypnlLivereport/:startDate/:endDate", async(req, res)=>{
+router.get("/traderwisecompanypnlLivereport/:startDate/:endDate", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
   //console.log("Inside Aggregate API - Trader wise company pnl based on date entered")
   let {startDate,endDate} = req.params
   let date = new Date();
@@ -914,7 +916,7 @@ router.get("/traderwisecompanypnlLivereport/:startDate/:endDate", async(req, res
       
 })
 
-router.get("/companypnlreportLive/:startDate/:endDate", async(req, res)=>{
+router.get("/companypnlreportLive/:startDate/:endDate", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
   //console.log("Inside Aggregate API - Date wise company pnl based on date entered")
   let {startDate,endDate} = req.params
   let date = new Date();
@@ -960,7 +962,7 @@ router.get("/companypnlreportLive/:startDate/:endDate", async(req, res)=>{
       
 })
 
-router.get("/getoverallpnllivetradecompanytoday/batchwisedata/:batchName", async(req, res)=>{
+router.get("/getoverallpnllivetradecompanytoday/batchwisedata/:batchName", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     const {batchName} = req.params;
     // console.log( date, algoId)
@@ -1045,7 +1047,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
 
 })
 
-router.get("/gettraderwisepnllivetradecompanytoday/batchwiseData/:batchName", async(req, res)=>{
+router.get("/gettraderwisepnllivetradecompanytoday/batchwiseData/:batchName", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     const {batchName} = req.params;
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -1130,7 +1132,7 @@ router.get("/gettraderwisepnllivetradecompanytoday/batchwiseData/:batchName", as
  
 })
 
-router.get("/getlivetradebatchestoday", async(req, res)=>{
+router.get("/getlivetradebatchestoday", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     let batchDetails = await LiveCompanyTradeData.aggregate([

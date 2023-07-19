@@ -76,7 +76,7 @@ let totalRunningLots = 0;
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/getusertrades/${userId}`)
+    axios.get(`${baseUrl}api/v1/getusertrades/${userId}`,{withCredentials:true})
     .then((res) => {
         setOrderData(res.data);
     }).catch((err) => {

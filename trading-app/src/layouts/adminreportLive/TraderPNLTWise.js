@@ -37,7 +37,7 @@ const TableFour = () => {
    
     useEffect(()=>{
         //console.log(`${baseUrl}api/v1/traderwisetraderpnlreport/${firstDate}/${secondDate}`)
-        axios.get(`${baseUrl}api/v1/traderwisetraderpnlreportLive/${firstDate}/${secondDate}`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/traderwisetraderpnlreportLive/${firstDate}/${secondDate}`,{withCredentials:true})
         .then((res)=>{
           //console.log(res.data)
           setTraderPNLData(res.data);

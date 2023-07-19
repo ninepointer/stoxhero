@@ -101,7 +101,7 @@ let totalRunningLots = 0;
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/getoverallpnllivetradeparticularusertodaycompanyside/${userId}`)
+    axios.get(`${baseUrl}api/v1/getoverallpnllivetradeparticularusertodaycompanyside/${userId}`,{withCredentials:true})
     .then((res) => {
         setTradeData(res.data);
         res.data.map((elem)=>{

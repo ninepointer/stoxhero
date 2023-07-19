@@ -177,7 +177,7 @@ function Index() {
     console.log("Campaign User Count: ",campaignUserCount);
     React.useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/college/${id?._id}`)
+      axios.get(`${baseUrl}api/v1/college/${id?._id}`,{withCredentials:true})
       .then((res)=>{
           setCampaignData(res.data.data);
           setUpdatedDocument(res.data.data);
