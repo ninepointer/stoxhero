@@ -68,6 +68,29 @@ const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMa
 
 
 
+// router.get("/updateField", async (req, res) => {
+
+  // function changeDate(dateStr){
+  //   const date = new Date(dateStr);
+    
+  //   const months = [
+  //     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+  //     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+  //   ];
+    
+  //   const day = date.getDate();
+  //   const month = months[date.getMonth()];
+  //   const year = date.getFullYear();
+    
+  //   const formattedDate = `${day}${month}${year}`;
+    
+  //   return formattedDate;
+  // }
+
+//   const data = await 
+  
+// });
+
 router.get("/del", async (req, res) => {
   const compnay = await MarginDetailLiveCompany.deleteMany({trader: new ObjectId("6454bd032a2c3b3e4c07e057")})
   const user = await MarginDetailLiveUser.deleteMany({trader: new ObjectId("6454bd032a2c3b3e4c07e057")})

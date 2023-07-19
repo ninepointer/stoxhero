@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
+const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
   console.log("rendering : buy", contestId)
   const tradeSound = new Howl({
     src : [sound],
@@ -261,9 +261,9 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken, from,
+        symbol, lotSize, instrumentToken, from, chartInstrument,
         uId, contractDate: expiry, maxLot, notInWatchList: true,
-        exchangeSegment, exchangeInstrumentToken
+        exchangeSegment, exchangeInstrumentToken, 
       })
     });
   

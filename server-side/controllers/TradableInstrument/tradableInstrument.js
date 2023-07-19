@@ -32,13 +32,6 @@ exports.tradableInstrument = async (req,res,next) => {
             responseType: 'stream',
         };
     
-        // Create a connection to MongoDB
-        // const {client, getValue} = new MongoClient(connectionString);
-        // client.connect();
-        // const database = client.db('mydatabase');
-    
-        // Make the HTTP request to the API
-
 
         axios.get(url, options)
         .then((response) => {
@@ -60,9 +53,15 @@ exports.tradableInstrument = async (req,res,next) => {
                     
                     if(row.name === "NIFTY"){
                       row.name = row.name+"50"
-                    }
+                    } //FUTIDX_BANKNIFTY_29JUL2021_XX_0
                     row.lastModifiedBy = userId;
                     row.createdBy = userId;
+                    let date = changeDate(row.expiry);
+                    let prefix = "OPTIDX_" + row.name;
+                    let type = row.instrument_type;
+                    let strike = row.strike;
+
+                    row.chartInstrument = `${prefix}_${date}_${type}_${strike}`;
                     // console.log("getting row in instrument", row);
                     try{
                         const x = await TradableInstrument.create([row]);
@@ -90,6 +89,23 @@ exports.tradableInstrument = async (req,res,next) => {
 
 
 }
+
+function changeDate(dateStr){
+    const date = new Date(dateStr);
+    
+    const months = [
+      "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+      "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+    ];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    const formattedDate = `${day}${month}${year}`;
+    
+    return formattedDate;
+  }
 
 
 

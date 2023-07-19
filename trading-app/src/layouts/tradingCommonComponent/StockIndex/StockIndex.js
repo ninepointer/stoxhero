@@ -122,9 +122,9 @@ function StockIndex({socket}) {
                         <MDBox m={0.5} fontWeight={700} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>{ (e.ltp.props.children) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e.ltp.props.children)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-e.ltp.props.children))}</MDBox>
                         <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} color={e.valueChange.props.children >= 0 ? "success" : "error"}>{e.valueChange.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.valueChange.props.children).toFixed(2)}</MDBox>
                         <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>({e.percentageChange.props.children>0 ? '+' : ''}{e.percentageChange.props.children}%)</MDBox>
-                        {/* <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} 
-                        style={{display:'flex', alignItems:'center'}} onClick={()=>{window.open(`/chart?instrument=${e.instrument.props.children.includes('NIFTY 50')?'NIFTY-I':'BANKNIFTY-I'}`, '_blank')}}><AiOutlineLineChart size={20}/>
-                        </MDBox> */}
+                        <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} 
+                            style={{display:'flex', alignItems:'center'}} onClick={()=>{window.open(`/chart?instrument=${e.instrument.props.children.includes('NIFTY 50')?'NIFTY-I':'BANKNIFTY-I'}`, '_blank')}}><AiOutlineLineChart size={20}/>
+                        </MDBox>
                         </Item>
                     )})}
                     <Item elevation={2}>           

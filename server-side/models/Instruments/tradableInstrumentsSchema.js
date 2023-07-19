@@ -87,6 +87,9 @@ const tradableInstrumentSchema = new mongoose.Schema({
     },
     earlySubscription: {
         type: Boolean,
+    },
+    chartInstrument: {
+        type: String,
     }
 })
 

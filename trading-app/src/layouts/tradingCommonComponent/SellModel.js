@@ -31,7 +31,7 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, contestId}) => {
+const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, contestId}) => {
   console.log("rendering in userPosition: sellModel", exchange)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -257,7 +257,7 @@ const SellModel = ({traderId, socket, exchangeSegment, exchangeInstrumentToken, 
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken, from,
+        symbol, lotSize, instrumentToken, from, chartInstrument,
         uId, contractDate: expiry, maxLot, notInWatchList: true,
         exchangeInstrumentToken, exchangeSegment
       })
