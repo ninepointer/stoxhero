@@ -36,7 +36,7 @@ const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 // const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
-const {autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, creditAmount} = require("./controllers/AutoTradeCut/mainManually");
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
 const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
@@ -346,11 +346,12 @@ let weekDay = date.getDay();
         const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
           autoCutMainManually();
           autoCutMainManuallyMock();
+          creditAmount();
           // await creditAmountToWallet();
         });
-        const creditAmount = nodeCron.schedule(`53 9 * * *`, async () => {
-          creditAmountToWallet();
-        });
+        // const creditAmount = nodeCron.schedule(`53 9 * * *`, async () => {
+        //   creditAmountToWallet();
+        // });
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();

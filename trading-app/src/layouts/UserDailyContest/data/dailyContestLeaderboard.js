@@ -39,14 +39,11 @@ function Leaderboard({socket, name}) {
 
             setLeaderboard(data);
             setIsLoading(false);
-
-            if(!data){
-                let timer = setTimeout(() => {
-                    setIsLoading(false);
-                }, 5000);
-            }
-            //   console.log("this is leaderboard data", data)
         })
+
+        let timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
 
     }, [])
 
