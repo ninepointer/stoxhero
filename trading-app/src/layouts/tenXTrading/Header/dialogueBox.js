@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-
+import paymentQr from '../../../assets/images/paymentQr.jpeg';
 
 //icons
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -251,24 +251,59 @@ export default function Dialogue({amount, name, id, walletCash}) {
               messege.thanksMessege
               :
               <>
-                <DialogContentText id="alert-dialog-description">
+                <DialogContent>
+          {messege.thanksMessege ?
 
-                  <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
-                    <Title variant={{xs:"h2",md:"h3"}} style={{color:"#000",fontWeight:"bold",marginTop:"10px"}} >Choose how to pay</Title>
-                    {/* <Typography textAlign="center" sx={{mt:"12px", width:"75%",mb:"12px"}} color="#000" variant="body2">Your payment is encrypted and you can change your payment method at anytime.</Typography>
-                    <Typography amount, name, id, walletCash variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography> */}
-                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >
-                      {
-                      (walletCash < amount) ?
-                      `Your wallet balance is low, kindly add money to your wallet by making an UPI payment to ${setting?.contest?.upiId} and sending the screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp) or call @ ${setting?.contest?.mobile}`
-                      :
-                      `To add money in your wallet please make the UPI payment to ${setting?.contest?.upiId} and share the payment screenshot at ${setting?.contest?.email} or call @ ${setting?.contest?.mobile}`
-                      }
-                    </Typography>
+          <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
+          :
+          messege.error ?
+          <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
+            :
+            <>
+              <DialogContentText id="alert-dialog-description">
+
+                <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
+                  <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "-24px" }} >Choose how to pay</Title>
+                  <Typography textAlign="center" sx={{ mt: "4px", width: "75%", mb: "4px" }} color="#000" variant="body2">
+                    
+                    {
+                    (walletCash < amount) ?
+                    `Your wallet balance is low, kindly add money to your wallet. Follow the steps below.`
+                    :
+                    `To add money in your wallet, please follow these steps.`
+                    }
+                  </Typography>
+                  <Typography textAlign="start" px={3} fontSize={13}>Step-1: Open any UPI app, scan the QR or enter the UPI ID {setting?.contest?.upiId}</Typography>
+                  <MDBox>
+                    <img src={paymentQr} width={200} height={200}/>
                   </MDBox>
-                </DialogContentText>
+                  <Typography textAlign="start" px={3} mb={0.4} fontSize={13}>Step-2: Complete the payment of your desired amount and take a screenshot.</Typography>
+                  <Typography textAlign="start" px={4} fontSize={13}>Step-3: Please email {setting?.contest?.email} or WhatsApp {setting?.contest?.mobile} with your name, registered phone number, payment screenshot. Call for quicker resolution. Make sure your transactionId and amount is visible.</Typography>
 
-                <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={8} >
+                </MDBox>
+              </DialogContentText>
+
+              {/* <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={4} >
+                <MDBox onClick={() => { buySubscription() }} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid blue" } }} >
+
+                  <MDBox display="flex" justifyContent="center">
+                    <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
+                    <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#000", marginRight: "4px" }} />
+                    <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#000" > {`₹${walletCash.toFixed(2)}`}</Typography>
+                  </MDBox>
+                  
+                  <MDBox>
+                    <ArrowForwardIosIcon sx={{ mt: "8px", color: "#000", marginRight: "5px", marginLeft: "5px" }} />
+                  </MDBox>
+
+                </MDBox>
+              </MDBox> */}
+            </>
+          }
+
+        </DialogContent>
+
+                <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={0} >
                   <MDBox onClick={()=>{buySubscription()}} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{height:"40px",width:{xs:"85%",md:"auto"},"&:hover":{cursor:"pointer",border:"1px solid blue"}}} >
 
                     <MDBox display="flex" justifyContent="center">
