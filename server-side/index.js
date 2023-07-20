@@ -329,7 +329,7 @@ Setting.find().then((res) => {
 });
 let date = new Date();
 let weekDay = date.getDay();
-  if(process.env.PROD){
+  if(process.env.PROD === "true"){
     let date = new Date();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
