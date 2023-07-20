@@ -143,7 +143,7 @@ getKiteCred.getAccess().then(async (data)=>{
       await webSocketService.getMessages(io,socket);
     });
 
-    socket.emit('check', false)
+    // socket.emit('check', false)
 
 
     socket.on('disconnect', () => {

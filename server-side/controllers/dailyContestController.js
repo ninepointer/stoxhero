@@ -857,21 +857,36 @@ exports.creditAmountToWallet = async () => {
                     if (pnlDetails[0]?.npnl > 0) {
                         const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
                         const wallet = await Wallet.findOne({ userId: userId });
-                        wallet.transactions = [...wallet.transactions, {
-                            title: 'Contest Credit',
-                            description: `Amount credited for contest ${contest[j].contestName}`,
-                            transactionDate: new Date(),
-                            amount: payoutAmount?.toFixed(2),
-                            transactionId: uuid.v4(),
-                            transactionType: 'Cash'
-                        }];
-                        wallet.save();
 
-                        contest[j].participants[i].payout = payoutAmount?.toFixed(2)
+                        console.log(userId);
+                        // if (wallet && wallet.transactions.length > 0 ) {
+                        //     // Use $pop to remove the last element from the transaction array
+                            
+                        //     const updatedWallet = await Wallet.findOneAndUpdate(
+                        //       { userId: userId },
+                        //       { $pop: { transactions: 1 } }, // 1 indicates removing the last element
+                        //       { new: true }
+                        //     );
+                          
+                        //     console.log("Updated Wallet:", updatedWallet);
+                        //   } else {
+                        //     console.log("No wallet found or transaction array is empty.");
+                        //   }
+                        // wallet.transactions = [...wallet.transactions, {
+                        //     title: 'Contest Credit',
+                        //     description: `Amount credited for contest ${contest[j].contestName}`,
+                        //     transactionDate: new Date(),
+                        //     amount: payoutAmount?.toFixed(2),
+                        //     transactionId: uuid.v4(),
+                        //     transactionType: 'Cash'
+                        // }];
+                        // wallet.save();
+
+                        // contest[j].participants[i].payout = payoutAmount?.toFixed(2)
                     }
-                    contest[j].payoutStatus = 'Completed'
-                    contest[j].contestStatus = "Completed";
-                    await contest[j].save();
+                    // contest[j].payoutStatus = 'Completed'
+                    // contest[j].contestStatus = "Completed";
+                    // await contest[j].save();
                 }
             }
         }
