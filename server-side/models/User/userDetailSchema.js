@@ -388,7 +388,7 @@ userDetailSchema.methods.changedPasswordAfter = function(JWTiat) {
             this.passwordChangedAt.getTime() / 1000, // Convert to UNIX timestamp
             10
         );
-        console.log('changed at', changedTimeStamp);
+        console.log('changed at', this.passwordChangedAt);
         return JWTiat < changedTimeStamp; // True if the password was changed after token issuance
     }
     // False means not changed
