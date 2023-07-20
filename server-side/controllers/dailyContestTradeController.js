@@ -1845,7 +1845,7 @@ const getRedisMyRank = async (id, employeeId) => {
 
             const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
             // console.log("leaderBoardRank", leaderBoardRank)
-            // await client.del(`leaderboard:${id}`)
+            await client.del(`leaderboard:${id}`)
             if (leaderBoardRank == null) return null
             return leaderBoardRank + 1
         } else {

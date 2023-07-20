@@ -168,7 +168,7 @@ const creditAmount = async() => {
         return;
     }
 
-    await autoCutMainManuallyMock();
+    await creditAmount();
 }
 
 module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount}
