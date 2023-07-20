@@ -6,6 +6,7 @@ const {client, getValue} = require('../marketData/redisClient');
 const Careers = require("../models/Careers/careerSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
+const Holiday = require("../models/TradingHolidays/tradingHolidays");
 
 const { ObjectId } = require("mongodb");
 
@@ -1136,6 +1137,7 @@ exports.updateUserWallet = async () => {
     const workingDays = calculateWorkingDays(internship[0].startDate, internship[0].endDate);
     const users = internship[0].users;
     const batchId = internship[0].batchId;
+    const holiday = await Holiday.find({holidayDate: {$gte: internship[0].startDate, $lte: internship[0].endDate}});
   
     const tradingDays = async (userId, batchId)=>{
       const pipeline = 
@@ -1203,9 +1205,7 @@ exports.updateUserWallet = async () => {
             },
         },
       ])
-    
-      // let x = await InternTrades.aggregate(pnlDetails);
-  
+
       return pnlDetails[0]?.npnl;
     }
   
@@ -1245,7 +1245,7 @@ exports.updateUserWallet = async () => {
   
     for(let i = 0; i < users.length; i++){
       const tradingdays = await tradingDays(users[i].user, batchId);
-      const attendance = tradingdays*100/workingDays;
+      const attendance = tradingdays*100/workingDays-holiday.length;
       const referral = await referrals(users[i].user);
       const npnl = await pnl(users[i].user, batchId);
       const creditAmount = npnl*payoutPercentage/100;
@@ -1261,7 +1261,7 @@ exports.updateUserWallet = async () => {
           transactionType: 'Cash'
         }];
         wallet.save();
-        console.log(attendance, tradingdays, users[i].user, npnl);
+        console.log(tradingdays, attendance, tradingdays, users[i].user, npnl);
       }
   
       if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){

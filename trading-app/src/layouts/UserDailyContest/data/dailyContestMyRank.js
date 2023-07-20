@@ -40,7 +40,7 @@ function Leaderboard({socket}) {
     useEffect(()=>{
         socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
 
-            setMyRankData(data);
+            setMyRankData((prev) => (data !== null ? data : prev));
             setIsLoading(false);
           console.log("this is leaderboard data", data)
         })

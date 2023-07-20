@@ -157,20 +157,3 @@ function Delete(id){
 }
 
 export default LiveCarousels
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
