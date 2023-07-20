@@ -1,6 +1,7 @@
 const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, dailyContestMock} = require("./collectingTradeManually");
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
+const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 
 
 const autoCutMainManually = async() => {

@@ -128,6 +128,7 @@ getKiteCred.getAccess().then(async (data)=>{
     socket.on('dailyContestLeaderboard', async (data) => {
       let {id, employeeId, userId} = data;
       socket.join(`${id}`)
+      socket.join(`${id}${userId}`)
       await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
     })
 
