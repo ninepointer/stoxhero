@@ -88,12 +88,12 @@ const AutoLogin = ({data}) => {
           console.log("entry succesfull");
       }
 
-      console.log("accessAndRequest", accessAndRequest)
 
       accessAndRequest.map(async (elem)=>{
 
         const res2 = await fetch(`${baseUrl}api/v1/inactiveRequestToken/${elem._id}`, {
           method: "PATCH",
+          credentials: "include",
           headers: {
               "content-type": "application/json"
           },

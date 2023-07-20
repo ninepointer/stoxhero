@@ -5,7 +5,7 @@ const SearchInstrument = require("../../controllers/TradableInstrument/searchIns
 const authentication = require("../../authentication/authentication")
 const restrictTo = require('../../authentication/authorization');
 
-router.get("/tradableInstruments", authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
+router.get("/tradableInstruments", authentication, async (req, res)=>{
     const input = req.query.search;
     await SearchInstrument.search(input, res, req)
 })
