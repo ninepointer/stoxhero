@@ -3,9 +3,11 @@ const router = express.Router();
 require("../../db/conn");
 const TradingAlgo = require("../../models/AlgoBox/tradingAlgoSchema");
 const {client, getValue} = require('../../marketData/redisClient');
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
 
-router.post("/tradingalgo", (req, res)=>{
+router.post("/tradingalgo", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {algoName, transactionChange, instrumentChange, status, exchangeChange, lotMultipler, productChange, tradingAccount, lastModified, uId, createdBy, createdOn, realTrade, marginDeduction, isDefault} = req.body;
 
     if(!algoName || !transactionChange || !instrumentChange || !status || !exchangeChange || !lotMultipler || !productChange || !tradingAccount || !lastModified || !uId || !createdBy || !createdOn){
@@ -32,7 +34,7 @@ router.post("/tradingalgo", (req, res)=>{
     }).catch(err => {console.log("fail")});
 })
 
-router.get("/readtradingAlgo", async (req, res)=>{
+router.get("/readtradingAlgo", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     const isRedisConnected = getValue();
     if(isRedisConnected && await client.exists(`tradingAlgo`)){
         let algo = await client.get(`tradingAlgo`);
@@ -52,7 +54,7 @@ router.get("/readtradingAlgo", async (req, res)=>{
     // }).sort({createdOn:-1})
 })
 
-router.get("/readtradingAlgo/:id", (req, res)=>{
+router.get("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     TradingAlgo.findOne({_id : id}).sort({createdOn:-1})
@@ -64,7 +66,7 @@ router.get("/readtradingAlgo/:id", (req, res)=>{
     })
 })
 
-router.put("/readtradingAlgo/:id", async (req, res)=>{
+router.put("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{
@@ -91,7 +93,7 @@ router.put("/readtradingAlgo/:id", async (req, res)=>{
     }
 })
 
-router.patch("/readtradingAlgo/:id", async (req, res)=>{
+router.patch("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -114,7 +116,7 @@ router.patch("/readtradingAlgo/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatemargindeduction/:id", async (req, res)=>{
+router.patch("/updatemargindeduction/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -136,7 +138,7 @@ router.patch("/updatemargindeduction/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatedefaultalgo/:id", async (req, res)=>{
+router.patch("/updatedefaultalgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -158,7 +160,7 @@ router.patch("/updatedefaultalgo/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatetransactionChange/:id", async (req, res)=>{
+router.patch("/updatetransactionChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -180,7 +182,7 @@ router.patch("/updatetransactionChange/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updateinstrumentChange/:id", async (req, res)=>{
+router.patch("/updateinstrumentChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -202,7 +204,7 @@ router.patch("/updateinstrumentChange/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updateexchangeChange/:id", async (req, res)=>{
+router.patch("/updateexchangeChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -224,7 +226,7 @@ router.patch("/updateexchangeChange/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updateproductChange/:id", async (req, res)=>{
+router.patch("/updateproductChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -246,7 +248,7 @@ router.patch("/updateproductChange/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readtradingAlgo/:id", async (req, res)=>{
+router.delete("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params

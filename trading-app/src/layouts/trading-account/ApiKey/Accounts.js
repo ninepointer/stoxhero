@@ -38,7 +38,7 @@ const Accounts = () => {
 
   useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/readAccountDetails`)
+      axios.get(`${baseUrl}api/v1/readAccountDetails`, {withCredentials: true})
       .then((res)=>{
         let data = res.data;
                 let active = data.filter((elem) => {

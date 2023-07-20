@@ -31,7 +31,7 @@ function Billing() {
   const [marginDetails, setMarginDetails] = useState([]);
   const [render, setRender] = useState(true);
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`)
+    axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`, {withCredentials: true})
       .then((res)=>{
               console.log(res.data);
               setMarginDetails(res.data);

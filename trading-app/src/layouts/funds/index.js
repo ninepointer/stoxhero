@@ -40,7 +40,7 @@ function Billing() {
 
   useEffect(()=>{
       console.log(getDetails.userDetails.email)
-      axios.get(`${baseUrl}api/v1/getUserMarginDetails/${id}`)
+      axios.get(`${baseUrl}api/v1/getUserMarginDetails/${id}`, {withCredentials: true})
         .then((res)=>{
                 console.log(res.data);
                 setMarginDetails(res.data);

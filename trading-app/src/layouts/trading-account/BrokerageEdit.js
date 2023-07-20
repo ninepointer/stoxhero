@@ -150,6 +150,7 @@ const BrokerageEdit = ({data, id, Render}) => {
       //console.log(editData)
       const res = await fetch(`${baseUrl}api/v1/readRequestToken/${id}`, {
           method: "DELETE",
+          credentials: "include"
       });
 
       const dataResp = await res.json();

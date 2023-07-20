@@ -29,7 +29,7 @@ const InstrumentActiveTable = () => {
   
     useEffect(()=>{
   
-        axios.get(`${baseUrl}api/v1/readInstrumentDetails`)
+        axios.get(`${baseUrl}api/v1/readInstrumentDetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
                   let active = data.filter((elem) => {

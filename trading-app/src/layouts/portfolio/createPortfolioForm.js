@@ -41,7 +41,7 @@ function Index() {
 
     React.useEffect(()=>{
 
-        axios.get(`${baseUrl}api/v1/portfolio/${id}`)
+        axios.get(`${baseUrl}api/v1/portfolio/${id}`, {withCredentials: true})
         .then((res)=>{
             setPortfolioData(res.data.data);
             console.log("portfolio data is", res.data)

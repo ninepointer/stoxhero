@@ -84,7 +84,7 @@ const OptionChain = ({ socket, data }) => {
     useEffect(() => {
         setIsLoading(true)
         console.log("Inside Use Effect")
-        axios.get(`${baseUrl}api/v1/optionChain/${selectIndex}`)
+        axios.get(`${baseUrl}api/v1/optionChain/${selectIndex}`, {withCredentials: true})
             .then((res) => {
                 console.log(res.data)
 

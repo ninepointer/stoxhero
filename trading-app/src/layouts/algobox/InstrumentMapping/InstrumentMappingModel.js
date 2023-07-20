@@ -58,6 +58,7 @@ const InstrumentMappingModel = ({Render}) => {
 
     const res = await fetch(`${baseUrl}api/v1/instrumentAlgo`, {
         method: "POST",
+        credentials: "include",
         headers: {
             "content-type": "application/json"
         },

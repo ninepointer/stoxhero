@@ -95,7 +95,7 @@ function Index() {
 
 
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/portfolio/internship`)
+        axios.get(`${baseUrl}api/v1/portfolio/internship`, {withCredentials: true})
         .then((res)=>{
           setPortfolios(res?.data?.data);
         }).catch((err)=>{

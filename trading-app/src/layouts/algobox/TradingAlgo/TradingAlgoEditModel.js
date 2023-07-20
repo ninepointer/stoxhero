@@ -54,7 +54,7 @@ const TradingAlgoModel = ({ data, id, Render }) => {
       })
       setEditData(updatedData)
 
-      axios.get(`${baseUrl}api/v1/readpermission`)
+      axios.get(`${baseUrl}api/v1/readpermission`, {withCredentials: true})
       .then((res)=>{
           let mappedUserUpdate = (res.data).filter((elem)=>{
               //console.log(elem.algoName, updatedData[0].algoName);
@@ -102,6 +102,7 @@ const TradingAlgoModel = ({ data, id, Render }) => {
 
       const res = await fetch(`${baseUrl}api/v1/readtradingAlgo/${id}`, {
           method: "PUT",
+          credentials: "include",
           headers: {
               "Accept": "application/json",
               "content-type": "application/json"
@@ -133,6 +134,7 @@ const TradingAlgoModel = ({ data, id, Render }) => {
       //console.log(editData)
       const res = await fetch(`${baseUrl}api/v1/readtradingAlgo/${id}`, {
           method: "DELETE",
+          credentials: "include"
       });
 
       const dataResp = await res.json();
@@ -158,6 +160,7 @@ const TradingAlgoModel = ({ data, id, Render }) => {
       
       const response = await fetch(`${baseUrl}api/v1/readpermissionalgo/${id}`, {
           method: "PATCH",
+          credentials: "include",
           headers: {
               "Accept": "application/json",
               "content-type": "application/json"
@@ -183,6 +186,7 @@ const TradingAlgoModel = ({ data, id, Render }) => {
 
       const response = await fetch(`${baseUrl}api/v1/readpermission/${id}`, {
           method: "DELETE",
+          credentials: "include"
       });
       const permissionData = await response.json();
 

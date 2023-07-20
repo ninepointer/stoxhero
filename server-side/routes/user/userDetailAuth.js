@@ -13,6 +13,7 @@ const Wallet = require('../../models/UserWallet/userWalletSchema');
 const { ObjectId } = require("mongodb");
 const Role = require("../../models/User/everyoneRoleSchema");
 const sendMail = require('../../utils/emailService');
+const restrictTo = require('../../authentication/authorization');
 
 
 const storage = multer.memoryStorage();
@@ -319,17 +320,7 @@ router.patch("/generateOTP", async (req, res)=>{
     emailService(email,subject,message);
 })
 
-// router.get("/readuserdetails", (req, res)=>{
-//     UserDetail.find((err, data)=>{
-//         if(err){
-//             return res.status(500).send(err);
-//         }else{
-//             return res.status(200).send(data);
-//         }
-//     }).sort({joining_date:1})
-// })
-
-router.get("/readuserdetails", (req, res) => {
+router.get("/readuserdetails", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res) => {
   UserDetail.find()
     .populate("role","roleName") // Populate the "role" field
     .sort({ joining_date: -1 })
@@ -342,7 +333,7 @@ router.get("/readuserdetails", (req, res) => {
     });
 });
 
-router.get("/readuserdetails/:id", (req, res)=>{
+router.get("/readuserdetails/:id", Authenticate, (req, res)=>{
 
     const {id} = req.params
     UserDetail.findOne({_id : id})
@@ -354,7 +345,7 @@ router.get("/readuserdetails/:id", (req, res)=>{
     })
 })
 
-router.put("/readuserdetails/:id", async (req, res)=>{
+router.put("/readuserdetails/:id", Authenticate, async (req, res)=>{
 
     try{
         const {id} = req.params
@@ -409,7 +400,7 @@ router.put("/readuserdetails/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readuserdetails/:id", async (req, res)=>{
+router.delete("/readuserdetails/:id", Authenticate, async (req, res)=>{
  
     try{
         const {id} = req.params
@@ -421,7 +412,7 @@ router.delete("/readuserdetails/:id", async (req, res)=>{
 
 })
 
-router.get("/readparticularuserdetails/:email", (req, res)=>{
+router.get("/readparticularuserdetails/:email", Authenticate, (req, res)=>{
     const {email} = req.params
     UserDetail.findOne({email : email})
     .then((data)=>{
@@ -433,7 +424,7 @@ router.get("/readparticularuserdetails/:email", (req, res)=>{
 })
 
 // admin id --> new ObjectId("6448f834446977851c23b3f5")
-router.get("/getAdmins/", (req, res)=>{
+router.get("/getAdmins/", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     UserDetail.find({role : new ObjectId("6448f834446977851c23b3f5") })
     .then((data)=>{
         return res.status(200).send(data);
@@ -443,7 +434,7 @@ router.get("/getAdmins/", (req, res)=>{
     })
 })
 
-router.get("/getallbatch", async(req, res)=>{
+router.get("/getallbatch", Authenticate, restrictTo('Admin', 'SuperAdmin'), async(req, res)=>{
 
     let batch = await UserDetail.aggregate([
         {
@@ -668,7 +659,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
 
 });
 
-router.get("/myreferrals/:id", (req, res)=>{
+router.get("/myreferrals/:id", Authenticate, (req, res)=>{
   const {id} = req.params
   const referrals = UserDetail.find({referredBy : id}).sort({joining_date:-1})
   .then((data)=>{
@@ -679,7 +670,7 @@ router.get("/myreferrals/:id", (req, res)=>{
   })
 });
 
-router.get('/earnings', Authenticate, async (req,res, next)=>{
+router.get('/earnings', Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req,res, next)=>{
   const id = req.user._id;
   try{
     const userReferrals = await UserDetail.findById(id).select('referrals');
@@ -701,7 +692,7 @@ router.get('/earnings', Authenticate, async (req,res, next)=>{
   }
 });
 
-router.get("/newusertoday", (req, res)=>{
+router.get("/newusertoday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -715,7 +706,7 @@ router.get("/newusertoday", (req, res)=>{
   })
 });
 
-router.get("/newuseryesterday", (req, res)=>{
+router.get("/newuseryesterday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -733,7 +724,7 @@ router.get("/newuseryesterday", (req, res)=>{
   })
 });
 
-router.get("/newuserthismonth", (req, res)=>{
+router.get("/newuserthismonth", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   
   let date = new Date();
   let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
@@ -748,7 +739,7 @@ router.get("/newuserthismonth", (req, res)=>{
   })
 });
 
-router.get("/allusers", (req, res)=>{
+router.get("/allusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
   const newuser = UserDetail.find().populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
@@ -760,7 +751,7 @@ router.get("/allusers", (req, res)=>{
   })
 });
 
-router.get("/allusersNameAndId", (req, res)=>{
+router.get("/allusersNameAndId", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
   const newuser = UserDetail.find().select('_id first_name last_name')
   .then((data)=>{
@@ -772,7 +763,7 @@ router.get("/allusersNameAndId", (req, res)=>{
   })
 });
 
-router.get("/newuserreferralstoday", (req, res)=>{
+router.get("/newuserreferralstoday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -787,7 +778,7 @@ router.get("/newuserreferralstoday", (req, res)=>{
   })
 });
 
-router.get("/newuserreferralsyesterday", (req, res)=>{
+router.get("/newuserreferralsyesterday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -805,7 +796,7 @@ router.get("/newuserreferralsyesterday", (req, res)=>{
   })
 });
 
-router.get("/newuserreferralsthismonth", (req, res)=>{
+router.get("/newuserreferralsthismonth", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
   monthStartDate = monthStartDate + "T00:00:00.000Z";
@@ -819,7 +810,7 @@ router.get("/newuserreferralsthismonth", (req, res)=>{
   })
 });
 
-router.get("/allreferralsusers", (req, res)=>{
+router.get("/allreferralsusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
   const newuser = UserDetail.find({referredBy : {$exists:true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
@@ -833,7 +824,7 @@ router.get("/allreferralsusers", (req, res)=>{
 
 //-----
 
-router.get("/newusercampaigntoday", (req, res)=>{
+router.get("/newusercampaigntoday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -847,7 +838,7 @@ router.get("/newusercampaigntoday", (req, res)=>{
   })
 });
 
-router.get("/newusercampaignyesterday", (req, res)=>{
+router.get("/newusercampaignyesterday", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -865,7 +856,7 @@ router.get("/newusercampaignyesterday", (req, res)=>{
   })
 });
 
-router.get("/newusercampaignthismonth", (req, res)=>{
+router.get("/newusercampaignthismonth", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
   let date = new Date();
   let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
   monthStartDate = monthStartDate + "T00:00:00.000Z";
@@ -879,7 +870,7 @@ router.get("/newusercampaignthismonth", (req, res)=>{
   })
 });
 
-router.get("/allcampaignusers", (req, res)=>{
+router.get("/allcampaignusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
   const newuser = UserDetail.find({campaign : {$exists:true}}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
@@ -891,7 +882,7 @@ router.get("/allcampaignusers", (req, res)=>{
   })
 });
 
-router.get("/infinityUsers", Authenticate, async (req, res)=>{
+router.get("/infinityUsers", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
   const role = await Role.findOne({roleName: "Infinity Trader"})
 
@@ -899,7 +890,7 @@ router.get("/infinityUsers", Authenticate, async (req, res)=>{
   return res.status(200).json({data : newuser, count: newuser.length});
 });
 
-router.get("/infinityTraders", Authenticate, async (req, res)=>{
+router.get("/infinityTraders", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
   const role = await Role.findOne({roleName: "Infinity Trader"})
 
@@ -910,7 +901,7 @@ router.get("/infinityTraders", Authenticate, async (req, res)=>{
 
 });
 
-router.get("/normalusers", Authenticate, async (req, res)=>{
+router.get("/normalusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
   const newuser = await UserDetail.find({designation: 'Trader'})
                         .select('first_name last_name employeeid _id email mobile')
@@ -919,7 +910,3 @@ router.get("/normalusers", Authenticate, async (req, res)=>{
 });
 
 module.exports = router;
-
-
-
-

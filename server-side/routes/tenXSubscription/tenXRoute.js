@@ -2,28 +2,29 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const {createTenXSubscription, editTanx, getActiveTenXSubs, 
     getTenXSubscription, editFeature, getBeginnerSubscription, getIntermediateSubscription, getProSubscription, removeFeature, getTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, createTenXPurchaseIntent, getTenXSubscriptionPurchaseIntent} = require("../../controllers/tenXSubscriptionController");
-const authentication = require("../../authentication/authentication")
+const Authenticate = require('../../authentication/authentication');
 const tenXTradeRoute = require("../mockTrade/tenXTradeRoute")
 const {myTodaysTrade, myHistoryTrade, tradingDays} = require("../../controllers/tenXTradeController")
+const restrictTo = require('../../authentication/authorization');
 
 // router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
-router.route('/create').post(authentication, createTenXSubscription);
-router.route('/capturepurchaseintent').post(authentication, createTenXPurchaseIntent);
-router.route('/active').get(authentication, getActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs);
-router.route('/inactive').get(authentication, getInactiveTenXSubs);
-router.route('/beginner').get(authentication, getBeginnerSubscription);
-router.route('/intermediate').get(authentication, getIntermediateSubscription);
-router.route('/pro').get(authentication, getProSubscription);
+router.route('/create').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createTenXSubscription);
+router.route('/capturepurchaseintent').post(Authenticate, createTenXPurchaseIntent);
+router.route('/active').get(Authenticate, getActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs);
+router.route('/inactive').get(Authenticate, getInactiveTenXSubs);
+router.route('/beginner').get(Authenticate, getBeginnerSubscription);
+router.route('/intermediate').get(Authenticate, getIntermediateSubscription);
+router.route('/pro').get(Authenticate, getProSubscription);
 
-router.route('/my/todayorders').get(authentication, myTodaysTrade)
-router.route('/my/historyorders').get(authentication, myHistoryTrade)
-// router.route('/countTradingDays').get(authentication, tradingDays)
+router.route('/my/todayorders').get(Authenticate, myTodaysTrade)
+router.route('/my/historyorders').get(Authenticate, myHistoryTrade)
+// router.route('/countTradingDays').get(Authenticate, tradingDays)
 
-router.route('/subscriptionpurchaseintent/:id').get(authentication, getTenXSubscriptionPurchaseIntent);
-router.route('/draft').get(authentication, getDraftTenXSubs);
-router.route('/:id').get(getTenXSubscription).patch(authentication, editTanx);
-router.route('/feature/:id').patch(authentication, editFeature);
-router.route('/removefeature/:id').patch(authentication, removeFeature);
+router.route('/subscriptionpurchaseintent/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getTenXSubscriptionPurchaseIntent);
+router.route('/draft').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftTenXSubs);
+router.route('/:id').get(Authenticate, getTenXSubscription).patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), editTanx);
+router.route('/feature/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), editFeature);
+router.route('/removefeature/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), removeFeature);
 router.use('/:id/trade', tenXTradeRoute)
 
 module.exports = router;

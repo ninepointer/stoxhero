@@ -26,7 +26,7 @@ const StockIndex = () => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/stockindex`)
+      axios.get(`${baseUrl}api/v1/stockindex`, {withCredentials: true})
       .then((res)=>{
                 setStockIndices(res.data);
                 console.log(res.data)

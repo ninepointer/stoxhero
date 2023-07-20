@@ -2,22 +2,24 @@ const express = require("express");
 const router = express.Router();
 const dailyPnlDataController = require("../../controllers/dailyPnlDataController")
 const traderDailyPnlDataController = require("../../controllers/traderwiseDailyPnlController")
+const restrictTo = require('../../authentication/authorization');
+const Authenticate = require('../../authentication/authentication');
 
-router.post("/dailypnlcalculation",dailyPnlDataController.dailyPnlCalculation)
+router.post("/dailypnlcalculation", Authenticate, restrictTo('Admin', 'SuperAdmin'), dailyPnlDataController.dailyPnlCalculation)
 
-router.post("/traderdailypnlcalculation",traderDailyPnlDataController.traderDailyPnlCalculation)
+router.post("/traderdailypnlcalculation", Authenticate, restrictTo('Admin', 'SuperAdmin'), traderDailyPnlDataController.traderDailyPnlCalculation)
 
-router.get("/dailypnldata/:selectDate",dailyPnlDataController.getDailyPnlData)
+router.get("/dailypnldata/:selectDate", Authenticate, restrictTo('Admin', 'SuperAdmin'), dailyPnlDataController.getDailyPnlData)
 
-router.get("/dailypnlmaxmindata/",dailyPnlDataController.getDailyPnlMaxMinData)
+router.get("/dailypnlmaxmindata/", Authenticate, restrictTo('Admin', 'SuperAdmin'), dailyPnlDataController.getDailyPnlMaxMinData)
 
-router.get("/deleteduplicate/",dailyPnlDataController.deleteDuplicateData)
+router.get("/deleteduplicate/", Authenticate, restrictTo('Admin', 'SuperAdmin'), dailyPnlDataController.deleteDuplicateData)
 
-router.get("/traderdailypnldata/:selectDate/:traderName",traderDailyPnlDataController.getTraderDailyPnlData)
+router.get("/traderdailypnldata/:selectDate/:traderName", Authenticate, restrictTo('Admin', 'SuperAdmin'), traderDailyPnlDataController.getTraderDailyPnlData)
 
-router.get("/getstoplossstopprofitpnl/",traderDailyPnlDataController.getstoplossstopprofitpnl)
+router.get("/getstoplossstopprofitpnl/", Authenticate, restrictTo('Admin', 'SuperAdmin'), traderDailyPnlDataController.getstoplossstopprofitpnl)
 
-router.get("/getstoplosspnl/:stoploss",traderDailyPnlDataController.getstoplosspnl)
+router.get("/getstoplosspnl/:stoploss", Authenticate, restrictTo('Admin', 'SuperAdmin'), traderDailyPnlDataController.getstoplosspnl)
 
 
 

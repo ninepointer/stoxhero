@@ -15,9 +15,7 @@ exports.createUserWallet = async(req, res, next)=>{
 
     const wallet = await UserWallet.create({userId, createdBy: userId});
     
-    res.status(201).json({message: 'User Wallet successfully created.', data:wallet});    
-        
-
+    res.status(201).json({message: 'User Wallet successfully created.', data:wallet});   
 }
 
 exports.getUserWallets = async(req, res, next)=>{

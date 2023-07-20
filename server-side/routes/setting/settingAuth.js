@@ -3,23 +3,15 @@ const router = express.Router();
 require("../../db/conn");
 const Setting = require("../../models/settings/setting");
 const Authentication = require("../../authentication/authentication")
+const restrictTo = require('../../authentication/authorization');
 
 
-router.get("/leaderboardSetting", async (req, res)=>{
-    // Setting.find((err, data)=>{
-    //     if(err){
-    //         return res.status(500).send(err);
-    //     }else{
-    //         return res.status(200).send(data);
-    //     }
-    // }).select('leaderBoardTimming')
-
+router.get("/leaderboardSetting", Authentication, async (req, res)=>{
     let leaderboardTime = await Setting.find().select('leaderBoardTimming')
     return res.status(200).send(leaderboardTime);
-
 })
 
-router.get("/readsetting", (req, res)=>{
+router.get("/readsetting", Authentication, (req, res)=>{
     Setting.find((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -29,7 +21,7 @@ router.get("/readsetting", (req, res)=>{
     })
 })
 
-router.get("/readsetting/:id", (req, res)=>{
+router.get("/readsetting/:id", Authentication, (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     Setting.findOne({_id : id})
@@ -41,8 +33,7 @@ router.get("/readsetting/:id", (req, res)=>{
     })
 })
 
-
-router.patch("/applive/:id", Authentication, async (req, res)=>{
+router.patch("/applive/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
 
     try{ 
@@ -60,7 +51,7 @@ router.patch("/applive/:id", Authentication, async (req, res)=>{
     }
 })
 
-router.patch("/settings/:id", Authentication, async (req, res)=>{
+router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     try{ 
         const {id} = req.params
         console.log(id, req.body)
@@ -88,7 +79,7 @@ router.patch("/settings/:id", Authentication, async (req, res)=>{
     }
 })
 
-router.patch("/toggleLTP/:id", Authentication, async (req, res)=>{
+router.patch("/toggleLTP/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
 
     try{ 
@@ -110,7 +101,7 @@ router.patch("/toggleLTP/:id", Authentication, async (req, res)=>{
     }
 })
 
-router.patch("/toggleLiveOrder/:id", Authentication, async (req, res)=>{
+router.patch("/toggleLiveOrder/:id", restrictTo('Admin', 'SuperAdmin'), Authentication, async (req, res)=>{
     //console.log(req.params)
 
     try{ 
@@ -132,7 +123,7 @@ router.patch("/toggleLiveOrder/:id", Authentication, async (req, res)=>{
     }
 })
 
-router.patch("/toggleComplete/:id", Authentication, async (req, res)=>{
+router.patch("/toggleComplete/:id", restrictTo('Admin', 'SuperAdmin'), Authentication, async (req, res)=>{
     //console.log(req.params)
 
     try{ 

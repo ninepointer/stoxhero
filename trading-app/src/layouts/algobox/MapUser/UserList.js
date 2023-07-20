@@ -12,7 +12,7 @@ export default function UserList({addUser, setAddUser, setPermissionData, algoId
     const _id = uniqid();
 
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/readuserdetails`)
+        axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
         .then((res)=>{
             setData(res.data);
             //console.log(res.data);
@@ -22,7 +22,7 @@ export default function UserList({addUser, setAddUser, setPermissionData, algoId
             return new Error(err);
         })
 
-        axios.get(`${baseUrl}api/v1/readpermission`)
+        axios.get(`${baseUrl}api/v1/readpermission`, {withCredentials: true})
         .then((res)=>{
             setPermission(res.data);
             setPermissionData(res.data);

@@ -123,7 +123,7 @@ function ExitPosition({ isFromHistory, portfolioId, contestId, product, symbol, 
   useEffect(() => {
 
     setFilledQuantity(newQuantity)
-    axios.get(`${baseUrl}api/v1/readsetting`)
+    axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
       .then((res) => {
         setAppLive(res.data);
       }).catch((err) => {

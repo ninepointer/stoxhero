@@ -20,7 +20,7 @@ function TraderSettingView() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
  useEffect(()=>{
-       axios.get(`${baseUrl}api/v1/getLiveUser`)
+       axios.get(`${baseUrl}api/v1/getLiveUser`, {withCredentials: true})
       .then((res)=>{
           setUserData(res?.data?.data)
       }).catch((err)=>{

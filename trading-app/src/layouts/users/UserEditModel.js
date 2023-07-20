@@ -66,7 +66,7 @@ const [isAlgoTrader, setIsAlgoTrader] = useState();
         })
         setEditData(updatedData)
 
-        axios.get(`${baseUrl}api/v1/readpermission`)
+        axios.get(`${baseUrl}api/v1/readpermission`, {withCredentials: true})
         .then((res)=>{
             (res.data).map((elem)=>{
                 if(editData[0].email === elem.userId){
@@ -153,6 +153,7 @@ async function formbtn() {
 
     const res = await fetch(`${baseUrl}api/v1/readuserdetails/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: {
             "Accept": "application/json",
             "content-type": "application/json"
@@ -179,9 +180,9 @@ async function formbtn() {
 }
 
 async function Ondelete(){
-  //console.log(editData)
   const res = await fetch(`${baseUrl}api/v1/readuserdetails/${id}`, {
-      method: "DELETE",
+    method: "DELETE",
+    credentials: "include",
   });
 
 

@@ -55,6 +55,7 @@ function MarginSettings({settingData}) {
       }
       const res = await fetch(`${baseUrl}api/v1/applive/${id}`, {
           method: "PATCH",
+          credentials: "include",
           headers: {
               "Accept": "application/json",
               "content-type": "application/json"

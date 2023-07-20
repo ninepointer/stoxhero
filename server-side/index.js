@@ -159,9 +159,6 @@ getKiteCred.getAccess().then(async (data)=>{
 
     });
 
-    // socket.emit('serverTime', new Date());
-
-
 
     socket.on('company-ticks', async (data) => {
       console.log("in company-ticks event")
