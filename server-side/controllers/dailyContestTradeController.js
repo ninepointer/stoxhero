@@ -1845,7 +1845,7 @@ const getRedisMyRank = async (id, employeeId) => {
 
             const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
             // console.log("leaderBoardRank", leaderBoardRank)
-            await client.del(`leaderboard:${id}`)
+            // await client.del(`leaderboard:${id}`)
             if (leaderBoardRank == null) return null
             return leaderBoardRank + 1
         } else {
@@ -1941,17 +1941,17 @@ async function processContestQueue() {
     const currentTime = new Date();
     // Define the start and end time for processing (9 am to 3:18 pm)
     const startTime = new Date(currentTime);
-    startTime.setHours(9, 0, 0, 0);
+    startTime.setHours(3, 0, 0, 0);
 
     const endTime = new Date(currentTime);
-    endTime.setHours(22, 18, 0, 0);
+    endTime.setHours(9, 48, 0, 0);
 
     if (currentTime >= startTime && currentTime <= endTime) {
-        console.log("1st if");
+        // console.log("1st if");
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
-            console.log("2nd if");
+            // console.log("2nd if");
             isProcessingQueue = false;
             return;
         }
@@ -1960,7 +1960,7 @@ async function processContestQueue() {
         for (const contest of contestQueue) {
             if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
                 const leaderBoard = await dailyContestLeaderBoard(contest._id?.toString());
-                console.log(leaderBoard, contest._id?.toString());
+                // console.log(leaderBoard, contest._id?.toString());
                 io.to(`${contest._id?.toString()}`).emit('contest-leaderboardData', leaderBoard);
             }
         }
@@ -1985,7 +1985,7 @@ exports.sendMyRankData = async () => {
                 startTime.setHours(3, 0, 0, 0);
             
                 const endTime = new Date(currentTime);
-                endTime.setHours(22, 48, 0, 0);
+                endTime.setHours(9, 48, 0, 0);
                 if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
     
@@ -2002,7 +2002,7 @@ exports.sendMyRankData = async () => {
                             if(data){
                                 let {id, employeeId} = data;
                                 const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);
-                                io.to(`${userId?.toString()}`).emit(`contest-myrank${userId}`, myRank);
+                                io.to(`${contest[i]?._id?.toString()}${userId?.toString()}`).emit(`contest-myrank${userId}`, myRank);
                                 // await client.del(`leaderboard:${contest[i]?._id?.toString()}`)
                                 // io // Emit the leaderboard data to the client
                             }
