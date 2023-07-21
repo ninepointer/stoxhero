@@ -2078,7 +2078,7 @@
 //       "Close": 18249.9
 //     },
 //     {
-//       "LastTradeTime": 1685001600,
+//       "LastTradeTime": 1685000600,
 //       "QuotationLot": 50,
 //       "TradedQty": 369550,
 //       "OpenInterest": 5797900,

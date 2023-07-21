@@ -42,7 +42,7 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
   })
   
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   let uId = uniqid();

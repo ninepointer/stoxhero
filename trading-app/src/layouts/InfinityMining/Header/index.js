@@ -47,7 +47,7 @@ export default function InfinityMining() {
   const [showDownloadButton, setShowDownloadButton] = useState(true);
   const [showDownloadButton1, setShowDownloadButton1] = useState(true);
   const [showDownloadButton2, setShowDownloadButton2] = useState(true);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   const handleDownload = (csvData) => {
     // Create the CSV content

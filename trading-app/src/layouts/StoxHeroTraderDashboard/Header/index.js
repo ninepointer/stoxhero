@@ -14,7 +14,7 @@ import { userContext } from '../../../AuthContext';
 import UpcomingContest from '../data/ongoingContest'
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let [carouselData, setCarouselData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tradingData, setTradingData] = useState();
