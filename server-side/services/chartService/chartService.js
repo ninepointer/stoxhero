@@ -65,7 +65,7 @@ function connect(io) {
   });
 
   ws.on('close', function close(code, reason) {
-    console.log(`WebSocket connection closed. Code: ${code}, Reason: ${reason}`);
+    // console.log(`WebSocket connection closed. Code: ${code}, Reason: ${reason}`);
     // When connection is closed, try to reconnect
     setTimeout(() => connect(io), 5000);
   });
