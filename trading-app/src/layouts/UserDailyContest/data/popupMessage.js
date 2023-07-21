@@ -39,29 +39,14 @@ import SellModel from "../../tradingCommonComponent/SellModel";
 import { dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Nifty_DailyContest } from "../../../variables";
 
 
-// import MDBox from '../../../../../components/MDBox';
-// import { borderBottom } from '@mui/system';
-// import { marketDataContext } from "../../../../../MarketDataContext";
-
-const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState }) => {
-    // if(!initialValue){
-    //     initialValue = false;
-    // }
-    
+const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState, setIsInterestedState }) => {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    // const [selectIndex, setSelectIndex] = useState("NIFTY50");
 
-    // console.log("main data", open)
-
-    // const handleClickOpen = async () => {
-    //     setOpen(true);
-    // };
 
     const handleClose = async (e) => {
-
         setOpen(false);
     };
 
@@ -88,10 +73,25 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
         }
     }
 
+    const [showThanksMessage, setShowThanksMessage] = useState(false);
+
+    const handleButtonClick = () => {
+        // Update the interested state for the current element in the contest array
+        setIsInterested((prevState) => ({
+          ...prevState,
+          [elem._id]: {
+            interested: true,
+            count: prevState[elem._id] ? prevState[elem._id].count + 1 : 1,
+          },
+        }));
+    
+        setShowThanksMessage(true); // Show the "Thanks for expressing your interest" message
+      };
+
 
     return (
         <div>
-            {!isInterested &&
+            {/* {!isInterested &&
             <MDButton
                 variant='outlined'
                 color='info'
@@ -99,7 +99,27 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
                 onClick={() => { registerUserToContest(elem._id) }}
             >
                 <MDTypography color='info' fontWeight='bold' fontSize={10}>Get Notified</MDTypography>
-            </MDButton>}
+            </MDButton>} */}
+
+            {!isInterested[elem._id]?.interested && !showThanksMessage ? (
+                <>
+                    {/* <MDTypography>{data}</MDTypography> */}
+                    <MDButton onClick={handleButtonClick}>Express Interest</MDButton>
+                </>
+            ) : (
+                <>
+                    <MDTypography color="info" fontWeight="bold" fontSize={13} mt={0.5}>
+                        Thanks for expressing your interest.
+                    </MDTypography>
+                    {isInterested[elem._id]?.count && (
+                        <MDTypography>
+                            Total Expressions of Interest: {isInterested[elem._id].count}
+                        </MDTypography>
+                    )}
+                </>
+            )}
+
+
             <div>
                 <Dialog
                     fullScreen={fullScreen}
