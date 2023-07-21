@@ -104,6 +104,7 @@ exports.approveKYC = async(req,res,next) => {
       const user = await User.findById(userId);
       user.KYCStatus = 'Approved';
       user.KYCActionDate = new Date();
+      user.lastModified = new Date();
       console.log('user',user?.dob);
       await user.save({validateBeforeSave:false});
       if(process.env.PROD == 'true'){
@@ -206,7 +207,8 @@ exports.rejectKYC = async(req,res,next) => {
     const user = await User.findById(userId);
     user.KYCStatus = 'Rejected';
     user.KYCRejectionReason = rejectionReason;
-    user.KYCActionDate = new Date()
+    user.KYCActionDate = new Date();
+    user.lastModified = new Date();
     await user.save({validateBeforeSave:false});
     if(process.env.PROD == 'true'){
       sendMail(user.email, 'KYC Rejected - StoxHero', `

@@ -61,22 +61,26 @@ const Footer = () => {
           <Grid spacing={4} item xs={12} md={6} lg={7} xl={8}>
             <Grid container justifyContent="center" spacing={2} ml={1} >
               {/* Protocols */}
-              <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={3}>
+              <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={2.4}>
                 <a style={{color:"#fff"}} href="/privacy">Privacy</a>
               </Grid>
 
+              <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={2.4}>
+                <a style={{color:"#fff"}} href="/terms">Terms</a>
+              </Grid>
+
               {/* Governance */}
-              <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={3}>
+              <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={2.4}>
               <a style={{color:"#fff"}} href="/careers">Careers</a>
               </Grid>
 
               {/* Support */}
-              <Grid style={{color:"#fff",cursor:"pointer"}}  item xs={6} sm={3} md={6} lg={3}>
+              <Grid style={{color:"#fff",cursor:"pointer"}}  item xs={6} sm={3} md={6} lg={2.4}>
               <a style={{color:"#fff",}} href="/about">About us</a>
               </Grid>
 
               {/* Developers */}
-              <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={3}>
+              <Grid style={{color:"#fff",cursor:"pointer"}} item xs={6} sm={3} md={6} lg={2.4}>
               <a style={{color:"#fff",}} href="/signup">Sign Up</a>
               </Grid>
 

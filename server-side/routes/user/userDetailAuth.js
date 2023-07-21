@@ -486,6 +486,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         if(filteredBody.KYCStatus == 'Approved') {
           filteredBody.KYCStatus = 'Rejected';
           filteredBody.rejectionReason = 'API Abuse'
+          filteredBody.KYCActionDate = new Date();
         }
         if(filteredBody.KYCStatus == 'Pending Approval'){
           let aadhaarNumber, panNumber;
@@ -496,6 +497,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
             filteredBody.KYCStatus = 'Rejected';
             filteredBody.rejectionReason = 'Aadhaar or PAN number is already in use.'
           }
+          filteredBody.KYCActionDate = new Date();
         }
         if(filteredBody.KYCStatus == 'Pending Approval' && process.env.PROD == 'true'){
           await sendMail(user?.email, 'KYC Verification Request Received', `
@@ -583,7 +585,8 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         
         ` )
         }
-        filteredBody.lastModifiedBy = req.user._id;
+        filteredBody.lastModified = new Date();
+  
         // if((req).profilePhotoUrl) filteredBody.profilePhoto = (req).profilePhotoUrl;
         // if((req).aadhaarCardFrontImageUrl) filteredBody.aadhaarCardFrontImage = (req).aadhaarCardFrontImageUrl;
         // if((req).aadhaarCardBackImageUrl) filteredBody.aadhaarCardBackImage = (req).aadhaarCardBackImageUrl;
