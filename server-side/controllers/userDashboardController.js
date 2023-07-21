@@ -322,132 +322,208 @@ exports.getUserSummary = async(req,res,next) => {
         ]);
 
         const tenxData = await TenXTrade.aggregate([
-            {
-                $match: {
-                  trade_time: {
-                    $lte: endDate.toDate(),
+          {
+            $match: {
+              status: "COMPLETE",
+              trader: new ObjectId(
+                userId
+              ),
+              trade_time: {
+                $lte: endDate.toDate(),
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                trade_time: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$trade_time",
                   },
-                  trader: new ObjectId(userId),
-                  status:'COMPLETE'
+                },
+                subscriptionId: "$subscriptionId",
+              },
+              total_gpnl: {
+                $sum: {
+                  $multiply: ["$amount", -1],
                 },
               },
-              { $addFields: { 
-                'gpnl': { $multiply: ['$amount', -1] }, 
-                'brokerage_double': { $toDouble: '$brokerage' } 
-            }},
-            { $group: { 
-                _id: null,
-                'total_gpnl': { $sum: '$gpnl' },
-                'total_brokerage': { $sum: '$brokerage_double' },
-                'number_of_trades': { $sum: 1 },
-                'portfolio': { $first: '$portfolioId' },
-            }},
-            { $addFields: { 
-                'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
-            }},
+              total_brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+              number_of_trades: {
+                $sum: 1,
+              },
+            },
+          },
+          {
+            $addFields: {
+              npnl: {
+                $subtract: [
+                  "$total_gpnl",
+                  "$total_brokerage",
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "tenx-subscriptions",
+              localField: "_id.subscriptionId",
+              foreignField: "_id",
+              as: "tenx",
+            },
+          },
+          {
+            $lookup: {
+              from: "user-portfolios",
+              localField: "tenx.portfolio",
+              foreignField: "_id",
+              as: "portfolioDetails",
+            },
+          },
+          {
+            $project: {
+              date: "$_id.trade_time",
+              contest: {
+                $arrayElemAt: [
+                  "$tenx.subscriptionName",
+                  0,
+                ],
+              },
+              npnl: "$npnl",
+              portfolio: {
+                $arrayElemAt: [
+                  "$portfolioDetails.portfolioValue",
+                  0,
+                ],
+              },
+            },
+          },
+          {
+            $sort:
+              /**
+               * Provide any number of field/order pairs.
+               */
+              {
+                _id: 1,
+              },
+          },
         ]);
+        let tenxReturn = tenxData.map((item)=>item.npnl/item.portfolio)
+        .reduce((acc, current, index, arr) => {
+          return acc + (current - acc) / (index + 1);
+      }, 0); 
+        console.log('tenX return', tenxReturn);
         const contestData = await ContestTrade.aggregate([
+          [
             {
-                $match: {
-                  trade_time: {
-                    $lte: endDate.toDate(),
-                  },
-                  trader: new ObjectId(userId),
-                  status:'COMPLETE'
+              $match: {
+                status: "COMPLETE",
+                trader: new ObjectId(
+                  userId
+                ),
+                trade_time: {
+                  $lte: endDate.toDate(),
                 },
               },
-              { $addFields: { 
-                'gpnl': { $multiply: ['$amount', -1] }, 
-                'brokerage_double': { $toDouble: '$brokerage' } 
-            }},
-            { $group: { 
-                _id: null,
-                'total_gpnl': { $sum: '$gpnl' },
-                'total_brokerage': { $sum: '$brokerage_double' },
-                'number_of_trades': { $sum: 1 },
-                'portfolio': { $first: '$portfolioId' },
-            }},
-            { $addFields: { 
-                'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
-            }},
+            },
+            {
+              $group: {
+                _id: {
+                  trade_time: {
+                    $dateToString: {
+                      format: "%Y-%m-%d",
+                      date: "$trade_time",
+                    },
+                  },
+                  contestId: "$contestId",
+                },
+                total_gpnl: {
+                  $sum: {
+                    $multiply: ["$amount", -1],
+                  },
+                },
+                total_brokerage: {
+                  $sum: {
+                    $toDouble: "$brokerage",
+                  },
+                },
+                number_of_trades: {
+                  $sum: 1,
+                },
+              },
+            },
+            {
+              $addFields: {
+                npnl: {
+                  $subtract: [
+                    "$total_gpnl",
+                    "$total_brokerage",
+                  ],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "daily-contests",
+                localField: "_id.contestId",
+                foreignField: "_id",
+                as: "contestDetails",
+              },
+            },
+            {
+              $lookup: {
+                from: "user-portfolios",
+                localField: "contestDetails.portfolio",
+                foreignField: "_id",
+                as: "portfolioDetails",
+              },
+            },
+            {
+              $project: {
+                date: "$_id.trade_time",
+                contest: {
+                  $arrayElemAt: [
+                    "$contestDetails.contestName",
+                    0,
+                  ],
+                },
+                contestPayOut: {
+                  $arrayElemAt: [
+                    "$contestDetails.payoutPercentage",
+                    0,
+                  ],
+                },
+                npnl: "$npnl",
+                portfolio: {
+                  $arrayElemAt: [
+                    "$portfolioDetails.portfolioValue",
+                    0,
+                  ],
+                },
+              },
+            },
+            {
+              $sort:
+                /**
+                 * Provide any number of field/order pairs.
+                 */
+                {
+                  _id: 1,
+                },
+            },
+          ]
         ]);
-        // const contestDataa = await ContestTrade.aggregate([
-        //   {
-        //     $match: {
-        //       trade_time: {
-        //         $lte: endDate.toDate(),
-        //       },
-        //       trader: new ObjectId(userId),
-        //       status:'COMPLETE'
-        //     },
-        //   },
-        //   {
-        //     $addFields: { 
-        //       'gpnl': { $multiply: ['$amount', -1] }, 
-        //       'brokerage_double': { $toDouble: '$brokerage' } 
-        //     }
-        //   },
-        //   {
-        //     $lookup: {
-        //       from: 'daily-contests',
-        //       localField: 'contestId',
-        //       foreignField: '_id',
-        //       as: 'contest_data'
-        //     },
-        //   },
-        //   {
-        //     $unwind: {
-        //       path: '$contest_data',
-        //       preserveNullAndEmptyArrays: true,
-        //     }
-        //   },
-        //   {
-        //     $lookup: {
-        //       from: 'user-portfolios',
-        //       localField: 'contest_data.portfolioId',
-        //       foreignField: '_id',
-        //       as: 'portfolio_data'
-        //     },
-        //   },
-        //   {
-        //     $unwind: {
-        //       path: '$portfolio_data',
-        //       preserveNullAndEmptyArrays: true,
-        //     }
-        //   },
-        //   { 
-        //     $group: { 
-        //       _id: {
-        //         contestId: '$contestId', 
-        //         // date: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } }
-        //       },
-        //       'total_gpnl': { $sum: '$gpnl' },
-        //       'total_brokerage': { $sum: '$brokerage_double' },
-        //       'number_of_trades': { $sum: 1 },
-        //       'total_portfolio_value': '$portfolio_data.portfolioValue'
-        //     }
-        //   },
-        //   {
-        //     $group: {
-        //       _id: null,
-        //       'total_gpnl': { $sum: '$total_gpnl' },
-        //       'total_brokerage': { $sum: '$total_brokerage' },
-        //       'number_of_trades': { $sum: '$number_of_trades' },
-        //       'contests': {
-        //         $push: {
-        //           contestId: '$_id.contestId',
-        //           portfolio_value: '$total_portfolio_value'
-        //         }
-        //       }
-        //     }
-        //   },
-        //   {
-        //     $addFields: {
-        //       'total_portfolio_value': { $sum: '$contests.portfolio_value' },
-        //       'npnl': { $subtract: [ '$total_gpnl', '$total_brokerage' ] }
-        //     }
-        //   },
-        // ]);
+        console.log('contest data', contestData);
+        let contestReturn = contestData.map((item)=>item.npnl/item.portfolio)
+        .reduce((acc, current, index, arr) => {
+          return acc + (current - acc) / (index + 1);
+      }, 0);
+        console.log('contest return', contestReturn);
         
         
       // console.log('contest data',contestData);      
@@ -465,7 +541,7 @@ exports.getUserSummary = async(req,res,next) => {
             return total + subscription.subscriptionId.portfolio.portfolioValue;
           }, 0);
         // console.log('user data', virtualData, tenxData, contestData, user);
-        res.status(200).json({status:'success', data:{totalTenXPortfolioValue, tenxData: tenxData[0]??{}, virtualData:virtualData[0]??{}, contestData:contestData[0]??{}}});
+        res.status(200).json({status:'success', data:{totalTenXPortfolioValue, tenxData: tenxData[0]??{}, virtualData:virtualData[0]??{}, contestReturn, tenxReturn}});
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});

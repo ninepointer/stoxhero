@@ -30,14 +30,10 @@ function Summary({summary}) {
 
                         <Grid item xs={12} md={4} lg={4}>
                             <MDBox bgColor='lightgrey' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='70%' fontSize={12} fontWeight="bold">Contest Trading(P&L)</MDTypography>
-                                <MDTypography minWidth='30%' fontSize={12} color={summary?.contestData?.npnl>=0?'success':'error'} 
+                                <MDTypography minWidth='70%' fontSize={12} fontWeight="bold">Contest Trading</MDTypography>
+                                <MDTypography minWidth='30%' fontSize={12} color={(summary?.contestReturn?.toFixed(2)>=0)?'success':'error'} 
                                 fontWeight="bold" style={{textAlign:'center'}}>
-                                    { (summary?.contestData?.npnl?.toFixed(2)) >= 0 ? 
-                                    "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
-                                    format((summary?.contestData?.npnl?.toFixed(2)))) : 
-                                    "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).
-                                    format(-(summary?.contestData?.npnl?.toFixed(2))))}</MDTypography>
+                                    {(summary?.contestReturn*100)?.toFixed(2)}%</MDTypography>
                             </MDBox>
                         </Grid>
 
@@ -45,7 +41,10 @@ function Summary({summary}) {
                             <MDBox bgColor='lightgrey' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='70%' fontSize={12} fontWeight="bold">TenX Trading</MDTypography>
                                 <MDTypography minWidth='30%' fontSize={12} color={summary?.tenxData?.npnl?'success':'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                    {isNaN(((summary?.tenxData?.npnl??0)/summary?.totalTenXPortfolioValue).toFixed(2))?0:((summary?.tenxData?.npnl??0)/summary?.totalTenXPortfolioValue).toFixed(2)}%</MDTypography>
+                                    {(summary?.tenxReturn*100)?.toFixed(2)}%
+                                </MDTypography>    
+                                {/* <MDTypography minWidth='30%' fontSize={12} color={summary?.tenxData?.npnl?'success':'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                    {isNaN(((summary?.tenxData?.npnl??0)/summary?.totalTenXPortfolioValue).toFixed(2))?0:((summary?.tenxData?.npnl??0)/summary?.totalTenXPortfolioValue).toFixed(2)}%</MDTypography> */}
                             </MDBox>
                         </Grid>
                        
