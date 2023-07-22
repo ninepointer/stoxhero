@@ -133,13 +133,11 @@ getKiteCred.getAccess().then(async (data)=>{
     })
 
     socket.on('GetHistory', async(data) => {
-      console.log('event received', data);
       webSocketService.send(data);
       await webSocketService.getMessages(io,socket);
     });
     
     socket.on('SubscribeRealtime', async (data) => {
-      console.log('live event received', data);
       webSocketService.send(data);
       await webSocketService.getMessages(io,socket);
     });

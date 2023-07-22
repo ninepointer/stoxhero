@@ -38,7 +38,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
     }
 
     try {
-        let { from, exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment } = req.body;
+        let { from, exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment, chartInstrument } = req.body;
 
         if (exchangeSegment === "NFO-OPT") {
             exchangeSegment = 2;
@@ -89,7 +89,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
                                 contractDate: dataExist.contractDate,
                                 maxLot: dataExist.maxLot,
-                                // accountType: dataExist.accountType,
+                                chartInstrument: dataExist.chartInstrument,
 
                             }))
 
@@ -101,7 +101,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                     }
                 } else{
                     const addingInstruments = new InfinityInstrument({
-                        exchangeInstrumentToken, instrument, exchange, symbol, status,
+                        exchangeInstrumentToken, instrument, exchange, symbol, status, chartInstrument,
                         uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken,
                         contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment)
                     });
@@ -128,6 +128,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
                                 contractDate: addingInstruments.contractDate,
                                 maxLot: addingInstruments.maxLot,
+                                chartInstrument: addingInstruments.chartInstrument
 
                             }))
 
@@ -194,7 +195,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
                                 contractDate: dataExist.contractDate,
                                 maxLot: dataExist.maxLot,
-                                // accountType: dataExist.accountType,
+                                chartInstrument: dataExist.chartInstrument
                             }))
 
                             // console.log("instrument", instrument)
@@ -208,7 +209,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                     }
                 } else{
                     const addingInstruments = new Instrument({
-                        exchangeInstrumentToken, instrument, exchange, symbol, status,
+                        exchangeInstrumentToken, instrument, exchange, symbol, status, chartInstrument,
                         uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken,
                         contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment)
                     });
@@ -235,6 +236,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
                                 contractDate: addingInstruments.contractDate,
                                 maxLot: addingInstruments.maxLot,
+                                chartInstrument: addingInstruments.chartInstrument
                             }))
 
                         } catch (err) {
@@ -345,7 +347,7 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
                 exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken,
                 contractDate: removeFromWatchlist.contractDate ,
                 maxLot: removeFromWatchlist.maxLot,
-                // accountType: removeFromWatchlist.accountType,
+                chartInstrument: removeFromWatchlist.chartInstrument,
             }
             // console.log("removeInstrumentObject", removeInstrumentObject)
             let removeInstrument;

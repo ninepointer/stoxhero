@@ -11,7 +11,7 @@ async function getMessages(io, socket){
   const incoming = async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
-    // console.log(response);
+    // console.log("history data", response);
     let userId;
     
       userId = await client.get(socket.id);
@@ -45,7 +45,7 @@ function connect(io) {
   ws.on('message', async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
-    // console.log(response);
+    // console.log("real time data", response);
     // if(isRedisConnected){
     //   userId = await client.get(socket.id);
     // }

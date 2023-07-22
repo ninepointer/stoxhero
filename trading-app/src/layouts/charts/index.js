@@ -9,7 +9,7 @@ const Index = () => {
   const [response, setResponse] = useState("");
   const getDetails = useContext(userContext);
   const location = useLocation();
-  console.log('location', location);
+  console.log('location', location.search);
   const [timeFrame, setTimeFrame] = useState(15);
   const [minuteTimeframe, setMinuteTimeframe] = useState(15);
   const [period, setPeriod] = useState('MINUTE'); // Change this to set the timeframe
@@ -19,8 +19,9 @@ const Index = () => {
   const [liveData, setLiveData] = useState();
   const socketUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
 
+  const socket = io.connect(socketUrl);
   useEffect(() => {
-    const socket = io.connect(socketUrl);
+    
 
     socket.on('connect', () => {
       socket.emit('userId', getDetails.userDetails._id);
@@ -36,23 +37,18 @@ const Index = () => {
       // console.log('history', convertData(data.Result));
     });
 
-    socket.on('RealtimeResult', data => {
-      // Set the live data
-      if (data.InstrumentIdentifier == instrument) {
-        setLiveData(convertLive(data));
-        setLivePoints([...livePoints, data.LastTradePrice]);
-      }
-      // console.log('live',convertLive(data));
-    });
-    function convertLive(data) {
-      return {
-        time: data.LastTradeTime + 19800,
-        open: data.Open,
-        high: Math.max(...livePoints) ?? data.high,
-        low: Math.min(...livePoints) ?? data.low,
-        close: data.LastTradePrice,
-      };
-    }
+    // socket.on('RealtimeResult', data => {
+    //   // Set the live data
+    //   if (data.InstrumentIdentifier == instrument) {
+    //     console.log("this is chart data", data)
+    //     setLiveData(convertLive(data));
+    //     setLivePoints([...livePoints, data.LastTradePrice]);
+    //   }
+    //   // console.log('live',convertLive(data));
+    // });
+
+
+
     // Function to convert the data format to what the chart expects
     function convertData(data) {
       return data.map(item => ({
@@ -142,7 +138,7 @@ const Index = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2 style={{ display: 'flex', justifyContent: 'center', margin: '0px', padding: '0px' }}>{instrument}</h2>
+      <h2 style={{ display: 'flex', justifyContent: 'center', margin: '0px', padding: '0px' }}>{`${instrument.split("_")[1]} ${instrument.split("_")[4]} ${instrument.split("_")[3]}`}</h2>
       <span>Time frame</span>
       <select style={{ margin: '20px' }} onChange={handleChange}>
         <option value={1} selected={timeFrame == 1 && period == 'MINUTE'}>1 minute</option>
@@ -153,7 +149,7 @@ const Index = () => {
         <option value={60} selected={timeFrame == 1 && period == 'HOUR'}>1 hour</option>
         <option value={240} selected={timeFrame == 4 && period == 'HOUR'}>4 hours</option>
       </select>
-      <CandlestickChart historicalData={historicalData} liveData={liveData} minuteTimeframe={minuteTimeframe} />
+      <CandlestickChart socket={socket} instrument={instrument} historicalData={historicalData} minuteTimeframe={minuteTimeframe} />
     </div>
   )
 }
