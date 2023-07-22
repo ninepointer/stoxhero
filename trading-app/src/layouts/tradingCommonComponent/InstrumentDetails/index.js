@@ -29,6 +29,7 @@ import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
 import { InfinityTraderRole, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
+import { AiOutlineLineChart } from "react-icons/ai";
 
 
 function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData}) {
@@ -223,6 +224,12 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       </MDTypography>
     );
 
+    instrumentDetailObj.chartInstrument = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem.chartInstrument}
+      </MDTypography>
+    );
+
     instrumentDetailObj.sellState = (
       false
     );
@@ -294,6 +301,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     />
   );
 
+  console.log("instrumentDetailArr", instrumentDetailArr, instrumentData)
 
   return (
     <Card>
@@ -335,7 +343,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
                 <td style={styleTD} >INSTRUMENT</td>
                 <td style={styleTD} >LTP</td>
                 <td style={styleTD} >CHANGE(%)</td>
-                {/* <td style={styleTD} >CHART</td> */}
+                <td style={styleTD} >CHART</td>
                 <td style={styleTD} >BUY</td>
                 <td style={styleTD} >SELL</td>
                 <td style={styleTD} >REMOVE</td>
@@ -354,6 +362,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
                     instrument={(elem.symbol.props.children).slice(-7)}
                     last_price={elem.last_price.props.children}
                     change={elem.change.props.children}
+                    chartInstrument={elem.chartInstrument.props.children}
                   />
 
                   <Tooltip title="Buy" placement="top">

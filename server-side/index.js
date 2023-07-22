@@ -36,7 +36,7 @@ const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 // const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
-const {autoCutMainManually, autoCutMainManuallyMock, creditAmount} = require("./controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("./controllers/AutoTradeCut/mainManually");
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
 const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
@@ -133,13 +133,11 @@ getKiteCred.getAccess().then(async (data)=>{
     })
 
     socket.on('GetHistory', async(data) => {
-      console.log('event received', data);
       webSocketService.send(data);
       await webSocketService.getMessages(io,socket);
     });
     
     socket.on('SubscribeRealtime', async (data) => {
-      console.log('live event received', data);
       webSocketService.send(data);
       await webSocketService.getMessages(io,socket);
     });
@@ -347,12 +345,12 @@ let weekDay = date.getDay();
         const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
           autoCutMainManually();
           autoCutMainManuallyMock();
+          changeStatus();
           creditAmount();
-          // await creditAmountToWallet();
+          
         });
-        // const creditAmount = nodeCron.schedule(`53 9 * * *`, async () => {
-        //   creditAmountToWallet();
-        // });
+
+        
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();
@@ -368,20 +366,10 @@ let weekDay = date.getDay();
           subscribeTokens();
         } );
 
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+        const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+      
     }
-  }
-
-  const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-  const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
-  // const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
-  //   await autoCutMainManually();
-  //   await autoCutMainManuallyMock();
-  //   await creditAmountToWallet();
-  // });
-
-  if(!process.env.PROD){
-    // const autotrade = nodeCron.schedule(`50 9 * * *`, test);
-    //const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
   }
 
 
