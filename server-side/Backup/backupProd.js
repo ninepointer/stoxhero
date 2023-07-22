@@ -108,8 +108,8 @@ const backupDatabase = async(sourceUri, targetUri) => {
 
 
 (async function() {
-    await backupDatabase('mongodb+srv://team:stoxherodev@stoxhero0.duntdzc.mongodb.net/?retryWrites=true&w=majority', 
-    'mongodb+srv://staging-database:staging1234@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority');})();
+    await backupDatabase('mongodb+srv://team:N6a6gV6Y6UbQc9BV@stoxhero0.duntdzc.mongodb.net/?retryWrites=true&w=majority', 
+    'mongodb+srv://staging-database:kehlVHCGas3KBM75@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority');})();
 
 // const { MongoClient } = require('mongodb');
 // exports.backupDatabase = async(sourceUri, targetUri, res) => {
