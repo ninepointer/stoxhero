@@ -67,8 +67,23 @@ export default function Dashboard() {
       });
   }, []);
   const getTraderStats = async() =>{
+    let url=`${baseUrl}api/v1/userdashboard/stats?tradeType=${tradeType}&timeframe=${timeframe}`;
+    switch(tradeType){
+      case 'virtual':
+        url = `${baseUrl}api/v1/userdashboard/stats?tradeType=${tradeType}&timeframe=${timeframe}`
+        break;
+      case 'tenX':
+        url = `${baseUrl}api/v1/userdashboard/tenxstats?timeframe=${timeframe}`
+        break;
+      case 'contest':
+        url =`${baseUrl}api/v1/userdashboard/conteststats?timeframe=${timeframe}`
+        break;
+      default:
+        url = `${baseUrl}api/v1/userdashboard/stats?tradeType=${tradeType}&timeframe=${timeframe}`
+    }
+
     try{
-      const res = await axios.get(`${baseUrl}api/v1/userdashboard/stats?tradeType=${tradeType}&timeframe=${timeframe}`, {withCredentials:true});
+      const res = await axios.get(url, {withCredentials:true});
       setStats(res.data.data);
     }catch(e){
       console.log(e);

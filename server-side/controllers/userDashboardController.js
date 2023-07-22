@@ -450,6 +450,8 @@ exports.getDashboardStatsContest = async (req, res,next) => {
       maxProfit: maxProfitDay ? maxProfitDay.npnl : null,
     //   maxProfitIndex: maxProfitIndex,
       maxLoss: maxLossDay ? maxLossDay.npnl : null,
+      totalContests:contests,
+      participatedContests: result.length,
     //   maxLossIndex: maxLossIndex,
       profitDays: profitDays,
       lossDays: lossDays,
@@ -576,6 +578,25 @@ exports.getDashboardStatsTenX = async (req, res,next) => {
         },
       },
       {
+        $group: {
+          _id: "$date",
+          npnl: {
+            $sum: "$npnl"
+          },
+          portfolio:{
+            $sum:"$portfolio"
+          }
+        }
+      },
+      {
+        $project: {
+          _id:0,
+          date:"$_id",
+          npnl:1,
+          portfolio:1
+        }
+      },
+      {
         $sort:
           /**
            * Provide any number of field/order pairs.
@@ -584,9 +605,8 @@ exports.getDashboardStatsTenX = async (req, res,next) => {
             _id: 1,
           },
       },
-    ])
-    const contests = await DailyContest.countDocuments({contestEndTime:{$lte: endDate.toDate(), $gte: startDate.toDate()}});
-    console.log('result', result, contests);
+    ]);
+    let totalMarketDays = await countTradingDays(startDate, endDate);
     let maxProfitStreak = 0;
     let maxLossStreak = 0;
     let currentProfitStreak = 0;
@@ -640,6 +660,8 @@ exports.getDashboardStatsTenX = async (req, res,next) => {
     //   dob: user.dob,
     //   joiningDate: user.joining_date,
       totalNPNL: result.reduce((total, trade) => total + trade.npnl, 0),
+      totalMarketDays,
+      totalTradingDays: result.length,
       maxProfit: maxProfitDay ? maxProfitDay.npnl : null,
     //   maxProfitIndex: maxProfitIndex,
       maxLoss: maxLossDay ? maxLossDay.npnl : null,

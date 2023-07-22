@@ -133,28 +133,32 @@ function Performance({tradingData, tradeType, setTradeType, timeframe, setTimefr
                         
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Market Days</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color={tradingData?.totalMarketDays>=0?'success':'error'} 
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType== 'contest'? 
+                                `Total Conests`: 
+                                `Market Days`}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color={
+                                    'success'
+                                } 
                                 fontWeight="bold" textAlign='right'>
-                                    {tradingData?.totalMarketDays}
+                                    {tradeType=='contest'?tradingData?.totalContests: tradingData?.totalMarketDays}
                                 </MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Trading Days</MDTypography>
-                                <MDTypography minWidth='55%' fontSize={13} color={tradingData?.totalTradingDays>=0?'success':'error'} fontWeight="bold" textAlign='right'>{tradingData?.totalTradingDays}</MDTypography>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType=='contest'?`Contests participated`:`Trading Days`}</MDTypography>
+                                <MDTypography minWidth='55%' fontSize={13} color={'success'} fontWeight="bold" textAlign='right'>{tradeType =='contest'?tradingData?.participatedContests:tradingData?.totalTradingDays}</MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Profit Days</MDTypography>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType=='contest'?`Positive P&L Contests `:`Profit Days`}</MDTypography>
                                 <MDTypography minWidth='55%' fontSize={13} color={tradingData?.profitDays>=0?'success':'error'} fontWeight="bold" textAlign='right'>{tradingData?.profitDays}</MDTypography>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={4} lg={6}>
                             <MDBox bgColor='light' p={2} borderRadius={5} display='flex' minWidth='100%'>
-                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">Loss Days</MDTypography>
+                                <MDTypography minWidth='45%' fontSize={13} fontWeight="bold">{tradeType == 'contest'?`Negative P&L Contests `:`Loss Days`}</MDTypography>
                                 <MDTypography minWidth='55%' fontSize={13} color='error' fontWeight="bold" textAlign='right'>{tradingData?.lossDays}</MDTypography>
                             </MDBox>
                         </Grid>
