@@ -301,6 +301,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     />
   );
 
+  console.log("instrumentDetailArr", instrumentDetailArr, instrumentData)
 
   return (
     <Card>
@@ -361,12 +362,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
                     instrument={(elem.symbol.props.children).slice(-7)}
                     last_price={elem.last_price.props.children}
                     change={elem.change.props.children}
+                    chartInstrument={elem.chartInstrument.props.children}
                   />
- {/* ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} */}
-
-                  <MDBox style={{ alignItems: 'center', cursor: "pointer", marginRight:0.5, minWidth:2, minHeight:3 }} onClick={() => { window.open(`/chart?instrument=${elem.chartInstrument.props.children}`, '_blank') }}>
-                    <AiOutlineLineChart size={20} />
-                  </MDBox>
 
                   <Tooltip title="Buy" placement="top">
                     {!elem.buyState ?

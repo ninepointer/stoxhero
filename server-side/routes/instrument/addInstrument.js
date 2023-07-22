@@ -435,7 +435,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                 const user = await User.findOne({_id: _id});
     
                 let instrument = await InfinityInstrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
+                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id chartInstrument')
                 .sort({$natural:-1})
                   // console.log("instruments", instrument)
                 const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
@@ -473,7 +473,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                         status: "Active",
                         symbol: { $regex: new RegExp('^' + url, 'i') }
                     })
-                    .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
+                    .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id chartInstrument')
                     .sort({$natural:-1})
         
                     const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
@@ -494,7 +494,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                     const user = await User.findOne({_id: _id});
         
                     let instrument = await Instrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                    .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
+                    .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id chartInstrument')
                     .sort({$natural:-1})
         
                     const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
@@ -504,7 +504,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                     }
                     // console.log("instruments", instruments)
                     res.status(201).json({message: "instruments received", data: instrument});
-        
+
                 }
             }
 

@@ -1,10 +1,11 @@
 
 import {memo} from 'react';
+import { AiOutlineLineChart } from 'react-icons/ai';
 
 
-function InstrumentComponent({last_price, change, contractDate, symbol, instrument}) {
+function InstrumentComponent({chartInstrument, last_price, change, contractDate, symbol, instrument}) {
 
-  console.log("rendering : InstrumentComponent")
+  console.log("rendering : InstrumentComponent", chartInstrument)
 
     let styleTD = {
         textAlign: "center",
@@ -21,6 +22,9 @@ function InstrumentComponent({last_price, change, contractDate, symbol, instrume
       <td style={{...styleTD, color: `${symbol.includes('CE') ? "green" : "red"}`}} >{instrument}</td>
       <td style={{...styleTD, color: `${(change.includes('+')) ? "green" : "red"}`}} >{last_price}</td>
       <td style={{...styleTD, color: `${(change.includes('+')) ? "green" : "red"}`}} >{change}</td>
+      <td style={{...styleTD}} onClick={() => { window.open(`/chart?instrument=${chartInstrument}`, '_blank') }} >
+        <AiOutlineLineChart size={20} />
+      </td>
     </>
   );
 }
