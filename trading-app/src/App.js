@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext, useRef } from "react";
+import { useState, useEffect, useMemo, useContext, useRef ,Fragment } from "react";
 import axios from "axios"
 import ReactGA from "react-ga"
 
@@ -66,7 +66,8 @@ import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
 import Terms from "./layouts/HomePage/pages/Tnc";
-import Contests from "../src/layouts/UserDailyContest/Header/contests"
+import Contests from "../src/layouts/UserDailyContest/Header/contests";
+import ProtectedRoute from "./ProtectedRoute";
 
 
 const TRACKING_ID = "UA-264098426-2"
@@ -176,7 +177,7 @@ export default function App() {
       }
 
       if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
+        return <ProtectedRoute exact path={route.route} element={route.component} key={route.key} />;
       }
 
       return null;
@@ -205,7 +206,7 @@ export default function App() {
   );
 
   if (isLoading) {
-    return <div></div>; // Replace this with your actual loading component or spinner
+    return <div></div>;
   }
 
   // console.log("cookieValue", cookieValue, pathname)
