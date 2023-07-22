@@ -320,7 +320,8 @@ const userDetailSchema = new mongoose.Schema({
             type: String, 
             enum:["Live", "Expired"],
             default: "Live"
-        }
+        },
+        expiredOn: {type: Date}
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,
