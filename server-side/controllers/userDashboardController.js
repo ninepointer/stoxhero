@@ -9,6 +9,7 @@ const Margin = require('../models/marginAllocation/marginAllocationSchema');
 const liveTradeDetails = require('../models/TradeDetails/infinityLiveUser');
 const Portfolio = require('../models/userPortfolio/UserPortfolio'); 
 const InfinityTrader = require('../models/mock-trade/infinityTrader');
+const DailyContest = require('../models/DailyContest/dailyContest');
 
 exports.getDashboardStats = async (req, res, next) => {
     try{
@@ -263,6 +264,399 @@ exports.getDashboardStats = async (req, res, next) => {
     }    
 
 
+}
+
+exports.getDashboardStatsContest = async (req, res,next) => {
+  try{
+    let startDate, endDate;
+    const {timeframe} = req.query;
+    const userId = req.user._id;
+    switch (timeframe) {
+      case 'this month':
+        startDate = moment().startOf('month');
+        new Date().getHours()>=10?
+        endDate = moment().subtract(1, 'days'):
+        endDate = moment();
+        break;
+      case 'last month':
+        startDate = moment().subtract(1, 'months').startOf('month');
+        endDate = moment().subtract(1, 'months').endOf('month');
+        break;
+      case 'previous to last month':
+        startDate = moment().subtract(2, 'months').startOf('month');
+        endDate = moment().subtract(2, 'months').endOf('month');
+        break;
+      case 'lifetime':
+        startDate = moment(user?.joining_date.toISOString().substring(0,10)) // set to a date far in the past
+        endDate = moment().subtract(1, 'days').startOf('day'); // set to current date
+        break;
+      default:
+        return res.status(400).send({ error: 'Invalid timeframe' });
+    }
+    const result = await ContestTrade.aggregate([
+      {
+        $match: {
+          status: "COMPLETE",
+          trader: new ObjectId(
+            userId
+          ),
+          trade_time: {
+            $gte: startDate.toDate(),
+            $lte: endDate.toDate(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trade_time: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time",
+              },
+            },
+            contestId: "$contestId",
+          },
+          total_gpnl: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          total_brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          number_of_trades: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $addFields: {
+          npnl: {
+            $subtract: [
+              "$total_gpnl",
+              "$total_brokerage",
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "daily-contests",
+          localField: "_id.contestId",
+          foreignField: "_id",
+          as: "contestDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "contestDetails.portfolio",
+          foreignField: "_id",
+          as: "portfolioDetails",
+        },
+      },
+      {
+        $project: {
+          date: "$_id.trade_time",
+          contest: {
+            $arrayElemAt: [
+              "$contestDetails.contestName",
+              0,
+            ],
+          },
+          contestPayOut: {
+            $arrayElemAt: [
+              "$contestDetails.payoutPercentage",
+              0,
+            ],
+          },
+          npnl: "$npnl",
+          portfolio: {
+            $arrayElemAt: [
+              "$portfolioDetails.portfolioValue",
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $sort:
+          /**
+           * Provide any number of field/order pairs.
+           */
+          {
+            _id: 1,
+          },
+      },
+    ])
+    const contests = await DailyContest.countDocuments({contestEndTime:{$lte: endDate.toDate(), $gte: startDate.toDate()}});
+    console.log('result', result.length, contests);
+    let maxProfitStreak = 0;
+    let maxLossStreak = 0;
+    let currentProfitStreak = 0;
+    let currentLossStreak = 0;
+    let profitDays = 0;
+    let lossDays = 0;
+    let profitValues = [];
+    let lossValues = [];
+    let maxProfitDay = null;
+    let maxProfitIndex = null;
+    let maxLossDay = null;
+    let maxLossIndex = null;
+
+    for (let i = 0; i < result.length; i++) {
+      let trade = result[i];
+      if (trade.npnl >= 0) {
+        currentProfitStreak++;
+        profitDays++;
+        profitValues.push(trade.npnl);
+        currentLossStreak = 0;
+        if (currentProfitStreak > maxProfitStreak) {
+          maxProfitStreak = currentProfitStreak;
+        }
+        if (maxProfitDay === null || trade.npnl > maxProfitDay.npnl) {
+          maxProfitDay = trade;
+          maxProfitIndex = i;
+        }
+      } else if (trade.npnl < 0) {
+        currentLossStreak++;
+        lossDays++;
+        lossValues.push(trade.npnl);
+        currentProfitStreak = 0;
+        if (currentLossStreak > maxLossStreak) {
+          maxLossStreak = currentLossStreak;
+        }
+        if (maxLossDay === null || trade.npnl < maxLossDay.npnl) {
+          maxLossDay = trade;
+          maxLossIndex = i;
+        }
+      }
+    }
+
+    const averageProfit = profitValues.reduce((a, b) => a + b, 0) / profitValues.length || 0;
+    const averageLoss = lossValues.reduce((a, b) => a + b, 0) / lossValues.length || 0;
+    profitValues.sort((a, b) => a - b);
+    lossValues.sort((a, b) => a - b);
+    // console.log(profitValues, lossValues)
+    const data = {
+    //   firstName: user.first_name,
+    //   lastName: user.last_name,
+    //   dob: user.dob,
+    //   joiningDate: user.joining_date,
+      totalNPNL: result.reduce((total, trade) => total + trade.npnl, 0),
+      maxProfit: maxProfitDay ? maxProfitDay.npnl : null,
+    //   maxProfitIndex: maxProfitIndex,
+      maxLoss: maxLossDay ? maxLossDay.npnl : null,
+    //   maxLossIndex: maxLossIndex,
+      profitDays: profitDays,
+      lossDays: lossDays,
+      maxProfitStreak: maxProfitStreak,
+      maxLossStreak: maxLossStreak,
+      averageProfit: averageProfit,
+      averageLoss: averageLoss,
+      portfolio: result?.reduce((acc, item)=>acc+item.portfolio, 0)??0,
+    }
+    return res.status(200).json({status:'success',data});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong'});
+  }
+}
+exports.getDashboardStatsTenX = async (req, res,next) => {
+  try{
+    let startDate, endDate;
+    const {timeframe} = req.query;
+    const userId = req.user._id;
+    switch (timeframe) {
+      case 'this month':
+        startDate = moment().startOf('month');
+        new Date().getHours()>=10?
+        endDate = moment().subtract(1, 'days'):
+        endDate = moment();
+        break;
+      case 'last month':
+        startDate = moment().subtract(1, 'months').startOf('month');
+        endDate = moment().subtract(1, 'months').endOf('month');
+        break;
+      case 'previous to last month':
+        startDate = moment().subtract(2, 'months').startOf('month');
+        endDate = moment().subtract(2, 'months').endOf('month');
+        break;
+      case 'lifetime':
+        startDate = moment(user?.joining_date.toISOString().substring(0,10)) // set to a date far in the past
+        endDate = moment().subtract(1, 'days').startOf('day'); // set to current date
+        break;
+      default:
+        return res.status(400).send({ error: 'Invalid timeframe' });
+    }
+    const result = await TenXTrade.aggregate([
+      {
+        $match: {
+          status: "COMPLETE",
+          trader: new ObjectId(
+            userId
+          ),
+          trade_time: {
+            $gte: startDate.toDate(),
+            $lte: endDate.toDate(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trade_time: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time",
+              },
+            },
+            subscriptionId: "$subscriptionId",
+          },
+          total_gpnl: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          total_brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          number_of_trades: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $addFields: {
+          npnl: {
+            $subtract: [
+              "$total_gpnl",
+              "$total_brokerage",
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "tenx-subscriptions",
+          localField: "_id.subscriptionId",
+          foreignField: "_id",
+          as: "tenx",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "tenx.portfolio",
+          foreignField: "_id",
+          as: "portfolioDetails",
+        },
+      },
+      {
+        $project: {
+          date: "$_id.trade_time",
+          contest: {
+            $arrayElemAt: [
+              "$tenx.subscriptionName",
+              0,
+            ],
+          },
+          npnl: "$npnl",
+          portfolio: {
+            $arrayElemAt: [
+              "$portfolioDetails.portfolioValue",
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $sort:
+          /**
+           * Provide any number of field/order pairs.
+           */
+          {
+            _id: 1,
+          },
+      },
+    ])
+    const contests = await DailyContest.countDocuments({contestEndTime:{$lte: endDate.toDate(), $gte: startDate.toDate()}});
+    console.log('result', result, contests);
+    let maxProfitStreak = 0;
+    let maxLossStreak = 0;
+    let currentProfitStreak = 0;
+    let currentLossStreak = 0;
+    let profitDays = 0;
+    let lossDays = 0;
+    let profitValues = [];
+    let lossValues = [];
+    let maxProfitDay = null;
+    let maxProfitIndex = null;
+    let maxLossDay = null;
+    let maxLossIndex = null;
+
+    for (let i = 0; i < result.length; i++) {
+      let trade = result[i];
+      if (trade.npnl >= 0) {
+        currentProfitStreak++;
+        profitDays++;
+        profitValues.push(trade.npnl);
+        currentLossStreak = 0;
+        if (currentProfitStreak > maxProfitStreak) {
+          maxProfitStreak = currentProfitStreak;
+        }
+        if (maxProfitDay === null || trade.npnl > maxProfitDay.npnl) {
+          maxProfitDay = trade;
+          maxProfitIndex = i;
+        }
+      } else if (trade.npnl < 0) {
+        currentLossStreak++;
+        lossDays++;
+        lossValues.push(trade.npnl);
+        currentProfitStreak = 0;
+        if (currentLossStreak > maxLossStreak) {
+          maxLossStreak = currentLossStreak;
+        }
+        if (maxLossDay === null || trade.npnl < maxLossDay.npnl) {
+          maxLossDay = trade;
+          maxLossIndex = i;
+        }
+      }
+    }
+
+    const averageProfit = profitValues.reduce((a, b) => a + b, 0) / profitValues.length || 0;
+    const averageLoss = lossValues.reduce((a, b) => a + b, 0) / lossValues.length || 0;
+    profitValues.sort((a, b) => a - b);
+    lossValues.sort((a, b) => a - b);
+    // console.log(profitValues, lossValues)
+    const data = {
+    //   firstName: user.first_name,
+    //   lastName: user.last_name,
+    //   dob: user.dob,
+    //   joiningDate: user.joining_date,
+      totalNPNL: result.reduce((total, trade) => total + trade.npnl, 0),
+      maxProfit: maxProfitDay ? maxProfitDay.npnl : null,
+    //   maxProfitIndex: maxProfitIndex,
+      maxLoss: maxLossDay ? maxLossDay.npnl : null,
+    //   maxLossIndex: maxLossIndex,
+      profitDays: profitDays,
+      lossDays: lossDays,
+      maxProfitStreak: maxProfitStreak,
+      maxLossStreak: maxLossStreak,
+      averageProfit: averageProfit,
+      averageLoss: averageLoss,
+      portfolio: result?.reduce((acc, item)=>acc+item.portfolio, 0)??0,
+    }
+    return res.status(200).json({status:'success',data});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong'});
+  }
 }
 
 async function countTradingDays(startDate, endDate) {

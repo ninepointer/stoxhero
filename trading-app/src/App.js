@@ -65,6 +65,7 @@ import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
+import Terms from "./layouts/HomePage/pages/Tnc";
 import Contests from "../src/layouts/UserDailyContest/Header/contests"
 
 
@@ -305,6 +306,7 @@ export default function App() {
           <Route path='/resetpassword' element={<ResetPassword/>}/>
           <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
           <Route path='/privacy' element={<Privacy/>}/>
+          <Route path='/terms' element={<Terms/>}/>
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
           <Route path='/home' element={<Home/>}/>
