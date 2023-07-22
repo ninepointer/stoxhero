@@ -17,7 +17,7 @@ async function getMessages(io, socket){
       userId = await client.get(socket.id);
 
     if (response.MessageType === 'HistoryOHLCResult') {
-      console.log('sending response to', userId);
+      // console.log('sending response to', userId, response);
       io.to(`${userId}`).emit('HistoryOHLCResult', response);
       ws.removeListener('message', incoming);
     }

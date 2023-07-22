@@ -37,17 +37,6 @@ const Index = () => {
       // console.log('history', convertData(data.Result));
     });
 
-    // socket.on('RealtimeResult', data => {
-    //   // Set the live data
-    //   if (data.InstrumentIdentifier == instrument) {
-    //     console.log("this is chart data", data)
-    //     setLiveData(convertLive(data));
-    //     setLivePoints([...livePoints, data.LastTradePrice]);
-    //   }
-    //   // console.log('live',convertLive(data));
-    // });
-
-
 
     // Function to convert the data format to what the chart expects
     function convertData(data) {
@@ -138,7 +127,7 @@ const Index = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2 style={{ display: 'flex', justifyContent: 'center', margin: '0px', padding: '0px' }}>{`${instrument.split("_")[1]} ${instrument.split("_")[4]} ${instrument.split("_")[3]}`}</h2>
+      <h2 style={{ display: 'flex', justifyContent: 'center', margin: '0px', padding: '0px' }}>{instrument.split("_")[1] ? `${instrument.split("_")[1]} ${instrument.split("_")[4]} ${instrument.split("_")[3]}` : instrument}</h2>
       <span>Time frame</span>
       <select style={{ margin: '20px' }} onChange={handleChange}>
         <option value={1} selected={timeFrame == 1 && period == 'MINUTE'}>1 minute</option>
