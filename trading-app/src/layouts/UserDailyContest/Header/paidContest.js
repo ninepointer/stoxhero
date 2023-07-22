@@ -27,33 +27,21 @@ import PopupTrading from "../data/popupTrading";
 import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
-function Header({ contest, showPay, setShowPay }) {
+function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-
-    // const initialInterestedCounts = contest.reduce((acc, elem) => {
-    //     if (elem?.entryFee !== 0) {
-    //       const checkIsInterested = elem?.interestedUsers.some(
-    //         (elem) => elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
-    //       );
-    
-    //       if (!checkIsInterested) {
-    //         acc[elem._id] = {
-    //           interested: false,
-    //           count: elem?.interestedUsers?.length || 0,
-    //         };
-    //       }
-    //     }
-    //     return acc;
-    //   }, {});
-    
-      const [isInterested, setIsInterested] = useState({});
-
-      
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
-    // const [showPay, setShowPay] = useState(true);
+
+    const initialInterestedCounts = contest.reduce((acc, elem) => {
+        acc[elem._id] = {
+            interested: false,
+            count: elem?.interestedUsers?.length || 0,
+        };
+        return acc;
+    }, {});
+    const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -286,7 +274,7 @@ function Header({ contest, showPay, setShowPay }) {
 
                                                             <MDBox display="flex" justifyContent="space-between">
                                                                 <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
+                                                                    <HiUserGroup color="#DBB670" /><MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
                                                                 </MDBox>
                                                                 <MDBox color="light" fontSize={10}>
                                                                     <MDBox color={"#DBB670"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOTS LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
@@ -304,7 +292,7 @@ function Header({ contest, showPay, setShowPay }) {
 
 
                                                             <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                                                {(particularContestTime[0]?.value > 0) &&
+                                                                {(particularContestTime[0]?.value > 0 && !checkIsInterested) &&
                                                                     <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
                                                                 }
                                                                 {checkIsInterested &&

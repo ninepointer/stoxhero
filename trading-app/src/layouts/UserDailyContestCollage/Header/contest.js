@@ -43,10 +43,15 @@ function Header({ e }) {
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
-    // let [isPast, setIsPast] = useState(false);
-    // const navigate = useNavigate();
 
-    // const [copied, setCopied] = useState(false);
+    const initialInterestedCounts = contest.reduce((acc, elem) => {
+        acc[elem._id] = {
+            interested: false,
+            count: elem?.interestedUsers?.length || 0,
+        };
+        return acc;
+    }, {});
+    const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -310,7 +315,7 @@ function Header({ e }) {
                                                     <Grid item xs={12} md={12} lg={12} display="flex" mt={1} mb={1} justifyContent="space-between" alignItems="center" alignContent="center">
                                                         {particularContestTime[0]?.value > 0 ?
                                                             <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
+                                                                <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
                                                             </MDBox>
                                                             :
                                                             particularContestTime[0]?.value <= 0 &&
@@ -324,8 +329,8 @@ function Header({ e }) {
 
 
                                                             <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                                                {particularContestTime[0]?.value > 0 &&
-                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
+                                                                {(particularContestTime[0]?.value > 0 && !checkIsInterested) &&
+                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
                                                                 }
                                                                 {checkIsInterested &&
                                                                     <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>

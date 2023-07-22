@@ -18,13 +18,13 @@ router.post("/login", async (req, res) => {
     const userLogin = await UserDetail.findOne({ email: userId, status: "Active" })
 
 
-    // if (!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))) {
-    //     return res.status(422).json({ error: "invalid details" })
-    // } else {
+    if (!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))) {
+        return res.status(422).json({ error: "invalid details" })
+    } else {
 
-    //     if (!userLogin) {
-    //         return res.status(422).json({ status: 'error', message: "Invalid credentials" });
-    //     } else {
+        if (!userLogin) {
+            return res.status(422).json({ status: 'error', message: "Invalid credentials" });
+        } else {
 
             const token = await userLogin.generateAuthToken();
 
@@ -32,8 +32,8 @@ router.post("/login", async (req, res) => {
                 expires: new Date(Date.now() + 25892000000),
             });
             res.status(201).json({ status: 'success', message: "user logged in succesfully", token: token });
-    //     }
-    // }
+        }
+    }
 })
 
 router.post('/phonelogin', async (req,res, next)=>{
