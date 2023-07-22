@@ -99,7 +99,8 @@ function changeDate(dateStr){
       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
     ];
     
-    const day = date.getDate();
+    // const day = date.getDate();
+    const day = date.getDate().toString().padStart(2, '0');
     const month = months[date.getMonth()];
     const year = date.getFullYear();
     
