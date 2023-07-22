@@ -60,7 +60,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   const [holiday, setHoliday] = useState();
   // const getDetails = React.useContext(userContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   function calculateWorkingDays(startDate, endDate) {
     const start = moment(startDate);

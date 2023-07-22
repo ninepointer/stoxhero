@@ -29,7 +29,7 @@ export default function LabTabs() {
   const [intermediateCount, setIntermediateCount] = React.useState(0);
   const [proCount, setProCount] = React.useState(0);
   
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{

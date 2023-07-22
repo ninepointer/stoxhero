@@ -22,7 +22,7 @@ import MDButton from "../../../components/MDButton";
 
 function StockIndexDailyContest({ socket }) {
     console.log("rendering : infinity stockindex")
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [indexData, setIndexData] = useState([]);
     const [indexLiveData, setIndexLiveData] = useState([]);
     const pnl = useContext(NetPnlContext);

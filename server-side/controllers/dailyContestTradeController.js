@@ -1914,6 +1914,7 @@ exports.getRedisMyRankHTTP = async (req, res) => {
 // }
 
 // Add a variable to keep track of the execution status
+
 let isProcessingQueue = false;
 const contestQueue = [];
 
@@ -1927,7 +1928,7 @@ exports.sendLeaderboardData = async () => {
             if (!isProcessingQueue) {
                 // Start processing the queue and set the recurring interval
                 isProcessingQueue = true;
-                processContestQueue();
+                setInterval(processContestQueue, 5000);
             }
         }
     } catch (err) {
@@ -1936,26 +1937,40 @@ exports.sendLeaderboardData = async () => {
 };
 
 async function processContestQueue() {
-    if (contestQueue.length === 0) {
-        // Reset the processing flag if the queue is empty
-        isProcessingQueue = false;
-        return;
-    }
+    // Get the current time
+    const currentTime = new Date();
+    // Define the start and end time for processing (9 am to 3:18 pm)
+    const startTime = new Date(currentTime);
+    startTime.setHours(3, 0, 0, 0);
 
-    try {
-        const contest = contestQueue.shift();
-        if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
-            const leaderBoard = await dailyContestLeaderBoard(contest._id?.toString());
-            // console.log(leaderBoard, contest._id?.toString())
-            io.to(`${contest._id?.toString()}`).emit('contest-leaderboardData', leaderBoard);
+    const endTime = new Date(currentTime);
+    endTime.setHours(9, 48, 0, 0);
+
+    if (currentTime >= startTime && currentTime <= endTime) {
+        // console.log("1st if");
+
+        // If the queue is empty, reset the processing flag and return
+        if (contestQueue.length === 0) {
+            // console.log("2nd if");
+            isProcessingQueue = false;
+            return;
         }
-    } catch (err) {
-        console.log(err);
-    }
 
-    // Set the interval for the next execution after 5 seconds
-    setInterval(processContestQueue, 5000);
+        // Process contests and emit the data
+        for (const contest of contestQueue) {
+            if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
+                const leaderBoard = await dailyContestLeaderBoard(contest._id?.toString());
+                // console.log(leaderBoard, contest._id?.toString());
+                io.to(`${contest._id?.toString()}`).emit('contest-leaderboardData', leaderBoard);
+            }
+        }
+
+        // Clear the processed contests from the queue
+        // contestQueue.length = 0;
+    }
 }
+
+
 
 exports.sendMyRankData = async () => {
     try{
@@ -1964,28 +1979,37 @@ exports.sendMyRankData = async () => {
 
         if(activeContest.length){
             const emitLeaderboardData = async () => {
-                const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
+                const currentTime = new Date();
+                // Define the start and end time for processing (9 am to 3:18 pm)
+                const startTime = new Date(currentTime);
+                startTime.setHours(3, 0, 0, 0);
+            
+                const endTime = new Date(currentTime);
+                endTime.setHours(9, 48, 0, 0);
+                if (currentTime >= startTime && currentTime <= endTime) {
+                    const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
     
-                for(let i = 0; i < contest?.length; i++){
-                    const room = io.sockets.adapter.rooms.get(contest[i]?._id?.toString());
-                    const socketIds = Array.from(room ?? []);
-                    // console.log("socketIds", socketIds)
-                    for(let j = 0; j < socketIds?.length; j++){
-                        userId = await client.get(socketIds[j]);
-                        // console.log("userId", userId)
-                        let data = await client.get(`dailyContestData:${userId}`);
-                        data = JSON.parse(data);
-                        // console.log("data", data);
-                        if(data){
-                            let {id, employeeId} = data;
-                            const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);
-                            io.to(`${userId?.toString()}`).emit(`contest-myrank${userId}`, myRank);
-                            // await client.del(`leaderboard:${contest[i]?._id?.toString()}`)
-                            // io // Emit the leaderboard data to the client
-                        }
-    
-                    }
+                    for(let i = 0; i < contest?.length; i++){
+                        const room = io.sockets.adapter.rooms.get(contest[i]?._id?.toString());
+                        const socketIds = Array.from(room ?? []);
+                        // console.log("socketIds", socketIds)
+                        for(let j = 0; j < socketIds?.length; j++){
+                            userId = await client.get(socketIds[j]);
+                            // console.log("userId", userId)
+                            let data = await client.get(`dailyContestData:${userId}`);
+                            data = JSON.parse(data);
+                            // console.log("data", data);
+                            if(data){
+                                let {id, employeeId} = data;
+                                const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);
+                                io.to(`${contest[i]?._id?.toString()}${userId?.toString()}`).emit(`contest-myrank${userId}`, myRank);
+                                // await client.del(`leaderboard:${contest[i]?._id?.toString()}`)
+                                // io // Emit the leaderboard data to the client
+                            }
         
+                        }
+            
+                    }
                 }
             };
             emitLeaderboardData();

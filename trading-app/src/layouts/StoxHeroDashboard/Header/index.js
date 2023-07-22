@@ -4,7 +4,7 @@ import MDBox from '../../../components/MDBox';
 import Grid from "@mui/material/Grid";
 import { userContext } from '../../../AuthContext';
 import MDTypography from '../../../components/MDTypography';
-import { Paper } from '@mui/material';
+import { CircularProgress, LinearProgress, Paper } from '@mui/material';
 
 //data
 import DAU from '../data/DAUs'
@@ -14,20 +14,24 @@ import DAUMAU from '../data/DAUMAU'
 import WAUMAU from '../data/WAUMAU'
 import DAUPlatform from '../data/DAUPlatform'
 import MAUPlatform from '../data/MAUPlatform'
+import WAUPlatform from '../data/WAUPlatform'
 import ActiveUsersToday from '../data/ActiveUsersToday'
 
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let [dailyActiveUsersPlatform,setDailyActiveUsersPlatform] = useState([])
   let [monthlyActiveUsersPlatform,setMonthlyActiveUsersPlatform] = useState([])
+  let [weeklyActiveUsersPlatform,setWeeklyActiveUsersPlatform] = useState([])
   let [dailyActiveUsers,setDailyActiveUsers] = useState([])
   let [monthlyActiveUsers,setMonthlyActiveUsers] = useState([])
   let [weeklyActiveUsers,setWeeklyActiveUsers] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const getDetails = useContext(userContext);
   const userId = getDetails.userDetails._id
   
   useEffect(()=>{
+    setIsLoading(true)
     let call1 = axios.get((`${baseUrl}api/v1/stoxherouserdashboard/dailyactiveusers`),{
                 withCredentials: true,
                 headers: {
@@ -68,18 +72,26 @@ export default function Dashboard() {
             "Access-Control-Allow-Credentials": true
             },
         })
-    Promise.all([call1, call2, call3, call4, call5])
-    .then(([api1Response, api1Response1, api1Response2, api1Response3, api1Response4]) => {
-      console.log("Daily Active Users: ",api1Response.data.data)
-      console.log("Monthly Active Users: ",api1Response1.data.data)
-      console.log("Weekly Active Users: ",api1Response2.data.data)
-      console.log("Daily Active Users Platofrm: ",api1Response3.data)
-      console.log("Monthly Active Users Platofrm: ",api1Response4.data)
+    let call6 = axios.get((`${baseUrl}api/v1/stoxherouserdashboard/weeklyactiveusersonplatform`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+          },
+      })
+    Promise.all([call1, call2, call3, call4, call5, call6])
+    .then(([api1Response, api1Response1, api1Response2, api1Response3, api1Response4, api1Response5]) => {
       setDailyActiveUsers(api1Response.data.data)
       setMonthlyActiveUsers(api1Response1.data.data)
       setWeeklyActiveUsers(api1Response2.data.data)
       setDailyActiveUsersPlatform(api1Response3.data.data)
       setMonthlyActiveUsersPlatform(api1Response4.data.data)
+      setWeeklyActiveUsersPlatform(api1Response5.data.data)
+      setTimeout(()=>{
+        setIsLoading(false)
+      },500)
+      
     })
     .catch((error) => {
       // Handle errors here
@@ -92,44 +104,106 @@ export default function Dashboard() {
   return (
    
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight='auto'>
-  
-          {/* <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' flexDirection='column'>
-                <MDBox display='flex' justifyContent='center'><MDTypography color='dark' fontSize={13} fontWeight='bold'>Today's Live Metrics</MDTypography></MDBox>
-                <MDBox display='flex' justifyContent='center'><ActiveUsersToday/></MDBox>
-            </Grid>
-          </Grid> */}
 
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={6} lg={12}>
-                {/* <MDTypography>User Stickiness Metrics</MDTypography> */}
-                {dailyActiveUsersPlatform && <DAUPlatform dailyActiveUsersPlatform={dailyActiveUsersPlatform}/>}
+                {isLoading ?
+                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <CircularProgress color='info'/>
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontSize={15}>Loading Daily Unique Active Users Platform...</MDTypography>
+                  </MDBox>
+                </MDBox>
+                :
+                  <DAUPlatform dailyActiveUsersPlatform={dailyActiveUsersPlatform}/>
+                }
             </Grid>
           </Grid>
 
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={6} lg={12}>
-                {/* <MDTypography>User Stickiness Metrics</MDTypography> */}
-                {monthlyActiveUsersPlatform && <MAUPlatform monthlyActiveUsersPlatform={monthlyActiveUsersPlatform}/>}
+                {isLoading ?
+                  <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                    <MDBox display='flex' justifyContent='center' alignItems='center'>
+                      <CircularProgress color='info'/>
+                    </MDBox>
+                    <MDBox display='flex' justifyContent='center' alignItems='center'>
+                      <MDTypography fontSize={15}>Loading Weekly Unique Active Users Platform...</MDTypography>
+                    </MDBox>
+                  </MDBox>
+                : 
+                  <WAUPlatform weeklyActiveUsersPlatform={weeklyActiveUsersPlatform}/>
+                }
+            </Grid>
+          </Grid>
+
+          <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={6} lg={12}>
+                {isLoading ? 
+                  <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                    <MDBox display='flex' justifyContent='center' alignItems='center'>
+                      <CircularProgress color='info'/>
+                    </MDBox>
+                    <MDBox display='flex' justifyContent='center' alignItems='center'>
+                      <MDTypography fontSize={15}>Loading Monthly Unique Active Users Platform...</MDTypography>
+                    </MDBox>
+                  </MDBox>
+                : 
+                <MAUPlatform monthlyActiveUsersPlatform={monthlyActiveUsersPlatform}/>
+                }
             </Grid>
           </Grid>
           
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={6} lg={12}>
-                {/* <MDTypography>User Stickiness Metrics</MDTypography> */}
-                {dailyActiveUsers && <DAU dailyActiveUsers={dailyActiveUsers}/>}
+                {isLoading ?
+                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <CircularProgress color='info'/>
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontSize={15}>Loading Daily Unique Active Users Product...</MDTypography>
+                  </MDBox>
+                </MDBox>
+                :  
+                  <DAU dailyActiveUsers={dailyActiveUsers}/>
+                }
             </Grid>
           </Grid>
 
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={6} lg={12}>
-                {monthlyActiveUsers && <MAU monthlyActiveUsers={monthlyActiveUsers}/>}
+                {isLoading ? 
+                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <CircularProgress color='info'/>
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontSize={15}>Loading Weekly Unique Active Users Product...</MDTypography>
+                  </MDBox>
+                </MDBox>
+                : 
+                  <WAU weeklyActiveUsers={weeklyActiveUsers}/>
+                }
             </Grid>
           </Grid>
 
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={6} lg={12}>
-                {weeklyActiveUsers && <WAU weeklyActiveUsers={weeklyActiveUsers}/>}
+                {isLoading ?
+                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <CircularProgress color='info'/>
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontSize={15}>Loading Monthly Unique Active Users Product...</MDTypography>
+                  </MDBox>
+                </MDBox>
+              : 
+                <MAU monthlyActiveUsers={monthlyActiveUsers}/>
+                }
             </Grid>
           </Grid>
            

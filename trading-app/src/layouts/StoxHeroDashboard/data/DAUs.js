@@ -5,6 +5,7 @@ import moment from 'moment';
 
 export default function Charts({dailyActiveUsers}) {
     const chartRef = useRef(null);
+    console.log(dailyActiveUsers)
   // Dummy data for example purposes
   const data = [
     { date: '2023-07-01', virtual: 150, contest: 100, tenx: 200, total: 450 },
@@ -18,7 +19,7 @@ export default function Charts({dailyActiveUsers}) {
 
   const options = {
     title: {
-      text: 'DAUs (Product Wise)',
+      text: 'DAUUs (Product Wise)',
       left: 'left',
     },
     tooltip: {

@@ -14,6 +14,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 // import MDSnackbar from '../../../components/MDSnackbar';
 import { Typography } from '@mui/material';
+import paymentQr from '../../../assets/images/paymentQr.jpeg';
+
 
 
 
@@ -29,7 +31,7 @@ export default function Payment({ elem, showPay, setShowPay }) {
     error: ""
   })
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(() => {
@@ -225,20 +227,27 @@ export default function Payment({ elem, showPay, setShowPay }) {
               <DialogContentText id="alert-dialog-description">
 
                 <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
-                  <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "10px" }} >Choose how to pay</Title>
-                  <Typography textAlign="center" sx={{ mt: "12px", width: "75%", mb: "12px" }} color="#000" variant="body2">
+                  <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "6px" }} >Choose how to pay</Title>
+                  <Typography textAlign="center" sx={{ mt: "12px", width: "75%", mb: "6px" }} color="#000" variant="body2">
                     
                     {
                     (userWallet < elem.entryFee) ?
-                    `Your wallet balance is low, kindly add money to your wallet by making an UPI payment to ${setting?.contest?.upiId} and sending the screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp) or call @ ${setting?.contest?.mobile}`
+                    `Your wallet balance is low, kindly add money to your wallet. Follow the steps below.`
                     :
-                    `To add money in your wallet please make the UPI payment to ${setting?.contest?.upiId} and share the payment screenshot at ${setting?.contest?.email} along with your contact number(Mobile/WhatsApp) or call @ ${setting?.contest?.mobile}`
+                    `To add money in your wallet, please follow these steps.`
                     }
                   </Typography>
+                  <Typography textAlign="start" px={3} fontSize={13}>Step-1: Open any UPI app, scan the QR or enter the UPI ID {setting?.contest?.upiId}</Typography>
+                  <MDBox>
+                    <img src={paymentQr} width={200} height={200}/>
+                  </MDBox>
+                  <Typography textAlign="start" px={3} mb={2} fontSize={13}>Step-2: Complete the payment of your desired amount and take a screenshot.</Typography>
+                  <Typography textAlign="start" px={4} fontSize={13}>Step-3: Please email {setting?.contest?.email} or WhatsApp {setting?.contest?.mobile} with your name, registered phone number, payment screenshot. Call for quicker resolution. Make sure your transactionId and amount is visible.</Typography>
+
                 </MDBox>
               </DialogContentText>
 
-              <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={8} >
+              <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2} >
                 <MDBox onClick={() => { buySubscription() }} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid blue" } }} >
 
                   <MDBox display="flex" justifyContent="center">
