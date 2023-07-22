@@ -45,14 +45,6 @@ function connect(io) {
   ws.on('message', async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
-    // console.log("real time data", response);
-    // if(isRedisConnected){
-    //   userId = await client.get(socket.id);
-    // }
-
-    // if (response.MessageType === 'HistoryOHLCResult') {
-    //   io.emit('HistoryOHLCResult', response);
-    // }
     if(response.MessageType === 'RealtimeResult'){
       io.emit('RealtimeResult', response);
     }
