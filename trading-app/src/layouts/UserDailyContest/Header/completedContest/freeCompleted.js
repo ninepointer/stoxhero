@@ -1,80 +1,21 @@
 import { React, useState, useEffect, useContext } from "react";
 import axios from "axios";
-// import { Link, useNavigate } from "react-router-dom";
-// import { userContext } from '../../../AuthContext';
-// import moment from 'moment'
-
-// prop-types is a library for typechecking of props.
-// import PropTypes from "prop-types";
-// import tradesicon from '../../../assets/images/tradesicon.png'
-
-// @mui material components
 import Grid from "@mui/material/Grid";
-// import ShareIcon from '@mui/icons-material/Share';
-
-// Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
-
-// Material Dashboard 2 React base styles
-
-// Images
 import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
-// import {InfinityTraderRole, tenxTrader} from "../../../../variables";
-// import ContestCup from '../../../../assets/images/candlestick-chart.png'
 import ContestCarousel from '../../../../assets/images/target.png'
-// import Timer from '../timer'
-// import ProgressBar from "../progressBar";
-// import { HiUserGroup } from 'react-icons/hi';
-
-import { CircularProgress, Divider, Tooltip } from "@mui/material";
 import MDSnackbar from "../../../../components/MDSnackbar";
-// import PopupMessage from "../data/popupMessage";
-// import PopupTrading from "../data/popupTrading";
-// import PastContest from "../data/pastContest";
 import { Link, useNavigate } from "react-router-dom";
 
 
 
 function Header({ contest }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    // const [contest, setContest] = useState([]);
-    const [isInterested, setIsInterested] = useState(false);
-    // const [timeDifference, setTimeDifference] = useState([]);
-    // const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
     let [pnlData, setPnlData] = useState([]);
     const navigate = useNavigate();
-
-    // const handleButtonClick = () => {
-    //     const textToCopy = 'https://www.stoxhero.com/contest';
-    //     navigator.clipboard.writeText(textToCopy)
-    //       .then(() => {
-    //         console.log(textToCopy);
-    //       })
-    //       .catch((error) => {
-    //         console.error('Error copying text:', error);
-    //       });
-    //   };
-
-    // useEffect(() => {
-
-    //     axios.get(`${baseUrl}api/v1/dailycontest/contests/completed`, {
-    //         withCredentials: true,
-    //         headers: {
-    //             Accept: "application/json",
-    //             "Content-Type": "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //         },
-    //     })
-    //         .then((res) => {
-    //             setContest(res.data.data);
-    //         }).catch((err) => {
-    //             return new Error(err);
-    //         })
-    // }, [])
-
 
     useEffect(() => {
         if (serverTime) {
@@ -105,21 +46,6 @@ function Header({ contest }) {
             })
     }, [])
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //       axios.get(`${baseUrl}api/v1/servertime`)
-    //         .then((res) => {
-    //             console.log("server time", res.data.data)
-    //           setServerTime(res.data.data);
-    //         });
-    //     });
-
-    //     return () => {
-    //       clearInterval(interval);
-    //     };
-    //   }, []);
-
-    // console.log("serverTime", serverTime)
 
     function changeDateFormat(givenDate) {
 
@@ -154,8 +80,6 @@ function Header({ contest }) {
         return formattedDate;
 
     }
-
-
 
     async function handleNavigate(id, name) {
 
@@ -226,22 +150,9 @@ function Header({ contest }) {
     return (
         <>
             <MDBox>
-                {/* {loading && serverTime ?
-                    <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-                        <CircularProgress color="light" />
-                    </MDBox>
-                    : */}
                 <>
-                    {/* <MDBox mt={0} p={0.5} mb={0} width='100%' bgColor='light' minHeight='auto' borderRadius={7} display='flex'>
-                            <MDButton bgColor='dark' color={"success"} size='small'
-                                component={Link}
-                                to={{
-                                    pathname: `/contest`,
-                                }}
-                            >
-                                {"View Upcoming Contest"}
-                            </MDButton>
-                        </MDBox> */}
+                    <MDTypography color="light" fontWeight="bold" mt={1} >Free Contest(s)</MDTypography>
+
                     <Grid container xs={12} md={12} lg={12}>
                         {
                             contest.map((elem) => {
@@ -267,10 +178,6 @@ function Header({ contest }) {
                                     })
                                     if (pnl[0]?.contestId) {
                                         return (
-                                            <MDBox display='flex' flexDirection='column'>
-                                            <MDTypography  color="light" fontWeight="bold" mt={1} >Free Contest(s)</MDTypography>
-
-                                           
                                             <Grid py={1} px={1} item xs={12} md={12} lg={6} borderRadius={3}>
                                                 <MDButton variant="contained" color="light" size="small">
                                                     <Grid container display='flex' justifyContent='space-between' alignItems='center'>
@@ -392,7 +299,6 @@ function Header({ contest }) {
                                                 </MDButton>
 
                                             </Grid>
-                                            </MDBox>
                                         )
                                     }
                                 }
@@ -401,7 +307,6 @@ function Header({ contest }) {
                         }
                     </Grid>
                 </>
-                {/* } */}
                 {renderSuccessSB}
             </MDBox>
         </>

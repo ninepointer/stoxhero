@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { memo } from 'react';
 import Dialog from '@mui/material/Dialog';
-// import DialogActions from '@mui/material/DialogActions';
+import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -10,23 +10,33 @@ import { useTheme } from '@mui/material/styles';
 import MDButton from '../../../components/MDButton';
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
+import { Button } from "@mui/material";
 
-const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState }) => {
-
+const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState, setIsInterestedState }) => {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const [showThanksMessage, setShowThanksMessage] = useState(false);
 
 
     const handleClose = async (e) => {
-
         setOpen(false);
     };
 
     
     async function registerUserToContest(id){
         setOpen(true);
+        setIsInterestedState((prevState) => ({
+            ...prevState,
+            [elem._id]: {
+                interested: true,
+                count: prevState[elem._id] ? prevState[elem._id].count + 1 : 1,
+            },
+        }));
+    
+        setShowThanksMessage(true); 
+  
         const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${id}/register`, {
             method: "PUT",
             credentials:"include",
@@ -47,10 +57,9 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
         }
     }
 
-
     return (
         <div>
-            {!isInterested &&
+            {(!isInterested[elem._id]?.interested && !showThanksMessage) ?
             <MDButton
                 variant='outlined'
                 color='info'
@@ -58,7 +67,14 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
                 onClick={() => { registerUserToContest(elem._id) }}
             >
                 <MDTypography color='info' fontWeight='bold' fontSize={10}>Get Notified</MDTypography>
-            </MDButton>}
+            </MDButton>
+            :
+            <MDTypography color="info" fontWeight="bold" fontSize={13} mt={0.5}>
+                Thanks for expressing your interest.
+            </MDTypography>
+            }
+
+
             <div>
                 <Dialog
                     fullScreen={fullScreen}
@@ -75,6 +91,11 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
                             </MDBox>
                         </DialogContentText>
                     </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose} autoFocus>
+                            Close
+                        </Button>
+                    </DialogActions>
                 </Dialog>
             </div >
         </div >
