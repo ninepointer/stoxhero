@@ -347,11 +347,10 @@ let weekDay = date.getDay();
           autoCutMainManuallyMock();
           changeStatus();
           creditAmount();
-          // await creditAmountToWallet();
+          
         });
-        // const creditAmount = nodeCron.schedule(`53 9 * * *`, async () => {
-        //   creditAmountToWallet();
-        // });
+
+        
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();
@@ -367,20 +366,10 @@ let weekDay = date.getDay();
           subscribeTokens();
         } );
 
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+        const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+      
     }
-  }
-
-  const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-  const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
-  // const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
-  //   await autoCutMainManually();
-  //   await autoCutMainManuallyMock();
-  //   await creditAmountToWallet();
-  // });
-
-  if(!process.env.PROD){
-    // const autotrade = nodeCron.schedule(`50 9 * * *`, test);
-    //const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
   }
 
 
