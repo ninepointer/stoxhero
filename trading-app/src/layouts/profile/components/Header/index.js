@@ -43,7 +43,7 @@ function Header({ children }) {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
  useEffect(()=>{
-       axios.get(`${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`)
+       axios.get(`${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`, {withCredentials:true})
       .then((res)=>{
           console.log(res.data);
           setuserDetail(res.data)

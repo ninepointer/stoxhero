@@ -66,8 +66,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       //     "Access-Control-Allow-Credentials": true
       // },
   });
-    getDetails.setUserDetail('');
     navigate("/");
+    getDetails.setUserDetail('');
   }
 
   useEffect(() => {
