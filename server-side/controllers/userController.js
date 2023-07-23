@@ -420,3 +420,263 @@ exports.changePassword = async (req, res) => {
       });
     }
   };  
+
+  exports.signupusersdata = async (req, res, next) => {
+    // console.log("Inside overall virtual pnl")
+    let now = new Date();
+    now.setUTCHours(0, 0, 0, 0); // set the time to start of day in UTC
+    let yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate()-1);
+    yesterdayDate.setUTCHours(0, 0, 0, 0)
+    let eodDate = new Date();
+    eodDate.setUTCHours(23, 59, 59, 999)
+    console.log("Yesterday Date:",yesterdayDate,now)
+
+    let startOfThisMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+    let startOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1, 0, 0, 0, 0));
+    let endOfLastMonth = new Date(startOfThisMonth - 1);
+    // console.log("Dates:",startOfThisMonth,startOfLastMonth,endOfLastMonth)
+
+    let startOfThisWeek = new Date(now);
+    startOfThisWeek.setDate(now.getUTCDate() - now.getUTCDay());
+    startOfThisWeek.setUTCHours(0, 0, 0, 0); 
+
+    let startOfLastWeek = new Date(startOfThisWeek - 7 * 24 * 60 * 60 * 1000);
+    let endOfLastWeek = new Date(startOfThisWeek - 1);  
+    // console.log("Week Dates:",startOfThisWeek,startOfLastWeek,endOfLastWeek)
+
+    let startOfThisYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 0, 0, 0, 0));
+    let startOfLastYear = new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1, 0, 0, 0, 0));
+    let endOfLastYear = new Date(startOfThisYear - 1);
+    console.log("Year Dates:",startOfThisYear,startOfLastYear,endOfLastYear)
+    
+
+    const pipeline = [
+      {
+        $facet: {
+          "todayUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: now,
+                  // $lt: now
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            },
+            {
+              $unwind: "$count"
+            },
+          ],
+          "yesterdayUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: yesterdayDate,
+                  $lt: now
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ],
+          "thisWeekUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: startOfThisWeek,
+                  $lt: eodDate
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ],
+          "lastWeekUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: startOfLastWeek,
+                  $lt: endOfLastWeek
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ],
+          "thisMonthUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: startOfThisMonth,
+                  $lt: eodDate
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ],
+          "lastMonthUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: startOfLastMonth,
+                  $lt: endOfLastMonth
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ],
+          "thisYearUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: startOfThisYear,
+                  $lt: eodDate
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ],
+          "lifetimeUsers": [
+            {
+              $match: {
+                joining_date: {
+                  // $gte: startOfLastMonth,
+                  $lt: eodDate
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ],
+          "lastYearUsers": [
+            {
+              $match: {
+                joining_date: {
+                  $gte: startOfLastYear,
+                  $lt: endOfLastYear
+                }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                count: 1,
+              }
+            }
+          ]
+        }
+      }
+    ]
+
+    const signupusers = await UserDetail.aggregate(pipeline)
+    res.status(201).json({ message: "Users Recieved", data: signupusers });
+  }

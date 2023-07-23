@@ -272,7 +272,6 @@ exports.myTodaysTrade = async (req, res, next) => {
     }
 }
 
-
 exports.getMyPnlAndCreditData = async (req, res, next) => {
     let { id } = req.params;
     // console.log("Batch:",batch)
@@ -839,6 +838,117 @@ exports.traderWiseMockCompanySide = async (req, res, next) => {
 
     let x = await DailyContestMockCompany.aggregate(pipeline)
     // console.log(id, x)
+    res.status(201).json({ message: "data received", data: x });
+}
+
+exports.overallDailyContestCompanySidePnlThisMonth = async (req, res, next) => {
+    // const { ydate } = req.params;
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    yesterdayDate = yesterdayDate + "T00:00:00.000Z";
+    // console.log("Yesterday Date:",yesterdayDate)
+    // const today = new Date(todayDate);
+    let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    monthStartDate = monthStartDate + "T00:00:00.000Z";
+    console.log("Month Start Date:",monthStartDate)
+
+    const pipeline = [
+        {
+            $match:
+            {
+                trade_time: {
+                    $gte: new Date(monthStartDate),
+                    // $lte: yesterdayDate
+                },
+                status: "COMPLETE",
+            }
+        },
+        {
+            $group:
+            {
+                _id:null,
+                gpnl: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                turnover: {
+                    $sum: { $abs: ["$amount"] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await DailyContestMockCompany.aggregate(pipeline)
+    console.log("MTD",x)
+    res.status(201).json({ message: "data received", data: x });
+}
+
+exports.overallDailyContestCompanySidePnlLifetime = async (req, res, next) => {
+    // const { ydate } = req.params;
+    let date = new Date();
+    date.setDate(date.getDate() - 1);
+    let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    yesterdayDate = yesterdayDate + "T23:59:59.000Z";
+    // const today = new Date(todayDate);
+    let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
+    // monthStartDate = monthStartDate + "T23:59:59.000Z";
+    // console.log("Yesterday Date:",yesterdayDate)
+
+    const pipeline = [
+        {
+            $match:
+            {
+                trade_time: {
+                    $lte: new Date(yesterdayDate),
+                    // $lte: yesterdayDate
+                },
+                status: "COMPLETE",
+            }
+        },
+        {
+            $group:
+            {
+                _id:null,
+                gpnl: {
+                    $sum: { $multiply: ["$amount", -1] }
+                },
+                turnover: {
+                    $sum: { $abs: ["$amount"] }
+                },
+                brokerage: {
+                    $sum: { $toDouble: "$brokerage" }
+                },
+                lots: {
+                    $sum: { $toInt: "$Quantity" }
+                },
+                trades: {
+                    $count: {}
+                },
+                lotUsed: {
+                    $sum: { $abs: { $toInt: "$Quantity" } }
+                }
+            }
+        },
+        { $sort: { _id: -1 } },
+
+    ]
+
+    let x = await DailyContestMockCompany.aggregate(pipeline)
+    console.log("Lifetime",x)
     res.status(201).json({ message: "data received", data: x });
 }
 

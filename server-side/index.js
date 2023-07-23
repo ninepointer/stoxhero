@@ -313,6 +313,7 @@ app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/use
 app.use('/api/v1/marginused', require("./routes/marginUsed/marginUsed"));
 app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
 app.use('/api/v1/post', require("./routes/post/postRoutes"));
+app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
 
 
 require('./db/conn');

@@ -15,7 +15,8 @@ import WAUMAU from '../data/WAUMAU'
 import DAUPlatform from '../data/DAUPlatform'
 import MAUPlatform from '../data/MAUPlatform'
 import WAUPlatform from '../data/WAUPlatform'
-import ActiveUsersToday from '../data/ActiveUsersToday'
+import SignUpData from '../data/SignupData'
+import RevenuePayout from '../data/RevenuePayout'
 
 
 export default function Dashboard() {
@@ -26,6 +27,11 @@ export default function Dashboard() {
   let [dailyActiveUsers,setDailyActiveUsers] = useState([])
   let [monthlyActiveUsers,setMonthlyActiveUsers] = useState([])
   let [weeklyActiveUsers,setWeeklyActiveUsers] = useState([])
+  let [rollingActiveUsers,setRollingActiveUsers] = useState([])
+  let [overallRevenue,setOverallRevenue] = useState([])
+  let [overallTradeInformation,setOverallTradeInformation] = useState([])
+  
+  let [signupData,setSignupData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const getDetails = useContext(userContext);
   const userId = getDetails.userDetails._id
@@ -80,14 +86,50 @@ export default function Dashboard() {
           "Access-Control-Allow-Credentials": true
           },
       })
-    Promise.all([call1, call2, call3, call4, call5, call6])
-    .then(([api1Response, api1Response1, api1Response2, api1Response3, api1Response4, api1Response5]) => {
+    let call7 = axios.get((`${baseUrl}api/v1/signup/users`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+    let call8 = axios.get((`${baseUrl}api/v1/stoxherouserdashboard/rollingactiveusersonplatform`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+          },
+      })
+    let call9 = axios.get((`${baseUrl}api/v1/stoxherouserdashboard/overalltradeinformation`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+          },
+      })
+    let call10 = axios.get((`${baseUrl}api/v1/stoxherouserdashboard/overallrevenue`),{
+      withCredentials: true,
+      headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+          },
+      })
+    Promise.all([call1, call2, call3, call4, call5, call6, call7, call8, call9, call10])
+    .then(([api1Response, api1Response1, api1Response2, api1Response3, api1Response4, api1Response5, api1Response6, api1Response7, api1Response8, api1Response9]) => {
       setDailyActiveUsers(api1Response.data.data)
       setMonthlyActiveUsers(api1Response1.data.data)
       setWeeklyActiveUsers(api1Response2.data.data)
       setDailyActiveUsersPlatform(api1Response3.data.data)
       setMonthlyActiveUsersPlatform(api1Response4.data.data)
       setWeeklyActiveUsersPlatform(api1Response5.data.data)
+      setRollingActiveUsers(api1Response7.data.data)
+      setOverallTradeInformation(api1Response8.data.data)
+      setOverallRevenue(api1Response9.data.data)
+      setSignupData(api1Response6.data.data)
       setTimeout(()=>{
         setIsLoading(false)
       },500)
@@ -106,7 +148,45 @@ export default function Dashboard() {
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight='auto'>
 
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12}>
+            <Grid item xs={12} md={12} lg={12}>
+                {isLoading ?
+                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <CircularProgress color='info'/>
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontSize={15}>Loading Account Data...</MDTypography>
+                  </MDBox>
+                </MDBox>
+                :
+                <MDBox>
+                 {signupData[0] && <SignUpData signupData={signupData} rollingActiveUsers={rollingActiveUsers} overallTradeInformation={overallTradeInformation}/>}
+                </MDBox>
+                }
+            </Grid>
+          </Grid>
+
+          <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
+                {isLoading ?
+                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <CircularProgress color='info'/>
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontSize={15}>Loading Account Data...</MDTypography>
+                  </MDBox>
+                </MDBox>
+                :
+                <MDBox>
+                 {overallRevenue[0] && <RevenuePayout overallRevenue={overallRevenue}/>}
+                </MDBox>
+                }
+            </Grid>
+          </Grid>
+
+          <Grid container component={Paper} p={.5} mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
                 {isLoading ?
                 <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
                   <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -122,8 +202,8 @@ export default function Dashboard() {
             </Grid>
           </Grid>
 
-          <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12}>
+          <Grid container component={Paper} p={.5} mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
                 {isLoading ?
                   <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
                     <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -139,8 +219,8 @@ export default function Dashboard() {
             </Grid>
           </Grid>
 
-          <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12}>
+          <Grid container component={Paper} p={.5} mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
                 {isLoading ? 
                   <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
                     <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -156,8 +236,8 @@ export default function Dashboard() {
             </Grid>
           </Grid>
           
-          <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12}>
+          <Grid container component={Paper} p={.5} mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
                 {isLoading ?
                 <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
                   <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -173,8 +253,8 @@ export default function Dashboard() {
             </Grid>
           </Grid>
 
-          <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12}>
+          <Grid container component={Paper} p={.5} mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
                 {isLoading ? 
                 <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
                   <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -190,8 +270,8 @@ export default function Dashboard() {
             </Grid>
           </Grid>
 
-          <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={6} lg={12}>
+          <Grid container component={Paper} p={.5} mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
                 {isLoading ?
                 <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
                   <MDBox display='flex' justifyContent='center' alignItems='center'>
@@ -207,7 +287,7 @@ export default function Dashboard() {
             </Grid>
           </Grid>
            
-          <Grid container spacing={1} mt={1} lg={12} style={{ height: '100%' }}>
+          <Grid container spacing={1} mt={1} xs={12} md={12} lg={12} style={{ height: '100%' }}>
             <Grid item xs={12} md={6} lg={12} style={{ height: '100%' }}>
               {/* <Summary style={{ height: '100%' }}/> */}
             </Grid>

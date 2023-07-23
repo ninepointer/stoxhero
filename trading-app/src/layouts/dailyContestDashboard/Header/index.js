@@ -19,6 +19,8 @@ export default function LabTabs({socket}) {
   const [dailyContestUsers, setDailyContestUsers] = useState();
   const [completedContest,setCompletedContest] = useState();
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
+  const [tradeDataThisMonth, setTradeDataThisMonth] = useState([]);
+  const [tradeDataLifetime, setTradeDataLifetime] = useState([]);
   const [liveTraderCount, setLiveTraderCount] = useState(0);
   const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
@@ -116,6 +118,22 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnlthismonth`, {withCredentials: true})
+    .then((res) => {
+        setTradeDataThisMonth(res?.data?.data[0]);
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnllifetime`, {withCredentials: true})
+    .then((res) => {
+        setTradeDataLifetime(res?.data?.data[0]);
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
     axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercountyesterday`, {withCredentials: true})
     .then((res) => {
         setNotLiveTraderCountYesterday(res?.data?.data[0]?.zeroLotsTraderCount)
@@ -194,47 +212,47 @@ export default function LabTabs({socket}) {
                     </MDBox>
                 :
                 <>
-                <Grid container>
-                    <Grid item p={2} xs={12} lg={5.9}>
+                <Grid container xs={12} md={12} lg={12}>
+                    <Grid item p={2} xs={12} md={12} lg={5.9}>
                         <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Contest Position (Company Side)</MDTypography>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
                                 <MDTypography color={totalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (totalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalGrossPnl))}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
                                 <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTransactionCost)}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
                                 <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (totalGrossPnl - totalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl - totalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTransactionCost - totalGrossPnl))}</MDTypography>
                             </Grid>
                         </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
                                 <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalLots)}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item  xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
                                 <MDTypography color={totalquantitycolor} fontSize={12} display='flex' justifyContent='center'>{totalRunningLots}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item  xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
                                 <MDTypography color='info' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTurnover)}</MDTypography>
                             </Grid>
                         </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{totalTrades}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCount}/{notliveTraderCount + liveTraderCount}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
                                     Used Margin
                                 </MDTypography>
@@ -248,54 +266,220 @@ export default function LabTabs({socket}) {
                                 </MDTypography>
                             </Grid>
                         </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Purchase</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Total Revenue</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Total Payout</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>NA</MDTypography>
+                            </Grid>
+                        </Grid>
                     </Grid>
 
                     <Grid item xs={true} lg={0.2} hidden={false}>
                         <Divider orientation='vertical' color='black'/>
                     </Grid>
 
-                    <Grid item p={2} xs={12} lg={5.9}>
+                    <Grid item p={2} xs={12} md={12} lg={5.9}>
                         <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day Contest Position (Company Side)</MDTypography>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0] ?? 0 ? tradeDataYesterday[0]?.amount >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeDataYesterday[0]?.amount)) : "₹" + 0}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday[0] ?? 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage)) : "₹" + 0}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ tradeDataYesterday[0] ?? 0 ? (tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage - tradeDataYesterday[0]?.amount)) : "₹" + 0}</MDTypography>
                             </Grid>
                         </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0] ?? 0 ? new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.totallots) : 0}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday[0] ?? 0 ? tradeDataYesterday[0]?.lots : 0}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{tradeDataYesterday[0] ?? 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.turnover)) : "₹" + 0}</MDTypography>
                             </Grid>
                         </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0] ?? 0 ? tradeDataYesterday[0]?.trades : 0}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCountYesterday}/{notliveTraderCountYesterday}</MDTypography>
                             </Grid>
-                            <Grid item lg={4}>
+                            <Grid item xs={4} md={4} lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Purchase</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Total Revenue</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Total Payout</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>NA</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                </>
+                }
+            </Grid>
+        </Grid>
+
+        <Grid container xs={12} md={12} lg={12} mt={1}>
+            <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
+                {isLoading ? 
+                    <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+                        <CircularProgress color='info'/>
+                    </MDBox>
+                :
+                <>
+                <Grid container xs={12} md={12} lg={12}>
+                    <Grid item p={2} xs={12} md={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>MTD till Yesterday Contest Position (Company Side)</MDTypography>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ (tradeDataThisMonth?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataThisMonth?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeDataThisMonth?.gpnl))}</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataThisMonth?.brokerage)}</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ (tradeDataThisMonth?.gpnl - tradeDataThisMonth?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataThisMonth?.gpnl - tradeDataThisMonth?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataThisMonth?.brokerage - tradeDataThisMonth?.gpnl))}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataThisMonth?.lotUsed)}</MDTypography>
+                            </Grid>
+                            <Grid item  xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataThisMonth?.trades}</MDTypography>
+                            </Grid>
+                            <Grid item  xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataThisMonth?.turnover)}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Contests</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Free Contests</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Paid Contests</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>NA</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Purchase</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Total Revenue</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Total Payout</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>NA</MDTypography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                    <Grid item xs={true} lg={0.2} hidden={false}>
+                        <Divider orientation='vertical' color='black'/>
+                    </Grid>
+
+                    <Grid item p={2} xs={12} md={12} lg={5.9}>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Lifetime till Yesterday Contest Position (Company Side)</MDTypography>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ (tradeDataLifetime?.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataLifetime?.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeDataLifetime?.gpnl))}</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataLifetime?.brokerage)}</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ (tradeDataLifetime?.gpnl - tradeDataLifetime?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataLifetime?.gpnl - tradeDataLifetime?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataLifetime?.brokerage - tradeDataLifetime?.gpnl))}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataLifetime?.lotUsed)}</MDTypography>
+                            </Grid>
+                            <Grid item  xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'># of Trades</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataLifetime?.trades}</MDTypography>
+                            </Grid>
+                            <Grid item  xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataLifetime?.turnover)}</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Contests</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Free Contests</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Paid Contests</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>NA</MDTypography>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Purchase</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Total Revenue</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>NA</MDTypography>
+                            </Grid>
+                            <Grid item xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Total Payout</MDTypography>
+                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>NA</MDTypography>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -318,24 +502,24 @@ export default function LabTabs({socket}) {
                         pathname: `/contestdashboard/dailycontestposition`,
                     }}
                 >
-                    <Grid container>
+                    <Grid container xs={12} md={12} lg={12}>
 
-                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                        <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
                             <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Company)</MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                        <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
                                 <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
                             </MDBox>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -354,24 +538,24 @@ export default function LabTabs({socket}) {
                         pathname: `/contestdashboard/dailycontestpositiontrader`,
                     }}
                 >
-                    <Grid container>
+                    <Grid container xs={12} md={12} lg={12}>
 
-                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                        <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
                             <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Trader)</MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                        <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
                                 <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all trader's contest position here!</MDTypography>
                             </MDBox>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Active Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Batches: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Completed Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -383,31 +567,31 @@ export default function LabTabs({socket}) {
 
                 <MDButton
                     variant="contained"
-                    color={"primary"}
+                    color={"secondary"}
                     size="small"
                     component={Link}
                     to={{
                         pathname: `/contestdashboard/dailycontestreport`,
                     }}
                 >
-                    <Grid container>
+                    <Grid container xs={12} md={12} lg={12}>
 
-                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                        <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
                             <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Report</MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                        <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
                                 <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Check all daily contest reports here!</MDTypography>
                             </MDBox>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Colleges: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Zones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>
@@ -426,24 +610,24 @@ export default function LabTabs({socket}) {
                         pathname: `/contestdashboard/dailycontest`,
                     }}
                 >
-                    <Grid container>
+                    <Grid container xs={12} md={12} lg={12}>
 
-                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
+                        <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
                             <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Daily Contest</MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                        <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
                             <MDBox display="flex" flexDirection="column">
                                 <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily Contest here!</MDTypography>
                             </MDBox>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Colleges: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
 
-                        <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Zones: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
                         </Grid>
 
                     </Grid>

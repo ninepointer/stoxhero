@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {liveTotalTradersCount, overallDailyContestTraderPnl, 
-    overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, getRedisMyRankHTTP,
+const {liveTotalTradersCount, overallDailyContestTraderPnl, overallDailyContestCompanySidePnlThisMonth,
+    overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, getRedisMyRankHTTP,overallDailyContestCompanySidePnlLifetime,
     myPnlAndPayout, overallDailyContestPnlYesterday, DailyContestPayoutChart,
     liveTotalTradersCountYesterday, traderWiseMockCompanySide, DailyContestPnlTWiseTraderSide,
     DailyContestPnlTWise, traderWiseMockTraderSide, getRedisLeaderBoard } = require('../../controllers/dailyContestTradeController');
@@ -13,6 +13,8 @@ const Authenticate = require('../../authentication/authentication');
 router.route('/payoutchart').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), DailyContestPayoutChart)
 router.route('/overalltraderpnltoday').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), overallDailyContestTraderPnl)
 router.route('/overalltraderpnlyesterday').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), overallDailyContestPnlYesterday)
+router.route('/overalltraderpnlthismonth').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), overallDailyContestCompanySidePnlThisMonth)
+router.route('/overalltraderpnllifetime').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), overallDailyContestCompanySidePnlLifetime)
 router.route('/liveandtotaltradercounttoday').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), liveTotalTradersCount)
 router.route('/liveandtotaltradercountyesterday').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), liveTotalTradersCountYesterday)
 router.route('/allcontestPnl').get(Authenticate, myPnlAndPayout);
