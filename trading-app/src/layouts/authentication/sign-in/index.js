@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { useState, useEffect } from 'react';
 import ReactGA from "react-ga";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import OtpInput from 'react-otp-input';
 import MDSnackbar from "../../../components/MDSnackbar";
@@ -55,7 +55,7 @@ function Basic() {
   })
 
   const setDetails = useContext(userContext);
-  console.log(setDetails.userDetails);
+  // console.log(setDetails.userDetails);
 
   // const handleSetRememberMe = () => setRememberMe(!rememberMe);
   const handleEmailChange = (e) => setEmail(e.target.value);
@@ -72,6 +72,7 @@ function Basic() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     const navigate = useNavigate();
+    const location = useLocation();
     
 
     useEffect(() => {
@@ -154,13 +155,16 @@ function Basic() {
             let userData = await userDetail();
 
             if(userData.role?.roleName === adminRole){
-              navigate("/infinitydashboard");
+              const from = location.state?.from || "/infinitydashboard";
+              navigate(from);
             }
             else if(userData.role?.roleName === "data"){
-              navigate("/analytics");
+              const from = location.state?.from || "/analytics";
+              navigate(from);
             } 
             else if(userData.role?.roleName === userRole){
-              navigate("/stoxherodashboard");
+              const from = location.state?.from || "/stoxherodashboard";
+              navigate(from);
             }
             else if(userData.role?.roleName === InfinityTraderRole){
               navigate("/infinitytrading");
@@ -244,10 +248,12 @@ function Basic() {
           let userData = await userDetail();
           console.log(userData)
           if(userData?.role?.roleName === adminRole){
-            navigate("/companyposition");
+            const from = location.state?.from || "/infinitydashboard";
+            navigate(from);
           }
           else if(userData?.role?.roleName === userRole){
-            navigate("/stoxherodashboard");
+            const from = location.state?.from || "/stoxherodashboard";
+              navigate(from);
           }
           else if(userData?.role?.roleName === InfinityTraderRole){
             navigate("/infinitytrading");

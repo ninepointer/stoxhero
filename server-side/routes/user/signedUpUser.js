@@ -141,7 +141,7 @@ router.patch("/verifyotp", async (req, res) => {
 
     const myReferralCode = await generateUniqueReferralCode();
     // const count = await User.countDocuments();
-    const userId = email.split('@')[0]
+    let userId = email.split('@')[0]
     const userIds = await User.find({ employeeid: userId })
    
     if (userIds.length > 0) {
@@ -182,14 +182,44 @@ router.patch("/verifyotp", async (req, res) => {
         }
 
         const newuser = await User.create(obj);
-        // const token = await newuser.generateAuthToken();
+        const populatedUser = await User.findById(newuser._id).populate('role', 'roleName')
+        .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
+        .populate({
+            path : 'subscription.subscriptionId',
+            select: 'portfolio',
+            populate: [{
+                path: 'portfolio',
+                select: 'portfolioName portfolioValue portfolioType portfolioAccount'
+            },
+            ]
+        })
+        .populate({
+            path: 'internshipBatch',
+            select: 'batchName batchStartDate batchEndDate career portfolio participants',
+            populate: [{
+                path: 'career',
+                select: 'jobTitle'
+            },
+            {
+                path: 'portfolio',
+                select: 'portfolioValue'
+            },
+            {
+                path: 'participants',
+                populate: {
+                    path: 'college',
+                    select: 'collegeName'
+                }
+            }
+        ],
+          })
+        .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+        const token = await newuser.generateAuthToken();
 
-        // res.cookie("jwtoken", token, {
-        //     expires: new Date(Date.now() + 25892000000),
-        // });
-
-        
-        res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials." });
+        res.cookie("jwtoken", token, {
+            expires: new Date(Date.now() + 25892000000),
+        });    
+        res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token });
         
         // now inserting userId in free portfolio's
         const idOfUser = newuser._id;
@@ -267,7 +297,7 @@ router.patch("/verifyotp", async (req, res) => {
 
         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
         // let email = newuser.email;
-        let subject = "Account Created - StoxHero";
+        let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
         let message =
             `
             <!DOCTYPE html>
@@ -339,19 +369,42 @@ router.patch("/verifyotp", async (req, res) => {
                 <body>
                     <div class="container">
                     <h1>Account Created</h1>
-                    <p>Hello ${newuser.first_name},</p>
-                    <p>Welcome to our Option Trading Platform StoxHero!</p>
-                    <p>Get ready to dive into the exciting world of options trading with StoxHero. Whether you're a seasoned trader or new to the game, we're here to provide you with the tools and resources you need to navigate the market and maximize your potential.</p>
-                    <p>We're super pumped to have you with us. Let's continue to learn and earn by exploring the endless opportunities in the realm of options trading.</p>
-                    <p>Please login with your credentials.</p>
-                    <p>Happy trading!</p>
-                    <a href="https://www.stoxhero.com/" class="login-button">Log In</a>
+                    <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
+                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Trading and Earning! </p>
+                    <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
+                    <p>1. Virtual Trading:
+                    Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
+                    <p>2. Ten X:
+                    Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
+                    <p>3. Contests:
+                    Challenge yourself in daily contests where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each contest will add to your earnings. With different contests running, you have the flexibility to choose and participate as per your preference.</p>
+                    <p>4. College Contest:
+                    Attention college students! Our College Contest is tailored just for you. Engage in daily intraday trading contests, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
+                    <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
+                    <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>Contests Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College Contest Tutorial</a></p>
+                    <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
+                    </p>
+                    <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>
+                    <a href='https://www.facebook.com/profile.php?id=100091564856087'>Facebook</a></br>
+                    <a href='https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA=='>Instagram</a></br>
+                    <a href='https://www.youtube.com/@stoxhero_official/videos'>YouTube</a></p>
+                    <p>StoxHero is open to everyone who aspires to learn options intraday trading in a risk-free environment and analyze their performance to enhance their strategies. Moreover, with the chance to earn real profits through our programs, StoxHero provides an excellent platform for everyone to learn and earn. Be your own boss, take charge, and unlock the potential within you!</p>
+                    <p>We hope you enjoy your trading journey with StoxHero. Should you have any questions or require assistance at any stage, don't hesitate to reach out to us.</p>
+                    <p>Happy Trading and Learning!</p>
+                    <p>Best regards,</br>
+                    Team StoxHero</p>
+                    <a href="https://www.stoxhero.com/" class="login-button">Start your journey now</a>
                     </div>
                 </body>
                 </html>
 
             `
-        emailService(newuser.email, subject, message);
+        if(process.env.PROD == 'true'){
+            emailService(newuser.email, subject, message);
+        }    
     }
     catch (error) {
         console.log(error);

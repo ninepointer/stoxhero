@@ -37,6 +37,15 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
     const [loading, setIsLoading] = useState(true);
     // const [showPay, setShowPay] = useState(true);
 
+    const initialInterestedCounts = contest.reduce((acc, elem) => {
+        acc[elem._id] = {
+            interested: false,
+            count: elem?.interestedUsers?.length || 0,
+        };
+        return acc;
+    }, {});
+    const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
+
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
         const textarea = document.createElement('textarea');
@@ -267,19 +276,15 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
                                                     <Grid item xs={12} md={12} lg={12} mt={1} mb={1}>
                                                         {particularContestTime[0]?.value > 0 ?
 
-                                                            <MDBox display="flex" justifyContent="space-between">
-                                                                <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                                    <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
-                                                                </MDBox>
-                                                                <MDBox color="light" fontSize={10}>
-                                                                    <MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>SPOTS LEFT: {elem?.maxParticipants - elem?.participants?.length}</MDBox>
-                                                                </MDBox>
+                                                            <MDBox color="light" fontSize={10} display="flex" >
+                                                                <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{isInterestedState[elem?._id]?.count} PEOPLE HAVE SHOWN INTEREST IN THIS CONTEST</MDBox>
                                                             </MDBox>
                                                             :
                                                             particularContestTime[0]?.value <= 0 &&
                                                             <MDBox color="light" fontSize={10} display="flex" justifyContent="flex-start" alignItems='center'>
                                                                 <HiUserGroup color='black' /><MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.maxParticipants - elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
-                                                            </MDBox>}
+                                                            </MDBox>
+                                                        }
                                                     </Grid>
 
                                                     <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
@@ -287,8 +292,8 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
 
 
                                                             <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                                                {particularContestTime[0]?.value > 0 &&
-                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
+                                                                {(particularContestTime[0]?.value > 0 && !checkIsInterested) &&
+                                                                    <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} isInterestedState={isInterestedState} setIsInterestedState={setIsInterestedState} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
                                                                 }
                                                                 {checkIsInterested &&
                                                                     <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>

@@ -20,49 +20,6 @@ function OnGoingContests() {
 
     useEffect(() => {
         setIsLoading(true)
-        // axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`, {
-        //     withCredentials: true,
-        //     headers: {
-        //         Accept: "application/json",
-        //         "Content-Type": "application/json",
-        //         "Access-Control-Allow-Credentials": true
-        //     },
-        // })
-        //     .then((res) => {
-        //         setContest(res.data.data);
-                // setTimeout(() => {
-                //     setIsLoading(false)
-                // }, 1000)
-
-        //     }).catch((err) => {
-        //         setIsLoading(false)
-        //         return new Error(err);
-        //     })
-
-
-        // axios.get(`${baseUrl}api/v1/dailycontest/contests/onlyupcoming`, {
-        //     withCredentials: true,
-        //     headers: {
-        //         Accept: "application/json",
-        //         "Content-Type": "application/json",
-        //         "Access-Control-Allow-Credentials": true
-        //     },
-        // })
-        //     .then((res) => {
-        //         setUpcoming(res.data.data);
-        //         if (contest.length === 0) {
-        //             setContest(res.data.data)
-        //         }
-        //         setTimeout(() => {
-        //             setIsLoading(false)
-        //         }, 1000)
-
-        //     }).catch((err) => {
-        //         setIsLoading(false)
-        //         return new Error(err);
-        //     })
-
-
             let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/onlyupcoming`,{
                 withCredentials: true,
                 headers: {
@@ -135,8 +92,6 @@ function OnGoingContests() {
 
     }
 
-    let isContestFull;
-    // console.log("upcoming", upcoming, contest)
 
     return (
         <>
@@ -206,16 +161,16 @@ function OnGoingContests() {
                                                                 <MDTypography fontSize={12} color='light' fontWeight="bold">Starts On: {changeDateFormat(elem?.contestStartTime)}</MDTypography>
                                                             </Grid>
 
-                                                            {!isContestFull &&
-                                                            <>
-                                                                                                                        <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            </Grid>
+                                                            {(!isContestFull && elem.entryFee !== 0) &&
+                                                                <>
+                                                                    <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                                    </Grid>
 
-                                                            <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                                <MDTypography fontSize={12} color='light' fontWeight="bold">Spots Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
-                                                            </Grid>
-                                                            </>
-                                                           }
+                                                                    <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                                        <MDTypography fontSize={12} color='light' fontWeight="bold">Spots Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
+                                                                    </Grid>
+                                                                </>
+                                                            }
                                                             <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
                                                             </Grid>
                                                             <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>

@@ -1,12 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { memo } from 'react';
-// import axios from "axios"
-// import uniqid from "uniqid"
-// import { userContext } from "../../AuthContext";
-import axios from "axios";
-import { debounce } from 'lodash';
-
-// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -14,60 +7,37 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-// import TextField from '@mui/material/TextField';
-// import Select from '@mui/material/Select';
-// import MenuItem from '@mui/material/MenuItem';
-// import InputLabel from '@mui/material/InputLabel';
-// import FormControl from '@mui/material/FormControl';
 import MDButton from '../../../components/MDButton';
-// import MDSnackbar from '../../components/MDSnackbar';
-// import Radio from '@mui/material/Radio';
-// import RadioGroup from '@mui/material/RadioGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import FormLabel from '@mui/material/FormLabel';
-// import { Box } from '@mui/material';
-// import { renderContext } from "../../renderContext";
-// import {Howl} from "howler";
-// import sound from "../../assets/sound/tradeSound.mp3"
-// import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../variables";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
-import Chain from '../../../assets/images/chain.png'
-import { Grid, MenuItem, TextField } from "@mui/material";
-import BuyModel from "../../tradingCommonComponent/BuyModel";
-import SellModel from "../../tradingCommonComponent/SellModel";
-import { dailyContest, maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty, maxLot_Nifty_DailyContest } from "../../../variables";
+import { Button } from "@mui/material";
 
 
-// import MDBox from '../../../../../components/MDBox';
-// import { borderBottom } from '@mui/system';
-// import { marketDataContext } from "../../../../../MarketDataContext";
-
-const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState }) => {
-    // if(!initialValue){
-    //     initialValue = false;
-    // }
-    
+const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState, setIsInterestedState }) => {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    // const [selectIndex, setSelectIndex] = useState("NIFTY50");
+    const [showThanksMessage, setShowThanksMessage] = useState(false);
 
-    // console.log("main data", open)
-
-    // const handleClickOpen = async () => {
-    //     setOpen(true);
-    // };
 
     const handleClose = async (e) => {
-
         setOpen(false);
     };
 
     
     async function registerUserToContest(id){
         setOpen(true);
+        setIsInterestedState((prevState) => ({
+            ...prevState,
+            [elem._id]: {
+                interested: true,
+                count: prevState[elem._id] ? prevState[elem._id].count + 1 : 1,
+            },
+        }));
+    
+        setShowThanksMessage(true); 
+  
         const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${id}/register`, {
             method: "PUT",
             credentials:"include",
@@ -88,10 +58,9 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
         }
     }
 
-
     return (
         <div>
-            {!isInterested &&
+            {(!isInterested[elem._id]?.interested && !showThanksMessage) ?
             <MDButton
                 variant='outlined'
                 color='info'
@@ -99,7 +68,14 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
                 onClick={() => { registerUserToContest(elem._id) }}
             >
                 <MDTypography color='info' fontWeight='bold' fontSize={10}>Get Notified</MDTypography>
-            </MDButton>}
+            </MDButton>
+            :
+            <MDTypography color="info" fontWeight="bold" fontSize={13} mt={0.5}>
+                Thanks for expressing your interest.
+            </MDTypography>
+            }
+
+
             <div>
                 <Dialog
                     fullScreen={fullScreen}
@@ -116,6 +92,11 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
                             </MDBox>
                         </DialogContentText>
                     </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose} autoFocus>
+                            Close
+                        </Button>
+                    </DialogActions>
                 </Dialog>
             </div >
         </div >
