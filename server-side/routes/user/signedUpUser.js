@@ -290,7 +290,7 @@ router.patch("/verifyotp", async (req, res) => {
                 userId: newuser._id,
                 createdOn: new Date(),
                 createdBy: newuser._id
-            })
+        })
 
 
         if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
@@ -404,7 +404,7 @@ router.patch("/verifyotp", async (req, res) => {
             `
         if(process.env.PROD == 'true'){
             emailService(newuser.email, subject, message);
-        }    
+        }
     }
     catch (error) {
         console.log(error);
