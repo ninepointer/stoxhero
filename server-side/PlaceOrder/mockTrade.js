@@ -7,9 +7,6 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
 const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockCompany");
-
-
-// const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
 const {client, getValue, clientForIORedis} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
@@ -215,7 +212,9 @@ exports.mockTrade = async (req, res) => {
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
-            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
+            // console.log("pipelineForSet._result", pipelineForSet._result)
+
+            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {
                 await session.commitTransaction();
                 res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
             } else {
@@ -226,16 +225,13 @@ exports.mockTrade = async (req, res) => {
         } catch(err){
             console.error('Transaction failed, documents not saved:', err);
 
-            if(isRedisConnected){
-                const pipeline = clientForIORedis.pipeline();
+            const pipeline = clientForIORedis.pipeline();
+            await pipeline.del(`${trader.toString()} overallpnl`);
+            await pipeline.del(`traderWiseMockPnlCompany`);
+            await pipeline.del(`overallMockPnlCompany`);
+            await pipeline.del(`lastTradeDataMock`);
+            const results = await pipeline.exec();
 
-                await pipeline.del(`${trader.toString()} overallpnl`);
-                await pipeline.del(`traderWiseMockPnlCompany`);
-                await pipeline.del(`overallMockPnlCompany`);
-                await pipeline.del(`lastTradeDataMock`);
-                
-                const results = await pipeline.exec();
-            }
             await session.abortTransaction();
             res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
         } finally {
@@ -328,13 +324,7 @@ exports.mockTrade = async (req, res) => {
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
-            // console.log(settingRedis, redisValueOverall,redisValueTrader )
-
-            // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
-
-            // console.log("pipelineForSet", pipelineForSet)
-            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
-                await session.commitTransaction();
+            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                await session.commitTransaction();
                 return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
             } else {
                 // await session.commitTransaction();
@@ -344,16 +334,12 @@ exports.mockTrade = async (req, res) => {
 
         } catch(err){
             console.log(err);
-            if(isRedisConnected){
-                const pipeline = clientForIORedis.pipeline();
-
-                await pipeline.del(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`);
-                await pipeline.del(`traderWiseMockPnlCompanyDailyContest`);
-                await pipeline.del(`overallMockPnlCompanyDailyContest`);
-                await pipeline.del(`lastTradeDataMockDailyContest`);
-                
-                const results = await pipeline.exec();
-            }
+            const pipeline = clientForIORedis.pipeline();
+            await pipeline.del(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`);
+            await pipeline.del(`traderWiseMockPnlCompanyDailyContest`);
+            await pipeline.del(`overallMockPnlCompanyDailyContest`);
+            await pipeline.del(`lastTradeDataMockDailyContest`);
+            const results = await pipeline.exec();
             await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);
             res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});

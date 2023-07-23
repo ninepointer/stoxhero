@@ -8,12 +8,12 @@ function InstrumentComponent({chartInstrument, last_price, change, contractDate,
   console.log("rendering : InstrumentComponent", chartInstrument)
 
     let styleTD = {
-        textAlign: "center",
-        fontSize: ".75rem",
-        fontColor: "grey",
-        color: "#7b809a",
-        fontWeight: "600"
-      }
+      textAlign: "center",
+      fontSize: ".75rem",
+      fontColor: "grey",
+      color: "#7b809a",
+      fontWeight: "600"
+    }
 
   return (
     <>

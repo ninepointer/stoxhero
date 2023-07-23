@@ -16,7 +16,7 @@ const Index = () => {
   const [historicalData, setHistoricalData] = useState([]);
   const [instrument, setInstrument] = useState(location?.search?.split('=')[1] ?? 'NIFTY-I')
   const [livePoints, setLivePoints] = useState([]);
-  const [liveData, setLiveData] = useState();
+  // const [liveData, setLiveData] = useState();
   const socketUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
 
   const socket = io.connect(socketUrl);
@@ -122,9 +122,10 @@ const Index = () => {
     } else {
       setPeriod('MINUTE')
     }
-    console.log("Selected timeframe:", selectedValue);
+    // console.log("Selected timeframe:", selectedValue);
   }
 
+  // console.log("historicalData", historicalData)
   return (
     <div style={{ padding: '20px' }}>
       <h2 style={{ display: 'flex', justifyContent: 'center', margin: '0px', padding: '0px' }}>{instrument.split("_")[1] ? `${instrument.split("_")[1]} ${instrument.split("_")[4]} ${instrument.split("_")[3]}` : instrument}</h2>

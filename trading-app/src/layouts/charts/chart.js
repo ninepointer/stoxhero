@@ -35,7 +35,8 @@ const CandlestickChart = ({ socket, historicalData, instrument, minuteTimeframe 
   
     // Set initial data
     if (historicalData) {
-      candleSeriesRef.current.setData(historicalData);
+      const sortedData = historicalData.sort((a, b) => a.time - b.time);
+      candleSeriesRef.current.setData(sortedData);
     }
     const timeScale = chartRef.current.timeScale();
     timeScale.applyOptions({
@@ -54,49 +55,54 @@ const CandlestickChart = ({ socket, historicalData, instrument, minuteTimeframe 
     };
   }, []);
 
+  // useEffect(() => {
+  //   if (!candleSeriesRef.current || !historicalData) return;
+  
+  //   // Update chart with historical data
+  //   candleSeriesRef.current.setData(historicalData);
+  // }, [historicalData]);
+
   useEffect(() => {
     if (!candleSeriesRef.current || !historicalData) return;
   
-    // Update chart with historical data
-    candleSeriesRef.current.setData(historicalData);
+    // Sort historicalData array in ascending order by time
+    const sortedData = historicalData.sort((a, b) => a.time - b.time);
+  
+    // Update chart with sorted historical data
+    candleSeriesRef.current.setData(sortedData);
   }, [historicalData]);
 
-//   useEffect(() => {
-   
-//   }, [liveData]);
-
-// if (!candleSeriesRef.current || !liveData || !historicalData) return;
 
 // Merge live data with the last historical data
+// Merge live data with the last historical data
 const newCandle = liveData;
-// console.log('newCandle',newCandle);
-// console.log('firstCandle', historicalData[0])
-// console.log('lastCandle',typeof lastCandle?.time, lastCandle, minuteTimeframe);
 
 if (newCandle) {
-    const lastCandle = historicalData[historicalData.length -1];
+  const lastCandle = historicalData[historicalData.length - 1];
+
+  const updatedTime = lastCandle?.time + minuteTimeframe * 60;
 
   const updatedLastCandle = {
     ...lastCandle,
-    time: lastCandle?.time + minuteTimeframe*60,
+    time: updatedTime,
     close: newCandle?.close,
     high: Math.max(lastCandle?.high, newCandle?.high),
     low: Math.min(lastCandle?.low, newCandle?.low),
   };
-//   console.log('updatedLastCandle',updatedLastCandle);
+
   // Create a new data array with the updated last candle
   const newData = [
-      ...historicalData.slice(0,historicalData.length-1),
-      updatedLastCandle,    
-    ];
-//   console.log('newData',newData);
-//   console.log('historicalData', historicalData);  
+    ...historicalData.slice(0, historicalData.length - 1),
+    updatedLastCandle,
+  ];
 
   // Update chart with the merged data
-  candleSeriesRef.current.setData(newData);
+  const sortedData = newData.sort((a, b) => a.time - b.time);
+  candleSeriesRef.current.setData(sortedData);
 }
 
-  return <div style={{display:'flex',margin:'auto 0', justifyContent:'center', border:'1px solid black'}} ref={chartContainerRef} />;
+
+  return <div style={{display:'flex', justifyContent:'center', border:'1px solid black', height: "100vh", width: "100%"}} ref={chartContainerRef} />;
 };
 
 export default CandlestickChart;
