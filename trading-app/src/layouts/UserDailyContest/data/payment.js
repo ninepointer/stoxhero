@@ -12,7 +12,6 @@ import Title from '../../HomePage/components/Title'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
-// import MDSnackbar from '../../../components/MDSnackbar';
 import { Typography } from '@mui/material';
 import paymentQr from '../../../assets/images/paymentQr.jpeg';
 
@@ -131,60 +130,6 @@ export default function Payment({ elem, showPay, setShowPay }) {
       })
     }
   }
-
-  // const [messageObj, setMessageObj] = useState({
-  //   color: '',
-  //   icon: '',
-  //   title: '',
-  //   content: ''
-  // })
-  // const [successSB, setSuccessSB] = useState(false);
-  // const openSuccessSB = (value, content) => {
-  //   if (value === "success") {
-  //     messageObj.color = 'success'
-  //     messageObj.icon = 'check'
-  //     messageObj.title = "Successfull";
-  //     messageObj.content = content
-  //   };
-  //   if (value === "reject") {
-  //     messageObj.color = 'error'
-  //     messageObj.icon = 'error'
-  //     messageObj.title = "REJECTED";
-  //     messageObj.content = content;
-  //   };
-
-  //   if (value === "else") {
-  //     messageObj.color = 'error'
-  //     messageObj.icon = 'error'
-  //     messageObj.title = "REJECTED";
-  //     messageObj.content = content;
-  //   };
-  //   if (value === "error") {
-  //     messageObj.color = 'error'
-  //     messageObj.icon = 'error'
-  //     messageObj.title = "Error";
-  //     messageObj.content = content;
-  //   };
-
-  //   setMessageObj(messageObj);
-  //   setSuccessSB(true);
-  // }
-  // const closeSuccessSB = () => setSuccessSB(false);
-
-  // const renderSuccessSB = (
-  //   <MDSnackbar
-  //     color={messageObj.color}
-  //     icon={messageObj.icon}
-  //     title={messageObj.title}
-  //     content={messageObj.content}
-  //     open={successSB}
-  //     onClose={closeSuccessSB}
-  //     close={closeSuccessSB}
-  //     bgWhite="info"
-  //     sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "50px" }}
-  //   />
-  // );
-
 
 
   return (

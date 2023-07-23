@@ -18,7 +18,7 @@ export default function Charts({dailyActiveUsersPlatform}) {
 
   const options = {
     title: {
-      text: 'Daily Active Users (Platform)',
+      text: 'DAUUs (Platform)',
       left: 'left',
     },
     tooltip: {
@@ -80,7 +80,7 @@ export default function Charts({dailyActiveUsersPlatform}) {
       {
         name: 'Active Users',
         type: 'line',
-        data: dailyActiveUsersPlatform.map(item => item.activeUsers),
+        data: dailyActiveUsersPlatform.map(item => item.uniqueUsersCount),
       },
       // {
       //   name: 'Virtual Trading',

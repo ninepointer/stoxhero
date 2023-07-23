@@ -2,6 +2,7 @@ const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, dailyCont
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
+const Contest = require('../../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
 
 
 const autoCutMainManually = async() => {
@@ -88,7 +89,7 @@ const autoCutMainManuallyMock = async() => {
     await autoCutMainManuallyMock();
 }
 
-const creditAmount = async() => {
+const changeStatus = async() => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
@@ -165,6 +166,23 @@ const creditAmount = async() => {
     );
 
     if(data.length === 0){
+        await changeContestStatus();
+        // await creditAmountToWallet();
+        return;
+    }
+
+    await changeStatus();
+}
+
+const creditAmount = async() => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const data = await Contest.find( {payoutStatus: "Active", contestStatus: "Complete"} );
+
+    if(data.length !== 0){
         await creditAmountToWallet();
         return;
     }
@@ -172,4 +190,15 @@ const creditAmount = async() => {
     await creditAmount();
 }
 
-module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount}
+const changeContestStatus = async () => {
+    const contest = await Contest.find({ contestStatus: "Active" });
+
+    for (let j = 0; j < contest.length; j++) {
+        if (contest[j].contestEndTime < new Date()) {
+            contest[j].contestStatus = "Completed";
+            await contest[j].save();
+        }
+    }
+}
+
+module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus}

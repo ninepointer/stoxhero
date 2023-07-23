@@ -78,8 +78,10 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Contest Scoreboard"
   } else if(title === "collegecontest"){
     title = "College Contests"
+  } else if(title === "stoxherouserdashboard"){
+    title = "StoxHero Dashboard"
   } 
-
+  
   
   
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"

@@ -20,7 +20,7 @@ export default function Charts({monthlyActiveUsersPlatform}) {
 
   const options = {
     title: {
-      text: 'Monthly Active Users (Platform)',
+      text: 'MAUUs (Platform)',
       left: 'left',
     },
     tooltip: {
@@ -81,7 +81,7 @@ export default function Charts({monthlyActiveUsersPlatform}) {
       {
         name: 'Active Users',
         type: 'bar',
-        data: monthlyActiveUsersPlatform.map(item => item.activeUsers),
+        data: monthlyActiveUsersPlatform.map(item => item.uniqueUsersCount),
       },
     ],
   };
