@@ -65,31 +65,123 @@ const DailyContestMockUser = require("../../models/DailyContest/dailyContestMock
 const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCompanyMargin")
 const MarginDetailLiveCompany = require("../../models/marginUsed/infinityLiveCompanyMargin")
 const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMargin")
+const DailyContest = require("../../models/DailyContest/dailyContest")
 
 
 
-// router.get("/updateField", async (req, res) => {
+router.get("/insrtOldPayout", async (req, res) => {
 
-  // function changeDate(dateStr){
-  //   const date = new Date(dateStr);
-    
-  //   const months = [
-  //     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-  //     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
-  //   ];
-    
-  //   const day = date.getDate();
-  //   const month = months[date.getMonth()];
-  //   const year = date.getFullYear();
-    
-  //   const formattedDate = `${day}${month}${year}`;
-    
-  //   return formattedDate;
-  // }
+  const data = await DailyContestMockUser.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $lt: new Date("2023-07-09"),
+          },
+        },
+    },
+    {
+      $lookup:
+        /**
+         * from: The target collection.
+         * localField: The local join field.
+         * foreignField: The target join field.
+         * as: The name for the results.
+         * pipeline: Optional pipeline to run on the foreign collection.
+         * let: Optional variables to use in the pipeline field stages.
+         */
+        {
+          from: "daily-contests",
+          localField: "contestId",
+          foreignField: "_id",
+          as: "result",
+        },
+    },
+    {
+      $unwind:
+        /**
+         * path: Path to the array field.
+         * includeArrayIndex: Optional name for index.
+         * preserveNullAndEmptyArrays: Optional
+         *   toggle to unwind null and empty values.
+         */
+        {
+          path: "$result",
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            trader: "$trader",
+            contestId: "$contestId",
+            payper: "$result.payoutPercentage",
+          },
+          amount: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+        },
+    },
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          user: "$_id.trader",
+          _id: 0,
+          contest: "$_id.contestId",
+          payout: {
+            $divide: [
+              {
+                $multiply: [
+                  "$amount",
+                  "$_id.payper",
+                ],
+              },
+              100,
+            ],
+          },
+          per: "$_id.payper",
+          amount: 1,
+        },
+    },
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          amount: {
+            $gt: 0,
+          },
+        },
+    },
+  ])
 
-//   const data = await 
+  for(let elem of data){
+    let contest = await DailyContest.findOne({_id: elem.contest});
+
+    for(let subelem of contest.participants){
+      if(elem.user.toString() === subelem.userId.toString()){
+        subelem.payout = elem.payout;
+        let c = await contest.save();
+        console.log(c)
+      }
+    }
+  }
   
-// });
+});
 
 router.get("/del", async (req, res) => {
   const compnay = await MarginDetailLiveCompany.deleteMany({trader: new ObjectId("6454bd032a2c3b3e4c07e057")})

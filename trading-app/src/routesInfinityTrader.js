@@ -14,6 +14,7 @@ import { GiNinjaHeroicStance } from 'react-icons/gi';
 import Funds from "./layouts/funds";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import Chart from './layouts/charts/index';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
@@ -66,6 +67,11 @@ const routes = [
     icon: <ReorderIcon/>,
     route: "/orders",
     component: <UserOrders />,
+  },
+  {
+
+    route: "/chart",
+    component: <Chart/>,
   },
   {
     type: "collapse",

@@ -160,6 +160,7 @@ import Withdrawal from "./layouts/withdrawals";
 import WalletPayment from "./layouts/walletPayment";
 
 const routes = [
+
   {
     type: "collapse",
     name: "Infinity Dashboard",
