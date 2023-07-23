@@ -125,7 +125,7 @@ function Delete(id){
     <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minWidth='100%' minHeight='auto'>
       {carouselData?.length === 0 ? 
       <MDBox minHeight='20vH' display='flex' justifyContent='center' alignItems='center'>
-          <MDTypography fontSize={15} fontWeight='bold' color='light'>No Live Carousels for StoxHero Traders</MDTypography>
+          <MDTypography fontSize={15} fontWeight='bold' color='light'>No Upcoming Carousels for StoxHero Traders</MDTypography>
       </MDBox>
 
       :

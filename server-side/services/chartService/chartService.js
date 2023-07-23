@@ -11,13 +11,13 @@ async function getMessages(io, socket){
   const incoming = async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
-    // console.log(response);
+    // console.log("history data", response);
     let userId;
     
       userId = await client.get(socket.id);
 
     if (response.MessageType === 'HistoryOHLCResult') {
-      console.log('sending response to', userId);
+      // console.log('sending response to', userId, response);
       io.to(`${userId}`).emit('HistoryOHLCResult', response);
       ws.removeListener('message', incoming);
     }
@@ -45,14 +45,6 @@ function connect(io) {
   ws.on('message', async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
-    // console.log(response);
-    // if(isRedisConnected){
-    //   userId = await client.get(socket.id);
-    // }
-
-    // if (response.MessageType === 'HistoryOHLCResult') {
-    //   io.emit('HistoryOHLCResult', response);
-    // }
     if(response.MessageType === 'RealtimeResult'){
       io.emit('RealtimeResult', response);
     }
@@ -65,7 +57,7 @@ function connect(io) {
   });
 
   ws.on('close', function close(code, reason) {
-    console.log(`WebSocket connection closed. Code: ${code}, Reason: ${reason}`);
+    // console.log(`WebSocket connection closed. Code: ${code}, Reason: ${reason}`);
     // When connection is closed, try to reconnect
     setTimeout(() => connect(io), 5000);
   });
