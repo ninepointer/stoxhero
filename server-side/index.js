@@ -133,6 +133,7 @@ getKiteCred.getAccess().then(async (data)=>{
     })
 
     socket.on('GetHistory', async(data) => {
+      // console.log(data)
       webSocketService.send(data);
       await webSocketService.getMessages(io,socket);
     });
