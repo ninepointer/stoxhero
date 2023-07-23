@@ -24,7 +24,7 @@ function Summary({summary}) {
                         <Grid item xs={12} md={4} lg={4}>
                             <MDBox bgColor='lightgrey' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                 <MDTypography minWidth='70%' fontSize={12} fontWeight="bold">Virtual Trading</MDTypography>
-                                <MDTypography minWidth='30%' fontSize={12} color={summary?.virtualData?.npnl>=0?'success':'error'} fontWeight="bold" style={{textAlign:'center'}}>{((summary?.virtualData?.npnl??0)/1000000).toFixed(2)}%</MDTypography>
+                                <MDTypography minWidth='30%' fontSize={12} color={summary?.virtualData?.npnl>=0?'success':'error'} fontWeight="bold" style={{textAlign:'center'}}>{((summary?.virtualData?.npnl??0)/10000).toFixed(2)}%</MDTypography>
                             </MDBox>
                         </Grid>
 
