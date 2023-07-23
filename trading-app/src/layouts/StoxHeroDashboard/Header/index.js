@@ -179,7 +179,7 @@ export default function Dashboard() {
                 </MDBox>
                 :
                 <MDBox>
-                 {overallRevenue[0] && <RevenuePayout overallRevenue={overallRevenue}/>}
+                 {overallRevenue["Amount Credit"] && <RevenuePayout overallRevenue={overallRevenue}/>}
                 </MDBox>
                 }
             </Grid>

@@ -1005,6 +1005,92 @@ exports.getOverallTradeInformation = async (req, res) => {
   }
 };
 
+// exports.getOverallRevenue = async (req, res) => {
+//   try {
+//     // Get start of today, yesterday, this week, last week, this month, last month, this year, last year
+//     const now = new Date();
+//     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+//     startOfToday.setUTCHours(0, 0, 0, 0);
+//     const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+//     startOfYesterday.setUTCHours(0, 0, 0, 0);
+//     const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+//     startOfThisWeek.setUTCHours(0, 0, 0, 0);
+//     const startOfLastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 7);
+//     startOfLastWeek.setUTCHours(0, 0, 0, 0);
+//     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+//     startOfThisMonth.setUTCHours(0, 0, 0, 0);
+//     const startOfLastMonth = now.getMonth() === 0 ? new Date(now.getFullYear() - 1, 11, 1) : new Date(now.getFullYear(), now.getMonth() - 1, 1);
+//     startOfLastMonth.setUTCHours(0, 0, 0, 0);
+//     const startOfThisYear = new Date(now.getFullYear(), 0, 1);
+//     startOfThisYear.setUTCHours(23, 59, 59, 999);
+//     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
+//     startOfLastYear.setUTCHours(0, 0, 0, 0);
+
+//     const pipeline = [
+//       {
+//         $unwind: "$transactions",
+//       },
+//       {
+//         $match: {
+//           "transactions.title": "Amount Credit",
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: null,
+//           totalRevenue: {
+//             $sum: "$transactions.amount",
+//           },
+//           revenueToday: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfToday] }, "$transactions.amount", 0] } },
+//           revenueYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfYesterday] }, { $lt: ["$transactions.transactionDate", startOfToday] }] }, "$transactions.amount", 0] } },
+//           revenueThisWeek: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisWeek] }, "$transactions.amount", 0] } },
+//           revenueLastWeek: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastWeek] }, { $lt: ["$transactions.transactionDate", startOfThisWeek] }] }, "$transactions.amount", 0] } },
+//           revenueThisMonth: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisMonth] }, "$transactions.amount", 0] } },
+//           revenueLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastMonth] }, { $lt: ["$transactions.transactionDate", startOfThisMonth] }] }, "$transactions.amount", 0] } },
+//           revenueThisYear: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisYear] }, "$transactions.amount", 0] } },
+//           revenueLastYear: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastYear] }, { $lt: ["$transactions.transactionDate", startOfThisYear] }] }, "$transactions.amount", 0] } }
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           title: "$_id.title",
+//           totalRevenue: 1,
+//           revenueToday: 1,
+//           revenueYesterday: 1,
+//           revenueThisWeek: 1,
+//           revenueLastWeek: 1,
+//           revenueThisMonth: 1,
+//           revenueLastMonth: 1,
+//           revenueThisYear: 1,
+//           revenueLastYear: 1
+//         },
+//       },
+//     ]
+//     ;
+
+//     const revenueDetails = await Wallet.aggregate(pipeline);
+    
+//     console.log("Revenue Details:", revenueDetails)
+
+//     const response = {
+//       status: "success",
+//       message: "Overall Revenue information fetched successfully",
+//       data: revenueDetails,
+//     };
+
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({
+//       status: "error",
+//       message: "Something went wrong",
+//       error: error.message,
+//     });
+//   }
+// };
+
+// Import necessary modules and dependencies
+
 exports.getOverallRevenue = async (req, res) => {
   try {
     // Get start of today, yesterday, this week, last week, this month, last month, this year, last year
@@ -1022,7 +1108,7 @@ exports.getOverallRevenue = async (req, res) => {
     const startOfLastMonth = now.getMonth() === 0 ? new Date(now.getFullYear() - 1, 11, 1) : new Date(now.getFullYear(), now.getMonth() - 1, 1);
     startOfLastMonth.setUTCHours(0, 0, 0, 0);
     const startOfThisYear = new Date(now.getFullYear(), 0, 1);
-    startOfThisYear.setUTCHours(23, 59, 59, 999);
+    startOfThisYear.setUTCHours(0, 0, 0, 0);
     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
     startOfLastYear.setUTCHours(0, 0, 0, 0);
 
@@ -1031,13 +1117,8 @@ exports.getOverallRevenue = async (req, res) => {
         $unwind: "$transactions",
       },
       {
-        $match: {
-          "transactions.title": "Amount Credit",
-        },
-      },
-      {
         $group: {
-          _id: null,
+          _id: "$transactions.title",
           totalRevenue: {
             $sum: "$transactions.amount",
           },
@@ -1054,7 +1135,7 @@ exports.getOverallRevenue = async (req, res) => {
       {
         $project: {
           _id: 0,
-          title: "$_id.title",
+          title: "$_id",
           totalRevenue: 1,
           revenueToday: 1,
           revenueYesterday: 1,
@@ -1066,17 +1147,22 @@ exports.getOverallRevenue = async (req, res) => {
           revenueLastYear: 1
         },
       },
-    ]
-    ;
+    ];
 
     const revenueDetails = await Wallet.aggregate(pipeline);
-    
-    console.log("Revenue Details:", revenueDetails)
+
+    const data = {};
+    revenueDetails.forEach((item) => {
+      const { title, ...revenue } = item;
+      data[title] = revenue;
+    });
+
+    console.log("Revenue Details:", data);
 
     const response = {
       status: "success",
       message: "Overall Revenue information fetched successfully",
-      data: revenueDetails,
+      data: data,
     };
 
     res.status(200).json(response);
@@ -1088,7 +1174,6 @@ exports.getOverallRevenue = async (req, res) => {
     });
   }
 };
-
 
 
 
