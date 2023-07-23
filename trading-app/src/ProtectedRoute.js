@@ -1,29 +1,24 @@
 // ProtectedRoute.js
 import React from "react";
-import { Route, Redirect, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
-const ProtectedRoute = ({ element: Element, ...rest }) => {
-    const isAuthenticated = !!Cookies.get("jwt"); // Check if JWT exists in cookies
+const ProtectedRoute = ({children }) => {
+    const isAuthenticated = !!Cookies.get("jwtoken"); // Check if JWT exists in cookies
     const navigate = useNavigate();
+    const location = useLocation();
+    console.log('token', Cookies.get("jwtoken"));
   
-    return (
-        <Route
-          {...rest}
-          render={props =>
-            isAuthenticated ? (
-              <Element {...props} />
-            ) : (
-              <navigate
-                to={{
-                  pathname: '/login',
-                  state: { from: props.location },
-                }}
-              />
-            )
-          }
-        />
-      );
+    // console.log('condition')
+    if (!isAuthenticated) {
+      setTimeout(() => {
+        navigate('/login', { state: { from: location } });
+        console.log('navigated');
+     }, 400);
+      return null;
+    }
+  
+    return children;
   };
 
 export default ProtectedRoute;

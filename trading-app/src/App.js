@@ -122,7 +122,7 @@ export default function App() {
       console.log("Fail to fetch data of user");
       noCookie = true;
       console.log(err);
-      pathname === '/contest' ? navigate("/") : pathname === '/collegecontest' ? navigate("/") : navigate(pathname);
+      // pathname === '/contest' ? navigate("/") : pathname === '/collegecontest' ? navigate("/") : navigate(pathname);
       // navigate("/")
       setIsLoading(false);
     })
@@ -177,7 +177,21 @@ export default function App() {
       }
 
       if (route.route) {
-        return <ProtectedRoute exact path={route.route} element={route.component} key={route.key} />;
+        if(route.route !== '/'){
+          return <Route exact path={route.route} 
+          element={
+            <ProtectedRoute>
+             {route.component}
+            </ProtectedRoute>
+          } 
+          key={route.key} />;
+        }else{
+          return <Route exact path={route.route} 
+          element={
+             route.component
+          } 
+          key={route.key} />;
+        }
       }
 
       return null;
