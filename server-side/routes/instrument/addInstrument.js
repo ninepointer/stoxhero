@@ -165,7 +165,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                     const isDataAlreadyExist = getInstruments.watchlistInstruments.includes(dataExist._id);
                     // console.log("in getInstruments.............", isDataAlreadyExist)
                     if (!isDataAlreadyExist) {
-                        console.log("in isDataAlreadyExist.............", isDataAlreadyExist)
+                        // console.log("in isDataAlreadyExist.............", isDataAlreadyExist)
                         getInstruments.watchlistInstruments.push(dataExist._id)
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
@@ -241,7 +241,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 maxLot: addingInstruments.maxLot,
                                 chartInstrument: addingInstruments.chartInstrument
                             }))
-                            console.log("in instrument.............", instrument)
+                            // console.log("in instrument.............", instrument)
 
 
                         } catch (err) {
@@ -252,7 +252,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                         let getInstruments = await User.findOne({ _id: _id });
                         getInstruments.watchlistInstruments.push(addingInstruments._id)
-                        console.log("instrument is", addingInstruments._id)
+                        // console.log("instrument is", addingInstruments._id)
 
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {

@@ -43,15 +43,7 @@ function Header({ e }) {
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
-
-    const initialInterestedCounts = contest.reduce((acc, elem) => {
-        acc[elem._id] = {
-            interested: false,
-            count: elem?.interestedUsers?.length || 0,
-        };
-        return acc;
-    }, {});
-    const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
+    const [isInterestedState, setIsInterestedState] = useState({});
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -125,6 +117,18 @@ function Header({ e }) {
           clearInterval(interval);
         };
     }, []);
+
+    useEffect(()=>{
+        const initialInterestedCounts = contest.reduce((acc, elem) => {
+            acc[elem._id] = {
+                interested: false,
+                count: elem?.interestedUsers?.length || 0,
+            };
+            return acc;
+        }, {});
+
+        setIsInterestedState(initialInterestedCounts);
+    }, [contest])
 
     function changeDateFormat(givenDate) {
 
@@ -201,6 +205,7 @@ function Header({ e }) {
         sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
       />
     );
+
 
     return (
         <>
