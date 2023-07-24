@@ -30,7 +30,7 @@ const CandlestickChart = ({ socket, historicalData, instrument, minuteTimeframe 
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    chartRef.current = createChart(chartContainerRef.current, { width: 1350, height: 550 });
+    chartRef.current = createChart(chartContainerRef.current, { width: 1200, height: 468 });
     candleSeriesRef.current = chartRef.current.addCandlestickSeries();
   
     // Set initial data
@@ -93,8 +93,8 @@ if (newCandle) {
   candleSeriesRef.current.setData(sortedData);
 }
 
-// style={{display:'flex', justifyContent:'center', border:'1px solid black', height: "100vh", width: "100%"}}
-  return <div  style={{width: "100%", border:'1px solid black'}} ref={chartContainerRef} />;
+
+  return <div  style={{display:'flex', justifyContent:'center', alignItems: "center", width: "1200px", height: "480px", border: "1px solid black"}} ref={chartContainerRef} />;
 };
 
 export default CandlestickChart;
