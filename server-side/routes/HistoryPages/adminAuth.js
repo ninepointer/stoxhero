@@ -38,7 +38,7 @@ const {marginDetail, tradingDays, autoExpireSubscription} = require("../../contr
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
-const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
@@ -299,9 +299,10 @@ router.get("/margin", async (req, res) => {
 });
 
 router.get("/afterContest", async (req, res) => {
-  // await autoCutMainManually();
-  // await autoCutMainManuallyMock();
-  await creditAmountToWallet();
+  await autoCutMainManually();
+  await autoCutMainManuallyMock();
+  await changeStatus();
+  await creditAmount();
   res.send("ok");
 });
 

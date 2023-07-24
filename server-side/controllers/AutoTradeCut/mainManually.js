@@ -180,7 +180,7 @@ const creditAmount = async() => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
-    const data = await Contest.find( {payoutStatus: "Active", contestStatus: "Complete"} );
+    const data = await Contest.find( {payoutStatus: null, contestStatus: "Completed"} );
 
     if(data.length !== 0){
         await creditAmountToWallet();

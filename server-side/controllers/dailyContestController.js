@@ -809,8 +809,9 @@ exports.creditAmountToWallet = async () => {
 
         // const { id } = req.params; // ID of the contest 
         // const userId = req.user._id; Wallet
-        const contest = await Contest.find({ contestStatus: "Active" });
+        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
 
+        console.log(contest.length)
         for (let j = 0; j < contest.length; j++) {
             if (contest[j].contestEndTime < new Date()) {
                 for (let i = 0; i < contest[j]?.participants?.length; i++) {
