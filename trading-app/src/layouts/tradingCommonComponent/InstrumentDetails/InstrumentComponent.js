@@ -22,9 +22,9 @@ function InstrumentComponent({chartInstrument, last_price, change, contractDate,
       <td style={{...styleTD, color: `${symbol.includes('CE') ? "green" : "red"}`}} >{instrument}</td>
       <td style={{...styleTD, color: `${(change.includes('+')) ? "green" : "red"}`}} >{last_price}</td>
       <td style={{...styleTD, color: `${(change.includes('+')) ? "green" : "red"}`}} >{change}</td>
-      {/* <td style={{...styleTD, cursor: "pointer"}} onClick={() => { window.open(`/chart?instrument=${chartInstrument}`, '_blank') }} >
+      <td style={{...styleTD, cursor: "pointer"}} onClick={() => { window.open(`/chart?instrument=${chartInstrument}`, '_blank') }} >
         <AiOutlineLineChart size={20} />
-      </td> */}
+      </td>
     </>
   );
 }

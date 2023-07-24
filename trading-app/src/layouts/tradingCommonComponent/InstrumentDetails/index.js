@@ -343,7 +343,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
                 <td style={styleTD} >INSTRUMENT</td>
                 <td style={styleTD} >LTP</td>
                 <td style={styleTD} >CHANGE(%)</td>
-                {/* <td style={styleTD} >CHART</td> */}
+                <td style={styleTD} >CHART</td>
                 <td style={styleTD} >BUY</td>
                 <td style={styleTD} >SELL</td>
                 <td style={styleTD} >REMOVE</td>

@@ -16,15 +16,15 @@ const CandlestickChart = ({ socket, historicalData, instrument, minuteTimeframe 
         }
     });
 
-      function convertLive(data) {
-        return {
-          time: data.LastTradeTime + 19800,
-          open: data.Open,
-          high: Math.max(...livePoints) ?? data.high,
-          low: Math.min(...livePoints) ?? data.low,
-          close: data.LastTradePrice,
-        };
-      }
+    function convertLive(data) {
+      return {
+        time: data.LastTradeTime + 19800,
+        open: data.Open,
+        high: Math.max(...livePoints) ?? data.high,
+        low: Math.min(...livePoints) ?? data.low,
+        close: data.LastTradePrice,
+      };
+    }
   }, [])
 
   useEffect(() => {
@@ -55,13 +55,6 @@ const CandlestickChart = ({ socket, historicalData, instrument, minuteTimeframe 
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (!candleSeriesRef.current || !historicalData) return;
-  
-  //   // Update chart with historical data
-  //   candleSeriesRef.current.setData(historicalData);
-  // }, [historicalData]);
-
   useEffect(() => {
     if (!candleSeriesRef.current || !historicalData) return;
   
@@ -73,7 +66,6 @@ const CandlestickChart = ({ socket, historicalData, instrument, minuteTimeframe 
   }, [historicalData]);
 
 
-// Merge live data with the last historical data
 // Merge live data with the last historical data
 const newCandle = liveData;
 
@@ -101,8 +93,8 @@ if (newCandle) {
   candleSeriesRef.current.setData(sortedData);
 }
 
-
-  return <div style={{display:'flex', justifyContent:'center', border:'1px solid black', height: "100vh", width: "100%"}} ref={chartContainerRef} />;
+// style={{display:'flex', justifyContent:'center', border:'1px solid black', height: "100vh", width: "100%"}}
+  return <div  style={{width: "100%", border:'1px solid black'}} ref={chartContainerRef} />;
 };
 
 export default CandlestickChart;
