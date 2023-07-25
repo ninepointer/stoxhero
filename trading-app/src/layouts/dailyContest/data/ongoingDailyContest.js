@@ -1,5 +1,5 @@
 
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, memo} from 'react'
 import Grid from "@mui/material/Grid";
 import axios from "axios";
 // Material Dashboard 2 React components
@@ -12,13 +12,13 @@ import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 
 
-const CompletedContest = ({type}) => {
+const OngoiningContest = ({type}) => {
 // const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
-const [completedContests,setCompletedContests] = useState([]);
+const [ongoingContests,setOngoiningContests] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/completedadmin`,{
+    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/ongoing`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -29,7 +29,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
     Promise.all([call1])
     .then(([api1Response]) => {
       // Process the responses here
-      setCompletedContests(api1Response.data.data)
+      setOngoiningContests(api1Response.data.data)
     })
     .catch((error) => {
       // Handle errors here
@@ -39,11 +39,11 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
   
     return (
       <>
-      {completedContests.length > 0 ?
+      {ongoingContests.length > 0 ?
         
           <MDBox>
             <Grid container spacing={2} bgColor="dark">
-              {completedContests?.map((e)=>{
+              {ongoingContests?.map((e)=>{
 
                     return (
                       
@@ -102,7 +102,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Completed Contest(s)</MDTypography>
+            <MDTypography color="light">No Ongoining Contest(s)</MDTypography>
           </Grid>
          </Grid>
          } 
@@ -112,4 +112,4 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
 
 
-export default CompletedContest;
+export default memo(OngoiningContest);

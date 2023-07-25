@@ -18,7 +18,7 @@ export default function LabTabs() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     const [isLoading, setIsLoading] = useState(false);
-    const [showPay, setShowPay] = useState(true);
+    let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
     const [contest, setContest] = useState([]);
 

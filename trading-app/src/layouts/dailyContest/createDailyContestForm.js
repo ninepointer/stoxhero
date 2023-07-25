@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -788,9 +789,10 @@ function Index() {
                 )}
                 {(isSubmitted || contest) && !editing && (
                   <>
+                  {contest?.contestStatus !== "Completed" &&
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
-                    </MDButton>
+                    </MDButton>}
                     <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/contestdashboard/dailycontest') }}>
                       Back
                     </MDButton>

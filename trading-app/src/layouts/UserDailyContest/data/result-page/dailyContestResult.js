@@ -105,7 +105,7 @@ function ContestResultPage () {
                         </Grid>
                         <Grid item xs={12} md={6} lg={11} mb={2}>
                             <MDTypography style={style} mt={1.5} color="light" display="flex" justifyContent="center">
-                                {`${contestData?.contestName} is Ended`}
+                                {`${contestData?.contestName} has Ended`}
                             </MDTypography>
                         </Grid>
                     </Grid>
