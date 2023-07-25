@@ -136,6 +136,8 @@ const Index = () => {
           ? `${instrument.split("_")[1]} ${instrument.split("_")[4]} ${instrument.split("_")[3]}`
           : instrument}
       </h2>
+      <div  style={{display:'flex',flexDirection: "column", justifyContent:'center', alignItems: "center"}}>
+        <div>
       <span style={{ fontSize: '16px', fontWeight: 'bold' }}>Time frame</span>
       <select style={{ margin: '20px', fontSize: '14px', padding: '5px', borderRadius: "2px" }} onChange={handleChange}>
         <option value={1} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 1 && period === 'MINUTE'}>
@@ -169,12 +171,15 @@ const Index = () => {
           1 day
         </option>
       </select>
+      
       <CandlestickChart
         socket={socket}
         instrument={instrument}
         historicalData={historicalData}
         minuteTimeframe={minuteTimeframe}
       />
+      </div>
+      </div>
     </div>
 
   )
