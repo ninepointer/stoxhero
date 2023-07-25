@@ -141,20 +141,22 @@ const infinityTradeLive = async (res) => {
         const processOrder = async () => {
             if (quantity == 0) {
                 return;
-            } else if (quantity > 1800) {
-                if (i === (data.length - 1)) {
+            } 
+            else if (quantity > (data[i].symbol.includes("BANK") ? 900 : 1800)) {
+                let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+                    if (i === (data.length - 1)) {
                     Obj.dontSendResp = true;
                 }
                 // console.log("in else-if", Obj.dontSendResp, i, (data.length - 1))
-                Obj.Quantity = 1800;
-                Obj.userQuantity = 1800 / algoBox.lotMultipler;
+                Obj.Quantity = tempQuantity;
+                Obj.userQuantity = tempQuantity / algoBox.lotMultipler;
                 Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
                 // console.log("before autoPlaceOrder else-if", Obj);
                 Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
 
                 await autoPlaceOrder(Obj, res);
                 //console.log("now in if", performance.now()-now, quantity);
-                quantity = quantity - 1800;
+                quantity = quantity - tempQuantity;
                 await delay(300);
                 processOrder();
             } else {
@@ -307,17 +309,20 @@ const infinityTradeLiveSingle = async (res, req) => {
         const processOrder = async () => {
             if (quantity == 0) {
                 return;
-            } else if (quantity > 1800) {
+            } 
+            else if (quantity > (data[i].symbol.includes("BANK") ? 900 : 1800)) {
+                let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+                    
                 if (i === (data.length - 1)) {
                     Obj.dontSendResp = true;
                 }
                 // console.log("in else-if", Obj.dontSendResp, i, (data.length - 1))
-                Obj.Quantity = 1800;
-                Obj.userQuantity = 1800 / algoBox.lotMultipler;
+                Obj.Quantity = tempQuantity;
+                Obj.userQuantity = tempQuantity / algoBox.lotMultipler;
                 Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
                 Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
                 await autoPlaceOrder(Obj, res);
-                quantity = quantity - 1800;
+                quantity = quantity - tempQuantity;
                 await delay(300);
                 processOrder();
             } else {

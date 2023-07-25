@@ -415,6 +415,7 @@ const autoPlaceOrder = (obj, res) => {
         singleUser,
         marginData
       } = obj;
+      console.log(obj)
       let isRedisConnected = getValue();
       isReverseTrade = false;
       let exchangeSegment;
@@ -479,7 +480,6 @@ const autoPlaceOrder = (obj, res) => {
         setTimeout(()=>{
           res.status(200).json(`ok${Math.random()}`);
         }, 1000)
-       
       }
     } catch (error) {
       reject(error);

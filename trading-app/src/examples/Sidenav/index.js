@@ -156,7 +156,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 
     return returnValue;
   });
-
+  // xs: "none", 
   return (
     <SidenavRoot
       {...rest}

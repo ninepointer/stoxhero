@@ -22,24 +22,12 @@ function TraderwiseTraderPNL({socket }) {
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
-  // const[subscriptions,setSubscription] = useState([]);
-  // const [selectedSubscription, setselectedSubscription] = useState();
-
-  // useEffect(()=>{
-  //   axios.get(`${baseUrl}api/v1/tenX/active`, {withCredentials: true})
-  //   .then((res)=>{
-  //     setSubscription(res.data.data);
-  //     setselectedSubscription(res.data.data[0]?._id)
-  //   }).catch(e => console.log(e));
-  // },[])
 
   useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
-        //console.log("live price data", res)
         setMarketData(res.data);
-        // setDetails.setMarketData(data);
     }).catch((err) => {
         return new Error(err);
     })
@@ -53,14 +41,10 @@ function TraderwiseTraderPNL({socket }) {
         });
         return Array.from(instrumentMap.values());
       });
-      // setDetails.setMarketData(data);
     })
   }, [])
 
   useEffect(()=>{
-    // if(!selectedSubscription){
-    //   return;
-    // }
     axios.get(`${baseUrl}api/v1/paperTrade/traderWisePnl`, {withCredentials: true})
     .then((res) => {
         setAllTrade(res.data.data);

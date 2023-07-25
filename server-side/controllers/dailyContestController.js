@@ -797,7 +797,6 @@ exports.verifyCollageCode = async (req, res) => {
     }
 };
 
-
 // run this function in cronjob
 exports.creditAmountToWallet = async () => {
     console.log("in wallet")

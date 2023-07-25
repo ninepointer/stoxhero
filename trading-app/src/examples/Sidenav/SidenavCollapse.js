@@ -38,6 +38,7 @@ function SidenavCollapse({ icon, name, active, ...rest }) {
             sidenavColor,
           })
         }
+
       >
         <ListItemIcon
           sx={(theme) =>
@@ -61,6 +62,7 @@ function SidenavCollapse({ icon, name, active, ...rest }) {
               active,
             })
           }
+          // style={{color: "white", marginTop: "2px", marginBottom: "20px"}}
         />
       </MDBox>
     </ListItem>
