@@ -25,7 +25,7 @@ const CandlestickChart = ({ socket, historicalData, instrument, minuteTimeframe 
         close: data.LastTradePrice,
       };
     }
-  }, [])
+  }, [minuteTimeframe])
 
   useEffect(() => {
     if (!chartContainerRef.current) return;

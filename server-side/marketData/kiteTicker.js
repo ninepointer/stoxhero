@@ -203,13 +203,16 @@ const getTicksForUserPosition = async (socket, id) => {
             instrumentTokenArr.add(obj.exchangeInstrumentToken);
           });
         } else {
-          // console.log("in else part")
-          const user = await User.findById(new ObjectId(id))
+          console.log("in else part")
+          // console.log("id and userid", id, userId)
+          const user = await User.findById({_id: new ObjectId(id)})
             .populate('watchlistInstruments')
 
+            console.log("watchlistInstruments", user.watchlistInstruments)
           userId = user._id;
+          instrumentTokenArr = [];
           for (let i = 0; i < user.watchlistInstruments.length; i++) {
-            instrumentTokenArr = [];
+            
             instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
             instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
 
@@ -217,7 +220,7 @@ const getTicksForUserPosition = async (socket, id) => {
           instrumentTokenArr = new Set(instrumentTokenArr)
         }
 
-        // console.log("this is getter2", getValue());
+        console.log("this is instrumentTokenArr", instrumentTokenArr);
         // let userId = await client.get(socket.id)
         // let instruments = await client.SMEMBERS(userId)
         // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
