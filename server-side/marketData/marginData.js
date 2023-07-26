@@ -457,7 +457,6 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
                 amountPrev = amountPrev + elem.amount;
                 quantityPrev = quantityPrev + elem.quantity;
             }
-            // console.log("previousData previousDataForAvgPrice", previousData, previousDataForAvgPrice)
             avg_price = (Math.abs(amountPrev) + Math.abs(previousData[0]?.amount))/(Math.abs(quantityPrev) + Math.abs(previousData[0]?.quantity))
         }
     }
@@ -527,11 +526,6 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
             }
         }
     }
-
-    // console.log("insertMarginData", {
-    //     trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
-    //     open_lots: realQuantity + runningLots, amount: ltp * Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
-    // })
 
 
     const insertMarginData = await InfinityMockCompanyMargin.create({

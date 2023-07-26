@@ -11,22 +11,22 @@ async function getMessages(io, socket){
   const incoming = async function incoming(data) {
     // console.log(data);
     const response = JSON.parse(data);
-    // console.log("history data", response.Request, response.MessageType);
+    // console.log("history data", response?.Request?.InstrumentIdentifier, response.InstrumentIdentifier, response);
     let userId;
     
       userId = await client.get(socket.id);
+      let instrument = await client.get(`${userId}${response?.Request?.InstrumentIdentifier}:chartsId`);
 
     if (response.MessageType === 'HistoryOHLCResult') {
-      // console.log('sending response to', userId, response);
       const convertedData = convertData(response.Result.reverse())
       const uniqueData = removeDuplicates(convertedData, "time");
-      // console.log("uniqueData", `${userId}${response.Request.InstrumentIdentifier}`)
-      io.to(`${userId}${response.InstrumentIdentifier}`).emit('HistoryOHLCResult', uniqueData);
+      io.to(`${userId}${instrument}`).emit('HistoryOHLCResult', uniqueData);
+      // io.to(`${userId}`).emit('HistoryOHLCResult', uniqueData);
       ws.removeListener('message', incoming);
     }
     if(response.MessageType === 'RealtimeResult'){
-      // console.log("response", response.InstrumentIdentifier, userId)
       io.to(`${userId}${response.InstrumentIdentifier}`).emit('RealtimeResult', response);
+      // io.to(`${userId}`).emit('RealtimeResult', response);
     }
   }
   ws.on('message', incoming);

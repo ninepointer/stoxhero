@@ -125,14 +125,16 @@ getKiteCred.getAccess().then(async (data)=>{
     })
 
     socket.on('chart-room', async (data) => {
-      const {userId, instrument} = data;
-      console.log("data", data)
-      socket.join(`${userId}${instrument}`)
-      // await client.set(socket.id, data);
+      const {userId, instruemnt} = data;
+      // console.log("data", userId, instruemnt, data)
+      if(userId && instruemnt){
+        await client.set(`${userId}${instruemnt}:chartsId`, instruemnt);
+        socket.join(`${userId}${instruemnt}`)
+      }
     })
 
     socket.on('dailyContestLeaderboard', async (data) => {
-      let {id, employeeId, userId} = data;
+      let {id, userId} = data;
       socket.join(`${id}`)
       socket.join(`${id}${userId}`)
       await client.set(`dailyContestData:${userId}`, JSON.stringify(data));

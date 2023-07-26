@@ -72,8 +72,9 @@ const newCandle = liveData;
 if (newCandle) {
   const lastCandle = historicalData[historicalData.length - 1];
 
-  const updatedTime = lastCandle?.time + minuteTimeframe * 60;
+  const updatedTime = historicalData[historicalData.length - 1]?.time + minuteTimeframe * 60;
 
+  console.log("updatedTime", updatedTime, minuteTimeframe)
   const updatedLastCandle = {
     ...lastCandle,
     time: updatedTime,

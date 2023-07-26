@@ -50,7 +50,9 @@ const xtsMarketLogin = async ()=>{
           // console.log("joinedData", joinedData);
         });
   
-        await save(logIn?.result?.userID, logIn?.result?.token, "Market")
+        if(process.env.PROD === "true"){
+          await save(logIn?.result?.userID, logIn?.result?.token, "Market")
+        }
       
     })();
     } catch(err){

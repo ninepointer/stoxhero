@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 
 
 const Index = () => {
-  const [response, setResponse] = useState("");
+  // const [response, setResponse] = useState("");
   const getDetails = useContext(userContext);
   const location = useLocation();
   console.log('location', location.search);
@@ -21,8 +21,6 @@ const Index = () => {
 
   const socket = io.connect(socketUrl);
   useEffect(() => {
-    
-
     socket.on('connect', () => {
       socket.emit('userId', getDetails.userDetails._id);
       socket.emit('chart-room', {userId: getDetails.userDetails._id, instruemnt: instrument});
@@ -40,7 +38,7 @@ const Index = () => {
     });
 
     const getHistory = () => {
-      console.log('calling getHistory', period, timeFrame);
+      // console.log('calling getHistory', period, timeFrame);
       socket.emit('GetHistory', {
         MessageType: 'GetHistory',
         Exchange: 'NFO',
@@ -126,49 +124,49 @@ const Index = () => {
           ? `${instrument.split("_")[1]} ${instrument.split("_")[4]} ${instrument.split("_")[3]}`
           : instrument}
       </h2>
-      <div  style={{display:'flex',flexDirection: "column", justifyContent:'center', alignItems: "center"}}>
+      <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: "center" }}>
         <div>
-      <span style={{ fontSize: '16px', fontWeight: 'bold' }}>Time frame</span>
-      <select style={{ margin: '20px', fontSize: '14px', padding: '5px', borderRadius: "2px" }} onChange={handleChange}>
-        <option value={1} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 1 && period === 'MINUTE'}>
-          1 minute
-        </option>
-        <option value={2} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 2 && period === 'MINUTE'}>
-          2 minutes
-        </option>
-        <option value={3} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 3 && period === 'MINUTE'}>
-          3 minutes
-        </option>
-        <option value={4} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 4 && period === 'MINUTE'}>
-          4 minutes
-        </option>
-        <option value={5} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 5 && period === 'MINUTE'}>
-          5 minutes
-        </option>
-        <option value={15} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 15 && period === 'MINUTE'}>
-          15 minutes
-        </option>
-        <option value={30} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 30 && period === 'MINUTE'}>
-          30 minutes
-        </option>
-        <option value={60} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 1 && period === 'HOUR'}>
-          1 hour
-        </option>
-        <option value={240} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 4 && period === 'HOUR'}>
-          4 hours
-        </option>
-        <option value={1440} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 1 && period === 'DAY'}>
-          1 day
-        </option>
-      </select>
-      
-      <CandlestickChart
-        socket={socket}
-        instrument={instrument}
-        historicalData={historicalData}
-        minuteTimeframe={minuteTimeframe}
-      />
-      </div>
+          <span style={{ fontSize: '16px', fontWeight: 'bold' }}>Time frame</span>
+          <select style={{ margin: '20px', fontSize: '14px', padding: '5px', borderRadius: "2px" }} onChange={handleChange}>
+            <option value={1} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 1 && period === 'MINUTE'}>
+              1 minute
+            </option>
+            <option value={2} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 2 && period === 'MINUTE'}>
+              2 minutes
+            </option>
+            <option value={3} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 3 && period === 'MINUTE'}>
+              3 minutes
+            </option>
+            <option value={4} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 4 && period === 'MINUTE'}>
+              4 minutes
+            </option>
+            <option value={5} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 5 && period === 'MINUTE'}>
+              5 minutes
+            </option>
+            <option value={15} style={{ backgroundColor: '#f0f0f0', color: "#2C2C2C" }} selected={timeFrame === 15 && period === 'MINUTE'}>
+              15 minutes
+            </option>
+            <option value={30} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 30 && period === 'MINUTE'}>
+              30 minutes
+            </option>
+            <option value={60} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 1 && period === 'HOUR'}>
+              1 hour
+            </option>
+            <option value={240} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 4 && period === 'HOUR'}>
+              4 hours
+            </option>
+            <option value={1440} style={{ backgroundColor: '#f0f0f0' }} selected={timeFrame === 1 && period === 'DAY'}>
+              1 day
+            </option>
+          </select>
+
+          <CandlestickChart
+            socket={socket}
+            instrument={instrument}
+            historicalData={historicalData}
+            minuteTimeframe={minuteTimeframe}
+          />
+        </div>
       </div>
     </div>
 

@@ -7,9 +7,9 @@ import {CircularProgress, Tooltip} from '@mui/material';
 import {useState, useEffect} from 'react';
 import axios from "axios";
 // import EditIcon from '@mui/icons-material/Edit';
-import { Link} from "react-router-dom";
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import DeleteIcon from '@mui/icons-material/Delete';
+// import { Link} from "react-router-dom";
+// import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+// import DeleteIcon from '@mui/icons-material/Delete';
 import CarouselBox from './liveCarouselBox';
 
 const LiveCarousels = () => {
@@ -77,7 +77,7 @@ function nextHandler(){
   if(skip+limitSetting >= count){ 
     return;
   }
-  console.log("inside next handler")
+  // console.log("inside next handler")
   setSkip(prev => prev+limitSetting);
   setCarouselData([]);
   setIsLoading(true)
@@ -101,25 +101,25 @@ function nextHandler(){
   })
 }
 
-function Delete(id){
-  console.log(id)
-  axios.get(`${baseUrl}api/v1/carousels/delete/${id}`,{
-    withCredentials: true,
-    headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-    },
-  })
-  .then((res) => {
-      setTimeout(()=>{
-          setIsLoading(false)
-        },500)
-  }).catch((err) => {
-      setIsLoading(false)
-      return new Error(err);
-  })
-}
+// function Delete(id){
+//   console.log(id)
+//   axios.get(`${baseUrl}api/v1/carousels/delete/${id}`,{
+//     withCredentials: true,
+//     headers: {
+//         Accept: "application/json",
+//         "Content-Type": "application/json",
+//         "Access-Control-Allow-Credentials": true
+//     },
+//   })
+//   .then((res) => {
+//       setTimeout(()=>{
+//           setIsLoading(false)
+//         },500)
+//   }).catch((err) => {
+//       setIsLoading(false)
+//       return new Error(err);
+//   })
+// }
 
   return (
     <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minWidth='100%' minHeight='auto'>
