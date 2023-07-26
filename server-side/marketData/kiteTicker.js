@@ -202,28 +202,28 @@ const getTicksForUserPosition = async (socket, id) => {
             instrumentTokenArr.add(obj.instrumentToken);
             instrumentTokenArr.add(obj.exchangeInstrumentToken);
           });
+
+          // console.log("this is instrumentTokenArr");
         } else {
-          console.log("in else part")
-          // console.log("id and userid", id, userId)
           const user = await User.findById({_id: new ObjectId(id)})
             .populate('watchlistInstruments')
 
-            console.log("watchlistInstruments", user.watchlistInstruments)
           userId = user._id;
           instrumentTokenArr = [];
           for (let i = 0; i < user.watchlistInstruments.length; i++) {
             
             instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
             instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
+            let obj = {
+              instrumentToken: user.watchlistInstruments[i].instrumentToken,
+              exchangeInstrumentToken: user.watchlistInstruments[i].exchangeInstrumentToken
+            }
+            const newredisClient = await client.SADD((user._id).toString(), JSON.stringify(obj));
 
           }
           instrumentTokenArr = new Set(instrumentTokenArr)
         }
 
-        console.log("this is instrumentTokenArr", instrumentTokenArr);
-        // let userId = await client.get(socket.id)
-        // let instruments = await client.SMEMBERS(userId)
-        // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
         let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
         if (indexData?.length > 0) {
           socket.emit('index-tick', indexData)
@@ -243,8 +243,6 @@ const getTicksForUserPosition = async (socket, id) => {
       } catch (err) {
         // console.log(err)
       }
-
-
     });
   } catch (e) {
     console.log(e)
@@ -364,6 +362,3 @@ const onOrderUpdate = ()=>{
 
 const getTicker = () => ticker;
 module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken, getTicksForContest, getTicksForUserPosition, getDummyTicks, getTicksForCompanySide };
-
-
-

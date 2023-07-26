@@ -98,4 +98,3 @@ if (newCandle) {
 };
 
 export default CandlestickChart;
-

@@ -25,29 +25,19 @@ const Index = () => {
 
     socket.on('connect', () => {
       socket.emit('userId', getDetails.userDetails._id);
+      socket.emit('chart-room', {userId: getDetails.userDetails._id, instruemnt: instrument});
+
       getHistory(); // Get the history right after establishing the WebSocket connection
       getLive();
     });
 
     socket.on('HistoryOHLCResult', data => {
       // Convert and set the historical data
-      console.log('setting historical data', data.length);
+      // console.log('setting historical data', data.length);
       setLivePoints([]);
-      setHistoricalData(convertData(data.Result.reverse()));
+      setHistoricalData(data);
       // console.log('history', convertData(data.Result));
     });
-
-
-    // Function to convert the data format to what the chart expects
-    function convertData(data) {
-      return data.map(item => ({
-        time: item.LastTradeTime + 19800,
-        open: item.Open,
-        high: item.High,
-        low: item.Low,
-        close: item.Close,
-      }));
-    }
 
     const getHistory = () => {
       console.log('calling getHistory', period, timeFrame);
@@ -60,7 +50,7 @@ const Index = () => {
       });
     }
 
-    console.log("period", period, timeFrame)
+    // console.log("period", period, timeFrame)
     const getLive = () => {
       socket.emit('SubscribeRealtime', {
         MessageType: 'SubscribeRealtime',
@@ -107,7 +97,7 @@ const Index = () => {
       return () => clearInterval(intervalId);
     }, nextMark - now);
 
-    console.log('nextMark', nextMark);
+    // console.log('nextMark', nextMark);
 
     return () => {
       clearTimeout(timeoutId);
