@@ -15,10 +15,13 @@ function collapseItem(theme, ownerState) {
       (transparentSidenav && !darkMode && !active) || (whiteSidenav && !active)
         ? dark.main
         : white.main,
+
+    // width: "100%",
+    width: 90,
     display: "flex",
     alignItems: "center",
-    width: "100%",
-    padding: `${pxToRem(8)} ${pxToRem(10)}`,
+    justifyContent: "center",
+    // padding: `${pxToRem(8)} ${pxToRem(10)}`,
     margin: `${pxToRem(1.5)} ${pxToRem(16)}`,
     borderRadius: borderRadius.md,
     cursor: "pointer",

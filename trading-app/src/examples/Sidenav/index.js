@@ -57,7 +57,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
   const navigate = useNavigate();
-  async function goOut(){
+  async function goOut() {
     await axios.get(`${baseUrl}api/v1/logout`, {
       withCredentials: true,
       // headers: {
@@ -65,7 +65,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       //     "Content-Type": "application/json",
       //     "Access-Control-Allow-Credentials": true
       // },
-  });
+    });
     navigate("/");
     getDetails.setUserDetail('');
   }
@@ -94,10 +94,10 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
     let returnValue;
 
-    if (type === "collapse" ) {
-      if(key=="internship" && batchInfo.length == 0){
+    if (type === "collapse") {
+      if (key == "internship" && batchInfo.length == 0) {
         // console.log("in route if", key)
-      } else{
+      } else {
         // console.log("in route else", key, batchInfo.length)
         returnValue = href ? (
           <Link
@@ -105,7 +105,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             key={key}
             target="_blank"
             rel="noreferrer"
-            sx={{ textDecoration: "none" }}
+            sx={{ textDecoration: "none", width: 120 }}
           >
             <SidenavCollapse
               name={name}
@@ -115,12 +115,12 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             />
           </Link>
         ) : (
-          <NavLink key={key} to={route}>
-            <SidenavCollapse 
-              name={name} 
-              icon={icon} 
-              active={key === collapseName} 
-              />
+          <NavLink key={key} to={route} sx={{ textDecoration: "none", width: 120 }}>
+            <SidenavCollapse
+              name={name}
+              icon={icon}
+              active={key === collapseName}
+            />
           </NavLink>
         );
       }
@@ -156,14 +156,23 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 
     return returnValue;
   });
-  // xs: "none", 
+  // xs: "none",  , xl: "none"
+
   return (
     <SidenavRoot
       {...rest}
       variant="permanent"
       ownerState={{ transparentSidenav, whiteSidenav, miniSidenav, darkMode }}
     >
-      <MDBox pt={3} pb={1} px={4} textAlign="center">
+      <MDBox
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+      <MDBox pt={3} pb={1} textAlign="center">
         <MDBox
           display={{ xs: "block", xl: "none" }}
           position="absolute"
@@ -177,26 +186,41 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             <CloseIcon sx={{ fontWeight: "bold" }}></CloseIcon>
           </MDTypography>
         </MDBox>
-        <MDBox component={NavLink} to="/" display="flex" ml={4} alignItems="center">
-          {brand && <MDBox mr={0.5} component="img" src={brand} alt="Brand" width="2rem" borderRadius="4rem" />}
-          <MDBox
+        <MDBox component={NavLink} to="/" display="flex" alignItems="center">
+          {brand && <MDBox component="img" src={brand} alt="Brand" width="4rem" borderRadius="4rem" />}
+          {/* <MDBox
             width={!brandName && "100%"}
             sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}
           >
             <MDTypography component="h6" variant="button" fontWeight="medium" color={textColor}>
               {brandName}
             </MDTypography>
-          </MDBox>
+          </MDBox> */}
         </MDBox>
       </MDBox>
       <Divider
         light={
-          (!darkMode && !whiteSidenav && !transparentSidenav) ||
-          (darkMode && !transparentSidenav && whiteSidenav)
+          (!true && !false && !false) ||
+          (true && !false && false)
         }
+        // light={!true}
+        // color="white"
+        // border="1px solid white"
+        // width="100px"
+        // borderWidth="100px"
       />
-      <List>{renderRoutes}</List>
-      <MDBox p={2} mt="auto">
+      <List
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          
+        }}
+      >
+        {renderRoutes}
+      </List>
+      <MDBox  mt="auto" mb={1}>
         <MDButton
           component="a"
           target="_blank"
@@ -206,8 +230,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           fullWidth
           onClick={goOut}
         >
-          <Logout/>
+          <Logout />
         </MDButton>
+      </MDBox>
       </MDBox>
     </SidenavRoot>
   );

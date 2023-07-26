@@ -278,13 +278,10 @@ export default function App() {
               onMouseLeave={handleOnMouseLeave}
             />
           }
-
             <Configurator />
-            {/* {configsButton} */}
           </>
         )}
         {layout === "infinitydashboard" && <Configurator />}
-        {/* {layout === "analytics" && <Configurator />} */}
         <Routes>
         {(detailUser.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === adminRole) 
         ? getRoutes(routes) : (detailUser.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === InfinityTraderRole) 

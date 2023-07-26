@@ -132,7 +132,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Virtual Trading",
+    name: "Virtual",
     key: "virtualtrading",
     icon: <MilitaryTechIcon/>,
     route: "/virtualtrading",
@@ -148,7 +148,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "College Contest",
+    name: "College",
     key: "collegecontest",
     // 
     icon: <SchoolIcon/>,
@@ -157,7 +157,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "TenX Trading",
+    name: "TenX",
     key: "tenxtrading",
     icon: <CurrencyRupeeIcon/>,
     route: "/tenxtrading",
@@ -165,7 +165,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Internship/WorkShop",
+    name: "Internship",
     key: "internship",
     icon: <MenuBookIcon/>,
     route: "/internship",
@@ -235,7 +235,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Contest Scoreboard",
+    name: "Scorecard",
     key: "contestscoreboard",
     icon: <EmojiEventsIcon/>,
     route: "/contestscoreboard",

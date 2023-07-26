@@ -121,8 +121,14 @@ getKiteCred.getAccess().then(async (data)=>{
     // console.log(socket.id, "socket id") 
     socket.on('userId', async (data) => {
       socket.join(`${data}`)
-      // console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
+    })
+
+    socket.on('chart-room', async (data) => {
+      const {userId, instrument} = data;
+      console.log("data", data)
+      socket.join(`${userId}${instrument}`)
+      // await client.set(socket.id, data);
     })
 
     socket.on('dailyContestLeaderboard', async (data) => {
