@@ -27,6 +27,7 @@ import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
 import { Typography } from '@mui/material';
+import Renew from './renew/renew';
 
 
 
@@ -102,9 +103,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
     }
   }, [updatedUser])
 
-  const handleCopy = () => {
-    openSuccessSB('success', 'Text copied.');
-  }
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -218,17 +217,19 @@ export default function Dialogue({amount, name, id, walletCash}) {
    
     <>
         {isSubscribed ?
-        <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDBox display='flex' justifyContent='center' alignItems='center' gap='2px'>
+          <MDButton variant="contained" color="dark" sx={{width: "50px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+          <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>
         </MDBox>
         :
         messege.thanksMessege ?
-        <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDBox display='flex' justifyContent='center' alignItems='center' gap='2px'>
+          <MDButton variant="contained" color="dark" sx={{width: "50px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+          <Renew amount={amount} name={name} id={id} walletCash={walletCash} />
         </MDBox>
         :
         <MDBox>
-        <MDButton variant="contained" color="dark" onClick={captureIntent} size='small'>Unlock</MDButton>
+        <MDButton variant="contained" color="dark" sx={{fontSize: "10px"}} onClick={captureIntent} size='small'>Unlock</MDButton>
         </MDBox>}
 
         <Dialog
@@ -282,22 +283,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
                 </MDBox>
               </DialogContentText>
-
-              {/* <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={4} >
-                <MDBox onClick={() => { buySubscription() }} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid blue" } }} >
-
-                  <MDBox display="flex" justifyContent="center">
-                    <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
-                    <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#000", marginRight: "4px" }} />
-                    <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#000" > {`₹${walletCash.toFixed(2)}`}</Typography>
-                  </MDBox>
-                  
-                  <MDBox>
-                    <ArrowForwardIosIcon sx={{ mt: "8px", color: "#000", marginRight: "5px", marginLeft: "5px" }} />
-                  </MDBox>
-
-                </MDBox>
-              </MDBox> */}
             </>
           }
 
@@ -317,38 +302,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
                     </MDBox>
 
                   </MDBox>
-
-
-                      {/* {(walletCash < amount) &&
-                      <MDBox border="1px solid red" borderRadius="10px" mt={5} p={1}>
-
-                      <MDBox>
-                      <MDBox display="flex" flexDirection="column" textAlign="center" justifyContent="center" sx={{width:{xs:"95%"}}} >
-
-                        <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >Your wallet balance is low kindly refer more users on this platform to buy this subscription.</Typography>
-                        <MDBox display='flex' 
-                            alignItems='center' justifyContent='center'
-
-                            style={{
-                                padding: '10px',
-                                borderRadius: '10px'
-                            }}
-                        >
-                        <MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
-                        <MDButton variant='text' color='black' padding={0} margin={0} >
-                            <CopyToClipboard text = {copyText} onCopy={handleCopy}>
-                                <BiCopy/>
-                            </CopyToClipboard>
-                        </MDButton>
-                        </MDBox>
-                    
-                      </MDBox>
-                      </MDBox>
-                
-                   </MDBox>
-                    
-                    } */}
-
 
                 </MDBox>
               </>
