@@ -980,6 +980,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
     }
     
+    
     const companyDoc = {
       appOrderId: AppOrderID, order_id: order_id,
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,

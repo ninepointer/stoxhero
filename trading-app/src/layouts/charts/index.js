@@ -31,7 +31,7 @@ const Index = () => {
 
     socket.on('HistoryOHLCResult', data => {
       // Convert and set the historical data
-      // console.log('setting historical data', data.length);
+      console.log('setting historical data', data);
       setLivePoints([]);
       setHistoricalData(data);
       // console.log('history', convertData(data.Result));
@@ -43,6 +43,8 @@ const Index = () => {
         MessageType: 'GetHistory',
         Exchange: 'NFO',
         InstrumentIdentifier: instrument,
+        // Periodicity: "MINUTE",
+        // Period: 240,
         Periodicity: period,
         Period: timeFrame,
       });

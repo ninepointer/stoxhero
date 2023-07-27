@@ -1064,13 +1064,13 @@ exports.updateUserWallet = async () => {
   try{
 
     let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
   
+    console.log("todayDate", todayDate)
   
     const internship = await Careers.aggregate([
       {
         $match:
-    
           {
             listingType: "Job",
           },
@@ -1138,7 +1138,7 @@ exports.updateUserWallet = async () => {
     const users = internship[0].users;
     const batchId = internship[0].batchId;
     const holiday = await Holiday.find({holidayDate: {$gte: internship[0].startDate, $lte: internship[0].endDate}});
-    const user = await User.findOne({_id: new ObjectId(userId)});
+    
 
     const tradingDays = async (userId, batchId)=>{
       const pipeline = 
@@ -1238,20 +1238,24 @@ exports.updateUserWallet = async () => {
       return workingDays;
     }
     
-    const referrals = async(userId)=>{
+    const referrals = async(user)=>{
+      
       return user?.referrals?.length;
     }
   
   
     for(let i = 0; i < users.length; i++){
+      const user = await User.findOne({_id: new ObjectId(users[i].user)});
       const tradingdays = await tradingDays(users[i].user, batchId);
       const attendance = tradingdays*100/workingDays-holiday.length;
-      const referral = await referrals(users[i].user);
+      const referral = await referrals(user);
       const npnl = await pnl(users[i].user, batchId);
       const creditAmount = npnl*payoutPercentage/100;
   
       const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
   
+      // console.log(attendance >= attendanceLimit && referral >= referralLimit && npnl > 0, attendance, attendanceLimit, referral, referralLimit, npnl, users[i].user);
+
       if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
         wallet.transactions = [...wallet.transactions, {
           title: 'Internship Payout',
@@ -1548,12 +1552,9 @@ exports.updateUserWallet = async () => {
         }
       }
     }
-  
-
   } catch(err){
     console.log(err);
   }
-
 }
 
 exports.getDailyInternshipUsers = async (req, res) => {
