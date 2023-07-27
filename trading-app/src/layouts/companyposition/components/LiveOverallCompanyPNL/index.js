@@ -23,17 +23,13 @@ function LiveOverallCompantPNL({socket}) {
   const { columns, rows } = data();
   const [menu, setMenu] = useState(null);
 
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
+  // const openMenu = ({ currentTarget }) => setMenu(currentTarget);
   const closeMenu = () => setMenu(null);
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // let date = new Date();
   let totalTransactionCost = 0;
-  // const [overallPnlArr, setOverallPnlArr] = useState([]);
-  // const [liveDetail, setLiveDetail] = useState([]);
-  // const [avgPrice, setAvgPrice] = useState([]);
   const [marketData, setMarketData] = useState([]);
-  // const [instrumentData, setInstrumentData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const [trackEvent, setTrackEvent] = useState({});
 
