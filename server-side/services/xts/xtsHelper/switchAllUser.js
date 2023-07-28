@@ -1,13 +1,9 @@
-
-
 const InfinityLiveTradeCompany = require("../../../models/TradeDetails/liveTradeSchema");
 const Algo = require("../../../models/AlgoBox/tradingAlgoSchema")
 const User = require("../../../models/User/userDetailSchema");
 const Setting = require("../../../models/settings/setting");
-
 const { autoPlaceOrder } = require("../xtsInteractive");
 const { ObjectId } = require("mongodb");
-
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 const infinityTradeLive = async (res) => {
@@ -257,9 +253,7 @@ const infinityTradeLiveSingle = async (res, req) => {
         ]
     );
 
-    // console.log(data)
     for (let i = 0; i < data.length; i++) {
-        // console.log("value of i", i)
         let date = new Date();
         let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
         let quantity = Math.abs(data[i].runningLots);
