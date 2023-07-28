@@ -921,7 +921,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-07-16T00:00:00.000+00:00"
+  let expiryDate = "2023-07-27T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
@@ -935,6 +935,8 @@ router.get("/updateInstrumentStatus", async (req, res)=>{
     {contractDate: {$lte: expiryDate}, status: "Active"},
     { $set: { status: "Inactive" } }
   )
+
+  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
   res.send({message: "updated", data: instrument})
 })
 

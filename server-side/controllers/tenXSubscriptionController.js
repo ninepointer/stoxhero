@@ -384,7 +384,7 @@ exports.renewSubscription = async(req, res, next)=>{
           </html>
 
       `
-      // emailService(recipientString,subject,message);
+      emailService(recipientString,subject,message);
       console.log("Subscription Email Sent")
       
       res.status(201).json({status: 'success', message: 'Subscription renewed successfully.'});    
