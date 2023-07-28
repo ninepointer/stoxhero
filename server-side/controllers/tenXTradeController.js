@@ -99,8 +99,6 @@ exports.overallPnl = async (req, res, next) => {
 
 exports.myTodaysTrade = async (req, res, next) => {
 
-  // const id = req.params.id
-  //   const subscriptionId = req.params.id;
   const userId = req.user._id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -169,88 +167,6 @@ exports.marginDetail = async (req, res, next) => {
       res.status(201).json({ message: "pnl received", data: marginDetail });
 
     } else {
-
-      // const subscription = await Subscription.aggregate([
-      //   {
-      //     $match: {
-      //       _id: new ObjectId(subscriptionId),
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "user-portfolios",
-      //       localField: "portfolio",
-      //       foreignField: "_id",
-      //       as: "portfolioData",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "tenx-trade-users",
-      //       localField: "_id",
-      //       foreignField: "subscriptionId",
-      //       as: "trades",
-      //     },
-      //   },
-      //   {
-      //     $unwind:
-      //     {
-      //       path: "$trades",
-      //       includeArrayIndex: "string",
-      //     },
-      //   },
-      //   {
-      //     $match: {
-      //       "trades.trade_time": { $lt: today },
-      //       "trades.status": "COMPLETE",
-      //       "trades.trader": new ObjectId(req.user._id)
-      //     },
-      //   },
-      //   {
-      //     $group:
-  
-      //     {
-      //       _id: {
-      //         subscriptionId: "$_id",
-      //         totalFund: {
-      //           $arrayElemAt: [
-      //             "$portfolioData.portfolioValue",
-      //             0,
-      //           ],
-      //         },
-      //       },
-      //       totalAmount: {
-      //         $sum: {
-      //           $multiply: ["$trades.amount", -1],
-      //         }
-      //       },
-      //       totalBrokerage: {
-      //         $sum: "$trades.brokerage",
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $project:
-  
-      //     {
-      //       _id: 0,
-      //       subscriptionId: "$_id.subscriptionId",
-      //       totalFund: "$_id.totalFund",
-      //       npnl: {
-      //         $subtract: [
-      //           "$totalAmount",
-      //           "$totalBrokerage",
-      //         ],
-      //       },
-      //       openingBalance: {
-      //         $sum: [
-      //           "$_id.totalFund",
-      //           { $subtract: ["$totalAmount", "$totalBrokerage"] }
-      //         ]
-      //       }
-      //     },
-      //   },
-      // ])
 
       const subscription = await Subscription.aggregate([
         {
@@ -802,7 +718,7 @@ exports.autoExpireSubscription = async () => {
           for (let k = Subslen - 1; k >= 0; k--) {
             if (subs.users[k].userId?.toString() === userId?.toString()) {
               subs.users[k].status = "Expired";
-              user.users[k].expiredOn = new Date();
+              subs.users[k].expiredOn = new Date();
               console.log("this is subs", subs)
               await subs.save();
               break;
@@ -1424,8 +1340,6 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
 
   res.status(201).json({ message: "data received", data: x });
 }
-
-
 
 exports.getDailyTenXUsers = async (req, res) => {
   try {

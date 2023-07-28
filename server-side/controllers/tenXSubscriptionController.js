@@ -1,5 +1,12 @@
 const TenXSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
 const TenXPurchaseIntent = require("../models/TenXSubscription/TenXPurchaseIntentSchema");
+const { ObjectId } = require("mongodb");
+const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
+const User = require("../models/User/userDetailSchema");
+const Wallet = require("../models/UserWallet/userWalletSchema");
+const uuid = require('uuid');
+const {client, getValue} = require("../marketData/redisClient");
+const emailService = require("../utils/emailService")
 
 
 const filterObj = (obj, ...allowedFields) => {
@@ -183,6 +190,204 @@ exports.getProSubscription = async(req, res, next)=>{
       const tenXSubs = await TenXSubscription.findOne({plan_name: "Pro"})
       
       res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs?.users?.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.renewSubscription = async(req, res, next)=>{
+  let isRedisConnected = getValue();
+  const userId = req.user._id;
+  const {subscriptionAmount, subscriptionName, subscriptionId} = req.body
+  const today = new Date();
+  try{
+      const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
+
+      const users = tenXSubs.users;
+      const Subslen = tenXSubs.users.length;
+      // const payoutPercentage = 10;
+      for (let j = 0; j < users.length; j++) {
+        if(users[j].userId.toString() === userId.toString()){
+          const status = users[j].status;
+          const subscribedOn = users[j].subscribedOn;
+
+          if(status === "Live"){
+            console.log(new Date(subscribedOn))
+  
+            const user = await User.findOne({ _id: new ObjectId(userId) });
+            let len = user.subscription.length;
+            
+            for (let k = len - 1; k >= 0; k--) {
+              if (user.subscription[k].subscriptionId?.toString() === tenXSubs._id?.toString()) {
+                user.subscription[k].status = "Expired";
+                user.subscription[k].expiredOn = new Date();
+                console.log("this is user", user)
+                await user.save();
+                break;
+              }
+            }
+            
+            for (let k = Subslen - 1; k >= 0; k--) {
+              if (tenXSubs.users[k].userId?.toString() === userId?.toString()) {
+                tenXSubs.users[k].status = "Expired";
+                tenXSubs.users[k].expiredOn = new Date();
+                console.log("this is tenXSubs", tenXSubs)
+                await tenXSubs.save();
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      console.log("all three", subscriptionAmount, subscriptionName, subscriptionId)
+        
+      for(let i = 0; i < tenXSubs.users.length; i++){
+          if(tenXSubs.users[i].userId.toString() == userId.toString() && tenXSubs.users[i].status == "Live"){
+              console.log("getting that user")
+              return res.status(404).json({status:'error', message: 'Something went wrong.'});
+          }
+      }
+
+      console.log("outside of for loop")
+
+      const wallet = await Wallet.findOne({userId: userId});
+      wallet.transactions = [...wallet.transactions, {
+            title: 'Bought TenX Trading Subscription',
+            description: `Amount deducted for the purchase of ${subscriptionName} subscription`,
+            amount: (-subscriptionAmount),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
+      }];
+      wallet.save();
+
+      const user = await User.findOneAndUpdate(
+          { _id: userId },
+          {
+            $push: {
+              subscription: {
+                subscriptionId: new ObjectId(subscriptionId),
+                subscribedOn: new Date()
+              }
+            }
+          },
+          { new: true }
+      );
+
+      const subscription = await TenXSubscription.findOneAndUpdate(
+      { _id: new ObjectId(subscriptionId) },
+      {
+          $push: {
+          users: {
+              userId: new ObjectId(userId),
+              subscribedOn: new Date()
+          }
+          }
+      },
+      { new: true }
+      );
+
+      if(isRedisConnected){
+        await client.del(`${user._id.toString()}authenticatedUser`);
+      }
+
+      if(!wallet){
+        return res.status(404).json({status:'error', message: 'Something went wrong.'});
+      } 
+
+      let recipients = [user.email,'team@stoxhero.com'];
+      let recipientString = recipients.join(",");
+      let subject = "Subscription Renew - StoxHero";
+      let message = 
+      `
+      <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <title>Subscription Renewed</title>
+              <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  font-size: 16px;
+                  line-height: 1.5;
+                  margin: 0;
+                  padding: 0;
+              }
+
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  padding: 20px;
+                  border: 1px solid #ccc;
+              }
+
+              h1 {
+                  font-size: 24px;
+                  margin-bottom: 20px;
+              }
+
+              p {
+                  margin: 0 0 20px;
+              }
+
+              .userid {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+
+              .password {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+
+              .login-button {
+                  display: inline-block;
+                  background-color: #007bff;
+                  color: #fff;
+                  padding: 10px 20px;
+                  font-size: 18px;
+                  font-weight: bold;
+                  text-decoration: none;
+                  border-radius: 5px;
+              }
+
+              .login-button:hover {
+                  background-color: #0069d9;
+              }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+              <h1>Subscription Renewed</h1>
+              <p>Hello ${user.first_name},</p>
+              <p>Thanks for renew your subscription! Please find your renew details below.</p>
+              <p>User ID: <span class="userid">${user.employeeid}</span></p>
+              <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+              <p>Email: <span class="password">${user.email}</span></p>
+              <p>Mobile: <span class="password">${user.mobile}</span></p>
+              <p>Subscription Name: <span class="password">${subscription.plan_name}</span></p>
+              <p>Subscription Actual Price: <span class="password">₹${subscription.actual_price}/-</span></p>
+              <p>Subscription Discounted Price: <span class="password">₹${subscription.discounted_price}/-</span></p>  
+              </div>
+          </body>
+          </html>
+
+      `
+      emailService(recipientString,subject,message);
+      console.log("Subscription Email Sent")
+      
+      res.status(201).json({status: 'success', message: 'Subscription renewed successfully.'});    
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});
