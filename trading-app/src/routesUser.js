@@ -79,6 +79,8 @@ import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/past
 import DailyContestResultPage from "./layouts/UserDailyContest/data/result-page/resultIndex"
 import ContestScoreboard from './layouts/contestScoreboard'
 import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/data/result-page/resultIndex"
+
+import Challenge from './layouts/UserDailyChallenge'
 const routes = [
 
   {
@@ -170,6 +172,14 @@ const routes = [
     icon: <MenuBookIcon/>,
     route: "/internship",
     component: <Internship />,
+  },
+  {
+    type: "collapse",
+    name: "Challenges",
+    key: "challenges",
+    icon: <MenuBookIcon/>,
+    route: "/challenges",
+    component: <Challenge />,
   },
   {
     route: "/workshop",
