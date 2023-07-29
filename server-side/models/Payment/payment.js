@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const Payment = new mongoose.Schema({
     transactionId: {
         type: String,
-        required: true,
+        // required: true,
     },
     paymentTime: {
         type: Date,
@@ -28,13 +28,22 @@ const Payment = new mongoose.Schema({
     },
     paymentMode: {
         type: String,
-        required: true,
+        // required: true,
         enum: ['UPI', 'Account Transfer', 'Other']
     },
     paymentStatus:{
         type: String,
-        enum:['succeeded', 'failed', 'processing']
+        enum:['succeeded', 'failed', 'processing', 'initiated', 'started', 'expired']
     },
+    actions:[{
+        actionTitle: String,
+        actionDate: Date,
+        actionBy: {
+            type:Schema.Types.ObjectId,
+            ref:'user-personal-detail'
+        }
+    }],
+    merchantTransactionId: String,
     createdOn: {
         type: Date,
         default: function() {
@@ -54,8 +63,8 @@ const Payment = new mongoose.Schema({
     modifiedBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
-    }
+    },
+    gatewayResponse: {}
 });
-
 const payment = mongoose.model('payment', Payment);
 module.exports = payment;

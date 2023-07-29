@@ -4,6 +4,8 @@ const UserWallet = require("../models/UserWallet/userWalletSchema")
 const uuid = require("uuid")
 const User = require("../models/User/userDetailSchema");
 const sendMail = require('../utils/emailService');
+const axios = require('axios');
+const crypto = require('crypto');
 
 exports.createPayment = async(req, res, next)=>{
     // console.log(req.body)
@@ -177,3 +179,206 @@ exports.getUsers = async (req, res) => {
         });
     }
 };
+
+exports.initiatePayment = async (req, res) => {
+    const {
+        amount,
+        mobileNumber
+    } = req.body;
+    let merchantId = 'MERCHANTUAT';
+    let merchantTransactionId = generateUniqueTransactionId();
+    let merchantUserId = 'MUID'+ req.user._id;
+    let redirectUrl = `http://43.204.7.180/careers?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
+    let callbackUrl = 'http://43.204.7.180/api/v1/payments/callback';
+    let redirectMode = 'REDIRECT'
+    const payment = await Payment.create({
+        paymentTime: new Date(),
+        currency: 'INR',
+        amount: amount/100,
+        paymentStatus: 'initiated',
+        actions:[{
+            actionTitle: 'Payment Initiated',
+            actionDate: new Date(),
+            actionBy:req.user._id
+        }],
+        createdOn: new Date(),
+        createdBy: req.user._id,
+        modifiedOn: new Date(),
+        modifiedBy: req.user._id
+    });
+
+    const paymentInstrument = {
+        type: "PAY_PAGE"
+    };
+
+    const payload = {
+        merchantId,
+        merchantTransactionId,
+        amount,
+        merchantUserId,
+        redirectUrl,
+        redirectMode,
+        callbackUrl,
+        mobileNumber,
+        paymentInstrument
+    };
+
+    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
+    const saltKey = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'; // This should be stored securely, not hardcoded
+    const saltIndex = '1';
+    const toHash = `${encodedPayload}/pg/v1/pay${saltKey}`;
+    
+    const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
+
+    try {
+        const response = await axios.post('https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay', {
+            request: encodedPayload
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-VERIFY': checksum
+            }
+        });
+        console.log(response);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error initiating payment:', error);
+        res.status(500).json({status:'Error', message:'Something went wrong'});
+    }
+
+}
+
+function generateUniqueTransactionId() {
+    const maxLength = 36;
+    const allowedCharacters = "0123456789";
+  
+    const timestampPart = "mtid" + Date.now().toString();
+    const remainingLength = maxLength - timestampPart.length;
+    const randomChars = Array.from({ length: 5 }, () => allowedCharacters[Math.floor(Math.random() * allowedCharacters.length)]).join('');
+  
+    return timestampPart + randomChars;
+  }
+
+exports.handleCallback = async (req, res, next) => {
+    try {
+        // Extract and decode the response
+        const encodedResponse = req.body.response;
+        const decodedString = Buffer.from(encodedResponse, 'base64').toString('utf8');
+        const decodedResponse = JSON.parse(decodedString);
+        console.log('decoded response', decodedResponse);
+        const payment = await Payment.findOne({merchantTransactionId: decodedResponse.data.merchantTransactionId});
+        payment.gatewayResponse = decodedResponse;
+
+        // Check if Server-to-Server response is received
+        if (!decodedResponse) {
+            console.log('no decoded response');
+            // Call PG Check Status API if S2S response is not received
+            // TODO: Implement call to PG Check Status API and handle its response
+            
+        } else {
+            // Validate checksum
+            if (!verifyChecksum(decodedResponse, req.headers['X-VERIFY'])) {
+                return res.status(400).json({ status:'error', message: 'Checksum validation failed' });
+            }
+
+            // Validate amount
+            if (decodedResponse.data.amount !== payment.amount*100) {
+                return res.status(400).json({ status:'error', message: 'Amount mismatch' });
+            }
+
+            // Update payment status based on 'code'
+            if (decodedResponse.code === 'PAYMENT_SUCCESS') {
+                // TODO: Update the status in your database to 'SUCCESS'
+                payment.paymentStatus = 'succeeded';
+                payment.actions.push({
+                    actionTitle:'Payment Successful',
+                    actionDate: new Date(),
+                    actionBy: '63ecbc570302e7cf0153370c'
+                });
+                console.log('Payment Successful');
+                await payment.save({validateBeforeSave: false});
+                res.status(200).json({ status:'success', message: 'Payment was successful' });
+            } else if (decodedResponse.code === 'PAYMENT_ERROR') {
+                // TODO: Update the status in your database to 'FAILED'
+                console.log('Failed payment');
+                payment.paymentStatus = 'failed';
+                payment.actions.push({
+                    actionTitle:'Payment Failed',
+                    actionDate: new Date(),
+                    actionBy: '63ecbc570302e7cf0153370c'
+                });
+                await payment.save({validateBeforeSave: false});
+                res.status(200).json({ status:'success', message: 'Payment failed' });
+            } else {
+                // Handle any other cases if needed
+                payment.paymentStatus = 'processing';
+                payment.actions.push({
+                    actionTitle:'Payment Processing',
+                    actionDate: new Date(),
+                    actionBy: '63ecbc570302e7cf0153370c'
+                });
+                await payment.save({validateBeforeSave: false});
+                res.status(400).json({ status:'error', message: 'Unknown response code' });
+            }
+        }
+    } catch (error) {
+        console.error('Error handling callback:', error);
+        res.status(500).json({ status:'error', message: 'Internal server error' });
+    }
+}
+
+const SALT_KEY = "099eb0cd-02cf-4e2a-8aca-3e6c6aff0399"; // You may want to keep this in a secure environment variable or secret management tool.
+const SALT_INDEX = "1"; // This too could be managed securely if it's ever meant to change.
+
+const verifyChecksum = (encodedPayload, receivedChecksum) => {
+    const dataToHash = `${encodedPayload}/pg/v1/pay${SALT_KEY}`;
+    const calculatedChecksum = crypto.createHash('sha256').update(dataToHash).digest('hex');
+    const expectedChecksum = `${calculatedChecksum}###${SALT_INDEX}`;
+
+    return expectedChecksum === receivedChecksum;
+};
+
+exports.checkPaymentStatus = async(req,res, next) => {
+    try{
+        const {merchantTransactionId} = req.params;
+        const payment  = await Payment.findOne({merchantTransactionId});
+        const saltKey = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'; // This should be stored securely, not hardcoded
+        const saltIndex = '1';
+        const toHash = `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status${saltKey}`;
+        const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
+        const res = await axios.get(`https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay/${merchantId}/${merchantTransactionId}`,{
+            headers: {
+                'Content-Type': 'application/json',
+                'X-VERIFY': checksum
+            }
+        });
+        if(res.data.code == 'PAYMENT_SUCCESS'){
+            if(payment.paymentStatus != 'succeeded'){
+                payment.paymentStatus = 'succeeded';
+                    payment.actions.push({
+                        actionTitle:'Payment Successful',
+                        actionDate: new Date(),
+                        actionBy: '63ecbc570302e7cf0153370c'
+                    });
+            }
+        }else if(res.data.code == 'PAYMENT_ERROR'){
+            if(payment.paymentStatus != 'failed'){
+                payment.paymentStatus = 'failed';
+                    payment.actions.push({
+                        actionTitle:'Payment Failed',
+                        actionDate: new Date(),
+                        actionBy: '63ecbc570302e7cf0153370c'
+                    });
+            }
+        }
+    
+        res.status(200).json({
+            status:'success',
+            message:'Payment status fetched',
+            data:res.data
+        });
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status:'error', message:'Something went wrong.'});
+    }
+}
