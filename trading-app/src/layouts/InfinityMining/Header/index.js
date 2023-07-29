@@ -3,9 +3,9 @@ import MDBox from '../../../components/MDBox';
 import axios from 'axios';
 import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
-import MDAvatar from '../../../components/MDAvatar';
-import {Link} from 'react-router-dom'
-import { CircularProgress, Grid, LinearProgress, Tooltip } from '@mui/material';
+// import MDAvatar from '../../../components/MDAvatar';
+// import {Link} from 'react-router-dom'
+import { CircularProgress, Grid, Tooltip } from '@mui/material';
 import Logo from '../../../assets/images/default-profile.png'
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -47,7 +47,7 @@ export default function InfinityMining() {
   const [showDownloadButton, setShowDownloadButton] = useState(true);
   const [showDownloadButton1, setShowDownloadButton1] = useState(true);
   const [showDownloadButton2, setShowDownloadButton2] = useState(true);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const handleDownload = (csvData) => {
     // Create the CSV content

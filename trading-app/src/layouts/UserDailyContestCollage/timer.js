@@ -4,7 +4,7 @@ import axios from "axios";
 const Timer = ({date, setTimeDifference, serverTime, id}) => {
   const [remainingTime, setRemainingTime] = useState(null);
   // const [serverTime, setServerTime] = useState();
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   // const []
 
   useEffect(() => {

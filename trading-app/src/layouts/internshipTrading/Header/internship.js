@@ -51,7 +51,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [currentBatch, setCurrentBatch] = useState();
   const [myReferralCount, setMyReferralCount] = useState(getDetails?.userDetails?.referrals?.length);
   // const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
-  const [portfolioValue, setPortfolioValue] = useState();
+  // const [portfolioValue, setPortfolioValue] = useState();
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
@@ -60,7 +60,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   const [holiday, setHoliday] = useState();
   // const getDetails = React.useContext(userContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   function calculateWorkingDays(startDate, endDate) {
     const start = moment(startDate);
@@ -232,10 +232,10 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   }, [batchId])
 
   const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
-  const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
+  const endDate = moment(new Date().toString()).format("YYYY-MM-DD");
   let workingDays = calculateWorkingDays(startDate, endDate)
   workingDays = workingDays - holiday
-  console.log("workingDays", workingDays, holiday)
+  console.log("workingDays", myTradingDays, workingDays, holiday, startDate, endDate)
   tradeData.map((subelem, index)=>{
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem)=>{

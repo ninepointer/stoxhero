@@ -23,8 +23,8 @@ router.route('/pnl/:batch').get(Authenticate, overallPnl);
 router.route('/pnlAllTrader/:batchId').get(Authenticate, overallPnlAllTrader);
 router.route('/traderwiseAllTrader/:batchId').get(Authenticate, traderWiseMockTrader);
 router.route('/marginDetail/:batch').get(Authenticate, marginDetail)
-router.route('/traderwisecompanypnlreport/:batch/:startDate/:endDate').get(internshipDailyPnlTWise)
-router.route('/companypnlreport/:batch/:startDate/:endDate').get(internshipPnlReport)
+router.route('/traderwisecompanypnlreport/:batch').get(internshipDailyPnlTWise)
+router.route('/companypnlreport/:batch').get(internshipPnlReport)
 
 
 module.exports = router;

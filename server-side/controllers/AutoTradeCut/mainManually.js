@@ -166,8 +166,8 @@ const changeStatus = async() => {
     );
 
     if(data.length === 0){
+        console.log("in if chane status..")
         await changeContestStatus();
-        // await creditAmountToWallet();
         return;
     }
 
@@ -180,9 +180,10 @@ const creditAmount = async() => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
-    const data = await Contest.find( {payoutStatus: "Active", contestStatus: "Complete"} );
+    const data = await Contest.find({ payoutStatus: null, contestStatus: "Completed", contestEndTime: {$gte: today} });
 
-    if(data.length !== 0){
+    if(data.length > 0){
+        console.log("in if wallet..")
         await creditAmountToWallet();
         return;
     }
@@ -194,7 +195,9 @@ const changeContestStatus = async () => {
     const contest = await Contest.find({ contestStatus: "Active" });
 
     for (let j = 0; j < contest.length; j++) {
+        console.log(contest[j].contestEndTime , new Date())
         if (contest[j].contestEndTime < new Date()) {
+            
             contest[j].contestStatus = "Completed";
             await contest[j].save();
         }

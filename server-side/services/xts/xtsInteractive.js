@@ -63,6 +63,10 @@ const interactiveLogin = async () => {
       if(process.env.PROD){
         await ifServerCrashAfterOrder();
       }
+      if(process.env.PROD === "true"){
+        await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
+      }
+
       // await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
     })();
@@ -415,6 +419,7 @@ const autoPlaceOrder = (obj, res) => {
         singleUser,
         marginData
       } = obj;
+      console.log(obj)
       let isRedisConnected = getValue();
       isReverseTrade = false;
       let exchangeSegment;
@@ -453,6 +458,8 @@ const autoPlaceOrder = (obj, res) => {
         exchange: exchange,
         symbol: symbol,
         buyOrSell: buyOrSell,
+        realBuyOrSell: realBuyOrSell,
+        realQuantity: Quantity,
         Quantity: userQuantity,
         variety: variety,
         instrumentToken: instrumentToken,
@@ -479,7 +486,6 @@ const autoPlaceOrder = (obj, res) => {
         setTimeout(()=>{
           res.status(200).json(`ok${Math.random()}`);
         }, 1000)
-       
       }
     } catch (error) {
       reject(error);
@@ -829,19 +835,16 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 
 const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
   
-  // let isRedisConnected = getValue();
-
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData } = traderData
 
   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
-    ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
+    ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason } = orderData;
 
     if (exchange === "NFO") {
       exchangeSegment = 2;
     }
-    // console.log("inside getPlacedOrderAndSave 2")
 
   if (Date.now() - startTime >= 10000) {
     let exchangeSegment;
@@ -978,6 +981,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
     }
     
+    
     const companyDoc = {
       appOrderId: AppOrderID, order_id: order_id,
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
@@ -1013,12 +1017,9 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
 
     // console.log("dontSendResp bahr", dontSendResp)
     if(!dontSendResp){
-      // console.log("dontSendResp", dontSendResp)
-      // res.status(201).json({ message: "Switched all traders to mock.", status: "success" })
-      // io.emit("updatePnl", traderDocMock)
       if(singleUser){
         const updateRealTrade = await UserPermission.updateOne({userId: new ObjectId(trader)}, { $set: { isRealTradeEnable: false } })
-        // console.log("in single user")
+        console.log("updateRealTrade", updateRealTrade)
       } else{
         const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } })
 
@@ -1044,8 +1045,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
     await session.abortTransaction();
 
     console.error('Transaction failed, documents not saved:', err);
-    // console.log(traderData, startTime);
-    await saveToMockSwitch(orderData, traderData, startTime);
+    // await saveToMockSwitch(orderData, traderData, startTime);
 
   } finally {
     session.endSession();

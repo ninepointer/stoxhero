@@ -28,7 +28,7 @@ import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
 function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
@@ -42,6 +42,15 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
         return acc;
     }, {});
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
+
+    // const initialPayment = contest.reduce((acc, elem) => {
+    //     acc[elem._id] = {
+    //         payment: false,
+    //         count: elem?.interestedUsers?.length || 0,
+    //     };
+    //     return acc;
+    // }, {});
+    // const [paymentState, setPaymentState] = useState(initialPayment);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -305,7 +314,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                                     {(isParticipated || elem.entryFee === 0) ?
                                                                         <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value} />
                                                                         :
-                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} />
+                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularContestTime[0]?.value} />
                                                                     }
                                                                 </MDBox>
                                                                 <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={() => { handleCopy(elem?._id) }}><ShareIcon size='large' /></MDButton></MDBox></Tooltip>

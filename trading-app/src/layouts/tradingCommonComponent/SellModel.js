@@ -41,7 +41,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     html5 : true
   })
   
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getDetails = React.useContext(userContext);
   let uId = uniqid();

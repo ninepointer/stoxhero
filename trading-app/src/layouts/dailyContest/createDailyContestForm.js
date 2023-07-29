@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -55,7 +56,7 @@ function Index() {
   console.log('id hai', contest);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(contest ? true : false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -788,9 +789,10 @@ function Index() {
                 )}
                 {(isSubmitted || contest) && !editing && (
                   <>
+                  {contest?.contestStatus !== "Completed" &&
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
-                    </MDButton>
+                    </MDButton>}
                     <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/contestdashboard/dailycontest') }}>
                       Back
                     </MDButton>

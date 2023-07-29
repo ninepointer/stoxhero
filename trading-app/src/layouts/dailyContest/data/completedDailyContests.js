@@ -4,18 +4,18 @@ import Grid from "@mui/material/Grid";
 import axios from "axios";
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
-import MDAvatar from "../../../components/MDAvatar";
+// import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import money from "../../../assets/images/money.png"
+// import money from "../../../assets/images/money.png"
 import { Link, useLocation } from "react-router-dom";
 import moment from 'moment';
 
 
 const CompletedContest = ({type}) => {
-const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
+// const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
 const [completedContests,setCompletedContests] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/completedadmin`,{

@@ -121,12 +121,20 @@ getKiteCred.getAccess().then(async (data)=>{
     // console.log(socket.id, "socket id") 
     socket.on('userId', async (data) => {
       socket.join(`${data}`)
-      // console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
     })
 
+    socket.on('chart-room', async (data) => {
+      const {userId, instruemnt} = data;
+      // console.log("data", userId, instruemnt, data)
+      if(userId && instruemnt){
+        await client.set(`${userId}${instruemnt}:chartsId`, instruemnt);
+        socket.join(`${userId}${instruemnt}`)
+      }
+    })
+
     socket.on('dailyContestLeaderboard', async (data) => {
-      let {id, employeeId, userId} = data;
+      let {id, userId} = data;
       socket.join(`${id}`)
       socket.join(`${id}${userId}`)
       await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
@@ -213,9 +221,12 @@ getKiteCred.getAccess().then(async (data)=>{
 });
 
 //emitting leaderboard for contest.
-sendLeaderboardData().then(()=>{});
-sendMyRankData().then(()=>{});
-emitServerTime().then(()=>{});
+if(process.env.PROD === "true"){
+  sendLeaderboardData().then(()=>{});
+  sendMyRankData().then(()=>{});
+  emitServerTime().then(()=>{});
+}
+
 
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
 
@@ -344,12 +355,11 @@ let weekDay = date.getDay();
           infinityOffline();
         });
         // const autotrade = nodeCron.schedule('50 9 * * *', test); 
-        const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
+        const autotrade = nodeCron.schedule(`1 13 * * *`, async () => {
           autoCutMainManually();
           autoCutMainManuallyMock();
           changeStatus();
           creditAmount();
-          
         });
 
         
@@ -373,6 +383,13 @@ let weekDay = date.getDay();
       
     }
   }
+
+  const autotrade = nodeCron.schedule(`23 14 * * *`, async () => {
+    autoCutMainManually();
+    autoCutMainManuallyMock();
+    changeStatus();
+    creditAmount();
+  });
 
 
 const PORT = process.env.PORT||5002;

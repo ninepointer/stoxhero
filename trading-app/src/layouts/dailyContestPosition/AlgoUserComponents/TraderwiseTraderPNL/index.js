@@ -17,7 +17,7 @@ import { TextField } from "@mui/material";
 
 function TraderwiseTraderPNL({ socket }) {
   const { columns, rows } = data();
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
   const [subscriptions, setSubscription] = useState([]);
@@ -271,7 +271,7 @@ function TraderwiseTraderPNL({ socket }) {
 
           </MDBox>
 
-          <MDBox sx={{ display: 'flex', alignItems: 'center', marginLeft: '24px' }}>
+          <MDBox >
             {/* <MDTypography fontSize={15}>Select Contest</MDTypography> */}
             <TextField
               select
@@ -289,29 +289,36 @@ function TraderwiseTraderPNL({ socket }) {
                 </MenuItem>
               ))}
             </TextField>
-            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-              <MDTypography fontSize={11}>Payout%:&nbsp;</MDTypography>
-              <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.payoutPercentage}</MDTypography>
-            </MDBox>
+            <MDBox sx={{ display: 'flex', alignItems: 'center', padding: "2px 0px 2px 10px" }}>
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>Payout%:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.payoutPercentage}</MDTypography>
+              </MDBox>
 
-            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-              <MDTypography fontSize={11}>Entry Fee:&nbsp;</MDTypography>
-              <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee}</MDTypography>
-            </MDBox>
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>Entry Fee:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee}</MDTypography>
+              </MDBox>
 
-            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-              <MDTypography fontSize={11}>Max Participant:&nbsp;</MDTypography>
-              <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.maxParticipants}</MDTypography>
-            </MDBox>
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>Max Participant:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.maxParticipants}</MDTypography>
+              </MDBox>
 
-            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-              <MDTypography fontSize={11}>Expected Collection:&nbsp;</MDTypography>
-              <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee * selectedContest?.maxParticipants}</MDTypography>
-            </MDBox>
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>Participant:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.participants?.length}</MDTypography>
+              </MDBox>
 
-            <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-              <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
-              <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * selectedContest?.participants?.length)}</MDTypography>
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>Expected Collection:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee * selectedContest?.maxParticipants}</MDTypography>
+              </MDBox>
+
+              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
+                <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * selectedContest?.participants?.length)}</MDTypography>
+              </MDBox>
             </MDBox>
           </MDBox>
 

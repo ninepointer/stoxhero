@@ -165,7 +165,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                     const isDataAlreadyExist = getInstruments.watchlistInstruments.includes(dataExist._id);
                     // console.log("in getInstruments.............", isDataAlreadyExist)
                     if (!isDataAlreadyExist) {
-                        console.log("in isDataAlreadyExist.............", isDataAlreadyExist)
+                        // console.log("in isDataAlreadyExist.............", isDataAlreadyExist)
                         getInstruments.watchlistInstruments.push(dataExist._id)
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
@@ -184,7 +184,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 }
                                 const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
                             }
-                            console.log("this is redis client", newredisClient);
+                            // console.log("this is redis client", newredisClient);
 
                             // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                             let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
@@ -241,7 +241,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 maxLot: addingInstruments.maxLot,
                                 chartInstrument: addingInstruments.chartInstrument
                             }))
-                            console.log("in instrument.............", instrument)
+                            // console.log("in instrument.............", instrument)
 
 
                         } catch (err) {
@@ -252,7 +252,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                         let getInstruments = await User.findOne({ _id: _id });
                         getInstruments.watchlistInstruments.push(addingInstruments._id)
-                        console.log("instrument is", addingInstruments._id)
+                        // console.log("instrument is", addingInstruments._id)
 
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {

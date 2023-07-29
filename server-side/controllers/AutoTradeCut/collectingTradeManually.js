@@ -124,44 +124,29 @@ const tenx = async () => {
     Obj.dontSendResp = (i !== (data.length - 1));
     Obj.createdBy = createdBy;
 
-    // let createdBy;
-    // if (autoTrade) {
-      // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
-
-      // console.log("createdBy", createdBy)
-    // } else {
-    //   createdBy = trader
-    // }
-
-    // console.log("quantity", quantity)
     await recursiveFunction(quantity)
 
     async function recursiveFunction(quantity) {
       if (quantity <= 0) {
         return;
       }
-      else if (quantity <= 1800) {
+      else if (quantity <= (data[i].symbol.includes("BANK") ? 900 : 1800)) {
 
-        // console.log("in else if", quantity)
         Obj.Quantity = quantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-        // tradeArr.push({ value: JSON.stringify(Obj) });
-        // console.log("before takeAutoTenxTrade")
         const auto = await takeAutoTenxTrade(Obj);
-        // console.log("before recursive calling", auto)
         if(data.length > 0 && i == data.length-1){
-          // console.log("recursive calling")
           await tenx();
         }
         return;
       } else {
-        // console.log("in else", quantity)
+        let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
 
-        Obj.Quantity = 1800;
+        Obj.Quantity = tempQuantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoTenxTrade(Obj);
-        return recursiveFunction(quantity - 1800);
+        return recursiveFunction(quantity - tempQuantity);
       }
     }
   }
@@ -285,7 +270,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
       if (quantity == 0) {
         return;
       }
-      else if (quantity <= 1800) {
+      else if (quantity <= (data[i].symbol.includes("BANK") ? 900 : 1800)) {
         Obj.Quantity = quantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
@@ -298,11 +283,13 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
 
         return;
       } else {
-        Obj.Quantity = 1800;
+        let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+
+        Obj.Quantity = tempQuantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInternshipTrade(Obj);
-        return recursiveFunction(quantity - 1800);
+        return recursiveFunction(quantity - tempQuantity);
       }
     }
   }
@@ -316,7 +303,7 @@ const paperTrade = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  let tradeArr = [];
+  // let tradeArr = [];
   const data = await PaperTrader.aggregate(
     [
       {
@@ -424,21 +411,21 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
       if (quantity == 0) {
         return;
       }
-      else if (quantity <= 1800) {
+      else if (quantity <= (data[i].symbol.includes("BANK") ? 900 : 1800)) {
         Obj.Quantity = quantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-        // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoPaperTrade(Obj);
         if(data.length > 0 && i == data.length-1){
           await paperTrade();
         }
         return;
       } else {
-        Obj.Quantity = 1800;
+        let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+
+        Obj.Quantity = tempQuantity;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-        // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoPaperTrade(Obj);
-        return recursiveFunction(quantity - 1800);
+        return recursiveFunction(quantity - tempQuantity);
       }
     }
   }
@@ -583,7 +570,7 @@ const infinityTrade = async () => {
       if (quantity == 0) {
         return;
       }
-      else if (quantity <= 1800) {
+      else if (quantity <= (data[i].symbol.includes("BANK") ? 900 : 1800)) {
         Obj.Quantity = quantity;
         Obj.userQuantity = quantity / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
@@ -596,14 +583,15 @@ const infinityTrade = async () => {
         }
         return;
       } else {
-        Obj.Quantity = 1800;
-        Obj.userQuantity = 1800 / algoBox.lotMultipler;
+        let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+        Obj.Quantity = tempQuantity;
+        Obj.userQuantity = tempQuantity / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
 
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoInfinityTrade(Obj);
-        return recursiveFunction(quantity - 1800);
+        return recursiveFunction(quantity - tempQuantity);
       }
     }
   }
@@ -752,7 +740,7 @@ const dailyContestMock = async () => {
       if (quantity == 0) {
         return;
       }
-      else if (quantity <= 1800) {
+      else if (quantity <= (data[i].symbol.includes("BANK") ? 900 : 1800)) {
         Obj.Quantity = quantity;
         Obj.userQuantity = quantity / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
@@ -764,12 +752,14 @@ const dailyContestMock = async () => {
         }
         return;
       } else {
-        Obj.Quantity = 1800;
-        Obj.userQuantity = 1800 / algoBox.lotMultipler;
+        let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+
+        Obj.Quantity = tempQuantity;
+        Obj.userQuantity = tempQuantity / algoBox.lotMultipler;
         Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
         // tradeArr.push({ value: JSON.stringify(Obj) });
         await takeAutoDailyContestMockTrade(Obj);
-        return recursiveFunction(quantity - 1800);
+        return recursiveFunction(quantity - tempQuantity);
       }
     }
   }
@@ -900,15 +890,18 @@ const infinityTradeLive = async () => {
         const processOrder = async () => {
           if (quantity == 0) {
             return;
-          } else if (quantity > 1800) {
-            Obj.Quantity = 1800;
-            Obj.userQuantity = 1800 / algoBox.lotMultipler;
+          }
+           else if (quantity > (data[i].symbol.includes("BANK") ? 900 : 1800)) {
+            let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+
+            Obj.Quantity = tempQuantity;
+            Obj.userQuantity = tempQuantity / algoBox.lotMultipler;
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
             // console.log("before autoplaceorder in elseif");
             Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
 
             await autoPlaceOrder(Obj);
-            quantity = quantity - 1800;
+            quantity = quantity - tempQuantity;
             await delay(300);
             return processOrder(); // Ensure that the promise returned by processOrder is returned
           } else {

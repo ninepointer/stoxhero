@@ -16,7 +16,7 @@ import Dialogue from './dialogueBox';
 export default function TenXSubscriptions() {
   const [cashBalance, setCashBalance] = React.useState(0);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/userwallet/my`,{
@@ -109,11 +109,11 @@ export default function TenXSubscriptions() {
           </MDBox>
   
   
-          <MDBox p={1}  borderTop="1px dotted #1A73E8" display='flex' justifyContent="space-between" alignItems='center' flexDirection='row'>
+          <MDBox p={0.5}  borderTop="1px dotted #1A73E8" display='flex' justifyContent="space-between" alignItems='center'>
   
             <MDBox display='flex' justifyContent='center' alignItems='center'>
               <MDTypography 
-                mr={1}  
+                mr={0.5}  
                 sx={{ fontSize: 18, fontWeight:'bold', textDecoration: "line-through", textDecorationColor: "gold", textDecorationThickness: "1px" }}  
                 gutterBottom
                 lineHeight={0}
@@ -121,7 +121,7 @@ export default function TenXSubscriptions() {
               >
                 ₹{props.price}
               </MDTypography>
-              <MDTypography sx={{ fontSize: 25 }} fontWeight="bold" color="dark" gutterBottom>
+              <MDTypography sx={{ fontSize: 22 }} fontWeight="bold" color="dark" gutterBottom>
                 ₹{props.discountPrice}
               </MDTypography>
               <MDTypography color='dark' style={{fontSize:"15px", lineHeight:4.5}}>{props.upto}</MDTypography>

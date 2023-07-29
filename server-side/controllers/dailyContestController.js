@@ -797,7 +797,6 @@ exports.verifyCollageCode = async (req, res) => {
     }
 };
 
-
 // run this function in cronjob
 exports.creditAmountToWallet = async () => {
     console.log("in wallet")
@@ -807,10 +806,9 @@ exports.creditAmountToWallet = async () => {
         todayDate = todayDate + "T00:00:00.000Z";
         const today = new Date(todayDate);
 
-        // const { id } = req.params; // ID of the contest 
-        // const userId = req.user._id; Wallet
-        const contest = await Contest.find({ contestStatus: "Active" });
+        const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
 
+        // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
             if (contest[j].contestEndTime < new Date()) {
                 for (let i = 0; i < contest[j]?.participants?.length; i++) {
@@ -869,7 +867,7 @@ exports.creditAmountToWallet = async () => {
                               { new: true }
                             );
                           
-                            console.log("Updated Wallet:", updatedWallet);
+                            // console.log("Updated Wallet:", updatedWallet);
                           } else {
                             console.log("No wallet found or transaction array is empty.");
                           }
@@ -895,11 +893,6 @@ exports.creditAmountToWallet = async () => {
 
     } catch (error) {
         console.log(error);
-        // res.status(500).json({
-        //     status:"error",
-        //     message: "Something went wrong",
-        //     error: error.message
-        // });
     }
 };
 

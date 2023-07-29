@@ -38,7 +38,7 @@ const {marginDetail, tradingDays, autoExpireSubscription} = require("../../contr
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
-const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
@@ -59,8 +59,8 @@ const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
 const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
 // const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
-const {creditAmountToWallet} = require("../../controllers/dailyContestController");
-const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
+// const {creditAmountToWallet} = require("../../controllers/dailyContestController");
+// const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
 const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
 const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCompanyMargin")
 const MarginDetailLiveCompany = require("../../models/marginUsed/infinityLiveCompanyMargin")
@@ -282,26 +282,17 @@ router.get("/margin", async (req, res) => {
           },
         },
     },
-    // {
-    //   $match:
-    //     /**
-    //      * query: The query in MQL.
-    //      */
-    //     {
-    //       margin_utilize: {
-    //         $ne: "$margin_released",
-    //       },
-    //     },
-    // },
+ 
   ]
   const x = await MarginDetailMockCompany.aggregate(pipeline)
   res.send(x);
 });
 
 router.get("/afterContest", async (req, res) => {
-  // await autoCutMainManually();
-  // await autoCutMainManuallyMock();
-  await creditAmountToWallet();
+  await autoCutMainManually();
+  await autoCutMainManuallyMock();
+  await changeStatus();
+  await creditAmount();
   res.send("ok");
 });
 
@@ -920,7 +911,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-07-16T00:00:00.000+00:00"
+  let expiryDate = "2023-07-27T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
@@ -934,6 +925,8 @@ router.get("/updateInstrumentStatus", async (req, res)=>{
     {contractDate: {$lte: expiryDate}, status: "Active"},
     { $set: { status: "Inactive" } }
   )
+
+  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
   res.send({message: "updated", data: instrument})
 })
 

@@ -50,7 +50,7 @@ function MockTraderwiseCompantPNL(props) {
 
 
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
@@ -154,6 +154,8 @@ function MockTraderwiseCompantPNL(props) {
         obj.runninglots += allTrade[i].lots;
         obj.brokerage += allTrade[i].brokerage;
         obj.noOfTrade += allTrade[i].trades
+        obj.absRunninglots += Math.abs(allTrade[i].lots);
+
 
       } else{
         //console.log(marketData, "marketData")
@@ -168,6 +170,7 @@ function MockTraderwiseCompantPNL(props) {
           totalPnl : ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price))),
           lotUsed : Math.abs(allTrade[i].lotUsed),
           runninglots : allTrade[i].lots,
+          absRunninglots: Math.abs(allTrade[i].lots),
           brokerage: allTrade[i].brokerage,
           noOfTrade: allTrade[i].trades,
           userId: allTrade[i]._id.traderId,
@@ -198,6 +201,7 @@ let totalNoRunningLots = 0;
 let totalTrades = 0;
 let totalLotsUsed = 0;
 let totalTraders = 0;
+let totalAbsRunningLots = 0;
 
 finalTraderPnl.map((subelem, index)=>{
   let obj = {};
@@ -214,6 +218,8 @@ finalTraderPnl.map((subelem, index)=>{
   totalLotsUsed += (subelem.lotUsed);
   totalTrades += (subelem.noOfTrade);
   totalTraders += 1;
+  totalAbsRunningLots += subelem.absRunninglots;
+
 
   obj.userId = (
     <MDTypography component="a" variant="caption" fontWeight="medium">
@@ -242,6 +248,12 @@ finalTraderPnl.map((subelem, index)=>{
   obj.runningLots = (
     <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
       {subelem.runninglots}
+    </MDTypography>
+  );
+
+  obj.absRunningLots = (
+    <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
+      {subelem.absRunninglots}
     </MDTypography>
   );
 
@@ -293,6 +305,12 @@ obj.noOfTrade = (
 obj.runningLots = (
   <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
     {totalNoRunningLots}
+  </MDTypography>
+);
+
+obj.absRunningLots = (
+  <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    {totalAbsRunningLots}
   </MDTypography>
 );
 

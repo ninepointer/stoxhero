@@ -13,7 +13,7 @@ import {CircularProgress} from "@mui/material";
 import { Grid } from "@mui/material";
 
 
-export default function TableView({whichTab, dateWiseData, userData, batches, dates}) {
+export default function TableView({holiday, whichTab, dateWiseData, userData, batches, dates}) {
   const [isLoading,setIsLoading] = useState(false);
 
   function calculateWorkingDays(startDate, endDate) {
@@ -119,13 +119,6 @@ export default function TableView({whichTab, dateWiseData, userData, batches, da
               </Grid>
             </Grid>
           }
-          {/* {!isLoading && count !== 0 &&
-            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-              <MDButton variant='outlined' color='warning' disabled={(skip+limitSetting)/limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {!count ? 0 : count} | Page {(skip+limitSetting)/limitSetting} of {!count ? 1 : Math.ceil(count/limitSetting)}</MDTypography>
-              <MDButton variant='outlined' color='warning' disabled={Math.ceil(count/limitSetting) === (skip+limitSetting)/limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
-            </MDBox>
-            } */}
 
         </Grid>
 
@@ -167,17 +160,46 @@ export default function TableView({whichTab, dateWiseData, userData, batches, da
           {!isLoading ?
             dateWiseData?.map((elem) => {
 
-              const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error"
-              const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error"
+              const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error";
+              const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error";
+
+              const attendanceLimit = elem.attendancePercentage;
+              const referralLimit = elem.referralCount;
+              const payoutPercentage = elem.payoutPercentage;
+              const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
+              const reliefReferralLimit = referralLimit - referralLimit*10/100
+          
               // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek-1];
               const referral = userData?.filter((subelem)=>{
                 return subelem?._id?.toString() == elem?.userId?.toString();
               })
 
-              console.log("referral", referral)
+              const batchEndDate = moment(elem.batchEndDate);
+              const currentDate = moment();
+              const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
+              const attendance = (elem?.tradingDays*100/(calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
+              let refCount = referral[0]?.referrals?.length;
+              elem.isPayout = false;
+              console.log("working day", attendance, attendanceLimit, refCount, referralLimit, reliefAttendanceLimit)
+
+              if (attendance >= attendanceLimit && refCount >= referralLimit && elem?.npnl > 0) {
+                console.log("payout 1sr");
+                elem.isPayout = true;
+              }
+          
+              if(!(attendance >= attendanceLimit && refCount >= referralLimit) && (attendance >= attendanceLimit || refCount >= referralLimit) && elem?.npnl > 0){
+                if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
+                  elem.isPayout = true;
+                  console.log("payout relief");
+                }
+                if(refCount < referralLimit && refCount >= reliefReferralLimit){
+                  elem.isPayout = true;
+                  console.log("payout relief");
+                }
+              }
+
+
               return (
-
-
                 <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                   <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                     <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name}</MDTypography>
@@ -203,16 +225,12 @@ export default function TableView({whichTab, dateWiseData, userData, batches, da
                     <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{referral[0]?.referrals?.length}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{elem?.npnl > 0 ? (elem?.npnl*1/100).toFixed(0) : 0}</MDTypography> 
-                    {/* <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.npnl*1/100))}</MDTypography> */}
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{elem.isPayout ? (elem?.npnl*payoutPercentage/100).toFixed(0) : 0}</MDTypography> 
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(elem?.tradingDays*100/calculateWorkingDays(dates.startDate, dates.endDate)).toFixed(2)}%</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(elem?.tradingDays*100/(calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0)}%</MDTypography>
                   </Grid>
-                  
                 </Grid>
-
-
               )
             })
             :
@@ -224,13 +242,6 @@ export default function TableView({whichTab, dateWiseData, userData, batches, da
               </Grid>
             </Grid>
           }
-          {/* {!isLoading && count !== 0 &&
-            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-              <MDButton variant='outlined' color='warning' disabled={(skip+limitSetting)/limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-              <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {!count ? 0 : count} | Page {(skip+limitSetting)/limitSetting} of {!count ? 1 : Math.ceil(count/limitSetting)}</MDTypography>
-              <MDButton variant='outlined' color='warning' disabled={Math.ceil(count/limitSetting) === (skip+limitSetting)/limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
-            </MDBox>
-            } */}
 
         </Grid>
       }

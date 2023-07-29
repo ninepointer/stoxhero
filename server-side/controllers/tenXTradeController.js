@@ -13,6 +13,12 @@ exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
   const userId = req.user._id;
   const subscriptionId = req.params.id;
+
+  const subs = await Subscription.findById(new ObjectId(subscriptionId));
+  let timeElem = subs.users.filter((elem)=>{
+    return (elem.userId.toString() === userId.toString() && elem.status === "Live");
+  })
+  const time = timeElem[0].subscribedOn;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -23,7 +29,9 @@ exports.overallPnl = async (req, res, next) => {
   const tempDate = new Date(tempTodayDate);
   const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
-  // console.log(today, subscriptionId)
+  const matchingTime = new Date(time) > today ? time : today;
+
+  console.log(new Date(time) ,today)
 
   try {
 
@@ -40,7 +48,7 @@ exports.overallPnl = async (req, res, next) => {
         {
           $match: {
             trade_time: {
-              $gte: today
+              $gte: new Date(matchingTime)
             },
             status: "COMPLETE",
             trader: new ObjectId(userId),
@@ -80,7 +88,6 @@ exports.overallPnl = async (req, res, next) => {
           },
         },
       ])
-      // console.log("pnlDetails in else", pnlDetails)
       if (isRedisConnected) {
         await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
         await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
@@ -99,8 +106,6 @@ exports.overallPnl = async (req, res, next) => {
 
 exports.myTodaysTrade = async (req, res, next) => {
 
-  // const id = req.params.id
-  //   const subscriptionId = req.params.id;
   const userId = req.user._id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -169,88 +174,6 @@ exports.marginDetail = async (req, res, next) => {
       res.status(201).json({ message: "pnl received", data: marginDetail });
 
     } else {
-
-      // const subscription = await Subscription.aggregate([
-      //   {
-      //     $match: {
-      //       _id: new ObjectId(subscriptionId),
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "user-portfolios",
-      //       localField: "portfolio",
-      //       foreignField: "_id",
-      //       as: "portfolioData",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "tenx-trade-users",
-      //       localField: "_id",
-      //       foreignField: "subscriptionId",
-      //       as: "trades",
-      //     },
-      //   },
-      //   {
-      //     $unwind:
-      //     {
-      //       path: "$trades",
-      //       includeArrayIndex: "string",
-      //     },
-      //   },
-      //   {
-      //     $match: {
-      //       "trades.trade_time": { $lt: today },
-      //       "trades.status": "COMPLETE",
-      //       "trades.trader": new ObjectId(req.user._id)
-      //     },
-      //   },
-      //   {
-      //     $group:
-  
-      //     {
-      //       _id: {
-      //         subscriptionId: "$_id",
-      //         totalFund: {
-      //           $arrayElemAt: [
-      //             "$portfolioData.portfolioValue",
-      //             0,
-      //           ],
-      //         },
-      //       },
-      //       totalAmount: {
-      //         $sum: {
-      //           $multiply: ["$trades.amount", -1],
-      //         }
-      //       },
-      //       totalBrokerage: {
-      //         $sum: "$trades.brokerage",
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $project:
-  
-      //     {
-      //       _id: 0,
-      //       subscriptionId: "$_id.subscriptionId",
-      //       totalFund: "$_id.totalFund",
-      //       npnl: {
-      //         $subtract: [
-      //           "$totalAmount",
-      //           "$totalBrokerage",
-      //         ],
-      //       },
-      //       openingBalance: {
-      //         $sum: [
-      //           "$_id.totalFund",
-      //           { $subtract: ["$totalAmount", "$totalBrokerage"] }
-      //         ]
-      //       }
-      //     },
-      //   },
-      // ])
 
       const subscription = await Subscription.aggregate([
         {
@@ -350,6 +273,7 @@ exports.marginDetail = async (req, res, next) => {
         },
       ])
 
+      console.log("subscription", subscription);
       if (subscription.length > 0) {
         if (isRedisConnected) {
           await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(subscription[0]))
@@ -551,9 +475,9 @@ exports.tradingDays = async (req, res, next) => {
     },
   ])
 
-  console.log("tradingDays ", tradingDays)
+  // console.log("tradingDays ", tradingDays)
   if(tradingDays.length> 0){
-    console.log("tradingDays in if", tradingDays)
+    // console.log("tradingDays in if", tradingDays)
     res.status(200).json({ status: 'success', data: tradingDays });
   } else{
     const tradingDay = await Subscription.aggregate(
@@ -577,7 +501,7 @@ exports.tradingDays = async (req, res, next) => {
         },
       },
     ])
-    console.log("tradingDays in else", tradingDay)
+    // console.log("tradingDays in else", tradingDay)
     res.status(200).json({ status: 'success', data: tradingDay });
   }
 }
@@ -802,7 +726,7 @@ exports.autoExpireSubscription = async () => {
           for (let k = Subslen - 1; k >= 0; k--) {
             if (subs.users[k].userId?.toString() === userId?.toString()) {
               subs.users[k].status = "Expired";
-              user.users[k].expiredOn = new Date();
+              subs.users[k].expiredOn = new Date();
               console.log("this is subs", subs)
               await subs.save();
               break;
@@ -1424,8 +1348,6 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
 
   res.status(201).json({ message: "data received", data: x });
 }
-
-
 
 exports.getDailyTenXUsers = async (req, res) => {
   try {
