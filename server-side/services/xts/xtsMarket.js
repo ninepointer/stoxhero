@@ -53,7 +53,7 @@ const xtsMarketLogin = async ()=>{
         if(process.env.PROD === "true"){
           await save(logIn?.result?.userID, logIn?.result?.token, "Market")
         }
-        await save(logIn?.result?.userID, logIn?.result?.token, "Market")
+        // await save(logIn?.result?.userID, logIn?.result?.token, "Market")
 
       
     })();

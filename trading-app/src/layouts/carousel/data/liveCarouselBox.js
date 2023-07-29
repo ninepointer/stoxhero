@@ -7,23 +7,11 @@ import MDButton from '../../../components/MDButton';
 // import { Navigate, useNavigate } from 'react-router-dom';
 import moment from 'moment'
 
-const CarouselBox = ({ image, name, startDate, endDate, link, elem }) => {
-    // const navigate = useNavigate();
+const CarouselBox = ({ image, elem }) => {
+
+  console.log( "dates checking", elem?.carouselStartDate, elem?.carouselEndDate)
   return (
     <Grid container spacing={2} display='flex' justifyContent='center'>
-      {/* <Grid item display='flex' justifyContent='center'>
-        <MDButton 
-            style={{padding:0}} 
-            disableRipple
-            component = {Link}
-            to={{
-                pathname: `/carouseldetails`,
-                }}
-            state={{data: elem}}
-        >
-            <img src={image} width='250px' height='250px' alt="Box" />
-        </MDButton>
-      </Grid> */}
       <Grid item display='flex' justifyContent='center'>
           <MDButton 
             style={{padding:0}} 

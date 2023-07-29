@@ -16,8 +16,8 @@ const saveMissedData = async () => {
         {
             $match: {
                 order_timestamp: {
-                    $gte: new Date("2023-07-26"),
-                    $lt: new Date("2023-07-27"),
+                    $gte: new Date("2023-07-28"),
+                    $lt: new Date("2023-07-29"),
                 },
                 status: "COMPLETE"
             },

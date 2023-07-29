@@ -13,6 +13,12 @@ exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
   const userId = req.user._id;
   const subscriptionId = req.params.id;
+
+  const subs = await Subscription.findById(new ObjectId(subscriptionId));
+  let timeElem = subs.users.filter((elem)=>{
+    return (elem.userId.toString() === userId.toString() && elem.status === "Live");
+  })
+  const time = timeElem[0].subscribedOn;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -23,7 +29,9 @@ exports.overallPnl = async (req, res, next) => {
   const tempDate = new Date(tempTodayDate);
   const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
-  // console.log(today, subscriptionId)
+  const matchingTime = new Date(time) > today ? time : today;
+
+  console.log(new Date(time) ,today)
 
   try {
 
@@ -40,7 +48,7 @@ exports.overallPnl = async (req, res, next) => {
         {
           $match: {
             trade_time: {
-              $gte: today
+              $gte: new Date(matchingTime)
             },
             status: "COMPLETE",
             trader: new ObjectId(userId),
@@ -80,7 +88,6 @@ exports.overallPnl = async (req, res, next) => {
           },
         },
       ])
-      // console.log("pnlDetails in else", pnlDetails)
       if (isRedisConnected) {
         await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
         await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
@@ -266,6 +273,7 @@ exports.marginDetail = async (req, res, next) => {
         },
       ])
 
+      console.log("subscription", subscription);
       if (subscription.length > 0) {
         if (isRedisConnected) {
           await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(subscription[0]))
@@ -467,9 +475,9 @@ exports.tradingDays = async (req, res, next) => {
     },
   ])
 
-  console.log("tradingDays ", tradingDays)
+  // console.log("tradingDays ", tradingDays)
   if(tradingDays.length> 0){
-    console.log("tradingDays in if", tradingDays)
+    // console.log("tradingDays in if", tradingDays)
     res.status(200).json({ status: 'success', data: tradingDays });
   } else{
     const tradingDay = await Subscription.aggregate(
@@ -493,7 +501,7 @@ exports.tradingDays = async (req, res, next) => {
         },
       },
     ])
-    console.log("tradingDays in else", tradingDay)
+    // console.log("tradingDays in else", tradingDay)
     res.status(200).json({ status: 'success', data: tradingDay });
   }
 }
