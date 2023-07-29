@@ -373,7 +373,7 @@ exports.renewSubscription = async(req, res, next)=>{
               <div class="container">
               <h1>Subscription Renewed</h1>
               <p>Hello ${user.first_name},</p>
-              <p>Thanks for renew your subscription! Please find your renew details below.</p>
+              <p>Thanks for renewing your subscription! Please find your renewal details below.</p>
               <p>User ID: <span class="userid">${user.employeeid}</span></p>
               <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
               <p>Email: <span class="password">${user.email}</span></p>

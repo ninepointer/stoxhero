@@ -102,7 +102,7 @@ exports.createPayment = async(req, res, next)=>{
                 <h1>Amount Credited</h1>
                 <p>Hello ${user.first_name},</p>
                 <p>Amount of ${amount}INR has been credited in you wallet</p>
-                <p>You can now purchase Tenx and play contest.</p>
+                <p>You can now purchase Tenx and participate in contest.</p>
                 
                 <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
                 <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
