@@ -360,7 +360,13 @@ exports.getCompletedContests = async (req, res) => {
     const userId = req.user._id;
     try {
         const contests = await Contest.find({
-            contestEndTime: { $lt: new Date() }, "participants.userId": new ObjectId(userId), contestFor: "StoxHero"
+            contestEndTime: { $lt: new Date() },
+            "participants.userId": new ObjectId(userId),
+            contestFor: "StoxHero"
+        }, {
+            allowedUsers: 0,
+            potentialParticipants: 0,
+            contestSharedBy: 0
         }).sort({ contestStartTime: -1 })
 
         res.status(200).json({
@@ -376,6 +382,7 @@ exports.getCompletedContests = async (req, res) => {
         });
     }
 };
+
 
 // Controller for getting completed contests
 exports.getCompletedCollegeContests = async (req, res) => {
