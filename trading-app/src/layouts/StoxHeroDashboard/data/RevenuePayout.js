@@ -45,6 +45,16 @@ const withdrawalData = {
   
   console.log(withdrawalData);
 
+  const purchaseToday = Math.abs(overallRevenue["Contest Fee"].revenueToday + overallRevenue["Bought TenX Trading Subscription"].revenueToday)
+  const purchaseYesterday = Math.abs(overallRevenue["Contest Fee"].revenueYesterday + overallRevenue["Bought TenX Trading Subscription"].revenueYesterday)
+  const purchaseThisWeek = Math.abs(overallRevenue["Contest Fee"].revenueThisWeek + overallRevenue["Bought TenX Trading Subscription"].revenueThisWeek)
+  const purchaseLastWeek = Math.abs(overallRevenue["Contest Fee"].revenueLastWeek + overallRevenue["Bought TenX Trading Subscription"].revenueLastWeek)
+  const purchaseThisMonth = Math.abs(overallRevenue["Contest Fee"].revenueThisMonth + overallRevenue["Bought TenX Trading Subscription"].revenueThisMonth)
+  const purchaseLastMonth = Math.abs(overallRevenue["Contest Fee"].revenueLastMonth + overallRevenue["Bought TenX Trading Subscription"].revenueLastMonth)
+  const purchaseThisYear = Math.abs(overallRevenue["Contest Fee"].revenueThisYear + overallRevenue["Bought TenX Trading Subscription"].revenueThisYear)
+  const purchaseLastYear = Math.abs(overallRevenue["Contest Fee"].revenueLastYear + overallRevenue["Bought TenX Trading Subscription"].revenueLastYear)
+  const totalPurchase = Math.abs(overallRevenue["Contest Fee"].totalRevenue + overallRevenue["Bought TenX Trading Subscription"].totalRevenue)
+
   return (
     
             <Grid container spacing={.5} p={0.5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
@@ -53,16 +63,16 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Revenue (Today)
+                                Purchase (Today)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallRevenue["Amount Credit"]?.revenueToday > overallRevenue["Amount Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Amount Credit"].revenueToday)}
+                            <MDTypography fontSize={13} color={purchaseToday > purchaseYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(purchaseToday)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(purchaseYesterday)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Amount Credit"].revenueToday > overallRevenue["Amount Credit"].revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Amount Credit"].revenueToday-overallRevenue["Amount Credit"].revenueYesterday))/(overallRevenue["Amount Credit"].revenueYesterday === 0 ? overallRevenue["Amount Credit"].revenueToday : overallRevenue["Amount Credit"].revenueYesterday)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Amount Credit"].revenueToday > overallRevenue["Amount Credit"].revenueYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={purchaseToday > purchaseYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((purchaseToday-purchaseYesterday)/(purchaseYesterday === 0 ? purchaseToday : purchaseYesterday)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{purchaseToday > purchaseYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
                             </MDTypography>
                         </MDBox>
@@ -73,7 +83,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Revenue (Week)
+                                Purchase (Week)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -93,7 +103,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Revenue (Month)
+                                Purchase (Month)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -113,7 +123,7 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Revenue (Year)
+                                Purchase (Year)
                             </MDTypography>
                         </MDBox>
                         <MDBox>
@@ -133,7 +143,108 @@ const withdrawalData = {
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>
                             <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
-                                Total Revenue
+                                Total Purchase
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Amount Credit"].totalRevenue)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color='success' fontWeight="bold" style={{textAlign:'center'}}>
+                                {/* <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Amount Credit"].revenueThisMonth-overallRevenue["Amount Credit"].revenueLastMonth))/(overallRevenue["Amount Credit"].revenueLastMonth === 0 ? overallRevenue["Amount Credit"].revenueThisMonth : overallRevenue["Amount Credit"].revenueLastMonth)*100).toFixed(0)}%</span>&nbsp; */}
+                                {/* <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Amount Credit"].revenueThisMonth > overallRevenue["Amount Credit"].revenueLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp; */}
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>and growing</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+                
+                {/*  */}
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Wallet Credit (Today)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Amount Credit"]?.revenueToday > overallRevenue["Amount Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Amount Credit"].revenueToday)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Amount Credit"].revenueToday > overallRevenue["Amount Credit"].revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Amount Credit"].revenueToday-overallRevenue["Amount Credit"].revenueYesterday))/(overallRevenue["Amount Credit"].revenueYesterday === 0 ? overallRevenue["Amount Credit"].revenueToday : overallRevenue["Amount Credit"].revenueYesterday)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Amount Credit"].revenueToday > overallRevenue["Amount Credit"].revenueYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Wallet Credit (Week)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Amount Credit"].revenueThisWeek > overallRevenue["Amount Credit"].revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Amount Credit"].revenueThisWeek)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Amount Credit"].revenueThisWeek > overallRevenue["Amount Credit"].revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Amount Credit"].revenueThisWeek-overallRevenue["Amount Credit"].revenueLastWeek))/(overallRevenue["Amount Credit"].revenueLastWeek === 0 ? overallRevenue["Amount Credit"].revenueThisWeek : overallRevenue["Amount Credit"].revenueLastWeek)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Amount Credit"].revenueThisWeek > overallRevenue["Amount Credit"].revenueLastWeek ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from week</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Wallet Credit (Month)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Amount Credit"].revenueThisMonth > overallRevenue["Amount Credit"].revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Amount Credit"].revenueThisMonth)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Amount Credit"].revenueThisMonth > overallRevenue["Amount Credit"].revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Amount Credit"].revenueThisMonth-overallRevenue["Amount Credit"].revenueLastMonth))/(overallRevenue["Amount Credit"].revenueLastMonth === 0 ? overallRevenue["Amount Credit"].revenueThisMonth : overallRevenue["Amount Credit"].revenueLastMonth)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Amount Credit"].revenueThisMonth > overallRevenue["Amount Credit"].revenueLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last month</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Wallet Credit (Year)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Amount Credit"].revenueThisYear > overallRevenue["Amount Credit"].revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Amount Credit"].revenueThisYear)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Amount Credit"].revenueThisYear > overallRevenue["Amount Credit"].revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Amount Credit"].revenueThisYear-overallRevenue["Amount Credit"].revenueLastYear))/(overallRevenue["Amount Credit"].revenueLastYear === 0 ? overallRevenue["Amount Credit"].revenueThisYear : overallRevenue["Amount Credit"].revenueLastYear)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Amount Credit"].revenueThisYear > overallRevenue["Amount Credit"].revenueLastYear ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last year</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Total Wallet Credit
                             </MDTypography>
                         </MDBox>
                         <MDBox>

@@ -8,13 +8,11 @@ import Carousel from '../data/carouselItems'
 import Performance from '../data/performance'
 import Summary from '../data/summary'
 import { userContext } from '../../../AuthContext';
-// import Post from '../data/postForm'
-// import Posts from '../data/posts'
-// import MDTypography from '../../../components/MDTypography';
 import UpcomingContest from '../data/ongoingContest'
+import DailyChallenge from '../data/dailyChallenge'
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let [carouselData, setCarouselData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [tradingData, setTradingData] = useState();
@@ -130,13 +128,19 @@ export default function Dashboard() {
         <Grid item xs={12} md={12} lg={8} display='flex' justifyContent="center" alignItems="center">
         <Grid container xs={12} md={12} lg={12} mb={1} display="flex" justifyContent="center" alignItems="center">
           
-          <Grid item xs={12} md={6} lg={12}>
+        <Grid item xs={12} md={6} lg={12}>
+            <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
+              <DailyChallenge summary={summary}/>
+            </MDBox>
+          </Grid>
+          
+          <Grid item xs={12} md={6} lg={12} mt={.5}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               <Summary summary={summary}/>
             </MDBox>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={12} mt={1}>
+          <Grid item xs={12} md={6} lg={12} mt={0.5}>
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               {stats && <Performance tradingData={stats} timeframe={timeframe} setTimeframe={setTimeframe} tradeType={tradeType} setTradeType={setTradeType}/>}
             </MDBox>

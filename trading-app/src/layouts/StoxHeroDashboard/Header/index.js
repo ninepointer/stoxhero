@@ -20,7 +20,7 @@ import RevenuePayout from '../data/RevenuePayout'
 
 
 export default function Dashboard() {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   let [dailyActiveUsersPlatform,setDailyActiveUsersPlatform] = useState([])
   let [monthlyActiveUsersPlatform,setMonthlyActiveUsersPlatform] = useState([])
   let [weeklyActiveUsersPlatform,setWeeklyActiveUsersPlatform] = useState([])

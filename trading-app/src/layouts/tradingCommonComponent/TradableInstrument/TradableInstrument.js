@@ -81,7 +81,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   // console.log("rendering : tradable instrument", from)
   //console.log("rendering in userPosition: TradableInstrument", from)
   const {render, setRender} = useContext(renderContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   let textRef = useRef(null);
   const PAGE_SIZE = 20;
   const marketDetails = useContext(marketDataContext)
