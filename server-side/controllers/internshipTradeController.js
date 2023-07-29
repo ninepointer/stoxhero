@@ -936,49 +936,56 @@ exports.myInternshipTradingDays = async (req, res, next) => {
 
 exports.internshipPnlReport = async (req, res, next) => {
 
-  let { startDate, endDate, batch } = req.params
+  let { batch } = req.params
 
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
+  // startDate = startDate + "T00:00:00.000Z";
+  // endDate = endDate + "T23:59:59.000Z";
 
 
   let pipeline = [
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        // trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE",
         batch: new ObjectId(batch)
       }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
     },
     {
-      $group:
+      $lookup: {
+        from: "intern-batches",
+        localField: "batch",
+        foreignField: "_id",
+        as: "batch",
+      },
+    },
       {
-        _id: {
-          "date": { $substr: ["$trade_time", 0, 10] },
-        },
-        gpnl: {
-          $sum: { $multiply: ["$amount", -1] }
-        },
-        brokerage: {
-          $sum: { $toDouble: "$brokerage" }
-        },
-        noOfTrade: {
-          $count: {}
-        },
-      }
-    },
-    {
-      $addFields:
+        $group:
+        {
+          _id: {
+            "date": { $substr: ["$trade_time", 0, 10] },
+          },
+          gpnl: {
+            $sum: { $multiply: ["$amount", -1] }
+          },
+          brokerage: {
+            $sum: { $toDouble: "$brokerage" }
+          },
+          noOfTrade: {
+            $count: {}
+          },
+        }
+      },
       {
-        npnl: { $subtract: ["$gpnl", "$brokerage"] },
-        dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+        $addFields:
+        {
+          npnl: { $subtract: ["$gpnl", "$brokerage"] },
+          dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+        }
+      },
+      {
+        $sort:
+          { _id: 1 }
       }
-    },
-    {
-      $sort:
-        { _id: 1 }
-    }
   ]
 
   let x = await InternTrades.aggregate(pipeline)
@@ -988,12 +995,11 @@ exports.internshipPnlReport = async (req, res, next) => {
 
 exports.internshipDailyPnlTWise = async (req, res, next) => {
 
-  let { startDate, endDate, batch } = req.params
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
+  let { batch } = req.params
+  // startDate = startDate + "T00:00:00.000Z";
+  // endDate = endDate + "T23:59:59.000Z";
   // console.log("startDate", startDate,endDate )
   let pipeline = [
-
     {
       $lookup: {
         from: "user-personal-details",
@@ -1002,14 +1008,19 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
         as: "user",
       },
     },
-
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE",
-        batch: new ObjectId(batch)
-      }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+        batch: new ObjectId(batch),
+      },
+    },
+    {
+      $lookup: {
+        from: "intern-batches",
+        localField: "batch",
+        foreignField: "_id",
+        as: "batch",
+      },
     },
     {
       $group: {
@@ -1017,16 +1028,74 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
           userId: "$trader",
           name: {
             $concat: [
-              { $arrayElemAt: ["$user.first_name", 0] },
+              {
+                $arrayElemAt: [
+                  "$user.first_name",
+                  0,
+                ],
+              },
               " ",
-              { $arrayElemAt: ["$user.last_name", 0] },
+              {
+                $arrayElemAt: [
+                  "$user.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+          batchStartDate: {
+            $arrayElemAt: [
+              "$batch.batchStartDate",
+              0,
+            ],
+          },
+          batchEndDate: {
+            $arrayElemAt: [
+              "$batch.batchEndDate",
+              0,
+            ],
+          },
+
+          payoutPercentage: {
+            $arrayElemAt: [
+              "$batch.payoutPercentage",
+              0,
+            ],
+          },
+          attendancePercentage: {
+            $arrayElemAt: [
+              "$batch.attendancePercentage",
+              0,
+            ],
+          },
+          referralCount: {
+            $arrayElemAt: [
+              "$batch.referralCount",
+              0,
             ],
           },
         },
-        gpnl: { $sum: { $multiply: ["$amount", -1] } },
-        brokerage: { $sum: { $toDouble: "$brokerage" } },
-        trades: { $count: {} },
-        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time",
+            },
+          },
+        },
       },
     },
     {
@@ -1034,11 +1103,20 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
         _id: 0,
         userId: "$_id.userId",
         name: "$_id.name",
-        tradingDays: { $size: "$tradingDays" },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
         gpnl: 1,
         brokerage: 1,
-        npnl: { $subtract: ["$gpnl", "$brokerage"] },
-        noOfTrade: "$trades"
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        noOfTrade: "$trades",
+        batchStartDate: "$_id.batchStartDate",
+        batchEndDate: "$_id.batchEndDate",
+        payoutPercentage: "$_id.payoutPercentage",
+        attendancePercentage: "$_id.attendancePercentage",
+        referralCount: "$_id.referralCount",
       },
     },
     {
@@ -1253,8 +1331,6 @@ exports.updateUserWallet = async () => {
       const creditAmount = npnl*payoutPercentage/100;
   
       const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
-  
-      // console.log(attendance >= attendanceLimit && referral >= referralLimit && npnl > 0, attendance, attendanceLimit, referral, referralLimit, npnl, users[i].user);
 
       if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
         wallet.transactions = [...wallet.transactions, {

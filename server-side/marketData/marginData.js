@@ -403,16 +403,13 @@ exports.marginCalculationTraderLive = async (marginData, data, ltp, order_id) =>
         }
     }
 
-    // console.log("insertMarginData user", {
-    //     trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
-    //     open_lots: Quantity + runningLots, amount: ltp * Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
-    // })
 
-
-    const insertMarginData = await InfinityMockUserMargin.create({
-        trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
-        open_lots: Quantity + runningLots, amount: ltp * Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
-    })
+    if(!autoTrade){
+        const insertMarginData = await InfinityMockUserMargin.create({
+            trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
+            open_lots: Quantity + runningLots, amount: ltp * Number(Quantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
+        })
+    }
 
     const insertMarginDataLive = await InfinityLiveUserMargin.create({
         trader, instrument: symbol, quantity: Quantity, ltp, transaction_type: buyOrSell,
@@ -425,6 +422,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
     let {Quantity, userQuantity, symbol, realBuyOrSell, realQuantity, trader, autoTrade, buyOrSell} = data;
     let {isReleaseFund, isAddMoreFund, isSquareOff, zerodhaMargin, runningLots} = marginData;
 
+    console.log("data is", data, marginData)
     if(autoTrade && realBuyOrSell === "SELL"){
         runningLots = -runningLots;
     }
@@ -442,6 +440,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
         type = "Order";
         avg_price = ltp;
     }
+
     if(runningLots && isAddMoreFund){
         const previousData = await InfinityMockCompanyMargin.find({instrument: symbol, parent_id: null, trader: trader}).sort({date: -1});
         parent_id = previousData[0]?.order_id;
@@ -464,6 +463,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
     if(realBuyOrSell === "SELL"){
         realQuantity = -realQuantity;
     }
+
     if(isAddMoreFund && realBuyOrSell === "SELL"){
         if(isAddMoreFund && isReleaseFund){
             let marginQuantity = Math.abs(Math.abs(runningLots) - Math.abs(realQuantity));
@@ -474,6 +474,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
             margin_utilize = await marginApi(data, Math.abs(realQuantity));
         }
     }
+
     if(isAddMoreFund && realBuyOrSell === "BUY"){
         if(isAddMoreFund && isReleaseFund){
             let marginQuantity = Math.abs(Math.abs(runningLots) - Math.abs(realQuantity));
@@ -482,6 +483,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
             margin_utilize = ltp*Math.abs(realQuantity);
         }
     }
+
     if(isReleaseFund || isSquareOff){
         if(!isAddMoreFund) margin_utilize = 0;
         type = "Trade";
@@ -527,11 +529,12 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id) =
         }
     }
 
-
-    const insertMarginData = await InfinityMockCompanyMargin.create({
-        trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
-        open_lots: realQuantity + runningLots, amount: ltp * Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
-    })
+    if(!autoTrade){
+        const insertMarginData = await InfinityMockCompanyMargin.create({
+            trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,
+            open_lots: realQuantity + runningLots, amount: ltp * Number(realQuantity), margin_released, margin_utilize, type, order_id, parent_id, avg_price
+        })
+    }
 
     const insertMarginDataLive = await InfinityLiveCompanyMargin.create({
         trader, instrument: symbol, quantity: realQuantity, ltp, transaction_type: realBuyOrSell,

@@ -290,6 +290,8 @@ exports.renewSubscription = async(req, res, next)=>{
 
       if(isRedisConnected){
         await client.del(`${user._id.toString()}authenticatedUser`);
+        await client.del(`${userId.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`)
+        await client.del(`${userId.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
       }
 
       if(!wallet){
@@ -384,8 +386,10 @@ exports.renewSubscription = async(req, res, next)=>{
           </html>
 
       `
-      emailService(recipientString,subject,message);
-      console.log("Subscription Email Sent")
+      if(process.env.PROD === "true"){
+        emailService(recipientString,subject,message);
+        console.log("Subscription Email Sent")
+      }
       
       res.status(201).json({status: 'success', message: 'Subscription renewed successfully.'});    
   }catch(e){

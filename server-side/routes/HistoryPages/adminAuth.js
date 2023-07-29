@@ -282,17 +282,7 @@ router.get("/margin", async (req, res) => {
           },
         },
     },
-    // {
-    //   $match:
-    //     /**
-    //      * query: The query in MQL.
-    //      */
-    //     {
-    //       margin_utilize: {
-    //         $ne: "$margin_released",
-    //       },
-    //     },
-    // },
+ 
   ]
   const x = await MarginDetailMockCompany.aggregate(pipeline)
   res.send(x);
