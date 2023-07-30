@@ -183,7 +183,8 @@ exports.getUsers = async (req, res) => {
 exports.initiatePayment = async (req, res) => {
     const {
         amount,
-        mobileNumber
+        mobileNumber,
+        redirectTo
     } = req.body;
     let merchantId = 'MERCHANTUAT';
     let merchantTransactionId = generateUniqueTransactionId();
@@ -274,7 +275,7 @@ exports.handleCallback = async (req, res, next) => {
             console.log('no decoded response');
             // Call PG Check Status API if S2S response is not received
             // TODO: Implement call to PG Check Status API and handle its response
-            
+
         } else {
             // Validate checksum
             if (!verifyChecksum(decodedResponse, req.headers['X-VERIFY'])) {
