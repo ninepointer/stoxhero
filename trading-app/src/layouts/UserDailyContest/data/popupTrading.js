@@ -1,4 +1,5 @@
 import React, {  useState, useContext } from "react";
+import ReactGA from "react-ga"
 import { memo } from 'react';
 // import axios from "axios"
 // import uniqid from "uniqid"

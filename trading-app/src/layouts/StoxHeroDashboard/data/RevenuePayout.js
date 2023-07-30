@@ -589,7 +589,7 @@ const withdrawalData = {
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallRevenue["TenX Trading Payout"]?.revenueToday > overallRevenue["TenX Trading Payout"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueToday)}
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueToday)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueYesterday)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TenX Trading Payout"]?.revenueToday > overallRevenue["TenX Trading Payout"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TenX Trading Payout"]?.revenueToday-overallRevenue["TenX Trading Payout"]?.revenueYesterday))/(overallRevenue["TenX Trading Payout"]?.revenueYesterday === 0 ? overallRevenue["TenX Trading Payout"]?.revenueToday : overallRevenue["TenX Trading Payout"]?.revenueYesterday)*100).toFixed(0)}%</span>&nbsp;
@@ -609,7 +609,7 @@ const withdrawalData = {
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallRevenue["TenX Trading Payout"]?.revenueThisWeek > overallRevenue["TenX Trading Payout"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueThisWeek)}
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueThisWeek)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueLastWeek)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TenX Trading Payout"]?.revenueThisWeek > overallRevenue["TenX Trading Payout"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TenX Trading Payout"]?.revenueThisWeek-overallRevenue["TenX Trading Payout"]?.revenueLastWeek))/(overallRevenue["TenX Trading Payout"]?.revenueLastWeek === 0 ? overallRevenue["TenX Trading Payout"]?.revenueThisWeek : overallRevenue["TenX Trading Payout"]?.revenueLastWeek)*100).toFixed(0)}%</span>&nbsp;
@@ -629,7 +629,7 @@ const withdrawalData = {
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallRevenue["TenX Trading Payout"]?.revenueThisMonth > overallRevenue["TenX Trading Payout"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueThisMonth)}
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueThisMonth)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueLastMonth)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TenX Trading Payout"]?.revenueThisMonth > overallRevenue["TenX Trading Payout"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TenX Trading Payout"]?.revenueThisMonth-overallRevenue["TenX Trading Payout"]?.revenueLastMonth))/(overallRevenue["TenX Trading Payout"]?.revenueLastMonth === 0 ? overallRevenue["TenX Trading Payout"]?.revenueThisMonth : overallRevenue["TenX Trading Payout"]?.revenueLastMonth)*100).toFixed(0)}%</span>&nbsp;
@@ -649,7 +649,7 @@ const withdrawalData = {
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallRevenue["TenX Trading Payout"]?.revenueThisYear > overallRevenue["TenX Trading Payout"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueThisYear)}
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueThisYear)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["TenX Trading Payout"]?.revenueLastYear)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["TenX Trading Payout"]?.revenueThisYear > overallRevenue["TenX Trading Payout"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["TenX Trading Payout"]?.revenueThisYear-overallRevenue["TenX Trading Payout"]?.revenueLastYear))/(overallRevenue["TenX Trading Payout"]?.revenueLastYear === 0 ? overallRevenue["TenX Trading Payout"]?.revenueThisYear : overallRevenue["TenX Trading Payout"]?.revenueLastYear)*100).toFixed(0)}%</span>&nbsp;

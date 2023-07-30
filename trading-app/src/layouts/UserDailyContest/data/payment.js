@@ -17,6 +17,7 @@ import paymentQr from '../../../assets/images/paymentQr.jpeg';
 import MDTypography from '../../../components/MDTypography';
 import { userContext } from '../../../AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ReactGA from "react-ga"
 
 
 

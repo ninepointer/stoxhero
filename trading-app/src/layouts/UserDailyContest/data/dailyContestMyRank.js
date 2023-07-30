@@ -2,6 +2,7 @@ import { React, useState, useEffect, useContext, useCallback, useMemo } from "re
 // import axios from "axios";
 // import { Link } from "react-router-dom";
 // import moment from 'moment'
+import ReactGA from "react-ga"
 
 
 // @mui material components

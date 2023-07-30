@@ -6,7 +6,9 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { CircularProgress, Divider, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
+import MDTypography from '../../../components/MDTypography';
 import MDButton from '../../../components/MDButton';
+import tradesicon from '../../../assets/images/tradesicon.png'
 import {Link} from 'react-router-dom'
 // import ActiveBatches from '../data/activeBatches';
 // import CompletedBatches from '../data/completedBatches';
@@ -27,17 +29,14 @@ export default function LabTabs() {
   };
 
   return (
-    <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minHeight='60vH'>
+    <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minHeight='auto'>
       <Grid container lg={12}>
-        <Grid item lg={4}>
-        <MDBox bgColor='light' minHeight='100%'>
-            hi
-        </MDBox>
-        </Grid>
-        <Divider orientation='vertical' bgColor='light'/>
-        <Grid item lg={7}>
-            hi
-        </Grid>
+          <Grid item xs={12} md={6} lg={12}>
+              <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                <img src={tradesicon} width={50} height={50}/>
+                <MDTypography color="light" fontSize={15}>Coming Soon!</MDTypography>
+              </MDBox>
+          </Grid>
       </Grid>
     </MDBox>
   );

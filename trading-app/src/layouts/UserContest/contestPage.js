@@ -3,6 +3,7 @@ import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import React,{useState, memo} from 'react'
+import ReactGA from "react-ga"
 
 
 // Data
