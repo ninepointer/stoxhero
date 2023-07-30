@@ -135,8 +135,8 @@ exports.createWithdrawal = async(req,res,next) => {
     });
 
     userWallet.transactions.push({
-        title:`Withdrawal of ₹${amount} to bank account`, 
-        description:'User initiated withdrawal from wallet',
+        title:`Withdraw`, 
+        description:`User initiated withdrawal from wallet of ₹${amount} to bank account`,
         amount: -amount,
         transactionId,
         transactionType: 'Cash',
@@ -356,7 +356,7 @@ exports.rejectWithdrawal = async(req,res,next) => {
     
         userWallet?.transactions?.push(
             {
-                title:`Refund to wallet against withdrawal request`, 
+                title:`Refund`, 
                 description:'Withdrawal request rejected',
                 amount: withdrawal?.amount,
                 transactionId: uuid.v4(),

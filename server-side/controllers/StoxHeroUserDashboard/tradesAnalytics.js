@@ -59,6 +59,11 @@ exports.getTradeInformation = async (req, res) => {
   try {
     const pipeline = [
       {
+        $match: {
+          status : 'COMPLETE'
+        },
+      },
+      {
         $group: {
           _id: {
             date: {

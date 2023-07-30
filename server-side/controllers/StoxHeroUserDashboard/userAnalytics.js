@@ -721,20 +721,20 @@ exports.getRollingActiveUsersOnPlatform = async (req, res) => {
     const yesterday = new Date(new Date());
     yesterday.setDate(yesterday.getDate()-1);
     const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate()-30)); // Get date 30 days ago
-    thirtyDaysAgo.setUTCHours(0, 0, 0, 0);
+    thirtyDaysAgo.setUTCHours(-5, -29, -59, -999);
     const startOfToday = new Date(new Date().setHours(0,0,0,0)); // Get start of today
-    startOfToday.setUTCHours(0, 0, 0, 0);
+    startOfToday.setUTCHours(-5, -29, -59, -999);
     const startOfYesterday = new Date(new Date().setDate(new Date().getDate()-1)); // Get start of yesterday
-    startOfYesterday.setUTCHours(0, 0, 0, 0);
+    startOfYesterday.setUTCHours(-5, -29, -59, -999);
     const endOfYesterday = new Date(startOfToday - 1); // Get end of yesterday
-    // endOfYesterday.setUTCHours(0, 0, 0, 0);
+    // endOfYesterday.setUTCHours(-5, -29, -59, -999);
     // console.log("Days:",thirtyDaysAgo,startOfToday,startOfYesterday,endOfYesterday)
     const sevenDaysAgo = new Date(new Date().setDate(new Date().getDate()-7));
-    sevenDaysAgo.setUTCHours(0, 0, 0, 0);
+    sevenDaysAgo.setUTCHours(-5, -29, -59, -999);
     const sevenDaysAgoBasedOnYesterday = new Date(yesterday.setDate(yesterday.getDate()-7));
-    sevenDaysAgoBasedOnYesterday.setUTCHours(0, 0, 0, 0);
+    sevenDaysAgoBasedOnYesterday.setUTCHours(-5, -29, -59, -999);
     const thirtyDaysAgoBasedOnYesterday = new Date(yesterday.setDate(yesterday.getDate()-30));
-    thirtyDaysAgoBasedOnYesterday.setUTCHours(0, 0, 0, 0);
+    thirtyDaysAgoBasedOnYesterday.setUTCHours(-5, -29, -59, -999);
 
 
     const pipeline = [
@@ -926,25 +926,30 @@ exports.getOverallTradeInformation = async (req, res) => {
     // Get start of today, yesterday, this week, last week, this month, last month, this year, last year
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    startOfToday.setUTCHours(0, 0, 0, 0);
+    startOfToday.setUTCHours(-5,-29,-59,-999);
     const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    startOfYesterday.setUTCHours(0, 0, 0, 0);
+    startOfYesterday.setUTCHours(-5,-29,-59,-999);
     const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-    startOfThisWeek.setUTCHours(0, 0, 0, 0);
+    startOfThisWeek.setUTCHours(-5,-29,-59,-999);
     const startOfLastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 7);
-    startOfLastWeek.setUTCHours(0, 0, 0, 0);
+    startOfLastWeek.setUTCHours(-5,-29,-59,-999);
     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    startOfThisMonth.setUTCHours(0, 0, 0, 0);
+    startOfThisMonth.setUTCHours(-5,-29,-59,-999);
     const startOfLastMonth = now.getMonth() === 0 ? new Date(now.getFullYear() - 1, 11, 1) : new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    startOfLastMonth.setUTCHours(0, 0, 0, 0);
+    startOfLastMonth.setUTCHours(-5,-29,-59,-999);
     const startOfThisYear = new Date(now.getFullYear(), 0, 1);
-    startOfThisYear.setUTCHours(23, 59, 59, 999);
+    startOfThisYear.setUTCHours(18, 30, 30, 0);
     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
-    startOfLastYear.setUTCHours(0, 0, 0, 0);
+    startOfLastYear.setUTCHours(-5,-29,-59,-999);
 
-    console.log("Year Dates:",startOfThisYear,startOfLastYear)
+    // console.log("Year Dates:",startOfThisYear,startOfLastYear)
 
     const pipeline = [
+      {
+        $match:{
+          status : 'COMPLETE'
+        }
+      },
       {
         $group: {
           _id: null,
@@ -1096,21 +1101,23 @@ exports.getOverallRevenue = async (req, res) => {
     // Get start of today, yesterday, this week, last week, this month, last month, this year, last year
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    startOfToday.setUTCHours(0, 0, 0, 0);
+    startOfToday.setUTCHours(-5, -29, -59, -999);
     const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    startOfYesterday.setUTCHours(0, 0, 0, 0);
+    startOfYesterday.setUTCHours(-5, -29, -59, -999);
     const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-    startOfThisWeek.setUTCHours(0, 0, 0, 0);
+    startOfThisWeek.setUTCHours(-5, -29, -59, -999);
     const startOfLastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 7);
-    startOfLastWeek.setUTCHours(0, 0, 0, 0);
+    startOfLastWeek.setUTCHours(-5, -29, -59, -999);
     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    startOfThisMonth.setUTCHours(0, 0, 0, 0);
+    startOfThisMonth.setUTCHours(-5, -29, -59, -999);
     const startOfLastMonth = now.getMonth() === 0 ? new Date(now.getFullYear() - 1, 11, 1) : new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    startOfLastMonth.setUTCHours(0, 0, 0, 0);
+    startOfLastMonth.setUTCHours(-5, -29, -59, -999);
     const startOfThisYear = new Date(now.getFullYear(), 0, 1);
-    startOfThisYear.setUTCHours(0, 0, 0, 0);
+    startOfThisYear.setUTCHours(-5, -29, -59, -999);
     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
-    startOfLastYear.setUTCHours(0, 0, 0, 0);
+    startOfLastYear.setUTCHours(-5, -29, -59, -999);
+
+    console.log("Date TToday & Yesterday:",startOfToday,startOfYesterday)
 
     const pipeline = [
       {
@@ -1157,7 +1164,7 @@ exports.getOverallRevenue = async (req, res) => {
       data[title] = revenue;
     });
 
-    console.log("Revenue Details:", data);
+    // console.log("Revenue Details:", data);
 
     const response = {
       status: "success",

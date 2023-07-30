@@ -30,11 +30,11 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={signupData[0]?.todayUsers[0]?.count > signupData[0]?.yesterdayUsers[0]?.count ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.todayUsers[0]?.count ? signupData[0]?.todayUsers[0]?.count : 0)}
+                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.todayUsers[0]?.count ? signupData[0]?.todayUsers[0]?.count : 0)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.yesterdayUsers[0]?.count ? signupData[0]?.yesterdayUsers[0]?.count : 0)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={signupData[0]?.todayUsers[0]?.count > signupData[0]?.yesterdayUsers[0]?.count ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(signupData[0]?.todayUsers[0]?.count??0-signupData[0]?.yesterdayUsers[0]?.count??0))/(signupData[0]?.yesterdayUsers[0]?.count??0 ? signupData[0]?.yesterdayUsers[0]?.count??0 : signupData[0]?.todayUsers[0]?.count??0)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{signupData[0]?.todayUsers[0]?.count??0 > signupData[0]?.yesterdayUsers[0]?.count??0 ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{signupData[0]?.todayUsers[0]?.count > signupData[0]?.yesterdayUsers[0]?.count ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
                             </MDTypography>
                         </MDBox>
@@ -49,12 +49,12 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={signupData[0]?.thisWeekUsers[0]?.count??0 > signupData[0]?.lastWeekUsers[0]?.count??0 ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.thisWeekUsers[0]?.count??0)}
+                            <MDTypography fontSize={13} color={signupData[0]?.thisWeekUsers[0]?.count > signupData[0]?.lastWeekUsers[0]?.count ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.thisWeekUsers[0]?.count??0)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.lastWeekUsers[0]?.count??0)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={signupData[0]?.thisWeekUsers[0]?.count??0 > signupData[0]?.lastWeekUsers[0]?.count??0 ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(signupData[0]?.thisWeekUsers[0]?.count??0-signupData[0]?.lastWeekUsers[0]?.count??0))/(signupData[0]?.lastWeekUsers[0]?.count??0)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{signupData[0]?.thisWeekUsers[0]?.count??0 > signupData[0]?.lastWeekUsers[0]?.count??0 ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={signupData[0]?.thisWeekUsers[0]?.count > signupData[0]?.lastWeekUsers[0]?.count ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(signupData[0]?.thisWeekUsers[0]?.count-signupData[0]?.lastWeekUsers[0]?.count))/(signupData[0]?.lastWeekUsers[0]?.count??0)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{signupData[0]?.thisWeekUsers[0]?.count > signupData[0]?.lastWeekUsers[0]?.count ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last week</span>
                             </MDTypography>
                         </MDBox>
@@ -70,7 +70,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={signupData[0]?.thisMonthUsers[0]?.count??0 > signupData[0]?.lastMonthUsers[0]?.count??0 ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.thisMonthUsers[0]?.count??0)}
+                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.thisMonthUsers[0]?.count??0)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.lastMonthUsers[0]?.count??0)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={signupData[0]?.thisMonthUsers[0]?.count??0 > signupData[0]?.lastMonthUsers[0]?.count??0 ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs((signupData[0]?.thisMonthUsers[0]?.count??0)-(signupData[0]?.lastMonthUsers[0]?.count??0)))/(signupData[0]?.lastMonthUsers[0]?.count??0)*100).toFixed(0)}%</span>&nbsp;
@@ -130,7 +130,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={rollingActiveUsers?.uniqueUsersCountToday > rollingActiveUsers?.uniqueUsersCountYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersCountToday)}
+                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersCountToday)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersCountYesterday)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={rollingActiveUsers?.uniqueUsersCountToday > rollingActiveUsers?.uniqueUsersCountYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(rollingActiveUsers?.uniqueUsersCountToday-rollingActiveUsers?.uniqueUsersCountYesterday))/(rollingActiveUsers?.uniqueUsersCountYesterday)*100).toFixed(0)}%</span>&nbsp;
@@ -150,7 +150,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday > rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday)}
+                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday > rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday-rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday))/(rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday)*100).toFixed(0)}%</span>&nbsp;
@@ -170,7 +170,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday > rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday)}
+                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday > rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday-rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday))/(rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday)*100).toFixed(0)}%</span>&nbsp;
@@ -190,7 +190,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={(rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday) > (rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday) ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {((rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday)*100).toFixed(0)}%
+                                {((rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday)*100).toFixed(0)}% || {((rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday)*100).toFixed(0)}%
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={(rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday) > (rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday) ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs((rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnToday)-(rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday))/((rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast30DaysBasedOnYesterday))*100)).toFixed(0)}%</span>&nbsp;
@@ -210,7 +210,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={(rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday) > (rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday) ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {((rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday)*100).toFixed(0)}%
+                                {((rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday)*100).toFixed(0)}% || {((rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday)*100).toFixed(0)}%
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={(rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday) > (rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday) ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs((rollingActiveUsers?.uniqueUsersCountToday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnToday)-(rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday))/((rollingActiveUsers?.uniqueUsersCountYesterday/rollingActiveUsers?.uniqueUsersPast7DaysBasedOnYesterday))*100)).toFixed(0)}%</span>&nbsp;
@@ -230,7 +230,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallTradeInformation.tradesToday > overallTradeInformation.tradesYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                            {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesToday)}
+                            {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesToday)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesYesterday)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation.tradesToday > overallTradeInformation.tradesYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation.tradesToday-overallTradeInformation.tradesYesterday))/(overallTradeInformation.tradesYesterday)*100).toFixed(0)}%</span>&nbsp;
@@ -250,7 +250,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallTradeInformation.tradesThisWeek > overallTradeInformation.tradesLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                            {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesThisWeek)}
+                            {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesThisWeek)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesLastWeek)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation.tradesThisWeek > overallTradeInformation.tradesLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation.tradesThisWeek-overallTradeInformation.tradesLastWeek))/(overallTradeInformation.tradesLastWeek)*100).toFixed(0)}%</span>&nbsp;
@@ -270,7 +270,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallTradeInformation.tradesThisMonth > overallTradeInformation.tradesLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                            {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesThisMonth)}
+                            {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesThisMonth)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesLastMonth)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation.tradesThisMonth > overallTradeInformation.tradesLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation.tradesThisMonth-overallTradeInformation.tradesLastMonth))/(overallTradeInformation.tradesLastMonth)*100).toFixed(0)}%</span>&nbsp;
@@ -290,7 +290,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                         </MDBox>
                         <MDBox>
                             <MDTypography fontSize={13} color={overallTradeInformation.tradesThisYear > overallTradeInformation.tradesLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesThisYear)}
+                                {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesThisYear)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.tradesLastYear)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation.tradesThisYear > overallTradeInformation.tradesLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation.tradesThisYear-overallTradeInformation.tradesLastYear))/(overallTradeInformation.tradesLastYear === 0 ? overallTradeInformation.tradesThisYear : overallTradeInformation.tradesLastYear)*100).toFixed(0)}%</span>&nbsp;
@@ -329,12 +329,12 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallTradeInformation.turnoverToday > overallTradeInformation.turnoverYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                            <MDTypography fontSize={13} color={overallTradeInformation?.turnoverToday > overallTradeInformation?.turnoverYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                              ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.turnoverToday)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation.turnoverToday > overallTradeInformation.turnoverYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation.turnoverToday-overallTradeInformation.turnoverYesterday))/(overallTradeInformation.turnoverYesterday)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallTradeInformation.turnoverToday > overallTradeInformation.turnoverYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation?.turnoverToday > overallTradeInformation?.turnoverYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation?.turnoverToday-overallTradeInformation?.turnoverYesterday))/(overallTradeInformation.turnoverYesterday)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallTradeInformation?.turnoverToday > overallTradeInformation?.turnoverYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
                             </MDTypography>
                         </MDBox>
@@ -349,12 +349,12 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallTradeInformation.turnoverThisWeek > overallTradeInformation.turnoverLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.turnoverThisWeek)}
+                            <MDTypography fontSize={13} color={overallTradeInformation?.turnoverThisWeek > overallTradeInformation?.turnoverLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation?.turnoverThisWeek)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation.turnoverThisWeek > overallTradeInformation.turnoverLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation.turnoverThisWeek-overallTradeInformation.turnoverLastWeek))/(overallTradeInformation.turnoverLastWeek)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallTradeInformation.turnoverThisWeek > overallTradeInformation.turnoverLastWeek ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation?.turnoverThisWeek > overallTradeInformation?.turnoverLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation?.turnoverThisWeek-overallTradeInformation?.turnoverLastWeek))/(overallTradeInformation.turnoverLastWeek)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallTradeInformation?.turnoverThisWeek > overallTradeInformation?.turnoverLastWeek ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last week</span>
                             </MDTypography>
                         </MDBox>
@@ -369,12 +369,12 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={overallTradeInformation.turnoverThisMonth > overallTradeInformation.turnoverLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation.turnoverThisMonth)}
+                            <MDTypography fontSize={13} color={overallTradeInformation?.turnoverThisMonth > overallTradeInformation?.turnoverLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallTradeInformation?.turnoverThisMonth)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation.turnoverThisMonth > overallTradeInformation.turnoverLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation.turnoverThisMonth-overallTradeInformation.turnoverLastMonth))/(overallTradeInformation.turnoverLastMonth)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallTradeInformation.turnoverThisMonth > overallTradeInformation.turnoverLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallTradeInformation?.turnoverThisMonth > overallTradeInformation?.turnoverLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallTradeInformation?.turnoverThisMonth-overallTradeInformation?.turnoverLastMonth))/(overallTradeInformation?.turnoverLastMonth)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallTradeInformation?.turnoverThisMonth > overallTradeInformation?.turnoverLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last month</span>
                             </MDTypography>
                         </MDBox>
