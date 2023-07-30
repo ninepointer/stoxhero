@@ -158,6 +158,7 @@ import WorkShopOrders from './layouts/userorders/workshopOrder';
 import Chart from './layouts/charts/index';
 import Withdrawal from "./layouts/withdrawals";
 import WalletPayment from "./layouts/walletPayment";
+import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 
 const routes = [
 
@@ -1009,6 +1010,14 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/paymenttest",
     component: <PaymentTest/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/paymenttest/status",
+    component: <PaymentStatus/>,
   },
   {
     type: "collapse",
