@@ -15,7 +15,7 @@ const PaymentStatus = () => {
   },[location]);
   const checkStatus = async ()=> {
     try{
-        const res = await axios.get(`${apiUrl}payment/checkstatus/${location.search.merchantTransactionId}`);
+        const res = await axios.get(`${apiUrl}payment/checkstatus/${location.search.merchantTransactionId}`, {withCredentials: true});
         console.log(res.data);
         if(res.data.code == 'PAYMENT_SUCCESS'){
             setStatus('succeeded');
