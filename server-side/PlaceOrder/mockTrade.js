@@ -80,6 +80,12 @@ exports.mockTrade = async (req, res) => {
         originalLastPriceCompany = liveData[0]?.last_price;
 
         trade_time = new Date(newTimeStamp);
+        if(trade_time < new Date()){
+            console.log("in if")
+            const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+            trade_time = trade_time.getTime() + subtractedTime;
+        }
+
 
     } catch (err) {
         console.log(err)
