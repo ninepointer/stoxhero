@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState, useContext, useRef, useReducer } from "react";
 import Grid from "@mui/material/Grid";
 import MDBox from "../../../components/MDBox";
@@ -35,7 +36,13 @@ function Summary({summary}) {
         <Grid container spacing={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
         
             <Grid item xs={12} md={4} lg={4} display='flex' justifyContent='center'>
-            <MDButton style={{padding:0, width:'100%'}}>
+            <MDButton 
+                style={{padding:0, width:'100%'}}
+                component = {Link}
+                to={{
+                    pathname: `/challenges`,
+                  }}
+            >
                 <MDBox bgColor='warning' borderRadius={5} display='flex' justifyContent='center' flexDirection='column' width='100%'>
                     <MDBox p={0} borderRadius={5} display='flex' justifyContent='center' minWidth='100%'>
                         <MDTypography color='light' fontSize={15} fontWeight="bold">Target Challenge</MDTypography>
@@ -53,7 +60,13 @@ function Summary({summary}) {
             
 
             <Grid item xs={12} md={4} lg={4} display='flex' justifyContent='center'>
-            <MDButton style={{padding:0, width:'100%'}}>
+            <MDButton 
+                style={{padding:0, width:'100%'}}
+                component = {Link}
+                to={{
+                    pathname: `/challenges`,
+                  }}
+            >
                 <MDBox bgColor='warning' borderRadius={5} display='flex' justifyContent='center' flexDirection='column' width='100%'>
                     <MDBox p={0} borderRadius={5} display='flex' justifyContent='center' minWidth='100%'>
                         <MDTypography color='light' fontSize={15} fontWeight="bold">Target Challenge</MDTypography>
@@ -70,7 +83,13 @@ function Summary({summary}) {
             </Grid>
 
             <Grid item xs={12} md={4} lg={4} display='flex' justifyContent='center'>
-            <MDButton style={{padding:0, width:'100%'}}>
+            <MDButton 
+                style={{padding:0, width:'100%'}}
+                component = {Link}
+                to={{
+                    pathname: `/challenges`,
+                  }}
+            >
                 <MDBox bgColor='warning' borderRadius={5} display='flex' justifyContent='center' flexDirection='column' width='100%'>
                     <MDBox p={0} borderRadius={5} display='flex' justifyContent='center' minWidth='100%'>
                         <MDTypography color='light' fontSize={15} fontWeight="bold">Target Challenge</MDTypography>

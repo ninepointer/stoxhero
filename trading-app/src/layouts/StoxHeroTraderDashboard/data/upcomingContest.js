@@ -116,14 +116,11 @@ function OnGoingContests() {
                             {contest.map((elem) => {
                                 return (
                                     <MDBox key={elem._id} bgColor="light" borderRadius={5} minHeight='auto' mt={2}>
-                                        <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center'>
+                                        <Grid container xs={12} md={12} lg={12} spacing={1} display='flex' justifyContent='center' alignItems='center'>
 
                                             <Grid item xs={12} md={12} lg={12}>
-                                                <MDBox bgColor='primary' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                                <MDBox bgColor='secondary' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                                     <Grid container xs={12} md={12} lg={12}>
-                                                        {/* <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                            <MDTypography fontSize={15} color='light' fontWeight="bold">Hurry up limited seats</MDTypography>
-                                                        </Grid> */}
                                                         <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                             <MDTypography
                                                                 fontSize={15}
@@ -131,7 +128,7 @@ function OnGoingContests() {
                                                                 fontWeight="bold"
                                                                 style={{ animation: 'blinking .8s infinite' }}
                                                             >
-                                                                Limited seats available - Join now!
+                                                                Limited Seats - Join Now!
                                                             </MDTypography>
                                                             <style>
                                                                 {`

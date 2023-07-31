@@ -1,5 +1,6 @@
 import { React, useState, useEffect, useContext } from "react";
 import axios from "axios";
+import ReactGA from "react-ga"
 import { userContext } from '../../../AuthContext';
 import moment from 'moment'
 
@@ -27,12 +28,15 @@ import Contest from './contest'
 
 function Header({ children }) {
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   return (
     
     <Grid container mt={1}>
         <Grid item xs={12} md={12} lg={12}>
-            <Grid ml={0.75} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' minWidth='100%'>
+            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' minWidth='100%'>
               <Contest/>
             </Grid> 
         </Grid>

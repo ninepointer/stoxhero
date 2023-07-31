@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { memo } from 'react';
+import ReactGA from "react-ga"
 import axios from "axios";
 import { debounce } from 'lodash';
 import Dialog from '@mui/material/Dialog';

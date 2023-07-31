@@ -5,6 +5,7 @@ const Setting = require("../../../models/settings/setting");
 const { autoPlaceOrder } = require("../xtsInteractive");
 const { ObjectId } = require("mongodb");
 const delay = ms => new Promise(res => setTimeout(res, ms));
+const UserPermission = require("../../../models/User/permissionSchema");
 
 const infinityTradeLive = async (res) => {
     let date = new Date();
@@ -17,7 +18,6 @@ const infinityTradeLive = async (res) => {
         infinityLive: false
       }, { new: true });
 
-    // console.log(setting)
 
     const data = await InfinityLiveTradeCompany.aggregate(
         [
@@ -85,6 +85,11 @@ const infinityTradeLive = async (res) => {
     
         ]
     );
+
+    if(data.length === 0){
+        const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } });
+        res.status(200).json({message: "no real trade found. switched successfully."})
+    }
 
     // console.log(data)
     for (let i = 0; i < data.length; i++) {
