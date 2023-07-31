@@ -174,10 +174,10 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
 
     return (
         <>
-            <MDBox mr={1}>
+            <MDBox>
 
                 <>
-                    <Grid container xs={12} md={12} lg={12}>
+                    <Grid container spacing={1} xs={12} md={12} lg={12}>
                         {
                             contest?.map((elem) => {
                                 if (elem?.entryFee === 0) {
@@ -213,7 +213,7 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
 
                                     // console.log("timeDifference", particularContestTime[0]?.value )
                                     return (
-                                        <Grid item py={1} px={1} xs={12} md={12} lg={6} borderRadius={3}>
+                                        <Grid item xs={12} md={12} lg={6} borderRadius={3}>
                                             <MDButton variant="contained" style={{ backgroundColor: "light" }} size="small">
                                                 <Grid container display='flex' justifyContent='space-between' alignItems='center'>
                                                     <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>

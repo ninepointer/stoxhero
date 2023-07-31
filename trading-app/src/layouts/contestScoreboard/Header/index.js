@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
@@ -6,6 +6,7 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
+import ReactGA from "react-ga"
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 // import ActiveBatches from '../data/activeBatches';
@@ -20,6 +21,10 @@ export default function LabTabs() {
   const [value, setValue] = React.useState('1');
   const [isLoading,setIsLoading] = useState(false);
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
+
   const handleChange = (event, newValue) => {
     setIsLoading(true)
     setValue(newValue);
@@ -33,8 +38,8 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="College Contest Scoreboard" value="1" />
-            <Tab label="StoxHero Contest Scoreboard" value="2" />
+            <Tab label="StoxHero Contest Scoreboard" value="1" />
+            <Tab label="College Contest Scoreboard" value="2" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -45,7 +50,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-            <CollegeContestScoreboard/>
+            <ContestScoreboard/>
           </MDBox>
    
           }
@@ -56,7 +61,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <ContestScoreboard/>
+          <CollegeContestScoreboard/>
           }
         </TabPanel>
       </TabContext>

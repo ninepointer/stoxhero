@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import MDBox from '../../components/MDBox';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MDTypography from '../../components/MDTypography';
 import {apiUrl} from '../../constants/constants';
+import axios from 'axios';
+
 
 const PaymentStatus = () => {
   const location = useLocation();
@@ -37,7 +39,7 @@ const PaymentStatus = () => {
             Payment Status
         </MDTypography>
         <MDBox>
-            {status!=loading && <MDTypography>We're verifying your transaction. Please don't refresh or go back. This may take a minute.</MDTypography>} 
+            {status!='loading' && <MDTypography>We're verifying your transaction. Please don't refresh or go back. This may take a minute.</MDTypography>} 
         </MDBox>
         <MDBox>
             {status == 'succeeded' && <MDTypography>Payment Successful</MDTypography>}

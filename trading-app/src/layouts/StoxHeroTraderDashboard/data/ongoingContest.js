@@ -100,7 +100,7 @@ function OnGoingContests() {
                     <CircularProgress color="info" />
                 </MDBox>
                 :
-                <MDBox border='1px solid lightgrey' borderRadius={5} minHeight='auto'>
+                <MDBox borderRadius={5} minHeight='auto'>
                     <Grid container display='flex' justifyContent='space-between' alignItems='center'>
                         <Grid item xs={12} md={6} lg={12} m={1}>
                             <MDBox display='flex' mb={1} justifyContent='space-between' alignItems='center'>
@@ -114,24 +114,27 @@ function OnGoingContests() {
                                 contest.map((elem) => {
                                     let isContestFull = (elem.maxParticipants - elem.participants.length) === 0;
                                     return (
-                                        <MDBox key={elem._id} bgColor="light" borderRadius={5} minHeight='auto' mt={2}>
-                                            <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center'>
+                                        <MDBox key={elem._id} bgColor="light" borderRadius={5} minHeight='auto' mt={0.5}>
+                                            <Grid container spacing={0.1} display='flex' justifyContent='center' alignItems='center'>
 
                                                 <Grid item xs={12} md={12} lg={12}>
-                                                    <MDBox bgColor='primary' p={2} borderRadius={5} display='flex' minWidth='100%'>
+                                                    <MDBox bgColor='secondary' p={2} borderRadius={5} display='flex' minWidth='100%'>
                                                         <Grid container xs={12} md={12} lg={12}>
-                                                            {/* <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                            <MDTypography fontSize={15} color='light' fontWeight="bold">Hurry up limited seats</MDTypography>
-                                                        </Grid> */}
-                                                            <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                                <MDTypography
-                                                                    fontSize={15}
-                                                                    
-                                                                    fontWeight="bold"
-                                                                    style={{ color: isContestFull ? "black" : 'white', animation: isContestFull ? '' : 'blinking .8s infinite' }}
-                                                                >
-                                                                    {isContestFull ? "Contest Full" : "Limited seats available - Join now!"}
-                                                                </MDTypography>
+                                                            <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                                <Grid container xs={3} md={3} lg={12} display='flex' alignItems='center'>
+                                                                    <Grid item xs={3} md={3} lg={9}>
+                                                                        <MDTypography
+                                                                            fontSize={12}
+                                                                            fontWeight="bold"
+                                                                            style={{ color: isContestFull ? "white" : 'white', animation: isContestFull ? '' : 'blinking .8s infinite' }}
+                                                                        >
+                                                                            {isContestFull ? "Contest Full" : "Limited Seats - Join Now!"}
+                                                                        </MDTypography>
+                                                                    </Grid>
+                                                                    <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                                        <MDButton size='small' onClick={() => { navigate(`/contest`) }}><MDTypography fontSize={10} fontWeight='bold'>Join Now</MDTypography></MDButton>
+                                                                    </Grid>
+                                                                </Grid>
                                                                 <style>
                                                                     {`
                                                                     @keyframes blinking {
@@ -149,38 +152,37 @@ function OnGoingContests() {
                                                                 </style>
                                                             </Grid>
 
-                                                            <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            <Grid item xs={3} md={3} lg={2} display='flex' justifyContent='flex-start' alignItems='center'>
                                                                 <img src={ContestCarousel} width='40px' height='40px' />
                                                             </Grid>
-                                                            <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                                <MDTypography fontSize={15} color='light' fontWeight="bold">{elem?.contestName}</MDTypography>
+                                                            <Grid item xs={3} md={3} lg={10} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                                <MDTypography fontSize={12} color='light' fontWeight="bold">{elem?.contestName}</MDTypography>
                                                             </Grid>
-                                                            <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            <Grid item xs={3} md={3} lg={2} display='flex' justifyContent='flex-start' alignItems='center'>
                                                             </Grid>
-                                                            <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            <Grid item xs={3} md={3} lg={10} display='flex' justifyContent='flex-start' alignItems='center'>
                                                                 <MDTypography fontSize={12} color='light' fontWeight="bold">Starts On: {changeDateFormat(elem?.contestStartTime)}</MDTypography>
                                                             </Grid>
 
                                                             {(!isContestFull && elem.entryFee !== 0) &&
                                                                 <>
-                                                                    <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                                    <Grid item xs={3} md={3} lg={2} display='flex' justifyContent='flex-start' alignItems='center'>
                                                                     </Grid>
 
-                                                                    <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                                    <Grid item xs={3} md={3} lg={10} display='flex' justifyContent='flex-start' alignItems='center'>
                                                                         <MDTypography fontSize={12} color='light' fontWeight="bold">Spots Left: {elem?.maxParticipants - elem?.participants?.length}</MDTypography>
                                                                     </Grid>
                                                                 </>
                                                             }
-                                                            <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            <Grid item xs={3} md={3} lg={2} display='flex' justifyContent='flex-start' alignItems='center'>
                                                             </Grid>
-                                                            <Grid item xs={3} md={3} lg={9} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            <Grid item xs={3} md={3} lg={10} display='flex' justifyContent='flex-start' alignItems='center'>
                                                                 <MDTypography fontSize={12} color='light' fontWeight="bold">Payout: {elem?.payoutPercentage}% of Net P&L</MDTypography>
                                                             </Grid>
-
-                                                            {/* <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='center' alignItems='center'>
-                                                        </Grid> */}
-                                                            <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                <MDButton size='small' onClick={() => { navigate(`/contest`) }}>View</MDButton>
+                                                            <Grid item xs={3} md={3} lg={2} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                            </Grid>
+                                                            <Grid item xs={3} md={3} lg={10} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                                <MDTypography fontSize={12} color='light' fontWeight="bold">Entry Fee: ₹{elem?.entryFee}/-</MDTypography>
                                                             </Grid>
                                                         </Grid>
                                                     </MDBox>
@@ -191,11 +193,11 @@ function OnGoingContests() {
                                     )
                                 })
                                 :
-                                <MDBox bgColor="light" borderRadius={5} minHeight='auto' mt={2}>
-                                    <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center'>
+                                <MDBox bgColor="light" borderRadius={5} minHeight='auto' mt={0}>
+                                    <Grid container spacing={0} display='flex' justifyContent='center' alignItems='center'>
 
                                         <Grid item xs={12} md={12} lg={12}>
-                                            <MDBox bgColor='#2D2D2D' p={2} borderRadius={5} display='flex' minWidth='100%' height="200px">
+                                            <MDBox bgColor='#2D2D2D' p={0} borderRadius={5} display='flex' minWidth='100%' height="200px">
                                                 <Grid container xs={12} md={12} lg={12}>
                                                     <Grid item xs={3} md={3} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDTypography

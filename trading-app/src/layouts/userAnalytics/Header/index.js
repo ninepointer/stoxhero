@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
+import ReactGA from "react-ga"
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -49,6 +50,9 @@ export default function LabTabs() {
   const[expected, setExpected] = useState([]);
   const[tradeType, setTradeType] = useState('virtual');
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   let endpoint, trade ;
   if(alignment === paperTrading){

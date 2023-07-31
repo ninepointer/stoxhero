@@ -3,6 +3,7 @@ import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
+import ReactGA from "react-ga"
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -34,6 +35,10 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
 
+    useEffect(() => {
+        ReactGA.pageview(window.location.pathname)
+      }, []);
+
     const initialInterestedCounts = contest.reduce((acc, elem) => {
         acc[elem._id] = {
             interested: false,
@@ -60,7 +65,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        openSuccessSB('success', 'Copied', 'Share this link to your friend');
+        openSuccessSB('success', 'Link Copied', 'Share it with your friends');
         const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${id}/share`, {
             method: "PUT",
             credentials: "include",
@@ -180,10 +185,10 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
 
     return (
         <>
-            <MDBox mr={1}>
+            <MDBox>
 
                 <>
-                    <Grid container xs={12} md={12} lg={12}>
+                    <Grid container spacing={1} xs={12} md={12} lg={12}>
                         {
                             contest?.map((elem) => {
                                 if (elem?.entryFee !== 0) {
@@ -218,7 +223,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
 
                                     // console.log("timeDifference", particularContestTime[0]?.value )
                                     return (
-                                        <Grid item py={1} px={1} xs={12} md={12} lg={6} borderRadius={3}>
+                                        <Grid item xs={12} md={12} lg={6} borderRadius={3}>
                                             <MDButton variant="contained" style={{ backgroundColor: "#252525" }} color={"#252525"} size="small">
                                                 <Grid container display='flex' justifyContent='space-between' alignItems='center'>
                                                     <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
@@ -245,7 +250,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                         </MDBox>
                                                     </Grid>
 
-                                                    <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                    <Grid item mt={0.5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                                 <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
@@ -262,7 +267,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                         </MDBox>
                                                     </Grid>
 
-                                                    <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
+                                                    <Grid item mt={0.5} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
                                                             <MDBox color={"#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: '#DBB670', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹" + elem?.entryFee : "FREE"}</MDTypography></MDBox>
                                                         </MDBox>
@@ -278,7 +283,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                         </MDBox>
                                                     </Grid>
 
-                                                    <Grid item xs={12} md={12} lg={12} mt={1} mb={1}>
+                                                    <Grid item xs={12} md={12} lg={12} mt={0.5} mb={1}>
                                                         {particularContestTime[0]?.value > 0 ?
 
                                                             <MDBox display="flex" justifyContent="space-between">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import ReactGA from "react-ga"
+import ReactGA from "react-ga"
 import { CircularProgress, Divider, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 // import MyPortfolio from '../data/Portfolios'
@@ -13,6 +13,9 @@ import PaidContest from "./paidContest";
 import MDButton from '../../../components/MDButton';
 import { Link } from "react-router-dom"
 import axios from "axios";
+import SchoolIcon from '@mui/icons-material/School';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 export default function LabTabs() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -54,29 +57,66 @@ export default function LabTabs() {
 
     return (
 
-        <MDBox bgColor="dark" color="light"  mb={1} p={2} borderRadius={10} minHeight='auto'>
+        <MDBox bgColor="dark" color="light" display='flex' justifyContent='center' flexDirection='column'  mb={1} borderRadius={10} minHeight='auto'>
 
             {isLoading ?
-                <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+                <MDBox mt={10} mb={10} display="flex" justifyContent="center" alignItems="center">
                     <CircularProgress color='light' />
                 </MDBox>
                 :
                 <>
-                    <MDBox mt={-1} p={0.5} mb={1} width='100%' bgColor='light' minHeight='auto' display='flex' borderRadius={7}>
+                    <MDBox mt={0} mb={1} p={0.5} width='100%' bgColor='light' minHeight='auto' display='flex' justifyContent='space-between' borderRadius={7}>
                         <MDButton bgColor='dark' color={"warning"} size='small'
                             component={Link}
                             to={{
                                 pathname: `/completedcontests`,
                             }}
                         >
-                            {"View Past Contest"}
+                            <MDBox display='flex' justifyContent='center' alignItems='center'>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    <RemoveRedEyeIcon/>
+                                </MDBox>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    Past Contests
+                                </MDBox>
+                            </MDBox>
+                        </MDButton>
+                        <MDButton bgColor='dark' color={"warning"} size='small'
+                            component={Link}
+                            to={{
+                                pathname: `/contestscoreboard`,
+                            }}
+                        >
+                            <MDBox display='flex' justifyContent='center' alignItems='center'>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    <SportsScoreIcon/>
+                                </MDBox>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    Contest Scoreboard
+                                </MDBox>
+                            </MDBox>
+                        </MDButton>
+                        <MDButton bgColor='dark' color={"warning"} size='small'
+                            component={Link}
+                            to={{
+                                pathname: `/collegecontest`,
+                            }}
+                        >
+                            <MDBox display='flex' justifyContent='center' alignItems='center'>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    <SchoolIcon/>
+                                </MDBox>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    College Contest
+                                </MDBox>
+                            </MDBox>
                         </MDButton>
                     </MDBox>
-                    <Grid container >
+                    <Grid container xs={12} md={12} lg={12} display='flex'>
                         <Grid item xs={12} md={6} lg={12}>
                             {paid.length !== 0 &&
                             <>
-                                <MDTypography color="light" fontWeight="bold">Premium Contest(s)</MDTypography>
+                                <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Paid Contest(s)</MDTypography>
                                 <PaidContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
                             </>
                             }
@@ -87,7 +127,7 @@ export default function LabTabs() {
                         <Grid item xs={12} md={6} lg={12}>
                             {free.length !== 0 &&
                             <>
-                                <MDTypography  color="light" fontWeight="bold" mt={1}>Free Contest(s)</MDTypography>
+                                <MDTypography  color="light" fontSize={15} fontWeight="bold" ml={0.5} mt={1}>Free Contest(s)</MDTypography>
                                 <MDBox style={{ minWidth: '100%' }}>
                                     <FreeContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} />
                                 </MDBox>

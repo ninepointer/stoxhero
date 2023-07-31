@@ -6,6 +6,7 @@ import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
 import DailyVirtualUsers from '../data/dailyVirtualUsers'
+import ReactGA from "react-ga"
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
@@ -45,6 +46,10 @@ export default function LabTabs({socket}) {
       });
     })
   }, [])
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   useEffect(()=>{
     socket.on('updatePnl', (data)=>{
