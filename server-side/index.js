@@ -352,7 +352,7 @@ let weekDay = date.getDay();
           infinityOffline();
         });
         // const autotrade = nodeCron.schedule('50 9 * * *', test); 
-        const autotrade = nodeCron.schedule(`1 13 * * *`, async () => {
+        const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
           autoCutMainManually();
           autoCutMainManuallyMock();
           changeStatus();
@@ -381,12 +381,6 @@ let weekDay = date.getDay();
     }
   }
 
-  const autotrade = nodeCron.schedule(`23 14 * * *`, async () => {
-    autoCutMainManually();
-    autoCutMainManuallyMock();
-    changeStatus();
-    creditAmount();
-  });
 
 
 const PORT = process.env.PORT||5002;

@@ -889,25 +889,25 @@ exports.creditAmountToWallet = async () => {
                         },
                     ])
 
-                    console.log(pnlDetails[0]);
+                    // console.log(pnlDetails[0]);
                     if (pnlDetails[0]?.npnl > 0) {
                         const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
                         const wallet = await Wallet.findOne({ userId: userId });
 
-                        console.log(userId);
-                        if (wallet && wallet.transactions.length > 0 ) {
-                            // Use $pop to remove the last element from the transaction array
+                        console.log(userId, pnlDetails[0]);
+                        // if (wallet && wallet.transactions.length > 0 ) {
+                        //     // Use $pop to remove the last element from the transaction array
                             
-                            const updatedWallet = await Wallet.findOneAndUpdate(
-                              { userId: userId },
-                              { $pop: { transactions: 1 } }, // 1 indicates removing the last element
-                              { new: true }
-                            );
+                        //     const updatedWallet = await Wallet.findOneAndUpdate(
+                        //       { userId: userId },
+                        //       { $pop: { transactions: 1 } }, // 1 indicates removing the last element
+                        //       { new: true }
+                        //     );
                           
-                            // console.log("Updated Wallet:", updatedWallet);
-                          } else {
-                            console.log("No wallet found or transaction array is empty.");
-                          }
+                        //     // console.log("Updated Wallet:", updatedWallet);
+                        //   } else {
+                        //     console.log("No wallet found or transaction array is empty.");
+                        //   }
                         wallet.transactions = [...wallet.transactions, {
                             title: 'Contest Credit',
                             description: `Amount credited for contest ${contest[j].contestName}`,
