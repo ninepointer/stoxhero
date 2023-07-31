@@ -12,7 +12,7 @@ const PaymentStatus = () => {
   const [status, setStatus] = useState('loading'); 
   useEffect(()=>{
     checkStatus();
-  },[]);
+  },[location]);
   const checkStatus = async ()=> {
     try{
         const res = await axios.get(`${apiUrl}payment/checkstatus/${location.search.merchantTransactionId}`);
