@@ -376,7 +376,7 @@ let weekDay = date.getDay();
         } );
 
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-        const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+        //const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
       
     }
   }
