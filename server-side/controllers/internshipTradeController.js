@@ -1144,7 +1144,7 @@ exports.updateUserWallet = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()-1).padStart(2, '0')}`
   
-    console.log("todayDate", todayDate)
+    // console.log("todayDate", todayDate)
   
     const internship = await Careers.aggregate([
       {
@@ -1216,7 +1216,7 @@ exports.updateUserWallet = async () => {
     const users = internship[0].users;
     const batchId = internship[0].batchId;
     const holiday = await Holiday.find({holidayDate: {$gte: internship[0].startDate, $lte: internship[0].endDate}});
-    
+    const profitCap = 15000;
 
     const tradingDays = async (userId, batchId)=>{
       const pipeline = 
@@ -1328,8 +1328,8 @@ exports.updateUserWallet = async () => {
       const attendance = tradingdays*100/workingDays-holiday.length;
       const referral = await referrals(user);
       const npnl = await pnl(users[i].user, batchId);
-      const creditAmount = npnl*payoutPercentage/100;
-  
+      const creditAmount = Math.min(npnl*payoutPercentage/100, profitCap)
+      
       const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
 
       if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {

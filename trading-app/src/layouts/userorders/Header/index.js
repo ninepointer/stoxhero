@@ -19,10 +19,11 @@ import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import {InfinityTraderRole, tenxTrader} from "../../../variables";
+import TenxOrderDetail from "../data/tenxOrderDetail";
 
 
 
-function Header({ children }) {
+function Header() {
   const [view,setView] = useState('today');
   const [infinityView,setInfinityView] = useState('today');
   const [internshipView,setInternshipView] = useState('today');
@@ -41,6 +42,9 @@ function Header({ children }) {
   const [internshipFilterData, setInternshipFilteredData] = useState([]);
   const [internshipCount, setInternshipCount] = useState(0);
   const [internshipData, setInternshipData] = useState([]);
+  const [selectedSubscription, setselectedSubscription] = useState();
+  const [userSubs, setUserSubs] = useState();
+
 
   const [orders, setOrders] = useState([]);
   const [isLoading,setIsLoading] = useState(true)
@@ -60,8 +64,8 @@ function Header({ children }) {
   let historyInfinityColor = (infinityView === 'history' ? 'warning' : 'light')
   let todayInternshipColor = (internshipView === 'today' ? 'warning' : 'light')
   let historyInternshipColor = (internshipView === 'history' ? 'warning' : 'light')
-  let url1 = 'my/todayorders'
-  let url2 = 'my/historyorders'
+  let url1 = getDetails.userDetails.role.roleName == InfinityTraderRole ? 'my/todayorders' : `my/todayorders/${JSON.stringify(selectedSubscription)}`
+  let url2 = getDetails.userDetails.role.roleName == InfinityTraderRole ? 'my/historyorders' : `my/historyorders/${JSON.stringify(selectedSubscription)}/${JSON.stringify(userSubs)}`
   let url = (view === 'today' ? url1 : url2)
   let infinityUrl = infinityView === 'today' ? url1 : url2;
   let internshipUrl = internshipView === 'today' ? url1 : url2;
@@ -391,10 +395,11 @@ function Header({ children }) {
               <Grid item xs={8} md={6} lg={6} display="flex" justifyContent="flex-end">
               <MDBox display="flex" justifyContent="flex-end" alignItems='center'>
                 <MDTypography style={{marginRight:10}} color="light" fontSize={15}>Filters:</MDTypography>
+                {getDetails.userDetails.role.roleName !== InfinityTraderRole &&
+                <TenxOrderDetail infinityView={infinityView} selectedSubscription={selectedSubscription} setselectedSubscription={setselectedSubscription} userSubs={userSubs} setUserSubs={setUserSubs} />
+                }
                 <MDButton color={buyInfinityFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setBuyInfinityFilter(!buyInfinityFilter)}}>Buy</MDButton>
                 <MDButton color={sellInfinityFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setSellInfinityFilter(!sellInfinityFilter)}}>Sell</MDButton>
-                {/* <MDButton color={completeFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setCompleteFilter(!completeFilter)}}>Complete</MDButton> */}
-                {/* <MDButton color={rejectedFilter ? 'warning' : 'light'} variant="outlined" size="small" style={{marginRight:10}} onClick={(e)=>{setRejectedFilter(!rejectedFilter)}}>Rejected</MDButton> */}
               </MDBox>
               </Grid>
             </Grid>

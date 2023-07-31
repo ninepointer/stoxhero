@@ -6,7 +6,7 @@ const {createTenXSubscription, editTanx, getActiveTenXSubs, renewSubscription,
     createTenXPurchaseIntent, getTenXSubscriptionPurchaseIntent} = require("../../controllers/tenXSubscriptionController");
 const Authenticate = require('../../authentication/authentication');
 const tenXTradeRoute = require("../mockTrade/tenXTradeRoute")
-const {myTodaysTrade, myHistoryTrade, tradingDays} = require("../../controllers/tenXTradeController")
+const {myTodaysTrade, myHistoryTrade, tradingDays, userSubscriptions} = require("../../controllers/tenXTradeController")
 const restrictTo = require('../../authentication/authorization');
 
 // router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
@@ -19,8 +19,10 @@ router.route('/intermediate').get(Authenticate, getIntermediateSubscription);
 router.route('/pro').get(Authenticate, getProSubscription);
 router.route('/renew').patch(Authenticate, renewSubscription);
 
-router.route('/my/todayorders').get(Authenticate, myTodaysTrade)
-router.route('/my/historyorders').get(Authenticate, myHistoryTrade)
+
+router.route('/mySubscription').get(Authenticate, userSubscriptions);
+
+
 // router.route('/countTradingDays').get(Authenticate, tradingDays)
 
 router.route('/subscriptionpurchaseintent/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getTenXSubscriptionPurchaseIntent);
@@ -28,6 +30,10 @@ router.route('/draft').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getD
 router.route('/:id').get(Authenticate, getTenXSubscription).patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), editTanx);
 router.route('/feature/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), editFeature);
 router.route('/removefeature/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), removeFeature);
+
 router.use('/:id/trade', tenXTradeRoute)
+router.route('/my/todayorders/:subscription').get(Authenticate, myTodaysTrade)
+router.route('/my/historyorders/:subscription/:usersubscription').get(Authenticate, myHistoryTrade)
+
 
 module.exports = router;
