@@ -189,8 +189,8 @@ exports.initiatePayment = async (req, res) => {
     let merchantId = 'MERCHANTUAT';
     let merchantTransactionId = generateUniqueTransactionId();
     let merchantUserId = 'MUID'+ req.user._id;
-    let redirectUrl = `http://43.204.7.180/careers?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
-    let callbackUrl = 'http://43.204.7.180/api/v1/payments/callback';
+    let redirectUrl = `http://43.204.7.180/paymenttest/status?merchantTransactionId=${merchantTransactionId}&redirectTo=${redirectTo}`;
+    let callbackUrl = 'http://43.204.7.180/api/v1/payment/callback';
     let redirectMode = 'REDIRECT'
     const payment = await Payment.create({
         paymentTime: new Date(),
