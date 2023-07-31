@@ -14,37 +14,7 @@ export default function RegisteredUsers({dailyContest, action, setAction}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [registeredUsers,setRegisteredUsers] = React.useState([]);
     const [registeredUsersCount,setRegisteredUsersCount] = useState(0);
-    // const [action, setAction] = useState(false);
-    // async function getRegisteredUsers(){
-    //     let call1 = axios.get(`${baseUrl}api/v1/internbatch/batchparticipants/${dailyContest}`,{
-    //         withCredentials: true,
-    //         headers: {
-    //             Accept: "application/json",
-    //             "Content-Type": "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //           },
-    //         })
-    //         Promise.all([call1])
-    //         .then(([api1Response]) => {
-    //         // Process the responses here
-    //         console.log(api1Response.data.data);
-    //         setRegisteredUsers(api1Response.data.data.participants)
-    //         setRegisteredUsersCount(api1Response.data.data.participants.length);
-    //         })
-    //         .catch((error) => {
-    //         // Handle errors here
-    //         console.error(error);
-    //         });
-    // }
-
-    // useEffect(()=>{
-    //   getRegisteredUsers();
-    // },[action])
-    // const handleRemove = async (userId) =>{
-    //   const res = await axios.patch(`${apiUrl}dailyContest/remove/${dailyContest}/${userId}`, {}, {withCredentials: true});
-    //   console.log(res.data);
-    //   setAction(!action);
-    // }
+ 
     let columns = [
         { Header: "#", accessor: "index", align: "center" },
         // { Header: "Remove", accessor: "remove", align: "center" },
@@ -62,11 +32,7 @@ export default function RegisteredUsers({dailyContest, action, setAction}) {
       {index+1}
     </MDTypography>
   );
-  // featureObj.remove = (
-  //   <MDButton component="a" variant="Outlined" color="error" fontWeight="medium" onClick = {()=>{handleRemove(elem?.user._id)}}>
-  //     Remove
-  //   </MDButton>
-  // );
+
   featureObj.fullname = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.userId?.first_name} {elem?.userId?.last_name}

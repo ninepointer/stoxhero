@@ -229,9 +229,6 @@ if(process.env.PROD === "true"){
 
 
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
-
-// autoCutMainManually().then(()=>{})
-
 app.use(express.json({ limit: "20kb" }));
 
 
