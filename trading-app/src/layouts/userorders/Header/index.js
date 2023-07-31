@@ -64,11 +64,11 @@ function Header() {
   let historyInfinityColor = (infinityView === 'history' ? 'warning' : 'light')
   let todayInternshipColor = (internshipView === 'today' ? 'warning' : 'light')
   let historyInternshipColor = (internshipView === 'history' ? 'warning' : 'light')
-  let url1 = (getDetails.userDetails.role.roleName == InfinityTraderRole && selectedSubscription) ? 'my/todayorders' : `my/todayorders/${JSON.stringify(selectedSubscription)}`
-  let url2 = (getDetails.userDetails.role.roleName == InfinityTraderRole && selectedSubscription) ? 'my/historyorders' : `my/historyorders/${JSON.stringify(selectedSubscription)}/${JSON.stringify(userSubs)}`
+  let url1 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/todayorders' : `my/todayorders/${JSON.stringify(selectedSubscription)}`
+  let url2 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/historyorders' : `my/historyorders/${JSON.stringify(selectedSubscription)}/${JSON.stringify(userSubs)}`
   let url = (view === 'today' ? url1 : url2)
   let infinityUrl = infinityView === 'today' ? url1 : url2;
-  let internshipUrl = internshipView === 'today' ? url1 : url2;
+  let internshipUrl = internshipView === 'today' ? "my/todayorders" : "my/historyorders";
   let infinityBaseUrl = getDetails.userDetails.role.roleName == InfinityTraderRole ? "infinityTrade" : "tenX"
  
   useEffect(()=>{
@@ -202,7 +202,28 @@ function Header() {
   }
 
   useEffect(()=>{
-    if(selectedSubscription || userSubs){
+    console.log("infinityBaseUrl", infinityBaseUrl, getDetails.userDetails.role.roleName == tenxTrader)
+    if((selectedSubscription || userSubs) && getDetails.userDetails.role.roleName !== InfinityTraderRole){
+      
+      axios.get(`${baseUrl}api/v1/${infinityBaseUrl}/${infinityUrl}?skip=${InfinitySkip}&limit=${limitSetting}`,{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+      })
+      .then((res) => {
+          console.log("infinity orders",res.data)
+          setInfinityData(res.data.data)
+          setInfinityCount(res.data.count)
+          setInfinityFilteredData(res.data.data)
+          setIsLoading(false)
+      }).catch((err) => {
+          console.log(err)
+          return new Error(err);
+      })
+    } else if(getDetails.userDetails.role.roleName == InfinityTraderRole){
       axios.get(`${baseUrl}api/v1/${infinityBaseUrl}/${infinityUrl}?skip=${InfinitySkip}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {

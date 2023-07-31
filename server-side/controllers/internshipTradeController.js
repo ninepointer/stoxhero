@@ -1214,7 +1214,20 @@ exports.updateUserWallet = async () => {
       const workingDays = calculateWorkingDays(elem.startDate, elem.endDate);
       const users = elem.users;
       const batchId = elem.batchId;
-      const holiday = await Holiday.find({holidayDate: {$gte: elem.startDate, $lte: elem.endDate}});
+
+      const holiday = await Holiday.find({
+        holidayDate: {
+          $gte: elem.startDate,
+          $lte: elem.endDate
+        },
+        $expr: {
+          $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
+          $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+        }
+      });
+
+      console.log("holiday date" , elem.endDate, elem.startDate, holiday)
+
       const profitCap = 15000;
 
 
@@ -1292,7 +1305,9 @@ exports.updateUserWallet = async () => {
       function calculateWorkingDays(startDate, endDate) {
         // Convert the input strings to Date objects
         const start = new Date(startDate);
-        const end = new Date(endDate);
+        let end = new Date(endDate);
+        end = end.toISOString().split('T')[0];
+        end = new Date(end)
         end.setDate(end.getDate() + 1);
     
         // Check if the start date is after the end date
@@ -1331,307 +1346,307 @@ exports.updateUserWallet = async () => {
         const npnl = await pnl(users[i].user, batchId);
         const creditAmount = Math.min(npnl*payoutPercentage/100, profitCap)
         
-        console.log(attendance)
         const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
   
-        if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
-          // wallet.transactions = [...wallet.transactions, {
-          //   title: 'Internship Payout',
-          //   description: `Amount credited for your internship profit`,
-          //   amount: (creditAmount?.toFixed(2)),
-          //   transactionId: uuid.v4(),
-          //   transactionType: 'Cash'
-          // }];
-          // wallet.save();
-  
-          // if (process.env.PROD == 'true') {
-          //   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-          //   <!DOCTYPE html>
-          //   <html>
-          //   <head>
-          //       <meta charset="UTF-8">
-          //       <title>Amount Credited</title>
-          //       <style>
-          //       body {
-          //           font-family: Arial, sans-serif;
-          //           font-size: 16px;
-          //           line-height: 1.5;
-          //           margin: 0;
-          //           padding: 0;
-          //       }
-      
-          //       .container {
-          //           max-width: 600px;
-          //           margin: 0 auto;
-          //           padding: 20px;
-          //           border: 1px solid #ccc;
-          //       }
-      
-          //       h1 {
-          //           font-size: 24px;
-          //           margin-bottom: 20px;
-          //       }
-      
-          //       p {
-          //           margin: 0 0 20px;
-          //       }
-      
-          //       .userid {
-          //           display: inline-block;
-          //           background-color: #f5f5f5;
-          //           padding: 10px;
-          //           font-size: 15px;
-          //           font-weight: bold;
-          //           border-radius: 5px;
-          //           margin-right: 10px;
-          //       }
-      
-          //       .password {
-          //           display: inline-block;
-          //           background-color: #f5f5f5;
-          //           padding: 10px;
-          //           font-size: 15px;
-          //           font-weight: bold;
-          //           border-radius: 5px;
-          //           margin-right: 10px;
-          //       }
-      
-          //       .login-button {
-          //           display: inline-block;
-          //           background-color: #007bff;
-          //           color: #fff;
-          //           padding: 10px 20px;
-          //           font-size: 18px;
-          //           font-weight: bold;
-          //           text-decoration: none;
-          //           border-radius: 5px;
-          //       }
-      
-          //       .login-button:hover {
-          //           background-color: #0069d9;
-          //       }
-          //       </style>
-          //   </head>
-          //   <body>
-          //       <div class="container">
-          //       <h1>Amount Credited</h1>
-          //       <p>Hello ${user.first_name},</p>
-          //       <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-          //       <p>You can now purchase Tenx and participate in contest.</p>
-                
-          //       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-          //       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-          //       <br/><br/>
-          //       <p>Thanks,</p>
-          //       <p>StoxHero Team</p>
-      
-          //       </div>
-          //   </body>
-          //   </html>
-          //   `);
-          // }
-          console.log(tradingdays, attendance, workingDays, holiday.length, users[i].user, npnl);
-        }
+        if(creditAmount > 0){
+          if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+            wallet.transactions = [...wallet.transactions, {
+              title: 'Internship Payout',
+              description: `Amount credited for your internship profit`,
+              amount: (creditAmount?.toFixed(2)),
+              transactionId: uuid.v4(),
+              transactionType: 'Cash'
+            }];
+            wallet.save();
     
-        if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
-          if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
-            // wallet.transactions = [...wallet.transactions, {
-            //   title: 'Internship Payout',
-            //   description: `Amount credited for your internship profit`,
-            //   amount: (creditAmount?.toFixed(2)),
-            //   transactionId: uuid.v4(),
-            //   transactionType: 'Cash'
-            // }];
-            // wallet.save();
-            // if (process.env.PROD == 'true') {
-            //   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-            //   <!DOCTYPE html>
-            //   <html>
-            //   <head>
-            //       <meta charset="UTF-8">
-            //       <title>Amount Credited</title>
-            //       <style>
-            //       body {
-            //           font-family: Arial, sans-serif;
-            //           font-size: 16px;
-            //           line-height: 1.5;
-            //           margin: 0;
-            //           padding: 0;
-            //       }
+            if (process.env.PROD == 'true') {
+              sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+              <!DOCTYPE html>
+              <html>
+              <head>
+                  <meta charset="UTF-8">
+                  <title>Amount Credited</title>
+                  <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      font-size: 16px;
+                      line-height: 1.5;
+                      margin: 0;
+                      padding: 0;
+                  }
         
-            //       .container {
-            //           max-width: 600px;
-            //           margin: 0 auto;
-            //           padding: 20px;
-            //           border: 1px solid #ccc;
-            //       }
+                  .container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      border: 1px solid #ccc;
+                  }
         
-            //       h1 {
-            //           font-size: 24px;
-            //           margin-bottom: 20px;
-            //       }
+                  h1 {
+                      font-size: 24px;
+                      margin-bottom: 20px;
+                  }
         
-            //       p {
-            //           margin: 0 0 20px;
-            //       }
+                  p {
+                      margin: 0 0 20px;
+                  }
         
-            //       .userid {
-            //           display: inline-block;
-            //           background-color: #f5f5f5;
-            //           padding: 10px;
-            //           font-size: 15px;
-            //           font-weight: bold;
-            //           border-radius: 5px;
-            //           margin-right: 10px;
-            //       }
+                  .userid {
+                      display: inline-block;
+                      background-color: #f5f5f5;
+                      padding: 10px;
+                      font-size: 15px;
+                      font-weight: bold;
+                      border-radius: 5px;
+                      margin-right: 10px;
+                  }
         
-            //       .password {
-            //           display: inline-block;
-            //           background-color: #f5f5f5;
-            //           padding: 10px;
-            //           font-size: 15px;
-            //           font-weight: bold;
-            //           border-radius: 5px;
-            //           margin-right: 10px;
-            //       }
+                  .password {
+                      display: inline-block;
+                      background-color: #f5f5f5;
+                      padding: 10px;
+                      font-size: 15px;
+                      font-weight: bold;
+                      border-radius: 5px;
+                      margin-right: 10px;
+                  }
         
-            //       .login-button {
-            //           display: inline-block;
-            //           background-color: #007bff;
-            //           color: #fff;
-            //           padding: 10px 20px;
-            //           font-size: 18px;
-            //           font-weight: bold;
-            //           text-decoration: none;
-            //           border-radius: 5px;
-            //       }
+                  .login-button {
+                      display: inline-block;
+                      background-color: #007bff;
+                      color: #fff;
+                      padding: 10px 20px;
+                      font-size: 18px;
+                      font-weight: bold;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
         
-            //       .login-button:hover {
-            //           background-color: #0069d9;
-            //       }
-            //       </style>
-            //   </head>
-            //   <body>
-            //       <div class="container">
-            //       <h1>Amount Credited</h1>
-            //       <p>Hello ${user.first_name},</p>
-            //       <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-            //       <p>You can now purchase Tenx and participate in contest.</p>
+                  .login-button:hover {
+                      background-color: #0069d9;
+                  }
+                  </style>
+              </head>
+              <body>
+                  <div class="container">
+                  <h1>Amount Credited</h1>
+                  <p>Hello ${user.first_name},</p>
+                  <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                  <p>You can now purchase Tenx and participate in contest.</p>
                   
-            //       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-            //       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-            //       <br/><br/>
-            //       <p>Thanks,</p>
-            //       <p>StoxHero Team</p>
+                  <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                  <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                  <br/><br/>
+                  <p>Thanks,</p>
+                  <p>StoxHero Team</p>
         
-            //       </div>
-            //   </body>
-            //   </html>
-            //   `);
-            // }
-            console.log("attendance relief");
+                  </div>
+              </body>
+              </html>
+              `);
+            }
+            console.log(users[i].user, npnl, creditAmount);
           }
-          if(referral < referralLimit && referral >= reliefReferralLimit){
-            // wallet.transactions = [...wallet.transactions, {
-            //   title: 'Internship Payout',
-            //   description: `Amount credited for your internship profit`,
-            //   amount: (creditAmount?.toFixed(2)),
-            //   transactionId: uuid.v4(),
-            //   transactionType: 'Cash'
-            // }];
-            // wallet.save();
-            // if (process.env.PROD == 'true') {
-            //   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-            //   <!DOCTYPE html>
-            //   <html>
-            //   <head>
-            //       <meta charset="UTF-8">
-            //       <title>Amount Credited</title>
-            //       <style>
-            //       body {
-            //           font-family: Arial, sans-serif;
-            //           font-size: 16px;
-            //           line-height: 1.5;
-            //           margin: 0;
-            //           padding: 0;
-            //       }
-        
-            //       .container {
-            //           max-width: 600px;
-            //           margin: 0 auto;
-            //           padding: 20px;
-            //           border: 1px solid #ccc;
-            //       }
-        
-            //       h1 {
-            //           font-size: 24px;
-            //           margin-bottom: 20px;
-            //       }
-        
-            //       p {
-            //           margin: 0 0 20px;
-            //       }
-        
-            //       .userid {
-            //           display: inline-block;
-            //           background-color: #f5f5f5;
-            //           padding: 10px;
-            //           font-size: 15px;
-            //           font-weight: bold;
-            //           border-radius: 5px;
-            //           margin-right: 10px;
-            //       }
-        
-            //       .password {
-            //           display: inline-block;
-            //           background-color: #f5f5f5;
-            //           padding: 10px;
-            //           font-size: 15px;
-            //           font-weight: bold;
-            //           border-radius: 5px;
-            //           margin-right: 10px;
-            //       }
-        
-            //       .login-button {
-            //           display: inline-block;
-            //           background-color: #007bff;
-            //           color: #fff;
-            //           padding: 10px 20px;
-            //           font-size: 18px;
-            //           font-weight: bold;
-            //           text-decoration: none;
-            //           border-radius: 5px;
-            //       }
-        
-            //       .login-button:hover {
-            //           background-color: #0069d9;
-            //       }
-            //       </style>
-            //   </head>
-            //   <body>
-            //       <div class="container">
-            //       <h1>Amount Credited</h1>
-            //       <p>Hello ${user.first_name},</p>
-            //       <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-            //       <p>You can now purchase Tenx and participate in contest.</p>
-                  
-            //       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-            //       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-            //       <br/><br/>
-            //       <p>Thanks,</p>
-            //       <p>StoxHero Team</p>
-        
-            //       </div>
-            //   </body>
-            //   </html>
-            //   `);
-            // }
-            console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+      
+          if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
+            if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
+              wallet.transactions = [...wallet.transactions, {
+                title: 'Internship Payout',
+                description: `Amount credited for your internship profit`,
+                amount: (creditAmount?.toFixed(2)),
+                transactionId: uuid.v4(),
+                transactionType: 'Cash'
+              }];
+              wallet.save();
+              if (process.env.PROD == 'true') {
+                sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Amount Credited</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
+          
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
+          
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+          
+                    p {
+                        margin: 0 0 20px;
+                    }
+          
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+          
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>Amount Credited</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                    <p>You can now purchase Tenx and participate in contest.</p>
+                    
+                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                    <br/><br/>
+                    <p>Thanks,</p>
+                    <p>StoxHero Team</p>
+          
+                    </div>
+                </body>
+                </html>
+                `);
+              }
+              console.log("attendance relief");
+            }
+            if(referral < referralLimit && referral >= reliefReferralLimit){
+              wallet.transactions = [...wallet.transactions, {
+                title: 'Internship Payout',
+                description: `Amount credited for your internship profit`,
+                amount: (creditAmount?.toFixed(2)),
+                transactionId: uuid.v4(),
+                transactionType: 'Cash'
+              }];
+              wallet.save();
+              if (process.env.PROD == 'true') {
+                sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Amount Credited</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
+          
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
+          
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+          
+                    p {
+                        margin: 0 0 20px;
+                    }
+          
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+          
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>Amount Credited</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                    <p>You can now purchase Tenx and participate in contest.</p>
+                    
+                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                    <br/><br/>
+                    <p>Thanks,</p>
+                    <p>StoxHero Team</p>
+          
+                    </div>
+                </body>
+                </html>
+                `);
+              }
+              console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+            }
           }
         }
       }
     }
-  
   } catch(err){
     console.log(err);
   }
