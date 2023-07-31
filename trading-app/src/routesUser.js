@@ -173,14 +173,14 @@ const routes = [
     route: "/internship",
     component: <Internship />,
   },
-  {
-    type: "collapse",
-    name: "Challenges",
-    key: "challenges",
-    icon: <MilitaryTechIcon/>,
-    route: "/challenges",
-    component: <Challenge />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Challenges",
+  //   key: "challenges",
+  //   icon: <MilitaryTechIcon/>,
+  //   route: "/challenges",
+  //   component: <Challenge />,
+  // },
   {
     route: "/workshop",
     component: <Internship />,
