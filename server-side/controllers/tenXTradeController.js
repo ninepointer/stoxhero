@@ -106,6 +106,10 @@ exports.overallPnl = async (req, res, next) => {
 
 exports.myTodaysTrade = async (req, res, next) => {
 
+  let {subscription} = req.params;
+  subscription = JSON.parse(subscription);
+  let {subscriptionId} =  subscription;
+
   const userId = req.user._id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -113,14 +117,14 @@ exports.myTodaysTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await TenXTrader.countDocuments({ trader: userId, trade_time: { $gte: today } })
-  console.log("Under my today orders", userId, today)
+  const count = await TenXTrader.countDocuments({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: { $gte: today } })
+  // console.log("Under my today orders", userId, today)
   try {
-    const myTodaysTrade = await TenXTrader.find({ trader: userId, trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-    console.log(myTodaysTrade)
+    // console.log(myTodaysTrade)
     res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
   } catch (e) {
     console.log(e);
@@ -130,21 +134,34 @@ exports.myTodaysTrade = async (req, res, next) => {
 
 exports.myHistoryTrade = async (req, res, next) => {
 
+  let {subscription, usersubscription} = req.params;
+  let {subscribedOn, expiredOn} = JSON.parse(usersubscription);
+  let {subscriptionId} = JSON.parse(subscription);
+
+  expiredOn = expiredOn && new Date(expiredOn);
+  subscribedOn = subscribedOn && new Date(subscribedOn);
+
   const userId = req.user._id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
+  if(!expiredOn){
+    expiredOn  = today;
+  }
+
+  // console.log(expiredOn, subscribedOn, JSON.parse(usersubscription))
+
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await TenXTrader.countDocuments({ trader: userId, trade_time: { $lt: today } })
-  console.log("Under my today orders", userId, today)
+  const count = await TenXTrader.countDocuments({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: {$gte: subscribedOn, $lt: expiredOn } })
+  // console.log("Under my today orders", userId, today)
   try {
-    const myHistoryTrade = await TenXTrader.find({ trader: userId, trade_time: { $lt: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myHistoryTrade = await TenXTrader.find({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: {$gte: subscribedOn, $lt: expiredOn } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-    console.log(myHistoryTrade)
+    // console.log(myHistoryTrade)
     res.status(200).json({ status: 'success', data: myHistoryTrade, count: count });
   } catch (e) {
     console.log(e);
@@ -1411,6 +1428,33 @@ exports.getDailyTenXUsers = async (req, res) => {
     };
 
     res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.userSubscriptions = async (req, res) => {
+  try {
+    const userId = "63788f3991fc4bf629de6df0"
+    // req.user._id;
+    const subs = await Subscription.find({"users.userId": new ObjectId(userId)});
+    
+    console.log("userId", userId)
+    let main = [];
+
+    for(let elem of subs){
+      const subsDetail = elem.users.filter((subelem)=>{
+        return subelem.userId.toString() === userId.toString();
+      })
+
+      main.push({subscriptionName: elem.plan_name, subscriptionId: elem._id, userPurchaseDetail: subsDetail});
+    }
+
+    res.status(200).json({message: "user subscription fetched", data: main});
   } catch (error) {
     res.status(500).json({
       status: "error",

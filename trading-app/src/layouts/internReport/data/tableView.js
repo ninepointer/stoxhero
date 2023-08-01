@@ -180,7 +180,6 @@ export default function TableView({holiday, whichTab, dateWiseData, userData, ba
               const attendance = (elem?.tradingDays*100/(calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
               let refCount = referral[0]?.referrals?.length;
               elem.isPayout = false;
-              console.log("working day", attendance, elem?.tradingDays, calculateWorkingDays(elem.batchStartDate, endDate), holiday, elem.batchStartDate, endDate )
 
               if (attendance >= attendanceLimit && refCount >= referralLimit && elem?.npnl > 0) {
                 console.log("payout 1sr");
@@ -197,6 +196,9 @@ export default function TableView({holiday, whichTab, dateWiseData, userData, ba
                   console.log("payout relief");
                 }
               }
+
+              console.log("working day", elem.isPayout, payoutPercentage)
+
 
 
               return (

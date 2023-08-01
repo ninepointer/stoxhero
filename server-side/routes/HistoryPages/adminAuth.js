@@ -702,22 +702,44 @@ router.get("/updateInstrument", async (req, res) => {
   res.send("ok")
 });
 
+// router.get("/updateExchabgeToken", async (req, res) => {
+//   const collections = [InfinityTrader, InfinityTraderCompany, PaperTrade, TenXTrade, InternTrade ];
+
+//   for (let i = 0; i < collections.length; i++) {
+//     const data = await collections[i].find({ trade_time: { $gte: new Date("2023-05-30T00:00:00.000Z") } });
+  
+//     for (let j = 0; j < data.length; j++) {
+//       const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+  
+//       console.log(exchangeToken)
+//       // Update the document with the exchangeToken field
+//       await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
+//     }
+//   }
+
+// });
+
+
 router.get("/updateExchabgeToken", async (req, res) => {
-  const collections = [InfinityTrader, InfinityTraderCompany, PaperTrade, TenXTrade, InternTrade ];
+  const collections = [InternTrade ];
 
   for (let i = 0; i < collections.length; i++) {
-    const data = await collections[i].find({ trade_time: { $gte: new Date("2023-05-30T00:00:00.000Z") } });
+    const data = await collections[i].find({trader: new ObjectId('64b3a21cdf09ae2a607fdd66'), trade_time: {$gte: new Date("2023-07-31T07:54:52.975+00:00"), $lte: new Date("2023-07-31T09:54:52.975+00:00")}});
   
     for (let j = 0; j < data.length; j++) {
-      const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+      // const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
   
-      console.log(exchangeToken)
+      // console.log(exchangeToken)
       // Update the document with the exchangeToken field
-      await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
+      let x = await collections[i].findByIdAndUpdate(data[j]._id, { createdOn:  data[j].trade_time, trade_time: data[j].createdOn, __v: 0});
+
+      console.log(x)
     }
   }
 
 });
+
+
 
 router.get("/infinityAutoLive", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
