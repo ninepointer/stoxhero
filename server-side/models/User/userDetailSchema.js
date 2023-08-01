@@ -321,7 +321,12 @@ const userDetailSchema = new mongoose.Schema({
             enum:["Live", "Expired"],
             default: "Live"
         },
-        expiredOn: {type: Date}
+        expiredOn: {type: Date},
+        expiredBy: {
+            type: String,
+            enum: ['System','User'],
+        },
+        isRenew: {type: Boolean}
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,

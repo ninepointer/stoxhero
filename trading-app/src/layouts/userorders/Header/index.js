@@ -67,13 +67,17 @@ function Header() {
   let url1 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/todayorders' : `my/todayorders/${JSON.stringify(selectedSubscription)}`
   let url2 = (getDetails.userDetails.role.roleName == InfinityTraderRole ) ? 'my/historyorders' : `my/historyorders/${JSON.stringify(selectedSubscription)}/${JSON.stringify(userSubs)}`
   let url = (view === 'today' ? url1 : url2)
+  let paperurl1 = 'my/todayorders'
+  let paperurl2 = 'my/historyorders';
+  let paperurl = (view === 'today' ? paperurl1 : paperurl2)
+
   let infinityUrl = infinityView === 'today' ? url1 : url2;
   let internshipUrl = internshipView === 'today' ? "my/todayorders" : "my/historyorders";
   let infinityBaseUrl = getDetails.userDetails.role.roleName == InfinityTraderRole ? "infinityTrade" : "tenX"
  
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/paperTrade/${paperurl}?skip=${skip}&limit=${limitSetting}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -92,7 +96,7 @@ function Header() {
         return new Error(err);
     })
     
-  }, [getDetails,view,url1,url2])
+  }, [getDetails,view,paperurl1,paperurl2])
   console.log(data);
 
   function backHandler(){
@@ -101,7 +105,7 @@ function Header() {
     }
     setSkip(prev => prev-limitSetting);
     setOrders([]);
-    axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/paperTrade/${paperurl}?skip=${skip-limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -129,7 +133,7 @@ function Header() {
     console.log("inside next handler")
     setSkip(prev => prev+limitSetting);
     setOrders([]);
-    axios.get(`${baseUrl}api/v1/paperTrade/${url}?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+    axios.get(`${baseUrl}api/v1/paperTrade/${paperurl}?skip=${skip+limitSetting}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
             Accept: "application/json",

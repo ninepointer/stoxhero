@@ -731,6 +731,7 @@ exports.autoExpireSubscription = async () => {
             if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
               user.subscription[k].status = "Expired";
               user.subscription[k].expiredOn = new Date();
+              user.subscription[k].expiredBy = "System";
               console.log("this is user", user)
               await user.save();
               break;
@@ -744,6 +745,7 @@ exports.autoExpireSubscription = async () => {
             if (subs.users[k].userId?.toString() === userId?.toString()) {
               subs.users[k].status = "Expired";
               subs.users[k].expiredOn = new Date();
+              subs.users[k].expiredBy = "System";
               console.log("this is subs", subs)
               await subs.save();
               break;
@@ -1248,16 +1250,16 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
 
 exports.tenxPnlReport = async (req, res, next) => {
 
-  let { startDate, endDate, id } = req.params
+  let {id } = req.params
 
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
+  // startDate = startDate + "T00:00:00.000Z";
+  // endDate = endDate + "T23:59:59.000Z";
 
 // console.log(startDate, endDate, id)
   let pipeline = [
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        // trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE",
         subscriptionId: new ObjectId(id)
       }
@@ -1300,70 +1302,359 @@ exports.tenxPnlReport = async (req, res, next) => {
 
 exports.tenxDailyPnlTWise = async (req, res, next) => {
 
-  let { startDate, endDate, id } = req.params
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
-  // console.log("startDate", startDate,endDate )
-  let pipeline = [
+  const {id} = req.params;
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
 
+  const live = [
+    {
+      $match:
+  
+        {
+          _id: new ObjectId(id),
+        },
+    },
+    {
+      $unwind: {
+        path: "$users",
+      },
+    },
+    {
+      $lookup: {
+        from: "tenx-trade-users",
+        localField: "users.userId",
+        foreignField: "trader",
+        as: "trade",
+      },
+    },
+    {
+      $match: {
+        "users.status": "Live",
+      },
+    },
+    {
+      $unwind: {
+        path: "$trade",
+      },
+    },
+    {
+      $match: {
+        "trade.status": "COMPLETE",
+        $expr: {
+          $and: [
+            {
+              $lte: [
+                "$users.subscribedOn",
+                "$trade.trade_time",
+              ],
+            },
+            {
+              $gte: [
+                today,
+                "$trade.trade_time",
+              ],
+            },
+          ],
+        },
+      },
+    },
+    {
+      $group:
+
+        {
+          _id: {
+            startDate: "$users.subscribedOn",
+            endDate: "$users.expiredOn",
+            userId: "$trade.trader",
+            validity: "$validity",
+            profitCap: "$profitCap",
+            isRenew: "$users.isRenew",
+          },
+          amount: {
+            $sum: {
+              $multiply: ["$trade.amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$trade.brokerage",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          tradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade.trade_time",
+              },
+            },
+          },
+        },
+    },
     {
       $lookup: {
         from: "user-personal-details",
-        localField: "trader",
+        localField: "_id.userId",
         foreignField: "_id",
         as: "user",
       },
     },
+    {
+      $project:
 
+        {
+          startDate: "$_id.startDate",
+          endDate: "$_id.endDate",
+          userId: "$_id.userId",
+          grossPnl: "$amount",
+          brokerage: "$brokerage",
+          isRenew: "$_id.isRenew",
+          _id: 0,
+          npnl: {
+            $subtract: ["$amount", "$brokerage"],
+          },
+          tradingDays: {
+            $size: "$tradingDays",
+          },
+          trades: 1,
+          payout: {
+            $max: [{$min: [
+              {
+                $divide: [
+                  {
+                    $multiply: [
+                      {
+                        $subtract: [
+                          "$amount",
+                          "$brokerage",
+                        ],
+                      },
+                      "$_id.validity",
+                    ],
+                  },
+                  {
+                    $size: "$tradingDays",
+                  },
+                ],
+              },
+              "$_id.profitCap",
+            ],}, 0]
+          },
+          name: {
+            $concat: [
+              {
+                $arrayElemAt: [
+                  "$user.first_name",
+                  0,
+                ],
+              },
+              " ",
+              {
+                $arrayElemAt: [
+                  "$user.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+        },
+    },
+    {
+      $sort:
+  
+        {
+          payout: -1,
+        },
+    },
+  ]
+
+  const expired = [
+    {
+      $match:
+        {
+          _id: new ObjectId(id),
+        },
+    },
+    {
+      $unwind: {
+        path: "$users",
+      },
+    },
+    {
+      $lookup: {
+        from: "tenx-trade-users",
+        localField: "users.userId",
+        foreignField: "trader",
+        as: "trade",
+      },
+    },
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
-        status: "COMPLETE",
-        subscriptionId: new ObjectId(id)
-      }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+        "users.status": "Expired",
+      },
+    },
+    {
+      $unwind: {
+        path: "$trade",
+      },
+    },
+    {
+      $match: {
+        "trade.status": "COMPLETE",
+        $expr: {
+          $and: [
+            {
+              $lte: [
+                "$users.subscribedOn",
+                "$trade.trade_time",
+              ],
+            },
+            {
+              $gte: [
+                "$users.expiredOn",
+                "$trade.trade_time",
+              ],
+            },
+          ],
+        },
+      },
     },
     {
       $group: {
         _id: {
-          userId: "$trader",
-          name: {
-            $concat: [
-              { $arrayElemAt: ["$user.first_name", 0] },
-              " ",
-              { $arrayElemAt: ["$user.last_name", 0] },
-            ],
+          startDate: "$users.subscribedOn",
+          endDate: "$users.expiredOn",
+          userId: "$trade.trader",
+          cap: "$profitCap",
+          expiredBy: "$users.expiredBy",
+          isRenew: "$users.isRenew",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$trade.amount", -1],
           },
         },
-        gpnl: { $sum: { $multiply: ["$amount", -1] } },
-        brokerage: { $sum: { $toDouble: "$brokerage" } },
-        trades: { $count: {} },
-        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+        brokerage: {
+          $sum: {
+            $toDouble: "$trade.brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade.trade_time",
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "_id.userId",
+        foreignField: "_id",
+        as: "user",
       },
     },
     {
       $project: {
+        expiredBy: "$_id.expiredBy",
+        isRenew: "$_id.isRenew",
+        startDate: "$_id.startDate",
+        endDate: "$_id.endDate",
+        userId: "$_id.userId",
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
         _id: 0,
-        name: "$_id.name",
-        tradingDays: { $size: "$tradingDays" },
-        gpnl: 1,
-        brokerage: 1,
-        npnl: { $subtract: ["$gpnl", "$brokerage"] },
-        noOfTrade: "$trades"
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
+        },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+        payout: {
+          $cond: {
+            if: {
+              $eq: ["$_id.expiredBy", "User"],
+            },
+            then: 0,
+            else: {
+              $max: [
+                {
+                  $min: [
+                    {
+                      $divide: [
+                        {
+                          $multiply: [
+                            {
+                              $subtract: [
+                                "$amount",
+                                "$brokerage",
+                              ],
+                            },
+                            10,
+                          ],
+                        },
+                        100,
+                      ],
+                    },
+                    "$_id.cap",
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+        },
+        name: {
+          $concat: [
+            {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            " ",
+            {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+          ],
+        },
       },
     },
     {
       $sort: {
-        npnl: -1,
+        payout: -1,
       },
     },
   ]
 
-  let x = await TenXTrader.aggregate(pipeline)
+  let obj = {
+    totalExpectedPayout: 0,
+    totalPayout: 0,
+    totalRenewed: 0
+  }
+  const liveUser = await Subscription.aggregate(live)
+  const expiredUser = await Subscription.aggregate(expired)
 
-  // res.status(201).json(x);
+  for(let elem of liveUser){
+    obj.totalRenewed += elem?.isRenew ? 1 : 0;
+    obj.totalExpectedPayout += elem?.payout
 
-  res.status(201).json({ message: "data received", data: x });
+  }
+  for(let elem of expiredUser){
+    obj.totalPayout += elem?.payout
+
+  }
+  console.log(obj, id)
+
+  res.status(201).json({ message: "data received", liveUser: liveUser, expiredUser: expiredUser, data: obj });
 }
 
 exports.getDailyTenXUsers = async (req, res) => {
@@ -1439,8 +1730,9 @@ exports.getDailyTenXUsers = async (req, res) => {
 
 exports.userSubscriptions = async (req, res) => {
   try {
-    const userId = "63788f3991fc4bf629de6df0"
-    // req.user._id;
+    const userId = req.user._id;
+    // "64647f61a09e4677cb5431e8"
+    
     const subs = await Subscription.find({"users.userId": new ObjectId(userId)});
     
     console.log("userId", userId)

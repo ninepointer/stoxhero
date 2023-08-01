@@ -94,7 +94,8 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
               $push: {
                 subscription: {
                   subscriptionId: new ObjectId(subscribedId),
-                  subscribedOn: new Date()
+                  subscribedOn: new Date(),
+                  
                 }
               }
             },
