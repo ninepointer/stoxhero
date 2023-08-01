@@ -191,14 +191,14 @@ export default function LabTabs() {
                 <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11} >Payout:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalPayout?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >₹{data?.totalPayout?.toFixed(2)}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11} >Expected Payout:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalExpectedPayout?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >₹{data?.totalExpectedPayout?.toFixed(2)}</MDTypography>
                   </MDBox>
                 </Grid>
 

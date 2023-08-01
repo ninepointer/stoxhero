@@ -1652,7 +1652,6 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     obj.totalPayout += elem?.payout
 
   }
-  console.log(obj, id)
 
   res.status(201).json({ message: "data received", liveUser: liveUser, expiredUser: expiredUser, data: obj });
 }

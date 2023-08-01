@@ -195,10 +195,10 @@ const changeContestStatus = async () => {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
-    let todayEndDate = todayDate + "T23:00:00.000Z";
+    let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
     const today = new Date(todayDate);
-    const todayEnd = new Date(todayEndDate);
-
+    const todayEnd =  new Date(todayEndDate);
+    
 
     const contest = await Contest.find({ contestStatus: "Active", contestEndTime: {$gte: today, $lte: todayEnd} });
 

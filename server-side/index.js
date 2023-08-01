@@ -224,8 +224,9 @@ getKiteCred.getAccess().then(async (data)=>{
 if(process.env.PROD === "true"){
   sendLeaderboardData().then(()=>{});
   sendMyRankData().then(()=>{});
-  emitServerTime().then(()=>{});
 }
+emitServerTime().then(()=>{});
+
 
 
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
