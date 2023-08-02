@@ -202,6 +202,7 @@ exports.initiatePayment = async (req, res) => {
             actionDate: new Date(),
             actionBy:req.user._id
         }],
+        merchantTransactionId,
         createdOn: new Date(),
         createdBy: req.user._id,
         modifiedOn: new Date(),
@@ -342,18 +343,21 @@ const verifyChecksum = (encodedPayload, receivedChecksum) => {
 exports.checkPaymentStatus = async(req,res, next) => {
     try{
         const {merchantTransactionId} = req.params;
+        const merchantId = 'MERCHANTUAT';
         const payment  = await Payment.findOne({merchantTransactionId});
+        console.log('payment', payment);
         const saltKey = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'; // This should be stored securely, not hardcoded
         const saltIndex = '1';
-        const toHash = `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status${saltKey}`;
+        const toHash = `/pg/v1/status/${merchantId}/${merchantTransactionId}`+ saltKey;
         const checksum = crypto.createHash('sha256').update(toHash).digest('hex') + '###' + saltIndex;
-        const res = await axios.get(`https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay/${merchantId}/${merchantTransactionId}`,{
+        const resp = await axios.get(`https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,{
             headers: {
                 'Content-Type': 'application/json',
-                'X-VERIFY': checksum
+                'X-VERIFY': checksum,
+                'X-MERCHANT-ID':merchantId
             }
         });
-        if(res.data.code == 'PAYMENT_SUCCESS'){
+        if(resp.data.code == 'PAYMENT_SUCCESS'){
             if(payment.paymentStatus != 'succeeded'){
                 payment.paymentStatus = 'succeeded';
                     payment.actions.push({
@@ -362,7 +366,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
                         actionBy: '63ecbc570302e7cf0153370c'
                     });
             }
-        }else if(res.data.code == 'PAYMENT_ERROR'){
+        }else if(resp.data.code == 'PAYMENT_ERROR'){
             if(payment.paymentStatus != 'failed'){
                 payment.paymentStatus = 'failed';
                     payment.actions.push({
@@ -376,7 +380,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
         res.status(200).json({
             status:'success',
             message:'Payment status fetched',
-            data:res.data
+            data:resp.data
         });
     }catch(e){
         console.log(e);
