@@ -135,7 +135,7 @@ export default function TableView({liveUser, expiredUser, whichTab, dateWiseData
 
                     <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                       <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name.length <= 16 ? elem?.name : elem?.name.slice(0,13)+"..."}</MDTypography>
+                        <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name.length <= 14 ? elem?.name : elem?.name.slice(0,11)+"..."}</MDTypography>
                       </Grid>
 
                       <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
@@ -178,7 +178,7 @@ export default function TableView({liveUser, expiredUser, whichTab, dateWiseData
                   return (
                     <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                       <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name.length <= 16 ? elem?.name : elem?.name.slice(0,13)+"..."}</MDTypography>
+                        <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name.length <= 14 ? elem?.name : elem?.name.slice(0,11)+"..."}</MDTypography>
                       </Grid>
 
                       <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">

@@ -170,14 +170,14 @@ export default function LabTabs() {
                 <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11}>Live Subscription:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{liveUser?.length}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalLiveUser}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11} >Expired Subscription:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{expiredUser?.length}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalExpiredUser}</MDTypography>
                   </MDBox>
                 </Grid>
 

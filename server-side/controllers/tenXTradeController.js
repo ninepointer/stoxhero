@@ -1308,6 +1308,8 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
+  const subs = await Subscription.findOne({_id: id});
+
   const live = [
     {
       $match:
@@ -1404,64 +1406,71 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
       },
     },
     {
-      $project:
-
-        {
-          startDate: "$_id.startDate",
-          endDate: "$_id.endDate",
-          userId: "$_id.userId",
-          grossPnl: "$amount",
-          brokerage: "$brokerage",
-          isRenew: "$_id.isRenew",
-          _id: 0,
-          npnl: {
-            $subtract: ["$amount", "$brokerage"],
-          },
-          tradingDays: {
-            $size: "$tradingDays",
-          },
-          trades: 1,
-          payout: {
-            $max: [{$min: [
-              {
-                $divide: [
-                  {
-                    $multiply: [
-                      {
-                        $subtract: [
-                          "$amount",
-                          "$brokerage",
-                        ],
-                      },
-                      "$_id.validity",
-                    ],
-                  },
-                  {
-                    $size: "$tradingDays",
-                  },
-                ],
-              },
-              "$_id.profitCap",
-            ],}, 0]
-          },
-          name: {
-            $concat: [
-              {
-                $arrayElemAt: [
-                  "$user.first_name",
-                  0,
-                ],
-              },
-              " ",
-              {
-                $arrayElemAt: [
-                  "$user.last_name",
-                  0,
-                ],
-              },
-            ],
-          },
+      $project: {
+        startDate: "$_id.startDate",
+        endDate: "$_id.endDate",
+        userId: "$_id.userId",
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
+        isRenew: "$_id.isRenew",
+        _id: 0,
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
         },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+        payout: {
+          $max: [
+            {
+              $min: [
+                {
+                  $divide: [
+                    {
+                      $multiply: [
+                        {
+                          $divide: [
+                            {
+                              $multiply: [
+                                {
+                                  $subtract: [
+                                    "$amount",
+                                    "$brokerage",
+                                  ],
+                                },
+                                "$_id.validity",
+                              ],
+                            },
+                            {
+                              $size: "$tradingDays",
+                            },
+                          ],
+                        },
+                        10,
+                      ],
+                    },
+                    100,
+                  ],
+                },
+                "$_id.profitCap",
+              ],
+            },
+            0,
+          ],
+        },
+        name: {
+          $concat: [
+            {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            " ",
+            {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+          ],
+        },
+      },
     },
     {
       $sort:
@@ -1636,6 +1645,8 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
   ]
 
   let obj = {
+    totalLiveUser: 0,
+    totalExpiredUser: 0,
     totalExpectedPayout: 0,
     totalPayout: 0,
     totalRenewed: 0
@@ -1644,13 +1655,23 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
   const expiredUser = await Subscription.aggregate(expired)
 
   for(let elem of liveUser){
-    obj.totalRenewed += elem?.isRenew ? 1 : 0;
+    // obj.totalRenewed += elem?.isRenew ? 1 : 0;
     obj.totalExpectedPayout += elem?.payout
-
   }
   for(let elem of expiredUser){
     obj.totalPayout += elem?.payout
+  }
 
+  for(let elem of subs.users){
+    if(elem.status === "Live"){
+      obj.totalLiveUser += 1;
+    }
+    if(elem.status === "Expired"){
+      obj.totalExpiredUser += 1;
+    }
+    if(elem.isRenew){
+      obj.totalRenewed += 1;
+    }
   }
 
   res.status(201).json({ message: "data received", liveUser: liveUser, expiredUser: expiredUser, data: obj });
