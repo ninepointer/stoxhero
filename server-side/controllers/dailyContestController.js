@@ -1137,8 +1137,10 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             </html>
 
         `
-        emailService(recipientString,subject,message);
-        console.log("Subscription Email Sent")
+        if(process.env.PROD === "true"){
+            emailService(recipientString,subject,message);
+            console.log("Subscription Email Sent")
+        }
 
         res.status(200).json({
             status: "success",
