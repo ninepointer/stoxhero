@@ -166,7 +166,7 @@ const changeStatus = async() => {
     );
 
     if(data.length === 0){
-        console.log("in if chane status..")
+        console.log("in if change status..")
         await changeContestStatus();
         return;
     }
@@ -192,15 +192,20 @@ const creditAmount = async() => {
 }
 
 const changeContestStatus = async () => {
-    const contest = await Contest.find({ contestStatus: "Active" });
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
+    const today = new Date(todayDate);
+    const todayEnd =  new Date(todayEndDate);
+    
+
+    const contest = await Contest.find({ contestStatus: "Active", contestEndTime: {$gte: today, $lte: todayEnd} });
 
     for (let j = 0; j < contest.length; j++) {
         console.log(contest[j].contestEndTime , new Date())
-        if (contest[j].contestEndTime < new Date()) {
-            
-            contest[j].contestStatus = "Completed";
-            await contest[j].save();
-        }
+        contest[j].contestStatus = "Completed";
+        await contest[j].save();
     }
 }
 

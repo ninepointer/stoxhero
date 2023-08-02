@@ -3,17 +3,19 @@ import axios from 'axios';
 import { Grid, MenuItem, TextField } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
-import MDButton from '../../../components/MDButton';
+// import MDButton from '../../../components/MDButton';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MonthLineChart from '../data/MonthLineChart'
-import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+// import dayjs from 'dayjs';
+// import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+// import { LocalizationProvider } from '@mui/x-date-pickers';
+// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { apiUrl } from '../../../constants/constants';
 import TableView from "../data/tableView"
+import { withStyles } from '@mui/styles';
+
 
 export default function LabTabs() {
   const dailPnl = "Daily P&L";
@@ -23,25 +25,44 @@ export default function LabTabs() {
   const date = new Date();
   const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   lastMonth.setDate(date.getDate());
-  const [startDate,setStartDate] = React.useState(dayjs(lastMonth));
-  const [endDate,setEndDate] = React.useState(dayjs(date));
+  // const [startDate,setStartDate] = React.useState(dayjs(lastMonth));
+  // const [endDate,setEndDate] = React.useState(dayjs(date));
   const [dateWiseData, setDateWiseData] = useState([]);
+  const [liveUser, setLiveUser] = useState([]);
+  const [expiredUser, setExpiredUser] = useState([]);
   const [subscriptions,setSubscription] = useState([]);
   const [selectedSubscription, setselectedSubscription] = useState();
+  const [data, setData] = useState({});
+
+  const CustomTextField = withStyles({
+    root: {
+      '& .MuiInputBase-input': {
+        color: '#ffffff', // Replace 'red' with your desired text color
+        textAlign: 'center',
+      },
+      '& .MuiInput-underline:before': {
+        borderBottomColor: '#ffffff', // Replace 'red' with your desired text color
+      },
+      '& .MuiInput-underline:after': {
+        borderBottomColor: '#ffffff', // Replace 'red' with your desired text color
+      },
+    },
+  })(TextField);
+
 
   useEffect(()=>{
     axios.get(`${apiUrl}tenX/active`, {withCredentials: true})
     .then((res)=>{
       setSubscription(res.data.data);
-      setselectedSubscription(res.data.data[0]?._id)
+      setselectedSubscription(res.data.data[0])
     }).catch(e => console.log(e));
   },[])
 
   let endpoint ;
   if(alignment === dailPnl){
-    endpoint = `tenX/${selectedSubscription}/trade/companypnlreport`;
+    endpoint = `tenX/${selectedSubscription?._id}/trade/companypnlreport`;
   } else if(alignment === traderWisePnl){
-    endpoint = `tenX/${selectedSubscription}/trade/traderwisecompanypnlreport`;
+    endpoint = `tenX/${selectedSubscription?._id}/trade/traderwisecompanypnlreport`;
   } 
 
   const handleChangeView = (event, newAlignment) => {
@@ -55,13 +76,19 @@ export default function LabTabs() {
   },[endpoint, selectedSubscription])
 
   const handleShowDetails = async() => {
-    const from = startDate.format('YYYY-MM-DD');
-    const to = endDate.format('YYYY-MM-DD');
+    // const from = startDate.format('YYYY-MM-DD');
+    // const to = endDate.format('YYYY-MM-DD');
 
-    if (selectedSubscription && from && to) {
-      const res = await axios.get(`${apiUrl}${endpoint}/${from}/${to}`, { withCredentials: true });
+    if (selectedSubscription && alignment === dailPnl) {
+      const res = await axios.get(`${apiUrl}${endpoint}`, { withCredentials: true });
       console.log(res.data.data);
       setDateWiseData(prev => res.data.data);
+    } else if(selectedSubscription && alignment === traderWisePnl){
+      const res = await axios.get(`${apiUrl}${endpoint}`, { withCredentials: true });
+      console.log(res.data.data);
+      setLiveUser(res.data.liveUser);
+      setExpiredUser(res.data.expiredUser);
+      setData(res.data.data)
     }
     
   }
@@ -90,22 +117,33 @@ export default function LabTabs() {
     <MDBox mb={2} style={{border:'1px solid white', borderRadius:5}} display="flex" justifyContent="space-between">
       <MDTypography color="light" fontSize={15} fontWeight="bold" p={1} alignItem="center">TenX Report</MDTypography>
         <MDBox sx={{ display: 'flex', alignItems: 'center'}}>
-          <TextField
+
+          <CustomTextField
             select
             label=""
-            value={subscriptions[0]?.plan_name}
+            value={selectedSubscription?.plan_name ? selectedSubscription?.plan_name : subscriptions[0]?.plan_name}
             minHeight="4em"
-            placeholder="Select subscription" 
+            placeholder="Select subscription"
             variant="outlined"
-            sx={{  width: "200px" }}
-            onChange={(e) => { setselectedSubscription(subscriptions.filter((item) => item.plan_name == e.target.value)[0]._id) }}
+            sx={{  width: "150px" }}
+            onChange={(e) => { setselectedSubscription(subscriptions.filter((item) => item.plan_name == e.target.value)[0]) }}
+            InputLabelProps={{
+              style: { color: '#ffffff' },
+            }}
+            SelectProps={{
+              MenuProps: {
+                PaperProps: {
+                  style: { width: '150px' }, // Replace '200px' with your desired width
+                },
+              },
+            }}
           >
             {subscriptions?.map((option) => (
               <MenuItem key={option.plan_name} value={option.plan_name} minHeight="4em">
                 {option.plan_name}
               </MenuItem>
             ))}
-          </TextField>
+          </CustomTextField>
           <ToggleButtonGroup
       color={textColor}
       style={{backgroundColor:"white",margin:3}}
@@ -121,71 +159,55 @@ export default function LabTabs() {
         </MDBox>
 
     </MDBox>
-        <Grid mt={3} container>
-          <Grid item xs={12} md={6} lg={12}>
-              <MDBox bgColor="light" borderRadius={5}>
 
-              <MDBox>
-                    <Grid container spacing={0} p={1} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
-                    
-                      <Grid item xs={12} md={6} lg={3} mt={1} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                          <MDTypography color="dark" fontSize={15} fontWeight="bold">Select Date Range</MDTypography>
-                      </Grid>
+      {alignment === traderWisePnl &&
+       <Grid mt={3} container>
+        <Grid item xs={12} md={6} lg={12}>
+          <MDBox bgColor="light" borderRadius={5}>
 
-                    <Grid item xs={12} md={6} lg={3} mb={1}>
-                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center"  borderRadius={5}>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                          <DatePicker
-                            label="Start Date"
-                            // disabled={true}
-                            // defaultValue={dayjs(date)}
-                            value={startDate}
-                            onChange={(e)=>{setStartDate(prev=>dayjs(e))}}
-                            // onChange={(e) => {setFormStatePD(prevState => ({
-                            //   ...prevState,
-                            //   dateField: dayjs(e)
-                            // }))}}
-                            sx={{ width: '100%'}}
-                          />
-                        </DemoContainer>
-                      </LocalizationProvider>
-                    </MDBox>
-                    </Grid>
-                    
+            <MDBox>
+              <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Live Subscription:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{liveUser?.length}</MDTypography>
+                  </MDBox>
+                </Grid>
 
-                    <Grid item xs={12} md={6} lg={3} mb={1}>
-                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={4}>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                          <DatePicker
-                            label="End Date"
-                            // disabled={true}
-                            // defaultValue={dayjs(date)}
-                            value={endDate}
-                            onChange={(e)=>{setEndDate(prev=>dayjs(e))}}
-                            // value={dayjs(date)}
-                            // onChange={(e) => {setFormStatePD(prevState => ({
-                            //   ...prevState,
-                            //   dateField: dayjs(e)
-                            // }))}}
-                            sx={{ width: '100%' }}
-                          />
-                        </DemoContainer>
-                      </LocalizationProvider>
-                    </MDBox>
-                    </Grid>
+                <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Expired Subscription:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{expiredUser?.length}</MDTypography>
+                  </MDBox>
+                </Grid>
 
-                    <Grid item xs={12} md={6} lg={3} mt={1} mb={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDButton variant="contained" color="info" onClick={handleShowDetails}>Show Details</MDButton>
-                    </Grid>
+                <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Renewed Subscription:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{data?.totalRenewed}</MDTypography>
+                  </MDBox>
+                </Grid>
 
-                    </Grid>
-                </MDBox>
+                <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Payout:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >₹{data?.totalPayout?.toFixed(2)}</MDTypography>
+                  </MDBox>
+                </Grid>
 
-              </MDBox>
-          </Grid>
+                <Grid item xs={12} md={6} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Expected Payout:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >₹{data?.totalExpectedPayout?.toFixed(2)}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+              </Grid>
+            </MDBox>
+
+          </MDBox>
         </Grid>
+      </Grid>}
 
         <Grid mt={3} container>
           <Grid item xs={12} md={6} lg={12}>
@@ -193,8 +215,6 @@ export default function LabTabs() {
 
               <MDBox>
                     <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
-
-                    {/* <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center"> */}
                     <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                       <MDTypography fontSize={13} fontWeight="bold">Gross:&nbsp;</MDTypography>
@@ -255,19 +275,17 @@ export default function LabTabs() {
       <Grid mt={3} container>
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
-            <MonthLineChart traderType={alignment} monthWiseData={dateWiseData} />
+            <MonthLineChart expiredUser={expiredUser} liveUser={liveUser} traderType={alignment} monthWiseData={dateWiseData} />
           </MDBox>
         </Grid>
-
       </Grid>
 
       <Grid mt={0} container spacing={3}>
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1}  borderRadius={4}>
-            <TableView whichTab={alignment} dateWiseData={dateWiseData} />
+            <TableView liveUser={liveUser} expiredUser={expiredUser} whichTab={alignment} dateWiseData={dateWiseData} />
           </MDBox>
         </Grid>
-
       </Grid>
 
     </MDBox>

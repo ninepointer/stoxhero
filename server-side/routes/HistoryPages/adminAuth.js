@@ -66,8 +66,325 @@ const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCom
 const MarginDetailLiveCompany = require("../../models/marginUsed/infinityLiveCompanyMargin")
 const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMargin")
 const DailyContest = require("../../models/DailyContest/dailyContest")
+const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
 
 
+
+router.get("/tenxData", async (req, res) => {
+
+  const x = await TenxSubscription.aggregate(
+    [
+      {
+        $match:
+          {
+            _id: new ObjectId("645cc77c2f0bba5a7a3ff427"),
+          },
+      },
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $lookup: {
+          from: "tenx-trade-users",
+          localField: "users.userId",
+          foreignField: "trader",
+          as: "trade",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Expired",
+        },
+      },
+      {
+        $unwind: {
+          path: "$trade",
+        },
+      },
+      {
+        $match: {
+          "trade.status": "COMPLETE",
+          $expr: {
+            $and: [
+              {
+                $lte: [
+                  "$users.subscribedOn",
+                  "$trade.trade_time",
+                ],
+              },
+              {
+                $gte: [
+                  "$users.expiredOn",
+                  "$trade.trade_time",
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group:
+          /**
+           * _id: The id of the group.
+           * fieldN: The first field name.
+           */
+          {
+            _id: {
+              startDate: "$users.subscribedOn",
+              endDate: "$users.expiredOn",
+              userId: "$trade.trader",
+            },
+            amount: {
+              $sum: {
+                $multiply: ["$trade.amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$trade.brokerage",
+              },
+            },
+            trades: {
+              $count: {},
+            },
+            tradingDays: {
+              $addToSet: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$trade.trade_time",
+                },
+              },
+            },
+          },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "_id.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $project:
+          /**
+           * specifications: The fields to
+           *   include or exclude.
+           */
+          {
+            startDate: "$_id.startDate",
+            enddate: "$_id.endDate",
+            userId: "$_id.userId",
+            _id: 0,
+            npnl: {
+              $subtract: ["$amount", "$brokerage"],
+            },
+            tradingDays: {
+              $size: "$tradingDays",
+            },
+            trades: 1,
+            payout: {
+              $divide: [
+                {
+                  $multiply: [
+                    {
+                      $subtract: [
+                        "$amount",
+                        "$brokerage",
+                      ],
+                    },
+                    10,
+                  ],
+                },
+                100,
+              ],
+            },
+            name: {
+              $concat: [
+                {
+                  $arrayElemAt: [
+                    "$user.first_name",
+                    0,
+                  ],
+                },
+                " ",
+                {
+                  $arrayElemAt: [
+                    "$user.last_name",
+                    0,
+                  ],
+                },
+              ],
+            },
+          },
+      },
+    ]
+  )
+
+  // [
+  //   {
+  //     $match:
+  
+  //       {
+  //         _id: ObjectId("645cc7162f0bba5a7a3ff40a"),
+  //       },
+  //   },
+  //   {
+  //     $unwind: {
+  //       path: "$users",
+  //     },
+  //   },
+  //   {
+  //     $lookup: {
+  //       from: "tenx-trade-users",
+  //       localField: "users.userId",
+  //       foreignField: "trader",
+  //       as: "trade",
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       "users.status": "Live",
+  //     },
+  //   },
+  //   {
+  //     $unwind: {
+  //       path: "$trade",
+  //     },
+  //   },
+  //   {
+  //     $match: {
+  //       "trade.status": "COMPLETE",
+  //       $expr: {
+  //         $and: [
+  //           {
+  //             $lte: [
+  //               "$users.subscribedOn",
+  //               "$trade.trade_time",
+  //             ],
+  //           },
+  //           {
+  //             $gte: [
+  //               new Date("2023-08-01"),
+  //               "$trade.trade_time",
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   },
+  //   {
+  //     $group:
+  //       /**
+  //        * _id: The id of the group.
+  //        * fieldN: The first field name.
+  //        */
+  //       {
+  //         _id: {
+  //           startDate: "$users.subscribedOn",
+  //           endDate: "$users.expiredOn",
+  //           userId: "$trade.trader",
+  //           validity: "$validity",
+  //           profitCap: "$profitCap",
+  //         },
+  //         amount: {
+  //           $sum: {
+  //             $multiply: ["$trade.amount", -1],
+  //           },
+  //         },
+  //         brokerage: {
+  //           $sum: {
+  //             $toDouble: "$trade.brokerage",
+  //           },
+  //         },
+  //         trades: {
+  //           $count: {},
+  //         },
+  //         tradingDays: {
+  //           $addToSet: {
+  //             $dateToString: {
+  //               format: "%Y-%m-%d",
+  //               date: "$trade.trade_time",
+  //             },
+  //           },
+  //         },
+  //       },
+  //   },
+  //   {
+  //     $lookup: {
+  //       from: "user-personal-details",
+  //       localField: "_id.userId",
+  //       foreignField: "_id",
+  //       as: "user",
+  //     },
+  //   },
+  //   {
+  //     $project:
+  //       /**
+  //        * specifications: The fields to
+  //        *   include or exclude.
+  //        */
+  //       {
+  //         startDate: "$_id.startDate",
+  //         enddate: "$_id.endDate",
+  //         userId: "$_id.userId",
+  //         _id: 0,
+  //         npnl: {
+  //           $subtract: ["$amount", "$brokerage"],
+  //         },
+  //         tradingDays: {
+  //           $size: "$tradingDays",
+  //         },
+  //         trades: 1,
+  //         payout: {
+  //           $max: [{$min: [
+  //             {
+  //               $divide: [
+  //                 {
+  //                   $multiply: [
+  //                     {
+  //                       $subtract: [
+  //                         "$amount",
+  //                         "$brokerage",
+  //                       ],
+  //                     },
+  //                     "$_id.validity",
+  //                   ],
+  //                 },
+  //                 {
+  //                   $size: "$tradingDays",
+  //                 },
+  //               ],
+  //             },
+  //             "$_id.profitCap",
+  //           ],}, 0]
+  //         },
+  //         name: {
+  //           $concat: [
+  //             {
+  //               $arrayElemAt: [
+  //                 "$user.first_name",
+  //                 0,
+  //               ],
+  //             },
+  //             " ",
+  //             {
+  //               $arrayElemAt: [
+  //                 "$user.last_name",
+  //                 0,
+  //               ],
+  //             },
+  //           ],
+  //         },
+  //       },
+  //   },
+  // ]
+
+  res.send(x);
+  
+});
 
 router.get("/insrtOldPayout", async (req, res) => {
 
@@ -702,22 +1019,44 @@ router.get("/updateInstrument", async (req, res) => {
   res.send("ok")
 });
 
+// router.get("/updateExchabgeToken", async (req, res) => {
+//   const collections = [InfinityTrader, InfinityTraderCompany, PaperTrade, TenXTrade, InternTrade ];
+
+//   for (let i = 0; i < collections.length; i++) {
+//     const data = await collections[i].find({ trade_time: { $gte: new Date("2023-05-30T00:00:00.000Z") } });
+  
+//     for (let j = 0; j < data.length; j++) {
+//       const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+  
+//       console.log(exchangeToken)
+//       // Update the document with the exchangeToken field
+//       await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
+//     }
+//   }
+
+// });
+
+
 router.get("/updateExchabgeToken", async (req, res) => {
-  const collections = [InfinityTrader, InfinityTraderCompany, PaperTrade, TenXTrade, InternTrade ];
+  const collections = [InternTrade ];
 
   for (let i = 0; i < collections.length; i++) {
-    const data = await collections[i].find({ trade_time: { $gte: new Date("2023-05-30T00:00:00.000Z") } });
+    const data = await collections[i].find({trader: new ObjectId('64b3a21cdf09ae2a607fdd66'), trade_time: {$gte: new Date("2023-07-31T07:54:52.975+00:00"), $lte: new Date("2023-07-31T09:54:52.975+00:00")}});
   
     for (let j = 0; j < data.length; j++) {
-      const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+      // const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
   
-      console.log(exchangeToken)
+      // console.log(exchangeToken)
       // Update the document with the exchangeToken field
-      await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
+      let x = await collections[i].findByIdAndUpdate(data[j]._id, { createdOn:  data[j].trade_time, trade_time: data[j].createdOn, __v: 0});
+
+      console.log(x)
     }
   }
 
 });
+
+
 
 router.get("/infinityAutoLive", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader

@@ -50,6 +50,11 @@ const TenXSubscription = new mongoose.Schema({
             default: "Live"
         },
         expiredOn:{type:Date},
+        expiredBy: {
+            type: String,
+            enum: ['System','User'],
+        },
+        isRenew: {type: Boolean}
     }],
     status: {
         type: String,

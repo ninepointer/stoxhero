@@ -32,6 +32,7 @@ router.get('/contests/today', Authenticate, contestController.todaysContest);
 router.get('/contests/ongoing', Authenticate, contestController.ongoingContest);
 
 router.get('/contests/adminupcoming', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAdminUpcomingContests);
+router.get('/contests/adminongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.ongoingContestAdmin);
 router.get('/contests/completed', Authenticate, contestController.getCompletedContests);
 
 router.get('/contests/collegeupcoming', Authenticate, contestController.getUpcomingCollegeContests);

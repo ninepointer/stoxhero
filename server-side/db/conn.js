@@ -22,4 +22,3 @@ const stagingDB = process.env.STAGINGDB;
     console.log(err);
     console.log("no connection");
 })
-

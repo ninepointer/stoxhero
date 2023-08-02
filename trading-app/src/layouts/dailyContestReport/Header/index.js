@@ -198,7 +198,7 @@ export default function LabTabs() {
 
       </MDBox>
 
-      <Grid mt={3} container>
+      {/* <Grid mt={3} container>
         <Grid item xs={12} md={6} lg={12}>
           <MDBox bgColor="light" borderRadius={5}>
 
@@ -244,7 +244,7 @@ export default function LabTabs() {
 
           </MDBox>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       <Grid mt={3} container>
         <Grid item xs={12} md={6} lg={12}>

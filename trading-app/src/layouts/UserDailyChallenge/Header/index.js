@@ -9,6 +9,8 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import UpcomingChallenges from '../data/UpcomingChallenges';
+import LiveChallenges from '../data/LiveChallenges'
+import CompletedChallenges from '../data/CompletedChallenges'
 // import CompletedBatches from '../data/completedBatches';
 
 
@@ -56,7 +58,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox>
-           {/* <SouthZoneCollege/> */}
+           <LiveChallenges/>
         </MDBox>
           }
         </TabPanel>
@@ -67,7 +69,7 @@ export default function LabTabs() {
           </MDBox>
           :
           <MDBox> 
-        {/*   <EastZoneCollege/> */}
+          <CompletedChallenges/>
         </MDBox>
           }
           

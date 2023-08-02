@@ -54,9 +54,6 @@ export default function RealTrade({ Render, id, tradingAlgo }) {
 
     async function switchTrade(isRealTrade) {
 
-        // patchReqForRealTradeSwitching(id, isRealTrade);
-
-
         axios.get(`${baseUrl}api/v1/switchRealToMock`, {
             withCredentials: true,
             headers: {

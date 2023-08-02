@@ -170,13 +170,17 @@ exports.getUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestEndTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
-        }).populate('portfolio', 'portfolioName _id portfolioValue')
-            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-            .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-            .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-            .populate('college', 'collegeName zone')
-            .sort({ contestStartTime: 1 })
+        },
+        {
+            allowedUsers: 0,
+            potentialParticipants: 0,
+            contestSharedBy: 0,
+            purchaseIntent: 0
+        })
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ contestStartTime: 1 })
 
         res.status(200).json({
             status: "success",
@@ -197,14 +201,14 @@ exports.getOnlyUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
             contestStartTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active", contestFor: "StoxHero"
-        }).populate('portfolio', 'portfolioName _id portfolioValue')
-            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-            .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
-            .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
-            .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
-            .populate('college', 'collegeName zone')
-            .sort({ contestStartTime: 1 })
-
+        },
+        {
+            allowedUsers: 0,
+            potentialParticipants: 0,
+            contestSharedBy: 0,
+            purchaseIntent: 0
+        }
+        ).sort({ contestStartTime: 1 })
         res.status(200).json({
             status: "success",
             message: "Upcoming contests fetched successfully",
@@ -223,7 +227,7 @@ exports.getOnlyUpcomingContests = async (req, res) => {
 exports.getAdminUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gt: new Date() }
+            contestStartTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -276,20 +280,46 @@ exports.todaysContest = async (req, res) => {
 
 // Controller for getting ongoing contest
 exports.ongoingContest = async (req, res) => {
-    // let date = new Date();
-    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // todayDate = todayDate + "T00:00:00.000Z";
-    // const today = new Date(todayDate);
-
     try {
         const contests = await Contest.find({
             contestStartTime: { $lte: new Date() },
             contestEndTime: { $gte: new Date() },
             contestFor: "StoxHero"
-        })
-            // .populate('portfolio', 'portfolioName _id portfolioValue')
-            // .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-            .sort({ contestStartTime: 1 })
+        },
+        {
+            allowedUsers: 0,
+            potentialParticipants: 0,
+            contestSharedBy: 0,
+            purchaseIntent: 0
+        }
+        ).sort({ contestStartTime: 1 })
+        res.status(200).json({
+            status: "success",
+            message: "ongoing contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching ongoing contests",
+            error: error.message
+        });
+    }
+};
+
+// Controller for getting ongoing contest
+exports.ongoingContestAdmin = async (req, res) => {
+    try {
+        const contests = await Contest.find({
+            contestStartTime: { $lte: new Date() },
+            contestEndTime: { $gte: new Date() },
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('contestSharedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('college', 'collegeName zone')
+        .sort({ contestStartTime: 1 })
 
         res.status(200).json({
             status: "success",
@@ -859,25 +889,13 @@ exports.creditAmountToWallet = async () => {
                         },
                     ])
 
-                    console.log(pnlDetails[0]);
+                    // console.log(pnlDetails[0]);
                     if (pnlDetails[0]?.npnl > 0) {
                         const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
                         const wallet = await Wallet.findOne({ userId: userId });
 
-                        console.log(userId);
-                        if (wallet && wallet.transactions.length > 0 ) {
-                            // Use $pop to remove the last element from the transaction array
-                            
-                            const updatedWallet = await Wallet.findOneAndUpdate(
-                              { userId: userId },
-                              { $pop: { transactions: 1 } }, // 1 indicates removing the last element
-                              { new: true }
-                            );
-                          
-                            // console.log("Updated Wallet:", updatedWallet);
-                          } else {
-                            console.log("No wallet found or transaction array is empty.");
-                          }
+                        console.log(userId, pnlDetails[0]);
+
                         wallet.transactions = [...wallet.transactions, {
                             title: 'Contest Credit',
                             description: `Amount credited for contest ${contest[j].contestName}`,
