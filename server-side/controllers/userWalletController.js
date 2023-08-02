@@ -95,7 +95,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
                 subscription: {
                   subscriptionId: new ObjectId(subscribedId),
                   subscribedOn: new Date(),
-                  
+                  fee: subscriptionAmount
                 }
               }
             },
@@ -106,10 +106,11 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         { _id: new ObjectId(subscribedId) },
         {
             $push: {
-            users: {
-                userId: new ObjectId(userId),
-                subscribedOn: new Date()
-            }
+                users: {
+                    userId: new ObjectId(userId),
+                    subscribedOn: new Date(),
+                    fee: subscriptionAmount
+                }
             }
         },
         { new: true }
@@ -210,9 +211,10 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
             </html>
 
         `
-        emailService(recipientString,subject,message);
-        console.log("Subscription Email Sent")
-
+        if(process.env.PROD === "true"){
+            emailService(recipientString,subject,message);
+            console.log("Subscription Email Sent")
+        }
         res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
 
     }catch(e){
