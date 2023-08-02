@@ -75,7 +75,6 @@ exports.overallPnlTrader = async (req, res, next) => {
           },
         },
       ])
-      // //console.log("pnlDetails in else", pnlDetails)
 
       if (isRedisConnected) {
         await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnlDetails))

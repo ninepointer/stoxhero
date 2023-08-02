@@ -11,14 +11,14 @@ import money from "../../../assets/images/money.png"
 import { Link, useLocation } from "react-router-dom";
 
 
-const ActiveCareers = ({type}) => {
+const InactiveCareers = ({type}) => {
 const [applicationCount, setApplicationCount] = useState(0);
 const [activeCareer,setActiveCareer] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/career?type=Job`,{
+    let call1 = axios.get(`${baseUrl}api/v1/career/reject?type=Job`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -95,7 +95,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No active Job Opening(s)</MDTypography>
+            <MDTypography color="light">No Inactive Job(s)</MDTypography>
           </Grid>
          </Grid>
          } 
@@ -105,4 +105,4 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 
 
 
-export default ActiveCareers;
+export default InactiveCareers;
