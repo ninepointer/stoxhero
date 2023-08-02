@@ -847,7 +847,7 @@ exports.creditAmountToWallet = async () => {
 
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
-            if (contest[j].contestEndTime < new Date()) {
+            // if (contest[j].contestEndTime < new Date()) {
                 for (let i = 0; i < contest[j]?.participants?.length; i++) {
                     let userId = contest[j]?.participants[i]?.userId;
                     let payoutPercentage = contest[j]?.payoutPercentage
@@ -894,7 +894,7 @@ exports.creditAmountToWallet = async () => {
                         const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
                         const wallet = await Wallet.findOne({ userId: userId });
 
-                        console.log(userId, pnlDetails[0]);
+                        console.log(userId, pnlDetails[0], contest[j].contestName);
 
                         wallet.transactions = [...wallet.transactions, {
                             title: 'Contest Credit',
@@ -912,7 +912,7 @@ exports.creditAmountToWallet = async () => {
                     contest[j].contestStatus = "Completed";
                     await contest[j].save();
                 }
-            }
+            // }
         }
 
 
