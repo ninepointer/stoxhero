@@ -174,6 +174,55 @@ export default function LabTabs() {
 
       </MDBox>
 
+
+      {/* <Grid mt={3} container>
+        <Grid item xs={12} md={6} lg={12}>
+          <MDBox bgColor="light" borderRadius={5}>
+
+            <MDBox>
+              <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
+                <Grid item xs={12} md={6} lg={3.66} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11}>Contest Start Time:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{changeDateFormat(selectedSubscription?.contestStartTime)}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={3.66} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Contest End Time:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{changeDateFormat(selectedSubscription?.contestEndTime)}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Max Participants:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedSubscription?.maxParticipants)}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Participants:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedSubscription?.participants?.length)}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={6} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
+                    <MDTypography fontSize={11} >Payout %:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedSubscription?.payoutPercentage)}</MDTypography>
+                  </MDBox>
+                </Grid>
+
+              </Grid>
+            </MDBox>
+
+          </MDBox>
+        </Grid>
+      </Grid> */}
+
       <Grid mt={3} container>
         <Grid item xs={12} md={6} lg={12}>
           <MDBox bgColor="light" borderRadius={5}>

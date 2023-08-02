@@ -14,8 +14,9 @@ router.route('/tenxoveralltraderpnltoday').get(overallTenXPnl)
 router.route('/liveandtotaltradercounttoday').get(liveTotalTradersCount)
 router.route('/tenxoveralltraderpnlyesterday').get(overallTenXPnlYesterday)
 router.route('/liveandtotaltradercountyesterday').get(liveTotalTradersCountYesterday)
-router.route('/traderwisecompanypnlreport/:startDate/:endDate').get(tenxDailyPnlTWise)
-router.route('/companypnlreport/:startDate/:endDate').get(tenxPnlReport)
+router.route('/traderwisecompanypnlreport').get(tenxDailyPnlTWise)
+
+router.route('/companypnlreport').get(tenxPnlReport)
 
 
 module.exports = router;

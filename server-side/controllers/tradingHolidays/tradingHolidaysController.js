@@ -124,7 +124,17 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
     const {startDate, endDate} = req.params;
 
     try {
-        const holiday = await TradingHoliday.find({holidayDate: {$gte: startDate, $lte: endDate}});
+        const holiday = await TradingHoliday.find({
+            holidayDate: {
+              $gte: startDate,
+              $lte: endDate
+            },
+            $expr: {
+              $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
+              $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+            }
+          });
+        // const holiday = await TradingHoliday.find({holidayDate: {$gte: startDate, $lte: endDate}});
         res.status(200).json({status: 'success', data: holiday.length});
     } catch (e) {
       

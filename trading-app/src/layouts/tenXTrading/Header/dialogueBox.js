@@ -217,14 +217,14 @@ export default function Dialogue({amount, name, id, walletCash}) {
    
     <>
         {isSubscribed ?
-        <MDBox display='flex' justifyContent='center' alignItems='center' gap='2px'>
-          <MDButton variant="contained" color="dark" sx={{width: "50px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+        <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
           <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>
         </MDBox>
         :
         messege.thanksMessege ?
-        <MDBox display='flex' justifyContent='center' alignItems='center' gap='2px'>
-          <MDButton variant="contained" color="dark" sx={{width: "50px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+        <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
           <Renew amount={amount} name={name} id={id} walletCash={walletCash} />
         </MDBox>
         :

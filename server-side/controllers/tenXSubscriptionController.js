@@ -222,6 +222,7 @@ exports.renewSubscription = async(req, res, next)=>{
               if (user.subscription[k].subscriptionId?.toString() === tenXSubs._id?.toString()) {
                 user.subscription[k].status = "Expired";
                 user.subscription[k].expiredOn = new Date();
+                user.subscription[k].expiredBy = "User";
                 console.log("this is user", user)
                 await user.save();
                 break;
@@ -232,6 +233,7 @@ exports.renewSubscription = async(req, res, next)=>{
               if (tenXSubs.users[k].userId?.toString() === userId?.toString()) {
                 tenXSubs.users[k].status = "Expired";
                 tenXSubs.users[k].expiredOn = new Date();
+                tenXSubs.users[k].expiredBy = "User";
                 console.log("this is tenXSubs", tenXSubs)
                 await tenXSubs.save();
                 break;
@@ -268,7 +270,8 @@ exports.renewSubscription = async(req, res, next)=>{
             $push: {
               subscription: {
                 subscriptionId: new ObjectId(subscriptionId),
-                subscribedOn: new Date()
+                subscribedOn: new Date(),
+                isRenew: true
               }
             }
           },
@@ -281,7 +284,8 @@ exports.renewSubscription = async(req, res, next)=>{
           $push: {
           users: {
               userId: new ObjectId(userId),
-              subscribedOn: new Date()
+              subscribedOn: new Date(),
+              isRenew: true
           }
           }
       },

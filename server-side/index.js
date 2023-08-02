@@ -224,14 +224,12 @@ getKiteCred.getAccess().then(async (data)=>{
 if(process.env.PROD === "true"){
   sendLeaderboardData().then(()=>{});
   sendMyRankData().then(()=>{});
-  emitServerTime().then(()=>{});
 }
+emitServerTime().then(()=>{});
+
 
 
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
-
-// autoCutMainManually().then(()=>{})
-
 app.use(express.json({ limit: "20kb" }));
 
 
@@ -355,7 +353,7 @@ let weekDay = date.getDay();
           infinityOffline();
         });
         // const autotrade = nodeCron.schedule('50 9 * * *', test); 
-        const autotrade = nodeCron.schedule(`1 13 * * *`, async () => {
+        const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
           autoCutMainManually();
           autoCutMainManuallyMock();
           changeStatus();
@@ -383,14 +381,6 @@ let weekDay = date.getDay();
       
     }
   }
-
-  const autotrade = nodeCron.schedule(`23 14 * * *`, async () => {
-    autoCutMainManually();
-    autoCutMainManuallyMock();
-    changeStatus();
-    creditAmount();
-  });
-
 
 const PORT = process.env.PORT||5002;
 const server = app.listen(PORT);
