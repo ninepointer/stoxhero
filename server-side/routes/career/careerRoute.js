@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const multer = require('multer');
 const aws = require('aws-sdk');
-const {getUploadsApplication, createCareer, getCareers, editCareer, getCareer, getCareerApplicantions, generateOTP, confirmOTP, getSelectedCareerApplicantions} = require("../../controllers/career/careerController");
+const {getDraftCareers, getRejectedCareers, getUploadsApplication, createCareer, 
+      getCareers, editCareer, getCareer, getCareerApplicantions, 
+      generateOTP, confirmOTP, getSelectedCareerApplicantions} = require("../../controllers/career/careerController");
 const authentication = require("../../authentication/authentication");
 const restrictTo = require('../../authentication/authorization')
 const internBatchRoute = require("./internBatchRoute");
@@ -24,6 +26,8 @@ const upload = multer({
 });
 
 router.route('/').get(getCareers);
+router.route('/draft').get(getDraftCareers);
+router.route('/reject').get(getRejectedCareers);
 router.route('/generateotp').post(generateOTP);
 router.route('/confirmotp').post(confirmOTP);
 router.route('/userDetail').post(upload.array("files"), getUploadsApplication);

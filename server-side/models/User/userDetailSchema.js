@@ -326,7 +326,8 @@ const userDetailSchema = new mongoose.Schema({
             type: String,
             enum: ['System','User'],
         },
-        isRenew: {type: Boolean}
+        isRenew: {type: Boolean},
+        fee: {type: Number}
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,

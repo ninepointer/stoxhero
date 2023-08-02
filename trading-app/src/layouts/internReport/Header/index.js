@@ -82,17 +82,25 @@ export default function LabTabs() {
   },[endpoint, selectedBatches])
 
   useEffect(()=>{
-    const startDate = dateWiseData[0] ? (dateWiseData[0]?.batchStartDate)?.toString()?.split('T')[0] : ''
-    const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
-  
-    axios.get(`${apiUrl}tradingholiday/dates/${startDate}/${endDate}`, {withCredentials: true})
-      .then((res) => {
-        // Check if the start date is after the end date
-        setHoliday(res.data.data)
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+
+    if(dateWiseData[0]){
+      const startDate = dateWiseData[0] ? (dateWiseData[0]?.batchStartDate)?.toString()?.split('T')[0] : ''
+      // const endDate = moment(new Date().toString()).format("YYYY-MM-DD");;
+    
+      const batchEndDate = moment(dateWiseData[0]?.batchEndDate);
+      const currentDate = moment();
+      const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
+
+      axios.get(`${apiUrl}tradingholiday/dates/${startDate}/${endDate}`, {withCredentials: true})
+        .then((res) => {
+          // Check if the start date is after the end date
+          console.log("holiday", res.data.data)
+          setHoliday(res.data.data)
+        })
+        .catch((err) => {
+          throw new Error(err);
+        });
+    }
   }, [dateWiseData])
 
   const handleShowDetails = async() => {
@@ -123,8 +131,39 @@ export default function LabTabs() {
     }
   }
 
-  // console.log("selectedBatches", selectedBatches)
+  function changeDateFormat(givenDate) {
 
+    const date = new Date(givenDate);
+
+    // Convert the date to IST
+    date.setHours(date.getHours());
+    date.setMinutes(date.getMinutes());
+
+    // Format the date as "dd Month yyyy | hh:mm AM/PM"
+    const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
+
+    console.log(formattedDate);
+
+    // Helper function to get the month name
+    function getMonthName(month) {
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      return monthNames[month];
+    }
+
+    // Helper function to format time as "hh:mm AM/PM"
+    function formatTime(hours, minutes) {
+      const meridiem = hours >= 12 ? "PM" : "AM";
+      const formattedHours = hours % 12 || 12;
+      const formattedMinutes = minutes.toString().padStart(2, "0");
+      return `${formattedHours}:${formattedMinutes} ${meridiem}`;
+    }
+
+    return formattedDate;
+
+  }
   return (
 
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
@@ -175,7 +214,7 @@ export default function LabTabs() {
       </MDBox>
 
 
-      {/* <Grid mt={3} container>
+      <Grid mt={3} container>
         <Grid item xs={12} md={6} lg={12}>
           <MDBox bgColor="light" borderRadius={5}>
 
@@ -183,36 +222,29 @@ export default function LabTabs() {
               <Grid container spacing={0} p={2} display="flex" justifyContent="space-around" alignContent="center" alignItems="center">
                 <Grid item xs={12} md={6} lg={3.66} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11}>Contest Start Time:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{changeDateFormat(selectedSubscription?.contestStartTime)}</MDTypography>
+                    <MDTypography fontSize={11}>Batch Start Date:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{changeDateFormat(selectedBatches?.batchStartDate)}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={3.66} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11} >Contest End Time:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{changeDateFormat(selectedSubscription?.contestEndTime)}</MDTypography>
+                    <MDTypography fontSize={11} >Batch End Date:&nbsp;</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{changeDateFormat(selectedBatches?.batchEndDate)}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
-                    <MDTypography fontSize={11} >Max Participants:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedSubscription?.maxParticipants)}</MDTypography>
-                  </MDBox>
-                </Grid>
-
-                <Grid item xs={12} md={6} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                  <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11} >Participants:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedSubscription?.participants?.length)}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedBatches?.participants?.length)}</MDTypography>
                   </MDBox>
                 </Grid>
 
                 <Grid item xs={12} md={6} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5}  p={1}>
                     <MDTypography fontSize={11} >Payout %:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedSubscription?.payoutPercentage)}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" >{(selectedBatches?.payoutPercentage)}</MDTypography>
                   </MDBox>
                 </Grid>
 
@@ -221,7 +253,7 @@ export default function LabTabs() {
 
           </MDBox>
         </Grid>
-      </Grid> */}
+      </Grid>
 
       <Grid mt={3} container>
         <Grid item xs={12} md={6} lg={12}>

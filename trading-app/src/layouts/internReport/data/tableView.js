@@ -46,14 +46,14 @@ export default function TableView({holiday, whichTab, dateWiseData, userData, ba
   }
   
 
-  console.log("batches", dates, userData, calculateWorkingDays(dates.startDate, dates.endDate))
+  console.log("batches", holiday, calculateWorkingDays(dates.startDate, dates.endDate))
 
   return (
 
     <MDBox bgColor="dark" color="light" mb={0} borderRadius={10} minWidth='100%' minHeight='auto'>
       {whichTab === "Daily P&L" ?
         <Grid container spacing={1}>
-          <MDBox><MDButton color='light'>Download</MDButton></MDBox>
+          {/* <MDBox><MDButton color='light'>Download</MDButton></MDBox> */}
           <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
             <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
               <MDTypography color="light" fontSize={9} fontWeight="bold">DATE</MDTypography>
@@ -180,6 +180,7 @@ export default function TableView({holiday, whichTab, dateWiseData, userData, ba
               const attendance = (elem?.tradingDays*100/(calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
               let refCount = referral[0]?.referrals?.length;
               elem.isPayout = false;
+              const profitCap = 15000;
 
               if (attendance >= attendanceLimit && refCount >= referralLimit && elem?.npnl > 0) {
                 console.log("payout 1sr");
@@ -204,7 +205,7 @@ export default function TableView({holiday, whichTab, dateWiseData, userData, ba
               return (
                 <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                   <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name}</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name.length <= 16 ? elem?.name : elem?.name.slice(0,13)+"..."}</MDTypography>
                   </Grid>
 
                   <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
@@ -227,7 +228,7 @@ export default function TableView({holiday, whichTab, dateWiseData, userData, ba
                     <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{referral[0]?.referrals?.length}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{elem.isPayout ? (elem?.npnl*payoutPercentage/100).toFixed(0) : 0}</MDTypography> 
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{elem.isPayout ? Math.min((elem?.npnl*payoutPercentage/100).toFixed(0), profitCap) : 0}</MDTypography> 
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
                     <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(elem?.tradingDays*100/(calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0)}%</MDTypography>

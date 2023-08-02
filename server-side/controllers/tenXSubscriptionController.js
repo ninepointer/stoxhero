@@ -271,7 +271,8 @@ exports.renewSubscription = async(req, res, next)=>{
               subscription: {
                 subscriptionId: new ObjectId(subscriptionId),
                 subscribedOn: new Date(),
-                isRenew: true
+                isRenew: true,
+                fee: subscriptionAmount
               }
             }
           },
@@ -282,11 +283,12 @@ exports.renewSubscription = async(req, res, next)=>{
       { _id: new ObjectId(subscriptionId) },
       {
           $push: {
-          users: {
-              userId: new ObjectId(userId),
-              subscribedOn: new Date(),
-              isRenew: true
-          }
+            users: {
+                userId: new ObjectId(userId),
+                subscribedOn: new Date(),
+                isRenew: true,
+                fee: subscriptionAmount
+            }
           }
       },
       { new: true }

@@ -17,11 +17,11 @@ const EChartsDemo = ({traderType, monthWiseData, liveUser, expiredUser}) => {
     let data1 = liveUser.map((e)=> e?.name);
     let data2 = expiredUser.map((e)=> e?.name);
 
-    let pay1 = liveUser.map((e)=> e?.payout);
-    let pay2 = expiredUser.map((e)=> e?.payout);
+    let pay1 = liveUser.map((e)=> e?.payout?.toFixed(2));
+    let pay2 = expiredUser.map((e)=> e?.payout?.toFixed(2));
 
-    let net1 = liveUser.map((e)=> e?.npnl);
-    let net2 = expiredUser.map((e)=> e?.npnl);
+    let net1 = liveUser.map((e)=> e?.npnl?.toFixed(2));
+    let net2 = expiredUser.map((e)=> e?.npnl?.toFixed(2));
 
     data = data1.concat(data2);
     npnl = net1.concat(net2);

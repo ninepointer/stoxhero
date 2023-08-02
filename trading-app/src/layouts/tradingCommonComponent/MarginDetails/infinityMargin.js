@@ -25,6 +25,8 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
+  console.log("pnlData", pnlData)
+
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{

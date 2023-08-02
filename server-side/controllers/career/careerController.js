@@ -57,15 +57,7 @@ exports.generateOTP = async(req, res, next)=>{
   // console.log(req.body)
   const{ firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
   } = req.body
-  // const applicationExists = await CareerApplication.findOne({mobileNo: mobile, career: career, status: 'OTP Verified'});
-  // const emailCheck = await CareerApplication.findOne({email: email, career: career, status: 'OTP Verified'});
-  // console.log("Application Exists: ",applicationExists)
-  // if(applicationExists){
-  //   return res.status(400).json({info:'You have already applied for this position using this mobile number.'})
-  // }
-  // if(emailCheck){
-  //   return res.status(400).json({info:'You have already applied for this position using this email.'})
-  // }
+
   let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
   try {
       const data = await CareerApplication.create({
@@ -401,6 +393,82 @@ exports.getCareers = async(req, res, next)=>{
       ]
     )
     res.status(201).json({message: 'success', data:career});
+}
+
+exports.getRejectedCareers = async(req, res, next)=>{
+  const type = req.query.type;
+  const cond = !type? {}:{listingType:type}
+  const career = await Career.aggregate(
+    [
+      {
+        $match: cond
+      },
+      {
+        $lookup: {
+          from: "career-applications",
+          localField: "_id",
+          foreignField: "career",
+          as: "applicants",
+        },
+      },
+      {
+        $match: {
+          status: "Rejected",
+        },
+      },
+      {
+        $project: {
+          jobTitle: 1,
+          jobDescription: 1,
+          jobType: 1,
+          jobLocation: 1,
+          status: 1,
+          applicants: 1,
+          rolesAndResponsibilities: 1,
+          listingType: 1
+        },
+      },
+    ]
+  )
+  res.status(201).json({message: 'success', data:career});
+}
+
+exports.getDraftCareers = async(req, res, next)=>{
+  const type = req.query.type;
+  const cond = !type? {}:{listingType:type}
+  const career = await Career.aggregate(
+    [
+      {
+        $match: cond
+      },
+      {
+        $lookup: {
+          from: "career-applications",
+          localField: "_id",
+          foreignField: "career",
+          as: "applicants",
+        },
+      },
+      {
+        $match: {
+          status: "Draft",
+        },
+      },
+      {
+        $project: {
+          jobTitle: 1,
+          jobDescription: 1,
+          jobType: 1,
+          jobLocation: 1,
+          status: 1,
+          applicants: 1,
+          rolesAndResponsibilities: 1,
+          listingType: 1
+        },
+      },
+    ]
+  )
+  res.status(201).json({message: 'success', data:career});
 }
 
 exports.getCareer = async (req,res,next) => {

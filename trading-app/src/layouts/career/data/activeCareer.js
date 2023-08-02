@@ -16,22 +16,6 @@ const [applicationCount, setApplicationCount] = useState(0);
 const [activeCareer,setActiveCareer] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-// React.useEffect(()=>{
-//     // console.log("Inside Use Effect")
-//     // console.log("Inside Use Effect Id & Old Object Id: ",id,oldObjectId)
-//     axios.get(`${baseUrl}api/v1/career/${career}`)
-//     .then((res)=>{
-//         setContestData(res?.data?.data);
-//         console.log("Contest Data in Create Contest Form: ",res?.data?.data)
-//         setLinkedContestRule(res?.data?.data?.contestRule._id)
-//             setTimeout(()=>{setIsLoading(false)},500) 
-//         // setIsLoading(false)
-//     }).catch((err)=>{
-//         //window.alert("Server Down");
-//         return new Error(err);
-//     })
-
-// },[id,isSubmitted])
 
   useEffect(()=>{
     let call1 = axios.get(`${baseUrl}api/v1/career?type=Job`,{
