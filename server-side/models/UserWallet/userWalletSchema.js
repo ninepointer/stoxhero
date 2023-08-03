@@ -11,7 +11,7 @@ const wallet = new mongoose.Schema({
         [{
             title:{type:String}, //Battle - Battle Credit : Referral - Referral Credit
             description:{type:String}, //Battle - Amount credited for 'Monday Mania' Battle : Referral - Amount credited for Referral of 'Prateek Pawan'
-            transactionDate:{type:Date,default:new Date()},
+            transactionDate:{type:Date,default:() => new Date()},
             amount:{type:Number},
             transactionId:{type:String},
             transactionType:{type: String, enum:['Cash','Bonus','Deposit','Withdrawal']},

@@ -7,6 +7,7 @@ const { ObjectId } = require('mongodb');
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
 const uuid = require("uuid")
 const UserWallet = require("../models/UserWallet/userWalletSchema")
+const emailService = require("../utils/emailService")
 
 
 // Controller for creating a contest
@@ -848,70 +849,70 @@ exports.creditAmountToWallet = async () => {
         // console.log(contest.length, contest)
         for (let j = 0; j < contest.length; j++) {
             // if (contest[j].contestEndTime < new Date()) {
-                for (let i = 0; i < contest[j]?.participants?.length; i++) {
-                    let userId = contest[j]?.participants[i]?.userId;
-                    let payoutPercentage = contest[j]?.payoutPercentage
-                    let id = contest[j]._id;
-                    let pnlDetails = await DailyContestMockUser.aggregate([
-                        {
-                            $match: {
-                                trade_time: {
-                                    $gte: today
-                                },
-                                status: "COMPLETE",
-                                trader: new ObjectId(userId),
-                                contestId: new ObjectId(id)
+            for (let i = 0; i < contest[j]?.participants?.length; i++) {
+                let userId = contest[j]?.participants[i]?.userId;
+                let payoutPercentage = contest[j]?.payoutPercentage
+                let id = contest[j]._id;
+                let pnlDetails = await DailyContestMockUser.aggregate([
+                    {
+                        $match: {
+                            trade_time: {
+                                $gte: today
                             },
+                            status: "COMPLETE",
+                            trader: new ObjectId(userId),
+                            contestId: new ObjectId(id)
                         },
-                        {
-                            $group: {
-                                _id: {
-                                },
-                                amount: {
-                                    $sum: {
-                                        $multiply: ["$amount", -1],
-                                    },
-                                },
-                                brokerage: {
-                                    $sum: {
-                                        $toDouble: "$brokerage",
-                                    },
+                    },
+                    {
+                        $group: {
+                            _id: {
+                            },
+                            amount: {
+                                $sum: {
+                                    $multiply: ["$amount", -1],
                                 },
                             },
-                        },
-                        {
-                            $project:
-                            {
-                                npnl: {
-                                    $subtract: ["$amount", "$brokerage"],
+                            brokerage: {
+                                $sum: {
+                                    $toDouble: "$brokerage",
                                 },
                             },
                         },
-                    ])
+                    },
+                    {
+                        $project:
+                        {
+                            npnl: {
+                                $subtract: ["$amount", "$brokerage"],
+                            },
+                        },
+                    },
+                ])
 
-                    // console.log(pnlDetails[0]);
-                    if (pnlDetails[0]?.npnl > 0) {
-                        const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
-                        const wallet = await Wallet.findOne({ userId: userId });
+                // console.log(pnlDetails[0]);
+                if (pnlDetails[0]?.npnl > 0) {
+                    const payoutAmount = pnlDetails[0]?.npnl * payoutPercentage / 100;
+                    const wallet = await Wallet.findOne({ userId: userId });
 
-                        console.log(userId, pnlDetails[0], contest[j].contestName);
+                    console.log(userId, pnlDetails[0]);
 
-                        wallet.transactions = [...wallet.transactions, {
-                            title: 'Contest Credit',
-                            description: `Amount credited for contest ${contest[j].contestName}`,
-                            transactionDate: new Date(),
-                            amount: payoutAmount?.toFixed(2),
-                            transactionId: uuid.v4(),
-                            transactionType: 'Cash'
-                        }];
-                        wallet.save();
+                    wallet.transactions = [...wallet.transactions, {
+                        title: 'Contest Credit',
+                        description: `Amount credited for contest ${contest[j].contestName}`,
+                        transactionDate: new Date(),
+                        amount: payoutAmount?.toFixed(2),
+                        transactionId: uuid.v4(),
+                        transactionType: 'Cash'
+                    }];
+                    wallet.save();
 
-                        contest[j].participants[i].payout = payoutAmount?.toFixed(2)
-                    }
-                    contest[j].payoutStatus = 'Completed'
-                    contest[j].contestStatus = "Completed";
-                    await contest[j].save();
+                    contest[j].participants[i].payout = payoutAmount?.toFixed(2)
                 }
+                contest[j].payoutStatus = 'Completed'
+                contest[j].contestStatus = "Completed";
+                await contest[j].save();
+            }
             // }
         }
 
@@ -1000,6 +1001,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
         const contest = await Contest.findOne({ _id: contestId });
         const wallet = await UserWallet.findOne({ userId: userId });
+        const user = await User.findOne({ _id: userId });
 
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
             return transaction.transactionType === "Cash";
@@ -1046,6 +1048,98 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
         if (!result || !wallet) {
             return res.status(404).json({ status: "error", message: "Something went wrong." });
+        }
+
+        let recipients = [user.email,'team@stoxhero.com'];
+        let recipientString = recipients.join(",");
+        let subject = "Contest Fee - StoxHero";
+        let message = 
+        `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Contest Fee Deducted</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
+
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+
+                p {
+                    margin: 0 0 20px;
+                }
+
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>Contest Fee</h1>
+                <p>Hello ${user.first_name},</p>
+                <p>Thanks for participating in contest! Please find your transaction details below.</p>
+                <p>User ID: <span class="userid">${user.employeeid}</span></p>
+                <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+                <p>Email: <span class="password">${user.email}</span></p>
+                <p>Mobile: <span class="password">${user.mobile}</span></p>
+                <p>Contest Name: <span class="password">${contest.contestName}</span></p>
+                <p>Contest Fee: <span class="password">₹${contest.entryFee}/-</span></p>
+                </div>
+            </body>
+            </html>
+
+        `
+        if(process.env.PROD === "true"){
+            emailService(recipientString,subject,message);
+            console.log("Subscription Email Sent")
         }
 
         res.status(200).json({

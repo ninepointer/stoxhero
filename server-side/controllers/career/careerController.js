@@ -277,7 +277,8 @@ exports.confirmOTP = async(req, res, next)=>{
                     <div class="container">
                     <h1>Account Created</h1>
                     <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
-                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Trading and Earning! </p>
+                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
+                    <p>StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
                     <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
                     <p>1. Virtual Trading:
                     Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
@@ -299,6 +300,7 @@ exports.confirmOTP = async(req, res, next)=>{
                     <a href='https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA=='>Instagram</a></br>
                     <a href='https://www.youtube.com/@stoxhero_official/videos'>YouTube</a></p>
                     <p>StoxHero is open to everyone who aspires to learn options intraday trading in a risk-free environment and analyze their performance to enhance their strategies. Moreover, with the chance to earn real profits through our programs, StoxHero provides an excellent platform for everyone to learn and earn. Be your own boss, take charge, and unlock the potential within you!</p>
+                    <p>We are excited to inform you that our system goes online every day at 09:20 AM, and all trades get automatically squared off at 3:20 PM. This ensures that your trading process remains smooth and consistent.</p>
                     <p>We hope you enjoy your trading journey with StoxHero. Should you have any questions or require assistance at any stage, don't hesitate to reach out to us.</p>
                     <p>Happy Trading and Learning!</p>
                     <p>Your Credentials</p>
