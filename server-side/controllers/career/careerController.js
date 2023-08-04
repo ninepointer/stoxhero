@@ -322,7 +322,20 @@ exports.confirmOTP = async(req, res, next)=>{
   }catch(error){
     console.log(error)
   }
+  }else{
+    if(campaign){
+      // console.log("Inside setting user to campaign")
+      campaign?.users?.push({userId:existingUser._id,joinedOn: new Date()})
+      // const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
+      //     $set:{ 
+      //         users: campaign?.users
+      //     }
+      // })
+      await campaign.save({validateBeforeSave:false});
+      // console.log(campaignData)
   }
+  }
+
 }
   
 
@@ -488,13 +501,100 @@ exports.getCareer = async (req,res,next) => {
     }
 }
 
-exports.getCareerApplicantions = async(req, res, next)=>{
+exports.getCareerApplications = async(req, res, next)=>{
   const {id} = req.params;
   const careerApplications = await CareerApplication.find({career: id, applicationStatus:'Applied'})
                               .sort({_id:-1})
                               .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
 }
+exports.getCareerApplicantions = async(req, res, next) => {
+  const { id } = req.params;
+  const careerApplications = await CareerApplication.find({career: id, applicationStatus: 'Applied'})
+                              .sort({_id: -1})
+                              .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink');
+
+  const mobileNos = careerApplications.map(app => app.mobileNo);
+
+  // Fetch corresponding users based on the mobileNos
+  const users = await User.find({ mobile: { $in: mobileNos } }).select('last_name internshipBatch mobile');
+  const currentDate = new Date();
+  const aggregatePipeline = [
+    // Lookup the associated career for each batch
+    {
+        $lookup: {
+            from: "careers",
+            localField: "career",
+            foreignField: "_id",
+            as: "associatedCareer"
+        }
+    },
+    {
+        $unwind: "$associatedCareer" // Since associatedCareer is an array (because of the lookup), we want to convert it to a single object
+    },
+    {
+        $match: {
+            "associatedCareer.listingType": "Job" // Filter batches with careers of listingType "Job"
+        }
+    },
+    // Separate out active and completed batches using $facet
+    {
+        $facet: {
+            activeBatches: [
+                {
+                    $match: {
+                        batchEndDate: { $gt: currentDate }
+                    }
+                }
+            ],
+            completedBatches: [
+                {
+                    $match: {
+                        batchEndDate: { $lte: currentDate }
+                    }
+                }
+            ]
+        }
+    }
+];
+
+const result = await InternBatch.aggregate(aggregatePipeline);
+const activeBatches = result[0]?.activeBatches;
+const completedBatches = result[0]?.completedBatches;
+  // Combine the careerApplications and users data
+  const combinedData = careerApplications.map(application => {
+      let inActiveBatch = false;
+      let completed = 0;
+      const correspondingUser = users.find(user => user.mobile === application.mobileNo);
+      if(correspondingUser?.internshipBatch.length >0){
+        for (let item of correspondingUser?.internshipBatch){
+          for(let activeBatch of activeBatches){
+            if(item?.toString() == activeBatch._id.toString()){
+              inActiveBatch = true;
+              break;
+            }
+          }
+        }
+        for(let item of correspondingUser?.internshipBatch){
+          for(let completedBatch of completedBatches){
+            if(item?.toString() == completedBatch._id.toString()){
+              completed++;
+            }
+          }
+        }
+      }
+      return {
+          ...application._doc,  // spread the application details
+          user_last_name: correspondingUser ? correspondingUser.last_name : null,
+          user_internshipBatch: correspondingUser ? correspondingUser.internshipBatch : null,
+          inActiveBatch: inActiveBatch,
+          completed
+      };
+  });
+
+  res.status(200).json({ message: 'success', data: combinedData, count: combinedData.length });
+}
+
 
 exports.getSelectedCareerApplicantions = async(req, res, next)=>{
   const {id} = req.params;
@@ -503,4 +603,30 @@ exports.getSelectedCareerApplicantions = async(req, res, next)=>{
     {applicationStatus: 'Selected'}
   ]}).select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus')
   res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
+}
+
+exports.rejectApplication = async(req, res, next) => {
+  const {id} = req.params;
+  try{
+    const careerApplication = await CareerApplication.findById(id);
+    careerApplication.applicationStatus = 'Rejected';
+    await careerApplication.save({validateBeforeSave:false});
+    res.status(200).json({status:'success', message:'Application rejected'});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong.'});
+  }
+}
+
+exports.getRejectedApplications = async(req, res, next)=>{
+  const {id} = req.params;
+  try{
+    const careerApplications = await CareerApplication.find({career: id, applicationStatus:'Rejected'})
+                                .sort({_id:-1})
+                                .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink')
+    res.status(201).json({message: 'success', data:careerApplications, count:careerApplications.length});
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong.'});
+  }
 }

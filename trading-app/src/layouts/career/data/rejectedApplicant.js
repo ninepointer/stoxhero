@@ -28,7 +28,7 @@ export default function Applicants({career, action, setAction}) {
       setOpen(true);
     };
     async function getCareerApplications(){
-        let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/selected/${career}`,{
+        let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/rejected/${career}`,{
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -131,7 +131,7 @@ export default function Applicants({career, action, setAction}) {
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Shortlisted Applications({applicationCount})
+            Rejected Applications({applicationCount})
           </MDTypography>
         </MDBox>
       </MDBox>
