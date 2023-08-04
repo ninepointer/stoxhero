@@ -1278,7 +1278,26 @@ router.get("/Tradable", authentication, async (req, res, next)=>{
   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
   await TradableInstrument.tradableInstrument(req,res,next);
 })
+router.get("/updateInstrumentStatus", async (req, res)=>{
+  let date = new Date();
+  let expiryDate = "2023-08-03T00:00:00.000+00:00"
+  expiryDate = new Date(expiryDate);
 
+  // let instrument = await Instrument.find({status: "Active"})
+  // res.send(instrument)
+  let instrument = await Instrument.updateMany(
+    {contractDate: {$lte: expiryDate}, status: "Active"},
+    { $set: { status: "Inactive" } }
+  )
+
+  let infinityInstrument = await InfinityInstrument.updateMany(
+    {contractDate: {$lte: expiryDate}, status: "Active"},
+    { $set: { status: "Inactive" } }
+  )
+
+  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+  res.send({message: "updated", data: instrument})
+})
 router.get("/updateName", async (req, res)=>{
   let data = await UserDetail.updateMany(
     {},
