@@ -142,7 +142,7 @@ router.patch("/verifyotp", async (req, res) => {
     const myReferralCode = await generateUniqueReferralCode();
     // const count = await User.countDocuments();
     let userId = email.split('@')[0]
-    const userIds = await User.find({ employeeid: userId })
+    let userIds = await User.find({ employeeid: userId })
    
     if (userIds.length > 0) {
         userId = userId.toString() + (userIds.length + 1).toString()

@@ -9,7 +9,7 @@ import axios from "axios";
 import AddApplicantModal from '../AddApplicantModal';
 
 
-export default function Applicants({career}) {
+export default function Applicants({career, action, setAction}) {
     console.log("Career", career);
     const [open, setOpen] = useState(false);
     const [selectedApplicant, setSelectedApplicant] = useState();
@@ -51,7 +51,7 @@ export default function Applicants({career}) {
 
     useEffect(()=>{
         getCareerApplications();
-    },[open])
+    },[open, action])
 
     let columns = [
         // { Header: "Action", accessor: "action", align: "center" },

@@ -39,8 +39,8 @@ exports.createUser = async({email, mobile})=>{
     
     if(!existingUser){
     const myReferralCode = generateUniqueReferralCode();
-    const userId = email.split('@')[0]
-    const userIds = await User.find({employeeid:userId})
+    let userId = email.split('@')[0]
+    let userIds = await User.find({employeeid:userId})
     // console.log("User Ids: ",userIds)
       if(userIds.length > 0)
       {

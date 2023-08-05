@@ -7,9 +7,10 @@ import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
 import axios from "axios";
 import AddApplicantModal from '../AddApplicantModal';
+import MDSnackbar from '../../../components/MDSnackbar';
 
 
-export default function Applicants({career}) {
+export default function Applicants({career, action, setAction}) {
     console.log("Career", career);
     const [open, setOpen] = useState(false);
     const [selectedApplicant, setSelectedApplicant] = useState();
@@ -27,6 +28,53 @@ export default function Applicants({career}) {
       setSelectedApplicantName(name);
       setOpen(true);
     };
+    const [title,setTitle] = useState('')
+    const [content,setContent] = useState('')
+    
+    const [successSB, setSuccessSB] = useState(false);
+    const openSuccessSB = (title,content) => {
+      setTitle(title)
+      setContent(content)
+      setSuccessSB(true);
+    }
+  const closeSuccessSB = () => setSuccessSB(false);
+  // console.log("Title, Content, Time: ",title,content,time)
+
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
+  );
+
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title,content) => {
+    setTitle(title)
+    setContent(content)
+    setErrorSB(true);
+  }
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
+
     async function getCareerApplications(){
         let call1 = axios.get(`${baseUrl}api/v1/career/careerapplications/${career}`,{
             withCredentials: true,
@@ -48,17 +96,39 @@ export default function Applicants({career}) {
             console.error(error);
             });
     }
+    async function rejectApplication(id){
+      try{
+        const res = await axios.patch(`${baseUrl}api/v1/career/reject/${id}`,{},{
+          withCredentials: true,
+          headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Credentials": true
+            },
+          });
+        if(res.data.status == 'success'){
+          openSuccessSB('Success', 'Application Rejected');
+          setAction(!action);
+        }  
+      }catch(e){
+        console.log(e);
+        openErrorSB('Error', 'Something went wrong');
+      }
+    }
 
     useEffect(()=>{
         getCareerApplications();
-    },[open])
+    },[open, action])
 
     let columns = [
-        { Header: "Action", accessor: "action", align: "center" },
+        { Header: "Assign", accessor: "assign", align: "center" },
+        { Header: "Reject", accessor: "reject", align: "center" },
         { Header: "Full Name", accessor: "fullname", align: "center" },
         { Header: "Date of Birth", accessor: "dob", align: "center" },
         { Header: "Email", accessor: "email", align: "center" },
         { Header: "Mobile", accessor: "mobile", align: "center" },
+        { Header: "In an Active Batch", accessor: "inActiveBatch", align: "center" },
+        { Header: "Completed Batches", accessor: "completed", align: "center" },
         { Header: "College", accessor: "college", align: "center" },
         { Header: "Trading Exp.", accessor: "tradingexp", align: "center" },
         { Header: "Source", accessor: "source", align: "center" },
@@ -72,13 +142,18 @@ export default function Applicants({career}) {
 
   careerApplications?.map((elem, index)=>{
   let featureObj = {}
-  featureObj.action = (
+  featureObj.assign = (
     <MDButton component="a" size='small' variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{handleOpen(elem._id, `${elem.first_name} ${elem.last_name}`)}}>
       Assign GD
     </MDButton>
   );
+  featureObj.reject = (
+    <MDButton component="a" size='small' variant="outlined" color="text" fontWeight="medium"  disabled={elem?.applicationStatus != 'Applied'} onClick={()=>{rejectApplication(elem._id)}}>
+      Reject
+    </MDButton>
+  );
   featureObj.fullname = (
-    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+    <MDTypography component="a" variant="caption" color={elem?.inActiveBatch?'error':elem?.completed>0?'warning':'text'} fontWeight="medium">
       {elem?.first_name} {elem?.last_name}
     </MDTypography>
   );
@@ -95,6 +170,16 @@ export default function Applicants({career}) {
   featureObj.mobile = (
     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
       {elem?.mobileNo}
+    </MDTypography>
+  );
+  featureObj.inActiveBatch = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem?.inActiveBatch.toString()}
+    </MDTypography>
+  );
+  featureObj.completed = (
+    <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+      {elem?.completed}
     </MDTypography>
   );
   featureObj.college = (
@@ -152,6 +237,8 @@ export default function Applicants({career}) {
         />
       </MDBox>
       <AddApplicantModal open={open} handleClose={handleClose} applicant={selectedApplicant} applicantName={selectedApplicantName} career = {career}/>
+      {renderSuccessSB}
+      {renderErrorSB}
     </Card>
   );
 }
