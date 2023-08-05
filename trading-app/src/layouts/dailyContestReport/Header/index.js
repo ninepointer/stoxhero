@@ -115,8 +115,8 @@ export default function LabTabs() {
     // Helper function to get the month name
     function getMonthName(month) {
       const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
       ];
       return monthNames[month];
     }
@@ -150,7 +150,7 @@ export default function LabTabs() {
             placeholder="Select Contest"
             variant="outlined"
             sx={{ width: "400px" }}
-            onChange={(e) => {setselectedSubscription(subscriptions.filter((item) => item.contestName == (e.target.value).split(" - ")[0])[0]) }}
+            onChange={(e) => {setselectedSubscription(subscriptions.filter((item) => item.contestName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}
             InputLabelProps={{
               style: { color: '#ffffff' },
             }}

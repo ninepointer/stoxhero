@@ -32,6 +32,7 @@ export default function LabTabs({socket}) {
   let totalTurnover = 0;
   let totalLots = 0;
   let totalTrades = 0;
+  let totalAbsRunningLots = 0;
 
   useEffect(()=>{
     axios.get(`${baseUrl}api/v1/getliveprice`)
@@ -162,25 +163,26 @@ export default function LabTabs({socket}) {
     }
   }, [])
 
-  const [mockMarginData, setMockMarginData] = useState();
-  const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);
-  let [refreshMockMargin, setRefreshMockMargin] = useState(true);
+//   const [mockMarginData, setMockMarginData] = useState();
+//   const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);
+//   let [refreshMockMargin, setRefreshMockMargin] = useState(true);
 
-  useEffect(()=>{
-    setIsLoadMockMargin(false)
-    axios.get(`${baseUrl}api/v1/usedMargin/dailycontest`)
-      .then((res) => {
-        console.log(res.data);
-        setMockMarginData(res.data.data)
-        setIsLoadMockMargin(true)
-      }).catch((err) => {
-        return new Error(err);
-      })
-  }, [refreshMockMargin])
+//   useEffect(()=>{
+//     setIsLoadMockMargin(false)
+//     axios.get(`${baseUrl}api/v1/usedMargin/dailycontest`)
+//       .then((res) => {
+//         console.log(res.data);
+//         setMockMarginData(res.data.data)
+//         setIsLoadMockMargin(true)
+//       }).catch((err) => {
+//         return new Error(err);
+//       })
+//   }, [refreshMockMargin])
 
   tradeData.map((subelem, index)=>{
     let obj = {};
     totalRunningLots += Number(subelem?.lots)
+    totalAbsRunningLots += Math.abs(Number(subelem?.lots))
     totalTransactionCost += Number(subelem?.brokerage);
     totalTurnover += Number(Math.abs(subelem?.turnover));
     totalLots += Number(Math.abs(subelem?.totallots))
@@ -239,8 +241,8 @@ export default function LabTabs({socket}) {
                                 <MDTypography color={totalquantitycolor} fontSize={12} display='flex' justifyContent='center'>{totalRunningLots}</MDTypography>
                             </Grid>
                             <Grid item  xs={4} md={4} lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTurnover)}</MDTypography>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Abs. Running Lots</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='right'>{totalAbsRunningLots}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
@@ -252,18 +254,9 @@ export default function LabTabs({socket}) {
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
                                 <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCount}/{notliveTraderCount + liveTraderCount}</MDTypography>
                             </Grid>
-                            <Grid item xs={4} md={4} lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
-                                    Used Margin
-                                </MDTypography>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right' alignItems="center">
-                                    {(!isLoadMockMargin) ?
-                                        <CircularProgress color="inherit" size={10} sx={{ marginRight: "10px" }} />
-                                        :
-                                        <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData)}</span>
-                                    }
-                                    <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMockMargin(!refreshMockMargin) }} />
-                                </MDTypography>
+                            <Grid item  xs={4} md={4} lg={4}>
+                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
+                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTurnover)}</MDTypography>
                             </Grid>
                         </Grid>
                         <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
