@@ -32,6 +32,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 // import User from './users';
 import CreateRules from './rulesAndRewards/battleRules';
+import CreateRewards from './rulesAndRewards/battleRewards';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -41,7 +42,7 @@ const CustomAutocomplete = styled(Autocomplete)`
     color: white;
   }
 `;
-
+let data;
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
 const MenuProps = {
@@ -72,7 +73,9 @@ function Index() {
   const [portfolios, setPortfolios] = useState([]);
   const [college, setCollege] = useState([]);
   const [action, setAction] = useState(false);
-
+  const [createdBattle, setCreatedBattle] = useState();
+  console.log('created battle', createdBattle);
+  
   const [formState, setFormState] = useState({
     battleName: '' || battle?.battleName,
     battleLiveTime: dayjs(battle?.battleLiveTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
@@ -94,6 +97,7 @@ function Index() {
     isNifty:false || battle?.isNifty,
     isBankNifty: false || battle?.isBankNifty,
     isFinNifty: false || battle?.isFinNifty,
+    rewardType: ""|| battle?.rewardType,
 
     registeredUsers: {
       userId: "",
@@ -198,6 +202,7 @@ function Index() {
   
   
       const data = await res.json();
+      setCreatedBattle(data);
       console.log(data, res.status);
       if (res.status !== 201) {
         console.log('is submitted', isSubmitted);
@@ -229,13 +234,14 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
     }
-    if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.minParticipants || !formState.payoutPercentage || !formState.description || !formState.battleType || !formState.portfolio || !formState.battleFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
+    if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.minParticipants || !formState.description || !formState.battleType || !formState.portfolio || !formState.battleFor || !formState.rewardType) {
+      console.log('edit', formState);
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { battleName, battleLiveTime, battleStartTime, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry } = formState;
+    const { battleName, battleLiveTime, battleStartTime, rewardType, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry } = formState;
 
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${battle?._id}`, {
+    const res = await fetch(`${baseUrl}api/v1/battles/${battle?._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -243,11 +249,11 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        battleName, battleLiveTime, battleStartTime, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio: portfolio?.id, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry
+        battleName, battleLiveTime, battleStartTime, rewardType, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio: portfolio?.id, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry
       })
     });
 
-    const data = await res.json();
+    data = await res.json();
     console.log(data);
     if (data.status === 500 || data.error || !data) {
       openErrorSB("Error", data.error)
@@ -844,7 +850,8 @@ function Index() {
 
             </Grid>
 
-            {isSubmitted && <CreateRules />}
+            {(isSubmitted || battle) && <CreateRules battle={battle!=undefined?battle?._id:createdBattle?.data?._id}/>}
+            {(isSubmitted || battle) && <CreateRewards battle={battle!=undefined?battle?._id:createdBattle?.data?._id}/>}
             {renderSuccessSB}
             {renderErrorSB}
           </MDBox>

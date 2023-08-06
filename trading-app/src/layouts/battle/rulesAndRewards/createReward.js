@@ -24,11 +24,11 @@ import RuleData from '../data/battleRuleData';
 
 
 
-function CreateContest({createRuleForm, setCreateRuleForm, battle}) {
+function CreateContest({createRewardForm, setCreateRewardForm, battle}) {
 
 const [isSubmitted,setIsSubmitted] = useState(false);
 const getDetails = useContext(userContext);
-const [ruleData,setRuleData] = useState([]);
+const [rewardData,setRewardData] = useState([]);
 const [formState,setFormState] = useState();
 const [id,setId] = useState();
 const [isObjectNew,setIsObjectNew] = useState(id ? true : false)
@@ -37,7 +37,7 @@ const [editing,setEditing] = useState(false)
 const [saving,setSaving] = useState(false)
 const [creating,setCreating] = useState(false)
 const [newObjectId,setNewObjectId] = useState()
-const [addRuleObject,setAddRuleObject] = useState(false);
+const [addRewardObject,setAddRewardObject] = useState(false);
 
 
 
@@ -73,18 +73,17 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
 async function onNext(e,formState){
 e.preventDefault()
 setCreating(true)
-console.log("Rule Form State: ",formState)
+console.log("Reward Form State: ",formState)
 
-if(
-  !formState?.rule || !formState?.status){
+if(!formState?.rankStart || !formState?.rankEnd || !formState?.prize || !formState.prizeValue){
 
   setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
   return openErrorSB("Missing Field","Please fill all the mandatory fields")
 
 }
 
-const {rule, status, order} = formState;
-const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rules`, {
+const {rankStart, rankEnd, prize, prizeValue} = formState;
+const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rewards`, {
     method: "PATCH",
     credentials:"include",
     headers: {
@@ -92,7 +91,7 @@ const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rules`, {
         "Access-Control-Allow-Credentials": true
     },
     body: JSON.stringify({
-      rule, order, status
+      rankStart, rankEnd, prize, prizeValue
     })
 });
 
@@ -101,54 +100,54 @@ console.log(data.error,data);
 if (!data.error) {
     setNewObjectId(data.data?._id)
     setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    openSuccessSB(data.message,`Contest Rule Created with name: ${data.data?.rule}`)
-    setCreateRuleForm(!createRuleForm);
+    openSuccessSB(data.message,`Contest Reward Created with prize: ${data.data?.prize}`)
+    setCreateRewardForm(!createRewardForm);
     
 } else {
     setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
     console.log("Invalid Entry");
-    return openErrorSB("Couldn't Created Contest",data.error)
+    return openErrorSB("Couldn't Add Reward",data.error)
 }
 }
 
-async function onAdd(e,childFormState,setChildFormState){
-    e.preventDefault()
-    setSaving(true)
-    console.log("Rule Child Form State: ",childFormState)
-    console.log("New Rule Object Id: ",newObjectId)
-    if(!childFormState?.orderNo || !childFormState?.rule){
+// async function onAdd(e,childFormState,setChildFormState){
+//     e.preventDefault()
+//     setSaving(true)
+//     console.log("Rule Child Form State: ",childFormState)
+//     console.log("New Rule Object Id: ",newObjectId)
+//     if(!childFormState?.orderNo || !childFormState?.rule){
     
-        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-        return openErrorSB("Missing Field","Please fill all the mandatory fields")
+//         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+//         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     
-    }
-    const {orderNo,rule} = childFormState;
+//     }
+//     const {orderNo,rule} = childFormState;
 
-    const res = await fetch(`${baseUrl}api/v1/contestrule/${newObjectId}`, {
-        method: "PUT",
-        credentials:"include",
-        headers: {
-            "content-type" : "application/json",
-            "Access-Control-Allow-Credentials": true
-        },
-        body: JSON.stringify({
-          contestRules:{orderNo,rule}
-        })
-    });
+//     const res = await fetch(`${baseUrl}api/v1/contestrule/${newObjectId}`, {
+//         method: "PUT",
+//         credentials:"include",
+//         headers: {
+//             "content-type" : "application/json",
+//             "Access-Control-Allow-Credentials": true
+//         },
+//         body: JSON.stringify({
+//           contestRules:{orderNo,rule}
+//         })
+//     });
 
-    const data = await res.json();
-    console.log(data);
-    if (data.status === 422 || data.error || !data) {
-        openErrorSB("Error",data.error)
-    } else {
-        openSuccessSB("New Rule Added","New Rule line item has been added in the contest rule")
-        setTimeout(()=>{setSaving(false);setEditing(false)},500)
-        setAddRuleObject(!addRuleObject);
-        console.log("Entry Succesfull");
-    }
-  }
+//     const data = await res.json();
+//     console.log(data);
+//     if (data.status === 422 || data.error || !data) {
+//         openErrorSB("Error",data.error)
+//     } else {
+//         openSuccessSB("New Rule Added","New Rule line item has been added in the contest rule")
+//         setTimeout(()=>{setSaving(false);setEditing(false)},500)
+//         setAddRuleObject(!addRuleObject);
+//         console.log("Entry Succesfull");
+//     }
+//   }
   
-const date = new Date(ruleData.lastModifiedOn);
+const date = new Date(rewardData.lastModifiedOn);
 
 const formattedLastModifiedOn = `${date.getUTCDate()}/${date.toLocaleString('default', { month: 'short' })}/${String(date.getUTCFullYear())} ${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}:${String(date.getUTCSeconds()).padStart(2, '0')}`;
 
@@ -211,10 +210,10 @@ const renderErrorSB = (
     )
         :
       ( 
-        <MDBox mt={4}>
+        <MDBox mt={4} p={3}>
         <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-          Rule Details
+          Reward Details
         </MDTypography>
         </MDBox>
 
@@ -224,13 +223,13 @@ const renderErrorSB = (
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
-                label='Order*'
+                label='Rank Start*'
                 inputMode='numeric'
                 fullWidth
-                value={formState?.order}
+                value={formState?.rankStart}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
-                    order: e.target.value
+                    rankStart: e.target.value
                   }))}}
               />
           </Grid>
@@ -238,36 +237,43 @@ const renderErrorSB = (
             <TextField
                 disabled={((isSubmitted || id) && (!editing || saving))}
                 id="outlined-required"
-                label='Rule*'
+                label='Rank End*'
+                inputMode='numeric'
                 fullWidth
-                value={formState?.rule}
+                value={formState?.rankEnd}
                 onChange={(e) => {setFormState(prevState => ({
                     ...prevState,
-                    rule: e.target.value
+                    rankEnd: e.target.value
+                  }))}}
+              />
+          </Grid>
+          <Grid item xs={12} md={5} xl={6}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Prize*'
+                fullWidth
+                value={formState?.prize}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    prize: e.target.value
+                  }))}}
+              />
+          </Grid>
+          <Grid item xs={12} md={5} xl={6}>
+            <TextField
+                disabled={((isSubmitted || id) && (!editing || saving))}
+                id="outlined-required"
+                label='Prize Value*'
+                fullWidth
+                value={formState?.prizeValue}
+                onChange={(e) => {setFormState(prevState => ({
+                    ...prevState,
+                    prizeValue: e.target.value
                   }))}}
               />
           </Grid>
 
-          <Grid item xs={12} md={5} xl={4}>
-              <FormControl sx={{width: "100%" }}>
-                <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
-                <Select
-                labelId="demo-simple-select-autowidth-label"
-                id="demo-simple-select-autowidth"
-                value={formState?.status}
-                disabled={((isSubmitted || id) && (!editing || saving))}
-                onChange={(e) => {setFormState(prevState => ({
-                    ...prevState,
-                    status: e.target.value
-                }))}}
-                label="Status"
-                sx={{ minHeight:43 }}
-                >
-                <MenuItem value="Active">Active</MenuItem>
-                <MenuItem value="Inactive">Inactive</MenuItem>
-                </Select>
-              </FormControl>
-          </Grid>
    
 
           {!isSubmitted && (
@@ -276,9 +282,9 @@ const renderErrorSB = (
             <MDButton variant="contained" size="small" color="success" onClick={(e) => {onNext(e,formState)}}>Next</MDButton>
           </Grid>
           <Grid item xs={12} md={2} xl={1} width="100%">
-            <MDButton variant="contained" size="small" color="warning" onClick={(e) => {setCreateRuleForm(!createRuleForm)}}>Back</MDButton>
+            <MDButton variant="contained" size="small" color="warning" onClick={(e) => {setCreateRewardForm(!createRewardForm)}}>Back</MDButton>
           </Grid>
-          </>  
+          </>
           )}
 
           {/* {isSubmitted && 

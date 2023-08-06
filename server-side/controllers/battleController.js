@@ -248,13 +248,13 @@ exports.getDraftBattles = async (req, res) => {
 
 exports.createRule = async(req, res, next) => {
     const {id} = req.params;
-    const {rule} = req.body;
+    const {rule, order, status} = req.body;
     try{
         const battle = await Battle.findById(id);
         if(!battle){
             return res.status(404).json({status:'error', message:'Battle not found'});
         }
-        battle.rules.push(rule);
+        battle.rules.push({rule, order, status});
         await battle.save({validateBeforeSave:false});
         res.status(201).json({status:'success', message:'Rule added'});
     }catch(e){
@@ -327,13 +327,16 @@ exports.addReward = async(req,res, next)=>{
             return res.status(404).json({status:'error', message:'Battle not found'});
           }
         for (let reward of battle.rewards) {
-            if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
-                (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
-              return res.status(400).send('Ranks overlap with existing rewards');
+            if(battle.rewards.length>0){
+                if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
+                    (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
+                  return res.status(400).json({status:'error',message:'Ranks overlap with existing rewards'});
+                }
             }
           }
           battle.rewards.push({ rankStart, rankEnd, prize, prizeValue});
-          await battle.save({validateBeforeSave: false}); 
+          await battle.save({validateBeforeSave: false});
+          res.status(201).json({status:'success', message:'Reward added'}); 
     }catch(e){
         console.log(e);
         res.status(500).json({
@@ -389,6 +392,24 @@ exports.editReward = async (req, res) => {
     }
   }
   
+  exports.getRewards = async(req, res) =>{
+    try {
+        const {id} = req.params;
+        const battle = await Battle.findById(id);
+        if(!battle){
+            return res.status(404).json({status:'error', message:'Battle not found'});
+        }
+        res.status(200).json({status:'success', message:'Rules fetched', data: battle.rewards});
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+  }
+
   exports.getUsers = async (req, res) => {
     const searchString = req.query.search;
     try {

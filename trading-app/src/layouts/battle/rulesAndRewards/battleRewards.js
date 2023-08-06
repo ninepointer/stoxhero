@@ -11,60 +11,63 @@ import { GrFormView } from 'react-icons/gr';
 import { CircularProgress } from "@mui/material";
 
 
-import battleRuleData from "../data/battleRuleData";
-import CreateRuleForm from "./createRules"
+import battleRewardData from "../data/battleRewardData";
+import CreateRewardForm from "./createReward"
 
-const BattleRules = ({battle}) => {
+const BattleRewards = ({battle}) => {
 
     const [reRender, setReRender] = useState(true);
-    const [createRuleForm,setCreateRuleForm] = useState(false);
-    const [battleRules,setbattleRules] = useState([]);
-    const { columns, rows } = battleRuleData();
+    const [createRewardForm,setCreateRewardForm] = useState(false);
+    const [battleRewards,setbattleRewards] = useState([]);
+    const { columns, rows } = battleRewardData();
     const [id,setId] = useState();
 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/battles/${battle}/rules`)
+      axios.get(`${baseUrl}api/v1/battles/${battle}/rewards`)
       .then((res)=>{
-                setbattleRules(res.data.data);
+                setbattleRewards(res.data.data);
                 console.log(res.data.data);
         }).catch((err)=>{
           return new Error(err);
       })
-  },[createRuleForm])
+  },[createRewardForm])
 
-  battleRules?.map((elem)=>{
-    let battleRule = {}
+  battleRewards?.map((elem)=>{
+    let battleReward = {}
 
-    battleRule.view = (
+    battleReward.edit = (
       // <MDButton variant="text" color="info" size="small" sx={{fontSize:10}} fontWeight="medium">
-        <GrFormView onClick={()=>{setCreateRuleForm(true);setId(elem._id)}}/>
+        <GrFormView onClick={()=>{setCreateRewardForm(true)}}/>
       // </MDButton>
     );
-    battleRule.rule= (
+    battleReward.rankStart= (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.rule}
+        {elem.rankStart}
       </MDTypography>
     );
-    battleRule.order = (
+    battleReward.rankEnd = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.order}
+        {elem.rankEnd}
       </MDTypography>
     );
-    battleRule.status = (
+    battleReward.prize = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.status}
+        {elem.prize}
+      </MDTypography>
+    );
+    battleReward.prizeValue = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem.prizeValue}
       </MDTypography>
     );
 
-    rows.push(battleRule)
-  })
+    rows.push(battleReward)
+})
 
-      console.log(rows)
-
-    return (
+return (
     <>
       <MDBox pt={6} pb={3}>
       <Grid container spacing={6}>
@@ -87,14 +90,14 @@ const BattleRules = ({battle}) => {
                       <MDTypography variant="h6" color="white" py={0}>
                           Battle Rules
                       </MDTypography>
-                      <MDButton hidden={true} variant="outlined" size="small" onClick={()=>setCreateRuleForm(true)}>
-                          Create battle Rule
+                      <MDButton hidden={true} variant="outlined" size="small" onClick={()=>setCreateRewardForm(true)}>
+                          Create Battle Reward
                       </MDButton>
                   </MDBox>
-                    {createRuleForm && <>
-                      <CreateRuleForm createRuleForm={createRuleForm} setCreateRuleForm={setCreateRuleForm} battle={battle}/>
-                    </>
-                    }
+                        {createRewardForm && <>
+                          <CreateRewardForm createRewardForm={createRewardForm} setCreateRewardForm={setCreateRewardForm} battle={battle}/>
+                        </>
+                        }
                   <MDBox pt={3}>
                       <DataTable
                           table={{ columns, rows }}
@@ -107,10 +110,9 @@ const BattleRules = ({battle}) => {
               </Card>
           </Grid>
       </Grid> 
-  </MDBox> 
-  
+  </MDBox>
       </>
     );
   }
 
-  export default BattleRules;
+  export default BattleRewards;
