@@ -1012,7 +1012,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         }, 0);
 
         if (totalCashAmount < contest?.entryFee) {
-            return res.status(404).json({ status: "error", message: "You have not enough balance to join this contest. Please add money to your wallet." });
+            return res.status(404).json({ status: "error", message: "You do not have enough balance to join this contest. Please add money to your wallet." });
         }
 
         for (let i = 0; i < contest.participants?.length; i++) {

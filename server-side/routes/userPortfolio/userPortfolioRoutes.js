@@ -2,17 +2,18 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const {myTenXPortfolio, myVirtualFreePortfolio, getPortfolioPnl, myPortfolios, 
         getTenXPortolios, createPortfolio, getPortfolios, getPortfolio, editPortfolio,
-        editPortfolioWithName,getContestPortolios,getTradingPortolios,getInactivePortolios, 
+        editPortfolioWithName,getBattlePortfolios,getTradingPortolios,getInactivePortolios, 
         getUserPortfolio, getDailyContestPortolios, getPortfolioRemainingAmount, getInternshipPortolios} = require('../../controllers/portfolioController');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
 
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createPortfolio).get(getPortfolios).patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), editPortfolioWithName)
-router.route('/contest').get(Authenticate, getContestPortolios)
+// router.route('/contest').get(Authenticate, getContestPortolios)
 router.route('/tenx').get(Authenticate, getTenXPortolios)
 router.route('/pnl').get(Authenticate, getPortfolioPnl)
 router.route('/user').get(Authenticate, getUserPortfolio)
+router.route('/battleportfolio').get(Authenticate, getBattlePortfolios);
 router.route('/my').get(Authenticate, myPortfolios)
 router.route('/trading').get(Authenticate, getTradingPortolios)
 router.route('/inactive').get(Authenticate, getInactivePortolios)
