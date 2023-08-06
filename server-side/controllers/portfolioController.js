@@ -40,11 +40,11 @@ exports.getPortfolios = async(req, res, next)=>{
         
 };
 
-exports.getContestPortolios = async(req, res, next)=>{
+exports.getBattlePortfolios = async(req, res, next)=>{
     try{
         const portfolio = await Portfolio.find({portfolioType: "Battle",status: "Active"})
         
-        res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
+        res.status(200).json({status: 'success', data: portfolio, results: portfolio.length});    
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});

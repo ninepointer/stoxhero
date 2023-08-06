@@ -225,7 +225,7 @@ function Header({ e }) {
 
     return (
         <>
-            <MDBox>
+            <MDBox display='flex' justifyContent='center'>
                 {loading && serverTime ?
                     <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
                         <CircularProgress color="light" />
