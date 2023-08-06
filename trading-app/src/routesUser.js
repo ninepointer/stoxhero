@@ -65,6 +65,7 @@ import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
 import UserDailyContestCollage from './layouts/UserDailyContestCollage';
+import UserBattle from './layouts/UserBattle'
 import SchoolIcon from '@mui/icons-material/School';
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
@@ -79,6 +80,7 @@ import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/past
 import DailyContestResultPage from "./layouts/UserDailyContest/data/result-page/resultIndex"
 import ContestScoreboard from './layouts/contestScoreboard'
 import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/data/result-page/resultIndex"
+import BattleIcon from "./assets/images/swords.png"
 
 import Challenge from './layouts/UserDailyChallenge'
 const routes = [
@@ -139,6 +141,14 @@ const routes = [
     icon: <MilitaryTechIcon/>,
     route: "/virtualtrading",
     component: <UserPosition />,
+  },
+  {
+    type: "collapse",
+    name: "Battle Ground",
+    key: "battleground",
+    icon: <img src={BattleIcon} width={15}></img>,
+    route: "/battleground",
+    component: <UserBattle />,
   },
   {
     type: "collapse",

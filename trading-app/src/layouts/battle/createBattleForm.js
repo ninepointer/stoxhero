@@ -31,6 +31,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 // import User from './users';
+import CreateRules from './rulesAndRewards/battleRules';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -90,9 +91,9 @@ function Index() {
     },
     college: "" || battle?.college?._id,
     battleExpiry: "" || battle?.battleExpiry,
-    isNifty: "" || battle?.isNifty,
-    isBankNifty: "" || battle?.isBankNifty,
-    isFinNifty: "" || battle?.isFinNifty,
+    isNifty:false || battle?.isNifty,
+    isBankNifty: false || battle?.isBankNifty,
+    isFinNifty: false || battle?.isFinNifty,
 
     registeredUsers: {
       userId: "",
@@ -170,43 +171,51 @@ function Index() {
 
   async function onSubmit(e, formState) {
     // console.log("inside submit")
-    e.preventDefault()
-    console.log(formState)
-    if(formState.battleStartTime > formState.battleEndTime){
-      return openErrorSB("Error", "Date range is not valid.")
-    }
-    if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.battleType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      return openErrorSB("Missing Field", "Please fill all the mandatory fields")
-    }
-
-    setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { battleName, battleLiveTime, battleStartTime, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry } = formState;
-    const res = await fetch(`${baseUrl}api/v1/battle/`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-      body: JSON.stringify({
-        battleName, battleLiveTime, battleStartTime, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio: portfolio?.id, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry
-      })
-    });
-
-
-    const data = await res.json();
-    console.log(data, res.status);
-    if (res.status !== 201) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-      openErrorSB("Battle not created", data?.message)
-    } else {
-      openSuccessSB("Battle Created", data?.message)
-      setNewObjectId(data?.data?._id)
-      console.log("New Object Id: ", data?.data?._id, newObjectId)
-      setIsSubmitted(true)
-      setBattles(data?.data);
+    e.preventDefault();
+    try{
+      console.log(formState)
+      if(formState.battleStartTime > formState.battleEndTime){
+        return openErrorSB("Error", "Date range is not valid.")
+      }
+      if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.battleType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
+        setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+        return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+      }
+  
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+      const { battleName, battleLiveTime, battleStartTime, battleEndTime, rewardType, battleStatus, minParticipants, entryFee, description, portfolio, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry } = formState;
+      const res = await fetch(`${baseUrl}api/v1/battles/`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          battleName, battleLiveTime, battleStartTime, rewardType, battleEndTime, battleStatus, minParticipants, entryFee, description, portfolio: portfolio?.id, battleType, battleFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, battleExpiry
+        })
+      });
+  
+  
+      const data = await res.json();
+      console.log(data, res.status);
+      if (res.status !== 201) {
+        console.log('is submitted', isSubmitted);
+        setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+        openErrorSB("Battle not created", data?.message)
+      } else {
+        openSuccessSB("Battle Created", data?.message)
+        setNewObjectId(data?.data?._id)
+        console.log('is submitted', isSubmitted);
+        console.log("New Object Id: ", data?.data?._id, newObjectId)
+        setIsSubmitted(true);
+        setBattles(data?.data);
+        setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
+      }
+    }catch(e){
+      console.log(e);
+      console.log('is submitted', isSubmitted, battle, editing);
+      console.log('condition', ((isSubmitted || Boolean(battle)) && !editing) );
     }
   }
 
@@ -220,8 +229,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
     }
-    
-    if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.battleType || !formState.portfolio || !formState.battleFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
+    if (!formState.battleName || !formState.battleLiveTime || !formState.battleStartTime || !formState.battleEndTime || !formState.battleStatus || !formState.minParticipants || !formState.payoutPercentage || !formState.description || !formState.battleType || !formState.portfolio || !formState.battleFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
@@ -546,7 +554,7 @@ function Index() {
                     onChange={(e) => {
                       setFormState(prevState => ({
                         ...prevState,
-                        maxParticipants: parseInt(e.target.value, 10)
+                        minParticipants: parseInt(e.target.value, 10)
                       }))
                     }}
                   />
@@ -628,8 +636,8 @@ function Index() {
                       label="Reward Type"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="Active">Gift</MenuItem>
-                      <MenuItem value="Draft">Cash</MenuItem>
+                      <MenuItem value="Gift">Gift</MenuItem>
+                      <MenuItem value="Cash">Cash</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -710,6 +718,13 @@ function Index() {
                     <FormControlLabel  
                       checked={(battle?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? battle?.isNifty : formState?.isNifty}
                       disabled={((isSubmitted || battle) && (!editing || saving))}
+                      onChange={(e) => {
+                        console.log('checkbox', e.target.checked, e.target.value);
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isNifty: e.target.checked
+                        }))
+                      }}
                       control={<Checkbox />} 
                       label="NIFTY" />
                   </FormGroup>
@@ -741,7 +756,13 @@ function Index() {
                   <FormControlLabel 
                     checked={(battle?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? battle?.isBankNifty : formState?.isBankNifty}
                     disabled={((isSubmitted || battle) && (!editing || saving))}
-                    control={<Checkbox />} 
+                    control={<Checkbox />}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        isBankNifty: e.target.checked
+                      }))
+                    }} 
                     label="BANKNIFTY" />
                   </FormGroup>
                 </Grid>
@@ -752,6 +773,12 @@ function Index() {
                       checked={(battle?.isFinNifty !== undefined && !editing && formState?.isFinNifty === undefined) ? battle?.isFinNifty : formState?.isFinNifty}
                       disabled={((isSubmitted || battle) && (!editing || saving))}
                       control={<Checkbox />} 
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          isFinNifty: e.target.checked
+                        }))
+                      }}
                       label="FINNIFTY" />
                   </FormGroup>
                 </Grid>
@@ -762,7 +789,7 @@ function Index() {
 
             <Grid container mt={2} xs={12} md={12} xl={12} >
               <Grid item display="flex" justifyContent="flex-end" xs={12} md={6} xl={12}>
-                {!isSubmitted && !battle && (
+                {!isSubmitted && !Boolean(battle) && (
                   <>
                     <MDButton
                       variant="contained"
@@ -774,23 +801,23 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashbo") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashboard") }}>
                       Cancel
                     </MDButton>
                   </>
                 )}
-                {(isSubmitted || battle) && !editing && (
+                {((isSubmitted || Boolean(battle)) && !editing) && (
                   <>
                   {battle?.battleStatus !== "Completed" &&
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/battledashbo') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/battledashboard') }}>
                       Back
                     </MDButton>
                   </>
                 )}
-                {(isSubmitted || battle) && editing && (
+                {((isSubmitted || Boolean(battle)) && editing) && (
                   <>
                     <MDButton
                       variant="contained"
@@ -817,6 +844,7 @@ function Index() {
 
             </Grid>
 
+            {isSubmitted && <CreateRules />}
             {renderSuccessSB}
             {renderErrorSB}
           </MDBox>
@@ -826,3 +854,5 @@ function Index() {
   )
 }
 export default Index;
+
+//TODO: Server error- isSubmitted state changes/submit condition becomes true

@@ -185,7 +185,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
 
     return (
         <>
-            <MDBox>
+            <MDBox display='flex' justifyContent='center'>
 
                 <>
                     <Grid container spacing={1} xs={12} md={12} lg={12}>

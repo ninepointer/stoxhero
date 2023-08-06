@@ -18,7 +18,7 @@ const [upcomingContest,setUpcomingContest] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contests/adminupcoming`,{
+    let call1 = axios.get(`${baseUrl}api/v1/battles/adminupcoming`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -57,14 +57,14 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                         component = {Link}
                         style={{minWidth:'100%'}}
                         to={{
-                            pathname: `/dailycontestdetails`,
+                            pathname: `/battledetails`,
                           }}
                         state={{data: e}}
                       >
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left" >
-                                  <MDTypography fontSize={15} style={{color:"black",paddingRight:4,fontWeight:'bold'}}>Contest Name: {e?.contestName}</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"black",paddingRight:4,fontWeight:'bold'}}>Battle Name: {e?.contestName}</MDTypography>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="left">
@@ -72,7 +72,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={1.4} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>Contest Status: <span style={{fontSize:11,fontWeight:700}}>{e?.contestStatus ? e?.contestStatus : 'Status not available'}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Battle Status: <span style={{fontSize:11,fontWeight:700}}>{e?.contestStatus ? e?.contestStatus : 'Status not available'}</span></MDTypography>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={2.3} mb={1} display="flex" justifyContent="left">
@@ -88,7 +88,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="left">
-                              <MDTypography fontSize={9} style={{color:"black"}}>Contest Type: <span style={{fontSize:11,fontWeight:700}}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
+                              <MDTypography fontSize={9} style={{color:"black"}}>Battle Type: <span style={{fontSize:11,fontWeight:700}}>{e?.entryFee === 0 ? "Free" : 'Paid'}</span></MDTypography>
                               </Grid>
       
                           </Grid>
@@ -103,7 +103,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Upcoming Contest(s)</MDTypography>
+            <MDTypography color="light">No Upcoming Battle(s)</MDTypography>
           </Grid>
          </Grid>
          } 
