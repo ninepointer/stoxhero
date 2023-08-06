@@ -319,8 +319,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
             color={isAppLive ? "success" : "error"}
             style={{display:"flex",alignItems:"center"}}
             >
-              <Timer socket={socket}/>
-              {/* <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"} */}
+              {/* <Timer socket={socket}/> */}
+              <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"}
             </MDTypography>
         </MDBox>
       </MDBox>
