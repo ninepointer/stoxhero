@@ -59,6 +59,10 @@ const battleSchema = new Schema({
         prize:{type:String},
         prizeValue:Number
     }],
+    reawrdsPoster:{
+        fileName: String,
+        url: String
+    },
     rules:[{
         order: Number,
         rule: String,
