@@ -24,12 +24,17 @@ import RuleData from '../data/battleRuleData';
 
 
 
-function CreateContest({createRewardForm, setCreateRewardForm, battle}) {
+function CreateContest({createRewardForm, setCreateRewardForm, battle, reward}) {
 
 const [isSubmitted,setIsSubmitted] = useState(false);
 const getDetails = useContext(userContext);
 const [rewardData,setRewardData] = useState([]);
-const [formState,setFormState] = useState();
+const [formState,setFormState] = useState({
+    rankStart:"" || reward?.rankStart,
+    rankEnd:"" || reward?.rankEnd,
+    prize:"" || reward?.prize,
+    prizeValue:"" || reward?.prizeValue
+});
 const [id,setId] = useState();
 const [isObjectNew,setIsObjectNew] = useState(id ? true : false)
 const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -83,30 +88,58 @@ if(!formState?.rankStart || !formState?.rankEnd || !formState?.prize || !formSta
 }
 
 const {rankStart, rankEnd, prize, prizeValue} = formState;
-const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rewards`, {
-    method: "PATCH",
-    credentials:"include",
-    headers: {
-        "content-type" : "application/json",
-        "Access-Control-Allow-Credentials": true
-    },
-    body: JSON.stringify({
-      rankStart, rankEnd, prize, prizeValue
-    })
-});
-
-const data = await res.json();
-console.log(data.error,data);
-if (!data.error) {
-    setNewObjectId(data.data?._id)
-    setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    openSuccessSB(data.message,`Contest Reward Created with prize: ${data.data?.prize}`)
-    setCreateRewardForm(!createRewardForm);
+if(reward?.rankStart){
+    const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rewards/${reward?._id}`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          rankStart: parseInt(rankStart), rankEnd: parseInt(rankEnd), prize, prizeValue
+        })
+    });
     
-} else {
-    setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-    console.log("Invalid Entry");
-    return openErrorSB("Couldn't Add Reward",data.error)
+    const data = await res.json();
+    console.log(data.error,data);
+    if (!data.error) {
+        setNewObjectId(data.data?._id)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+        openSuccessSB(data.message,`Contest Reward Created with prize: ${data.data?.prize}`)
+        setCreateRewardForm(!createRewardForm);
+        
+    } else {
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        console.log("Invalid Entry");
+        return openErrorSB("Couldn't Add Reward",data.error)
+    }
+}else{
+    const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rewards`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          rankStart: parseInt(rankStart), rankEnd: parseInt(rankEnd), prize, prizeValue
+        })
+    });
+    
+    const data = await res.json();
+    console.log(data.error,data);
+    if (!data.error) {
+        setNewObjectId(data.data?._id)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+        openSuccessSB(data.message,`Contest Reward Created with prize: ${data.data?.prize}`)
+        setCreateRewardForm(!createRewardForm);
+        
+    } else {
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        console.log("Invalid Entry");
+        return openErrorSB("Couldn't Add Reward",data.error)
+    }
 }
 }
 

@@ -40,7 +40,7 @@ const BattleRules = ({battle}) => {
 
     battleRule.view = (
       // <MDButton variant="text" color="info" size="small" sx={{fontSize:10}} fontWeight="medium">
-        <GrFormView onClick={()=>{setCreateRuleForm(true);setId(elem._id)}}/>
+        <GrFormView onClick={()=>{setCreateRuleForm(true);setId(elem)}}/>
       // </MDButton>
     );
     battleRule.rule= (
@@ -92,7 +92,7 @@ const BattleRules = ({battle}) => {
                       </MDButton>
                   </MDBox>
                     {createRuleForm && <>
-                      <CreateRuleForm createRuleForm={createRuleForm} setCreateRuleForm={setCreateRuleForm} battle={battle}/>
+                      <CreateRuleForm createRuleForm={createRuleForm} setCreateRuleForm={setCreateRuleForm} battle={battle} ruleObj={id}/>
                     </>
                     }
                   <MDBox pt={3}>

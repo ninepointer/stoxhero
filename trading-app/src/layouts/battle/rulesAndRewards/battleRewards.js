@@ -40,7 +40,7 @@ const BattleRewards = ({battle}) => {
 
     battleReward.edit = (
       // <MDButton variant="text" color="info" size="small" sx={{fontSize:10}} fontWeight="medium">
-        <GrFormView onClick={()=>{setCreateRewardForm(true)}}/>
+        <GrFormView onClick={()=>{setCreateRewardForm(true); setId(elem)}}/>
       // </MDButton>
     );
     battleReward.rankStart= (
@@ -95,7 +95,7 @@ return (
                       </MDButton>
                   </MDBox>
                         {createRewardForm && <>
-                          <CreateRewardForm createRewardForm={createRewardForm} setCreateRewardForm={setCreateRewardForm} battle={battle}/>
+                          <CreateRewardForm createRewardForm={createRewardForm} setCreateRewardForm={setCreateRewardForm} battle={battle} reward={id}/>
                         </>
                         }
                   <MDBox pt={3}>

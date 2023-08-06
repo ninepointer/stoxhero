@@ -6,7 +6,9 @@ const restrictTo = require('../../authentication/authorization');
 
 router.post('/', Authenticate, restrictTo('Admin', 'SuperAdmin'), battleController.createBattle);
 router.route('/:id/rules').get(battleController.getRules).patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), battleController.createRule);
+router.route('/:id/rules/:ruleId').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), battleController.editRules);
 router.route('/:id/rewards').get(battleController.getRewards).patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), battleController.addReward);
+router.route('/:id/rewards/:rewardId').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), battleController.editReward);
 // router.get('/contest/dailycontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestUsers);
 router.get('/battleusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), battleController.getUsers);
 router.patch('/feededuct', Authenticate, battleController.deductSubscriptionAmount);

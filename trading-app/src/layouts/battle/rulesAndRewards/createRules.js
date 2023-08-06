@@ -24,12 +24,16 @@ import RuleData from '../data/battleRuleData';
 
 
 
-function CreateContest({createRuleForm, setCreateRuleForm, battle}) {
+function CreateContest({createRuleForm, setCreateRuleForm, battle, ruleObj}) {
 
 const [isSubmitted,setIsSubmitted] = useState(false);
 const getDetails = useContext(userContext);
 const [ruleData,setRuleData] = useState([]);
-const [formState,setFormState] = useState();
+const [formState,setFormState] = useState({
+    order:""|| ruleObj?.order,
+    rule:"" || ruleObj?.rule,
+    status:""|| ruleObj?.status,
+});
 const [id,setId] = useState();
 const [isObjectNew,setIsObjectNew] = useState(id ? true : false)
 const [isLoading,setIsLoading] = useState(id ? true : false)
@@ -84,30 +88,58 @@ if(
 }
 
 const {rule, status, order} = formState;
-const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rules`, {
-    method: "PATCH",
-    credentials:"include",
-    headers: {
-        "content-type" : "application/json",
-        "Access-Control-Allow-Credentials": true
-    },
-    body: JSON.stringify({
-      rule, order, status
-    })
-});
-
-const data = await res.json();
-console.log(data.error,data);
-if (!data.error) {
-    setNewObjectId(data.data?._id)
-    setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    openSuccessSB(data.message,`Contest Rule Created with name: ${data.data?.rule}`)
-    setCreateRuleForm(!createRuleForm);
+if(ruleObj?.order){
+    const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rules/${ruleObj?._id}`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          rule, order, status
+        })
+    });
     
-} else {
-    setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
-    console.log("Invalid Entry");
-    return openErrorSB("Couldn't Created Contest",data.error)
+    const data = await res.json();
+    console.log(data.error,data);
+    if (!data.error) {
+        setNewObjectId(data.data?._id)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+        openSuccessSB(data.message,`Contest Rule Created with name: ${data.data?.rule}`)
+        setCreateRuleForm(!createRuleForm);
+        
+    } else {
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        console.log("Invalid Entry");
+        return openErrorSB("Couldn't Created Contest",data.error)
+    }
+}else{
+    const res = await fetch(`${baseUrl}api/v1/battles/${battle}/rules`, {
+        method: "PATCH",
+        credentials:"include",
+        headers: {
+            "content-type" : "application/json",
+            "Access-Control-Allow-Credentials": true
+        },
+        body: JSON.stringify({
+          rule, order, status
+        })
+    });
+    
+    const data = await res.json();
+    console.log(data.error,data);
+    if (!data.error) {
+        setNewObjectId(data.data?._id)
+        setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
+        openSuccessSB(data.message,`Contest Rule Created with name: ${data.data?.rule}`)
+        setCreateRuleForm(!createRuleForm);
+        
+    } else {
+        setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
+        console.log("Invalid Entry");
+        return openErrorSB("Couldn't Created Contest",data.error)
+    }
 }
 }
 
@@ -211,7 +243,7 @@ const renderErrorSB = (
     )
         :
       ( 
-        <MDBox mt={4}>
+        <MDBox mt={4} p={3}>
         <MDBox display="flex" justifyContent="space-between" alignItems="center">
         <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
           Rule Details

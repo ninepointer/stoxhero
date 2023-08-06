@@ -285,27 +285,27 @@ exports.getRules = async(req, res, next) => {
     }
 }
 
-exports.editRules = async(req, res, next) => {
-    const {id, ruleId} = req.params;
-    const {rule} = req.body;
-    try{
+exports.editRules = async (req, res, next) => {
+    const { id, ruleId } = req.params;
+    const { order, rule, status } = req.body;
+    try {
         const battle = await Battle.findById(id);
-        if(!battle){
-            return res.status(404).json({status:'error', message:'Battle not found'});
+        if (!battle) {
+            return res.status(404).json({ status: 'error', message: 'Battle not found' });
         }
-        if(battle.rules.length>0){
-            for (item of battle.rules){
-                if(item._id === ruleId){
-                    item = {
-                        ...rule,
-                        _id: item?._id
-                    }
-                }
+        if (battle.rules.length > 0) {
+            const ruleIndex = battle.rules.findIndex(item => item._id.toString() === ruleId);
+            if (ruleIndex !== -1) {
+                battle.rules[ruleIndex].order = order;
+                battle.rules[ruleIndex].rule = rule;
+                battle.rules[ruleIndex].status = status;
+            } else {
+                return res.status(404).json({ status: 'error', message: 'Rule not found' });
             }
-            await battle.save({validateBeforeSave:false});
+            await battle.save();
         }
-        res.status(201).json({status:'success', message:'Rule Edited'});
-    }catch(e){
+        res.status(201).json({ status: 'success', message: 'Rule Edited' });
+    } catch (e) {
         console.log(e);
         res.status(500).json({
             status: "error",
@@ -313,7 +313,8 @@ exports.editRules = async(req, res, next) => {
             error: e.message
         });
     }
-}
+};
+
 
 exports.addReward = async(req,res, next)=>{
     const {id} = req.params;
@@ -350,14 +351,14 @@ exports.addReward = async(req,res, next)=>{
 
 exports.editReward = async (req, res) => {
     const{rewardId, id} = req.params;
-    const { battleId, rankStart, rankEnd, prize, prizeValue } = req.body;
+    const {rankStart, rankEnd, prize, prizeValue } = req.body;
   
-    if (rankStart >= rankEnd) {
+    if (rankStart > rankEnd) {
       return res.status(400).json({status:'error', message:'rankStart must be less than rankEnd'});
     }
   
     try {
-      const battle = await Battle.findById(battleId);
+      const battle = await Battle.findById(id);
   
       if (!battle) {
         return res.status(404).json({status:'error', message:'Battle not found'});
