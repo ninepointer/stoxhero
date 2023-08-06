@@ -8,11 +8,11 @@ import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 // import money from "../../../assets/images/money.png"
-import { Link, useLocation } from "react-router-dom";
+import { Link} from "react-router-dom";
 import moment from 'moment';
 
 
-const CompletedContest = ({ type }) => {
+const CompletedContest = () => {
   // const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
   const [completedContests, setCompletedContests] = useState([]);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
