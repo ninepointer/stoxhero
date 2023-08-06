@@ -317,7 +317,7 @@ exports.editRules = async(req, res, next) => {
 
 exports.addReward = async(req,res, next)=>{
     const {id} = req.params;
-    const {rankStart, rankEnd, prize} = req.body;
+    const {rankStart, rankEnd, prize, prizeValue} = req.body;
     if(rankStart>rankEnd){
         return res.status(400).json({status:'error', message:'Start Rank should be less than equal to end Rank'});
     }
@@ -332,7 +332,7 @@ exports.addReward = async(req,res, next)=>{
               return res.status(400).send('Ranks overlap with existing rewards');
             }
           }
-          battle.rewards.push({ rankStart, rankEnd, prize});
+          battle.rewards.push({ rankStart, rankEnd, prize, prizeValue});
           await battle.save({validateBeforeSave: false}); 
     }catch(e){
         console.log(e);
@@ -347,7 +347,7 @@ exports.addReward = async(req,res, next)=>{
 
 exports.editReward = async (req, res) => {
     const{rewardId, id} = req.params;
-    const { battleId, rankStart, rankEnd, prize } = req.body;
+    const { battleId, rankStart, rankEnd, prize, prizeValue } = req.body;
   
     if (rankStart >= rankEnd) {
       return res.status(400).json({status:'error', message:'rankStart must be less than rankEnd'});
@@ -375,7 +375,7 @@ exports.editReward = async (req, res) => {
         }
       }
   
-      battle.rewards[rewardIndex] = { rankStart, rankEnd, prize };
+      battle.rewards[rewardIndex] = { rankStart, rankEnd, prize, prizeValue };
       await battle.save();
   
       res.status(200).json({status:'success', message:'Reward updated successfully'});
