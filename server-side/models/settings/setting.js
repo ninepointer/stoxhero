@@ -17,14 +17,14 @@ const settingSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    AppStartTime:{
-        type: Date,
-        required: true,
-    },
-    AppEndTime:{
-        type: Date,
-        required: true,
-    },
+    // AppStartTime:{
+    //     type: Date,
+    //     required: true,
+    // },
+    // AppEndTime:{
+    //     type: Date,
+    //     required: true,
+    // },
     leaderBoardTimming:{
         type: Number,
         required: true,
@@ -48,7 +48,12 @@ const settingSchema = new mongoose.Schema({
         email: {type: String},
         mobile: {type: String},
     },
-
+    time: {    
+        appStartTime: {type: Date},
+        timerStartTimeInStart: {type: Date},
+        appEndTime: {type: Date},
+        timerStartTimeInEnd: {type: Date}
+    }
 })
 
 const settingDetail = mongoose.model("setting-detail", settingSchema);

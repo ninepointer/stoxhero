@@ -190,6 +190,7 @@ const creditAmount = async() => {
     // console.log("contest", contest, data);
 
     if(data.length === contest.length){
+        // if(data.length > 0){
         console.log("in if wallet..")
         await creditAmountToWallet();
         return;

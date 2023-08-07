@@ -40,7 +40,6 @@ const CompletedContest = () => {
   return (
     <>
       {completedContests.length > 0 ?
-
         <MDBox>
           <Grid container spacing={2} bgColor="dark">
             {completedContests?.map((e) => {
