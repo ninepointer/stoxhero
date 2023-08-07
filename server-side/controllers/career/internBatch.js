@@ -280,6 +280,97 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     }
   }
 
+  exports.collegewiseuser = async (req, res, next) => {
+  
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    // console.log("Under today orders", today)
+    try {
+      const collegeuser = await Batch.aggregate([
+        {
+          $unwind: "$participants",
+        },
+        {
+          $lookup: {
+            from: "intern-trades",
+            localField: "participants.user",
+            foreignField: "trader",
+            as: "tradeData",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              college: "$participants.college",
+              hasTradeData: { $cond: { if: { $gt: [{ $size: "$tradeData" }, 0] }, then: true, else: false } },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.college",
+            hasTradeDataCounts: {
+              $push: {
+                hasTradeData: "$_id.hasTradeData",
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "colleges",
+            localField: "_id",
+            foreignField: "_id",
+            as: "college",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            college: "$_id",
+            collegeName: {
+              $arrayElemAt: ["$college.collegeName", 0],
+            },
+            activeUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+            inactiveUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $sort: { activeUser: -1 },
+        },
+      ])
+    //   console.log(todaysinternshiporders)
+      res.status(200).json({status: 'success', data: collegeuser});
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({status:'error', message: 'Something went wrong'});
+    }
+  }
+
   exports.getCurrentBatch = async(req,res,next) =>{
     console.log('current');
     const userId = req.user._id;

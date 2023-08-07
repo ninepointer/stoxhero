@@ -7,6 +7,7 @@ import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
 
 import DailyInternshipUsers from '../data/dailyInternshipUsers'
+import CollegeWiseData from '../data/collegeWiseData';
 
 
 export default function LabTabs({socket}) {
@@ -271,6 +272,14 @@ export default function LabTabs({socket}) {
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox p={0.5}>
                     { dailyInternshipUsers && <DailyInternshipUsers dailyInternshipUsers={dailyInternshipUsers}/>}
+                </MDBox>
+            </Grid>
+        </Grid>
+
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    <CollegeWiseData />
                 </MDBox>
             </Grid>
         </Grid>
