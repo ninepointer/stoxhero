@@ -21,18 +21,19 @@ import MDTypography from "../../../../components/MDTypography";
 
 import React, {useState, useEffect, useContext} from 'react'
 import axios from "axios";
-// import Grid from "@mui/material/Grid";
-// import { useMaterialUIController } from "../../../../context";
-
-// // Material Dashboard 2 React components
-// import axios from "axios";
 import { userContext } from '../../../../AuthContext';
 import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
 
 function PlatformSettings({settingData, setReRender, reRender}) {
 
-  const [AppStartTime, setAppStartTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
-  const [AppEndTime, setAppEndTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
+  const [time, setTime] = useState({
+    appStartTime: "",
+    timerStartTimeInStart: "",
+    appEndTime: "",
+    timerStartTimeInEnd: "",
+  })
+  // const [AppStartTime, setAppStartTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
+  // const [AppEndTime, setAppEndTime] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
   const [appLiveValue, setAppLiveValue] = useState();
   const [infinityLiveValue, setInfinityLiveValue] = useState();
   const [editable, setEditable] = useState(false);
@@ -63,11 +64,10 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   }, [])
 
   useEffect(()=>{
-    // console.log("settingData", settingData)
 
       setLeaderBoardTimming(settingData[0]?.leaderBoardTimming)
-      setAppStartTime(dayjs(settingData[0]?.AppStartTime))
-      setAppEndTime(dayjs(settingData[0]?.AppEndTime))
+      // setAppStartTime(dayjs(settingData[0]?.AppStartTime))
+      // setAppEndTime(dayjs(settingData[0]?.AppEndTime))
       setAppLiveValue(settingData[0]?.isAppLive)
       setInfinityLiveValue(settingData[0]?.infinityLive)
       setInfinityPrice(settingData[0]?.infinityPrice)
@@ -77,6 +77,12 @@ function PlatformSettings({settingData, setReRender, reRender}) {
       accountData.email = settingData[0]?.contest?.email
       accountData.mobile = settingData[0]?.contest?.mobile
       setAccountData(accountData);
+
+      time.appStartTime = dayjs(settingData[0]?.time?.appStartTime)
+      time.timerStartTimeInStart = dayjs(settingData[0]?.time?.timerStartTimeInStart)
+      time.appEndTime = dayjs(settingData[0]?.time?.appEndTime)
+      time.timerStartTimeInEnd = dayjs(settingData[0]?.time?.timerStartTimeInEnd)
+      setTime(time);
 
   },[reRender, settingData])
 
@@ -130,6 +136,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
   async function saveSetting(){
     setEditable(false);
     const {upiId, email, mobile} = accountData;
+    const {appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd } = time
     console.log("upiId, email", upiId, email)
     const res = await fetch(`${baseUrl}api/v1/settings/${ settingData[0]?._id}`, {
       method: "PATCH",
@@ -144,7 +151,9 @@ function PlatformSettings({settingData, setReRender, reRender}) {
         infinityPrice: infinityPrice,
         maxWithdrawal,
         minWithdrawal,
-        upiId, email, mobile
+        upiId, email, mobile,
+        appStartTime, timerStartTimeInStart, appEndTime, timerStartTimeInEnd
+
       }),
   }); 
   const dataResp = await res.json();
@@ -250,7 +259,6 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           id="outlined-required"
           label='LeaderBoard Timming(second)'
           fullWidth
-          // defaultValue={LeaderBoardTimming ? LeaderBoardTimming : settingData[0]?.leaderBoardTimming}
           value={LeaderBoardTimming}
           type="number"
           onChange={(e)=>{setLeaderBoardTimming(e.target.value)}}
@@ -263,9 +271,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           fullWidth
           type="number"
           value={infinityPrice}
-          
           sx={{marginTop: "15px"}}
-          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
           onChange={(e)=>{setInfinityPrice(e.target.value)}}
         />
         <TextField
@@ -275,9 +281,7 @@ function PlatformSettings({settingData, setReRender, reRender}) {
           fullWidth
           type="number"
           value={maxWithdrawal}
-          
           sx={{marginTop: "15px"}}
-          // defaultValue={infinityPrice ? infinityPrice: settingData[0]?.infinityPrice}
           onChange={(e)=>{setMaxWithdrawal(e.target.value)}}
         />
         <TextField
@@ -295,37 +299,68 @@ function PlatformSettings({settingData, setReRender, reRender}) {
 
         <MDBox>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <Stack spacing={3} mt={2} mb={1}>
-            
-            <MobileTimePicker
-              label="Trading Start Time"
-              value={AppStartTime}
-              disabled={!editable}
-              onChange={(e) => {setAppStartTime(e)}}
-              // onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppStartTime: e})}}
-              renderInput={(params) => <TextField {...params} />}
-            />
-
-          </Stack>
-        </LocalizationProvider>
+            <Stack spacing={3} mt={2} mb={1}>
+              <MobileTimePicker
+                label="Trading Start Time"
+                value={time.appStartTime}
+                disabled={!editable}
+                onChange={(e) => { setTime(prev => ({
+                  ...prev, appStartTime: e
+                })) }}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Stack>
+          </LocalizationProvider>
         </MDBox>
 
         <MDBox>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <Stack spacing={3} mt={2} mb={1}>
-            
-            <MobileTimePicker
-              label="Trading End Time"
-              value={AppEndTime}
-              disabled={!editable}
-              // onChange={(e) => {setAppEndTime(e)}}
-              onChange={(e) => {setAppStartTime(e)}}
-              // onAccept={(e) => {setSettingsValue(settingData[0]._id,{AppEndTime: e})}}
-              renderInput={(params) => <TextField {...params} />}
-            />
-            
-          </Stack>
-        </LocalizationProvider>
+            <Stack spacing={3} mt={2} mb={1}>
+              <MobileTimePicker
+                label="Start Timer Starts From"
+                value={time.timerStartTimeInStart}
+                disabled={!editable}
+                onChange={(e) => { setTime(prev => ({
+                  ...prev, timerStartTimeInStart: e
+                }))}}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Stack>
+          </LocalizationProvider>
+        </MDBox>
+
+        <MDBox>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Stack spacing={3} mt={2} mb={1}>
+
+              <MobileTimePicker
+                label="Trading End Time"
+                value={time.appEndTime}
+                disabled={!editable}
+                onChange={(e) => { setTime(prev => ({
+                  ...prev, appEndTime: e
+                }))}}
+                renderInput={(params) => <TextField {...params} />}
+              />
+
+            </Stack>
+          </LocalizationProvider>
+        </MDBox>
+
+        <MDBox>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Stack spacing={3} mt={2} mb={1}>
+              <MobileTimePicker
+                label="End Timer Starts From"
+                value={time.timerStartTimeInEnd}
+                disabled={!editable}
+                onChange={(e) => { setTime(prev => ({
+                  ...prev, timerStartTimeInEnd: e
+                }))}}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Stack>
+          </LocalizationProvider>
         </MDBox>
 
         <TextField
