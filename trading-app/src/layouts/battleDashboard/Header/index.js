@@ -201,7 +201,7 @@ export default function LabTabs({socket}) {
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} display='flex' flexDirection='column' justifyContent='center' alignItems='center' minHeight='auto' maxWidth='100%'>
         <MDBox display='flex' justifyContent='left'>
-            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Contest Dashboard</MDTypography>
+            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Battle Dashboard</MDTypography>
         </MDBox>
 
         <Grid container xs={12} md={12} lg={12}>

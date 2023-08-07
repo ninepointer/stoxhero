@@ -7,18 +7,18 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import { GrFormView } from 'react-icons/gr';
+import { AiOutlineEdit } from 'react-icons/ai';
 import { CircularProgress } from "@mui/material";
 
 
 import battleRuleData from "../data/battleRuleData";
 import CreateRuleForm from "./createRules"
 
-const BattleRules = () => {
+const BattleRules = ({battle}) => {
 
     const [reRender, setReRender] = useState(true);
     const [createRuleForm,setCreateRuleForm] = useState(false);
-    const [constestRules,setbattleRules] = useState([]);
+    const [battleRules,setbattleRules] = useState([]);
     const { columns, rows } = battleRuleData();
     const [id,setId] = useState();
 
@@ -26,36 +26,31 @@ const BattleRules = () => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/battles/:id/rules`)
+      axios.get(`${baseUrl}api/v1/battles/${battle}/rules`)
       .then((res)=>{
-                setbattleRules(res.data);
-                console.log(res.data)
+                setbattleRules(res.data.data);
+                console.log(res.data.data);
         }).catch((err)=>{
           return new Error(err);
       })
   },[createRuleForm])
 
-  constestRules.map((elem)=>{
+  battleRules?.map((elem)=>{
     let battleRule = {}
 
-    battleRule.view = (
+    battleRule.edit = (
       // <MDButton variant="text" color="info" size="small" sx={{fontSize:10}} fontWeight="medium">
-        <GrFormView onClick={()=>{setCreateRuleForm(true);setId(elem._id)}}/>
+        <AiOutlineEdit onClick={()=>{setCreateRuleForm(true);setId(elem)}}/>
       // </MDButton>
     );
-    battleRule.ruleName = (
+    battleRule.rule= (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.ruleName}
+        {elem.rule}
       </MDTypography>
     );
-    battleRule.createdby = (
+    battleRule.order = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.createdBy}
-      </MDTypography>
-    );
-    battleRule.createdon = (
-      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-        {elem.createdOn}
+        {elem.order}
       </MDTypography>
     );
     battleRule.status = (
@@ -71,7 +66,6 @@ const BattleRules = () => {
 
     return (
     <>
-      {!createRuleForm ? 
       <MDBox pt={6} pb={3}>
       <Grid container spacing={6}>
           <Grid item xs={12} md={12} lg={12}>
@@ -97,6 +91,10 @@ const BattleRules = () => {
                           Create battle Rule
                       </MDButton>
                   </MDBox>
+                    {createRuleForm && <>
+                      <CreateRuleForm createRuleForm={createRuleForm} setCreateRuleForm={setCreateRuleForm} battle={battle} ruleObj={id}/>
+                    </>
+                    }
                   <MDBox pt={3}>
                       <DataTable
                           table={{ columns, rows }}
@@ -110,11 +108,7 @@ const BattleRules = () => {
           </Grid>
       </Grid> 
   </MDBox> 
-      :
-      <>
-        <CreateRuleForm createRuleForm={createRuleForm} setCreateRuleForm={setCreateRuleForm} id={id}/>
-      </>
-      }
+  
       </>
     );
   }
