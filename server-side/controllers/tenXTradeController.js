@@ -523,13 +523,14 @@ exports.tradingDays = async (req, res, next) => {
   }
 }
 
-exports.autoExpireSubscription = async () => {
+exports.autoExpireTenXSubscription = async () => {
   console.log("autoExpireSubscription running");
   const subscription = await Subscription.find({ status: "Active" });
 
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
     let subscriptionId = subscription[i]._id
+    let validity = subscription[i].validity;
     let payoutPercentage = 10;
     for (let j = 0; j < users.length; j++) {
       let userId = users[j].userId;
@@ -717,12 +718,10 @@ exports.autoExpireSubscription = async () => {
         let payoutAmount = Math.min(pnl, profitCap);
   
 
-        // console.log(Math.floor(tradingDays[0]?.actualRemainingDay), tradingDays)
+        console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
+
         if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
           console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
-          // "subscription.subscribedOn": {$gte: new Date(subscribedOn)}
-          console.log(new Date(subscribedOn))
-          // await User.find().sort({_id: -1})
 
           const user = await User.findOne({ _id: new ObjectId(userId) });
           let len = user.subscription.length;
@@ -752,8 +751,7 @@ exports.autoExpireSubscription = async () => {
             }
           }
  
-          // console.log(updateUser, updateSubscription)
-          if(payoutAmount > 0){
+          if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity){
             const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
             wallet.transactions = [...wallet.transactions, {
                   title: 'TenX Trading Payout',
@@ -1484,9 +1482,9 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
   const expired = [
     {
       $match:
-        {
-          _id: new ObjectId(id),
-        },
+      {
+        _id: new ObjectId(id),
+      },
     },
     {
       $unwind: {
@@ -1597,30 +1595,43 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
             },
             then: 0,
             else: {
-              $max: [
-                {
-                  $min: [
+              $cond: {
+                if: {
+                  $eq: [
                     {
-                      $divide: [
-                        {
-                          $multiply: [
-                            {
-                              $subtract: [
-                                "$amount",
-                                "$brokerage",
-                              ],
-                            },
-                            10,
-                          ],
-                        },
-                        100,
-                      ],
+                      $size: "$tradingDays",
                     },
-                    "$_id.cap",
+                    "$validity",
                   ],
                 },
-                0,
-              ],
+                then: {
+                  $max: [
+                    {
+                      $min: [
+                        {
+                          $divide: [
+                            {
+                              $multiply: [
+                                {
+                                  $subtract: [
+                                    "$amount",
+                                    "$brokerage",
+                                  ],
+                                },
+                                10,
+                              ],
+                            },
+                            100,
+                          ],
+                        },
+                        "$_id.cap",
+                      ],
+                    },
+                    0,
+                  ],
+                },
+                else: 0,
+              },
             },
           },
         },
@@ -1639,7 +1650,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     },
     {
       $sort: {
-        payout: -1,
+        npnl: -1,
       },
     },
   ]

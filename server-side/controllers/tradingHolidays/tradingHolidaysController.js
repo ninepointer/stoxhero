@@ -133,7 +133,7 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
               $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
               $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
             }
-          });
+        });
 
           console.log(holiday)
         // const holiday = await TradingHoliday.find({holidayDate: {$gte: startDate, $lte: endDate}});
@@ -141,5 +141,47 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
     } catch (e) {
       
         res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+}
+
+exports.nextTradingDay = async (req, res, next) => {
+
+    try {
+
+        function isTradingDay(date, holidays) {
+            // Check if the date is a weekend (Saturday or Sunday)
+            if (date.getDay() === 0 || date.getDay() === 6) {
+                return false;
+            }
+
+            // Check if the date is a holiday
+            if (holidays.length) {
+                return false;
+            }
+            return true;
+        }
+
+        for (let i = 0; i < 30; i++) {
+            let date = new Date();
+            let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate() + i).padStart(2, '0')}`
+            const currentDate = new Date(todayDate);
+            let secondDate = new Date(`${todayDate}T23:59:00.000Z`);
+            const holiday = await TradingHoliday.find({
+                holidayDate: {
+                    $gte: currentDate,
+                    $lte: secondDate
+                }
+            });
+            if (isTradingDay(currentDate, holiday)) {
+                // Set the remaining time state here
+                res.status(200).send({ status: "success", data: currentDate })
+                break;
+            } else {
+                console.log("Not a trading day. Remaining time state not set.");
+            }
+        }
+
+    } catch (e) {
+        res.status(500).json({ status: 'error', message: 'Something went wrong' });
     }
 }
