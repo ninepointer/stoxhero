@@ -13,9 +13,15 @@ exports.createBattle = async (req, res) => {
             isNifty, isBankNifty, isFinNifty, rewardType
         } = req.body;
 
+        if(battleLiveTime>battleStartTime){
+            return res.status(400).json({
+                status: 'error',
+                message: "Live time can't be after start time",
+            });
+        }
         const getBattle = await Battle.findOne({ battleName: req.body.battleName });
         if (getBattle) {
-            return res.status(500).json({
+            return res.status(400).json({
                 status: 'error',
                 message: "Battle already exists with this name.",
             });
