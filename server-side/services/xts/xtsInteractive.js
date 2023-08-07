@@ -206,20 +206,10 @@ const placeOrder = async (obj, req, res) => {
       exchangeSegment = 'NSECM'
     }
 
-// console.log({
-//   exchangeSegment: exchangeSegment,
-//   exchangeInstrumentID: obj.exchangeInstrumentToken,
-//   productType: obj.Product,
-//   orderType: obj.OrderType,
-//   orderSide: obj.buyOrSell,
-//   timeInForce: obj.validity,
-//   disclosedQuantity: 0,
-//   orderQuantity: obj.Quantity,
-//   limitPrice: 0,
-//   stopPrice: 0,
-//   clientID: process.env.XTS_CLIENTID,
-//   orderUniqueIdentifier: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-// })
+
+    if(req.body.trader.toString()==="63987453e88caa645cc98e44"){
+      obj.validity = "IOC"
+    }
 
     const response = await xtsInteractiveAPI.placeOrder({
       exchangeSegment: exchangeSegment,
@@ -505,6 +495,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason, ExchangeTransactTimeAPI } = orderData;
 
 
+
     if (exchange === "NFO") {
       exchangeSegment = 2;
     }
@@ -642,8 +633,9 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
 
     if(Object.keys(marginData).length !== 0 && Object.keys(traderData).length !== 0 && status == "COMPLETE"){
-      const saveMarginCompany = await marginCalculationCompanyLive(marginData, traderData, OrderAverageTradedPrice, order_id);
-      const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id);
+      const isSaveMargin = true;
+      const saveMarginCompany = await marginCalculationCompanyLive(marginData, traderData, OrderAverageTradedPrice, order_id, isSaveMargin);
+      const saveMarginUser = await marginCalculationTraderLive(marginData, traderData, OrderAverageTradedPrice, order_id, isSaveMargin);
     }
 
     const companyDoc = {

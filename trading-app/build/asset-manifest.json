@@ -1,9 +1,10 @@
 {
   "files": {
-    "main.css": "/static/css/main.30b5df36.css",
-    "main.js": "/static/js/main.811fabc2.js",
+    "main.css": "/static/css/main.8e42465e.css",
+    "main.js": "/static/js/main.fe32e2ad.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.3e810b52.chunk.js": "/static/js/513.3e810b52.chunk.js",
+    "static/media/backgroundmatt.jpg": "/static/media/backgroundmatt.f34f28c63ba78e5986d2.jpg",
     "static/media/bgBanner1.jpg": "/static/media/bgBanner1.c9ad6246a3bebeb04615.jpg",
     "static/media/main-bg-3.png": "/static/media/main-bg-3.c46dd2d7751431a8e006.png",
     "static/media/bgBanner2.jpg": "/static/media/bgBanner2.282ab170a2e58ea962dc.jpg",
@@ -20,6 +21,7 @@
     "static/media/dao.webp": "/static/media/dao.a6366e8b45f0c87234b5.webp",
     "static/media/main-bg-0_1.webp": "/static/media/main-bg-0_1.c78c2f66219663c585fe.webp",
     "static/media/token.webp": "/static/media/token.e20cc6ef8583942ac1f9.webp",
+    "static/media/battlecard.jpg": "/static/media/battlecard.87efff31a9e139ae7715.jpg",
     "static/media/about5.webp": "/static/media/about5.07bfc43a7ef00c949e4d.webp",
     "static/media/news-block-background.webp": "/static/media/news-block-background.9ac4f6fd11741b350c0e.webp",
     "static/media/Trading1.png": "/static/media/Trading1.84058099a7caf6381d73.png",
@@ -28,6 +30,7 @@
     "static/media/main-bg-1_1.webp": "/static/media/main-bg-1_1.b051114fdd6a41f500f0.webp",
     "static/media/wallet-buy.png": "/static/media/wallet-buy.73ff4537d14f90cdd751.png",
     "static/media/paymentQr.jpeg": "/static/media/paymentQr.7f65aca58b1ebb75e5f3.jpeg",
+    "static/media/battleicon.png": "/static/media/battleicon.167d1293e54a185a7260.png",
     "static/media/cancelled.jpg": "/static/media/cancelled.26c3f116735c004854a4.jpg",
     "static/media/news-image.png": "/static/media/news-image.855ff87f184705fcbd09.png",
     "static/media/wallet-transfer.png": "/static/media/wallet-transfer.8c8d08bb2c58d56ac012.png",
@@ -62,6 +65,7 @@
     "static/media/2.png": "/static/media/2.4eea9bc69fab094bc609.png",
     "static/media/twitter.webp": "/static/media/twitter.6f157b8030dd5b66a747.webp",
     "static/media/4.png": "/static/media/4.01adb566d9fe539648dc.png",
+    "static/media/swords.png": "/static/media/swords.cf101b7b0101ade92317.png",
     "static/media/1.png": "/static/media/1.8a8cfb6046f3278b7472.png",
     "static/media/transaction.png": "/static/media/transaction.2fb4ae3bc020d454e8af.png",
     "static/media/default-profile.png": "/static/media/default-profile.04fa960999505dcd5a7e.png",
@@ -75,6 +79,7 @@
     "static/media/upcoming.png": "/static/media/upcoming.90b7bb0b92d46fe8710f.png",
     "static/media/nifty50icon.png": "/static/media/nifty50icon.756cff7c3b2b7493c553.png",
     "static/media/section7-img2.webp": "/static/media/section7-img2.48c4f6e05eef802bee4f.webp",
+    "static/media/gift.png": "/static/media/gift.f2d54b752b15a8a0bb91.png",
     "static/media/profit.png": "/static/media/profit.f6b3aca919a6874d41c8.png",
     "static/media/sadness.png": "/static/media/sadness.5a0bcb560a8cb5088119.png",
     "static/media/banknifty.png": "/static/media/banknifty.062f46c1696ac2c32914.png",
@@ -154,13 +159,13 @@
     "static/media/mew.svg": "/static/media/mew.b0269a00f9248097aadb55069a898680.svg",
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
-    "main.30b5df36.css.map": "/static/css/main.30b5df36.css.map",
-    "main.811fabc2.js.map": "/static/js/main.811fabc2.js.map",
+    "main.8e42465e.css.map": "/static/css/main.8e42465e.css.map",
+    "main.fe32e2ad.js.map": "/static/js/main.fe32e2ad.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.3e810b52.chunk.js.map": "/static/js/513.3e810b52.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.30b5df36.css",
-    "static/js/main.811fabc2.js"
+    "static/css/main.8e42465e.css",
+    "static/js/main.fe32e2ad.js"
   ]
 }

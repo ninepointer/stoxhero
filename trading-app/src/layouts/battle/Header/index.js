@@ -34,7 +34,7 @@ export default function LabTabs() {
     color="warning" 
     size="small"
     component={Link}
-    to='/contestdashboard'
+    to='/battledashboard'
     >
         Back to Battle Dashboard
     </MDButton>
@@ -51,10 +51,10 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Ongoing Contest" value="1" />
-            <Tab label="Upcoming Contest" value="2" />
-            <Tab label="Completed Contest" value="3" />
-            <Tab label="Draft Contest" value="4" />
+            <Tab label="Ongoing Battle(s)" value="1" />
+            <Tab label="Upcoming Battle(s)" value="2" />
+            <Tab label="Completed Battle(s)" value="3" />
+            <Tab label="Draft Battle(s)" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">

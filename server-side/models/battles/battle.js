@@ -39,6 +39,7 @@ const battleSchema = new Schema({
     rewardType:{
         type: String,
         required: true,
+        enum:['Gift', 'Cash']
     },
     entryFee:{
         type:Number,
@@ -53,8 +54,19 @@ const battleSchema = new Schema({
         ref: 'college',
     },
     rewards:[{
-        rank:{type:Number},
-        giftName:{type:String},
+        rankStart:{type:Number},
+        rankEnd:Number,
+        prize:{type:String},
+        prizeValue:Number
+    }],
+    reawrdsPoster:{
+        fileName: String,
+        url: String
+    },
+    rules:[{
+        order: Number,
+        rule: String,
+        status:String
     }],
     interestedUsers:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
@@ -74,6 +86,10 @@ const battleSchema = new Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         participatedOn:{type:Date},
         payout: {type: Number}
+    }],
+    potentialParticipants:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        Date:{type:Date}
     }],
     minParticipants:{
         type:Number,
@@ -114,14 +130,17 @@ const battleSchema = new Schema({
     },
     isNifty:{
         type:Boolean,
+        default: false,
         required: true
     },
     isBankNifty:{
         type:Boolean,
+        default:false,
         required: true
     },
     isFinNifty:{
         type:Boolean,
+        default:false,
         required: true
     }
 })

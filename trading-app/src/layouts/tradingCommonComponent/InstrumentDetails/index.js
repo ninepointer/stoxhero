@@ -29,6 +29,7 @@ import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
 import { InfinityTraderRole, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
+import Timer from "./timer";
 // import { AiOutlineLineChart } from "react-icons/ai";
 
 
@@ -125,7 +126,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     endPoint = `${baseUrl}api/v1/instrumentDetails`
   }
 
-  console.log("url", url, endPoint)
 
   useEffect(()=>{
     axios.get(`${endPoint}`,{
@@ -301,8 +301,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     />
   );
 
-  // console.log("instrumentDetailArr", instrumentDetailArr, instrumentData)
-
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
@@ -321,6 +319,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
             color={isAppLive ? "success" : "error"}
             style={{display:"flex",alignItems:"center"}}
             >
+              {/* <Timer socket={socket}/> */}
               <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"}
             </MDTypography>
         </MDBox>

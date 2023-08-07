@@ -134,7 +134,7 @@ exports.confirmOTP = async(req, res, next)=>{
   if(!existingUser){
   const myReferralCode = generateUniqueReferralCode();
   let userId = email.split('@')[0]
-  const userIds = await User.find({employeeid:userId})
+  let userIds = await User.find({employeeid:userId})
   // console.log("User Ids: ",userIds)
     if(userIds.length > 0)
     {
