@@ -19,7 +19,7 @@ const ContestPortfolioCard = ({isObjectNew,setIsObjectNew}) => {
 
     useEffect(()=>{
   
-      axios.get(`${baseUrl}api/v1/portfolio/contest`, {withCredentials: true})
+      axios.get(`${baseUrl}api/v1/portfolio/battleportfolio`, {withCredentials: true})
       .then((res)=>{
                 setContestPortfolioData(res.data.data);
                 console.log(res.data.data)
