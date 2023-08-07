@@ -7,7 +7,7 @@ import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import { GrFormView } from 'react-icons/gr';
+import { AiOutlineEdit } from 'react-icons/ai';
 import { CircularProgress } from "@mui/material";
 
 
@@ -38,9 +38,9 @@ const BattleRules = ({battle}) => {
   battleRules?.map((elem)=>{
     let battleRule = {}
 
-    battleRule.view = (
+    battleRule.edit = (
       // <MDButton variant="text" color="info" size="small" sx={{fontSize:10}} fontWeight="medium">
-        <GrFormView onClick={()=>{setCreateRuleForm(true);setId(elem)}}/>
+        <AiOutlineEdit onClick={()=>{setCreateRuleForm(true);setId(elem)}}/>
       // </MDButton>
     );
     battleRule.rule= (

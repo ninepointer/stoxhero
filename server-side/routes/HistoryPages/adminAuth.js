@@ -34,7 +34,7 @@ const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 // const {client, getValue} = require("../../marketData/redisClient")
 // const {overallPnlTrader} = require("../../controllers/infinityController");
-const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
+const {marginDetail, tradingDays, autoExpireTenXSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
@@ -1053,11 +1053,11 @@ router.get("/deletePnlKey", async (req, res) => {
   await deletePnlKey()
 });
 
-router.get("/autoExpireSubscription", async (req, res) => {
+router.get("/autoExpireTenXSubscription", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   // await overallPnlTrader(req, res)
 
-  await autoExpireSubscription(req, res)
+  await autoExpireTenXSubscription(req, res)
   // await getMyPnlAndCreditData(req, res);
 });
 
@@ -1107,7 +1107,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-07-27T00:00:00.000+00:00"
+  let expiryDate = "2023-08-03T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
@@ -1121,6 +1121,8 @@ router.get("/updateInstrumentStatus", async (req, res)=>{
     {contractDate: {$lte: expiryDate}, status: "Active"},
     { $set: { status: "Inactive" } }
   )
+
+  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
 
   // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
   res.send({message: "updated", data: instrument})

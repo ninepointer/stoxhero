@@ -76,6 +76,8 @@ export default function LabTabs() {
     }
   }
 
+  console.log("selectedSubscription", selectedSubscription)
+
 
   let totalgpnl =0 , totalnpnl =0, totalBrokerage =0, totalOrders=0, totalTradingDays =0, positiveTrader =0, negetiveTrader = 0;
   if(dateWiseData.length>0){
@@ -113,8 +115,8 @@ export default function LabTabs() {
     // Helper function to get the month name
     function getMonthName(month) {
       const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
       ];
       return monthNames[month];
     }
@@ -147,15 +149,15 @@ export default function LabTabs() {
             minHeight="4em"
             placeholder="Select Contest"
             variant="outlined"
-            sx={{ width: "300px" }}
-            onChange={(e) => { setselectedSubscription(subscriptions.filter((item) => item.contestName == (e.target.value).split(" - ")[0])[0]) }}
+            sx={{ width: "400px" }}
+            onChange={(e) => {setselectedSubscription(subscriptions.filter((item) => item.contestName == (e.target.value).split(" | ")[0].slice(0, -13).trim())[0]) }}
             InputLabelProps={{
               style: { color: '#ffffff' },
             }}
             SelectProps={{
               MenuProps: {
                 PaperProps: {
-                  style: { width: '300px' }, // Replace '200px' with your desired width
+                  style: { width: '400px' }, // Replace '200px' with your desired width
                 },
               },
             }}

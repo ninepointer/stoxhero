@@ -180,9 +180,17 @@ const creditAmount = async() => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
-    const data = await Contest.find({ payoutStatus: null, contestStatus: "Completed", contestEndTime: {$gte: today} });
+    let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
+    const todayEnd =  new Date(todayEndDate);
 
-    if(data.length > 0){
+
+    const data = await Contest.find({ payoutStatus: null, contestStatus: "Completed", contestEndTime: {$gte: today} });
+    const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
+
+    // console.log("contest", contest, data);
+
+    if(data.length === contest.length){
+        // if(data.length > 0){
         console.log("in if wallet..")
         await creditAmountToWallet();
         return;

@@ -60,14 +60,18 @@ router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'),
                 modifiedOn: new Date(),
                 modifiedBy: req.user._id,
                 leaderBoardTimming: req.body.leaderBoardTimming,
-                AppStartTime: req.body.AppStartTime,
-                AppEndTime: req.body.AppEndTime,
+                // AppStartTime: req.body.AppStartTime,
+                // AppEndTime: req.body.AppEndTime,
                 infinityPrice: req.body.infinityPrice,
                 maxWithdrawal:req.body.maxWithdrawal,
                 minWithdrawal:req.body.minWithdrawal,
                 "contest.upiId": req.body.upiId,
                 "contest.email": req.body.email,
-                "contest.mobile": req.body.mobile
+                "contest.mobile": req.body.mobile,
+                "time.appStartTime": req.body.appStartTime,
+                "time.timerStartTimeInStart": req.body.timerStartTimeInStart,
+                "time.appEndTime": req.body.appEndTime,
+                "time.timerStartTimeInEnd": req.body.timerStartTimeInEnd,
             }
         })
         console.log("this is role", setting);

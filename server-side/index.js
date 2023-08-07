@@ -31,7 +31,7 @@ const { subscribeInstrument, getXTSTicksForUserPosition,
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
 // const { interactiveLogin } = require("./services/xts/xtsInteractive copy");
-const { autoExpireSubscription } = require("./controllers/tenXTradeController");
+const { autoExpireTenXSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
 const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
@@ -328,31 +328,57 @@ app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
 require('./db/conn');
 
 Setting.find().then((res) => {
-  const appStartTime = new Date(res[0].AppStartTime);
-  const appEndTime = new Date(res[0].AppEndTime);
-  
+
+  const appStartTime = new Date(res[0]?.time?.appStartTime);
+  const appEndTime = new Date(res[0]?.time?.appEndTime);
+
+  console.log("appStartTime", appStartTime, appEndTime)
+
+
   const appStartHour = appStartTime.getHours();
   const appStartMinute = appStartTime.getMinutes();
+
   const appEndHour = appEndTime.getHours();
   const appEndMinute = appEndTime.getMinutes();
 
-  // console.log(appStartHour, appStartMinute, appEndHour, appEndMinute);
+  console.log(appStartHour, appStartMinute, appEndHour, appEndMinute)
+  // if(process.env.PROD === "true"){
+    if(true){
+    let date = new Date();
+    let weekDay = date.getDay();
+    if(weekDay > 0 && weekDay < 6){
+  
+      const onlineApp = nodeCron.schedule(`${appStartMinute} ${appStartHour} * * ${weekDay}`, ()=>{
+        appLive();
+        infinityLive()
+      });
+
+      const offlineApp = nodeCron.schedule(`${appEndMinute} ${appEndHour} * * ${weekDay}`, ()=>{
+        appOffline();
+        infinityOffline();
+      });
+
+    }
+  }
+
 });
-let date = new Date();
-let weekDay = date.getDay();
+
+
+
+
   if(process.env.PROD === "true"){
     let date = new Date();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
         const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
-        const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, ()=>{
-          appLive();
-          infinityLive()
-        });
-        const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, ()=>{
-          appOffline();
-          infinityOffline();
-        });
+        // const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, ()=>{
+        //   appLive();
+        //   infinityLive()
+        // });
+        // const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, ()=>{
+        //   appOffline();
+        //   infinityOffline();
+        // });
         // const autotrade = nodeCron.schedule('50 9 * * *', test); 
         const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
           autoCutMainManually();
@@ -377,7 +403,7 @@ let weekDay = date.getDay();
           subscribeTokens();
         } );
 
-        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireTenXSubscription);
         const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
       
     }
