@@ -13,9 +13,15 @@ exports.createBattle = async (req, res) => {
             isNifty, isBankNifty, isFinNifty, rewardType
         } = req.body;
 
+        if(battleLiveTime>battleStartTime){
+            return res.status(400).json({
+                status: 'error',
+                message: "Live time can't be after start time",
+            });
+        }
         const getBattle = await Battle.findOne({ battleName: req.body.battleName });
         if (getBattle) {
-            return res.status(500).json({
+            return res.status(400).json({
                 status: 'error',
                 message: "Battle already exists with this name.",
             });
@@ -113,8 +119,9 @@ exports.getBattle = async (req, res) => {
 exports.getUpcomingBattles = async (req, res) => {
     try {
         const battles = await Battle.find({
-            battleEndTime: { $gt: new Date() }, battleFor: "StoxHero", battleStatus:"Active"
-        }).sort({ battleStartTime: 1 });
+            battleStartTime: { $gt: new Date() }, battleFor: "StoxHero", battleStatus:"Active"
+        }).populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ battleStartTime: 1 });
         res.status(200).json({
             status: "success",
             message: "Upcoming battles fetched successfully",
@@ -754,7 +761,7 @@ exports.todaysBattle = async (req, res) => {
 exports.ongoingBattle = async (req, res) => {
     try {
         const battles = await Battle.find({
-            battleStartTime: { $lte: new Date() },
+            battleLiveTime: { $lte: new Date() },
             battleEndTime: { $gte: new Date() },
             battleFor: "StoxHero"
         },
@@ -763,7 +770,8 @@ exports.ongoingBattle = async (req, res) => {
             battleSharedBy: 0,
             purchaseIntent: 0
         }
-        ).sort({ battleStartTime: 1 })
+        ).populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ battleStartTime: 1 })
         res.status(200).json({
             status: "success",
             message: "ongoing battles fetched successfully",
