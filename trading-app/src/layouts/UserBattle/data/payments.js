@@ -87,12 +87,12 @@ export default function Payment({ elem, setShowPay, showPay }) {
 
   const handleClose = () => {
     setOpen(false);
-    messege.thanksMessege && setShowPay(!showPay);
+    // messege.thanksMessege && setShowPay(!showPay);
   };
 
   async function captureIntent() {
     handleClickOpen();
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/purchaseintent/${elem._id}`, {
+    const res = await fetch(`${baseUrl}api/v1/battles/purchaseintent/${elem._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -108,7 +108,7 @@ export default function Payment({ elem, setShowPay, showPay }) {
     if (userWallet < elem.entryFee) {
       return;
     }
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/feededuct`, {
+    const res = await fetch(`${baseUrl}api/v1/battles/feededuct`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -116,7 +116,7 @@ export default function Payment({ elem, setShowPay, showPay }) {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        contestFee: elem?.entryFee, contestName: elem?.contestName, contestId: elem?._id
+        battleId: elem?._id
       })
     });
     const dataResp = await res.json();
@@ -130,7 +130,7 @@ export default function Payment({ elem, setShowPay, showPay }) {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${elem.entryFee}, your seat is booked for the contest - ${elem.contestName}, please click on "Start Trading" once the contest starts.`
+        thanksMessege: `Thanks for the payment of ₹${elem.entryFee}, your seat is booked for the contest - ${elem.battleName}.`
       })
     }
   }

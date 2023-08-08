@@ -29,6 +29,7 @@ import { Box, CircularProgress, Divider, Tooltip, Typography } from "@mui/materi
 import MDSnackbar from "../../../components/MDSnackbar";
 import { Link } from "react-router-dom";
 import{apiUrl} from "../../../constants/constants"
+import Payment from "./payments";
 
 function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -250,7 +251,8 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                 </Grid>
                                 <Grid item xs={12} md={3} lg={12} display='flex' justifyContent='space-between' alignContent='center' flexDirection='row' alignItems='center'>
                                     <MDBox>
-                                        <MDButton size='small' color='success'>Book Now</MDButton>
+                                        <Payment elem={battle} />
+                                        {/* <MDButton size='small' color='success'>Book Now</MDButton> */}
                                     </MDBox>
                                     <MDBox><MDButton size='small' color='success'>View Details</MDButton></MDBox>
                                 </Grid>
