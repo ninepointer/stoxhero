@@ -692,6 +692,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
       // io.emit("updatePnl", mockTradeDetails)
       console.log(settingRedis)
       if (settingRedis === "OK") {
+        // todo-vijay
         await session.commitTransaction();
       } else {
         // await session.commitTransaction();
