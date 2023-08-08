@@ -357,13 +357,150 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
                 },
               },
             },
+            totalUser: {
+              $add: [{
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }, {
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }],
+            },
+          },
+        },        
+        {
+          $sort: { totalUser: -1 },
+        },
+      ])
+
+      res.status(200).json({status: 'success', data: collegeuser});
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({status:'error', message: 'Something went wrong'});
+    }
+  }
+
+  exports.collegewiseuserPerticularBatch = async (req, res, next) => {
+    const {id} = req.params;
+    try {
+      const collegeuser = await Batch.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(id)
           },
         },
         {
-          $sort: { activeUser: -1 },
+          $unwind: "$participants",
+        },
+        {
+          $lookup: {
+            from: "intern-trades",
+            localField: "participants.user",
+            foreignField: "trader",
+            as: "tradeData",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              college: "$participants.college",
+              hasTradeData: { $cond: { if: { $gt: [{ $size: "$tradeData" }, 0] }, then: true, else: false } },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.college",
+            hasTradeDataCounts: {
+              $push: {
+                hasTradeData: "$_id.hasTradeData",
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "colleges",
+            localField: "_id",
+            foreignField: "_id",
+            as: "college",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            college: "$_id",
+            collegeName: {
+              $arrayElemAt: ["$college.collegeName", 0],
+            },
+            activeUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+            inactiveUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+            totalUser: {
+              $add: [{
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }, {
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }],
+            },
+          },
+        },        
+        {
+          $sort: { totalUser: -1 },
         },
       ])
-    //   console.log(todaysinternshiporders)
+
       res.status(200).json({status: 'success', data: collegeuser});
     } catch (e) {
       console.log(e);

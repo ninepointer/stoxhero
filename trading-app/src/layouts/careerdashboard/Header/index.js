@@ -276,7 +276,7 @@ export default function LabTabs({socket}) {
             </Grid>
         </Grid>
 
-        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+        <Grid style={{borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox p={0.5}>
                     <CollegeWiseData />

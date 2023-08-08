@@ -26,8 +26,6 @@ export default function LabTabs() {
   const date = new Date();
   const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   lastMonth.setDate(date.getDate());
-  // const [startDate,setStartDate] = React.useState(dayjs(lastMonth));
-  // const [endDate,setEndDate] = React.useState(dayjs(date));
   const [dateWiseData, setDateWiseData] = useState([]);
   const [batches,setBatches] = useState([]);
   const [selectedBatches, setSelectedBatches] = useState();

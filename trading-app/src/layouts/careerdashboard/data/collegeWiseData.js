@@ -23,17 +23,18 @@ const CustomAutocomplete = styled(Autocomplete)`
 export default function CollegeWiseData() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let [skip, setSkip] = useState(0);
-  const limitSetting = 10;
-  const [count, setCount] = useState(0);
-  const [isLoading,setIsLoading] = useState(false);
-  const [college, setCollege] = useState([]);
-  const [value, setValue] = useState({})
+  // let [skip, setSkip] = useState(0);
+  // const limitSetting = 10;
+  // const [count, setCount] = useState(0);
+  const [isLoading,setIsLoading] = useState(true);
+  // const [college, setCollege] = useState([]);
+  // const [value, setValue] = useState({})
   const perPage = 10; // Number of documents per page
-  const pageNumber = 1; // Current page number
+  // const pageNumber = 1; // Current page number
 
 
   const [data, setData] = useState([]);
+  const [allData, setAllData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function CollegeWiseData() {
       })
       .then((res) => {
         const allData = res.data.data;
+        setAllData(res.data.data);
         const startIndex = (currentPage - 1) * perPage;
         const slicedData = allData.slice(startIndex, startIndex + perPage);
         setData(slicedData);
@@ -55,7 +57,13 @@ export default function CollegeWiseData() {
         }, 500);
         console.error(err);
       });
-  }, [currentPage]);
+  }, []);
+
+  useEffect(()=>{
+    const startIndex = (currentPage - 1) * perPage;
+    const slicedData = allData.slice(startIndex, startIndex + perPage);
+    setData(slicedData);
+  }, [currentPage])
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -67,47 +75,12 @@ export default function CollegeWiseData() {
     }
   };
 
+  console.log("current page", currentPage, allData.length)
 
   return (
 
     <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minWidth='100%' minHeight='auto'>
-                {/* <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
-          <CustomAutocomplete
-            id="country-select-demo"
-            sx={{
-              width: "100%",
-              '& .MuiAutocomplete-clearIndicator': {
-                color: 'dark',
-              },
-              
-            }}
-            options={college}
-            value={value}
-            onChange={handleTraderOptionChange}
-            autoHighlight
-            getOptionLabel={(option) => option.collegeName}
-            renderOption={(props, option) => (
-              <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                {option.collegeName}
-              </Box>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Choose College"
-                inputProps={{
-                  ...params.inputProps,
-                  autoComplete: 'new-password', // disable autocomplete and autofill
-                  style: { color: 'dark', height: "10px" }, // set text color to dark
-                }}
-                InputLabelProps={{
-                  style: { color: 'dark' },
-                }}
-              />
-            )}
-          />
-        </MDBox> */}
-      <Grid container spacing={1}>
+      <Grid container >
         <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>
               <Grid item xs={12} md={2} lg={6} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <MDTypography color="light" fontSize={13} fontWeight="bold">College Name</MDTypography>
@@ -123,11 +96,10 @@ export default function CollegeWiseData() {
               </Grid>
         </Grid>
 
-        
             {!isLoading ?
              data?.map((elem)=>{
-                const fullName = elem?.trader?.first_name + ' ' + elem?.trader?.last_name
-                const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
+                // const fullName = elem?.trader?.first_name + ' ' + elem?.trader?.last_name
+                // const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
                 return(
               
                     
@@ -139,7 +111,7 @@ export default function CollegeWiseData() {
                             <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.activeUser + elem?.inactiveUser}</MDTypography>
                         </Grid>
                         <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color={typecolor} fontSize={10} fontWeight="bold">{elem?.activeUser}</MDTypography>
+                            <MDTypography color={"light"} fontSize={10} fontWeight="bold">{elem?.activeUser}</MDTypography>
                         </Grid>
                         <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                             <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.inactiveUser}</MDTypography>
@@ -176,8 +148,8 @@ export default function CollegeWiseData() {
             {!isLoading &&
             <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
                 <MDButton variant='outlined' color='warning' disabled={currentPage === 1 ? true : false} size="small" onClick={handlePrevPage}>Back</MDButton>
-                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Data: {data.length} | Page {currentPage} of {Math.ceil(data.length/perPage)}</MDTypography>
-                <MDButton variant='outlined' color='warning' disabled={Math.ceil(data.length/perPage) === currentPage ? true : !count ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
+                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Data: {allData.length} | Page {currentPage} of {Math.ceil(allData.length/perPage)}</MDTypography>
+                <MDButton variant='outlined' color='warning' disabled={Math.ceil(allData.length/perPage) === currentPage ? true : false} size="small" onClick={handleNextPage}>Next</MDButton>
             </MDBox>
             }
 

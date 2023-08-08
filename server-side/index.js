@@ -342,8 +342,7 @@ Setting.find().then((res) => {
   const appEndMinute = appEndTime.getMinutes();
 
   console.log(appStartHour, appStartMinute, appEndHour, appEndMinute)
-  // if(process.env.PROD === "true"){
-    if(true){
+  if(process.env.PROD === "true"){
     let date = new Date();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){

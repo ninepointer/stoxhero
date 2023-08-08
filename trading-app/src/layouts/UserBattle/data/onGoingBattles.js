@@ -231,7 +231,9 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                     </MDBox>
                                 </Grid>
                                 <Grid item xs={12} md={3} lg={12} display='flex' justifyContent='space-between' alignContent='center' flexDirection='row' alignItems='center'>
-                                    <MDBox><MDButton size='small' color='success'>Book Now</MDButton></MDBox>
+                                    <MDBox>
+                                        <MDButton size='small' color='success'>Book Now</MDButton>
+                                    </MDBox>
                                     <MDBox><MDButton size='small' color='success'>View Details</MDButton></MDBox>
                                 </Grid>
                                 
