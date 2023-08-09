@@ -136,11 +136,6 @@ exports.mockTrade = async (req, res) => {
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
 
-        // console.log("marginData", marginData, req.body)
-        const saveMarginCompany = await marginCalculationCompany(req.body?.marginData, req.body, originalLastPriceCompany, order_id);
-        const saveMarginUser = await marginCalculationTrader(req.body?.marginData, req.body, originalLastPriceUser, order_id);
-
-        let settingRedis ;
         const session = await mongoose.startSession();
         try{
 
@@ -221,6 +216,8 @@ exports.mockTrade = async (req, res) => {
             // console.log("pipelineForSet._result", pipelineForSet._result)
 
             if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {
+                const saveMarginCompany = await marginCalculationCompany(req.body?.marginData, req.body, originalLastPriceCompany, order_id);
+                const saveMarginUser = await marginCalculationTrader(req.body?.marginData, req.body, originalLastPriceUser, order_id);        
                 await session.commitTransaction();
                 res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
             } else {

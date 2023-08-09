@@ -691,7 +691,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
       // io.emit("updatePnl", mockTradeDetails)
       console.log(settingRedis)
-      if (settingRedis === "OK") {
+      if (true) {
         await session.commitTransaction();
       } else {
         // await session.commitTransaction();
@@ -893,7 +893,7 @@ const takeAutoDailyContestMockTrade = async (tradeDetails) => {
 
       // io.emit("updatePnl", mockTradeDetails)
       console.log(settingRedis)
-      if (settingRedis === "OK") {
+      if (true) {
         await session.commitTransaction();
       } else {
         // await session.commitTransaction();

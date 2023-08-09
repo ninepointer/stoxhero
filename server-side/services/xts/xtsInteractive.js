@@ -762,9 +762,6 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     // console.log("pipelineForSet", pipelineForSet, isInsertedAllDB, status)
     let redisApproval = pipelineForSet?._result[0][1] === "OK" && pipelineForSet?._result[1][1] === "OK" && pipelineForSet?._result[2][1] === "OK" && pipelineForSet?._result[3][1] === "OK" && pipelineForSet?._result[4][1] === "OK"
 
-    // let redisApproval = settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK" && redisValueMockOverall === "OK" && redisValueMockTrader === "OK"
-    // console.log(redisApproval, pipelineForSet?._result[0][1], pipelineForSet?._result[1][1], pipelineForSet?._result[2][1], pipelineForSet?._result[3][1], pipelineForSet?._result[4][1] )
-    // if (settingRedis === "OK") {
     if (redisApproval) {
       console.log("in redisApproval")
       await session.commitTransaction();
@@ -776,7 +773,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
         io.emit(`sendResponse${trader.toString()}`, { message: "Something went wrong. Please try after some time.", status: "error" })
       }
       return; //check return statement
-    } else if (!isRedisConnected) {
+    } else if (!isRedisConnected || autoTrade) {
       await session.commitTransaction();
     } else {
       console.log("in errr")
@@ -784,17 +781,12 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     }
 
 
-    // console.log("data saved in retreive order for", AppOrderID)
-
-    // if (!dontSendResp ) {
     if (!dontSendResp && redisApproval) {
       await client.expire(`liveOrderBackupKey`, 600);
       await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
       io.emit("updatePnl", traderDocMock)
       io.emit(`sendResponse${trader.toString()}`, { message: { Quantity: Quantity, symbol: symbol }, status: "complete" })
-      // return res.status(201).json({ message: responseMsg, err: responseErr })
     }
-    // }
   } catch (err) {
 
     if (isRedisConnected) {
