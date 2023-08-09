@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.8e42465e.css",
-    "main.js": "/static/js/main.63295845.js",
+    "main.js": "/static/js/main.8de11b79.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.3e810b52.chunk.js": "/static/js/513.3e810b52.chunk.js",
     "static/media/backgroundmatt.jpg": "/static/media/backgroundmatt.f34f28c63ba78e5986d2.jpg",
@@ -50,6 +50,7 @@
     "static/media/main-bg-2_1.webp": "/static/media/main-bg-2_1.badcdca57b48fc341ba7.webp",
     "static/media/purse.png": "/static/media/purse.3bdcf4948b4673ae0853.png",
     "static/media/fniftycharticon.png": "/static/media/fniftycharticon.cbb1058bdf9b61b5a82e.png",
+    "static/media/axe.png": "/static/media/axe.7e724c468a595546ec06.png",
     "static/media/visa.png": "/static/media/visa.71c0d5e9e2aaee42e4c3.png",
     "static/media/bniftycharticon.png": "/static/media/bniftycharticon.a47f2a114f750a451c6c.png",
     "static/media/candlestick-chart.png": "/static/media/candlestick-chart.a47f2a114f750a451c6c.png",
@@ -103,6 +104,7 @@
     "static/media/todaysignup.png": "/static/media/todaysignup.5c5e0f0af00ee39b5c0b.png",
     "static/media/jobs.png": "/static/media/jobs.bc0567f7e5cab66309ed.png",
     "static/media/tradesicon.png": "/static/media/tradesicon.60244c562a15ffa14a33.png",
+    "static/media/regulation.png": "/static/media/regulation.d0845824d4217d358c11.png",
     "static/media/galaxy-digital.svg": "/static/media/galaxy-digital.f177a504276f5ebda6730a79dfb65f43.svg",
     "static/media/dragonfly-capital.svg": "/static/media/dragonfly-capital.1ae02d03fca8cafd970dace897d76268.svg",
     "static/media/section7-img4.webp": "/static/media/section7-img4.34ba900b5cf625f3a65b.webp",
@@ -160,12 +162,12 @@
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
     "main.8e42465e.css.map": "/static/css/main.8e42465e.css.map",
-    "main.63295845.js.map": "/static/js/main.63295845.js.map",
+    "main.8de11b79.js.map": "/static/js/main.8de11b79.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.3e810b52.chunk.js.map": "/static/js/513.3e810b52.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.8e42465e.css",
-    "static/js/main.63295845.js"
+    "static/js/main.8de11b79.js"
   ]
 }
