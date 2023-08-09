@@ -125,7 +125,7 @@ exports.addUserToGd = async(req, res, next) => {
     const currentBatch = await Batch.findById(gd.batch).select('_id career batchStartDate, batchEndDate');
     const careerListing = await CareerSchema.findById(currentBatch.career);
     const career = await CareerApplication.findById(userId).select('email _id applicationStatus campaignCode mobileNo first_name last_name');
-    user = await User.findOne({email: career.email}).select('_id');
+    user = await User.findOne({mobile: career.mobileNo}).select('_id');
     if(user){
       const existinggds = await GroupDiscussion.find({'participants.user': user._id});
       console.log('existing gds', existinggds);
@@ -145,190 +145,190 @@ exports.addUserToGd = async(req, res, next) => {
 
     const {campaignCode, mobileNo, email,first_name, last_name} = career;
     const  campaign = await Campaign.findOne({campaignCode: campaignCode});
-    if(!user){
-      //create the user
-      async function generateUniqueReferralCode() {
-        const length = 8; // change this to modify the length of the referral code
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let myReferralCode = '';
-        let codeExists = true;
+    // if(!user){
+    //   //create the user
+    //   async function generateUniqueReferralCode() {
+    //     const length = 8; // change this to modify the length of the referral code
+    //     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    //     let myReferralCode = '';
+    //     let codeExists = true;
     
-        // Keep generating new codes until a unique one is found
-        while (codeExists) {
-            for (let i = 0; i < length; i++) {
-                myReferralCode += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
+    //     // Keep generating new codes until a unique one is found
+    //     while (codeExists) {
+    //         for (let i = 0; i < length; i++) {
+    //             myReferralCode += chars.charAt(Math.floor(Math.random() * chars.length));
+    //         }
     
-            // Check if the generated code already exists in the database
-            const existingCode = await User.findOne({ myReferralCode: myReferralCode });
-            if (!existingCode) {
-            codeExists = false;
-            }
-        }
+    //         // Check if the generated code already exists in the database
+    //         const existingCode = await User.findOne({ myReferralCode: myReferralCode });
+    //         if (!existingCode) {
+    //         codeExists = false;
+    //         }
+    //     }
     
-        return myReferralCode;
-        }
+    //     return myReferralCode;
+    //     }
       
-      const myReferralCode = generateUniqueReferralCode();
-      let userId = email.split('@')[0]
-      let userIds = await User.find({employeeid:userId})
-      // console.log("User Ids: ",userIds)
-        if(userIds.length > 0){
-            userId = userId.toString()+(userIds.length+1).toString()
-        }
+    //   const myReferralCode = generateUniqueReferralCode();
+    //   let userId = email.split('@')[0]
+    //   let userIds = await User.find({employeeid:userId})
+    //   // console.log("User Ids: ",userIds)
+    //     if(userIds.length > 0){
+    //         userId = userId.toString()+(userIds.length+1).toString()
+    //     }
     
-      const activeFreePortfolios = await Portfolio.find({status: "Active", portfolioAccount: "Free"});
-      let portfolioArr = [];
-      for (const portfolio of activeFreePortfolios) {
-          let obj = {};
-          obj.portfolioId = portfolio._id;
-          obj.activationDate = new Date();
-          portfolioArr.push(obj);
-      }
+    //   const activeFreePortfolios = await Portfolio.find({status: "Active", portfolioAccount: "Free"});
+    //   let portfolioArr = [];
+    //   for (const portfolio of activeFreePortfolios) {
+    //       let obj = {};
+    //       obj.portfolioId = portfolio._id;
+    //       obj.activationDate = new Date();
+    //       portfolioArr.push(obj);
+    //   }
     
-      try{
-        let obj = {
-            first_name : first_name.trim(), 
-            last_name : last_name.trim(), 
-            designation: 'Trader', 
-            email : email.trim(), 
-            mobile : mobileNo.trim(),
-            name: first_name.trim() + ' ' + last_name.trim().substring(0,1), 
-            password: 'sh' + last_name.trim() + '@123' + mobileNo.trim().slice(1,3), 
-            status: 'Active', 
-            employeeid: userId, 
-            creationProcess: 'Career SignUp',
-            joining_date:new Date(),
-            myReferralCode:(await myReferralCode).toString(), 
-            portfolio: portfolioArr,
-            campaign: campaign && campaign._id,
-            campaignCode: campaign && campaignCode,
-        }
+    //   try{
+    //     let obj = {
+    //         first_name : first_name.trim(), 
+    //         last_name : last_name.trim(), 
+    //         designation: 'Trader', 
+    //         email : email.trim(), 
+    //         mobile : mobileNo.trim(),
+    //         name: first_name.trim() + ' ' + last_name.trim().substring(0,1), 
+    //         password: 'sh' + last_name.trim() + '@123' + mobileNo.trim().slice(1,3), 
+    //         status: 'Active', 
+    //         employeeid: userId, 
+    //         creationProcess: 'Career SignUp',
+    //         joining_date:new Date(),
+    //         myReferralCode:(await myReferralCode).toString(), 
+    //         portfolio: portfolioArr,
+    //         campaign: campaign && campaign._id,
+    //         campaignCode: campaign && campaignCode,
+    //     }
     
-            const newuser = await User.create(obj);
-            if(newuser){
-              user = newuser;
-            }
-            const idOfUser = newuser._id;
+    //         const newuser = await User.create(obj);
+    //         if(newuser){
+    //           user = newuser;
+    //         }
+    //         const idOfUser = newuser._id;
     
-            for (const portfolio of activeFreePortfolios) {
-              const portfolioValue = portfolio.portfolioValue;
+    //         for (const portfolio of activeFreePortfolios) {
+    //           const portfolioValue = portfolio.portfolioValue;
               
-              await Portfolio.findByIdAndUpdate(
-                  portfolio._id,
-                  { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
-                  );
-              }
+    //           await Portfolio.findByIdAndUpdate(
+    //               portfolio._id,
+    //               { $push: { users: { userId: idOfUser, portfolioValue: portfolioValue } } }
+    //               );
+    //           }
             
-            // console.log("Campaign: ",campaign)
-            if(campaign){
-                // console.log("Inside setting user to campaign")
-                campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
-                const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
-                    $set:{ 
-                        users: campaign?.users
-                    }
-                })
-                // console.log(campaignData)
-            }
+    //         // console.log("Campaign: ",campaign)
+    //         if(campaign){
+    //             // console.log("Inside setting user to campaign")
+    //             campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
+    //             const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
+    //                 $set:{ 
+    //                     users: campaign?.users
+    //                 }
+    //             })
+    //             // console.log(campaignData)
+    //         }
     
-            await UserWallet.create(
-              {
-                  userId: newuser._id,
-                  createdOn: new Date(),
-                  createdBy:newuser._id
-            })
+    //         await UserWallet.create(
+    //           {
+    //               userId: newuser._id,
+    //               createdOn: new Date(),
+    //               createdBy:newuser._id
+    //         })
     
-            // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
-                // let email = newuser.email;
-                let subject = "Account Created - StoxHero";
-                let message = 
-                `
-                <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>Account Created</title>
-                        <style>
-                        body {
-                            font-family: Arial, sans-serif;
-                            font-size: 16px;
-                            line-height: 1.5;
-                            margin: 0;
-                            padding: 0;
-                        }
+    //         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
+    //             // let email = newuser.email;
+    //             let subject = "Account Created - StoxHero";
+    //             let message = 
+    //             `
+    //             <!DOCTYPE html>
+    //                 <html>
+    //                 <head>
+    //                     <meta charset="UTF-8">
+    //                     <title>Account Created</title>
+    //                     <style>
+    //                     body {
+    //                         font-family: Arial, sans-serif;
+    //                         font-size: 16px;
+    //                         line-height: 1.5;
+    //                         margin: 0;
+    //                         padding: 0;
+    //                     }
     
-                        .container {
-                            max-width: 600px;
-                            margin: 0 auto;
-                            padding: 20px;
-                            border: 1px solid #ccc;
-                        }
+    //                     .container {
+    //                         max-width: 600px;
+    //                         margin: 0 auto;
+    //                         padding: 20px;
+    //                         border: 1px solid #ccc;
+    //                     }
     
-                        h1 {
-                            font-size: 24px;
-                            margin-bottom: 20px;
-                        }
+    //                     h1 {
+    //                         font-size: 24px;
+    //                         margin-bottom: 20px;
+    //                     }
     
-                        p {
-                            margin: 0 0 20px;
-                        }
+    //                     p {
+    //                         margin: 0 0 20px;
+    //                     }
     
-                        .userid {
-                            display: inline-block;
-                            background-color: #f5f5f5;
-                            padding: 10px;
-                            font-size: 15px;
-                            font-weight: bold;
-                            border-radius: 5px;
-                            margin-right: 10px;
-                        }
+    //                     .userid {
+    //                         display: inline-block;
+    //                         background-color: #f5f5f5;
+    //                         padding: 10px;
+    //                         font-size: 15px;
+    //                         font-weight: bold;
+    //                         border-radius: 5px;
+    //                         margin-right: 10px;
+    //                     }
     
-                        .password {
-                            display: inline-block;
-                            background-color: #f5f5f5;
-                            padding: 10px;
-                            font-size: 15px;
-                            font-weight: bold;
-                            border-radius: 5px;
-                            margin-right: 10px;
-                        }
+    //                     .password {
+    //                         display: inline-block;
+    //                         background-color: #f5f5f5;
+    //                         padding: 10px;
+    //                         font-size: 15px;
+    //                         font-weight: bold;
+    //                         border-radius: 5px;
+    //                         margin-right: 10px;
+    //                     }
     
-                        .login-button {
-                            display: inline-block;
-                            background-color: #007bff;
-                            color: #fff;
-                            padding: 10px 20px;
-                            font-size: 18px;
-                            font-weight: bold;
-                            text-decoration: none;
-                            border-radius: 5px;
-                        }
+    //                     .login-button {
+    //                         display: inline-block;
+    //                         background-color: #007bff;
+    //                         color: #fff;
+    //                         padding: 10px 20px;
+    //                         font-size: 18px;
+    //                         font-weight: bold;
+    //                         text-decoration: none;
+    //                         border-radius: 5px;
+    //                     }
     
-                        .login-button:hover {
-                            background-color: #0069d9;
-                        }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                        <h1>Account Created</h1>
-                        <p>Hello ${newuser.first_name},</p>
-                        <p>Your login details are:</p>
-                        <p>User ID: <span class="userid">${newuser.email}</span></p>
-                        <p>Password: <span class="password">sh${newuser.last_name.trim()}@123${newuser.mobile.slice(1,3)}</span></p>
-                        <p>Please use these credentials to log in to our website:</p>
-                        <a href="https://www.stoxhero.com/" class="login-button">Log In</a>
-                        </div>
-                    </body>
-                    </html>
+    //                     .login-button:hover {
+    //                         background-color: #0069d9;
+    //                     }
+    //                     </style>
+    //                 </head>
+    //                 <body>
+    //                     <div class="container">
+    //                     <h1>Account Created</h1>
+    //                     <p>Hello ${newuser.first_name},</p>
+    //                     <p>Your login details are:</p>
+    //                     <p>User ID: <span class="userid">${newuser.email}</span></p>
+    //                     <p>Password: <span class="password">sh${newuser.last_name.trim()}@123${newuser.mobile.slice(1,3)}</span></p>
+    //                     <p>Please use these credentials to log in to our website:</p>
+    //                     <a href="https://www.stoxhero.com/" class="login-button">Log In</a>
+    //                     </div>
+    //                 </body>
+    //                 </html>
     
-                `
-                // mailSender(newuser.email,subject,message);
-      }catch(e){
-        console.log(e);
-      }
-    }
+    //             `
+    //             // mailSender(newuser.email,subject,message);
+    //   }catch(e){
+    //     console.log(e);
+    //   }
+    // }
     gd.participants = [...gd.participants, {user: user._id, attended: false, status: 'Shortlisted', college: collegeId}]
     // console.log(gd.participants);
     await gd.save({validateBeforeSave: false});

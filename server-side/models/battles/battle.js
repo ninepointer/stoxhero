@@ -59,7 +59,7 @@ const battleSchema = new Schema({
         prize:{type:String},
         prizeValue:Number
     }],
-    reawrdsPoster:{
+    rewardsPoster:{
         fileName: String,
         url: String
     },

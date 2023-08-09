@@ -173,26 +173,27 @@ const Timer = ({socket}) => {
     return formattedDate;
 
   }
-
+  // style={{ display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center" , gap: "5px"}}
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center", gap: "5px" }}>
+    <div style={ window.outerWidth >= 1200 ? { display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center" , gap: "5px"} : {display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center", flexDirection: "column"}}>
       {timerVisibility ?
         <>
-          <p style={{ color: color }}>{goingOnline ? `You can place trades in` :  `Open trades will be auto squared off in` }</p>
-          <p style={{ color: color, backgroundColor: "#D3D3D3", borderRadius: "5px", padding: "2px" }}>{remainingTime}</p>
+          <p style={{ color: color,  textAlign:"center" }}>{goingOnline ? `You can place trades in` :  `Open trades will be auto squared off in` } </p>
+          {/* <span style={{ color: color, backgroundColor: "#D3D3D3", borderRadius: "5px", padding: "2px" }}>{remainingTime}</span></p> */}
+          <p style={{ color: color, backgroundColor: "#D3D3D3", borderRadius: "5px", padding: "2px", textAlign:"center", width: window.outerWidth < 1200 && "150px" }}>{remainingTime}</p>
         </>
         :
         <>
         {remainingTime &&
-        <>
+        <div style={{display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center" , gap: "5px"}}>
           <MDTypography
             color={color==="green" ? "success" : "error"}
-            style={{display:"flex",alignItems:"center",}}
+            style={{display:"flex",alignItems:"center"}}
             >
               <TiMediaRecord sx={{ margin: 2 }} size={15} />
             </MDTypography>
             <p style={{ color: color }}> {remainingTime} </p>
-          </>
+          </div>
         }
 
         </>
