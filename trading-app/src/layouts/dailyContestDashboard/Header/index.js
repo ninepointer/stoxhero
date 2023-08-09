@@ -10,6 +10,7 @@ import CachedIcon from '@mui/icons-material/Cached';
 //data
 import CompanySideContestDailyChart from '../data/companySideContestDailyChart'
 import DailyContestUsers from '../data/dailyContestUsers'
+import DailyPaidContestUsers from '../data/dailyPaidContestUsers'
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
@@ -17,6 +18,7 @@ export default function LabTabs({socket}) {
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const [dailyContestUsers, setDailyContestUsers] = useState();
+  const [dailyAllContestUsers, setDailyAllContestUsers] = useState();
   const [completedContest,setCompletedContest] = useState();
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
   const [tradeDataThisMonth, setTradeDataThisMonth] = useState([]);
@@ -64,17 +66,18 @@ export default function LabTabs({socket}) {
   }, [])
 
   useEffect(()=>{
-    let call1 = axios.get((`${baseUrl}api/v1/dailycontest/contest/dailycontestusers`),{
-                withCredentials: true,
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credentials": true
-                  },
-                })
+    let call1 = axios.get((`${baseUrl}api/v1/dailycontest/contest/dailyallcontestusers`),{
+        withCredentials: true,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+            },
+        })
     Promise.all([call1])
     .then(([api1Response]) => {
-      setDailyContestUsers(api1Response.data.data)
+    //   setDailyContestUsers(api1Response.data.data)
+      setDailyAllContestUsers(api1Response.data.data)
     })
     .catch((error) => {
       // Handle errors here
@@ -800,10 +803,18 @@ export default function LabTabs({socket}) {
             </Grid>
         </Grid>
 
-        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+        {/* <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox p={0.5}>
                     { dailyContestUsers && <DailyContestUsers dailyContestUsers={dailyContestUsers}/>}
+                </MDBox>
+            </Grid>
+        </Grid> */}
+
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    { dailyAllContestUsers && <DailyPaidContestUsers dailyAllContestUsers={dailyAllContestUsers}/>}
                 </MDBox>
             </Grid>
         </Grid>

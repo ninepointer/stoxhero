@@ -1156,3 +1156,212 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         });
     }
 }
+
+exports.getDailyContestAllUsers = async (req, res) => {
+    try {
+        const pipeline = 
+        [
+            {
+              $lookup: {
+                from: "daily-contests",
+                localField: "contestId",
+                foreignField: "_id",
+                as: "contest",
+              },
+            },
+            {
+              $addFields: {
+                contestdetails: {
+                  $arrayElemAt: ["$contest", 0],
+                },
+              },
+            },
+            {
+              $facet: {
+                paidcontest: [
+                  {
+                    $match: {
+                      "contestdetails.entryFee": {
+                        $gt: 0,
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: {
+                        date: {
+                          $substr: ["$trade_time", 0, 10],
+                        },
+                        trader: "$trader",
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: {
+                        date: "$_id.date",
+                      },
+                      traders: {
+                        $sum: 1,
+                      },
+                      uniqueUsers: {
+                        $addToSet: "$_id.trader",
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 0,
+                      date: "$_id.date",
+                      traders: 1,
+                    },
+                  },
+                  {
+                    $sort: {
+                      "_id.date": 1,
+                    },
+                  },
+                ],
+                freecontest: [
+                  {
+                    $match: {
+                      "contestdetails.entryFee": {
+                        $eq: 0,
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: {
+                        date: {
+                          $substr: ["$trade_time", 0, 10],
+                        },
+                        trader: "$trader",
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: {
+                        date: "$_id.date",
+                      },
+                      traders: {
+                        $sum: 1,
+                      },
+                      uniqueUsers: {
+                        $addToSet: "$_id.trader",
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 0,
+                      date: "$_id.date",
+                      traders: 1,
+                    },
+                  },
+                  {
+                    $sort: {
+                      "_id.date": 1,
+                    },
+                  },
+                ],
+                totalcontest: [
+                  {
+                    $match: {
+                      "contestdetails.entryFee": {
+                        $gte: 0,
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: {
+                        date: {
+                          $substr: ["$trade_time", 0, 10],
+                        },
+                        trader: "$trader",
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: {
+                        date: "$_id.date",
+                      },
+                      traders: {
+                        $sum: 1,
+                      },
+                      uniqueUsers: {
+                        $addToSet: "$_id.trader",
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 0,
+                      date: "$_id.date",
+                      traders: 1,
+                    },
+                  },
+                  {
+                    $sort: {
+                      "_id.date": 1,
+                    },
+                  },
+                ],
+              },
+            },
+          ]
+
+        const contestTraders = await ContestTrading.aggregate(pipeline);
+        
+        try{
+        
+        const contestusers = []
+
+        console.log("Contest Traders:",contestTraders)
+        contestTraders[0].totalcontest.forEach(entry => {
+            const { date, traders } = entry;
+    
+            const freecontest = contestTraders[0].freecontest.filter((elem)=>{
+                return elem.date === date
+            })
+            const paidcontest = contestTraders[0].paidcontest.filter((elem)=>{
+                return elem.date === date
+            })
+
+            contestusers.push(
+                {
+                    date:date,paid:paidcontest.length !== 0 ? paidcontest[0].traders : 0,
+                    free: freecontest.length !== 0 ? freecontest[0].traders : 0, 
+                    total: traders
+                }
+                )
+            
+                contestusers.sort((a,b)=>{
+                    if(a.date >= b.date) return 1
+                    if(a.date < b.date) return -1 
+                })
+            
+        });
+        // Create a date-wise mapping of DAUs for different products
+        
+        const response = {
+            status: "success",
+            message: "Contest Users fetched successfully",
+            data: contestusers
+        };
+
+        res.status(200).json(response);
+    }catch(err){
+        console.log(err);
+    }
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
+};
