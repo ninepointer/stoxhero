@@ -1,4 +1,5 @@
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
+const InfinityTraderCompany = require("../../models/mock-trade/infinityTradeCompany");
 const ObjectId = require('mongoose').Types.ObjectId;
 const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 
@@ -579,12 +580,11 @@ exports.overallInfinityLiveCompanyPnlYesterday = async (req, res, next) => {
   let date;
   let i = 1;
   let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
-  let pnlDetailsData = [];
+  let pnlDetailsData;
 
   while (!pnlDetailsData && i <= maxDaysBack) {
     let day = new Date();
     day.setDate(day.getDate() - i);
-    // console.log("i",i)
     let startTime = new Date(day.setHours(0, 0, 0, 0));
     let endTime = new Date(day.setHours(23, 59, 59, 999));
     date = startTime;
@@ -634,7 +634,7 @@ exports.overallInfinityLiveCompanyPnlYesterday = async (req, res, next) => {
       i++;  // increment the day counter
     }
   }
-  // console.log("PNL Data:",pnlDetailsData)
+
   res.status(201).json({
     message: "pnl received", 
     data: pnlDetailsData, 

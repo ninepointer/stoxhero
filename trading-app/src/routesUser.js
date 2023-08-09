@@ -67,6 +67,7 @@ import UserDailyContest from './layouts/UserDailyContest'
 import UserDailyContestCollage from './layouts/UserDailyContestCollage';
 import UserBattle from './layouts/UserBattle'
 import SchoolIcon from '@mui/icons-material/School';
+import BattleDetails from './layouts/UserBattle/battleInfo'
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import CollegeContestTradingWindow from './layouts/UserDailyContestCollage/ContestTradingView'
@@ -199,6 +200,11 @@ const routes = [
 
     route: "/tenxtrading/:name",
     component: <TradeViewTenX />,
+  },
+  {
+
+    route: "/battleground/BattleOfTeens",
+    component: <BattleDetails />,
   },
   {
 

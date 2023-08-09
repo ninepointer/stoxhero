@@ -3,7 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import MDBox from '../../../components/MDBox';
 import moment from 'moment';
 
-export default function Charts({dailyContestUsers}) {
+export default function Charts({dailyAllContestUsers}) {
+    console.log("Daily All Contest Users:",dailyAllContestUsers)
     const chartRef = useRef(null);
   // Dummy data for example purposes
   const data = [
@@ -18,7 +19,7 @@ export default function Charts({dailyContestUsers}) {
 
   const options = {
     title: {
-      text: 'Daily Unique Total Contest Users',
+      text: 'DAUs (Total, Free, Paid)',
       left: 'left',
     },
     tooltip: {
@@ -33,13 +34,13 @@ export default function Charts({dailyContestUsers}) {
     toolbox: {
       feature: {
         dataView: { show: true, readOnly: true },
-        magicType: { show: true, type: ['bar', 'line'] },
+        magicType: { show: true, type: ['line', 'bar'] },
         restore: { show: true },
         saveAsImage: { show: true }
       }
     },
     legend: {
-        data: ['Contest'],
+        data: ['Paid', 'Free', 'Total'],
     },
     grid: {
         right: '2%', // Adjust the right margin as per your requirement
@@ -54,8 +55,7 @@ export default function Charts({dailyContestUsers}) {
     xAxis: [
         {
           type: 'category',
-          data: dailyContestUsers.map(item => 
-            moment.utc(((new Date(item.date)).toLocaleString("en-US", { timeZone: "UTC" }))).utcOffset('+00:00').format('DD-MMM')),
+          data: dailyAllContestUsers?.map(item => item.date),
           axisPointer: {
             type: 'shadow'
           }
@@ -78,10 +78,20 @@ export default function Charts({dailyContestUsers}) {
     ],
     series: [
       {
-        name: 'Contest Users',
+        name: 'Total',
         type: 'line',
-        data: dailyContestUsers.map(item => item.contest),
+        data: dailyAllContestUsers.map(item => item.total),
       },
+      {
+        name: 'Paid',
+        type: 'bar',
+        data: dailyAllContestUsers.map(item => item.paid),
+      },
+      {
+        name: 'Free',
+        type: 'bar',
+        data: dailyAllContestUsers.map(item => item.free),
+      }
     ],
   };
 
@@ -90,7 +100,7 @@ export default function Charts({dailyContestUsers}) {
   return () => {
     chart.dispose();
   };
-}, [dailyContestUsers]);
+}, [dailyAllContestUsers]);
 
   return <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };

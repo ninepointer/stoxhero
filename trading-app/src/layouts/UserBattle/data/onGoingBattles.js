@@ -28,7 +28,7 @@ import { HiUserGroup } from 'react-icons/hi';
 import { Box, CircularProgress, Divider, Tooltip, Typography } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
 import { Link } from "react-router-dom";
-import{apiUrl} from "../../../constants/constants"
+import { apiUrl } from "../../../constants/constants"
 import Payment from "./payments";
 
 function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
@@ -41,20 +41,20 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
 
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
-      }, []);
-    
-    const getBattles = async() => {
-        try{
-            const res = await axios.get(`${apiUrl}battles/ongoing`, {withCredentials:true});
+    }, []);
+
+    const getBattles = async () => {
+        try {
+            const res = await axios.get(`${apiUrl}battles/ongoing`, { withCredentials: true });
             console.log(res.data.data);
             setBattles(res.data.data);
-        }catch(e){
+        } catch (e) {
             console.log(e);
         }
-    }  
-    useEffect(()=>{
+    }
+    useEffect(() => {
         getBattles();
-    },[]);  
+    }, []);
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
         const textarea = document.createElement('textarea');
@@ -185,82 +185,94 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
     return (
         <>
             <MDBox p={0.5} width='100%' display='flex' justifyContent='center'>
-                <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center' xs={12} md={12} lg={12}>
-                {battles?.map((battle)=>{
-                    return(
-                        <Grid item xs={12} md={6} lg={4} key={battle?._id}>
-                        <MDBox bgColor='light' borderRadius={5} display='flex' justifyContent='center'>
-                            <Grid container p={1} spacing={1} xs={12} md={6} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                <Grid item xs={2} md={3} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                    <img src={BattleIcon} width='35px' height='35px' />
-                                </Grid>
-                                <Grid item xs={10} md={3} lg={10} display='flex' justifyContent='flex-end' flexDirection='column' alignContent='center' alignItems='center'>
-                                    <MDBox width='100%'>
-                                        <MDBox display='flex' justifyContent='flex-end'><MDTypography fontSize={18} fontWeight='bold'>{battle?.battleName}</MDTypography></MDBox>
-                                        <MDBox display='flex' justifyContent='flex-end'><MDTypography fontSize={10} fontWeight='bold'>Starts: {moment(battle?.battleStartTime).tz('Asia/Kolkata').format('DD MMM YYYY | hh:mm A')}</MDTypography></MDBox>
-                                        <MDBox display='flex' justifyContent='flex-end'><MDTypography fontSize={10} fontWeight='bold'>Ends: {moment(battle?.battleEndTime).tz('Asia/Kolkata').format('DD MMM YYYY | hh:mm A')}</MDTypography></MDBox>
-                                    </MDBox>
-                                </Grid>
-                                <Grid item xs={2} md={3} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                    {/* <img src={BattleIcon} width='35px' height='35px' /> */}
-                                </Grid>
-                                <Grid item xs={10} md={3} lg={10} display='flex' justifyContent='flex-end' alignContent='center' flexDirection='column' alignItems='center'>
-                                    <MDBox width='100%' display='flex' flexDirection='column'>
-                                        <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
-                                            {battle?.isNifty && <MDTypography mr={0.25} fontSize={10} style={{backgroundColor: '#fb8c00' ,padding: '1px 1px 0px 1px', border: "1px solid #fb8c00", borderRadius: '2px', alignItems: 'center', color:'white' }} fontWeight='bold' color='dark'>NIFTY</MDTypography>}
-                                            {battle?.isBankNifty && <MDTypography mr={0.25} fontSize={10} style={{backgroundColor: '#fb8c00' , padding: '1px 1px 0px 1px', border: "1px solid #fb8c00", borderRadius: '2px', alignItems: 'center', color:'white' }} fontWeight='bold' color='dark'>BANKNIFTY</MDTypography>}
-                                            {battle?.isFinNifty && <MDTypography fontSize={10} style={{backgroundColor: '#fb8c00' , padding: '1px 1px 0px 1px', border: "1px solid #fb8c00", borderRadius: '2px', alignItems: 'center', color:'white' }} fontWeight='bold' color='dark'>FINNIFTY</MDTypography>}
-                                        </MDBox>
-                                    </MDBox>
-                                </Grid>
-                                <Grid mt={1} item xs={12} md={3} lg={12} display='flex' justifyContent='flex-end' alignContent='center' flexDirection='column' alignItems='center'>
-                                    <MDBox width='100%' display='flex' flexDirection='column'>
-                                        <MDBox display='flex' justifyContent='center' alignItems='center'>
-                                            <img src={Gift} width='65px' height='65px' />
-                                        </MDBox>
-                                    </MDBox>
-                                </Grid>
-                                <Grid mt={1} item xs={12} md={3} lg={12} display='flex' justifyContent='flex-end' alignContent='center' flexDirection='column' alignItems='center'>
-                                    <MDBox display='flex' justifyContent='center' width='100%'>       
-                                        <MDTypography fontSize={15} fontWeight='bold'>Reward Pool Worth ₹{formatIndianNumber(battle?.rewards?.reduce((acc,curr)=>acc+curr.prizeValue,0))}/-</MDTypography>
-                                    </MDBox>
-                                </Grid>
-                                <Grid item mt={0.5} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
-                                    <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                        <MDBox color={"#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center', color:'white' }} fontWeight='bold' color='light'>Entry Fee : ₹{battle?.entryFee}</MDTypography></MDBox>
-                                    </MDBox>
+                <Grid container spacing={1} display='flex' justifyContent='start' alignItems='center' xs={12} md={12} lg={12}>
+                    {battles?.map((battle) => {
+                        return (
+                            <Grid item xs={12} md={6} lg={4} key={battle?._id}>
+                                <MDBox bgColor='light' borderRadius={5} display='flex' justifyContent='center'>
+                                    <Grid container p={1} spacing={1} xs={12} md={6} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                        <Grid item xs={2} md={3} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                            <img src={BattleIcon} width='35px' height='35px' />
+                                        </Grid>
+                                        <Grid item xs={10} md={3} lg={10} display='flex' justifyContent='flex-end' flexDirection='column' alignContent='center' alignItems='center'>
+                                            <MDBox width='100%'>
+                                                <MDBox display='flex' justifyContent='flex-end'><MDTypography fontSize={18} fontWeight='bold'>{battle?.battleName}</MDTypography></MDBox>
+                                                <MDBox display='flex' justifyContent='flex-end'><MDTypography fontSize={10} fontWeight='bold'>Starts: {moment(battle?.battleStartTime).tz('Asia/Kolkata').format('DD MMM YYYY | hh:mm A')}</MDTypography></MDBox>
+                                                <MDBox display='flex' justifyContent='flex-end'><MDTypography fontSize={10} fontWeight='bold'>Ends: {moment(battle?.battleEndTime).tz('Asia/Kolkata').format('DD MMM YYYY | hh:mm A')}</MDTypography></MDBox>
+                                            </MDBox>
+                                        </Grid>
+                                        <Grid item xs={2} md={3} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                            {/* <img src={BattleIcon} width='35px' height='35px' /> */}
+                                        </Grid>
+                                        <Grid item xs={10} md={3} lg={10} display='flex' justifyContent='flex-end' alignContent='center' flexDirection='column' alignItems='center'>
+                                            <MDBox width='100%' display='flex' flexDirection='column'>
+                                                <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    {battle?.isNifty && <MDTypography mr={0.25} fontSize={10} style={{ backgroundColor: '#fb8c00', padding: '1px 1px 0px 1px', border: "1px solid #fb8c00", borderRadius: '2px', alignItems: 'center', color: 'white' }} fontWeight='bold' color='dark'>NIFTY</MDTypography>}
+                                                    {battle?.isBankNifty && <MDTypography mr={0.25} fontSize={10} style={{ backgroundColor: '#fb8c00', padding: '1px 1px 0px 1px', border: "1px solid #fb8c00", borderRadius: '2px', alignItems: 'center', color: 'white' }} fontWeight='bold' color='dark'>BANKNIFTY</MDTypography>}
+                                                    {battle?.isFinNifty && <MDTypography fontSize={10} style={{ backgroundColor: '#fb8c00', padding: '1px 1px 0px 1px', border: "1px solid #fb8c00", borderRadius: '2px', alignItems: 'center', color: 'white' }} fontWeight='bold' color='dark'>FINNIFTY</MDTypography>}
+                                                </MDBox>
+                                            </MDBox>
+                                        </Grid>
+                                        <Grid mt={1} item xs={12} md={3} lg={12} display='flex' justifyContent='flex-end' alignContent='center' flexDirection='column' alignItems='center'>
+                                            <MDBox width='100%' display='flex' flexDirection='column'>
+                                                <MDBox display='flex' justifyContent='center' alignItems='center'>
+                                                    <img src={Gift} width='65px' height='65px' />
+                                                </MDBox>
+                                            </MDBox>
+                                        </Grid>
+                                        <Grid mt={1} item xs={12} md={3} lg={12} display='flex' justifyContent='flex-end' alignContent='center' flexDirection='column' alignItems='center'>
+                                            <MDBox display='flex' justifyContent='center' width='100%'>
+                                                <MDTypography fontSize={15} fontWeight='bold'>Reward Pool Worth ₹{formatIndianNumber(battle?.rewards?.reduce((acc, curr) => acc + curr.prizeValue, 0))}/-</MDTypography>
+                                            </MDBox>
+                                        </Grid>
+                                        <Grid item mt={0.5} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
+                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
+                                                <MDBox color={"#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center', color: 'white' }} fontWeight='bold' color='light'>Entry Fee : ₹{battle?.entryFee}</MDTypography></MDBox>
+                                            </MDBox>
 
-                                    <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                        <MDBox color={"#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center', color:'white' }} fontWeight='bold' color='light'>Portfolio: ₹{battle?.portfolio?.portfolioValue}</MDTypography></MDBox>
+                                            <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
+                                                <MDBox color={"#DBB670"}><MDTypography fontSize={10} style={{ backgroundColor: 'black', color: "black", padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center', color: 'white' }} fontWeight='bold' color='light'>Portfolio: ₹{battle?.portfolio?.portfolioValue}</MDTypography></MDBox>
+                                            </MDBox>
+                                        </Grid>
+                                        <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                            <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
+                                                <ProgressBar />
+                                            </MDBox>
+                                        </Grid>
+                                        <Grid item xs={12} md={12} lg={12} mt={0.5}>
+                                            <MDBox display="flex" justifyContent="space-between">
+                                                <MDBox color="light" fontSize={10}>
+                                                    <MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>REWARD TYPE: {battle?.rewardType}</MDBox>
+                                                </MDBox>
+                                                <MDBox color="light" fontSize={10}>
+                                                    <MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>MIN. PARTICIPANTS:{battle?.minParticipants}</MDBox>
+                                                </MDBox>
+                                            </MDBox>
+                                        </Grid>
+                                        <Grid item xs={12} md={3} lg={12} display='flex' justifyContent='space-between' alignContent='center' flexDirection='row' alignItems='center'>
+                                    {/* <MDBox><MDButton size='small' color='success'>Book Now</MDButton></MDBox> */}
+                                    <MDBox>
+                                        <MDButton 
+                                            variant='contained' 
+                                            size='small' 
+                                            color='success'
+                                            component={Link}
+                                            to='/battleground/BattleOfTeens'  
+                                        >
+                                            View Details
+                                        </MDButton>
                                     </MDBox>
-                                </Grid>
-                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                    <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                        <ProgressBar />
-                                    </MDBox>
-                                </Grid>
-                                <Grid item xs={12} md={12} lg={12} mt={0.5}>
-                                    <MDBox display="flex" justifyContent="space-between">
-                                        <MDBox color="light" fontSize={10}>
-                                            <MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>REWARD TYPE: {battle?.rewardType}</MDBox>
-                                        </MDBox>
-                                        <MDBox color="light" fontSize={10}>
-                                            <MDBox color={"dark"} style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>MIN. PARTICIPANTS:{battle?.minParticipants}</MDBox>
-                                        </MDBox>
-                                    </MDBox>
-                                </Grid>
-                                <Grid item xs={12} md={3} lg={12} display='flex' justifyContent='space-between' alignContent='center' flexDirection='row' alignItems='center'>
                                     <MDBox>
                                         <Payment elem={battle} />
                                         {/* <MDButton size='small' color='success'>Book Now</MDButton> */}
                                     </MDBox>
                                     <MDBox><MDButton size='small' color='success'>View Details</MDButton></MDBox>
-                                </Grid>
+                                </Grid >
                                 
-                            </Grid>
+                            </Grid >
                             
-                        </MDBox>
-                    </Grid>
+                        </MDBox >
+                    </Grid >
                     )
                 })}
                 {battles?.length == 0 && 
@@ -272,9 +284,9 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                         </Grid>
                     </MDBox>
                  }
-                </Grid>
-                {renderSuccessSB}
-            </MDBox>
+                </Grid >
+        { renderSuccessSB }
+            </MDBox >
         </>
     );
 }
