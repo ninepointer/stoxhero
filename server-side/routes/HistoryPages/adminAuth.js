@@ -67,7 +67,103 @@ const MarginDetailLiveCompany = require("../../models/marginUsed/infinityLiveCom
 const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMargin")
 const DailyContest = require("../../models/DailyContest/dailyContest")
 const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
+const InternBatch = require("../../models/Careers/internBatch")
 
+
+
+router.get("/collegeData", async (req, res) => {
+  // {
+  //   from: "colleges",
+  //   localField: "_id",
+  //   foreignField: "_id",
+  //   as: "college"
+  // }
+  const x = await InternBatch.aggregate([
+    {
+      $unwind: "$participants",
+    },
+    {
+      $lookup: {
+        from: "intern-trades",
+        localField: "participants.user",
+        foreignField: "trader",
+        as: "tradeData",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          college: "$participants.college",
+          hasTradeData: { $cond: { if: { $gt: [{ $size: "$tradeData" }, 0] }, then: true, else: false } },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: "$_id.college",
+        hasTradeDataCounts: {
+          $push: {
+            hasTradeData: "$_id.hasTradeData",
+            count: "$count",
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "colleges",
+        localField: "_id",
+        foreignField: "_id",
+        as: "college",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        college: "$_id",
+        collegeName: {
+          $arrayElemAt: ["$college.collegeName", 0],
+        },
+        activeUser: {
+          $sum: {
+            $map: {
+              input: "$hasTradeDataCounts",
+              as: "entry",
+              in: {
+                $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+              },
+            },
+          },
+        },
+        inactiveUser: {
+          $sum: {
+            $map: {
+              input: "$hasTradeDataCounts",
+              as: "entry",
+              in: {
+                $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $sort: { college: -1 },
+    },
+    {
+      $skip: 0,
+    },
+    {
+      $limit: 2,
+    },
+  ]
+  )
+
+  res.send(x)
+
+});
 
 router.get("/tenxUpdate", async (req, res) => {
 

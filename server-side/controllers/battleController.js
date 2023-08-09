@@ -3,6 +3,9 @@ const Battle = require('../models/battles/battle');
 const User = require("../models/User/userDetailSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const { ObjectId } = require('mongodb');
+const uuid = require("uuid")
+const emailService = require("../utils/emailService")
+
 
 exports.createBattle = async (req, res) => {
     try {
@@ -574,7 +577,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
         const userId = req.user._id;
 
         const battle = await Battle.findOne({ _id: battleId });
-        const wallet = await UserWallet.findOne({ userId: userId });
+        const wallet = await Wallet.findOne({ userId: userId });
         const user = await User.findOne({ _id: userId });
 
         const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
