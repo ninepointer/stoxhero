@@ -15,33 +15,32 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 
 export default function Dashboard({overallRevenue}) {
-console.log(overallRevenue)
-
 const withdrawalData = {
-    totalRevenue: 0,
-    revenueToday: 0,
-    revenueYesterday: 0,
-    revenueThisWeek: 0,
-    revenueLastWeek: 0,
-    revenueThisMonth: 0,
-    revenueLastMonth: 0,
-    revenueThisYear: 0,
-    revenueLastYear: 0
+    totalRevenue: overallRevenue?.lastYearsWithdrawals + overallRevenue?.thisYearsWithdrawals,
+    revenueToday: overallRevenue?.todaysWithdrawals,
+    revenueYesterday: overallRevenue?.yesterdaysWithdrawals,
+    revenueThisWeek: overallRevenue?.thisWeeksWithdrawals,
+    revenueLastWeek: overallRevenue?.lastWeeksWithdrawals,
+    revenueThisMonth: overallRevenue?.thisMonthsWithdrawals,
+    revenueLastMonth: overallRevenue?.lastMonthsWithdrawals,
+    revenueThisYear: overallRevenue?.thisYearsWithdrawals,
+    revenueLastYear: overallRevenue?.lastYearsWithdrawals
   };
   
-  Object.entries(overallRevenue).forEach(([title, details]) => {
-    if (title.includes("Withdrawal") && !title.includes("Refund")) {
-      withdrawalData.totalRevenue += Math.abs(details.totalRevenue);
-      withdrawalData.revenueToday += Math.abs(details.revenueToday);
-      withdrawalData.revenueYesterday += Math.abs(details.revenueYesterday);
-      withdrawalData.revenueThisWeek += Math.abs(details.revenueThisWeek);
-      withdrawalData.revenueLastWeek += Math.abs(details.revenueLastWeek);
-      withdrawalData.revenueThisMonth += Math.abs(details.revenueThisMonth);
-      withdrawalData.revenueLastMonth += Math.abs(details.revenueLastMonth);
-      withdrawalData.revenueThisYear += Math.abs(details.revenueThisYear);
-      withdrawalData.revenueLastYear += Math.abs(details.revenueLastYear);
-    }
-  });
+//   Object.entries(overallRevenue).forEach(([title, details]) => {
+//     if (title.includes("Withdrawal") && !title.includes("Refund")) {
+//       console.log('title', title, details);  
+//       withdrawalData.totalRevenue += Math.abs(details.totalRevenue);
+//       withdrawalData.revenueToday += Math.abs(details.revenueToday);
+//       withdrawalData.revenueYesterday += Math.abs(details.revenueYesterday);
+//       withdrawalData.revenueThisWeek += Math.abs(details.revenueThisWeek);
+//       withdrawalData.revenueLastWeek += Math.abs(details.revenueLastWeek);
+//       withdrawalData.revenueThisMonth += Math.abs(details.revenueThisMonth);
+//       withdrawalData.revenueLastMonth += Math.abs(details.revenueLastMonth);
+//       withdrawalData.revenueThisYear += Math.abs(details.revenueThisYear);
+//       withdrawalData.revenueLastYear += Math.abs(details.revenueLastYear);
+//     }
+//   });
   
   console.log(withdrawalData);
 
