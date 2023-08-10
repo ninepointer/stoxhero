@@ -228,7 +228,7 @@ exports.getOnlyUpcomingContests = async (req, res) => {
 exports.getAdminUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestStartTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
+            contestStartTime: { $gt: new Date() }, contestStatus:"Active"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
