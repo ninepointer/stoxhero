@@ -114,9 +114,9 @@ const Timer = ({socket}) => {
       }
 
       if(now.getTime() > appOfflineTime.getTime()) {
-        let time = new Date(`${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`);
+        // let time = new Date(`${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`);
         // console.log("changeDateFormat", changeDateFormat(time))
-        setRemainingTime(`Trading Resumes at ${changeDateFormat(time)}`);
+        setRemainingTime(`Trading Resumes at ${changeDateFormat(nextTradingDay)}`);
         setColor("red")
         setTimerVisibility(false);
       }

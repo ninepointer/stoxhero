@@ -18,6 +18,7 @@ function sleep(ms) {
 
 async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
 
+  console.log(ApiKey,SecretKey,UserId,Password)
     const {accountId, status} = req.body;
     const {userId} = req.user;
     (async () => {

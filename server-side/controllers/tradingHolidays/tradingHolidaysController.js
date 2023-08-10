@@ -161,7 +161,7 @@ exports.nextTradingDay = async (req, res, next) => {
             return true;
         }
 
-        for (let i = 0; i < 30; i++) {
+        for (let i = 1; i < 30; i++) {
             let date = new Date();
             let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate() + i).padStart(2, '0')}`
             const currentDate = new Date(todayDate);

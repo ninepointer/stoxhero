@@ -48,15 +48,6 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
     }, {});
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
-    // const initialPayment = contest.reduce((acc, elem) => {
-    //     acc[elem._id] = {
-    //         payment: false,
-    //         count: elem?.interestedUsers?.length || 0,
-    //     };
-    //     return acc;
-    // }, {});
-    // const [paymentState, setPaymentState] = useState(initialPayment);
-
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
         const textarea = document.createElement('textarea');

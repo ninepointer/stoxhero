@@ -3,9 +3,8 @@ import axios from "axios";
 
 const Timer = ({date, setTimeDifference, serverTime, id, elem}) => {
   const [remainingTime, setRemainingTime] = useState(null);
-  // const [serverTime, setServerTime] = useState();
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  // const []
+  const [serverTime, setServerTime] = useState();
+
 
   useEffect(() => {
     const targetDate = new Date(date); // Replace with your specific date and time
