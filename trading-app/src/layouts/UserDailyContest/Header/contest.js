@@ -17,7 +17,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
-export default function LabTabs() {
+export default function LabTabs({socket}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     const [isLoading, setIsLoading] = useState(false);
@@ -117,7 +117,7 @@ export default function LabTabs() {
                             {paid.length !== 0 &&
                             <>
                                 <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Paid Contest(s)</MDTypography>
-                                <PaidContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
+                                <PaidContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
                             </>
                             }
                         </Grid>
@@ -129,7 +129,7 @@ export default function LabTabs() {
                             <>
                                 <MDTypography  color="light" fontSize={15} fontWeight="bold" ml={0.5} mt={1}>Free Contest(s)</MDTypography>
                                 <MDBox style={{ minWidth: '100%' }}>
-                                    <FreeContest contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} />
+                                    <FreeContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} />
                                 </MDBox>
                             </>
                             }

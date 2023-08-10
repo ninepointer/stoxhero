@@ -184,7 +184,7 @@ function Index() {
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
     const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/contests`, {
+    const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
       headers: {

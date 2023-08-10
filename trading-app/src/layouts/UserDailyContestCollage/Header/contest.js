@@ -31,17 +31,17 @@ import { Box, CircularProgress, Divider, Tooltip, Typography } from "@mui/materi
 import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
-import PastContest from "../data/pastContest";
+// import PastContest from "../data/pastContest";
 import { Link } from "react-router-dom";
 
 
-function Header({ e }) {
+function Header({socket}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [isInterested, setIsInterested] = useState(false);
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    const [serverTime, setServerTime] = useState();
+    // const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
     const [isInterestedState, setIsInterestedState] = useState({});
 
@@ -89,34 +89,34 @@ function Header({ e }) {
         })
     }, [isInterested])
 
-    useEffect(()=>{
-        if(serverTime){
-            setTimeout(()=>{
-                setIsLoading(false)
-            },1000)
-        }
-    }, [serverTime])
+    // useEffect(()=>{
+    //     if(serverTime){
+    //         setTimeout(()=>{
+    //             setIsLoading(false)
+    //         },1000)
+    //     }
+    // }, [serverTime])
 
-    useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/servertime`)
-        .then((res)=>{
-            setServerTime(res.data.data);
-        })
-    }, [])
+    // useEffect(()=>{
+    //     axios.get(`${baseUrl}api/v1/servertime`)
+    //     .then((res)=>{
+    //         setServerTime(res.data.data);
+    //     })
+    // }, [])
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-          axios.get(`${baseUrl}api/v1/servertime`)
-            .then((res) => {
-                console.log("server time", res.data.data)
-              setServerTime(res.data.data);
-            });
-        }, 5000);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //       axios.get(`${baseUrl}api/v1/servertime`)
+    //         .then((res) => {
+    //             console.log("server time", res.data.data)
+    //           setServerTime(res.data.data);
+    //         });
+    //     }, 5000);
       
-        return () => {
-          clearInterval(interval);
-        };
-    }, []);
+    //     return () => {
+    //       clearInterval(interval);
+    //     };
+    // }, []);
 
     useEffect(()=>{
         const initialInterestedCounts = contest.reduce((acc, elem) => {
@@ -211,14 +211,14 @@ function Header({ e }) {
         <>
             <MDBox mr={1}>
 
-                {loading && serverTime ?
+                {loading ?
                     <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
                         <CircularProgress color="light" />
                     </MDBox>
                     :
                     <>
                         <MDBox mt={-1} p={0.5} mb={0} width='100%' bgColor='light' minHeight='auto' display='flex' borderRadius={7}>
-                            <MDButton bgColor='dark' color={"warning"} size='small' 
+                            <MDButton bgColor='dark' color={"warning"} size='small'
                                 component={Link}
                                 to={{
                                     pathname: `/completedcollegecontests`,
@@ -296,14 +296,14 @@ function Header({ e }) {
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                {!loading && <Timer date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />}
+                                                                <Timer socket={socket} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} />
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹"+elem?.entryFee : "FREE"}</MDTypography></MDBox>
+                                                            <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'black', padding: '2px 2px 1px 2px', border: '1px solid black', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>Entry Fee : {elem?.entryFee ? "₹" + elem?.entryFee : "FREE"}</MDTypography></MDBox>
                                                         </MDBox>
 
                                                         <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
@@ -344,7 +344,7 @@ function Header({ e }) {
 
                                                             <MDBox display='flex' justifyContent='flex-end' width='50%' alignItems='center'>
                                                                 <MDBox><PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value} /></MDBox>
-                                                                <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={()=>{handleCopy(elem?._id)}}><ShareIcon size='large' /></MDButton></MDBox></Tooltip>
+                                                                <Tooltip title='Share it with your friends'><MDBox ml={1}><MDButton variant='outlined' size='small' color='info' onClick={() => { handleCopy(elem?._id) }}><ShareIcon size='large' /></MDButton></MDBox></Tooltip>
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -359,8 +359,8 @@ function Header({ e }) {
                             }
                         </Grid>
                     </>
-                    }
-                    {renderSuccessSB}
+                }
+                {renderSuccessSB}
             </MDBox>
         </>
     );

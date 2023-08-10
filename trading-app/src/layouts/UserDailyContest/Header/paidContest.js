@@ -21,23 +21,21 @@ import Timer from '../timer'
 import ProgressBar from "../progressBar";
 import { HiUserGroup } from 'react-icons/hi';
 
-import { Box, CircularProgress, Divider, Tooltip, Typography } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
-function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
+function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    const [serverTime, setServerTime] = useState();
-    const [loading, setIsLoading] = useState(true);
 
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
-      }, []);
+    }, []);
 
     const initialInterestedCounts = contest.reduce((acc, elem) => {
         acc[elem._id] = {
@@ -68,35 +66,6 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
             })
         });
     };
-
-    useEffect(() => {
-        if (serverTime) {
-            setTimeout(() => {
-                setIsLoading(false)
-            }, 1000)
-        }
-    }, [serverTime])
-
-    useEffect(() => {
-        axios.get(`${baseUrl}api/v1/servertime`)
-            .then((res) => {
-                setServerTime(res.data.data);
-            })
-    }, [])
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            axios.get(`${baseUrl}api/v1/servertime`)
-                .then((res) => {
-                    console.log("server time", res.data.data)
-                    setServerTime(res.data.data);
-                });
-        }, 5000);
-
-        return () => {
-            clearInterval(interval);
-        };
-    }, []);
 
     function changeDateFormat(givenDate) {
 
@@ -173,6 +142,10 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
             sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto" }}
         />
     );
+
+    // const memoizedStockIndex = useMemo(() => {
+    //     return <StockIndex socket={socket} />;
+    //   }, [socket]);
 
     return (
         <>
@@ -253,7 +226,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                {!loading && <Timer elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />}
+                                                                <Timer socket={socket} elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} />
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -317,8 +290,6 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
-
-
                                                 </Grid>
                                             </MDButton>
 
