@@ -68,6 +68,7 @@ const saveMissedData = async () => {
             instrumentToken, symbol
         } = retreivedData[i];
 
+        console.log(order_timestamp)
         transaction_type = transaction_type.toUpperCase();
 
         let Quantity = quantity;
