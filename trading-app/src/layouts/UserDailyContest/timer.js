@@ -15,6 +15,7 @@ const Timer = ({socket, date, setTimeDifference, id, elem}) => {
     const targetDate = new Date(date); // Replace with your specific date and time
     const now = new Date(serverTime);
     const timeDifference = targetDate - now;
+    // console.log("timediffrence timer", timeDifference)
     setTimeDifference(prevArray => {
       const index = prevArray.findIndex(item => item.id === id);
 

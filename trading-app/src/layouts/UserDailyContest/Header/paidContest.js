@@ -1,5 +1,5 @@
 import { React, useState, useEffect, useContext } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
@@ -143,9 +143,7 @@ function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
         />
     );
 
-    // const memoizedStockIndex = useMemo(() => {
-    //     return <StockIndex socket={socket} />;
-    //   }, [socket]);
+    // console.log("timediffrence", timeDifference)
 
     return (
         <>
@@ -185,7 +183,7 @@ function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
                                         return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
                                     })
 
-                                    // console.log("timeDifference", particularContestTime[0]?.value )
+                                    // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                                     return (
                                         <Grid item xs={12} md={12} lg={6} borderRadius={3}>
                                             <MDButton variant="contained" style={{ backgroundColor: "#252525" }} color={"#252525"} size="small">

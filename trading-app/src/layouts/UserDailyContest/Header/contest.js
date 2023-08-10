@@ -16,9 +16,25 @@ import axios from "axios";
 import SchoolIcon from '@mui/icons-material/School';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import { io } from 'socket.io-client';
 
-export default function LabTabs({socket}) {
+export default function LabTabs() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+
+    let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+    let socket;
+    try {
+      socket = io.connect(`${baseUrl1}`)
+    } catch (err) {
+      throw new Error(err);
+    }
+  
+    useEffect(() => {
+      socket.on("connect", () => {
+        console.log("socket connected", socket.id)
+      })
+      ReactGA.pageview(window.location.pathname)
+    }, []);
 
     const [isLoading, setIsLoading] = useState(false);
     let [showPay, setShowPay] = useState(true);

@@ -34,7 +34,7 @@ const Timer = ({socket}) => {
 
   useEffect(()=>{
     socket.on("serverTime", (data)=>{
-      console.log("serverTime", data)
+      // console.log("serverTime", data)
       setServerTime(data)
     })
   }, [])

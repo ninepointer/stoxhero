@@ -107,7 +107,7 @@ const PopupTrading = ({elem, timeDifference}) => {
 
     return (
         <div>
-            {timeDifference &&
+            {timeDifference ?
             <MDButton
                 variant='outlined'
                 color= {elem?.entryFee>0 ? "light" :'warning'}
@@ -116,7 +116,9 @@ const PopupTrading = ({elem, timeDifference}) => {
                 onClick={() => { participateUserToContest(elem) }}
             >
                 <MDTypography color={elem?.entryFee>0 ? "light" :'warning'} fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
-            </MDButton>}
+            </MDButton>
+            :
+            ""}
             <div>
                 <Dialog
                     fullScreen={fullScreen}
@@ -124,7 +126,6 @@ const PopupTrading = ({elem, timeDifference}) => {
                     onClose={handleClose}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-                        {/* {"Option Chain"} */}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>

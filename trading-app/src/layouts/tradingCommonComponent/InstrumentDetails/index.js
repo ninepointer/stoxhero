@@ -55,6 +55,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const [isAppLive, setisAppLive] = useState('');
   const [successSB, setSuccessSB] = useState(false);
   const [instrumentName, setInstrumentName] = useState("");
+  const [showTimer, setShowTimer] = useState("");
   const openSuccessSB = () => setSuccessSB(true);
   const closeSuccessSB = () => setSuccessSB(false);
 
@@ -81,6 +82,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
     axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
       .then((res) => {
+        setShowTimer(res.data[0].timer)
         if(InfinityTraderRole == getDetail.userDetails.role.roleName){
           setisAppLive(res.data[0].infinityLive);
         } else{
@@ -319,8 +321,13 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
             color={isAppLive ? "success" : "error"}
             style={{display:"flex",alignItems:"center"}}
             >
+              {showTimer ?
               <Timer socket={socket}/>
-              {/* <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"} */}
+              :
+              <>
+              <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"}
+              </>
+              }
             </MDTypography>
         </MDBox>
       </MDBox>
