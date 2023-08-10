@@ -6,11 +6,15 @@ import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
 
+import DailyInternshipUsers from '../data/dailyInternshipUsers'
+import CollegeWiseData from '../data/collegeWiseData';
+
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [marketData, setMarketData] = useState([]);
+  const [dailyInternshipUsers, setDailyInternshipUsers] = useState();
   const [lastInternshipTradingDate,setLastInternshipTradingDate] = useState("");
   const [tradeData, setTradeData] = useState([]);
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
@@ -95,6 +99,14 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
+    axios.get(`${baseUrl}api/v1/internship/dailyinternshipusers`)
+    .then((res) => {
+        setDailyInternshipUsers(res.data.data);   
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
     axios.get(`${baseUrl}api/v1/internship/liveandtotaltradercountyesterday`)
     .then((res) => {
         console.log(res.data.data)
@@ -156,7 +168,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Internship Position - All Batches</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Internship Position - All Batches (Trader Side)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -206,7 +218,7 @@ export default function LabTabs({socket}) {
                     </Grid>
 
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Internship Trading Day - All Batches - {new Date(lastInternshipTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day - All Batches (Trader Side) - {new Date(lastInternshipTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "short"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -253,6 +265,22 @@ export default function LabTabs({socket}) {
                 </Grid>
                 </>
                 }
+            </Grid>
+        </Grid>
+
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    { dailyInternshipUsers && <DailyInternshipUsers dailyInternshipUsers={dailyInternshipUsers}/>}
+                </MDBox>
+            </Grid>
+        </Grid>
+
+        <Grid style={{borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    <CollegeWiseData />
+                </MDBox>
             </Grid>
         </Grid>
 

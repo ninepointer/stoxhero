@@ -9,7 +9,7 @@ useEffect(() => {
 const chartInstance = echarts.init(chartRef.current);
 const option = {
     title: {
-        text: 'Gross P&L'
+        text: 'Gross P&L and Net P&L'
       },
     tooltip: {
         trigger: 'axis',
@@ -27,6 +27,9 @@ const option = {
           saveAsImage: {}
         }
       },
+    legend: {
+        data: ['Gross P&L', 'Net P&L']
+    },  
     grid: {
         left: '3%',
         right: '4%',
@@ -44,17 +47,27 @@ const option = {
     ],
     yAxis: [
         {
-        type: 'value'
-        }
+        type: 'value',
+        name:'PNL Axis'
+        },
     ],
     series: [
         {
             name: 'Gross P&L',
-            type: 'bar',
+            type: 'line',
+            yAxisIndex:0,
             color:'#2e7d32',
-            barWidth: '60%',
-            data: dateWiseData.map((e)=>e.gpnl)
-        }
+            barWidth: '40%',
+            data: dateWiseData.map((e)=>e.gpnl?.toFixed(2))
+        },
+        {
+            name: 'Net P&L',
+            type: 'line',
+            yAxisIndex:0,
+            color:'#2e7d95',
+            barWidth: '40%',
+            data: dateWiseData.map((e)=>e.npnl?.toFixed(2))
+        },
     ]
 };
 chartInstance.setOption(option);

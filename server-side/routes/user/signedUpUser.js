@@ -15,12 +15,13 @@ const PortFolio = require("../../models/userPortfolio/UserPortfolio")
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 const Campaign = require("../../models/campaigns/campaignSchema")
 const uuid = require('uuid');
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
+
 
 router.post("/signup", async (req, res) => {
-    // console.log("Inside SignUp Routes")
     const { first_name, last_name, email, mobile } = req.body;
-    // console.log(req.body)
-    // console.log(!first_name || !last_name || !email || !mobile)
+
     if (!first_name || !last_name || !email || !mobile) {
         return res.status(400).json({ status: 'error', message: "Please fill all fields to proceed." })
     }
@@ -31,7 +32,10 @@ router.post("/signup", async (req, res) => {
             status: 'error'
         });
     }
-    const signedupuser = await SignedUpUser.findOne({ $or: [{ email: email }, { mobile: mobile }] })
+    const signedupuser = await SignedUpUser.findOne({ $or: [{ email: email }, { mobile: mobile }] });
+    if (signedupuser?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(signedupuser?.lastOtpTime)) {
+        return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+      }
     let mobile_otp = otpGenerator.generate(6, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 
     // User sign up detail saving
@@ -56,7 +60,7 @@ router.post("/signup", async (req, res) => {
             status: 'success'
         });
 
-        if(process.env.PROD){
+        if(process.env.PROD == 'true'){
             sendOTP(mobile.toString(), mobile_otp);
         } else{
             sendOTP("9319671094", mobile_otp);
@@ -120,8 +124,7 @@ router.patch("/verifyotp", async (req, res) => {
     if (referrerCode) {
         const referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
         const campaignCodeMatch = await Campaign.findOne({ campaignCode: referrerCode })
-        // console.log(!referrerCodeMatch, !campaignCodeMatch, !referrerCodeMatch || !campaignCodeMatch)
-
+        
         if (!referrerCodeMatch && !campaignCodeMatch) {
             return res.status(404).json({ status: 'error', message: "No such referrer code exists. Please enter a valid referrer code" });
         }
@@ -138,9 +141,9 @@ router.patch("/verifyotp", async (req, res) => {
 
     const myReferralCode = await generateUniqueReferralCode();
     // const count = await User.countDocuments();
-    const userId = email.split('@')[0]
-    const userIds = await User.find({ employeeid: userId })
-    console.log("User Ids: ", userIds)
+    let userId = email.split('@')[0]
+    let userIds = await User.find({ employeeid: userId })
+   
     if (userIds.length > 0) {
         userId = userId.toString() + (userIds.length + 1).toString()
     }
@@ -179,14 +182,44 @@ router.patch("/verifyotp", async (req, res) => {
         }
 
         const newuser = await User.create(obj);
-        // const token = await newuser.generateAuthToken();
+        const populatedUser = await User.findById(newuser._id).populate('role', 'roleName')
+        .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
+        .populate({
+            path : 'subscription.subscriptionId',
+            select: 'portfolio',
+            populate: [{
+                path: 'portfolio',
+                select: 'portfolioName portfolioValue portfolioType portfolioAccount'
+            },
+            ]
+        })
+        .populate({
+            path: 'internshipBatch',
+            select: 'batchName batchStartDate batchEndDate career portfolio participants',
+            populate: [{
+                path: 'career',
+                select: 'jobTitle'
+            },
+            {
+                path: 'portfolio',
+                select: 'portfolioValue'
+            },
+            {
+                path: 'participants',
+                populate: {
+                    path: 'college',
+                    select: 'collegeName'
+                }
+            }
+        ],
+          })
+        .select('pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
+        const token = await newuser.generateAuthToken();
 
-        // res.cookie("jwtoken", token, {
-        //     expires: new Date(Date.now() + 25892000000),
-        // });
-
-        // console.log("token", token);
-        res.status(201).json({ status: "Success", data: newuser, message: "Welcome! Your account is created, please login with your credentials." });
+        res.cookie("jwtoken", token, {
+            expires: new Date(Date.now() + 25892000000),
+        });    
+        res.status(201).json({ status: "Success", data: populatedUser, message: "Welcome! Your account is created, please login with your credentials.", token });
         
         // now inserting userId in free portfolio's
         const idOfUser = newuser._id;
@@ -201,15 +234,15 @@ router.patch("/verifyotp", async (req, res) => {
 
         //inserting user details to referredBy user and updating wallet balance
         if (referredBy) {
-            // console.log("Inside User update in referral: ", referredBy)
+            
             referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             referral.save();
-            // console.log(referral?.users)
-            // const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
-            //     $set: {
-            //         users: referral?.users
-            //     }
-            // })
+            
+            const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
+                $set: {
+                    users: referral?.users
+                }
+            })
 
             if (referrerCode) {
                 let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
@@ -234,9 +267,7 @@ router.patch("/verifyotp", async (req, res) => {
             }
         }
 
-        // console.log("Campaign: ", campaign)
         if (campaign) {
-            // console.log("Inside setting user to campaign")
             campaign?.users?.push({ userId: newuser._id, joinedOn: new Date() })
             campaign.save();
             // const campaignData = await Campaign.findOneAndUpdate({ _id: campaign._id }, {
@@ -244,7 +275,6 @@ router.patch("/verifyotp", async (req, res) => {
             //         users: campaign?.users
             //     }
             // })
-            // console.log(campaignData)
         }
 
         // let lead = await Lead.findOne({ $or: [{ email: newuser.email }, { mobile: newuser.mobile }] });
@@ -260,14 +290,14 @@ router.patch("/verifyotp", async (req, res) => {
                 userId: newuser._id,
                 createdOn: new Date(),
                 createdBy: newuser._id
-            })
+        })
 
 
         if (!newuser) return res.status(400).json({ status: 'error', message: 'Something went wrong' });
 
         // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
         // let email = newuser.email;
-        let subject = "Account Created - StoxHero";
+        let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
         let message =
             `
             <!DOCTYPE html>
@@ -339,19 +369,44 @@ router.patch("/verifyotp", async (req, res) => {
                 <body>
                     <div class="container">
                     <h1>Account Created</h1>
-                    <p>Hello ${newuser.first_name},</p>
-                    <p>Welcome to our Option Trading Platform StoxHero!</p>
-                    <p>Get ready to dive into the exciting world of options trading with StoxHero. Whether you're a seasoned trader or new to the game, we're here to provide you with the tools and resources you need to navigate the market and maximize your potential.</p>
-                    <p>We're super pumped to have you with us. Let's continue to learn and earn by exploring the endless opportunities in the realm of options trading.</p>
-                    <p>Please login with your credentials.</p>
-                    <p>Happy trading!</p>
-                    <a href="https://www.stoxhero.com/" class="login-button">Log In</a>
+                    <p>Dear ${newuser.first_name} ${newuser.last_name},</p>
+                    <p>Welcome to StoxHero - Your Gateway to the Exciting World of Options Trading and Earning! </p>
+                    <p> StoxHero is a specialized Intraday Options Trading Platform focusing on indices such as NIFTY, BANKNIFTY & FINNIFTY.</p>
+                    <p>Congratulations on joining our ever-growing community of traders and learners. We are thrilled to have you onboard and can't wait to embark on this exciting journey together. At StoxHero, we offer a range of programs designed to help you learn and excel in trading while providing you with opportunities to earn real profits from virtual currency. Let's dive into the fantastic programs that await you:</p>
+                    <p>1. Virtual Trading:
+                    Start your trading experience with a risk-free environment! In Virtual Trading, you get INR 10L worth of virtual currency to practice your trading skills, test strategies, and build your profit and loss (P&L) under real market scenarios without any investment. It's the perfect platform to refine your trading strategies and gain confidence before entering the real market.</p>
+                    <p>2. Ten X:
+                    Participate in our Ten X program and explore various trading opportunities. Trade with virtual currency and, after completing 20 trading days, you become eligible for a remarkable 10% profit share or profit CAP amount from the net profit you make in the program. You'll not only learn trading but also earn real money while doing so - a win-win situation!</p>
+                    <p>3. Contests:
+                    Challenge yourself in daily contests where you compete with other users based on your P&L. You'll receive virtual currency to trade with, and your profit share from the net P&L you achieve in each contest will add to your earnings. With different contests running, you have the flexibility to choose and participate as per your preference.</p>
+                    <p>4. College Contest:
+                    Attention college students! Our College Contest is tailored just for you. Engage in daily intraday trading contests, and apart from receiving profit share from your net P&L, the top 3 performers will receive an appreciation certificate highlighting their outstanding performance.</p>
+                    <p>To help you get started and make the most of our programs, we've prepared comprehensive tutorial videos for each of them:</p>
+                    <p><a href='https://youtu.be/6wW8k-8zTXY'>Virtual Trading Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=a3_bmjv5tXQ'>Ten X Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>Contests Tutorial</a></br>
+                    <a href='https://www.youtube.com/watch?v=aqh95E7DbXo'>College Contest Tutorial</a></p>
+                    <p>For any queries or assistance, our dedicated team is always here to support you. Feel free to connect with us on different platforms:
+                    </p>
+                    <p><a href='https://t.me/stoxhero_official'>Telegram</a></br>
+                    <a href='https://www.facebook.com/profile.php?id=100091564856087'>Facebook</a></br>
+                    <a href='https://instagram.com/stoxhero_official?igshid=MzRlODBiNWFlZA=='>Instagram</a></br>
+                    <a href='https://www.youtube.com/@stoxhero_official/videos'>YouTube</a></p>
+                    <p>StoxHero is open to everyone who aspires to learn options intraday trading in a risk-free environment and analyze their performance to enhance their strategies. Moreover, with the chance to earn real profits through our programs, StoxHero provides an excellent platform for everyone to learn and earn. Be your own boss, take charge, and unlock the potential within you!</p>
+                    <p>We are excited to inform you that our system goes online every day at 09:20 AM, and all trades get automatically squared off at 3:20 PM. This ensures that your trading process remains smooth and consistent.</p>
+                    <p>We hope you enjoy your trading journey with StoxHero. Should you have any questions or require assistance at any stage, don't hesitate to reach out to us.</p>
+                    <p>Happy Trading and Learning!</p>
+                    <p>Best regards,</br>
+                    Team StoxHero</p>
+                    <a href="https://www.stoxhero.com/" class="login-button">Start your journey now</a>
                     </div>
                 </body>
                 </html>
 
             `
-        emailService(newuser.email, subject, message);
+        if(process.env.PROD == 'true'){
+            emailService(newuser.email, subject, message);
+        }
     }
     catch (error) {
         console.log(error);
@@ -368,6 +423,9 @@ router.patch("/resendotp", async (req, res)=>{
             message: "User with this email doesnt exist"
         })
     }
+    if (user?.lastOtpTime && moment().subtract(29, 'seconds').isBefore(user?.lastOtpTime)) {
+        return res.status(429).json({ message: 'Please wait a moment before requesting a new OTP' });
+      }
     let email_otp = otpGenerator.generate(6, { upperCaseAlphabets: true,lowerCaseAlphabets: false, specialChars: false });
     let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
     let subject = "OTP from StoxHero";
@@ -442,8 +500,8 @@ router.patch("/resendotp", async (req, res)=>{
     if(type == 'mobile'){
         user.mobile_otp = mobile_otp;
         // sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);
-        sendOTP(mobile.toString(), mobile_otp);
-        if(!process.env.PROD)sendOTP("9319671094", mobile_otp);    
+        if(process.env.PROD=='true')sendOTP(mobile.toString(), mobile_otp);
+       if(process.env.PROD!=='true')sendOTP("9319671094", mobile_otp);    
     }
     else if(type == 'email'){
         user.email_otp = email_otp;
@@ -456,7 +514,7 @@ router.patch("/resendotp", async (req, res)=>{
     });
 });
 
-router.get("/signedupusers", (req, res)=>{
+router.get("/signedupusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     SignedUpUser.find()
     .sort({createdOn:-1})
     .exec((err, data)=>{
@@ -468,16 +526,13 @@ router.get("/signedupusers", (req, res)=>{
     })
 })
 
-router.put("/updatesignedupuser/:id", async (req, res)=>{
-    console.log(req.params)
-    console.log("this is body", req.body);
+router.put("/updatesignedupuser/:id", Authenticate, async (req, res)=>{
 
     try{
         const {id} = req.params
-        //console.log(id)
 
         const signedupuser = await SignedUpUser.findOne({_id: id})
-        //console.log("user", user)
+
         signedupuser.status = req.body.Status,
 
         await signedupuser.save();

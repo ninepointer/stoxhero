@@ -222,6 +222,7 @@ const MapUser = ({algoId}) => {
   async function deletehandler(id){
       const response = await fetch(`${baseUrl}api/v1/readpermission/${id}`, {
           method: "DELETE",
+          credentials: "include"
       });
       const permissionData = await response.json();
 

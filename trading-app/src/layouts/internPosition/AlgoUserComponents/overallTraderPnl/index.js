@@ -42,7 +42,7 @@ function OverallTraderPNL({socket, batches, setBatches, selectedBatch, setSelect
   let totalRunningLots = 0;
 
     useEffect(()=>{
-      axios.get(`${baseUrl}api/v1/internbatch/active`).
+      axios.get(`${baseUrl}api/v1/internbatch/active`, {withCredentials:true}).
       then((res)=>{
         setBatches(res.data.data);
         setSelectedBatch(res.data.data[0]?._id)

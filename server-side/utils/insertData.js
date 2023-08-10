@@ -16,9 +16,10 @@ const saveMissedData = async () => {
         {
             $match: {
                 order_timestamp: {
-                    $gte: new Date("2023-06-19"),
-                    $lte: new Date("2023-06-20"),
+                    $gte: new Date("2023-08-04"),
+                    $lt: new Date("2023-08-05"),
                 },
+                status: "COMPLETE"
             },
         },
         {
@@ -206,7 +207,7 @@ const saveMissedData = async () => {
                   const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
 
                    isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
-                   console.log(algoTrader, liveCompanyTrade, algoTraderLive, mockCompany)
+                   console.log(algoTrader, liveCompanyTrade, algoTraderLive, mockCompany, order_timestamp)
 
             } catch (err) {
                 console.log(err);
@@ -234,36 +235,65 @@ const saveMissedData = async () => {
 }
 
 
-const saveRetreiveData = async (symbol, amount1, lot1, amount2, lot2, type) => {
+const saveRetreiveData = async (symbol, amount1, lot1, amount2, lot2, type, dateString, date) => {
 
     const tradable = await Tradable.findOne({tradingsymbol: symbol});
 
     let price = (amount2-amount1)/(lot2-lot1);
+    let quantity = lot2-lot1;
 
-    let obj = {
-        order_id: `230531${Math.floor(100000000 + Math.random() * 900000000)}`,
+    let Obj = {
+        
         average_price: price,
         disclosed_quantity: 0,
         exchange: "NFO",
         exchange_order_id: `11000000${Math.floor(100000000 + Math.random() * 900000000)}`,
-        exchange_timestamp: new Date("2023-05-31T13:41:08.000+00:00"),
-        exchange_update_timestamp: new Date("2023-05-31T13:41:08.000+00:00"),
-        guid: `230531${Math.floor(100000000 + Math.random() * 900000000)}11000000${Math.floor(100000000 + Math.random() * 900000000)}`,
+        exchange_timestamp: new Date(`${dateString}T13:41:08.000+00:00`),
+        exchange_update_timestamp: new Date(`${dateString}T13:41:08.000+00:00`),
+        guid: `2305${date}${Math.floor(100000000 + Math.random() * 900000000)}11000000${Math.floor(100000000 + Math.random() * 900000000)}`,
         instrument_token: tradable?.exchange_token,
-        order_timestamp: new Date("2023-05-31T13:41:08.000+00:00"),
+        order_timestamp: new Date(`${dateString}T13:41:08.000+00:00`),
         order_type: "Market",
         placed_by: "CF1",
         price: 0,
         product: "NRML",
-        quantity: lot2-lot1,
+        // quantity: lot2-lot1,
         status: "COMPLETE",
         status_message: "",
         transaction_type: type,
         validity: "DAY"
     }
 
-    console.log(obj);
-    const retreivedData = await RetreiveOrder.create(obj)
+    // console.log(obj);
+    // const retreivedData = 
+
+
+    const processOrder = async () => {
+        if (quantity == 0) {
+          return;
+        } else if (quantity > 1800) {
+          Obj.quantity = 1800;
+          Obj.order_id = `2305${date}${Math.floor(100000000 + Math.random() * 900000000)}`;
+          let data = await RetreiveOrder.create(Obj)
+          console.log(data)
+          quantity = quantity - 1800;
+          return processOrder(); // Ensure that the promise returned by processOrder is returned
+        } else {
+          Obj.quantity = quantity;
+          Obj.order_id = `2305${date}${Math.floor(100000000 + Math.random() * 900000000)}`;
+          let data = await RetreiveOrder.create(Obj)
+          console.log(data)
+        }
+      };
+
+      await processOrder();
+
+
+
+
+
+
+
 }
 
 

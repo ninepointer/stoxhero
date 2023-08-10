@@ -16,6 +16,20 @@ exports.search = async (searchString, res, req) => {
   const setting  = await Setting.find().select('toggle');
   const page = parseInt(req.query.page);
   const size = parseInt(req.query.size);
+  let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
+  // console.log(isNifty, isBankNifty, isFinNifty)
+
+  let query = [];
+  if(isNifty){
+    query.push({ $and: [{ isNifty: true }, { name: 'NIFTY50' }] })
+  }
+  if(isBankNifty){
+    query.push({ $and: [{ isBankNifty: true }, { name: 'BANKNIFTY' }] })
+  }
+  if(isFinNifty){
+    query.push({ $and: [{ isFinNifty: true }, { name: 'FINNIFTY' }] })
+  }
+  // let isNifty, isBankNifty, isFinNifty;
   const {role} = req.user;
   let roleObj;
 
@@ -38,9 +52,6 @@ exports.search = async (searchString, res, req) => {
   }
 
 
-  console.log(roleObj)
-
-
   try {
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -48,35 +59,8 @@ exports.search = async (searchString, res, req) => {
 
     let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     let data ;
-    console.log(roleObj.roleName , infinityTrader)
-    // data = await TradableInstrument.find({
-    //   $and: [
-    //     {
-    //       $or: [
-    //         { tradingsymbol: { $regex: searchString, $options: 'i' } },
-    //         { name: { $regex: searchString, $options: 'i' } },
-    //         { exchange: { $regex: searchString, $options: 'i' } },
-    //         { expiry: { $regex: searchString, $options: 'i' } },
-    //       ]
-    //     },
-    //     {
-    //       status: 'Active'
-    //     },
-    //     {
-    //       // accountType: accountType
-    //     },
-    //     {
-          // expiry: {
-          //   $gte: todayDate, // expiry is greater than or equal to today's date
-          //   $lt: fromLessThen
-          //   // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
-          // }
-    //     }
-    //   ]
-    // })
-    //   .sort({ expiry: 1 })
-    //   .limit(size)
-    //   .exec();
+    // console.log(roleObj.roleName , infinityTrader, searchString)
+
     if(roleObj.roleName === infinityTrader){
       data = await TradableInstrument.find({
         $and: [
@@ -90,7 +74,8 @@ exports.search = async (searchString, res, req) => {
           },
           {
             status: 'Active',
-            infinityVisibility: true
+            infinityVisibility: true,
+            // tradingsymbol: { $regex: /^(NIFTY|BANK)/i }
           },
           {
             expiry: {
@@ -104,35 +89,71 @@ exports.search = async (searchString, res, req) => {
         .sort({ expiry: 1 })
         .limit(size)
         .exec();
+
+        // console.log("data", data)
     } else{
-      data = await TradableInstrument.find({
-        $and: [
-          {
-            $or: [
-              { tradingsymbol: { $regex: searchString, $options: 'i' } },
-              { name: { $regex: searchString, $options: 'i' } },
-              { exchange: { $regex: searchString, $options: 'i' } },
-              { expiry: { $regex: searchString, $options: 'i' } },
-            ]
-          },
-          {
-            status: 'Active'
-          },
-          {
-            // accountType: accountType
-          },
-          {
-            expiry: {
-              $gte: todayDate, // expiry is greater than or equal to today's date
-              $lt: fromLessThen
-              // $gt: new Date(today.getFullYear(), today.getMonth(), today.getDate()) // expiry is greater than today's date
+
+      if(dailyContest){
+        data = await TradableInstrument.find({
+          $and: [
+            {
+              $or: [
+                { tradingsymbol: { $regex: searchString, $options: 'i' } },
+                { name: { $regex: searchString, $options: 'i' } },
+                { exchange: { $regex: searchString, $options: 'i' } },
+                { expiry: { $regex: searchString, $options: 'i' } },
+              ]
+            },
+            {
+              status: 'Active'
+            },
+            {
+              // accountType: accountType
+            },
+            {
+              expiry: {
+                $gte: todayDate, // expiry is greater than or equal to today's date
+                $lt: fromLessThen
+              }
+            },
+            {
+              $or: query
             }
-          }
-        ]
-      })
-        .sort({ expiry: 1 })
-        .limit(size)
-        .exec();
+          ]
+        })
+          .sort({ expiry: 1 })
+          .limit(size)
+          .exec();
+      } else{
+        data = await TradableInstrument.find({
+          $and: [
+            {
+              $or: [
+                { tradingsymbol: { $regex: searchString, $options: 'i' } },
+                { name: { $regex: searchString, $options: 'i' } },
+                { exchange: { $regex: searchString, $options: 'i' } },
+                { expiry: { $regex: searchString, $options: 'i' } },
+              ]
+            },
+            {
+              status: 'Active'
+            },
+            {
+              tradingsymbol: { $regex: /^(NIFTY|BANK)/i }
+            },
+            {
+              expiry: {
+                $gte: todayDate, // expiry is greater than or equal to today's date
+                $lt: fromLessThen
+              }
+            },
+          ]
+        })
+          .sort({ expiry: 1 })
+          .limit(size)
+          .exec();
+      }
+
     }
 
 

@@ -15,7 +15,7 @@ exports.createCollege = async(req, res, next)=>{
 
 exports.getColleges = async(req, res, next)=>{
     try{
-        const colleges = await College.find();
+        const colleges = await College.find().sort({collegeName:1});
         res.status(200).json({status: 'success', data: colleges, results: colleges.length});    
     }catch(e){
         console.log(e);
@@ -73,6 +73,16 @@ exports.getEastZoneColleges = async(req, res, next)=>{
         .skip(skip)
         .limit(limit);
         res.status(201).json({status: 'success', data: eastzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getCollegeName = async(req, res, next)=>{
+    try{
+        const collegeName = await College.find().select('collegeName _id')
+        res.status(201).json({status: 'success', data: collegeName, count: collegeName.length});    
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});

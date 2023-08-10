@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {createPayment, getPayment, getUserPayment} = require('../../controllers/paymentController');
+const {createPayment, getPayment, getUserPayment, getUsers, initiatePayment, handleCallback, checkPaymentStatus} = require('../../controllers/paymentController');
 const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
 
-router.route('/').post(Authenticate, createPayment).get(getPayment);
-router.route('/user/:id').get(getUserPayment);
-// router.route('/appliedBatch').get(Authenticate, appliedBatch);
-// router.route('/:id').get(Authenticate, getApplicant).patch(Authenticate, editBatch);
-// router.route('/:id/apply').patch(Authenticate, applyToBatch)
-// router.route('/:id/approve').patch(Authenticate, approveUser)
+router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createPayment).get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getPayment);
+router.route('/initiate').post(Authenticate, initiatePayment);
+router.route('/callback').post(handleCallback);
+router.route('/users').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getUsers)
+router.route('/checkstatus/:merchantTransactionId').get(Authenticate, checkPaymentStatus);
+router.route('/user/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getUserPayment);
 
 
 module.exports = router;

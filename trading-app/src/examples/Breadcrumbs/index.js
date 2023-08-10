@@ -64,7 +64,26 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Daily Contest Details"
   } else if(title === "tradingholiday"){
     title = "Trading Holidays"
-  }
+  } else if(title === "infinitymining"){
+    title = "Infinity Mining"
+  } else if(title === "dailycontestposition"){
+    title = "Daily Contest Positions"
+  } else if(title === "dailycontestpositiontrader"){
+    title = "Daily Contest Positions - Trader Side"
+  } else if(title === "contestdashboard"){
+    title = "Contest Dashboard"
+  } else if(title === "virtualdashboard"){
+    title = "Virtual Trading Dashboard"
+  } else if(title === "contestscoreboard"){
+    title = "Contest Scoreboard"
+  } else if(title === "collegecontest"){
+    title = "College Contests"
+  } else if(title === "stoxherouserdashboard"){
+    title = "StoxHero Dashboard"
+  } 
+  
+  
+  
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
   let path=' ';
 

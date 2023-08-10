@@ -1,4 +1,3 @@
-
 import React, {useState, useEffect} from 'react'
 import Grid from "@mui/material/Grid";
 import axios from "axios";
@@ -13,7 +12,7 @@ import moment from 'moment';
 
 
 const ActiveTutorialCategory = ({type}) => {
-const [applicationCount, setApplicationCount] = useState(0);
+// const [applicationCount, setApplicationCount] = useState(0);
 const [activeTutorialCateogry,setActiveTutorialCateogry] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 

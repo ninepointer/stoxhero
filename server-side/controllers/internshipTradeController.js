@@ -6,6 +6,7 @@ const {client, getValue} = require('../marketData/redisClient');
 const Careers = require("../models/Careers/careerSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
+const Holiday = require("../models/TradingHolidays/tradingHolidays");
 
 const { ObjectId } = require("mongodb");
 
@@ -935,49 +936,56 @@ exports.myInternshipTradingDays = async (req, res, next) => {
 
 exports.internshipPnlReport = async (req, res, next) => {
 
-  let { startDate, endDate, batch } = req.params
+  let { batch } = req.params
 
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
+  // startDate = startDate + "T00:00:00.000Z";
+  // endDate = endDate + "T23:59:59.000Z";
 
 
   let pipeline = [
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        // trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE",
         batch: new ObjectId(batch)
       }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
     },
     {
-      $group:
+      $lookup: {
+        from: "intern-batches",
+        localField: "batch",
+        foreignField: "_id",
+        as: "batch",
+      },
+    },
       {
-        _id: {
-          "date": { $substr: ["$trade_time", 0, 10] },
-        },
-        gpnl: {
-          $sum: { $multiply: ["$amount", -1] }
-        },
-        brokerage: {
-          $sum: { $toDouble: "$brokerage" }
-        },
-        noOfTrade: {
-          $count: {}
-        },
-      }
-    },
-    {
-      $addFields:
+        $group:
+        {
+          _id: {
+            "date": { $substr: ["$trade_time", 0, 10] },
+          },
+          gpnl: {
+            $sum: { $multiply: ["$amount", -1] }
+          },
+          brokerage: {
+            $sum: { $toDouble: "$brokerage" }
+          },
+          noOfTrade: {
+            $count: {}
+          },
+        }
+      },
       {
-        npnl: { $subtract: ["$gpnl", "$brokerage"] },
-        dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+        $addFields:
+        {
+          npnl: { $subtract: ["$gpnl", "$brokerage"] },
+          dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
+        }
+      },
+      {
+        $sort:
+          { _id: 1 }
       }
-    },
-    {
-      $sort:
-        { _id: 1 }
-    }
   ]
 
   let x = await InternTrades.aggregate(pipeline)
@@ -987,12 +995,11 @@ exports.internshipPnlReport = async (req, res, next) => {
 
 exports.internshipDailyPnlTWise = async (req, res, next) => {
 
-  let { startDate, endDate, batch } = req.params
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
+  let { batch } = req.params
+  // startDate = startDate + "T00:00:00.000Z";
+  // endDate = endDate + "T23:59:59.000Z";
   // console.log("startDate", startDate,endDate )
   let pipeline = [
-
     {
       $lookup: {
         from: "user-personal-details",
@@ -1001,14 +1008,19 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
         as: "user",
       },
     },
-
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE",
-        batch: new ObjectId(batch)
-      }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+        batch: new ObjectId(batch),
+      },
+    },
+    {
+      $lookup: {
+        from: "intern-batches",
+        localField: "batch",
+        foreignField: "_id",
+        as: "batch",
+      },
     },
     {
       $group: {
@@ -1016,16 +1028,74 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
           userId: "$trader",
           name: {
             $concat: [
-              { $arrayElemAt: ["$user.first_name", 0] },
+              {
+                $arrayElemAt: [
+                  "$user.first_name",
+                  0,
+                ],
+              },
               " ",
-              { $arrayElemAt: ["$user.last_name", 0] },
+              {
+                $arrayElemAt: [
+                  "$user.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+          batchStartDate: {
+            $arrayElemAt: [
+              "$batch.batchStartDate",
+              0,
+            ],
+          },
+          batchEndDate: {
+            $arrayElemAt: [
+              "$batch.batchEndDate",
+              0,
+            ],
+          },
+
+          payoutPercentage: {
+            $arrayElemAt: [
+              "$batch.payoutPercentage",
+              0,
+            ],
+          },
+          attendancePercentage: {
+            $arrayElemAt: [
+              "$batch.attendancePercentage",
+              0,
+            ],
+          },
+          referralCount: {
+            $arrayElemAt: [
+              "$batch.referralCount",
+              0,
             ],
           },
         },
-        gpnl: { $sum: { $multiply: ["$amount", -1] } },
-        brokerage: { $sum: { $toDouble: "$brokerage" } },
-        trades: { $count: {} },
-        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time",
+            },
+          },
+        },
       },
     },
     {
@@ -1033,11 +1103,20 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
         _id: 0,
         userId: "$_id.userId",
         name: "$_id.name",
-        tradingDays: { $size: "$tradingDays" },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
         gpnl: 1,
         brokerage: 1,
-        npnl: { $subtract: ["$gpnl", "$brokerage"] },
-        noOfTrade: "$trades"
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        noOfTrade: "$trades",
+        batchStartDate: "$_id.batchStartDate",
+        batchEndDate: "$_id.batchEndDate",
+        payoutPercentage: "$_id.payoutPercentage",
+        attendancePercentage: "$_id.attendancePercentage",
+        referralCount: "$_id.referralCount",
       },
     },
     {
@@ -1064,12 +1143,10 @@ exports.updateUserWallet = async () => {
 
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  
-  
+    
     const internship = await Careers.aggregate([
       {
         $match:
-    
           {
             listingType: "Job",
           },
@@ -1127,172 +1204,521 @@ exports.updateUserWallet = async () => {
     ])
   
     console.log(internship)
-  
-    const attendanceLimit = internship[0].attendancePercentage;
-    const referralLimit = internship[0].referralCount;
-    const payoutPercentage = internship[0].payoutPercentage;
-    const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
-    const reliefReferralLimit = referralLimit - referralLimit*10/100
-    const workingDays = calculateWorkingDays(internship[0].startDate, internship[0].endDate);
-    const users = internship[0].users;
-    const batchId = internship[0].batchId;
-  
-    const tradingDays = async (userId, batchId)=>{
-      const pipeline = 
-      [
-        {
-          $match: {
-            batch: new ObjectId(batchId),
-            trader: new ObjectId(userId),
-            status: "COMPLETE",
-          },
-        },
-        {
-          $group: {
-            _id: {
-              date: {
-                $substr: ["$trade_time", 0, 10],
-              },
-            },
-            count: {
-              $count: {},
-            },
-          },
-        },
-      ]
-    
-      let x = await InternTrades.aggregate(pipeline);
-  
-      return x.length;
-    }
-  
-    const pnl = async (userId, batchId)=>{
-      let pnlDetails = await InternTrades.aggregate([
-        {
-            $match: {
-                status: "COMPLETE",
-                trader: new ObjectId(userId),
-                batch: new ObjectId(batchId) 
-            },
-        },
-        {
-          $group: {
-            _id: {
-            },
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-          },
-        },
-        {
-          $project:
-            /**
-             * specifications: The fields to
-             *   include or exclude.
-             */
-            {
-              _id: 0,
-              npnl: {
-                $subtract: ["$amount", "$brokerage"],
-              },
-            },
-        },
-      ])
-    
-      // let x = await InternTrades.aggregate(pnlDetails);
-  
-      return pnlDetails[0]?.npnl;
-    }
-  
-    function calculateWorkingDays(startDate, endDate) {
-      // Convert the input strings to Date objects
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      end.setDate(end.getDate() + 1);
-  
-      // Check if the start date is after the end date
-      if (start > end) {
-        return 0;
-      }
-    
-      let workingDays = 0;
-      let currentDate = new Date(start);
-    
-      // Iterate over each day between the start and end dates
-      while (currentDate <= end) {
-        // Check if the current day is a weekday (Monday to Friday)
-        if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
-          workingDays++;
-        }
-    
-        // Move to the next day
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-    
-      return workingDays;
-    }
-    
-    const referrals = async(userId)=>{
-      const user = await User.findOne({_id: new ObjectId(userId)});
-      return user?.referrals?.length;
-    }
-  
-  
-    for(let i = 0; i < users.length; i++){
-      const tradingdays = await tradingDays(users[i].user, batchId);
-      const attendance = tradingdays*100/workingDays;
-      const referral = await referrals(users[i].user);
-      const npnl = await pnl(users[i].user, batchId);
-      const creditAmount = npnl*payoutPercentage/100;
-  
-      const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
-  
-      if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
-        wallet.transactions = [...wallet.transactions, {
-          title: 'Internship Payout',
-          description: `Amount credited for your internship profit`,
-          amount: (creditAmount),
-          transactionId: uuid.v4(),
-          transactionType: 'Cash'
-        }];
-        wallet.save();
-        console.log(attendance, tradingdays, users[i].user, npnl);
-      }
-  
-      if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
-        if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
-          wallet.transactions = [...wallet.transactions, {
-            title: 'Internship Payout',
-            description: `Amount credited for your internship profit`,
-            amount: (creditAmount),
-            transactionId: uuid.v4(),
-            transactionType: 'Cash'
-          }];
-          wallet.save();
-          console.log("attendance relief");
-        }
-        if(referral < referralLimit && referral >= reliefReferralLimit){
-          wallet.transactions = [...wallet.transactions, {
-            title: 'Internship Payout',
-            description: `Amount credited for your internship profit`,
-            amount: (creditAmount),
-            transactionId: uuid.v4(),
-            transactionType: 'Cash'
-          }];
-          wallet.save();
-          console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
-        }
-      }
-    }
-  
 
+    for(let elem of internship){
+      const attendanceLimit = elem.attendancePercentage;
+      const referralLimit = elem.referralCount;
+      const payoutPercentage = elem.payoutPercentage;
+      const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
+      const reliefReferralLimit = referralLimit - referralLimit*10/100
+      const workingDays = calculateWorkingDays(elem.startDate, elem.endDate);
+      const users = elem.users;
+      const batchId = elem.batchId;
+
+      const holiday = await Holiday.find({
+        holidayDate: {
+          $gte: elem.startDate,
+          $lte: elem.endDate
+        },
+        $expr: {
+          $ne: [{ $dayOfWeek: "$holidayDate" }, 1], // 1 represents Sunday
+          $ne: [{ $dayOfWeek: "$holidayDate" }, 7], // 7 represents Saturday
+        }
+      });
+
+      console.log("holiday date" , elem.endDate, elem.startDate, holiday)
+
+      const profitCap = 15000;
+
+
+  
+      const tradingDays = async (userId, batchId)=>{
+        const pipeline = 
+        [
+          {
+            $match: {
+              batch: new ObjectId(batchId),
+              trader: new ObjectId(userId),
+              status: "COMPLETE",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                date: {
+                  $substr: ["$trade_time", 0, 10],
+                },
+              },
+              count: {
+                $count: {},
+              },
+            },
+          },
+        ]
+      
+        let x = await InternTrades.aggregate(pipeline);
+    
+        return x.length;
+      }
+    
+      const pnl = async (userId, batchId)=>{
+        let pnlDetails = await InternTrades.aggregate([
+          {
+              $match: {
+                  status: "COMPLETE",
+                  trader: new ObjectId(userId),
+                  batch: new ObjectId(batchId) 
+              },
+          },
+          {
+            $group: {
+              _id: {
+              },
+              amount: {
+                $sum: {$multiply : ["$amount",-1]},
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+            },
+          },
+          {
+            $project:
+              /**
+               * specifications: The fields to
+               *   include or exclude.
+               */
+              {
+                _id: 0,
+                npnl: {
+                  $subtract: ["$amount", "$brokerage"],
+                },
+              },
+          },
+        ])
+  
+        return pnlDetails[0]?.npnl;
+      }
+    
+      function calculateWorkingDays(startDate, endDate) {
+        // Convert the input strings to Date objects
+        const start = new Date(startDate);
+        let end = new Date(endDate);
+        end = end.toISOString().split('T')[0];
+        end = new Date(end)
+        end.setDate(end.getDate() + 1);
+    
+        // Check if the start date is after the end date
+        if (start > end) {
+          return 0;
+        }
+      
+        let workingDays = 0;
+        let currentDate = new Date(start);
+      
+        // Iterate over each day between the start and end dates
+        while (currentDate <= end) {
+          // Check if the current day is a weekday (Monday to Friday)
+          if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+            workingDays++;
+          }
+      
+          // Move to the next day
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      
+        return workingDays;
+      }
+      
+      const referrals = async(user)=>{
+        
+        return user?.referrals?.length;
+      }
+    
+    
+      for(let i = 0; i < users.length; i++){
+        const user = await User.findOne({_id: new ObjectId(users[i].user)});
+        const tradingdays = await tradingDays(users[i].user, batchId);
+        const attendance = (tradingdays*100)/(workingDays-holiday.length);
+        const referral = await referrals(user);
+        const npnl = await pnl(users[i].user, batchId);
+        const creditAmount = Math.min(npnl*payoutPercentage/100, profitCap)
+        
+        const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
+  
+        if(creditAmount > 0){
+          if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+            wallet.transactions = [...wallet.transactions, {
+              title: 'Internship Payout',
+              description: `Amount credited for your internship profit`,
+              amount: (creditAmount?.toFixed(2)),
+              transactionId: uuid.v4(),
+              transactionType: 'Cash'
+            }];
+            wallet.save();
+    
+            if (process.env.PROD == 'true') {
+              sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+              <!DOCTYPE html>
+              <html>
+              <head>
+                  <meta charset="UTF-8">
+                  <title>Amount Credited</title>
+                  <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      font-size: 16px;
+                      line-height: 1.5;
+                      margin: 0;
+                      padding: 0;
+                  }
+        
+                  .container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      border: 1px solid #ccc;
+                  }
+        
+                  h1 {
+                      font-size: 24px;
+                      margin-bottom: 20px;
+                  }
+        
+                  p {
+                      margin: 0 0 20px;
+                  }
+        
+                  .userid {
+                      display: inline-block;
+                      background-color: #f5f5f5;
+                      padding: 10px;
+                      font-size: 15px;
+                      font-weight: bold;
+                      border-radius: 5px;
+                      margin-right: 10px;
+                  }
+        
+                  .password {
+                      display: inline-block;
+                      background-color: #f5f5f5;
+                      padding: 10px;
+                      font-size: 15px;
+                      font-weight: bold;
+                      border-radius: 5px;
+                      margin-right: 10px;
+                  }
+        
+                  .login-button {
+                      display: inline-block;
+                      background-color: #007bff;
+                      color: #fff;
+                      padding: 10px 20px;
+                      font-size: 18px;
+                      font-weight: bold;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+        
+                  .login-button:hover {
+                      background-color: #0069d9;
+                  }
+                  </style>
+              </head>
+              <body>
+                  <div class="container">
+                  <h1>Amount Credited</h1>
+                  <p>Hello ${user.first_name},</p>
+                  <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                  <p>You can now purchase Tenx and participate in contest.</p>
+                  
+                  <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                  <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                  <br/><br/>
+                  <p>Thanks,</p>
+                  <p>StoxHero Team</p>
+        
+                  </div>
+              </body>
+              </html>
+              `);
+            }
+            console.log(users[i].user, npnl, creditAmount);
+          }
+      
+          if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
+            if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
+              wallet.transactions = [...wallet.transactions, {
+                title: 'Internship Payout',
+                description: `Amount credited for your internship profit`,
+                amount: (creditAmount?.toFixed(2)),
+                transactionId: uuid.v4(),
+                transactionType: 'Cash'
+              }];
+              wallet.save();
+              if (process.env.PROD == 'true') {
+                sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Amount Credited</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
+          
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
+          
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+          
+                    p {
+                        margin: 0 0 20px;
+                    }
+          
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+          
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>Amount Credited</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                    <p>You can now purchase Tenx and participate in contest.</p>
+                    
+                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                    <br/><br/>
+                    <p>Thanks,</p>
+                    <p>StoxHero Team</p>
+          
+                    </div>
+                </body>
+                </html>
+                `);
+              }
+              console.log("attendance relief");
+            }
+            if(referral < referralLimit && referral >= reliefReferralLimit){
+              wallet.transactions = [...wallet.transactions, {
+                title: 'Internship Payout',
+                description: `Amount credited for your internship profit`,
+                amount: (creditAmount?.toFixed(2)),
+                transactionId: uuid.v4(),
+                transactionType: 'Cash'
+              }];
+              wallet.save();
+              if (process.env.PROD == 'true') {
+                sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Amount Credited</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
+          
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
+          
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+          
+                    p {
+                        margin: 0 0 20px;
+                    }
+          
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+          
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+          
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>Amount Credited</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                    <p>You can now purchase Tenx and participate in contest.</p>
+                    
+                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                    <br/><br/>
+                    <p>Thanks,</p>
+                    <p>StoxHero Team</p>
+          
+                    </div>
+                </body>
+                </html>
+                `);
+              }
+              console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+            }
+          }
+        }
+      }
+    }
   } catch(err){
     console.log(err);
   }
-
 }
+
+exports.getDailyInternshipUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$_id.trader" },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
+
+    const internshipTraders = await InternTrades.aggregate(pipeline);
+
+    // Create a date-wise mapping of DAUs for different products
+    const dateWiseDAUs = {};
+
+    internshipTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            internshipTrading: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].internshipTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
+
+    // Calculate the date-wise total DAUs and unique users
+    Object.keys(dateWiseDAUs).forEach(date => {
+      const { internshipTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].total = internshipTrading
+      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+    });
+
+    const response = {
+      status: "success",
+      message: "Contest Scoreboard fetched successfully",
+      data: Object.values(dateWiseDAUs),
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};

@@ -24,7 +24,7 @@ function StockIndex({socket}) {
     const navigate = useNavigate();
 
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/stockindex`)
+        axios.get(`${baseUrl}api/v1/stockindex`, {withCredentials: true})
         .then((res) => {
             setIndexData(res.data);
         }).catch((err) => {
@@ -78,8 +78,12 @@ function StockIndex({socket}) {
             {2}
         </MDTypography>
         );
+
+        if(name[0]?.displayName !== "FINNIFTY"){
+            finalArr.push(obj);
+        }
     
-        finalArr.push(obj);
+        
     })
 
     const Item = styled(Paper)(({ theme }) => ({
@@ -119,7 +123,7 @@ function StockIndex({socket}) {
                         <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} color={e.valueChange.props.children >= 0 ? "success" : "error"}>{e.valueChange.props.children>=0 ? '+₹' : '-₹'}{Math.abs(e.valueChange.props.children).toFixed(2)}</MDBox>
                         <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} color={e.percentageChange.props.children >= 0 ? "success" : "error"}>({e.percentageChange.props.children>0 ? '+' : ''}{e.percentageChange.props.children}%)</MDBox>
                         {/* <MDBox ml={0.5} fontWeight={700} mr={0.5} mt={0.5} mb={0.2} fontSize={10} 
-                        style={{display:'flex', alignItems:'center'}} onClick={()=>{window.open(`/chart?instrument=${e.instrument.props.children.includes('NIFTY 50')?'NIFTY-I':'BANKNIFTY-I'}`, '_blank')}}><AiOutlineLineChart size={20}/>
+                            style={{display:'flex', alignItems:'center'}} onClick={()=>{window.open(`/chart?instrument=${e.instrument.props.children.includes('NIFTY 50')?'NIFTY-I':'BANKNIFTY-I'}`, '_blank')}}><AiOutlineLineChart size={20}/>
                         </MDBox> */}
                         </Item>
                     )})}

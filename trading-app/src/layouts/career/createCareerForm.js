@@ -20,6 +20,7 @@ import CareerApplication from "./data/applicants";
 import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import SelectedApplication from './data/selectedApplicants';
+import RejectedApplication from './data/rejectedApplicant';
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -48,6 +49,7 @@ function Index() {
     const [newObjectId, setNewObjectId] = useState("");
     const [updatedDocument, setUpdatedDocument] = useState([]);
     const [career,setCareer] = useState([]);
+    const [action, setAction] = useState(false);
 
     const [formState,setFormState] = useState({
         jobTitle:'' || id?.jobTitle,
@@ -495,12 +497,17 @@ const handleChange = (e) => {
 
                 {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
-                        <CareerApplication career={newObjectId ? newObjectId : id?._id}/>
+                        <CareerApplication career={newObjectId ? newObjectId : id?._id} action={action} setAction={setAction}/>
                     </MDBox>
                 </Grid>}
                 {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
-                        <SelectedApplication career={newObjectId ? newObjectId : id?._id}/>
+                        <SelectedApplication career={newObjectId ? newObjectId : id?._id} action={action} setAction={setAction}/>
+                    </MDBox>
+                </Grid>}
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <RejectedApplication career={newObjectId ? newObjectId : id?._id}  action={action} setAction={setAction}/>
                     </MDBox>
                 </Grid>}
 

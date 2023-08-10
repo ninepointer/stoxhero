@@ -41,7 +41,7 @@ function Index() {
 
     React.useEffect(()=>{
 
-        axios.get(`${baseUrl}api/v1/portfolio/${id}`)
+        axios.get(`${baseUrl}api/v1/portfolio/${id}`, {withCredentials: true})
         .then((res)=>{
             setPortfolioData(res.data.data);
             console.log("portfolio data is", res.data)
@@ -255,7 +255,7 @@ function Index() {
                 <MenuItem value="Virtual Trading">Virtual Trading</MenuItem>
                 <MenuItem value="TenX Trading">TenX Trading</MenuItem>
                 <MenuItem value="Internship">Internship</MenuItem>
-                <MenuItem value="Contest">Contest</MenuItem>
+                <MenuItem value="Daily Contest">Daily Contest</MenuItem>
                 </Select>
               </FormControl>
           </Grid>

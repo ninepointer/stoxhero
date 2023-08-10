@@ -31,7 +31,7 @@ const DBEntry = () => {
     const uId = uniqid();
     useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/readTradingAlgo`)
+      axios.get(`${baseUrl}api/v1/readTradingAlgo`, {withCredentials: true})
       .then((res)=>{
           let defaultAlgo = (res.data).filter((elem)=>{
             return elem.isDefault;

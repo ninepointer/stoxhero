@@ -10,7 +10,7 @@ const {overallPnlBatchWiseMock, mockLiveTotalTradersCount, overallCompanySidePnl
         getUserReportMockDateWise, getAllTraderReportDateWise, getAllTradersMockOrdersForToday, traderPnlTWiseSingleUser} = require('../../controllers/infinityController');
 
 const {traderPnlTWiseSingleUserLive, companyDailyPnlTWiseSingleUserLive, 
-        companyPnlReportLive, traderPnlTWiseLive, traderMatrixPnlLive, pnlTraderCompany, overallLivePnlToday, 
+        companyPnlReportLive, brokerReportMatchLive, traderPnlTWiseLive, traderMatrixPnlLive, pnlTraderCompany, overallLivePnlToday, 
         getLetestLiveTradeCompany, overallInfinityLiveCompanyPnlYesterday,
         traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive,overallInfinityLiveCompanyPnlMTD, 
         overallCompanySidePnlLive, mockLiveTotalTradersCountLiveSide, companyDailyPnlTWiseLive, 
@@ -62,7 +62,8 @@ router.route('/companypnlreport/:startDate/:endDate').get(companyPnlReport)
 router.route('/traderwisetraderpnlreport/:startDate/:endDate').get(traderPnlTWise)
 router.route('/tradermatrixpnlreport/:startDate/:endDate').get(traderMatrixPnl)
 router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(companyDailyPnlTWiseLive)
-router.route('/live/companypnlreport/:startDate/:endDate').get(companyPnlReportLive)
+// router.route('/live/companypnlreport/:startDate/:endDate').get(companyPnlReportLive)
+router.route('/live/brokerreportmatch/:printDate/:fromDate').get(brokerReportMatchLive)
 router.route('/live/traderwisetraderpnlreport/:startDate/:endDate').get(traderPnlTWiseLive)
 
 router.route('/live/tradermatrixpnlreport/:startDate/:endDate').get(traderMatrixPnlLive)

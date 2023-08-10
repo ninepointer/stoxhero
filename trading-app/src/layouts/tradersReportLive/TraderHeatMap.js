@@ -31,7 +31,7 @@ useEffect(()=>{
     pnlCalculation(valueInDate1,valueInDate2)
       overallPnl = 0;
 
-      axios.get(`${baseUrl}api/v1/readuserdetails`)
+      axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
           let traderdata = data.filter((elem) => {
@@ -70,7 +70,7 @@ useEffect(()=>{
 
   function pnlCalculation(firstDate, secondDate){
     console.log(firstDate,secondDate)
-    axios.get(`${baseUrl}api/v1/getuserreportLive/${firstDate}/${secondDate}`)
+    axios.get(`${baseUrl}api/v1/getuserreportLive/${firstDate}/${secondDate}`,{withCredentials:true})
     .then((res) => {
       let data = res.data;
       console.log(res.data);
@@ -80,7 +80,7 @@ useEffect(()=>{
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/getuniquedatesLive/${firstDate}/${secondDate}`)
+    axios.get(`${baseUrl}api/v1/getuniquedatesLive/${firstDate}/${secondDate}`,{withCredentials:true})
     .then((res) => {
       let data = res.data;
       console.log(res.data);

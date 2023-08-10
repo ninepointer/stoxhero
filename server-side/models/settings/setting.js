@@ -17,14 +17,14 @@ const settingSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    AppStartTime:{
-        type: Date,
-        required: true,
-    },
-    AppEndTime:{
-        type: Date,
-        required: true,
-    },
+    // AppStartTime:{
+    //     type: Date,
+    //     required: true,
+    // },
+    // AppEndTime:{
+    //     type: Date,
+    //     required: true,
+    // },
     leaderBoardTimming:{
         type: Number,
         required: true,
@@ -40,6 +40,19 @@ const settingSchema = new mongoose.Schema({
     infinityPrice: {
         type: Number,
         required: true,
+    },
+    minWithdrawal: Number,
+    maxWithdrawal: Number,
+    contest: {
+        upiId: {type: String},
+        email: {type: String},
+        mobile: {type: String},
+    },
+    time: {    
+        appStartTime: {type: Date},
+        timerStartTimeInStart: {type: Date},
+        appEndTime: {type: Date},
+        timerStartTimeInEnd: {type: Date}
     }
 })
 

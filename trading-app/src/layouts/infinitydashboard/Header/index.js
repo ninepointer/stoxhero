@@ -177,7 +177,8 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlyesterday`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlyesterday`, {withCredentials:true})
+    
     .then((res) => {
         console.log(res.data.data)
         setLiveTradeYesterdayData(res.data.data);
@@ -264,7 +265,7 @@ export default function LabTabs({socket}) {
   const liveTotalGrossPnlcolor = liveTotalGrossPnl >= 0 ? "success" : "error"
   const liveTotalnetPnlcolor = (liveTotalGrossPnl-liveTotalTransactionCost) >= 0 ? "success" : "error"
   const liveTotalquantitycolor = liveTotalRunningLots >= 0 ? "success" : "error"
-
+  const addInMargin = (totalGrossPnl - totalTransactionCost) >= 0 ? 0 : Math.abs(totalGrossPnl - totalTransactionCost);
 
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
@@ -328,7 +329,7 @@ export default function LabTabs({socket}) {
                                         {( !isLoadMockMargin) ?
                                             <CircularProgress color="inherit" size={10} sx={{marginRight: "10px"}}/>
                                          :
-                                         <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData)}</span>
+                                         <span style={{ marginRight: '10px' }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(mockMarginData+addInMargin)}</span>
                                         }
                                          <CachedIcon sx={{ cursor: "pointer" }} onClick={() => { setRefreshMockMargin(!refreshMockMargin) }} />
                                     </MDTypography>
@@ -410,7 +411,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (StoxHero) - {new Date(lastMockTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (StoxHero) - {new Date(lastMockTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "short"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -446,7 +447,7 @@ export default function LabTabs({socket}) {
                     </Grid>
                     
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (Infinity) - {new Date(lastLiveTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (Infinity) - {new Date(lastLiveTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "short"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -1113,6 +1114,19 @@ export default function LabTabs({socket}) {
                   <MDBox p={2} bgColor='text' borderRadius={5}>
                       <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
                       <Grid container spacing={1} >
+                        <Grid item fullWidth>
+                                <MDButton
+                                    variant="contained"
+                                    color={"info"}
+                                    size="small"
+                                    component={Link}
+                                    to={{
+                                        pathname: `/brokerreports`,
+                                    }}
+                                >
+                                    Broker Report
+                                </MDButton>
+                            </Grid>
                           <Grid item fullWidth>
                               <MDButton
                                   variant="contained"
@@ -1205,6 +1219,20 @@ export default function LabTabs({socket}) {
                                   }}
                               >
                                   Margin Allocation
+                              </MDButton>
+                          </Grid>
+
+                          <Grid item>
+                              <MDButton
+                                  variant="contained"
+                                  color={"primary"}
+                                  size="small"
+                                  component={Link}
+                                  to={{
+                                      pathname: `/margindetails`,
+                                  }}
+                              >
+                                  Margin Details
                               </MDButton>
                           </Grid>
                       </Grid>

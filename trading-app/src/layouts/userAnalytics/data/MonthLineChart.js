@@ -49,7 +49,7 @@ const EChartsDemo = ({traderType, monthWiseData}) => {
         },
         series: [
           {
-            name: 'Gorss P&L',
+            name: 'Gross P&L',
             type: 'line',
             data: monthWiseData.map((e)=>e.gpnl.toFixed(2)),
             markPoint: {

@@ -31,10 +31,11 @@ import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
 import { Divider, Typography } from '@mui/material';
+import { apiUrl } from '../../../../constants/constants';
 
 function MyProfile({profilePhoto,setProfilePhoto}) {
 
-  // console.log('Rendering again');
+  console.log('Rendering again');
 
 
   const [followsMe, setFollowsMe] = useState(true);
@@ -113,9 +114,82 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
   // console.log(formStatePD)
   // console.log(formStateBD)
   // console.log(formStateKYC)
+  useEffect(()=>{
+    getData();
+    console.log('setting data again');
+  },[]);
+
+  const getData = async () => {
+    try{
+      const res = await axios.get(`${apiUrl}loginDetail`, {withCredentials:true});
+      console.log('setting', res.data);
+      setFormStatePD(
+        {
+          employeeid:res?.data?.employeeid,
+          first_name:res.data?.first_name,
+          last_name:res.data?.last_name,
+          email:res.data?.email,
+          mobile:res.data?.mobile,
+          whatsApp_number:res.data?.whatsApp_number,
+          gender:res.data?.gender,
+          designation:res.data?.designation,
+          degree:res.data?.degree,
+          last_occupation:res.data?.last_occupation,
+          address:res.data?.address,
+          city:res.data?.city,
+          pincode:res.data?.pincode,
+          state:res.data?.state,
+          country:res.data?.country,
+          dob:res.data?.dob,
+          joining_date:res.data?.joining_date,
+          family_yearly_income:res.data?.family_yearly_income,
+          profilePhoto:res.data?.profilePhoto,
+          profilePhotoPreview:"",
+          role:res.data?.role,
+        }
+      );
+      setFormStateBD(
+        {
+          upiId:res?.data?.upiId,
+          googlePay_number:res?.data?.googlePay_number,
+          phonePe_number:res?.data?.phonePe_number,
+          payTM_number:res?.data?.payTM_number,
+          nameAsPerBankAccount:res?.data?.nameAsPerBankAccount,
+          bankName:res?.data?.bankName,
+          accountNumber:res?.data?.accountNumber,
+          ifscCode:res?.data?.ifscCode,
+          role:res?.data?.role,
+        }
+      );
+      setFormStateKYC(
+        {
+          aadhaarNumber:res?.data?.aadhaarNumber,
+          panNumber:res?.data?.panNumber,
+          passportNumber:res?.data?.passportNumber,
+          drivingLicenseNumber:res?.data?.drivingLicenseNumber,
+          aadhaarCardFrontImage:res?.data?.aadhaarCardFrontImage || null,
+          aadhaarCardBackImage:res?.data?.aadhaarCardBackImage || null,
+          panCardFrontImage:res?.data?.panCardFrontImage || null,
+          passportPhoto:res?.data?.passportPhoto || null,
+          addressProofDocument:res?.data?.addressProofDocument || null,
+          aadhaarCardFrontPreview:"",
+          aadhaarCardBackPreview:"",
+          panCardFrontPreview:"",
+          passportPhotoPreview:"",
+          addressProofDocumentPreview:"",
+          KYCStatus:res?.data?.KYCStatus,
+          role:res?.data?.role,
+        }
+      );
+    }catch(e){
+      console.log(e);
+    }
+    
+
+  }
 
   async function formSubmit(data,section){
-    console.log("Form Data: ",data)
+    // console.log("Form Data: ",data)
     try{
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
@@ -123,13 +197,13 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
         formData.append(key, data[key])
       });
       if(section==="KYC Details"){
-        console.log("KYC FormData: ",data)
+        // console.log("KYC FormData: ",data)
         if(!formStateKYC.aadhaarNumber || !formStateKYC.panNumber || 
           !formStateKYC.aadhaarCardFrontImage || !formStateKYC.aadhaarCardBackImage ||
-          !formStateKYC.panCardFrontImage || !formStateKYC.passportPhoto || !formStateKYC.addressProofDocument
+          !formStateKYC.panCardFrontImage
           ) return openErrorSB("KYC Details","Please upload the required fields.")
-        // formData.append("KYCStatus","Pending Approval")
-        setFormStateKYC(formStateKYC.KYCStatus,"Pending Approval")
+        formData.append("KYCStatus","Pending Approval")
+        // setFormStateKYC(formStateKYC.KYCStatus,"Pending Approval")
       }
       if(section==="Bank Details"){
         if(!formStateBD.nameAsPerBankAccount || !formStateBD.bankName || 
@@ -149,8 +223,8 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       let response = await res.json()
       // console.log('response', response);
       if(response.status === 'success'){
-        getDetails.setUserDetail(response.data);
-        console.log("Response: ",response.data,data);
+        // getDetails.setUserDetail(response.data);
+        // console.log("Response: ",response.data,data);
         setFormStateKYC(prev=>({...prev, drivingLicenseNumber:response.data?.drivingLicenseNumber??'',passportNumber:response.data?.passportNumber??'',panNumber:response.data?.panNumber??'',aadhaarNumber:response.data?.aadhaarNumber??'' ,aadhaarCardBackImage:response.data?.aadhaarCardBackImage??'', 
         aadhaarCardFrontImage: response.data?.aadhaarCardFrontImage??'', panCardFrontImage: response.data?.panCardFrontImage??'',
         addressProofDocument: response.data?.addressProofDocument??'', passportPhoto: response.data?.passportPhoto??''
@@ -253,7 +327,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
       }
       else{
         openErrorSB("KYC Details","Invalid file type. Please select an image.");
-        console.log("Error: Invalid file type. Please select an image.");
+        // console.log("Error: Invalid file type. Please select an image.");
       } 
       };
       reader.readAsDataURL(selectedFile);
@@ -457,7 +531,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={true}
                 id="outlined-required"
                 label="User ID"
-                defaultValue={formStatePD.employeeid}
+                value={formStatePD.employeeid}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -472,7 +546,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="First Name"
-                defaultValue={formStatePD.first_name}
+                value={formStatePD.first_name}
                 fullWidth
                 // onChange={(e) => {setFormStatePD({first_name: e.target.value})}}
                 onChange={(e) => {setFormStatePD(prevState => ({
@@ -488,7 +562,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Last Name"
-                defaultValue={formStatePD.last_name}
+                value={formStatePD.last_name}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -503,7 +577,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Email"
-                defaultValue={formStatePD.email}
+                value={formStatePD.email}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -518,7 +592,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={true}
                 id="outlined-required"
                 label="Mobile No."
-                defaultValue={formStatePD.mobile}
+                value={formStatePD.mobile}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -533,7 +607,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="WhatsApp No."
-                defaultValue={formStatePD.whatsApp_number}
+                value={formStatePD.whatsApp_number}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -571,7 +645,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={true}
                 id="outlined-required"
                 label="Position"
-                defaultValue={formStatePD.designation}
+                value={formStatePD.designation}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -586,7 +660,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Degree"
-                defaultValue={formStatePD.degree}
+                value={formStatePD.degree}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -601,7 +675,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Last Occupation"
-                defaultValue={formStatePD.last_occupation}
+                value={formStatePD.last_occupation}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -616,7 +690,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Address"
-                defaultValue={formStatePD.address}
+                value={formStatePD.address}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -631,7 +705,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="City"
-                defaultValue={formStatePD.city}
+                value={formStatePD.city}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -646,7 +720,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Pin Code"
-                defaultValue={formStatePD.pincode}
+                value={formStatePD.pincode}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -661,7 +735,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="State"
-                defaultValue={formStatePD.state}
+                value={formStatePD.state}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -676,7 +750,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Country"
-                defaultValue={formStatePD.country}
+                value={formStatePD.country}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -691,7 +765,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 id="outlined-required"
                 label="Family Yearly Income"
-                defaultValue={formStatePD.family_yearly_income}
+                value={formStatePD.family_yearly_income}
                 fullWidth
                 onChange={(e) => {setFormStatePD(prevState => ({
                   ...prevState,
@@ -743,7 +817,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editablePD}
                 accept="image/*" 
                 type="file" 
-                // defaultValue={formStatePD.profilePhoto}
+                // value={formStatePD.profilePhoto}
                 onChange={(e)=>{
                   setFormStatePD(prevState => ({
                     ...prevState,
@@ -760,7 +834,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                     id="outlined-required"
                     // label='Selected Carousel Image'
                     fullWidth
-                    // defaultValue={portfolioData?.portfolioName}
+                    // value={portfolioData?.portfolioName}
                     value={formStatePD?.profilePhoto?.name ? formStatePD?.profilePhoto?.name : "No Image Uploaded"}
                 />
           </Grid>
@@ -831,7 +905,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="UPI ID"
-                defaultValue={formStateBD.upiId}
+                value={formStateBD.upiId}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -845,7 +919,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="Google Pay Number"
-                defaultValue={formStateBD.googlePay_number}
+                value={formStateBD.googlePay_number}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -859,7 +933,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="PhonePe Number"
-                defaultValue={formStateBD.phonePe_number}
+                value={formStateBD.phonePe_number}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -873,7 +947,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="PayTM Number"
-                defaultValue={formStateBD.payTM_number}
+                value={formStateBD.payTM_number}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -888,7 +962,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="Your Name As per Bank Account"
-                defaultValue={formStateBD.nameAsPerBankAccount}
+                value={formStateBD.nameAsPerBankAccount}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -903,7 +977,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="Bank Name"
-                defaultValue={formStateBD.bankName}
+                value={formStateBD.bankName}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -918,7 +992,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="Account Number"
-                defaultValue={formStateBD.accountNumber}
+                value={formStateBD.accountNumber}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -933,7 +1007,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 disabled={!editableBD}
                 id="outlined-required"
                 label="IFSC Code"
-                defaultValue={formStateBD.ifscCode}
+                value={formStateBD.ifscCode}
                 fullWidth
                 onChange={(e) => {setFormStateBD(prevState => ({
                   ...prevState,
@@ -1032,7 +1106,9 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               <Icon
                 fontSize="small"
                 onClick={() => {
-                  setEditableKYC(true);
+                  if(formStateKYC.KYCStatus != 'Approved'){
+                    setEditableKYC(true);
+                  }
                 }}
               >
                 edit
@@ -1070,10 +1146,10 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="Aadhaar Number *"
-                defaultValue={formStateKYC?.aadhaarNumber}
+                value={formStateKYC?.aadhaarNumber}
                 fullWidth
                 onChange={(e) => {setFormStateKYC(prevState => ({
                   ...prevState,
@@ -1084,10 +1160,10 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="PAN Number *"
-                defaultValue={formStateKYC?.panNumber}
+                value={formStateKYC?.panNumber}
                 fullWidth
                 onChange={(e) => {setFormStateKYC(prevState => ({
                   ...prevState,
@@ -1098,10 +1174,10 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="Passport Number"
-                defaultValue={formStateKYC?.passportNumber}
+                value={formStateKYC?.passportNumber}
                 fullWidth
                 onChange={(e) => {setFormStateKYC(prevState => ({
                   ...prevState,
@@ -1112,10 +1188,10 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
 
           <Grid item xs={12} md={6} xl={3}>
               <TextField
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 id="outlined-required"
                 label="Driving License Number"
-                defaultValue={formStateKYC?.drivingLicenseNumber}
+                value={formStateKYC?.drivingLicenseNumber}
                 fullWidth
                 onChange={(e) => {setFormStateKYC(prevState => ({
                   ...prevState,
@@ -1127,7 +1203,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <Grid item xs={12} md={6} xl={2.4}>
               <MuiFileInput 
                 value={null} 
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 placeholder={(formStateKYC?.aadhaarCardFrontImage ? formStateKYC?.aadhaarCardFrontImage?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.aadhaarCardFrontImage?.name?.length > 15 ? "..." : "")}
                 label="Aadhaar Card Front"
@@ -1138,7 +1214,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <Grid item xs={12} md={6} xl={2.4}>
               <MuiFileInput 
                 value={null} 
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 placeholder={(formStateKYC?.aadhaarCardBackImage ? formStateKYC?.aadhaarCardBackImage?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.aadhaarCardBackImage?.name?.length > 15 ? "..." : "")}
                 label="Aadhaar Card Back"
@@ -1151,7 +1227,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 value={null}
                 placeholder={(formStateKYC?.panCardFrontImage ? formStateKYC?.panCardFrontImage?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.panCardFrontImage?.name?.length > 15 ? "..." : "")}
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 label="PAN Card Photo"
                 onChange={(e)=>{handleFileSelect(e,"panCardFront")}}
               />
@@ -1160,7 +1236,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
           <Grid item xs={12} md={6} xl={2.4}>
           <MuiFileInput 
                 value={null} 
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 placeholder={(formStateKYC?.passportPhoto ? formStateKYC?.passportPhoto?.name?.slice(0, 10)  : "Click to upload") +
                 (formStateKYC?.passportPhoto?.name?.length > 15 ? "..." : "")}
                 label="Passport Size Photo"
@@ -1173,7 +1249,7 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
                 placeholder={(formStateKYC?.addressProofDocument ? formStateKYC?.addressProofDocument?.name?.slice(0, 15)  : "Click to upload") +
                 (formStateKYC?.addressProofDocument?.name?.length > 15 ? "..." : "")}
                 value={null}
-                disabled={!editableKYC}
+                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
                 label="Address Proof"
                 onChange={(e)=>{handleFileSelect(e,"addressProofDocument")}}
               />

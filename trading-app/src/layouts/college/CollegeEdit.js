@@ -53,7 +53,7 @@ const CollegeEdit = () => {
 
     React.useEffect(() => {
 
-        axios.get(`${baseUrl}api/v1/college/${id?._id}`)
+        axios.get(`${baseUrl}api/v1/college/${id?._id}`, {withCredentials:true})
             .then((res) => {
 
 

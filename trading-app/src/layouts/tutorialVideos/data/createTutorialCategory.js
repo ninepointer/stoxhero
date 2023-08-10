@@ -65,7 +65,7 @@ React.useEffect(()=>{
 
 React.useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/tutorialcategory/${id?._id}`)
+    axios.get(`${baseUrl}api/v1/tutorialcategory/${id?._id}`, {withCredentials: true})
     .then((res)=>{
       console.log(res?.data?.data)
       setTutorialCategory(res?.data?.data);

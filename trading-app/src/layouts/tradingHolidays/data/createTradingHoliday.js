@@ -53,7 +53,7 @@ const [formState,setFormState] = useState({
 
 React.useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/tradingholiday/${id?._id}`)
+    axios.get(`${baseUrl}api/v1/tradingholiday/${id?._id}`, {withCredentials: true})
     .then((res)=>{
    
       setTradingHoliday(res?.data?.data);

@@ -42,15 +42,10 @@ const AutoLogin = ({data}) => {
   let generatedOn = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${(date.getFullYear())}`
   let lastModified = generatedOn;
   let createdBy = getDetails.userDetails.name
-
-  // const [activeApiKey, setActiveApiKey] = useState([]);
-  // const [formstate, setformstate] = useState({
-  //     AccountID: "",
-  // });
   const [accessAndRequest, setAccessAndRequest] = useState([])
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/readRequestToken`)
+    axios.get(`${baseUrl}api/v1/readRequestToken`, {withCredentials: true})
     .then((res)=>{
       let data = res.data;
       let active = data.filter((elem) => {
@@ -93,12 +88,12 @@ const AutoLogin = ({data}) => {
           console.log("entry succesfull");
       }
 
-      console.log("accessAndRequest", accessAndRequest)
 
       accessAndRequest.map(async (elem)=>{
 
         const res2 = await fetch(`${baseUrl}api/v1/inactiveRequestToken/${elem._id}`, {
           method: "PATCH",
+          credentials: "include",
           headers: {
               "content-type": "application/json"
           },

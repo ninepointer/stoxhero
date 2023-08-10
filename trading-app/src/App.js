@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext, useRef } from "react";
+import { useState, useEffect, useMemo, useContext, useRef ,Fragment } from "react";
 import axios from "axios"
 import ReactGA from "react-ga"
 
@@ -9,7 +9,6 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import SettingsIcon from '@mui/icons-material/Settings';
-
 
 // Material Dashboard 2 React components
 import MDBox from "./components/MDBox";
@@ -66,6 +65,10 @@ import { userRole } from "./variables";
 import { InfinityTraderRole } from "./variables";
 import Contact from "./layouts/HomePage/pages/Contact";
 import Privacy from "./layouts/HomePage/pages/Privacy";
+import Terms from "./layouts/HomePage/pages/Tnc";
+import Contests from "../src/layouts/UserDailyContest/Header/contests";
+import ProtectedRoute from "./ProtectedRoute";
+
 
 const TRACKING_ID = "UA-264098426-2"
 ReactGA.initialize(TRACKING_ID)
@@ -119,7 +122,8 @@ export default function App() {
       console.log("Fail to fetch data of user");
       noCookie = true;
       console.log(err);
-      pathname === '/login' ? navigate("/login") : navigate(pathname);
+      // pathname === '/contest' ? navigate("/") : pathname === '/collegecontest' ? navigate("/") : navigate(pathname);
+      // navigate("/")
       setIsLoading(false);
     })
   }, [])
@@ -173,7 +177,21 @@ export default function App() {
       }
 
       if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
+        if(route.route !== '/'){
+          return <Route exact path={route.route} 
+          element={
+            <ProtectedRoute>
+             {route.component}
+            </ProtectedRoute>
+          } 
+          key={route.key} />;
+        }else{
+          return <Route exact path={route.route} 
+          element={
+             route.component
+          } 
+          key={route.key} />;
+        }
       }
 
       return null;
@@ -200,10 +218,12 @@ export default function App() {
       <SettingsIcon/>
     </MDBox>
   );
-  
+
   if (isLoading) {
-    return <div></div>; // Replace this with your actual loading component or spinner
+    return <div></div>;
   }
+
+  // console.log("cookieValue", cookieValue, pathname)
 
   return direction === "rtl" ? (
     
@@ -242,8 +262,6 @@ export default function App() {
         {layout === "dashboard" && (
           <>
           {
-                // console.log(getDetails?.userDetails?.role?.roleName , adminRole , getDetails?.userDetails?.role?.roleName , userRole, getDetails?.userDetails?.role?.roleName , InfinityTraderRole , getDetails?.userDetails?.role?.roleName , "data")
-
             (getDetails?.userDetails?.role?.roleName === InfinityTraderRole || getDetails?.userDetails?.role?.roleName === adminRole || getDetails?.userDetails?.role?.roleName === userRole|| getDetails?.userDetails?.role?.roleName === "data") &&
             <Sidenav
               color={sidenavColor}
@@ -283,12 +301,6 @@ export default function App() {
           pathname == "/signup" ?
           <Route path="/signup" element={<SignUp location={myLocation.current} />} />
           :
-          // pathname == "/careers" ?
-          // <Route path="/careers" element={<Navigate to='/careers'/>} />
-          // :
-          // pathname == "/workshops" ?
-          // <Route path="/workshops" element={<Navigate to='/workshops'/>} />
-          // :
           pathname == "/resetpassword" ?
           <Route path="/resetpassword" element={<ResetPassword/>} />
           :
@@ -296,7 +308,7 @@ export default function App() {
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={getDetails?.userDetails.role?.roleName === adminRole ? "/infinitydashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/virtualtrading'} 
+            to={getDetails?.userDetails.role?.roleName === adminRole ? "/infinitydashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard'} 
             />} />
             :
             <Route path="/" element={<Home />} />
@@ -304,9 +316,12 @@ export default function App() {
           // <Route path="/" element={<Navigate to="/virtualtrading" />} />
           
           }
+
+
           <Route path='/resetpassword' element={<ResetPassword/>}/>
           <Route path='/careers' element={<Careers location={myLocation.current}/>}/>
           <Route path='/privacy' element={<Privacy/>}/>
+          <Route path='/terms' element={<Terms/>}/>
           <Route path='/jobdescription' element={<JobDescription/>}/>
           <Route path='/apply' element={<JobApply/>}/>
           <Route path='/home' element={<Home/>}/>
@@ -314,7 +329,7 @@ export default function App() {
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
-            
+
         </Routes>
       </ThemeProvider>
   );

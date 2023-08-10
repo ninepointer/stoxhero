@@ -42,7 +42,7 @@ const TableOne = () => {
     let [overallPnl, setOverallPnl] = useState([]);
    
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/traderpnlreportlive/${firstDate}/${secondDate}`)
+        axios.get(`${baseUrl}api/v1/traderpnlreportlive/${firstDate}/${secondDate}`,{withCredentials:true})
         .then((res)=>{
           //console.log(res.data)
           setTraderPNLData(res.data);

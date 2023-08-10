@@ -34,11 +34,11 @@ const {takeAutoTrade} = require("../../controllers/contestTradeController");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 // const {client, getValue} = require("../../marketData/redisClient")
 // const {overallPnlTrader} = require("../../controllers/infinityController");
-const {marginDetail, tradingDays, autoExpireSubscription} = require("../../controllers/tenXTradeController")
+const {marginDetail, tradingDays, autoExpireTenXSubscription} = require("../../controllers/tenXTradeController")
 const {getMyPnlAndCreditData} = require("../../controllers/infinityController");
 // const {tenx, paperTrade, infinityTrade} = require("../../controllers/AutoTradeCut/autoTradeCut");
 const {infinityTradeLive} = require("../../controllers/AutoTradeCut/collectingTradeManually")
-const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema")
 const InternTrade = require("../../models/mock-trade/internshipTrade")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
@@ -58,24 +58,608 @@ const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInst
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
 const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
+// const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
+// const {creditAmountToWallet} = require("../../controllers/dailyContestController");
+// const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
+const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
+const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCompanyMargin")
+const MarginDetailLiveCompany = require("../../models/marginUsed/infinityLiveCompanyMargin")
+const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMargin")
+const DailyContest = require("../../models/DailyContest/dailyContest")
+const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
+const InternBatch = require("../../models/Careers/internBatch")
 
 
-    
 
-router.get("/insertInRetreive", async (req, res) => {
-  await saveRetreiveData("BANKNIFTY2360144300PE", 1110762, 2700, 1470023, 3600, "Sell");
-  res.send("ok")
+router.get("/collegeData", async (req, res) => {
+  // {
+  //   from: "colleges",
+  //   localField: "_id",
+  //   foreignField: "_id",
+  //   as: "college"
+  // }
+  const x = await InternBatch.aggregate([
+    {
+      $unwind: "$participants",
+    },
+    {
+      $lookup: {
+        from: "intern-trades",
+        localField: "participants.user",
+        foreignField: "trader",
+        as: "tradeData",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          college: "$participants.college",
+          hasTradeData: { $cond: { if: { $gt: [{ $size: "$tradeData" }, 0] }, then: true, else: false } },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $group: {
+        _id: "$_id.college",
+        hasTradeDataCounts: {
+          $push: {
+            hasTradeData: "$_id.hasTradeData",
+            count: "$count",
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "colleges",
+        localField: "_id",
+        foreignField: "_id",
+        as: "college",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        college: "$_id",
+        collegeName: {
+          $arrayElemAt: ["$college.collegeName", 0],
+        },
+        activeUser: {
+          $sum: {
+            $map: {
+              input: "$hasTradeDataCounts",
+              as: "entry",
+              in: {
+                $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+              },
+            },
+          },
+        },
+        inactiveUser: {
+          $sum: {
+            $map: {
+              input: "$hasTradeDataCounts",
+              as: "entry",
+              in: {
+                $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $sort: { college: -1 },
+    },
+    {
+      $skip: 0,
+    },
+    {
+      $limit: 2,
+    },
+  ]
+  )
+
+  res.send(x)
+
+});
+
+router.get("/tenxUpdate", async (req, res) => {
+
+  const x = await TenxSubscription.find();
+
+  for(let elem of x){
+    if(elem.plan_name==="Beginner" || elem.plan_name==="Intermediate" || elem.plan_name==="Pro"){
+      for(subelem of elem.users){
+        if(!subelem.fee){
+          subelem.fee = elem.discounted_price
+        }
+      }
+      elem.save();
+    }
+  }
+
+  res.send(x);
+});
+
+router.get("/tenxData", async (req, res) => {
+
+  const x = await TenxSubscription.aggregate(
+    [
+      {
+        $match:
+          {
+            _id: new ObjectId("645cc77c2f0bba5a7a3ff427"),
+          },
+      },
+      {
+        $unwind: {
+          path: "$users",
+        },
+      },
+      {
+        $lookup: {
+          from: "tenx-trade-users",
+          localField: "users.userId",
+          foreignField: "trader",
+          as: "trade",
+        },
+      },
+      {
+        $match: {
+          "users.status": "Expired",
+        },
+      },
+      {
+        $unwind: {
+          path: "$trade",
+        },
+      },
+      {
+        $match: {
+          "trade.status": "COMPLETE",
+          $expr: {
+            $and: [
+              {
+                $lte: [
+                  "$users.subscribedOn",
+                  "$trade.trade_time",
+                ],
+              },
+              {
+                $gte: [
+                  "$users.expiredOn",
+                  "$trade.trade_time",
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group:
+          /**
+           * _id: The id of the group.
+           * fieldN: The first field name.
+           */
+          {
+            _id: {
+              startDate: "$users.subscribedOn",
+              endDate: "$users.expiredOn",
+              userId: "$trade.trader",
+            },
+            amount: {
+              $sum: {
+                $multiply: ["$trade.amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$trade.brokerage",
+              },
+            },
+            trades: {
+              $count: {},
+            },
+            tradingDays: {
+              $addToSet: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$trade.trade_time",
+                },
+              },
+            },
+          },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "_id.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $project:
+          /**
+           * specifications: The fields to
+           *   include or exclude.
+           */
+          {
+            startDate: "$_id.startDate",
+            enddate: "$_id.endDate",
+            userId: "$_id.userId",
+            _id: 0,
+            npnl: {
+              $subtract: ["$amount", "$brokerage"],
+            },
+            tradingDays: {
+              $size: "$tradingDays",
+            },
+            trades: 1,
+            payout: {
+              $divide: [
+                {
+                  $multiply: [
+                    {
+                      $subtract: [
+                        "$amount",
+                        "$brokerage",
+                      ],
+                    },
+                    10,
+                  ],
+                },
+                100,
+              ],
+            },
+            name: {
+              $concat: [
+                {
+                  $arrayElemAt: [
+                    "$user.first_name",
+                    0,
+                  ],
+                },
+                " ",
+                {
+                  $arrayElemAt: [
+                    "$user.last_name",
+                    0,
+                  ],
+                },
+              ],
+            },
+          },
+      },
+    ]
+  )
+
+  res.send(x);
+});
+
+router.get("/insrtOldPayout", async (req, res) => {
+
+  const data = await DailyContestMockUser.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $lt: new Date("2023-07-09"),
+          },
+        },
+    },
+    {
+      $lookup:
+        /**
+         * from: The target collection.
+         * localField: The local join field.
+         * foreignField: The target join field.
+         * as: The name for the results.
+         * pipeline: Optional pipeline to run on the foreign collection.
+         * let: Optional variables to use in the pipeline field stages.
+         */
+        {
+          from: "daily-contests",
+          localField: "contestId",
+          foreignField: "_id",
+          as: "result",
+        },
+    },
+    {
+      $unwind:
+        /**
+         * path: Path to the array field.
+         * includeArrayIndex: Optional name for index.
+         * preserveNullAndEmptyArrays: Optional
+         *   toggle to unwind null and empty values.
+         */
+        {
+          path: "$result",
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            trader: "$trader",
+            contestId: "$contestId",
+            payper: "$result.payoutPercentage",
+          },
+          amount: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+        },
+    },
+    {
+      $project:
+        /**
+         * specifications: The fields to
+         *   include or exclude.
+         */
+        {
+          user: "$_id.trader",
+          _id: 0,
+          contest: "$_id.contestId",
+          payout: {
+            $divide: [
+              {
+                $multiply: [
+                  "$amount",
+                  "$_id.payper",
+                ],
+              },
+              100,
+            ],
+          },
+          per: "$_id.payper",
+          amount: 1,
+        },
+    },
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          amount: {
+            $gt: 0,
+          },
+        },
+    },
+  ])
+
+  for(let elem of data){
+    let contest = await DailyContest.findOne({_id: elem.contest});
+
+    for(let subelem of contest.participants){
+      if(elem.user.toString() === subelem.userId.toString()){
+        subelem.payout = elem.payout;
+        let c = await contest.save();
+        console.log(c)
+      }
+    }
+  }
+  
+});
+
+router.get("/del", async (req, res) => {
+  const compnay = await MarginDetailLiveCompany.deleteMany({trader: new ObjectId("6454bd032a2c3b3e4c07e057")})
+  const user = await MarginDetailLiveUser.deleteMany({trader: new ObjectId("6454bd032a2c3b3e4c07e057")})
+  res.send({data: compnay.length, dat: user.length});
+});
+
+router.get("/uniqueusers", async (req, res) => {
+  let pipeline = [
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $gte: new Date("2023-07-20"),
+          },
+        },
+    },
+    {
+      $lookup:
+        /**
+         * from: The target collection.
+         * localField: The local join field.
+         * foreignField: The target join field.
+         * as: The name for the results.
+         * pipeline: Optional pipeline to run on the foreign collection.
+         * let: Optional variables to use in the pipeline field stages.
+         */
+        {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+    },
+    {
+      $unwind:
+        /**
+         * path: Path to the array field.
+         * includeArrayIndex: Optional name for index.
+         * preserveNullAndEmptyArrays: Optional
+         *   toggle to unwind null and empty values.
+         */
+        {
+          path: "$user",
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            trader: "$trader",
+            first_name: "$user.first_name",
+            last_name: "$user.last_name",
+          },
+        },
+    },
+  ]
+  const x = await DailyContestMockUser.aggregate(pipeline)
+  res.send(x);
+});
+ 
+
+router.get("/margin", async (req, res) => {
+  let pipeline = [
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          date: {
+            $gte: new Date("2023-07-11"),
+          },
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            trader: "$trader",
+          },
+          margin_utilize: {
+            $sum: "$margin_utilize",
+          },
+          margin_released: {
+            $sum: "$margin_released",
+          },
+        },
+    },
+ 
+  ]
+  const x = await MarginDetailMockCompany.aggregate(pipeline)
+  res.send(x);
+});
+
+router.get("/afterContest", async (req, res) => {
+  await autoCutMainManually();
+  await autoCutMainManuallyMock();
+  await changeStatus();
+  await creditAmount();
+  res.send("ok");
+});
+
+router.get("/updateLotSize", async (req, res) => {
+  const update = await TradableInstrumentSchema.updateMany({ lot_size: 15 }, { lot_size: 25 });
+  res.send(update);
+});
+
+
+router.get("/updateGuid", async (req, res) => {
+  const ordersToUpdate = await RetreiveOrder.find({
+    order_timestamp: {
+      $gte: new Date("2023-05-19"),
+      $lt: new Date("2023-05-31"),
+    },
+    // status: "COMPLETE",
+  });
+
+  console.log("ordersToUpdate", ordersToUpdate)
+  for (let elem of ordersToUpdate) {
+
+    const update = await RetreiveOrder.updateOne({guid: elem.guid}, {$set: {guid: elem.guid.slice(0, -6) + generateRandomString(6)}})
+    console.log("update", update)
+  }
+
+  res.send(ordersToUpdate);
+});
+
+function generateRandomString(length) {
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+router.get("/getMismatch", async (req, res) => {
+ const data = await InfinityLiveUser.aggregate([
+  {
+    $match: {
+      trade_time: {
+        $gte: new Date("2023-06-19"),
+        $lt: new Date("2023-06-20"),
+      },
+      status: "COMPLETE",
+      symbol: "NIFTY2362218850CE",
+    },
+  },
+  {
+    $lookup: {
+      from: "live-trade-companies",
+      localField: "order_id",
+      foreignField: "order_id",
+      as: "companyMatch",
+    },
+  },
+  {
+    $project:
+      {
+        order_id: 1,
+        Quantity: 1,
+        _id: 0,
+        companyOrderId: {
+          $arrayElemAt: [
+            "$companyMatch.order_id",
+            0,
+          ],
+        },
+        companyQuantity: {
+          $arrayElemAt: [
+            "$companyMatch.Quantity",
+            0,
+          ],
+        },
+      },
+  }
+]);
+  res.send(data)
 })
 
+router.get("/insertInRetreive", async (req, res) => {
+  await saveRetreiveData("NIFTY2360118700PE", 1730051, 10300, 1815175.00, 10800, "Sell", "2023-05-31", "31");
+  res.send("ok")
+})
 
 router.get("/data", async (req, res) => {
   const data = await RetreiveOrder.aggregate([
     {
       $match: {
         order_timestamp: {
-          $gte: new Date("2023-05-26"),
+          $gte: new Date("2023-05-31"),
           $lt: new Date("2023-06-01"),
         },
+        status: "COMPLETE"
       },
     },
     {
@@ -139,7 +723,6 @@ router.get("/data", async (req, res) => {
             $sum: 
                 "$quantity"
                 
-            
           },
         },
     },
@@ -184,16 +767,15 @@ router.get("/updateFeild", async (req, res) => {
 })
 
 router.get("/deleteTrades", async (req, res) => {
-  const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
-  $lt: new Date("2023-06-20"),}})
-  const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
-  $lt: new Date("2023-06-20"),}})
+  // const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+  // const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
 
-  const del3 = await InfinityLiveCompany.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
-  $lt: new Date("2023-06-20"),}})
-  const del4 = await InfinityLiveUser.deleteMany({trade_time: {$gte: new Date("2023-06-19"),
-  $lt: new Date("2023-06-20"),}})
-  console.log(del.length, del2.length);
+  const del3 = await Instrument.deleteMany({contractDate: new Date("2023-07-27")})
+  const del4 = await InfinityInstrument.deleteMany({contractDate: new Date("2023-07-27")})
+
+  // const del3 = await InfinityLiveCompany.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+  // const del4 = await InfinityLiveUser.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+  console.log(del3.length, del4.length);// 
 })
 
 router.get("/instrument", async (req, res) => {
@@ -390,22 +972,44 @@ router.get("/updateInstrument", async (req, res) => {
   res.send("ok")
 });
 
+// router.get("/updateExchabgeToken", async (req, res) => {
+//   const collections = [InfinityTrader, InfinityTraderCompany, PaperTrade, TenXTrade, InternTrade ];
+
+//   for (let i = 0; i < collections.length; i++) {
+//     const data = await collections[i].find({ trade_time: { $gte: new Date("2023-05-30T00:00:00.000Z") } });
+  
+//     for (let j = 0; j < data.length; j++) {
+//       const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+  
+//       console.log(exchangeToken)
+//       // Update the document with the exchangeToken field
+//       await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
+//     }
+//   }
+
+// });
+
+
 router.get("/updateExchabgeToken", async (req, res) => {
-  const collections = [InfinityTrader, InfinityTraderCompany, PaperTrade, TenXTrade, InternTrade ];
+  const collections = [InternTrade ];
 
   for (let i = 0; i < collections.length; i++) {
-    const data = await collections[i].find({ trade_time: { $gte: new Date("2023-05-30T00:00:00.000Z") } });
+    const data = await collections[i].find({trader: new ObjectId('64b3a21cdf09ae2a607fdd66'), trade_time: {$gte: new Date("2023-07-31T07:54:52.975+00:00"), $lte: new Date("2023-07-31T09:54:52.975+00:00")}});
   
     for (let j = 0; j < data.length; j++) {
-      const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
+      // const exchangeToken = await TradableInstrumentSchema.findOne({ tradingsymbol: data[j].symbol });
   
-      console.log(exchangeToken)
+      // console.log(exchangeToken)
       // Update the document with the exchangeToken field
-      await collections[i].findByIdAndUpdate(data[j]._id, { exchangeInstrumentToken: exchangeToken.exchange_token });
+      let x = await collections[i].findByIdAndUpdate(data[j]._id, { createdOn:  data[j].trade_time, trade_time: data[j].createdOn, __v: 0});
+
+      console.log(x)
     }
   }
 
 });
+
+
 
 router.get("/infinityAutoLive", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
@@ -545,11 +1149,11 @@ router.get("/deletePnlKey", async (req, res) => {
   await deletePnlKey()
 });
 
-router.get("/pnl", async (req, res) => {
+router.get("/autoExpireTenXSubscription", async (req, res) => {
   // await client.del(`kiteCredToday:${process.env.PROD}`);
   // await overallPnlTrader(req, res)
 
-  await autoExpireSubscription(req, res)
+  await autoExpireTenXSubscription(req, res)
   // await getMyPnlAndCreditData(req, res);
 });
 
@@ -599,7 +1203,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-06-23T00:00:00.000+00:00"
+  let expiryDate = "2023-08-11T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
@@ -613,6 +1217,10 @@ router.get("/updateInstrumentStatus", async (req, res)=>{
     {contractDate: {$lte: expiryDate}, status: "Active"},
     { $set: { status: "Inactive" } }
   )
+
+  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+
+  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
   res.send({message: "updated", data: instrument})
 })
 
@@ -768,7 +1376,26 @@ router.get("/Tradable", authentication, async (req, res, next)=>{
   // await TradableInstrumentSchema.updateMany({expiry: {$lte: "2023-05-18"}}, {$set: {status: "Inactive"}});
   await TradableInstrument.tradableInstrument(req,res,next);
 })
+router.get("/updateInstrumentStatus", async (req, res)=>{
+  let date = new Date();
+  let expiryDate = "2023-08-03T00:00:00.000+00:00"
+  expiryDate = new Date(expiryDate);
 
+  // let instrument = await Instrument.find({status: "Active"})
+  // res.send(instrument)
+  let instrument = await Instrument.updateMany(
+    {contractDate: {$lte: expiryDate}, status: "Active"},
+    { $set: { status: "Inactive" } }
+  )
+
+  let infinityInstrument = await InfinityInstrument.updateMany(
+    {contractDate: {$lte: expiryDate}, status: "Active"},
+    { $set: { status: "Inactive" } }
+  )
+
+  // await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+  res.send({message: "updated", data: instrument})
+})
 router.get("/updateName", async (req, res)=>{
   let data = await UserDetail.updateMany(
     {},
@@ -801,7 +1428,11 @@ router.get("/dailyPnl", async (req, res)=>{
 
 
 router.get("/cronjob", async (req, res)=>{
-  await cronjob();
+  // for(let i = 0; i < 4; i++){
+  //   let date = `2023-07-1${i}`
+    await cronjob();
+  // }
+  
 })
 
 router.get("/dbbackup", async (req, res)=>{

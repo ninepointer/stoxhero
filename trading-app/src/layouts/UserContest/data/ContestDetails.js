@@ -49,7 +49,7 @@ function ContestDetails () {
             return new Error(err);
         })
 
-        axios.get(`${baseUrl}api/v1/referrals/active`)
+        axios.get(`${baseUrl}api/v1/referrals/active`, {withCredentials:true})
         .then((res)=>{
         //    console.log(res?.data?.data[0])
            setActiveReferralProgram(res?.data?.data[0]);

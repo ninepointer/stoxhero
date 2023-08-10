@@ -26,21 +26,17 @@
     // function setValue(value){
     //     isRedisConnected = value;
     // }
-
     // function getValue(){
     //     return isRedisConnected;
     // }
     // const redis = require('redis');
     // client = redis.createClient(
     //     {
-    //         // url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }
     // )
     // const ioredis = require('ioredis');
-
     // const clientForIORedis = new ioredis(`redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`);
-
     // module.exports = {client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }

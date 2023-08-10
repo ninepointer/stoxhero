@@ -76,9 +76,9 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId}) {
+function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, contestData}) {
 
-  console.log("rendering : tradable instrument", from)
+  // console.log("rendering : tradable instrument", from)
   //console.log("rendering in userPosition: TradableInstrument", from)
   const {render, setRender} = useContext(renderContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -89,6 +89,10 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   const [state, dispatch] = useReducer(reducer, initialState);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
+  // const [addButtonClicked, setAddButtonClicked] = useState({
+  //   isClicked: false,
+  //   instrument: ""
+  // })
   const getDetails = useContext(userContext);
 
   const openSuccessSB = () => {
@@ -110,8 +114,15 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   },[isGetStartedClicked])
 
 
+  let url = `isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`
+  let endPointUrl;
+  if(from === dailyContest){
+    endPointUrl = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
+  } else{
+    endPointUrl = `${baseUrl}api/v1/instrumentDetails`
+  }
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
+    axios.get(`${endPointUrl}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -120,10 +131,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       },
     })
     .then((res) => {
-        ////console.log("live price data", res)
         dispatch({ type: 'setUserInstrumentData', payload: (res.data.data) });
-        // setUserInstrumentData(res.data);
-        // setDetails.setMarketData(data);
     }).catch((err) => {
         return new Error(err);
     })
@@ -131,8 +139,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
 
   function sendSearchReq(e) {
-    // let newData += data
-    // clear previous timeout if there is one
     const value = e?.target?.value ? e.target.value : e;
     if (timeoutId) {
       clearTimeout(timeoutId);
@@ -153,15 +159,38 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
   function sendRequest(data){
 
-
-    //console.log("input value", data)
     if(data == ""){
       dispatch({ type: 'setEmptyInstrumentsData', payload: [] });
       return;
     }
 
+    let isNifty = contestData?.isNifty;
+    let isBankNifty = contestData?.isBank;
+    let isFinNifty = contestData?.isFin;
+    let isAllIndex = contestData?.isAll;
+    let url = "";
+    let endPoint = "";
 
-    axios.get(`${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}`, {
+    if(isNifty){
+      url = `&isNifty=${true}`;
+    }
+    if(isBankNifty){
+      url += `&isBankNifty=${true}`;
+    }
+    if(isFinNifty){
+      url += `&isFinNifty=${true}`;
+    }
+    if(isAllIndex){
+      url = `&isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`;
+    }
+
+    if(from === dailyContest){
+      endPoint = `${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}${url}&dailyContest=${dailyContest}`
+    } else{
+      endPoint = `${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}`
+    }
+
+    axios.get(`${endPoint}`, {
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -170,11 +199,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       },
     })
     .then((res)=>{
-      //console.log("instrumentData", res.data)
-      // setInstrumentsData(res.data)
       dispatch({ type: 'setInstrumentsData', payload: (res.data) });
-
-
     }).catch((err)=>{
       //console.log(err);
     })
@@ -182,16 +207,16 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
   async function subscribeInstrument(instrumentData, addOrRemove){
 
-    const {exchange_token, instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry, accountType, segment} = instrumentData
-    console.log("instrumentData", instrumentData, segment)
+    const {exchange_token, instrument_token, tradingsymbol, name, strike, lot_size, instrument_type, exchange, expiry, accountType, segment, chartInstrument} = instrumentData
 
     let maxLot = (tradingsymbol)?.includes("BANKNIFTY") ? maxLot_BankNifty : (tradingsymbol)?.includes("FINNIFTY") ? maxLot_FinNifty :  maxLot_Nifty;
 
-    // socket.emit("subscribeToken", instrument_token);
     dispatch({ type: 'setInstrumentName', payload: `${strike} ${instrument_type}` });
     if(addOrRemove === "Add"){
+      // if(addButtonClicked.isClicked && addButtonClicked.instrument == instrument_token){
+      //   return;
+      // }
       dispatch({ type: 'setAddOrRemoveCheckTrue', payload: true });
-
       const res = await fetch(`${baseUrl}api/v1/addInstrument`, {
         method: "POST",
         credentials:"include",
@@ -203,17 +228,19 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
           instrument: name, exchange, status: "Active", 
           symbol: tradingsymbol, lotSize: lot_size, 
           instrumentToken: instrument_token, uId: uniqid(), 
-          contractDate: expiry, maxLot: maxLot, from,
+          contractDate: expiry, maxLot: maxLot, from, chartInstrument,
           accountType, exchangeSegment: segment, exchangeInstrumentToken: exchange_token
         })
       });
     
       const data = await res.json();
-      ////console.log(data);
       if(data.status === 422 || data.error || !data){
           window.alert(data.error);
       }else{
         openSuccessSB();
+        // addButtonClicked.isClicked = true;
+        // addButtonClicked.instrument = instrument_token;
+        // setAddButtonClicked(addButtonClicked);
         //console.log(data.message)
       }
       
@@ -234,13 +261,9 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       });
   
       const permissionData = await response.json();
-      //console.log("remove", permissionData)
       if (permissionData.status === 422 || permissionData.error || !permissionData) {
           window.alert(permissionData.error);
       }else {
-          // let instrumentTokenArr = [];
-          // instrumentTokenArr.push(instrument_token)
-          // socket.emit("unSubscribeToken", instrumentTokenArr);
           openSuccessSB();
       }
       
@@ -347,11 +370,11 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
                   justifyContent:"space-between",
                   border:"0.25px solid white",
                   borderRadius:2,
-                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && 'white',
-                  color: from === paperTrader ? "white" : "lightgray",
+                  backgroundColor: (from===infinityTrader || from === tenxTrader || from === internshipTrader ) && 'white',
+                  color: from === paperTrader ? "white" : from === dailyContest ? "#1e2e4a" : "lightgray",
                   padding:"0.5px",
                   '&:hover': {
-                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader || from === dailyContest) && '#1e2e4a',
+                    color: (from===infinityTrader || from === tenxTrader || from === internshipTrader ) && '#1e2e4a',
                     backgroundColor: from === paperTrader ? 'lightgray' : 'lightgray',
                     cursor: 'pointer',
                     fontWeight: 600
@@ -367,7 +390,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
                       <Tooltip title="Buy" placement="top">
 
                         {!elem.buyState ?
-                          <BuyModel socket={socket} subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
+                          <BuyModel chartInstrument={elem.chartInstrument} socket={socket} subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
                           :
                           <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
@@ -378,7 +401,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
                     <Grid>
                         {!elem.sellState ?
-                          <SellModel socket={socket} subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
+                          <SellModel chartInstrument={elem.chartInstrument} socket={socket} subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment}/>
                           :
                           <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S

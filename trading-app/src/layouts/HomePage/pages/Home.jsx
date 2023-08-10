@@ -21,6 +21,7 @@ import { apiUrl } from '../../../constants/constants';
 
 const Home = () => {
   const [data, setData] = useState();
+  console.log('home page');
   const getMetrics = async()=>{
     const res = await axios.get(`${apiUrl}appmetrics`);
     setData(res.data.data);

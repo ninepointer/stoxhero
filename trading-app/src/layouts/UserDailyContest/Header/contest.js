@@ -1,50 +1,48 @@
-import { React, useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from 'react';
+import ReactGA from "react-ga"
+import { CircularProgress, Divider, Grid } from '@mui/material';
+import MDBox from '../../../components/MDBox';
+// import MyPortfolio from '../data/Portfolios'
+// import TenXPortfolio from '../data/TenXPortfolio'
+import MDTypography from '../../../components/MDTypography';
+// import axios from "axios";
+// import { useContext } from 'react';
+// import {userContext} from '../../../AuthContext'
+import FreeContest from "./freeContest";
+import PaidContest from "./paidContest";
+import MDButton from '../../../components/MDButton';
+import { Link } from "react-router-dom"
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
-import { userContext } from '../../../AuthContext';
-import moment from 'moment'
+import SchoolIcon from '@mui/icons-material/School';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import { io } from 'socket.io-client';
 
-// prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
-import tradesicon from '../../../assets/images/tradesicon.png'
-
-// @mui material components
-import Grid from "@mui/material/Grid";
-
-// Material Dashboard 2 React components
-import MDBox from "../../../components/MDBox";
-
-// Material Dashboard 2 React base styles
-
-// Images
-import MDButton from "../../../components/MDButton";
-import MDTypography from "../../../components/MDTypography";
-import {InfinityTraderRole, tenxTrader} from "../../../variables";
-import ContestCup from '../../../assets/images/candlestick-chart.png'
-import ContestCarousel from '../../../assets/images/target.png'
-import Timer from '../timer'
-import ProgressBar from "../progressBar";
-import { HiUserGroup } from 'react-icons/hi';
-
-import { CircularProgress, Divider } from "@mui/material";
-import MDSnackbar from "../../../components/MDSnackbar";
-import PopupMessage from "../data/popupMessage";
-import PopupTrading from "../data/popupTrading";
-
-
-
-function Header({ e }) {
+export default function LabTabs() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    const [contest, setContest] = useState([]);
+
+    let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+    let socket;
+    try {
+      socket = io.connect(`${baseUrl1}`)
+    } catch (err) {
+      throw new Error(err);
+    }
+  
+    useEffect(() => {
+      socket.on("connect", () => {
+        console.log("socket connected", socket.id)
+      })
+      ReactGA.pageview(window.location.pathname)
+    }, []);
+
+    const [isLoading, setIsLoading] = useState(false);
+    let [showPay, setShowPay] = useState(true);
     const [isInterested, setIsInterested] = useState(false);
-    const [timeDifference, setTimeDifference] = useState([]);
-    const getDetails = useContext(userContext);
-    const [serverTime, setServerTime] = useState();
-    const [loading, setLoading] = useState(true);
-    // const navigate = useNavigate();
+    const [contest, setContest] = useState([]);
 
     useEffect(() => {
-
+        setIsLoading(true)
         axios.get(`${baseUrl}api/v1/dailycontest/contests/upcoming`, {
             withCredentials: true,
             headers: {
@@ -55,240 +53,107 @@ function Header({ e }) {
         })
         .then((res) => {
             setContest(res.data.data);
+            setTimeout(()=>{
+                setIsLoading(false)
+            },1000)
+            
         }).catch((err) => {
+            setIsLoading(false)
             return new Error(err);
         })
-    }, [isInterested])
+    }, [isInterested, showPay])
 
-    useEffect(()=>{
-        if(serverTime){
-            setLoading(false);
-        }
-    }, [serverTime])
-
-    useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/servertime`)
-        .then((res)=>{
-            setServerTime(res.data.data);
-        })
-    }, [])
-
-    // console.log("serverTime", serverTime)
-
-    function changeDateFormat(givenDate) {
-
-        const date = new Date(givenDate);
-
-        // Convert the date to IST
-        date.setHours(date.getHours());
-        date.setMinutes(date.getMinutes());
-
-        // Format the date as "dd Month yyyy | hh:mm AM/PM"
-        const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
-
-        console.log(formattedDate);
-
-        // Helper function to get the month name
-        function getMonthName(month) {
-            const monthNames = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            ];
-            return monthNames[month];
-        }
-
-        // Helper function to format time as "hh:mm AM/PM"
-        function formatTime(hours, minutes) {
-            const meridiem = hours >= 12 ? "PM" : "AM";
-            const formattedHours = hours % 12 || 12;
-            const formattedMinutes = minutes.toString().padStart(2, "0");
-            return `${formattedHours}:${formattedMinutes} ${meridiem}`;
-        }
-
-        return formattedDate;
-
-    }
-
-    const [messageObj, setMessageObj] = useState({
-        color: '',
-        icon: '',
-        title: '',
-        content: ''
+    let free = contest.filter((elem)=>{
+        return elem?.entryFee === 0;
     })
 
-    const [successSB, setSuccessSB] = useState(false);
-    const openSuccessSB = (value,content) => {
-      if(value === "error"){
-        messageObj.color = 'error'
-        messageObj.icon = 'error'
-        messageObj.title = "Error";
-        messageObj.content = content;
-      };
-  
-      setMessageObj(messageObj);
-      setSuccessSB(true);
-    }
-    const closeSuccessSB = () => setSuccessSB(false);
-  
-    const renderSuccessSB = (
-      <MDSnackbar
-        color= {messageObj.color}
-        icon= {messageObj.icon}
-        title={messageObj.title}
-        content={messageObj.content}
-        open={successSB}
-        onClose={closeSuccessSB}
-        close={closeSuccessSB}
-        bgWhite="info"
-        sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
-      />
-    );
+    let paid = contest.filter((elem)=>{
+        return elem?.entryFee !== 0;
+    })
 
     return (
-        <>
-            <MDBox>
-                {loading ?
-                    <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-                        <CircularProgress color="info" />
+
+        <MDBox bgColor="dark" color="light" display='flex' justifyContent='center' flexDirection='column'  mb={1} borderRadius={10} minHeight='auto'>
+
+            {isLoading ?
+                <MDBox mt={10} mb={10} display="flex" justifyContent="center" alignItems="center">
+                    <CircularProgress color='light' />
+                </MDBox>
+                :
+                <>
+                    <MDBox mt={0} mb={1} p={0.5} width='100%' bgColor='light' minHeight='auto' display='flex' justifyContent='space-between' borderRadius={7}>
+                        <MDButton bgColor='dark' color={"warning"} size='small'
+                            component={Link}
+                            to={{
+                                pathname: `/completedcontests`,
+                            }}
+                        >
+                            <MDBox display='flex' justifyContent='center' alignItems='center'>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    <RemoveRedEyeIcon/>
+                                </MDBox>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    Past Contests
+                                </MDBox>
+                            </MDBox>
+                        </MDButton>
+                        <MDButton bgColor='dark' color={"warning"} size='small'
+                            component={Link}
+                            to={{
+                                pathname: `/contestscoreboard`,
+                            }}
+                        >
+                            <MDBox display='flex' justifyContent='center' alignItems='center'>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    <SportsScoreIcon/>
+                                </MDBox>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    Contest Scoreboard
+                                </MDBox>
+                            </MDBox>
+                        </MDButton>
+                        <MDButton bgColor='dark' color={"warning"} size='small'
+                            component={Link}
+                            to={{
+                                pathname: `/collegecontest`,
+                            }}
+                        >
+                            <MDBox display='flex' justifyContent='center' alignItems='center'>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    <SchoolIcon/>
+                                </MDBox>
+                                <MDBox display='flex' color='light' justifyContent='center' alignItems='center'>
+                                    College Contest
+                                </MDBox>
+                            </MDBox>
+                        </MDButton>
                     </MDBox>
-                    :
-                    <Grid container spacing={2} xs={12} md={12} lg={12}>
-                        {
-                            contest.map((elem) => {
-                                let contestOn = [];
-                                if (elem.isNifty) {
-                                    contestOn.push("NIFTY")
-                                }
-                                if (elem.isBankNifty) {
-                                    contestOn.push("BANKNIFTY")
-                                }
-                                if (elem.isFinNifty) {
-                                    contestOn.push("FINNIFTY")
-                                }
-                                if(elem.isAllIndex){
-                                    contestOn = ['NIFTY', 'BANKNIFTY', 'FINNIFTY']
-                                }
+                    <Grid container xs={12} md={12} lg={12} display='flex'>
+                        <Grid item xs={12} md={6} lg={12}>
+                            {paid.length !== 0 &&
+                            <>
+                                <MDTypography color="light" fontSize={15} ml={0.5} fontWeight="bold">Paid Contest(s)</MDTypography>
+                                <PaidContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
+                            </>
+                            }
+                        </Grid>
 
-                                // contestOn.push(elem.contestExpiry.toUpperCase());
+                        {/* <Divider style={{ backgroundColor: 'light' }}/> */}
 
-                                let progressBar = elem?.participants?.length * 100 / elem?.maxParticipants
-                                // let timeDifference = new Date(elem?.contestStartTime) - new Date(serverTime);
-                                let checkIsInterested = elem?.interestedUsers.some(elem => elem?.userId?._id?.toString() == getDetails?.userDetails?._id?.toString())
-                                
-                                // let isTradingEnable = new Date(elem?.contestEndTime) - serverTime;
-                                let particularContestTime = timeDifference.filter((subelem)=>{
-                                    return subelem?.id?.toString() === elem?._id?.toString();
-                                })
+                        <Grid item xs={12} md={6} lg={12}>
+                            {free.length !== 0 &&
+                            <>
+                                <MDTypography  color="light" fontSize={15} fontWeight="bold" ml={0.5} mt={1}>Free Contest(s)</MDTypography>
+                                <MDBox style={{ minWidth: '100%' }}>
+                                    <FreeContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} />
+                                </MDBox>
+                            </>
+                            }
+                        </Grid>
+                    </Grid>
+                </>
+            }
+        </MDBox>
 
-                                // console.log("timeDifference", particularContestTime[0]?.value )
-                                return (
-                                    <Grid item xs={12} md={12} lg={6} borderRadius={3}>
-                                        <MDButton variant="contained" color="light" size="small">
-                                            <Grid container display='flex' justifyContent='space-between' alignItems='center'>
-                                                {/* {isInterested &&
-                                                <PopupMessage data={"Thanks for showing interest in contestName contest. You will be notified 10 mins before the contest starts on your WhatsApp Number."} />} */}
-                                                <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                    <img src={ContestCarousel} width='40px' height='40px' />
-                                                </Grid>
-                                                <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                    <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                        <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='flex-start'><MDTypography fontSize={15} fontWeight='bold' color='dark'>{elem.contestName}</MDTypography></MDBox>
-                                                        </MDBox>
-                                                        <MDBox display='flex' justifyContent='flex-start' flexDirection='row' alignItems='center'>
-                                                            <MDBox mr={1} display='flex' justifyContent='flex-start'><MDTypography fontSize={10} color='dark'>{changeDateFormat(elem.contestStartTime)}</MDTypography></MDBox>
-                                                            {
-                                                                contestOn.map((elem, index) => {
-                                                                    return (
-                                                                        <MDBox key={elem}>
-                                                                            <MDBox mr={1} display='flex' justifyContent='flex-start' alignItems='center'><MDTypography fontSize={10} style={{ backgroundColor: (contestOn?.length - 1 === index) ? "#4169E1" : '#fb8c00', padding: '1px 1px 0px 1px', border: (contestOn?.length - 1 === index) ? "1px solid #4169E1" : '1px solid #fb8c00', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>{elem}</MDTypography></MDBox>
-                                                                        </MDBox>
-                                                                    )
-                                                                })
-                                                            }
-                                                        </MDBox>
-                                                    </MDBox>
-                                                </Grid>
-
-                                                <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                    <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                        <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='dark'>{elem.payoutPercentage}% of the net P&L</MDTypography></MDBox>
-                                                        </MDBox>
-                                                    </MDBox>
-                                                </Grid>
-
-                                                <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                    <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                        <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <Timer date={elem?.contestStartTime} id={elem._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />
-                                                        </MDBox>
-                                                    </MDBox>
-                                                </Grid>
-
-                                                <Grid item mt={1} xs={12} md={12} lg={12} display="flex" justifyContent="space-between" alignItems="center" alignContent="center">
-                                                    <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                        <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>ENTRY FEE : FREE</MDTypography></MDBox>
-                                                    </MDBox>
-                                                    {/* <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                    <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 2, marginTop: 3, fontWeight: 700 }}>3 SEATS UP FOR GRAB</MDBox>
-                                                </MDBox> */}
-                                                    <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                        <MDBox color="dark"><MDTypography fontSize={10} style={{ backgroundColor: 'grey', padding: '2px 2px 1px 2px', border: '1px solid grey', borderRadius: '2px', alignItems: 'center' }} fontWeight='bold' color='light'>PORTFOLIO: {elem?.portfolio?.portfolioValue}</MDTypography></MDBox>
-                                                    </MDBox>
-                                                </Grid>
-
-                                                <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                                                    <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                                        <ProgressBar progress={progressBar} />
-                                                    </MDBox>
-                                                </Grid>
-
-                                                <Grid item xs={12} md={12} lg={12} display="flex" mt={1} mb={1} justifyContent="space-between" alignItems="center" alignContent="center">
-                                                    {particularContestTime[0]?.value > 0 ?
-                                                        <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.interestedUsers?.length} PEOPLE HAVE SOON INTEREST IN THIS CONTEST</MDBox>
-                                                        </MDBox>
-                                                        :
-                                                        <MDBox color="light" fontSize={10} display="flex" justifyContent="center" alignItems='center'>
-                                                            <HiUserGroup color='black' /><MDBox color="dark" style={{ marginLeft: 3, marginTop: 3, fontWeight: 700 }}>{elem?.participants?.length} SEATS UP FOR GRAB</MDBox>
-                                                        </MDBox>}
-                                                </Grid>
-
-                                                <Grid item mb={1} xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignItems='center'>
-                                                    <MDBox display='flex' justifyContent='space-between' flexDirection='row' width='100%'>
-
-                                                        
-                                                        <MDBox display='flex' justifyContent='flex-start' width='50%'>
-                                                        {particularContestTime[0]?.value > 0 &&
-                                                        <PopupMessage isInterested={checkIsInterested} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in ${elem.contestName} contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} />
-                                                        }
-                                                        {checkIsInterested &&
-
-                                                                 <MDTypography color='info' fontWeight='bold' fontSize={13} mt={.5}>Thanks for expressing your interest.</MDTypography>
-                                                             }
-                                                        </MDBox>
-                                                        
-                                                        <MDBox display='flex' justifyContent='flex-end' width='50%'>
-                                                            <PopupTrading elem={elem} timeDifference={particularContestTime[0]?.value}/>
-                                                        </MDBox>
-                                                    </MDBox>
-                                                </Grid>
-
-
-                                            </Grid>
-                                        </MDButton>
-
-                                    </Grid>
-                                )
-                            })
-                        }
-                    </Grid>}
-                    {renderSuccessSB}
-            </MDBox>
-        </>
     );
 }
-
-export default Header;

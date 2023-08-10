@@ -57,26 +57,26 @@ function Setting() {
       })
   }, [marginEndPoint])
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    axios.get(`${baseUrl}api/v1/readAccountDetails`)
-      .then((res) => {
-        let data = res.data;
-        let active = data.filter((elem) => {
-          return elem.status === "Active"
-        })
-        setAccountIdData(active);
-        console.log(active);
+  //   axios.get(`${baseUrl}api/v1/readAccountDetails`)
+  //     .then((res) => {
+  //       let data = res.data;
+  //       let active = data.filter((elem) => {
+  //         return elem.status === "Active"
+  //       })
+  //       setAccountIdData(active);
+  //       console.log(active);
 
-      }).catch((err) => {
-        return new Error(err);
-      })
+  //     }).catch((err) => {
+  //       return new Error(err);
+  //     })
 
 
-  }, [])
+  // }, [])
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/readsetting`)
+    axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
       .then((res) => {
         setSettingData(res.data)
         setMarginEndPoint(res.data[0]?.toggle?.liveOrder == xtsAccountType ? "xtsMargin" : "getmargin");

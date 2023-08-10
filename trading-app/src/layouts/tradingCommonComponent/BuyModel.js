@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useRef, useContext, useState, useEffect } from "react";
 import {  memo } from 'react';
 // import axios from "axios"
 import uniqid from "uniqid"
@@ -34,7 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
+const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
   console.log("rendering : buy", contestId)
   const tradeSound = new Howl({
     src : [sound],
@@ -126,6 +126,7 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     
     setButtonClicked(false);
     setOpen(true);
+
   }; 
 
   const handleClose = async (e) => {
@@ -136,7 +137,7 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     
     setOpen(false);
     if(isOption){
-      setOpenOptionChain(false)
+        setOpenOptionChain(false) 
     }
     
     setBuyState(false);
@@ -145,7 +146,7 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
 
   async function buyFunction(e, uId) {
     //console.log("caseStudy 1: buy")
-    console.log("buttonClicked inside", buttonClicked)
+    // console.log("buttonClicked inside", buttonClicked)
     if(buttonClicked){
       // setButtonClicked(false);
       return;
@@ -260,9 +261,9 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
       },
       body: JSON.stringify({
         instrument: symbolName, exchange, status: "Active", 
-        symbol, lotSize, instrumentToken, from,
+        symbol, lotSize, instrumentToken, from, chartInstrument,
         uId, contractDate: expiry, maxLot, notInWatchList: true,
-        exchangeSegment, exchangeInstrumentToken
+        exchangeSegment, exchangeInstrumentToken, 
       })
     });
   
@@ -296,15 +297,44 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     }
   }
 
+  // let renderSuccessSB;
   const [successSB, setSuccessSB] = useState(false);
+  // let success = useRef(false);
+  // let message = useRef({
+  //   color: '',
+  //   icon: '',
+  //   title: '',
+  //   content: ''
+  // })
   const openSuccessSB = (value,content) => {
     // //console.log("Value: ",value)
     if(value === "complete"){
+
+      console.log("no response if")
         messageObj.color = 'success'
         messageObj.icon = 'check'
         messageObj.title = "Trade Successfull";
         messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
+        setSuccessSB(true);
 
+        // success.current = true;
+        // message.current.color = 'success'
+        // message.current.icon = 'check'
+        // message.current.title = "Trade Successfull";
+        // message.current.content = `Traded ${content.Quantity} of ${content.symbol}`;
+        // renderSuccessSB = (
+        //   <MDSnackbar
+        //     color= "success"
+        //     icon= "check"
+        //     title="Trade Successfull"
+        //     content="Trade Successfull"
+        //     open={true}
+        //     onClose={closeSuccessSB}
+        //     close={closeSuccessSB}
+        //     bgWhite="info"
+        //     sx={{ borderLeft: `10px solid ${message.current.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${message.current.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto"}}
+        //   />
+        // );
     };
     if(value === "reject"){
       messageObj.color = 'error'
@@ -335,7 +365,7 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-
+  // console.log("no response ", successSB)
   const renderSuccessSB = (
     <MDSnackbar
       color= {messageObj.color}
@@ -350,6 +380,9 @@ const BuyModel = ({isOption, setOpenOptionChain, traderId, socket, subscriptionI
     />
   );
 
+
+
+  // console.log("no response renderSuccessSB", success.current)
 
 
   return (

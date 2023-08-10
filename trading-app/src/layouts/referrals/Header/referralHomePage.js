@@ -54,7 +54,7 @@ function ReferralHomePage() {
   
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/referrals/active`)
+    axios.get(`${baseUrl}api/v1/referrals/active`,{withCredentials:true})
     .then((res)=>{
     //    console.log('ye hai ref', res?.data?.data[0])
        setActiveReferralProgram(res?.data?.data[0]);

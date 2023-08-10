@@ -14,10 +14,6 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
   //console.log("rendering in userPosition: marginGrid")
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-//   const [marginDetails, setMarginDetails] = useState([]);
-  // const { columns, rows } = MarginDetails();
-  // const getDetails = useContext(userContext);
-  // const id = getDetails?.userDetails?._id
   const [fundDetail, setFundDetail] = useState({});
   // const [yesterdayData, setyesterdayData] = useState({});
   const {render} = useContext(renderContext);
@@ -29,19 +25,8 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  // useEffect(() => {
-  //   axios.get(`${baseUrl}api/v1/infinityTrade/myOpening`,{
-  //     withCredentials: true,
-  //     headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //         "Access-Control-Allow-Credentials": true
-  //     }}
-  //     ).then((res)=>{
-  //       setyesterdayData(res.data.data);
-  //     })
-      
-  // }, [render]);
+  console.log("pnlData", pnlData)
+
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/infinityTrade/myPnlandCreditData`,{
@@ -58,35 +43,18 @@ const InfinityMarginGrid = ({setyesterdayData, contestId}) => {
       
   }, [render]);
 
-
-//   let totalCredit = 0;
-//   marginDetails?.map((elem)=>{
-//     totalCredit =+ totalCredit + elem.amount
-//   })
-
-  // let totalCreditString = fundDetail?.totalCredit ? fundDetail?.totalCredit >= 0 ? "+₹" + fundDetail?.totalCredit?.toLocaleString() : "-₹" + ((-fundDetail?.totalCredit)?.toLocaleString()): "+₹0"
-  // let yesterdaylifetimenetpnl = yesterdayData?.npnl ? Number((yesterdayData?.npnl)?.toFixed(0)) : 0;
-  // let runningPnl = Number(netPnl?.toFixed(0));
-  // let openingBalance = yesterdayData?.totalCredit ? (yesterdayData?.totalCredit + yesterdaylifetimenetpnl) : 0;
-  // let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  // let availableMargin = fundDetail?.availableMargin ? Number((fundDetail?.availableMargin)?.toFixed(0))+runningPnl : 0;
-  // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
-  // let usedMargin = runningPnl >= 0 ? 0 : runningPnl
-  // let usedMarginString = usedMargin >= 0 ? "+₹" + Number(usedMargin)?.toLocaleString() : "-₹" + (-Number(usedMargin))?.toLocaleString()
   
   let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
 
   let runningPnl = Number(netPnl?.toFixed(0));
   let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
   let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)+runningPnl-todayAmount) : fundDetail?.totalFund;
-  // let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
+  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)-todayAmount) : fundDetail?.totalFund;
   let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹0"
 
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
   let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
 
-  // console.log("checkmargin", netPnl, yesterdayData, fundDetail)
     
     return (<>
   

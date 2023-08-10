@@ -57,8 +57,6 @@ exports.getReferral = async(req, res, next)=>{
 exports.getActiveReferral = async(req, res, next)=>{
     try{
     const referral = await Referral.find({status : 'Active'}); 
-    // console.log(referral)
-    // .select('_id referrralProgramId referrralProgramName rewardPerReferral status');
     res.status(201).json({message: "Referral Retrived",data: referral});    
     }
     catch{(err)=>{res.status(401).json({message: "err referral", error:err}); }}  
@@ -219,7 +217,6 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
         const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
         const leaderBoardScore = await client.ZSCORE(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
     
-        console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
         if(leaderBoardRank !== null){
           return res.status(200).json({
             status: 'success',

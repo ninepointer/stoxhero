@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
+import ReactGA from "react-ga"
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -16,6 +17,8 @@ import BrokerageChart from '../data/BrokerageChart'
 import OrdersChart from '../data/OrderChart'
 import NetPNLChart from '../data/NetPNLChart'
 import GrossPNLChart from '../data/GrossPNLChart'
+import ExpectedPnlChart from '../data/expectedPnlChart'
+import ExpectedProfitLossChart from '../data/expectedProfitLossChart'
 import DateRangeComponent from '../data/dateRangeSelection'
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -44,15 +47,24 @@ export default function LabTabs() {
   const [endDate,setEndDate] = React.useState(dayjs(date));
   const [monthWiseData, setMonthWiseData] = useState([]);
   const [dateWiseData, setDateWiseData] = useState([]);
+  const[expected, setExpected] = useState([]);
+  const[tradeType, setTradeType] = useState('virtual');
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
-  let endpoint ;
+  let endpoint, trade ;
   if(alignment === paperTrading){
     endpoint = "papertrade";
+    trade='virtual'
+    // setTradeType('virtual');
   } else if(alignment === infinityTrading){
     endpoint = "infinity"
   } else if(alignment === stoxheroTrading){
     endpoint = "stoxhero"
+    trade = 'tenX'
+    // setTradeType('tenX')
   }
 
   const handleChangeView = (event, newAlignment) => {
@@ -64,9 +76,22 @@ export default function LabTabs() {
     const res = await axios.get(`${apiUrl}analytics/${endpoint}/mymonthlypnl`,{withCredentials:true});
     // console.log('res data', res.data.data);
     setMonthWiseData(res.data.data);
-  } 
+  }
+  const getExpectedPnlStats = async()=>{
+    try{
+      const res = await axios.get(`${apiUrl}userdashboard/expectedpnl?tradeType=${trade}`, {withCredentials:true});
+      setExpected(res.data.data);
+    }catch(err){
+      console.log(err)
+    }
+  }
+
+  
   useEffect(()=>{
-    getMonthWiseStats()
+    getMonthWiseStats();
+    if(endpoint!='infinity'){
+      getExpectedPnlStats();
+    }
   },[endpoint])
 
   const handleChange = (event, newValue) => {
@@ -268,13 +293,18 @@ export default function LabTabs() {
 
         <Grid mt={0} container spacing={3}>
           
-          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <GrossPNLChart traderType={alignment} dateWiseData = {dateWiseData}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Gross P&L- Total profit and loss based on buy and sell prices</MDTypography>
+              <MDTypography fontSize={12}>Net P&L - Total profit and loss after deducting transaction charges for trades</MDTypography>
+            </MDBox>
           </MDBox>
           </Grid>
           
-          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          {/* <Grid item xs={12} md={6} lg={6} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <NetPNLChart traderType={alignment} dateWiseData ={dateWiseData}/>
           </MDBox>
@@ -284,13 +314,38 @@ export default function LabTabs() {
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <BrokerageChart traderType={alignment} dateWiseData={dateWiseData}/>
           </MDBox>
-          </Grid>
+          </Grid> */}
           
-          <Grid item xs={12} md={6} lg={6} overflow='auto'>
+          <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <OrdersChart traderType={alignment} dateWiseData={dateWiseData}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Orders - Total orders for the day</MDTypography>
+              <MDTypography fontSize={12}>Brokerage - Total transaction charges for trades for the day</MDTypography>
+            </MDBox>
           </MDBox>
           </Grid>
+          {expected.length>0 && endpoint!='infinity' && <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <ExpectedProfitLossChart traderType={alignment} dateWiseData = {expected}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Expected Average Profit- Your expected profit on the day based on past data.</MDTypography>
+              <MDTypography fontSize={12}>Expected Average Loss - Your expected loss on the day based on past data.</MDTypography>
+            </MDBox>
+          </MDBox>
+          </Grid>}
+          {expected.length>0 && endpoint!='infinity' && <Grid item xs={12} md={6} lg={12} overflow='auto'>
+          <MDBox p={1} bgColor="light" borderRadius={4}>
+            <ExpectedPnlChart traderType={alignment} dateWiseData = {expected}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Expected Net P&L- Your expected net p&l on the day based on past data</MDTypography>
+              <MDTypography fontSize={12}>Risk-Reward Ratio - The ratio of your average profit to your average loss. Higher the ratio, more the chances of you making a higher profit than the loss.</MDTypography>
+            </MDBox>
+          </MDBox>
+          </Grid>}
           
           {/* <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
@@ -301,6 +356,11 @@ export default function LabTabs() {
           <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} bgColor="light" borderRadius={4}>
             <MonthLineChart traderType={alignment} monthWiseData ={monthWiseData}/>
+            <MDBox px={4}>
+              <MDTypography fontSize={12} fontWeight='bold'>Description</MDTypography>
+              <MDTypography fontSize={12}>Gross P&L- Total profit and loss based on buy and sell prices</MDTypography>
+              <MDTypography fontSize={12}>Net P&L - Total profit and loss after deducting transaction charges for trades</MDTypography>
+            </MDBox>
           </MDBox>
           </Grid>
 

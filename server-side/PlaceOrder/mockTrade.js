@@ -7,8 +7,6 @@ const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
 const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockCompany");
-
-// const StoxheroTradeCompany = require("../models/mock-trade/stoxheroTradeCompany");
 const io = require('../marketData/socketio');
 const {client, getValue, clientForIORedis} = require('../marketData/redisClient');
 const mongoose = require('mongoose')
@@ -17,6 +15,8 @@ const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 const InternshipTrade = require("../models/mock-trade/internshipTrade");
 const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers, lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../services/adminRedis/infinityMock");
+const {marginCalculationTrader, marginCalculationCompany} = require("../marketData/marginData");
+
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -27,16 +27,14 @@ exports.mockTrade = async (req, res) => {
     const today = new Date(todayDate);
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-    // console.log(`There are ${secondsRemaining} seconds remaining until the end of the day.`);
-
-    // let stoxheroTrader ;
-    // const InfinityTrader = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTrader : InfinityTrader;
-    // const InfinityTradeCompany = (req.user.isAlgoTrader && stoxheroTrader) ? StoxheroTradeCompany : InfinityTradeCompany;
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
+        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId, marginData,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
-        console.log("caseStudy 8: mocktrade")
+
+        order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+
+        console.log("caseStudy 8: mocktrade", )
 
         if(exchange === "NFO"){
             exchangeSegment = 2;
@@ -56,7 +54,6 @@ exports.mockTrade = async (req, res) => {
     
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
-        //console.log(Boolean(exchange)); //console.log(Boolean(symbol)); //console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
         return res.status(422).json({error : "please fill all the feilds..."})
     }
 
@@ -71,31 +68,26 @@ exports.mockTrade = async (req, res) => {
     let originalLastPriceCompany;
     let newTimeStamp = "";
     let trade_time = "";
-    try{
-        // console.log("above data")
-        // let liveData = await singleLivePrice(exchange, symbol) TODO toggle
-        // let liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+    try {
         let liveData;
-        if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
-            // console.log("inside setting")
+        if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
             liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
-        } else{
-            // console.log("inside setting else case")
+        } else {
             liveData = await singleLivePrice(exchange, symbol)
         }
-        // console.log("live data", liveData)
-        for(let elem of liveData){
-            if(elem.instrument_token == instrumentToken){
-                newTimeStamp = elem.timestamp;
-                // console.log("zerodha date", elem.timestamp)
-                originalLastPriceUser = elem.last_price;
-                originalLastPriceCompany = elem.last_price;
-            }
-        }
+        newTimeStamp = liveData[0]?.timestamp;
+        originalLastPriceUser = liveData[0]?.last_price;
+        originalLastPriceCompany = liveData[0]?.last_price;
 
         trade_time = new Date(newTimeStamp);
+        if(trade_time < new Date()){
+            console.log("in if")
+            const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+            trade_time = trade_time.getTime() + subtractedTime;
+        }
 
-    } catch(err){
+
+    } catch (err) {
         console.log(err)
         return new Error(err);
     }
@@ -107,7 +99,6 @@ exports.mockTrade = async (req, res) => {
         let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
         let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
         let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
-        
         let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
         let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
         let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
@@ -118,7 +109,6 @@ exports.mockTrade = async (req, res) => {
         let brokerage = Number(sellBrokerData.brokerageCharge);
         let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
         let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
-
         let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
         let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
         let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
@@ -130,7 +120,6 @@ exports.mockTrade = async (req, res) => {
     let brokerageUser;
     let brokerageCompany;
 
-    // console.log(Number(realQuantity), originalLastPriceCompany)
     if(realBuyOrSell === "BUY"){
         brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailBuy[0]); // TODO 
     } else{
@@ -142,13 +131,11 @@ exports.mockTrade = async (req, res) => {
     } else{
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
-    
-    // console.log(paperTrade, isAlgoTrader); dailyContest
+
 
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
 
-        let settingRedis ;
         const session = await mongoose.startSession();
         try{
 
@@ -209,10 +196,6 @@ exports.mockTrade = async (req, res) => {
             await pipelineForSet.exec();
 
             if(isRedisConnected){
-                // await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-                // await client.expire(`overallMockPnlCompany`, secondsRemaining);
-                // await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-                // await client.expire(`lastTradeDataMock`, secondsRemaining);
 
                 const pipeline = clientForIORedis.pipeline();
 
@@ -223,41 +206,36 @@ exports.mockTrade = async (req, res) => {
 
                 await pipeline.exec();
             }
-            // Commit the transaction
             
             io.emit("updatePnl", mockTradeDetails)
             if(fromAdmin){
-                console.log("in admin side")
+                // console.log("in admin side")
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
-            // console.log(settingRedis, redisValueOverall,redisValueTrader )
+            // console.log("pipelineForSet._result", pipelineForSet._result)
 
-            // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
-
-            // console.log("pipelineForSet", pipelineForSet)
-            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
+            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {
+                const saveMarginCompany = await marginCalculationCompany(req.body?.marginData, req.body, originalLastPriceCompany, order_id);
+                const saveMarginUser = await marginCalculationTrader(req.body?.marginData, req.body, originalLastPriceUser, order_id);        
                 await session.commitTransaction();
                 res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
             } else {
-                // await session.commitTransaction();
                 throw new Error();
             }
             
 
         } catch(err){
-            if(isRedisConnected){
-                const pipeline = clientForIORedis.pipeline();
-
-                await pipeline.del(`${trader.toString()} overallpnl`);
-                await pipeline.del(`traderWiseMockPnlCompany`);
-                await pipeline.del(`overallMockPnlCompany`);
-                await pipeline.del(`lastTradeDataMock`);
-                
-                const results = await pipeline.exec();
-            }
-            await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);
+
+            const pipeline = clientForIORedis.pipeline();
+            await pipeline.del(`${trader.toString()} overallpnl`);
+            await pipeline.del(`traderWiseMockPnlCompany`);
+            await pipeline.del(`overallMockPnlCompany`);
+            await pipeline.del(`lastTradeDataMock`);
+            const results = await pipeline.exec();
+
+            await session.abortTransaction();
             res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
         } finally {
         // End the session
@@ -299,10 +277,11 @@ exports.mockTrade = async (req, res) => {
             const mockTradeDetails = await DailyContestMockCompany.create([companyDoc], { session });
             const algoTrader = await DailyContestMockUser.create([traderDoc], { session });
 
+            // console.log(traderDoc)
 
             const pipeline = clientForIORedis.pipeline();
 
-            await pipeline.get(`${trader.toString()} overallpnlDailyContest`)
+            await pipeline.get(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`)
             await pipeline.get(`overallMockPnlCompanyDailyContest`)
             await pipeline.get(`traderWiseMockPnlCompanyDailyContest`)
 
@@ -321,7 +300,7 @@ exports.mockTrade = async (req, res) => {
             // console.log("setting data", overallPnlUser, redisValueOverall, redisValueTrader, lastTradeMock)
             const pipelineForSet = clientForIORedis.pipeline();
 
-            await pipelineForSet.set(`${trader.toString()} overallpnlDailyContest`, overallPnlUser);
+            await pipelineForSet.set(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`, overallPnlUser);
             await pipelineForSet.set(`overallMockPnlCompanyDailyContest`, redisValueOverall);
             await pipelineForSet.set(`traderWiseMockPnlCompanyDailyContest`, redisValueTrader);
             await pipelineForSet.set(`lastTradeDataMockDailyContest`, lastTradeMock);
@@ -329,14 +308,10 @@ exports.mockTrade = async (req, res) => {
             await pipelineForSet.exec();
 
             if(isRedisConnected){
-                // await client.expire(`${trader.toString()} overallpnl`, secondsRemaining);
-                // await client.expire(`overallMockPnlCompany`, secondsRemaining);
-                // await client.expire(`traderWiseMockPnlCompany`, secondsRemaining);
-                // await client.expire(`lastTradeDataMock`, secondsRemaining);
 
                 const pipeline = clientForIORedis.pipeline();
 
-                pipeline.expire(`${trader.toString()} overallpnlDailyContest`, secondsRemaining);
+                pipeline.expire(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`, secondsRemaining);
                 pipeline.expire(`overallMockPnlCompanyDailyContest`, secondsRemaining);
                 pipeline.expire(`traderWiseMockPnlCompanyDailyContest`, secondsRemaining);
                 pipeline.expire(`lastTradeDataMockDailyContest`, secondsRemaining);
@@ -348,17 +323,11 @@ exports.mockTrade = async (req, res) => {
             io.emit("updatePnl", mockTradeDetails)
             // console.log("after")
             if(fromAdmin){
-                console.log("in admin side")
+                // console.log("in admin side")
                 io.emit(`${trader.toString()}autoCut`, algoTrader)
             }
 
-            // console.log(settingRedis, redisValueOverall,redisValueTrader )
-
-            // if(settingRedis === "OK" && redisValueOverall === "OK" && redisValueTrader === "OK"){
-
-            // console.log("pipelineForSet", pipelineForSet)
-            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK") {
-                await session.commitTransaction();
+            if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                await session.commitTransaction();
                 return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
             } else {
                 // await session.commitTransaction();
@@ -368,16 +337,12 @@ exports.mockTrade = async (req, res) => {
 
         } catch(err){
             console.log(err);
-            if(isRedisConnected){
-                const pipeline = clientForIORedis.pipeline();
-
-                await pipeline.del(`${trader.toString()} overallpnlDailyContest`);
-                await pipeline.del(`traderWiseMockPnlCompanyDailyContest`);
-                await pipeline.del(`overallMockPnlCompanyDailyContest`);
-                await pipeline.del(`lastTradeDataMockDailyContest`);
-                
-                const results = await pipeline.exec();
-            }
+            const pipeline = clientForIORedis.pipeline();
+            await pipeline.del(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`);
+            await pipeline.del(`traderWiseMockPnlCompanyDailyContest`);
+            await pipeline.del(`overallMockPnlCompanyDailyContest`);
+            await pipeline.del(`lastTradeDataMockDailyContest`);
+            const results = await pipeline.exec();
             await session.abortTransaction();
             console.error('Transaction failed, documents not saved:', err);
             res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
@@ -475,7 +440,7 @@ exports.mockTrade = async (req, res) => {
     
             //console.log("mockTradeDetails", paperTrade);
             tenx.save().then(async ()=>{
-                console.log("sending response");
+                // console.log("sending response");
                 if(isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)){
                     //console.log("in the if condition")
                     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
@@ -525,6 +490,10 @@ exports.mockTrade = async (req, res) => {
     }
 
     if(internPath){
+
+        // if(subscriptionId.toString() === "646df6b4645992f7151f4959"){
+        //     return res.status(400).json({status: "error", message: "This internship has ended."})
+        // }
         
         InternshipTrade.findOne({order_id : order_id})
         .then((dataExist)=>{
@@ -545,7 +514,7 @@ exports.mockTrade = async (req, res) => {
     
             //console.log("mockTradeDetails", paperTrade);
             internship.save().then(async ()=>{
-                console.log("sending response");
+                // console.log("sending response");
                 if(isRedisConnected && await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)){
                     //console.log("in the if condition")
                     let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)

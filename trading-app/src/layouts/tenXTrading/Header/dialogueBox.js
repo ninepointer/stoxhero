@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-
+import paymentQr from '../../../assets/images/paymentQr.jpeg';
 
 //icons
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -27,6 +27,7 @@ import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
 import { Typography } from '@mui/material';
+import Renew from './renew/renew';
 
 
 
@@ -38,6 +39,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
   const getDetails = React.useContext(userContext);
   const [updatedUser, setUpdatedUser] = React.useState({});
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [setting, setSetting] = useState([]);
   const [messege, setMessege] = useState({
     lowBalanceMessage: "",
     thanksMessege: ""
@@ -75,6 +77,21 @@ export default function Dialogue({amount, name, id, walletCash}) {
     }).catch((err)=>{
       console.log("Fail to fetch data of user", err);
     })
+
+    axios.get(`${baseUrl}api/v1/readsetting`, {
+      withCredentials: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+    })
+    .then((res) => {
+      setSetting(res?.data[0]);
+
+    }).catch((err) => {
+      console.log("Fail to fetch data of user", err);
+    })
   }, [])
 
   useEffect(()=>{
@@ -86,9 +103,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
     }
   }, [updatedUser])
 
-  const handleCopy = () => {
-    openSuccessSB('success', 'Text copied.');
-  }
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -202,17 +217,19 @@ export default function Dialogue({amount, name, id, walletCash}) {
    
     <>
         {isSubscribed ?
-        <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+          <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>
         </MDBox>
         :
         messege.thanksMessege ?
-        <MDBox>
-        <MDButton variant="contained" color="dark" sx={{width: "130px", height: "20px", fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+        <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+          <Renew amount={amount} name={name} id={id} walletCash={walletCash} />
         </MDBox>
         :
         <MDBox>
-        <MDButton variant="contained" color="dark" onClick={captureIntent} size='small'>Unlock</MDButton>
+        <MDButton variant="contained" color="dark" sx={{fontSize: "10px"}} onClick={captureIntent} size='small'>Unlock</MDButton>
         </MDBox>}
 
         <Dialog
@@ -235,23 +252,49 @@ export default function Dialogue({amount, name, id, walletCash}) {
               messege.thanksMessege
               :
               <>
-                <DialogContentText id="alert-dialog-description">
+                <DialogContent>
+          {messege.thanksMessege ?
 
-                  <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
-                    <Title variant={{xs:"h2",md:"h3"}} style={{color:"#000",fontWeight:"bold",marginTop:"10px"}} >Choose how to pay</Title>
-                    <Typography textAlign="center" sx={{mt:"12px", width:"75%",mb:"12px"}} color="#000" variant="body2">Your payment is encrypted and you can change your payment method at anytime.</Typography>
-                    <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Secure for peace of mind.</Typography>
-                    {/* <Typography  variant="body2" sx={{fontWeight:"bold"}} color="#000" >Cancel easily online.</Typography> */}
+          <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.thanksMessege}</Typography>
+          :
+          messege.error ?
+          <Typography textAlign="center" sx={{ width: "100%" }} color="#000" variant="body2">{messege.error}</Typography>
+            :
+            <>
+              <DialogContentText id="alert-dialog-description">
+
+                <MDBox display="flex" flexDirection="column" textAlign="center" alignItems="center" >
+                  <Title variant={{ xs: "h2", md: "h3" }} style={{ color: "#000", fontWeight: "bold", marginTop: "-24px" }} >Choose how to pay</Title>
+                  <Typography textAlign="center" sx={{ mt: "4px", width: "75%", mb: "4px" }} color="#000" variant="body2">
+                    
+                    {
+                    (walletCash < amount) ?
+                    `Your wallet balance is low, kindly add money to your wallet. Follow the steps below.`
+                    :
+                    `To add money in your wallet, please follow these steps.`
+                    }
+                  </Typography>
+                  <Typography textAlign="start" px={3} fontSize={13}>Step-1: Open any UPI app, scan the QR or enter the UPI ID {setting?.contest?.upiId}</Typography>
+                  <MDBox>
+                    <img src={paymentQr} width={200} height={200}/>
                   </MDBox>
-                </DialogContentText>
+                  <Typography textAlign="start" px={3} mb={0.4} fontSize={13}>Step-2: Complete the payment of your desired amount and take a screenshot.</Typography>
+                  <Typography textAlign="start" px={4} fontSize={13}>Step-3: Please email {setting?.contest?.email} or WhatsApp {setting?.contest?.mobile} with your name, registered phone number, payment screenshot. Call for quicker resolution. Make sure your transactionId and amount is visible.</Typography>
 
-                <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={8} >
+                </MDBox>
+              </DialogContentText>
+            </>
+          }
+
+        </DialogContent>
+
+                <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center"  mt={0} >
                   <MDBox onClick={()=>{buySubscription()}} border="1px solid black" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{height:"40px",width:{xs:"85%",md:"auto"},"&:hover":{cursor:"pointer",border:"1px solid blue"}}} >
 
                     <MDBox display="flex" justifyContent="center">
                     <Typography variant="body2" color="#000" style={{ marginRight: '14px', marginLeft:"8px" }} >Stoxhero Wallet</Typography>
                     <AccountBalanceWalletIcon sx={{marginTop:"5px",color:"#000",marginRight:"4px"}} />
-                    <Typography variant="body2" sx={{fontSize:"16.4px",fontWeight:"550"}} color="#000" > {` ₹${walletCash}`}</Typography>
+                    <Typography variant="body2" sx={{fontSize:"16.4px",fontWeight:"550"}} color="#000" > {` ₹${walletCash.toFixed(2)}`}</Typography>
                     </MDBox>
 
                     <MDBox>
@@ -259,39 +302,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
                     </MDBox>
 
                   </MDBox>
-
-
-                      {(walletCash < amount) &&
-                      <MDBox border="1px solid red" borderRadius="10px" mt={5} p={1}>
-
-                      <MDBox>
-                      <MDBox display="flex" flexDirection="column" textAlign="center" justifyContent="center" sx={{width:{xs:"95%"}}} >
-
-                        <Typography variant="body2" color="#000" sx={{fontWeight:"600"}} >Your wallet balance is low kindly refer more users on this platform to buy this subscription.</Typography>
-                        <MDBox display='flex' 
-                            alignItems='center' justifyContent='center'
-
-                            style={{
-                                // backgroundColor:'#c3c3c3', 
-                                padding: '10px',
-                                borderRadius: '10px'
-                            }}
-                        >
-                        <MDTypography paddingLeft = '15px'>{getDetails.userDetails.myReferralCode}</MDTypography>
-                        <MDButton variant='text' color='black' padding={0} margin={0} >
-                            <CopyToClipboard text = {copyText} onCopy={handleCopy}>
-                                <BiCopy/>
-                            </CopyToClipboard>
-                        </MDButton>
-                        </MDBox>
-                    
-                      </MDBox>
-                      </MDBox>
-                
-                   </MDBox>
-                    
-                    }
-
 
                 </MDBox>
               </>

@@ -886,7 +886,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
             wallet.transactions = [...wallet.transactions, {
               title: 'Battle Credit',
               description: `Amount credited for battle ${contest.contestName}`,
-              amount: reward.reward,
+              amount: reward.reward?.toFixed(2),
               transactionId: uuid.v4(),
               transactionType: reward.currency == 'INR'?'Cash':'Bonus' 
           }];

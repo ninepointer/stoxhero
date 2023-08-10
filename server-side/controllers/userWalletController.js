@@ -15,9 +15,7 @@ exports.createUserWallet = async(req, res, next)=>{
 
     const wallet = await UserWallet.create({userId, createdBy: userId});
     
-    res.status(201).json({message: 'User Wallet successfully created.', data:wallet});    
-        
-
+    res.status(201).json({message: 'User Wallet successfully created.', data:wallet});   
 }
 
 exports.getUserWallets = async(req, res, next)=>{
@@ -68,6 +66,18 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     console.log("all three", subscriptionAmount, subscriptionName, subscribedId)
     try{
 
+        const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
+
+        for(let i = 0; i < subs.users.length; i++){
+            if(subs.users[i].userId.toString() == userId.toString() && subs.users[i].status == "Live"){
+                console.log("getting that user")
+                return res.status(404).json({status:'error', message: 'You already have subscribed this subscription'});
+                // break;
+            }
+        }
+
+        console.log("outside of for loop")
+
         const wallet = await UserWallet.findOne({userId: userId});
         wallet.transactions = [...wallet.transactions, {
               title: 'Bought TenX Trading Subscription',
@@ -84,7 +94,8 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
               $push: {
                 subscription: {
                   subscriptionId: new ObjectId(subscribedId),
-                  subscribedOn: new Date()
+                  subscribedOn: new Date(),
+                  fee: subscriptionAmount
                 }
               }
             },
@@ -92,13 +103,14 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         );
 
         const subscription = await Subscription.findOneAndUpdate(
-        { _id: subscribedId },
+        { _id: new ObjectId(subscribedId) },
         {
             $push: {
-            users: {
-                userId: new ObjectId(userId),
-                subscribedOn: new Date()
-            }
+                users: {
+                    userId: new ObjectId(userId),
+                    subscribedOn: new Date(),
+                    fee: subscriptionAmount
+                }
             }
         },
         { new: true }
@@ -111,97 +123,98 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         if(!wallet){
             return res.status(404).json({status:'error', message: 'No Wallet found'});
         } 
-            let recipients = [user.email,'team@stoxhero.com'];
-            let recipientString = recipients.join(",");
-            let subject = "New Subscription - StoxHero";
-            let message = 
-            `
-            <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>New Subscription Purchased</title>
-                    <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        font-size: 16px;
-                        line-height: 1.5;
-                        margin: 0;
-                        padding: 0;
-                    }
+        let recipients = [user.email,'team@stoxhero.com'];
+        let recipientString = recipients.join(",");
+        let subject = "New Subscription - StoxHero";
+        let message = 
+        `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>New Subscription Purchased</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
 
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        border: 1px solid #ccc;
-                    }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
 
-                    h1 {
-                        font-size: 24px;
-                        margin-bottom: 20px;
-                    }
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
 
-                    p {
-                        margin: 0 0 20px;
-                    }
+                p {
+                    margin: 0 0 20px;
+                }
 
-                    .userid {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
 
-                    .password {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
 
-                    .login-button {
-                        display: inline-block;
-                        background-color: #007bff;
-                        color: #fff;
-                        padding: 10px 20px;
-                        font-size: 18px;
-                        font-weight: bold;
-                        text-decoration: none;
-                        border-radius: 5px;
-                    }
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
 
-                    .login-button:hover {
-                        background-color: #0069d9;
-                    }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                    <h1>New Subscription Purchased</h1>
-                    <p>Hello ${user.first_name},</p>
-                    <p>Thanks for purchasing our subscription! Please find your purchase details below.</p>
-                    <p>User ID: <span class="userid">${user.employeeid}</span></p>
-                    <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
-                    <p>Email: <span class="password">${user.email}</span></p>
-                    <p>Mobile: <span class="password">${user.mobile}</span></p>
-                    <p>Subscription Name: <span class="password">${subscription.plan_name}</span></p>
-                    <p>Subscription Actual Price: <span class="password">₹${subscription.actual_price}/-</span></p>
-                    <p>Subscription Discounted Price: <span class="password">₹${subscription.discounted_price}/-</span></p>  
-                    </div>
-                </body>
-                </html>
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>New Subscription Purchased</h1>
+                <p>Hello ${user.first_name},</p>
+                <p>Thanks for purchasing our subscription! Please find your purchase details below.</p>
+                <p>User ID: <span class="userid">${user.employeeid}</span></p>
+                <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+                <p>Email: <span class="password">${user.email}</span></p>
+                <p>Mobile: <span class="password">${user.mobile}</span></p>
+                <p>Subscription Name: <span class="password">${subscription.plan_name}</span></p>
+                <p>Subscription Actual Price: <span class="password">₹${subscription.actual_price}/-</span></p>
+                <p>Subscription Discounted Price: <span class="password">₹${subscription.discounted_price}/-</span></p>  
+                </div>
+            </body>
+            </html>
 
-            `
+        `
+        if(process.env.PROD === "true"){
             emailService(recipientString,subject,message);
             console.log("Subscription Email Sent")
-
+        }
         res.status(200).json({status: 'success', message: "Subscription purchased successfully", data: user});
 
     }catch(e){
@@ -209,5 +222,4 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 }
-
 

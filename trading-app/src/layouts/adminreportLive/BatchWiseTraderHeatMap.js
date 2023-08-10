@@ -20,7 +20,7 @@ const [batchData, setBatchData] = useState([]);
 
 useEffect(()=>{
 
-      axios.get(`${baseUrl}api/v1/batchwisepnlLive`)
+      axios.get(`${baseUrl}api/v1/batchwisepnlLive`,{withCredentials:true})
         .then((res)=>{
           let data = res.data;
 

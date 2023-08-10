@@ -66,8 +66,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       //     "Access-Control-Allow-Credentials": true
       // },
   });
-    getDetails.setUserDetail('');
     navigate("/");
+    getDetails.setUserDetail('');
   }
 
   useEffect(() => {
@@ -75,7 +75,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     function handleMiniSidenav() {
       setMiniSidenav(dispatch, window.innerWidth < 1200);
       setTransparentSidenav(dispatch, window.innerWidth < 1200 ? false : transparentSidenav);
-      setWhiteSidenav(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
+      // setWhiteSidenav(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
     }
 
     /** 
@@ -156,7 +156,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 
     return returnValue;
   });
-
+  // xs: "none", 
   return (
     <SidenavRoot
       {...rest}

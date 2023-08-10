@@ -5,7 +5,7 @@ const {optionChain} = require('../../marketData/earlySubscribeInstrument');
 const Authenticate = require('../../authentication/authentication');
 
 
-router.route('/:index').get(optionChain)
+router.route('/:index').get(Authenticate, optionChain)
 
 
 

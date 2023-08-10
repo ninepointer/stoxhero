@@ -4,62 +4,55 @@ const {client, getValue} = require("../marketData/redisClient");
 const { ObjectId } = require("bson");
 
 
-const Authenticate = async (req, res, next)=>{
+const Authenticate = async (req, res, next) => {
     let isRedisConnected = getValue();
     let token;
-    try{
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
-    ) {
-        token = req.headers.authorization.split(' ')[1];
-    }
-    // console.log((req ))
-    if (req.cookies) {
-        if(req.cookies.jwtoken) token = req.cookies.jwtoken;
-    }
-        // console.log("Token: ",req.cookies.jwtoken)
+    try {
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers?.authorization?.split(' ')[1];
+        }
+
+        if (req.cookies && req.cookies.jwtoken) {
+            token = req.cookies.jwtoken;
+        }
+
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
-        // console.log('verify token',verifyToken);
 
-        try{
-            // console.log("above authentication", isRedisConnected, getValue());
-            // console.log("check",  client.exists(`${verifyToken._id.toString()}authenticatedUser`))
-            if(isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)){
-                // console.log("in authentication if")
-                let user = await client.get(`${verifyToken._id.toString()}authenticatedUser`)
-                user = JSON.parse(user);
-                // await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 10);
-                user._id = new ObjectId(user._id)
-                req.user = user;
+        let user;
+
+        if (isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)) {
+            user = await client.get(`${verifyToken._id.toString()}authenticatedUser`);
+            user = JSON.parse(user);
+            user._id = new ObjectId(user._id);
+            await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 180);
+            if(new Date(user?.passwordChangedAt)>new Date(verifyToken?.iat)){
+                console.log('password changed');
             }
+        } else {
             
-            else{
+            user = await User.findOne({ _id: new ObjectId(verifyToken._id), status: "Active" })
+                .select('_id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt');
 
-                // console.log("in else authentication")
-                const user = await User.findOne({_id: verifyToken._id, status: "Active"})
-                .select('_id employeeid first_name last_name mobile name role isAlgoTrader')
-                
-                if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
-
-                // console.log("abobe redis")
-                if(isRedisConnected){
-                    await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
-                    await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 30);    
-                }
-                // console.log("below redis")
-                req.user = user;
+            if (!user) { 
+                return res.status(404).json({ status: 'error', message: 'User not found' });
             }
-          }catch(e){
-            console.log("redis error", e);
-          }
+            if (user.changedPasswordAfter(verifyToken.iat)) {
+                return res.status(401).send({ status: "error", message: "User recently changed password! Please log in again." });
+            }
+            if ("isRedisConnected") {
+                await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
+                await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 180);
+            }
+        }
 
-    } catch(err){
-        console.log("err", err)
-        return res.status(401).send({status: "error", message: "Unauthenthicated"});
+        req.user = user;
+    } catch (err) {
+        console.log("err", err);
+        return res.status(401).send({ status: "error", message: "Unauthenticated" });
     }
     next();
 }
+
 
 module.exports = Authenticate;
 

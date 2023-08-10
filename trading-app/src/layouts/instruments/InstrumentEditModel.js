@@ -103,6 +103,7 @@ const InstrumentEditModel = ({Render, data, id}) => {
 
         const res = await fetch(`${baseUrl}api/v1/readInstrumentDetails/${id}`, {
             method: "PUT",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
                 "content-type": "application/json"
@@ -130,6 +131,7 @@ const InstrumentEditModel = ({Render, data, id}) => {
         setOpen(false);
         const res = await fetch(`${baseUrl}api/v1/readInstrumentDetails/${id}`, {
             method: "DELETE",
+            credentials: "include"
         });
 
         const dataResp = await res.json();

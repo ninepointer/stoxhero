@@ -82,7 +82,9 @@ function TraderwiseTraderPNL({socket }) {
         obj.lotUsed += Math.abs(allTrade[i].lotUsed)
         obj.runninglots += allTrade[i].lots;
         obj.brokerage += allTrade[i].brokerage;
-        obj.noOfTrade += allTrade[i].trades
+        obj.noOfTrade += allTrade[i].trades;
+        obj.absRunninglots += Math.abs(allTrade[i].lots);
+
 
       } else{
         let marketDataInstrument = marketData.filter((elem)=>{
@@ -93,6 +95,7 @@ function TraderwiseTraderPNL({socket }) {
           totalPnl : ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price))),
           lotUsed : Math.abs(allTrade[i].lotUsed),
           runninglots : allTrade[i].lots,
+          absRunninglots: Math.abs(allTrade[i].lots),
           brokerage: allTrade[i].brokerage,
           noOfTrade: allTrade[i].trades,
           userId: allTrade[i]._id.traderId,
@@ -119,6 +122,8 @@ function TraderwiseTraderPNL({socket }) {
   let totalTrades = 0;
   let totalLotsUsed = 0;
   let totalTraders = 0;
+  let totalAbsRunningLots = 0;
+
 
 
 
@@ -137,6 +142,8 @@ finalTraderPnl.map((subelem, index)=>{
   totalLotsUsed += (subelem.lotUsed);
   totalTrades += (subelem.noOfTrade);
   totalTraders += 1;
+  totalAbsRunningLots += subelem.absRunninglots;
+
 
   obj.traderName = (
     <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
@@ -159,6 +166,12 @@ finalTraderPnl.map((subelem, index)=>{
   obj.runningLots = (
     <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
       {subelem.runninglots}
+    </MDTypography>
+  );
+
+  obj.absRunningLots = (
+    <MDTypography component="a" variant="caption"  fontWeight="medium">
+      {subelem.absRunninglots}
     </MDTypography>
   );
 
@@ -224,12 +237,17 @@ obj.runningLots = (
   </MDTypography>
 );
 
+obj.absRunningLots = (
+  <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    {totalAbsRunningLots}
+  </MDTypography>
+);
+
 obj.lotUsed = (
   <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
     {totalLotsUsed}
   </MDTypography>
 );
-
 
 obj.brokerage = (
   <MDTypography component="a" variant="caption"  color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
@@ -242,8 +260,6 @@ obj.netPnl = (
    {(totalGrossPnl-totalTransactionCost) >= 0.00 ? "+₹" + ((totalGrossPnl-totalTransactionCost).toFixed(2)): "-₹" + ((-(totalGrossPnl-totalTransactionCost)).toFixed(2))}
   </MDTypography>
 );
-
-
 
 rows.push(obj);
 

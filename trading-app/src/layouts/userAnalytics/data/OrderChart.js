@@ -9,7 +9,7 @@ useEffect(() => {
 const chartInstance = echarts.init(chartRef.current);
 const option = {
     title: {
-        text: 'Orders'
+        text: 'Orders and Brokerage'
       },
     tooltip: {
         trigger: 'axis',
@@ -27,6 +27,9 @@ const option = {
           saveAsImage: {}
         }
       },
+    legend: {
+        data: ['Orders', 'Brokerage']
+    },  
     grid: {
         left: '3%',
         right: '4%',
@@ -44,17 +47,31 @@ const option = {
     ],
     yAxis: [
         {
-        type: 'value'
+        type: 'value',
+        name:'Orders'
+        },
+        {
+        type: 'value',
+        name:'Brokerage'
         }
     ],
     series: [
         {
             name: 'Orders',
             type: 'bar',
-            barWidth: '60%',
+            barWidth: '30%',
+            yAxisIndex:0,
             color: '#344767',
             data: dateWiseData.map((e)=>e.noOfTrade)
-        }
+        },
+        {
+            name: 'Brokerage',
+            type: 'bar',
+            barWidth: '30%',
+            yAxisIndex:1,
+            color: '#2ff000',
+            data: dateWiseData.map((e)=>e.brokerage)
+        },
     ]
 };
 chartInstance.setOption(option);

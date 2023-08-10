@@ -91,7 +91,7 @@ function LiveTraderwiseCompantPNL(props) {
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/gettraderwisepnllivetradecompanytoday/algowisedata/${props.algoId}`)
+    axios.get(`${baseUrl}api/v1/gettraderwisepnllivetradecompanytoday/algowisedata/${props.algoId}`,{withCredentials:true})
     .then((res) => {
         setAllTrade(res.data);
     }).catch((err)=>{
@@ -108,7 +108,7 @@ function LiveTraderwiseCompantPNL(props) {
 
   useEffect(()=>{
          // Get Lastest Trade timestamp
-  axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`)
+  axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`,{withCredentials:true})
   // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
   .then((res)=>{
       //console.log(res.data);

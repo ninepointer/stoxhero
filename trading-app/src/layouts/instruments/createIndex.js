@@ -36,7 +36,7 @@ function Index({createIndexForm, setCreateIndexForm, id}) {
     
     React.useEffect(()=>{
 
-        axios.get(`${baseUrl}api/v1/stockindex/${id}`)
+        axios.get(`${baseUrl}api/v1/stockindex/${id}`, {withCredentials: true})
         .then((res)=>{
             setIndexData(res.data[0]);
             // console.log(res.data[0])

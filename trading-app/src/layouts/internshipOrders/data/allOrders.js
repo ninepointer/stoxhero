@@ -23,14 +23,12 @@ export default function UserTodayTradeData() {
 
   const [data, setData] = useState([]);
   const getDetails = useContext(userContext);
-  console.log("getDetails", getDetails)
 //   let url = getDetails.userDetails.isAlgoTrader ? "gettodaysmocktradesparticularuser" : "gettodaysmocktradesparticulartrader"
   let url = "internbatch/allinternshiporders"
   
   useEffect(()=>{
       setIsLoading(true)
-      console.log("Inside Use Effect")
-      axios.get(`${baseUrl}api/v1/internbatch/allorders?skip=${skip}&limit=${limitSetting}`)
+      axios.get(`${baseUrl}api/v1/internbatch/allorders?skip=${skip}&limit=${limitSetting}`, {withCredentials:true})
       .then((res)=>{
           console.log(res.data)
           setData(res.data.data);
@@ -53,7 +51,7 @@ export default function UserTodayTradeData() {
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/internbatch/allorders?skip=${skip-limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -84,7 +82,7 @@ export default function UserTodayTradeData() {
     setData([]);
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/internbatch/allorders?skip=${skip+limitSetting}&limit=${limitSetting}`,{
-        withCredentials: false,
+        withCredentials: true,
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",

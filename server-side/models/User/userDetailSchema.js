@@ -19,7 +19,7 @@ const userDetailSchema = new mongoose.Schema({
     createdOn:{
         type: Date,
         default: ()=>new Date(),
-        required : true
+        // required : true
     },
     lastModified:{
         type: Date,
@@ -55,6 +55,38 @@ const userDetailSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    maritalStatus:{
+        type: String,
+        // required: true
+    },
+    currentlyWorking:{
+        type: String,
+        // required: true
+    },
+    previouslyEmployeed:{
+        type: String,
+        // required: true
+    },
+    latestSalaryPerMonth:{
+        type: Number,
+        // required: true
+    },
+    familyIncomePerMonth:{
+        type: Number,
+        // required: true
+    },
+    collegeName:{
+        type: String,
+        // required: true
+    },
+    stayingWith:{
+        type: String,
+        // required: true
+    },
+    nonWorkingDurationInMonths:{
+        type: Number,
+        // required: true
+    },
     mobile:{
         type: String,
         required: true
@@ -62,6 +94,7 @@ const userDetailSchema = new mongoose.Schema({
     mobile_otp:{
         type: String,
     },
+    lastOtpTime: Date,
     whatsApp_number:{
         type: String,
         // required: true
@@ -127,7 +160,7 @@ const userDetailSchema = new mongoose.Schema({
     },
     creationProcess:{
         type: String,
-        required: true,
+        // required: true,
         enum: ['Auto SignUp','By Admin','Career SignUp']
     },
     employeeid:{
@@ -181,7 +214,7 @@ const userDetailSchema = new mongoose.Schema({
         type: Date,
     },
     passwordChangedAt:{
-        type: String,
+        type: Date,
         // required: true
     },
     watchlistInstruments: [
@@ -226,9 +259,13 @@ const userDetailSchema = new mongoose.Schema({
     profilePhoto:{url:String,name:String},
     KYCStatus:{
         type: String,
-        enum: ['Not Initiated','Submitted','Approved','Rejected','Under Verification'],
+        enum: ['Not Initiated','Submitted','Approved','Rejected','Under Verification', 'Pending Approval'],
         default: 'Not Initiated',
     },
+    KYCActionDate:{
+        type: Date,
+    },
+    KYCRejectionReason: String,
     myReferralCode:{
         type: String,
     },
@@ -283,7 +320,14 @@ const userDetailSchema = new mongoose.Schema({
             type: String, 
             enum:["Live", "Expired"],
             default: "Live"
-        }
+        },
+        expiredOn: {type: Date},
+        expiredBy: {
+            type: String,
+            enum: ['System','User'],
+        },
+        isRenew: {type: Boolean},
+        fee: {type: Number}
     }],
     internshipBatch:[{
         type: Schema.Types.ObjectId,
@@ -345,7 +389,18 @@ userDetailSchema.pre('save', async function(next){
         next();
     }
 });
-
+userDetailSchema.methods.changedPasswordAfter = function(JWTiat) {
+    if (this.passwordChangedAt) {
+        const changedTimeStamp = parseInt(
+            this.passwordChangedAt.getTime() / 1000, // Convert to UNIX timestamp
+            10
+        );
+        console.log('changed at', this.passwordChangedAt);
+        return JWTiat < changedTimeStamp; // True if the password was changed after token issuance
+    }
+    // False means not changed
+    return false;
+};
 const userPersonalDetail = mongoose.model("user-personal-detail", userDetailSchema);
 module.exports = userPersonalDetail;
 

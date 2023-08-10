@@ -3,14 +3,22 @@ const User = require("../models/User/userDetailSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema")
 const { client, getValue } = require('../marketData/redisClient');
-
+const Wallet = require("../models/UserWallet/userWalletSchema");
+const uuid = require('uuid');
 const { ObjectId } = require("mongodb");
+const sendMail = require('../utils/emailService');
 
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
   const userId = req.user._id;
   const subscriptionId = req.params.id;
+
+  const subs = await Subscription.findById(new ObjectId(subscriptionId));
+  let timeElem = subs.users.filter((elem)=>{
+    return (elem.userId.toString() === userId.toString() && elem.status === "Live");
+  })
+  const time = timeElem[0].subscribedOn;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -21,7 +29,9 @@ exports.overallPnl = async (req, res, next) => {
   const tempDate = new Date(tempTodayDate);
   const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
-  // console.log(today, subscriptionId)
+  const matchingTime = new Date(time) > today ? time : today;
+
+  console.log(new Date(time) ,today)
 
   try {
 
@@ -38,7 +48,7 @@ exports.overallPnl = async (req, res, next) => {
         {
           $match: {
             trade_time: {
-              $gte: today
+              $gte: new Date(matchingTime)
             },
             status: "COMPLETE",
             trader: new ObjectId(userId),
@@ -78,7 +88,6 @@ exports.overallPnl = async (req, res, next) => {
           },
         },
       ])
-      // console.log("pnlDetails in else", pnlDetails)
       if (isRedisConnected) {
         await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, JSON.stringify(pnlDetails))
         await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`, secondsRemaining);
@@ -97,8 +106,10 @@ exports.overallPnl = async (req, res, next) => {
 
 exports.myTodaysTrade = async (req, res, next) => {
 
-  // const id = req.params.id
-  //   const subscriptionId = req.params.id;
+  let {subscription} = req.params;
+  subscription = JSON.parse(subscription);
+  let {subscriptionId} =  subscription;
+
   const userId = req.user._id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -106,14 +117,14 @@ exports.myTodaysTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await TenXTrader.countDocuments({ trader: userId, trade_time: { $gte: today } })
-  console.log("Under my today orders", userId, today)
+  const count = await TenXTrader.countDocuments({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: { $gte: today } })
+  // console.log("Under my today orders", userId, today)
   try {
-    const myTodaysTrade = await TenXTrader.find({ trader: userId, trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myTodaysTrade = await TenXTrader.find({ subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-    console.log(myTodaysTrade)
+    // console.log(myTodaysTrade)
     res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
   } catch (e) {
     console.log(e);
@@ -123,21 +134,34 @@ exports.myTodaysTrade = async (req, res, next) => {
 
 exports.myHistoryTrade = async (req, res, next) => {
 
+  let {subscription, usersubscription} = req.params;
+  let {subscribedOn, expiredOn} = JSON.parse(usersubscription);
+  let {subscriptionId} = JSON.parse(subscription);
+
+  expiredOn = expiredOn && new Date(expiredOn);
+  subscribedOn = subscribedOn && new Date(subscribedOn);
+
   const userId = req.user._id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
+  if(!expiredOn){
+    expiredOn  = today;
+  }
+
+  // console.log(expiredOn, subscribedOn, JSON.parse(usersubscription))
+
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await TenXTrader.countDocuments({ trader: userId, trade_time: { $lt: today } })
-  console.log("Under my today orders", userId, today)
+  const count = await TenXTrader.countDocuments({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: {$gte: subscribedOn, $lt: expiredOn } })
+  // console.log("Under my today orders", userId, today)
   try {
-    const myHistoryTrade = await TenXTrader.find({ trader: userId, trade_time: { $lt: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
+    const myHistoryTrade = await TenXTrader.find({subscriptionId: new ObjectId(subscriptionId), trader: userId, trade_time: {$gte: subscribedOn, $lt: expiredOn } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1, 'subscriptionId': 1 }).populate('subscriptionId', 'plan_name')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-    console.log(myHistoryTrade)
+    // console.log(myHistoryTrade)
     res.status(200).json({ status: 'success', data: myHistoryTrade, count: count });
   } catch (e) {
     console.log(e);
@@ -191,23 +215,36 @@ exports.marginDetail = async (req, res, next) => {
           },
         },
         {
-          $unwind:
-          {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $match: {
+            "users.userId": new ObjectId(req.user._id),
+            "users.status": "Live",
+          },
+        },
+        {
+          $unwind: {
             path: "$trades",
             includeArrayIndex: "string",
           },
         },
         {
           $match: {
-            "trades.trade_time": { $lt: today },
+            $expr: {
+              $and: [
+                { $gt: ["$trades.trade_time", "$users.subscribedOn"] },
+                { $lt: ["$trades.trade_time", today] }
+              ]
+            },
             "trades.status": "COMPLETE",
-            "trades.trader": new ObjectId(req.user._id)
+            "trades.trader": new ObjectId(req.user._id),
           },
         },
         {
-          $group:
-  
-          {
+          $group: {
             _id: {
               subscriptionId: "$_id",
               totalFund: {
@@ -220,7 +257,7 @@ exports.marginDetail = async (req, res, next) => {
             totalAmount: {
               $sum: {
                 $multiply: ["$trades.amount", -1],
-              }
+              },
             },
             totalBrokerage: {
               $sum: "$trades.brokerage",
@@ -228,9 +265,7 @@ exports.marginDetail = async (req, res, next) => {
           },
         },
         {
-          $project:
-  
-          {
+          $project: {
             _id: 0,
             subscriptionId: "$_id.subscriptionId",
             totalFund: "$_id.totalFund",
@@ -243,13 +278,19 @@ exports.marginDetail = async (req, res, next) => {
             openingBalance: {
               $sum: [
                 "$_id.totalFund",
-                { $subtract: ["$totalAmount", "$totalBrokerage"] }
-              ]
-            }
+                {
+                  $subtract: [
+                    "$totalAmount",
+                    "$totalBrokerage",
+                  ],
+                },
+              ],
+            },
           },
         },
       ])
 
+      console.log("subscription", subscription);
       if (subscription.length > 0) {
         if (isRedisConnected) {
           await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(subscription[0]))
@@ -311,8 +352,9 @@ exports.tradingDays = async (req, res, next) => {
   let subscriptionId = req.params.id;
   let userId = req.user._id;
 
-  console.log("subscriptionId", subscriptionId, userId)
+  
   const today = new Date();
+  console.log("subscriptionId", subscriptionId, userId, today)
 
   const tradingDays = await TenXTrader.aggregate([
     {
@@ -383,49 +425,40 @@ exports.tradingDays = async (req, res, next) => {
         },
     },
     {
+      $group: {
+        _id: {
+          id: "$_id.id",
+          users: "$_id.users",
+          validity: "$_id.validity",
+          date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$_id.date",
+            },
+          },
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          subscriptionId: "$_id.id",
+          users: "$_id.users",
+          validity: "$_id.validity",
+        },
+        count: {
+          $count: {},
+        },
+      },
+    },
+    {
       $project: {
         _id: 0,
-        subscriptionId: "$_id.id",
+        subscriptionId: "$_id.subscriptionId",
         totalTradingDays: "$count",
-        firstMatchedDate: 1,
-        remainingDays: {
+        actualRemainingDay: {
           $subtract: ["$_id.validity", "$count"],
         },
-        defaultRemaining: {
-          $divide: [
-            {
-              $subtract: [
-                today,
-                {
-                  $toDate:
-                    "$_id.users.subscribedOn",
-                },
-              ],
-            },
-            24 * 60 * 60 * 1000, // Convert milliseconds to days
-          ],
-        },
-  
-        remainingAfterDefault: {
-          $subtract: [
-            60,
-            {
-              $divide: [
-                {
-                  $subtract: [
-                    today,
-                    {
-                      $toDate:
-                        "$_id.users.subscribedOn",
-                    },
-                  ],
-                },
-                24 * 60 * 60 * 1000, // Convert milliseconds to days
-              ],
-            },
-          ],
-        },
-  
         actualRemainingDay: {
           $min: [
             {
@@ -436,10 +469,20 @@ exports.tradingDays = async (req, res, next) => {
             },
             {
               $subtract: [
-                today,
+                60,
                 {
-                  $toDate:
-                    "$_id.users.subscribedOn",
+                  $divide: [
+                    {
+                      $subtract: [
+                        today,
+                        {
+                          $toDate:
+                            "$_id.users.subscribedOn",
+                        },
+                      ],
+                    },
+                    24 * 60 * 60 * 1000, // Convert milliseconds to days
+                  ],
                 },
               ],
             },
@@ -449,10 +492,9 @@ exports.tradingDays = async (req, res, next) => {
     },
   ])
 
-
-  console.log("tradingDays ", tradingDays)
+  // console.log("tradingDays ", tradingDays)
   if(tradingDays.length> 0){
-    console.log("tradingDays in if", tradingDays)
+    // console.log("tradingDays in if", tradingDays)
     res.status(200).json({ status: 'success', data: tradingDays });
   } else{
     const tradingDay = await Subscription.aggregate(
@@ -476,180 +518,339 @@ exports.tradingDays = async (req, res, next) => {
         },
       },
     ])
-    console.log("tradingDays in else", tradingDay)
+    // console.log("tradingDays in else", tradingDay)
     res.status(200).json({ status: 'success', data: tradingDay });
   }
 }
 
-exports.autoExpireSubscription = async () => {
+exports.autoExpireTenXSubscription = async () => {
   console.log("autoExpireSubscription running");
   const subscription = await Subscription.find({ status: "Active" });
 
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
+    let subscriptionId = subscription[i]._id
+    let validity = subscription[i].validity;
+    let payoutPercentage = 10;
     for (let j = 0; j < users.length; j++) {
       let userId = users[j].userId;
+      let subscribedOn = users[j].subscribedOn;
+      let status = users[j].status;
 
       const today = new Date();  // Get the current date
 
-      const tradingDays = await TenXTrader.aggregate([
-        {
-          $match: {
-            trader: new ObjectId(
-              userId
-            ),
-            status: "COMPLETE",
-            subscriptionId: new ObjectId(
-              subscriptionId
-            ),
-          },
-        },
-        {
-          $lookup: {
-            from: "tenx-subscriptions",
-            localField: "subscriptionId",
-            foreignField: "_id",
-            as: "subscriptionData",
-          },
-        },
-        {
-          $group: {
-            _id: {
-              subscriptionId: "$subscriptionId",
-              users: "$subscriptionData.users",
-              validity: "$subscriptionData.validity",
-              date: "$trade_time",
-            },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              users: {
-                $arrayElemAt: ["$_id.users", 0],
-              },
-              id: "$_id.subscriptionId",
-              validity: {
-                $arrayElemAt: ["$_id.validity", 0],
-              },
-              date: "$_id.date",
-            },
-            count: {
-              $sum: 1,
-            },
-          },
-        },
-        {
-          $unwind: {
-            path: "$_id.users",
-          },
-        },
-        {
-          $match:
-      
-            {
-              "_id.users.userId": new ObjectId(
+      if(status === "Live"){
+        const tradingDays = await TenXTrader.aggregate([
+          {
+            $match: {
+              trader: new ObjectId(
                 userId
               ),
-              "_id.users.status": "Live",
-              $expr: {
-                $gte: [
-                  "$_id.date",
-                  "$_id.users.subscribedOn",
+              status: "COMPLETE",
+              subscriptionId: new ObjectId(
+                subscriptionId
+              ),
+            },
+          },
+          {
+            $lookup: {
+              from: "tenx-subscriptions",
+              localField: "subscriptionId",
+              foreignField: "_id",
+              as: "subscriptionData",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                subscriptionId: "$subscriptionId",
+                users: "$subscriptionData.users",
+                validity: "$subscriptionData.validity",
+                date: "$trade_time",
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                users: {
+                  $arrayElemAt: ["$_id.users", 0],
+                },
+                id: "$_id.subscriptionId",
+                validity: {
+                  $arrayElemAt: ["$_id.validity", 0],
+                },
+                date: "$_id.date",
+              },
+              count: {
+                $sum: 1,
+              },
+            },
+          },
+          {
+            $unwind: {
+              path: "$_id.users",
+            },
+          },
+          {
+            $match:
+        
+              {
+                "_id.users.userId": new ObjectId(
+                  userId
+                ),
+                "_id.users.status": "Live",
+                $expr: {
+                  $gte: [
+                    "$_id.date",
+                    "$_id.users.subscribedOn",
+                  ],
+                },
+              },
+          },
+          {
+            $group: {
+              _id: {
+                id: "$_id.id",
+                users: "$_id.users",
+                validity: "$_id.validity",
+                date: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$_id.date",
+                  },
+                },
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                subscriptionId: "$_id.id",
+                users: "$_id.users",
+                validity: "$_id.validity",
+              },
+              count: {
+                $count: {},
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              subscriptionId: "$_id.subscriptionId",
+              totalTradingDays: "$count",
+              actualRemainingDay: {
+                $subtract: ["$_id.validity", "$count"],
+              },
+              actualRemainingDay: {
+                $min: [
+                  {
+                    $subtract: [
+                      "$_id.validity",
+                      "$count",
+                    ],
+                  },
+                  {
+                    $subtract: [
+                      60,
+                      {
+                        $divide: [
+                          {
+                            $subtract: [
+                              today,
+                              {
+                                $toDate:
+                                  "$_id.users.subscribedOn",
+                              },
+                            ],
+                          },
+                          24 * 60 * 60 * 1000, // Convert milliseconds to days
+                        ],
+                      },
+                    ],
+                  },
                 ],
               },
             },
-        },
-        {
-          $project: {
-            _id: 0,
-            subscriptionId: "$_id.id",
-            totalTradingDays: "$count",
-            firstMatchedDate: 1,
-            remainingDays: {
-              $subtract: ["$_id.validity", "$count"],
-            },
-            defaultRemaining: {
-              $divide: [
-                {
-                  $subtract: [
-                    today,
-                    {
-                      $toDate:
-                        "$_id.users.subscribedOn",
-                    },
-                  ],
-                },
-                24 * 60 * 60 * 1000, // Convert milliseconds to days
-              ],
-            },
-      
-            remainingAfterDefault: {
-              $subtract: [
-                60,
-                {
-                  $divide: [
-                    {
-                      $subtract: [
-                        today,
-                        {
-                          $toDate:
-                            "$_id.users.subscribedOn",
-                        },
-                      ],
-                    },
-                    24 * 60 * 60 * 1000, // Convert milliseconds to days
-                  ],
-                },
-              ],
-            },
-      
-            actualRemainingDay: {
-              $min: [
-                {
-                  $subtract: [
-                    "$_id.validity",
-                    "$count",
-                  ],
-                },
-                {
-                  $subtract: [
-                    today,
-                    {
-                      $toDate:
-                        "$_id.users.subscribedOn",
-                    },
-                  ],
-                },
-              ],
-            },
           },
-        },
-      ])
-
-
-      // console.log("tradingDays", tradingDays, userId)
-
-      if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) === 0) {
-        const updateUser = await User.findOneAndUpdate(
-          { _id: new ObjectId(userId), "subscription.subscriptionId": new ObjectId(subscription[i]._id) },
+        ])
+  
+        let pnlDetails = await TenXTrader.aggregate([
           {
-            $set: {
-              'subscription.$.status': "Expired"
-            }
+            $match: {
+              trade_time: {
+                $gte: new Date(subscribedOn)
+              },
+              status: "COMPLETE",
+              trader: new ObjectId(userId),
+              subscriptionId: new ObjectId(subscriptionId)
+            },
           },
-          { new: true }
-        );
-
-        const updateSubscription = await Subscription.findOneAndUpdate(
-          { _id: new ObjectId(subscription[i]._id), "users.userId": new ObjectId(userId) },
           {
-            $set: {
-              'users.$.status': "Expired"
-            }
+            $group: {
+              _id: {},
+              amount: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+            },
           },
-          { new: true }
-        );
+          {
+            $project:
+              {
+                _id: 0,
+                npnl: {
+                  $subtract: ["$amount", "$brokerage"],
+                },
+              },
+          },
+        ])
+
+        let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
+        let profitCap = subscription[i].profitCap;
+        let payoutAmount = Math.min(pnl, profitCap);
+  
+
+        console.log("payoutAmount", (payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity))
+
+        if (tradingDays.length && Math.floor(tradingDays[0]?.actualRemainingDay) <= 0) {
+          console.log(pnlDetails[0]?.npnl, pnl, profitCap, payoutAmount, userId)
+
+          const user = await User.findOne({ _id: new ObjectId(userId) });
+          let len = user.subscription.length;
+          
+          for (let k = len - 1; k >= 0; k--) {
+            if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
+              user.subscription[k].status = "Expired";
+              user.subscription[k].expiredOn = new Date();
+              user.subscription[k].expiredBy = "System";
+              console.log("this is user", user)
+              await user.save();
+              break;
+            }
+          }
+
+          const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
+          let Subslen = subs.users.length;
+          
+          for (let k = Subslen - 1; k >= 0; k--) {
+            if (subs.users[k].userId?.toString() === userId?.toString()) {
+              subs.users[k].status = "Expired";
+              subs.users[k].expiredOn = new Date();
+              subs.users[k].expiredBy = "System";
+              console.log("this is subs", subs)
+              await subs.save();
+              break;
+            }
+          }
+ 
+          if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity){
+            const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
+            wallet.transactions = [...wallet.transactions, {
+                  title: 'TenX Trading Payout',
+                  description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
+                  amount: (payoutAmount?.toFixed(2)),
+                  transactionId: uuid.v4(),
+                  transactionType: 'Cash'
+            }];
+            wallet.save();
+
+            if (process.env.PROD == 'true') {
+              sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
+              <!DOCTYPE html>
+              <html>
+              <head>
+                  <meta charset="UTF-8">
+                  <title>Amount Credited</title>
+                  <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      font-size: 16px;
+                      line-height: 1.5;
+                      margin: 0;
+                      padding: 0;
+                  }
+        
+                  .container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      border: 1px solid #ccc;
+                  }
+        
+                  h1 {
+                      font-size: 24px;
+                      margin-bottom: 20px;
+                  }
+        
+                  p {
+                      margin: 0 0 20px;
+                  }
+        
+                  .userid {
+                      display: inline-block;
+                      background-color: #f5f5f5;
+                      padding: 10px;
+                      font-size: 15px;
+                      font-weight: bold;
+                      border-radius: 5px;
+                      margin-right: 10px;
+                  }
+        
+                  .password {
+                      display: inline-block;
+                      background-color: #f5f5f5;
+                      padding: 10px;
+                      font-size: 15px;
+                      font-weight: bold;
+                      border-radius: 5px;
+                      margin-right: 10px;
+                  }
+        
+                  .login-button {
+                      display: inline-block;
+                      background-color: #007bff;
+                      color: #fff;
+                      padding: 10px 20px;
+                      font-size: 18px;
+                      font-weight: bold;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+        
+                  .login-button:hover {
+                      background-color: #0069d9;
+                  }
+                  </style>
+              </head>
+              <body>
+                  <div class="container">
+                  <h1>Amount Credited</h1>
+                  <p>Hello ${user.first_name},</p>
+                  <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                  <p>You can now purchase Tenx and participate in contest.</p>
+                  
+                  <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                  <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                  <br/><br/>
+                  <p>Thanks,</p>
+                  <p>StoxHero Team</p>
+        
+                  </div>
+              </body>
+              </html>
+              `);
+            }
+
+          }
+        }
       }
     }
   }
@@ -1047,16 +1248,16 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
 
 exports.tenxPnlReport = async (req, res, next) => {
 
-  let { startDate, endDate, id } = req.params
+  let {id } = req.params
 
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
+  // startDate = startDate + "T00:00:00.000Z";
+  // endDate = endDate + "T23:59:59.000Z";
 
 // console.log(startDate, endDate, id)
   let pipeline = [
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        // trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE",
         subscriptionId: new ObjectId(id)
       }
@@ -1099,56 +1300,352 @@ exports.tenxPnlReport = async (req, res, next) => {
 
 exports.tenxDailyPnlTWise = async (req, res, next) => {
 
-  let { startDate, endDate, id } = req.params
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
-  // console.log("startDate", startDate,endDate )
-  let pipeline = [
+  const {id} = req.params;
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
 
+  const subs = await Subscription.findOne({_id: id});
+
+  const live = [
+    {
+      $match:
+  
+        {
+          _id: new ObjectId(id),
+        },
+    },
+    {
+      $unwind: {
+        path: "$users",
+      },
+    },
+    {
+      $lookup: {
+        from: "tenx-trade-users",
+        localField: "users.userId",
+        foreignField: "trader",
+        as: "trade",
+      },
+    },
+    {
+      $match: {
+        "users.status": "Live",
+      },
+    },
+    {
+      $unwind: {
+        path: "$trade",
+      },
+    },
+    {
+      $match: {
+        "trade.status": "COMPLETE",
+        $expr: {
+          $and: [
+            {
+              $lte: [
+                "$users.subscribedOn",
+                "$trade.trade_time",
+              ],
+            },
+            {
+              $gte: [
+                today,
+                "$trade.trade_time",
+              ],
+            },
+          ],
+        },
+      },
+    },
+    {
+      $group:
+
+        {
+          _id: {
+            startDate: "$users.subscribedOn",
+            endDate: "$users.expiredOn",
+            userId: "$trade.trader",
+            validity: "$validity",
+            profitCap: "$profitCap",
+            isRenew: "$users.isRenew",
+          },
+          amount: {
+            $sum: {
+              $multiply: ["$trade.amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$trade.brokerage",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          tradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade.trade_time",
+              },
+            },
+          },
+        },
+    },
     {
       $lookup: {
         from: "user-personal-details",
-        localField: "trader",
+        localField: "_id.userId",
         foreignField: "_id",
         as: "user",
       },
     },
+    {
+      $project: {
+        startDate: "$_id.startDate",
+        endDate: "$_id.endDate",
+        userId: "$_id.userId",
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
+        isRenew: "$_id.isRenew",
+        _id: 0,
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
+        },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+        payout: {
+          $max: [
+            {
+              $min: [
+                {
+                  $divide: [
+                    {
+                      $multiply: [
+                        {
+                          $divide: [
+                            {
+                              $multiply: [
+                                {
+                                  $subtract: [
+                                    "$amount",
+                                    "$brokerage",
+                                  ],
+                                },
+                                "$_id.validity",
+                              ],
+                            },
+                            {
+                              $size: "$tradingDays",
+                            },
+                          ],
+                        },
+                        10,
+                      ],
+                    },
+                    100,
+                  ],
+                },
+                "$_id.profitCap",
+              ],
+            },
+            0,
+          ],
+        },
+        name: {
+          $concat: [
+            {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            " ",
+            {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+          ],
+        },
+      },
+    },
+    {
+      $sort:
+  
+        {
+          payout: -1,
+        },
+    },
+  ]
 
+  const expired = [
+    {
+      $match:
+      {
+        _id: new ObjectId(id),
+      },
+    },
+    {
+      $unwind: {
+        path: "$users",
+      },
+    },
+    {
+      $lookup: {
+        from: "tenx-trade-users",
+        localField: "users.userId",
+        foreignField: "trader",
+        as: "trade",
+      },
+    },
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
-        status: "COMPLETE",
-        subscriptionId: new ObjectId(id)
-      }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+        "users.status": "Expired",
+      },
+    },
+    {
+      $unwind: {
+        path: "$trade",
+      },
+    },
+    {
+      $match: {
+        "trade.status": "COMPLETE",
+        $expr: {
+          $and: [
+            {
+              $lte: [
+                "$users.subscribedOn",
+                "$trade.trade_time",
+              ],
+            },
+            {
+              $gte: [
+                "$users.expiredOn",
+                "$trade.trade_time",
+              ],
+            },
+          ],
+        },
+      },
     },
     {
       $group: {
         _id: {
-          userId: "$trader",
-          name: {
-            $concat: [
-              { $arrayElemAt: ["$user.first_name", 0] },
-              " ",
-              { $arrayElemAt: ["$user.last_name", 0] },
-            ],
+          startDate: "$users.subscribedOn",
+          endDate: "$users.expiredOn",
+          userId: "$trade.trader",
+          cap: "$profitCap",
+          expiredBy: "$users.expiredBy",
+          isRenew: "$users.isRenew",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$trade.amount", -1],
           },
         },
-        gpnl: { $sum: { $multiply: ["$amount", -1] } },
-        brokerage: { $sum: { $toDouble: "$brokerage" } },
-        trades: { $count: {} },
-        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+        brokerage: {
+          $sum: {
+            $toDouble: "$trade.brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade.trade_time",
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "_id.userId",
+        foreignField: "_id",
+        as: "user",
       },
     },
     {
       $project: {
+        expiredBy: "$_id.expiredBy",
+        isRenew: "$_id.isRenew",
+        startDate: "$_id.startDate",
+        endDate: "$_id.endDate",
+        userId: "$_id.userId",
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
         _id: 0,
-        name: "$_id.name",
-        tradingDays: { $size: "$tradingDays" },
-        gpnl: 1,
-        brokerage: 1,
-        npnl: { $subtract: ["$gpnl", "$brokerage"] },
-        noOfTrade: "$trades"
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
+        },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+        payout: {
+          $cond: {
+            if: {
+              $eq: ["$_id.expiredBy", "User"],
+            },
+            then: 0,
+            else: {
+              $cond: {
+                if: {
+                  $eq: [
+                    {
+                      $size: "$tradingDays",
+                    },
+                    "$validity",
+                  ],
+                },
+                then: {
+                  $max: [
+                    {
+                      $min: [
+                        {
+                          $divide: [
+                            {
+                              $multiply: [
+                                {
+                                  $subtract: [
+                                    "$amount",
+                                    "$brokerage",
+                                  ],
+                                },
+                                10,
+                              ],
+                            },
+                            100,
+                          ],
+                        },
+                        "$_id.cap",
+                      ],
+                    },
+                    0,
+                  ],
+                },
+                else: 0,
+              },
+            },
+          },
+        },
+        name: {
+          $concat: [
+            {
+              $arrayElemAt: ["$user.first_name", 0],
+            },
+            " ",
+            {
+              $arrayElemAt: ["$user.last_name", 0],
+            },
+          ],
+        },
       },
     },
     {
@@ -1158,158 +1655,134 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     },
   ]
 
-  let x = await TenXTrader.aggregate(pipeline)
+  let obj = {
+    totalLiveUser: 0,
+    totalExpiredUser: 0,
+    totalExpectedPayout: 0,
+    totalPayout: 0,
+    totalRenewed: 0
+  }
+  const liveUser = await Subscription.aggregate(live)
+  const expiredUser = await Subscription.aggregate(expired)
 
-  // res.status(201).json(x);
+  for(let elem of liveUser){
+    // obj.totalRenewed += elem?.isRenew ? 1 : 0;
+    obj.totalExpectedPayout += elem?.payout
+  }
+  for(let elem of expiredUser){
+    obj.totalPayout += elem?.payout
+  }
 
-  res.status(201).json({ message: "data received", data: x });
+  for(let elem of subs.users){
+    if(elem.status === "Live"){
+      obj.totalLiveUser += 1;
+    }
+    if(elem.status === "Expired"){
+      obj.totalExpiredUser += 1;
+    }
+    if(elem.isRenew){
+      obj.totalRenewed += 1;
+    }
+  }
+
+  res.status(201).json({ message: "data received", liveUser: liveUser, expiredUser: expiredUser, data: obj });
 }
 
+exports.getDailyTenXUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: "$_id.trader" },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
 
+    const tenXTraders = await TenXTrader.aggregate(pipeline);
 
+    // Create a date-wise mapping of DAUs for different products
+    const dateWiseDAUs = {};
 
+    tenXTraders.forEach(entry => {
+      const { _id, traders, uniqueUsers } = entry;
+      const date = _id.date;
+      if (date !== "1970-01-01") {
+        if (!dateWiseDAUs[date]) {
+          dateWiseDAUs[date] = {
+            date,
+            tenXTrading: 0,
+            uniqueUsers: [],
+          };
+        }
+        dateWiseDAUs[date].tenXTrading = traders;
+        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+      }
+    });
 
+    // Calculate the date-wise total DAUs and unique users
+    Object.keys(dateWiseDAUs).forEach(date => {
+      const { tenXTrading, uniqueUsers } = dateWiseDAUs[date];
+      dateWiseDAUs[date].total = tenXTrading
+      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
+    });
 
+    const response = {
+      status: "success",
+      message: "Contest Scoreboard fetched successfully",
+      data: Object.values(dateWiseDAUs),
+    };
 
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
 
+exports.userSubscriptions = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    // "64647f61a09e4677cb5431e8"
+    
+    const subs = await Subscription.find({"users.userId": new ObjectId(userId)});
+    
+    console.log("userId", userId)
+    let main = [];
 
+    for(let elem of subs){
+      const subsDetail = elem.users.filter((subelem)=>{
+        return subelem.userId.toString() === userId.toString();
+      })
 
+      main.push({subscriptionName: elem.plan_name, subscriptionId: elem._id, userPurchaseDetail: subsDetail});
+    }
 
-
-
-
-
-
-
-// [
-//   {
-//     $match: {
-//       trader:  ObjectId(
-//         "64627c51529029a8b8728b91"
-//       ),
-//       status: "COMPLETE",
-//       subscriptionId:  ObjectId("645cc7162f0bba5a7a3ff40a")
-//     },
-//   },
-//   {
-//     $lookup: {
-//       from: "tenx-subscriptions",
-//       localField: "subscriptionId",
-//       foreignField: "_id",
-//       as: "subscriptionData",
-//     },
-//   },
-
-//   {
-//     $group: {
-//       _id: {
-//         subscriptionId: "$subscriptionId",
-//         users: "$subscriptionData.users",
-//         validity: "$subscriptionData.validity",
-//         date: {
-//           $dateToString: {
-//             format: "%Y-%m-%d",
-//             date: "$trade_time",
-//           },
-//         },
-//       },
-//     },
-//   },
-
-//   {
-//     $group: {
-//       _id: {
-//         users:{$arrayElemAt:  ["$_id.users", 0]},
-//         id: "$_id.subscriptionId",
-//         validity: {
-//           $arrayElemAt: ["$_id.validity", 0],
-//         },
-//       },
-//       count: {
-//         $sum: 1,
-//       },
-//       firstMatchedDate: {
-//         $first: "$_id.date",
-//       },
-//     },
-//   },
-//   {
-//     $unwind: {
-//       path: "$_id.users"
-//     }
-//   },
-//     {
-//     $match:
-
-//       {
-//         "_id.users.userId":  ObjectId(
-//         "64627c51529029a8b8728b91"
-//       ),
-//       },
-//   },
-//   {
-//     $project: {
-//       _id: 0,
-//       subscriptionId: "$_id.id",
-//       totalTradingDays: "$count",
-//       firstMatchedDate: 1,
-//       remainingDays: {
-//         $subtract: ["$_id.validity", "$count"],
-//       },
-//       defaultRemaining: {
-//         $divide: [
-//           {
-//             $subtract: [
-//               new Date("2023-06-27"),
-//               {
-//                 $toDate: "$_id.users.subscribedOn",
-//               },
-              
-//             ],
-//           },
-//           24 * 60 * 60 * 1000, // Convert milliseconds to days
-//         ],
-//       },
-
-//       remainingAfterDefault: {
-//         $subtract: [
-//           60,
-//           {
-//             $divide: [
-//               {
-//                 $subtract: [
-//                   new Date("2023-06-27"),
-//                                {
-//                 $toDate: "$_id.users.subscribedOn",
-//               },
-                
-//                 ],
-//               },
-//               24 * 60 * 60 * 1000, // Convert milliseconds to days
-//             ],
-//           },
-//         ],
-//       },
-
-//       actualRemainingDay: {
-//         $min: [
-//           {
-//             $subtract: [
-//               "$_id.validity",
-//               "$count",
-//             ],
-//           },
-//           {
-//             $subtract: [
-//               new Date("2023-06-27"),
-//               {
-//                 $toDate: "$_id.users.subscribedOn",
-//               },
-              
-//             ],
-//           },
-//         ],
-//       },
-//     },
-//   },
-// ]
+    res.status(200).json({message: "user subscription fetched", data: main});
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};

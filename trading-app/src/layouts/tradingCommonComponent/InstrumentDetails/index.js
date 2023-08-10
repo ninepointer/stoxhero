@@ -27,11 +27,13 @@ import { Typography } from "@mui/material";
 import InstrumentComponent from "./InstrumentComponent";
 import { marketDataContext } from "../../../MarketDataContext";
 import { renderContext } from "../../../renderContext";
-import { InfinityTraderRole } from "../../../variables";
+import { InfinityTraderRole, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
+import Timer from "./timer";
+// import { AiOutlineLineChart } from "react-icons/ai";
 
 
-function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId}) {
+function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData}) {
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
@@ -53,6 +55,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   const [isAppLive, setisAppLive] = useState('');
   const [successSB, setSuccessSB] = useState(false);
   const [instrumentName, setInstrumentName] = useState("");
+  const [showTimer, setShowTimer] = useState("");
   const openSuccessSB = () => setSuccessSB(true);
   const closeSuccessSB = () => setSuccessSB(false);
 
@@ -64,7 +67,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
         return new Error(err);
     })
     socket?.on("tick-room", (data) => {
-
       marketDetails.setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -73,20 +75,19 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
         return Array.from(instrumentMap.values());
       });
     })
+
   }, [])
-
-
 
   useEffect(() => {
     console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
-    axios.get(`${baseUrl}api/v1/readsetting`)
+    axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
       .then((res) => {
+        setShowTimer(res.data[0].timer)
         if(InfinityTraderRole == getDetail.userDetails.role.roleName){
           setisAppLive(res.data[0].infinityLive);
         } else{
           setisAppLive(res.data[0].isAppLive);
         }
-        
       });
   }, []);
 
@@ -99,8 +100,37 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   const [instrumentData, setInstrumentData] = useState([]);
 
+  let isNifty = contestData?.isNifty;
+  let isBankNifty = contestData?.isBank;
+  let isFinNifty = contestData?.isFin;
+  let isAllIndex = contestData?.isAll;
+  let url = "";
+  let endPoint = "";
+
+  if(isNifty){
+    url = `&isNifty=${true}`;
+  }
+  if(isBankNifty){
+    url += `&isBankNifty=${true}`;
+  }
+  if(isFinNifty){
+    url += `&isFinNifty=${true}`;
+  }
+  if(isAllIndex){
+    url = `&isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`;
+  }
+
+  url = url.slice(1);
+
+  if(from === dailyContest){
+    endPoint = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
+  } else{
+    endPoint = `${baseUrl}api/v1/instrumentDetails`
+  }
+
+
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/instrumentDetails`,{
+    axios.get(`${endPoint}`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -177,11 +207,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel contestId={subscriptionId} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.instrument).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
+      <BuyModel contestId={subscriptionId} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel contestId={subscriptionId} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.instrument).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel contestId={subscriptionId} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (
@@ -193,6 +223,12 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     instrumentDetailObj.instrumentToken = (
       <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
         {elem.instrumentToken}
+      </MDTypography>
+    );
+
+    instrumentDetailObj.chartInstrument = (
+      <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+        {elem.chartInstrument}
       </MDTypography>
     );
 
@@ -267,7 +303,6 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     />
   );
 
-
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
@@ -286,7 +321,13 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
             color={isAppLive ? "success" : "error"}
             style={{display:"flex",alignItems:"center"}}
             >
+              {showTimer ?
+              <Timer socket={socket}/>
+              :
+              <>
               <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"}
+              </>
+              }
             </MDTypography>
         </MDBox>
       </MDBox>
@@ -308,7 +349,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
                 <td style={styleTD} >INSTRUMENT</td>
                 <td style={styleTD} >LTP</td>
                 <td style={styleTD} >CHANGE(%)</td>
-                {/* <td style={styleTD} >CHART</td> */}
+                {from !== InfinityTraderRole &&
+                <td style={styleTD} >CHART</td>}
                 <td style={styleTD} >BUY</td>
                 <td style={styleTD} >SELL</td>
                 <td style={styleTD} >REMOVE</td>
@@ -327,6 +369,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
                     instrument={(elem.symbol.props.children).slice(-7)}
                     last_price={elem.last_price.props.children}
                     change={elem.change.props.children}
+                    chartInstrument={elem.chartInstrument.props.children}
+                    from={from}
                   />
 
                   <Tooltip title="Buy" placement="top">

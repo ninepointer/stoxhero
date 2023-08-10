@@ -29,6 +29,7 @@
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^2.2.4",
     "kiteconnect": "^4.0.1",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "mongodb": "^5.0.0",
     "mongoose": "^6.7.1",
@@ -38,7 +39,8 @@
     "nodemailer": "^6.8.0",
     "nodemon": "^2.0.20",
     "otp-generator": "^4.0.1",
-
+    "paytmchecksum": "^1.5.0",
+    "puppeteer": "^20.8.0",
     "redis": "^4.6.5",
     "redis-commander": "^0.8.0",
     "sharp": "^0.32.0",
@@ -53,9 +55,6 @@
     "xss-clean": "^0.1.1",
     "xts-interactive-api": "^3.0.3",
     "xts-marketdata-api": "^3.0.10",
-   
     "zlib": "^1.0.5"
   }
 }
-
-

@@ -11,9 +11,9 @@ const {liveTrade} = require("../services/xts/xtsHelper/xtsLiveOrderPlace");
 const { xtsAccountType, zerodhaAccountType } = require("../constant");
 const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
+const {contestChecks} = require("../PlaceOrder/dailyContestChecks")
 
-
-router.post("/placingOrder", isInfinityLive, authentication, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
+router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
     const setting = await Setting.find();
     // console.log("settings", setting, req.user?.role?.roleName )
@@ -31,18 +31,17 @@ router.post("/placingOrder", isInfinityLive, authentication, ApplyAlgo, authoize
     
 })
 
-router.post("/placingOrderDailyContest", isAppLive, authentication, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
-    // console.log("caseStudy 4: placing")
+router.post("/placingOrderDailyContest", isAppLive, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
+    // console.log("caseStudy 4: placing", req.body)
     req.dailyContest = true;
     const setting = await Setting.find();
+
     // console.log("settings", setting, req.user?.role?.roleName )
     if(req.body.apiKey && req.body.accessToken){
         if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){
             // console.log("in xts if")
             await liveTrade(req, res);
         } else{
-
-            
             await LiveTradeFunc.liveTrade(req.body, res);
         }
         //  TODO toggle

@@ -5,11 +5,14 @@ import MDButton from '../../../components/MDButton';
 import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
+import DailyVirtualUsers from '../data/dailyVirtualUsers'
+import ReactGA from "react-ga"
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [marketData, setMarketData] = useState([]);
+  const [dailyVirtualUsers, setDailyVirtualUsers] = useState();
   const [lastVirtualTradingDate,setLastVirtualTradingDate] = useState("");
   const [tradeData, setTradeData] = useState([]);
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
@@ -44,6 +47,10 @@ export default function LabTabs({socket}) {
     })
   }, [])
 
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
+
   useEffect(()=>{
     socket.on('updatePnl', (data)=>{
       setTimeout(()=>{
@@ -57,7 +64,6 @@ export default function LabTabs({socket}) {
     setIsLoading(true)
     axios.get(`${baseUrl}api/v1/papertrade/virtualoveralltraderpnltoday`)
     .then((res) => {
-        console.log("TenX Data Today: ",res.data.data)
         setTradeData(res.data.data); 
     }).catch((err) => {
         setIsLoading(false)
@@ -66,9 +72,16 @@ export default function LabTabs({socket}) {
     console.log("Loading: ",isLoading)
     axios.get(`${baseUrl}api/v1/papertrade/liveandtotaltradercounttoday`)
     .then((res) => {
-        console.log("Virtual Count: ",res.data.data)
         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
+    }).catch((err) => {
+        setIsLoading(false)
+        return new Error(err);
+    })
+
+    axios.get(`${baseUrl}api/v1/papertrade/dailyvirtualusers`)
+    .then((res) => {
+        setDailyVirtualUsers(res.data.data)
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -138,7 +151,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Virtual Trading Position</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's Virtual Trading Position (Trader Side)</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -188,7 +201,7 @@ export default function LabTabs({socket}) {
                     </Grid>
 
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Virtual Trading Day - {new Date(lastVirtualTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Virtual Trading Day (Trader Side) - {new Date(lastVirtualTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "short"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -235,6 +248,14 @@ export default function LabTabs({socket}) {
                 </Grid>
                 </>
                 }
+            </Grid>
+        </Grid>
+
+        <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
+            <Grid item xs={12} md={12} lg={12}>
+                <MDBox p={0.5}>
+                    { dailyVirtualUsers && <DailyVirtualUsers dailyVirtualUsers={dailyVirtualUsers}/>}
+                </MDBox>
             </Grid>
         </Grid>
 

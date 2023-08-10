@@ -1,4 +1,5 @@
 import React, {  useState, useContext } from "react";
+import ReactGA from "react-ga"
 import { memo } from 'react';
 // import axios from "axios"
 // import uniqid from "uniqid"
@@ -60,10 +61,6 @@ const PopupTrading = ({elem, timeDifference}) => {
     console.log("main data", open)
     const navigate = useNavigate();
 
-    const handleClickOpen = async () => {
-        setOpen(true);
-    };
-
     const handleClose = async (e) => {
 
         setOpen(false);
@@ -71,10 +68,13 @@ const PopupTrading = ({elem, timeDifference}) => {
 
 
     async function participateUserToContest(elem) {
-        let isParticipated = elem?.participants.some(elem => elem?.userId?.toString() === getDetails?.userDetails?._id?.toString())
+        let isParticipated = elem?.participants.some(elem => {
+            return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
+        })
+        // console.log("isParticipated", isParticipated)
         if (isParticipated) {
             navigate(`/contest/${elem.contestName}`, {
-                state: { data: elem._id }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime }
             });
             return;
         }
@@ -94,11 +94,12 @@ const PopupTrading = ({elem, timeDifference}) => {
         console.log(data);
         if (data.status === "error" || data.error || !data) {
             setOpen(true);
+            setData(data.message)
             // openSuccessSB("error", data.message)
             // return(<PopupTrading isInterested={true} setIsInterested={setIsInterested} elem={elem} data={`Thanks for showing interest in contest. You will be notified 10 mins before the contest starts on your WhatsApp Number.`} initialValue={true}/>)
         } else {
             navigate(`/contest/${elem.contestName}`, {
-                state: { data: elem._id }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime }
             });
         }
     }
@@ -106,20 +107,18 @@ const PopupTrading = ({elem, timeDifference}) => {
 
     return (
         <div>
+            {timeDifference ?
             <MDButton
                 variant='outlined'
-                color='warning'
+                color= {elem?.entryFee>0 ? "light" :'warning'}
                 size='small'
-                // component={Link}
                 disabled={timeDifference > 0}
-                // to={{
-                //     pathname: `/contest/alphaavengers`,
-                // }}
                 onClick={() => { participateUserToContest(elem) }}
-            // state= {{data:e}}
             >
-                <MDTypography color='warning' fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
+                <MDTypography color={elem?.entryFee>0 ? "light" :'warning'} fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
             </MDButton>
+            :
+            ""}
             <div>
                 <Dialog
                     fullScreen={fullScreen}
@@ -127,7 +126,6 @@ const PopupTrading = ({elem, timeDifference}) => {
                     onClose={handleClose}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-                        {/* {"Option Chain"} */}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>
@@ -136,14 +134,6 @@ const PopupTrading = ({elem, timeDifference}) => {
                             </MDBox>
                         </DialogContentText>
                     </DialogContent>
-                    {/* <DialogActions>
-            <MDButton autoFocus variant="contained" color="info" onClick={(e) => { buyFunction(e) }}>
-              BUY
-            </MDButton>
-            <MDButton variant="contained" color="info" onClick={handleClose} autoFocus>
-              Close
-            </MDButton>
-          </DialogActions> */}
                 </Dialog>
             </div >
         </div >

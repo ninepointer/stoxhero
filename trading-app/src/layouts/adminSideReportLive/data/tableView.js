@@ -125,8 +125,6 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
               const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek - 1];
 
               return (
-
-
                 <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                   <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                     <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.date}</MDTypography>

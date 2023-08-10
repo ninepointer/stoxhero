@@ -22,24 +22,12 @@ function TraderwiseTraderPNL({socket }) {
     
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);
-  // const[subscriptions,setSubscription] = useState([]);
-  // const [selectedSubscription, setselectedSubscription] = useState();
-
-  // useEffect(()=>{
-  //   axios.get(`${baseUrl}api/v1/tenX/active`, {withCredentials: true})
-  //   .then((res)=>{
-  //     setSubscription(res.data.data);
-  //     setselectedSubscription(res.data.data[0]?._id)
-  //   }).catch(e => console.log(e));
-  // },[])
 
   useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/getliveprice`)
     .then((res) => {
-        //console.log("live price data", res)
         setMarketData(res.data);
-        // setDetails.setMarketData(data);
     }).catch((err) => {
         return new Error(err);
     })
@@ -53,14 +41,10 @@ function TraderwiseTraderPNL({socket }) {
         });
         return Array.from(instrumentMap.values());
       });
-      // setDetails.setMarketData(data);
     })
   }, [])
 
   useEffect(()=>{
-    // if(!selectedSubscription){
-    //   return;
-    // }
     axios.get(`${baseUrl}api/v1/paperTrade/traderWisePnl`, {withCredentials: true})
     .then((res) => {
         setAllTrade(res.data.data);
@@ -78,36 +62,30 @@ function TraderwiseTraderPNL({socket }) {
 
   let mapForParticularUser = new Map();
     for(let i = 0; i < allTrade.length; i++){
-      // //console.log(allTrade[i])
       if(mapForParticularUser.has(allTrade[i]._id.traderId)){
-        //console.log(marketData, "marketData")
         let marketDataInstrument = marketData.filter((elem)=>{
-          //console.log("market Data Instrument",elem.instrument_token)
-          return (elem.instrument_token === Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
+          return elem.instrument_token == Number(allTrade[i]._id.symbol)
         })
 
         let obj = mapForParticularUser.get(allTrade[i]._id.traderId)
-        //console.log(marketDataInstrument, "marketDataInstrument")
         obj.totalPnl += ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price)));
-        //console.log("Total P&L: ",allTrade[i]._id.traderId, allTrade[i].amount,Number(allTrade[i]._id.symbol),marketDataInstrument[0]?.instrument_token,marketDataInstrument[0]?.last_price,allTrade[i].lots);
         obj.lotUsed += Math.abs(allTrade[i].lotUsed)
         obj.runninglots += allTrade[i].lots;
         obj.brokerage += allTrade[i].brokerage;
-        obj.noOfTrade += allTrade[i].trades
+        obj.noOfTrade += allTrade[i].trades;
+        obj.absRunninglots += Math.abs(allTrade[i].lots);
+
 
       } else{
-        //console.log(marketData, "marketData")
-        //console.log(Number(allTrade[i]._id.symbol) ,Number(allTrade[i]._id.symbol), "symbol")
         let marketDataInstrument = marketData.filter((elem)=>{
-          return elem !== undefined && (elem.instrument_token === Number(allTrade[i]._id.symbol) || elem.instrument_token == Number(allTrade[i]._id.exchangeInstrumentToken))
+          return elem !== undefined && elem.instrument_token === Number(allTrade[i]._id.symbol)
         })
-        ////console.log(marketDataInstrument)
-        //console.log(marketDataInstrument, "marketDataInstrument")
         mapForParticularUser.set(allTrade[i]._id.traderId, {
           name : allTrade[i]._id.traderName,
           totalPnl : ((allTrade[i].amount+((allTrade[i].lots)*marketDataInstrument[0]?.last_price))),
           lotUsed : Math.abs(allTrade[i].lotUsed),
           runninglots : allTrade[i].lots,
+          absRunninglots: Math.abs(allTrade[i].lots),
           brokerage: allTrade[i].brokerage,
           noOfTrade: allTrade[i].trades,
           userId: allTrade[i]._id.traderId,
@@ -117,7 +95,6 @@ function TraderwiseTraderPNL({socket }) {
       }
 
     }
-
 
     let finalTraderPnl = [];
     for (let value of mapForParticularUser.values()){
@@ -129,12 +106,14 @@ function TraderwiseTraderPNL({socket }) {
     });
 
 
-let totalGrossPnl = 0;
-let totalTransactionCost = 0;
-let totalNoRunningLots = 0;
-let totalTrades = 0;
-let totalLotsUsed = 0;
-let totalTraders = 0;
+  let totalGrossPnl = 0;
+  let totalTransactionCost = 0;
+  let totalNoRunningLots = 0;
+  let totalTrades = 0;
+  let totalLotsUsed = 0;
+  let totalTraders = 0;
+  let totalAbsRunningLots = 0;
+
 
 
 
@@ -153,6 +132,8 @@ finalTraderPnl.map((subelem, index)=>{
   totalLotsUsed += (subelem.lotUsed);
   totalTrades += (subelem.noOfTrade);
   totalTraders += 1;
+  totalAbsRunningLots += subelem.absRunninglots;
+
 
   obj.traderName = (
     <MDTypography component="a" variant="caption" color={tradercolor} fontWeight="medium" backgroundColor={traderbackgroundcolor} padding="5px" borderRadius="5px">
@@ -175,6 +156,12 @@ finalTraderPnl.map((subelem, index)=>{
   obj.runningLots = (
     <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
       {subelem.runninglots}
+    </MDTypography>
+  );
+
+  obj.absRunningLots = (
+    <MDTypography component="a" variant="caption"  fontWeight="medium">
+      {subelem.absRunninglots}
     </MDTypography>
   );
 
@@ -216,8 +203,6 @@ let obj = {};
 const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
 const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
 
-
-
 obj.traderName = (
   <MDTypography component="a" variant="caption" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
     Traders : {totalTraders}
@@ -242,12 +227,17 @@ obj.runningLots = (
   </MDTypography>
 );
 
+obj.absRunningLots = (
+  <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
+    {totalAbsRunningLots}
+  </MDTypography>
+);
+
 obj.lotUsed = (
   <MDTypography component="a" variant="caption" color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
     {totalLotsUsed}
   </MDTypography>
 );
-
 
 obj.brokerage = (
   <MDTypography component="a" variant="caption"  color="dark" padding="5px" borderRadius="5px" backgroundColor="#e0e1e5" fontWeight="medium">
@@ -261,11 +251,7 @@ obj.netPnl = (
   </MDTypography>
 );
 
-
-
 rows.push(obj);
-
-//console.log("traderwise row", rows)
 
 
   return (

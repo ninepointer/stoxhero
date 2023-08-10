@@ -19,7 +19,7 @@ const router = express.Router();
   try{
     const response = await axios.get(url, authOptions);
     const allOrderData = (response.data).data;
-    console.log("in retrieve order", allOrderData.length);
+    // console.log("in retrieve order", allOrderData.length);
     let len = allOrderData.length;
     let orderData;
     for(let i = len-1; i >= 0; i--){

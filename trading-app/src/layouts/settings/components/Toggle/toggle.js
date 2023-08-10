@@ -13,7 +13,7 @@ export default function Toggle({ userId, isRealTradeEnable }) {
     const [setting, setSetting] = useState([]);
     const [reRender, setReRender] = useState(true);
     useEffect(()=>{
-        axios.get(`${baseUrl}api/v1/readsetting`)
+        axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
         .then((res)=>{
          
             setSetting(res.data);

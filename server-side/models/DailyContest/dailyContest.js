@@ -16,7 +16,7 @@ const contestSchema = new Schema({
     },
     contestOn:{
         type:String,
-        required:true
+        // required:true
     },
     description:{
         type: String,
@@ -27,9 +27,18 @@ const contestSchema = new Schema({
         enum: ['Mock','Live'],
         required: true,
     },
+    contestFor:{
+        type: String,
+        enum: ['StoxHero','College'],
+        required: true,
+    },
+    collegeCode:{
+        type: String,
+        // required: true,
+    },
     entryFee:{
-        amount:Number,
-        currency:{type:String,enum:['INR']}
+        type:Number,
+        default: 0
     },
     payoutPercentage:{
         type: Number,
@@ -38,6 +47,10 @@ const contestSchema = new Schema({
     portfolio:{
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio',
+    },
+    college:{
+        type: Schema.Types.ObjectId,
+        ref: 'college',
     },
     interestedUsers:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
@@ -48,13 +61,22 @@ const contestSchema = new Schema({
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
     ],
+    contestSharedBy:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        sharedAt:{type:Date}
+    }],
     allowedUsers:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         addedOn:{type:Date},
     }],
+    purchaseIntent:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        date:{type:Date},
+    }],
     participants:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         participatedOn:{type:Date},
+        payout: {type: Number}
     }],
     maxParticipants:{
         type:Number,
@@ -63,7 +85,7 @@ const contestSchema = new Schema({
     contestStatus:{
         type:String,
         required: true,
-        enum: ['Active','Draft','Cancelled']
+        enum: ['Active','Draft','Cancelled', 'Completed']
     },
     payoutStatus:{
         type:String,
@@ -88,8 +110,6 @@ const contestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
     },
-
-
     contestExpiry:{
         type:String,
         required: true,

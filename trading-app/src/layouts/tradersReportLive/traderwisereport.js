@@ -59,7 +59,7 @@ function TradersReport() {
       totalTradingDays = 0;
       overallPnl = 0;
 
-      axios.get(`${baseUrl}api/v1/readuserdetails`)
+      axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
           let traderdata = data.filter((elem) => {
@@ -121,7 +121,7 @@ function TradersReport() {
 
   function pnlCalculation(firstDate, secondDate,traderName){
     console.log(firstDate,secondDate,traderName)
-    axios.get(`${baseUrl}api/v1/getuserreportdatewisenameLive/${traderName}/${firstDate}/${secondDate}`)
+    axios.get(`${baseUrl}api/v1/getuserreportdatewisenameLive/${traderName}/${firstDate}/${secondDate}`,{withCredentials:true})
     .then((res) => {
       let data = res.data;
       console.log(res.data);

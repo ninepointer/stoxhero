@@ -4,6 +4,9 @@ const router = express.Router();
 const cors = require('cors');
 const app = express();
 const dotenv = require('dotenv');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
+
 // const fetch = require('./marketData/placeOrder');
 app.use(require("cookie-parser")());
 const fetchData = require('./marketData/fetchToken');
@@ -28,22 +31,23 @@ const { subscribeInstrument, getXTSTicksForUserPosition,
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
 // const { interactiveLogin } = require("./services/xts/xtsInteractive copy");
-const { autoExpireSubscription } = require("./controllers/tenXTradeController");
+const { autoExpireTenXSubscription } = require("./controllers/tenXTradeController");
 const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
-const path = require('path');
 const { DummyMarketData } = require('./marketData/dummyMarketData');
 const { Kafka } = require('kafkajs')
 // const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
-const {autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
-const {saveLiveUsedMargin, saveMockUsedMargin} = require("./controllers/marginRequired")
+const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("./controllers/AutoTradeCut/mainManually");
+const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
 const Setting = require("./models/settings/setting");
 const test = require("./kafkaTest");
-require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
+
 const {xtsAccountType, zerodhaAccountType} = require("./constant")
 const {openPrice} = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
-
+const {creditAmountToWallet} = require("./controllers/dailyContestController");
+const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
+const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./controllers/dailyContestTradeController");
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -111,46 +115,59 @@ client.connect()
 // console.log("index.js")
 getKiteCred.getAccess().then(async (data)=>{
   // console.log(data)
+  let interval ;
   await createNewTicker(data.getApiKey, data.getAccessToken);
   io.on("connection", async (socket) => {
-    // console.log(socket.id, "socket id")
+    // console.log(socket.id, "socket id") 
     socket.on('userId', async (data) => {
       socket.join(`${data}`)
-      // console.log("in index.js ", socket.id, data)
       await client.set(socket.id, data);
     })
 
+    socket.on('chart-room', async (data) => {
+      const {userId, instruemnt} = data;
+      // console.log("data", userId, instruemnt, data)
+      if(userId && instruemnt){
+        await client.set(`${userId}${instruemnt}:chartsId`, instruemnt);
+        socket.join(`${userId}${instruemnt}`)
+      }
+    })
+
+    socket.on('dailyContestLeaderboard', async (data) => {
+      let {id, userId} = data;
+      socket.join(`${id}`)
+      socket.join(`${id}${userId}`)
+      await client.set(`dailyContestData:${userId}`, JSON.stringify(data));
+    })
+
     socket.on('GetHistory', async(data) => {
-      console.log('event received', data);
+      // console.log(data)
       webSocketService.send(data);
       await webSocketService.getMessages(io,socket);
     });
     
     socket.on('SubscribeRealtime', async (data) => {
-      console.log('live event received', data);
       webSocketService.send(data);
       await webSocketService.getMessages(io,socket);
     });
 
-    socket.emit('check', false)
+    // socket.emit('check', false)
 
 
     socket.on('disconnect', () => {
       console.log("disconnecting socket")
-      // client.del(socket.id);
+
+      if(interval) clearInterval(interval);
+      client.expire(socket.id, 10);
     })
 
     socket.on('hi', async (data) => {
-      // getKiteCred.getAccess().then(async (data)=>{
-      // console.log("in hii event");
-        // await getTicks(socket);
-        // await getDummyTicks(socket);
-        // await DummyMarketData(socket);
         await onError();
         await onOrderUpdate();
 
-      // });
     });
+
+
     socket.on('company-ticks', async (data) => {
       console.log("in company-ticks event")
       if(setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType){
@@ -162,6 +179,7 @@ getKiteCred.getAccess().then(async (data)=>{
       await onError();
       // await onOrderUpdate();
     });
+
     socket.on('user-ticks', async (data) => {
       console.log("in user-ticks event")
       // await getTicksForUserPosition(socket, data);
@@ -178,6 +196,7 @@ getKiteCred.getAccess().then(async (data)=>{
       await onOrderUpdate();
 
     });
+
     socket.on('contest', async (data) => {
       // console.log("in contest event")
         await getTicksForContest(socket);
@@ -201,10 +220,16 @@ getKiteCred.getAccess().then(async (data)=>{
 
 });
 
+//emitting leaderboard for contest.
+if(process.env.PROD === "true"){
+  sendLeaderboardData().then(()=>{});
+  sendMyRankData().then(()=>{});
+}
+emitServerTime().then(()=>{});
+
+
+
 app.get('/api/v1/servertime',(req,res,next)=>{res.json({status:'success', data: new Date()})})
-
-// autoCutMainManually().then(()=>{})
-
 app.use(express.json({ limit: "20kb" }));
 
 
@@ -276,7 +301,8 @@ app.use('/api/v1/usedMargin', require("./routes/mockTrade/mockMargin"));
 app.use('/api/v1/dailycontest', require("./routes/DailyContest/dailyContestRoutes"))
 app.use('/api/v1/dailycontest/trade', require("./routes/DailyContest/dailyContestTrade"))
 app.use('/api/v1/optionChain', require("./routes/optionChain/optionChainRoute"))
-
+app.use('/api/v1/brokerreport', require("./routes/BrokerReport/brokerReportRoutes"))
+app.use('/api/v1/contestscoreboard', require("./routes/DailyContest/contestScoreboard"))
 app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
 app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
 app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
@@ -284,59 +310,103 @@ app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
 app.use('/api/v1', require("./PlaceOrder/main"));
 app.use('/api/v1', require("./PlaceOrder/switching"));
 app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
-app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"))
+app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));
+app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMiningRoutes"));
+app.use('/api/v1/virtualtradingperformance', require("./routes/performance/virtualTradingRoute"));
+app.use('/api/v1/user', require("./routes/user/userRoutes"));
+app.use('/api/v1/withdrawals', require("./routes/withdrawal/withdrawalRoutes"));
+app.use('/api/v1/KYC', require("./routes/KYCApproval/KYCRoutes"));
+app.use('/api/v1/paymenttest', require("./routes/paymentTest/paymentTestRoutes"));
+app.use('/api/v1/stoxherouserdashboard', require("./routes/StoxHeroDashboard/userAnalytics"));
+app.use('/api/v1/marginused', require("./routes/marginUsed/marginUsed"));
+app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes'));
+app.use('/api/v1/post', require("./routes/post/postRoutes"));
+app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
+app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
 
 
 require('./db/conn');
 
 Setting.find().then((res) => {
-  const appStartTime = new Date(res[0].AppStartTime);
-  const appEndTime = new Date(res[0].AppEndTime);
-  
+
+  const appStartTime = new Date(res[0]?.time?.appStartTime);
+  const appEndTime = new Date(res[0]?.time?.appEndTime);
+
+  console.log("appStartTime", appStartTime, appEndTime)
+
+
   const appStartHour = appStartTime.getHours();
   const appStartMinute = appStartTime.getMinutes();
+
   const appEndHour = appEndTime.getHours();
   const appEndMinute = appEndTime.getMinutes();
 
-  // console.log(appStartHour, appStartMinute, appEndHour, appEndMinute);
-});
-let date = new Date();
-let weekDay = date.getDay();
-  if(process.env.PROD){
+  console.log(appStartHour, appStartMinute, appEndHour, appEndMinute)
+  if(process.env.PROD === "true"){
     let date = new Date();
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
-        const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
-        const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, ()=>{
-          appLive();
-          infinityLive()
-        });
-        const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, ()=>{
-          appOffline();
-          infinityOffline();
-        });
-        // const autotrade = nodeCron.schedule('50 9 * * *', test); 
-        const autotrade = nodeCron.schedule(`50 9 * * *`, () => {
-          autoCutMainManually();
-          autoCutMainManuallyMock();
-        });
-        const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
-          saveLiveUsedMargin();
-          saveMockUsedMargin();
-        });
-        const setOpenPriceFlag = nodeCron.schedule(`46 3 * * *`, openPrice);
+  
+      const onlineApp = nodeCron.schedule(`${appStartMinute} ${appStartHour} * * ${weekDay}`, ()=>{
+        appLive();
+        infinityLive()
+      });
+
+      const offlineApp = nodeCron.schedule(`${appEndMinute} ${appEndHour} * * ${weekDay}`, ()=>{
+        appOffline();
+        infinityOffline();
+      });
 
     }
   }
 
-  const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireSubscription);
-  const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+});
 
-  if(!process.env.PROD){
-    // const autotrade = nodeCron.schedule(`50 9 * * *`, test);
-    //const autotrade = nodeCron.schedule(`50 9 * * *`, autoCutMainManually);
+
+
+
+  if(process.env.PROD === "true"){
+    let date = new Date();
+    let weekDay = date.getDay();
+    if(weekDay > 0 && weekDay < 6){
+        const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
+        // const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, ()=>{
+        //   appLive();
+        //   infinityLive()
+        // });
+        // const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, ()=>{
+        //   appOffline();
+        //   infinityOffline();
+        // });
+        // const autotrade = nodeCron.schedule('50 9 * * *', test); 
+        const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
+          autoCutMainManually();
+          autoCutMainManuallyMock();
+          changeStatus();
+          creditAmount();
+        });
+
+        
+        const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
+          saveLiveUsedMargin();
+          saveMockUsedMargin();
+          saveMockDailyContestUsedMargin();
+          saveXtsMargin();
+        });
+        const setOpenPriceFlag = nodeCron.schedule(`46 3 * * *`, ()=>{
+          openPrice();
+          EarlySubscribedInstrument();
+        } );
+
+        const subscribeTokens = nodeCron.schedule(`48 3 * * *`, ()=>{
+          subscribeTokens();
+        } );
+
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireTenXSubscription);
+        const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+      
+    }
   }
-
 
 const PORT = process.env.PORT||5002;
 const server = app.listen(PORT);

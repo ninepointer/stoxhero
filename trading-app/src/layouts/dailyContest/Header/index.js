@@ -11,8 +11,8 @@ import {Link} from 'react-router-dom'
 import UpcomingContest from '../data/activeDailyContests';
 import CompletedContest from '../data/completedDailyContests';
 import DraftContest from '../data/draftDailyContests'
+import OngoingDailyContest from '../data/ongoingDailyContest';
 
-//data
 
 export default function LabTabs() {
   const [value, setValue] = React.useState('1');
@@ -51,12 +51,26 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Upcoming Contest" value="1" />
-            <Tab label="Completed Contest" value="2" />
-            <Tab label="Draft Contest" value="3" />
+            <Tab label="Ongoing Contest" value="1" />
+            <Tab label="Upcoming Contest" value="2" />
+            <Tab label="Completed Contest" value="3" />
+            <Tab label="Draft Contest" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
+          {isLoading ? 
+          
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <MDBox style={{minWidth:'100%'}}>
+          <OngoingDailyContest/>
+          </MDBox>
+   
+          }
+          </TabPanel>
+        <TabPanel value="2">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -69,7 +83,7 @@ export default function LabTabs() {
    
           }
           </TabPanel>
-        <TabPanel value="2">
+        <TabPanel value="3">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />
@@ -78,7 +92,7 @@ export default function LabTabs() {
           <CompletedContest/>
           }
         </TabPanel>
-        <TabPanel value="3">
+        <TabPanel value="4">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
             <CircularProgress color="info" />

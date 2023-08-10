@@ -3,6 +3,7 @@ import CompanyPosition from "./layouts/companyposition";
 import CompanyPositionRedis from "./layouts/companypositionRedis";
 import CohortPosition from "./layouts/cohortposition";
 import InfinityDashboard from "./layouts/infinitydashboard";
+import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import TenXDashboard from "./layouts/tenxdashboard";
 import TraderDashboard from "./layouts/traderdashboard";
 import Orders from "./layouts/company-orders";
@@ -38,16 +39,19 @@ import MyReferrals from "./layouts/referrals"
 import Portfolio from './layouts/portfolio'
 import CreatePortfolio from './layouts/portfolio/createPortfolio'
 import CarouselDetails from './layouts/carousel/carouselDetails'
+import BrokerReportDetails from './layouts/brokerReport/brokerReportDetails'
 import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
 import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
+import BattleDetails from './layouts/battle/battleDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
 import Carousel from './layouts/carousel'
+import BrokerReport from './layouts/brokerReport'
 // import Home from './layouts/UserHome'
 import HomeIcon from '@mui/icons-material/OtherHouses';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
@@ -69,6 +73,11 @@ import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
+import BattleDashboard from './layouts/battleDashboard'
+import InfinityMining from './layouts/InfinityMining'
+import PaymentTest from './layouts/paymentTest/index'
+import ContestScoreboard from './layouts/contestScoreboard'
+import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
 
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
@@ -77,7 +86,8 @@ import DailyContestDashboard from './layouts/dailyContestDashboard'
 // @mui icons
 // import StadiumIcon from '@mui/icons-material/Stadium';
 import Shop2Icon from '@mui/icons-material/Shop2';
-// import ReportIcon from '@mui/icons-material/Assessment';
+import SportsKabaddiIcon from '@mui/icons-material/SportsKabaddi';
+import ReportIcon from '@mui/icons-material/Assessment';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 // import SummarizeIcon from '@mui/icons-material/Summarize';
 import InventoryIcon from '@mui/icons-material/Inventory'; 
@@ -89,13 +99,13 @@ import PersonIcon from '@mui/icons-material/Person';
 // import DashboardIcon from '@mui/icons-material/Dashboard';
 // import TableViewIcon from '@mui/icons-material/TableView';
 import BusinessIcon from '@mui/icons-material/Business';
-// import CampaignIcon from '@mui/icons-material/Campaign';
+import CampaignIcon from '@mui/icons-material/Campaign';
 // import FolderSharedIcon from '@mui/icons-material/FolderShared';
 // import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
-// import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 // import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 // import AccountBoxIcon from '@mui/icons-material/AccountBox';
-// import WalletIcon from '@mui/icons-material/Wallet';
+import WalletIcon from '@mui/icons-material/Wallet';
 // import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 // import DBEntry from "./layouts/InsertData/DBEntry";
 import Referral from "./layouts/referral-program";
@@ -124,11 +134,16 @@ import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
 import College from "./layouts/college";
 import InternBatch from "./layouts/internBatch";
 import DailyContest from "./layouts/dailyContest";
+import Battles from "./layouts/battle";
 import CollegeEdit from './layouts/college/CollegeEdit'
 import TenXTrading from "./layouts/tenXTrading"
 import SchoolIcon from '@mui/icons-material/School';
 import VirtualPosition from "./layouts/virtualtradePosition";
-import TenxPosition from "./layouts/tenxPosition"
+import TenxPosition from "./layouts/tenxPosition";
+import DailyContestPosition from "./layouts/dailyContestPosition";
+import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
+import KYC from './layouts/KYC/index';
+import MarginDetails from './layouts/margindetails'
 // import BadgeIcon from '@mui/icons-material/Badge';
 // import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
@@ -137,14 +152,20 @@ import InternshipOrders from './layouts/internshipOrders'
 import ContactInfo from './layouts/ContactInfo'
 // import SchoolIcon from '@mui/icons-material/School';
 import TenxReport from "./layouts/tenXReport";
+import DailyContestReport from "./layouts/dailyContestReport";
+
 import InternReport from "./layouts/internReport";
 import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
 import AdminMockReport from './layouts/adminSideReportMock'
 import AdminLiveReport from './layouts/adminSideReportLive'
 import WorkShopOrders from './layouts/userorders/workshopOrder';
-import Chart from './layouts/charts/index'
+import Chart from './layouts/charts/index';
+import Withdrawal from "./layouts/withdrawals";
+import WalletPayment from "./layouts/walletPayment";
+import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 
 const routes = [
+
   {
     type: "collapse",
     name: "Infinity Dashboard",
@@ -152,6 +173,22 @@ const routes = [
     icon: <AllInclusiveIcon/>,
     route: "/infinitydashboard",
     component: <InfinityDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "StoxHero Dashboard",
+    key: "stoxherouserdashboard",
+    icon: <AllInclusiveIcon/>,
+    route: "/stoxherouserdashboard",
+    component: <StoxHeroUserDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Infinity Mining",
+    key: "infinitymining",
+    icon: <TroubleshootIcon/>,
+    route: "/infinitymining",
+    component: <InfinityMining />,
   },
   {
     type: "collapse",
@@ -180,10 +217,26 @@ const routes = [
   {
     type: "collapse",
     name: "Contest Dashboard",
-    key: "dailycontestdashboard",
+    key: "contestdashboard",
     icon: <EmojiEventsIcon/>,
     route: "/contestdashboard",
     component: <DailyContestDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Battle Dashboard",
+    key: "battledashboard",
+    icon: <SportsKabaddiIcon/>,
+    route: "/battledashboard",
+    component: <BattleDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Contest Scoreboard",
+    key: "contestscoreboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/contestscoreboard",
+    component: <ContestScoreboard />,
   },
   {
     type: "collapse",
@@ -218,14 +271,14 @@ const routes = [
     route: "/backreportxts",
     component: <BackReportXTS />,
   },
-  // {
-  //   // type: "collapse",
-  //   // name: "Company Dashboard",
-  //   key: "adminmockreport",
-  //   // icon: <DashboardIcon/>,
-  //   route: "/adminmockreport",
-  //   component: <AdminMockReport />,
-  // },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "margindetails",
+    // icon: <DashboardIcon/>,
+    route: "/margindetails",
+    component: <MarginDetails />,
+  },
 
   {
     // type: "collapse",
@@ -234,6 +287,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/tenxreport",
     component: <TenxReport />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",DailyContestReport
+    key: "dailycontestreport",
+    // icon: <DashboardIcon/>,
+    route: "/contestdashboard/dailycontestreport",
+    component: <DailyContestReport />,
   },
   {
     // type: "collapse",
@@ -296,6 +357,14 @@ const routes = [
   {
     // type: "collapse",
     // name: "Company Dashboard",
+    key: "brokerreportdetails",
+    // icon: <DashboardIcon/>,
+    route: "/brokerreportdetails",
+    component: <BrokerReportDetails />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
     key: "referralprogramdetails",
     // icon: <DashboardIcon/>,
     route: "/referralprogramdetails",
@@ -328,6 +397,10 @@ const routes = [
   {
     route: "/dailycontestdetails",
     component: <DailyContestDetails />,
+  },
+  {
+    route: "/battledetails",
+    component: <BattleDetails />,
   },
   {
     route: "/campaigndetails",
@@ -514,6 +587,23 @@ const routes = [
     route: "/tenxposition",
     component: <TenxPosition />,
   },
+  {
+    // type: "collapse",
+    // name: "Tenx Position",
+    key: "dailycontestposition",
+    // icon: <SupervisorAccountIcon/>,
+    route: "/contestdashboard/dailycontestposition",
+    component: <DailyContestPosition />,
+  },
+
+  {
+    // type: "collapse",
+    // name: "Tenx Position",
+    key: "dailycontestpositiontrader",
+    // icon: <SupervisorAccountIcon/>,
+    route: "/contestdashboard/dailycontestpositiontrader",
+    component: <DailyContestPositionTrader />,
+  },
   // {
   //   type: "collapse",
   //   name: "Batch",
@@ -546,6 +636,14 @@ const routes = [
     route: "/tradersMarginAllocation",
     component: <TradersMarginAllocation />,
   },
+  {
+    type: "collapse",
+    name: "Wallet Payment",
+    key: "walletpayment",
+    icon: <WalletIcon/>,
+    route: "/walletpayment",
+    component: <WalletPayment />,
+  },
   // {
   //   type: "collapse",
   //   name: "Contests",
@@ -561,6 +659,14 @@ const routes = [
     icon: <ViewCarouselIcon/>,
     route: "/carousel",
     component: <Carousel />,
+  },
+  {
+    // type: "collapse",
+    // name: "Broker Reports",
+    // key: "brokerreports",
+    // icon: <ViewCarouselIcon/>,
+    route: "/brokerreports",
+    component: <BrokerReport />,
   },
   {
     // type: "collapse",
@@ -591,17 +697,17 @@ const routes = [
     // name: "Internship Batch",
     key: "dailycontest",
     // icon: <BatchIcon/>,
-    route: "/dailycontest",
+    route: "/contestdashboard/dailycontest",
     component: <DailyContest />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Algo Position(s)",
-  //   key: "algoposition",
-  //   icon: <EngineeringIcon/>,
-  //   route: "/algoposition",
-  //   component: <AlgoPosition />,
-  // },
+  {
+    // type: "collapse",
+    // name: "Internship Batch",
+    key: "battles",
+    // icon: <BatchIcon/>,
+    route: "/battledashboard/battles",
+    component: <Battles />,
+  },
   {
     // type: "collapse",
     // name: "Referral Program",
@@ -715,14 +821,14 @@ const routes = [
     route: "/portfolio",
     component: <Portfolio />,
   },
-  {
-    type: "collapse",
-    name: "Daily P&L Chart",
-    key: "DailyPnlData",
-    icon: <QueryStatsIcon/>,
-    route: "/DailyPnlData",
-    component: <DailyPNLData />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Daily P&L Chart",
+  //   key: "DailyPnlData",
+  //   icon: <QueryStatsIcon/>,
+  //   route: "/DailyPnlData",
+  //   component: <DailyPNLData />,
+  // },
   {
     type: "collapse",
     name: "Users",
@@ -751,7 +857,7 @@ const routes = [
     type: "collapse",
     name: "Contact Info",
     key: "contactinfo",
-    icon: <BusinessIcon/>,
+    icon: <CampaignIcon/>,
     route: "/contactinfo",
     component: <ContactInfo />,
   },
@@ -805,38 +911,6 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/workshop/orders",
     component: <WorkShopOrders/>,
-  },
-  // {
-  //   type: "collapse",
-  //   name: "Battle Street",
-  //   key: "battlestreet",
-  //   icon: <StadiumIcon/>,
-  //   route: "/battlestreet",
-  //   component: <UserContest />,
-  // },
-  {
-    // type: "collapse",
-    // name: "Arena",
-    // key: "arena",
-    // icon: <BusinessIcon/>,
-    route: "/battlestreet/:name",
-    component: <ContestPage />,
-  },
-  {
-    // type: "collapse",
-    // name: "Arena", ContestTradePage
-    // key: "arena",
-    // icon: <BusinessIcon/>,
-    route: "battlestreet/:name/register",
-    component: <ContestRegisterPage />,
-  },
-  {
-    // type: "collapse",
-    // name: "Arena", 
-    // key: "arena",
-    // icon: <BusinessIcon/>,
-    route: "battlestreet/:name/trade",
-    component: <ContestTradePage />,
   },
   {
     // type: "collapse",
@@ -913,6 +987,39 @@ const routes = [
     route: "/chart",
     component: <Chart/>,
   },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/paymenttest",
+    component: <PaymentTest/>,
+  },
+  {
+    // type: "collapse",
+    // name: "Arena", ContestTradePage
+    // key: "arena",
+    // icon: <BusinessIcon/>,
+    route: "/paymenttest/status",
+    component: <PaymentStatus/>,
+  },
+  {
+    type: "collapse",
+    name: "Withdrawals",
+    key: "withdrawals",
+    icon: <MonetizationOnIcon/>,
+    route: "/withdrawals",
+    component: <Withdrawal/>,
+  },
+  {
+    type: "collapse",
+    name: "KYC",
+    key: "kyc",
+    icon: <ReportIcon/>,
+    route: "/kyc",
+    component: <KYC/>,
+  },
+
 
 ];
 

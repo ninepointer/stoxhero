@@ -11,7 +11,8 @@ const InternshipOrders = require('../../models/mock-trade/internshipTrade')
 exports.createBatch = async(req, res, next)=>{
     console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, 
-        batchStatus, career, portfolio, payoutPercentage, attendancePercentage, refferalCount } = req.body;
+        batchStatus, career, portfolio, payoutPercentage, 
+        attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = req.body;
 
     const date = new Date();
     const month = date.toLocaleString('default', { month: 'short' }).substring(0, 3);
@@ -21,7 +22,8 @@ exports.createBatch = async(req, res, next)=>{
     if(await Batch.findOne({batchName})) return res.status(400).json({message:'This batch already exists.'});
 
     const batch = await Batch.create({batchID, batchName:batchName.trim(), batchStartDate, batchEndDate,
-        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, payoutPercentage, attendancePercentage, referralCount});
+        batchStatus, createdBy: req.user._id, lastModifiedBy: req.user._id, career, portfolio, 
+        payoutPercentage, attendancePercentage, referralCount, orientationDate, orientationMeetingLink});
     
     res.status(201).json({message: 'Batch successfully created.', data:batch});
 
@@ -278,6 +280,234 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     }
   }
 
+  exports.collegewiseuser = async (req, res, next) => {
+  
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+    // console.log("Under today orders", today)
+    try {
+      const collegeuser = await Batch.aggregate([
+        {
+          $unwind: "$participants",
+        },
+        {
+          $lookup: {
+            from: "intern-trades",
+            localField: "participants.user",
+            foreignField: "trader",
+            as: "tradeData",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              college: "$participants.college",
+              hasTradeData: { $cond: { if: { $gt: [{ $size: "$tradeData" }, 0] }, then: true, else: false } },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.college",
+            hasTradeDataCounts: {
+              $push: {
+                hasTradeData: "$_id.hasTradeData",
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "colleges",
+            localField: "_id",
+            foreignField: "_id",
+            as: "college",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            college: "$_id",
+            collegeName: {
+              $arrayElemAt: ["$college.collegeName", 0],
+            },
+            activeUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+            inactiveUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+            totalUser: {
+              $add: [{
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }, {
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }],
+            },
+          },
+        },        
+        {
+          $sort: { totalUser: -1 },
+        },
+      ])
+
+      res.status(200).json({status: 'success', data: collegeuser});
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({status:'error', message: 'Something went wrong'});
+    }
+  }
+
+  exports.collegewiseuserPerticularBatch = async (req, res, next) => {
+    const {id} = req.params;
+    try {
+      const collegeuser = await Batch.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(id)
+          },
+        },
+        {
+          $unwind: "$participants",
+        },
+        {
+          $lookup: {
+            from: "intern-trades",
+            localField: "participants.user",
+            foreignField: "trader",
+            as: "tradeData",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              college: "$participants.college",
+              hasTradeData: { $cond: { if: { $gt: [{ $size: "$tradeData" }, 0] }, then: true, else: false } },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.college",
+            hasTradeDataCounts: {
+              $push: {
+                hasTradeData: "$_id.hasTradeData",
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "colleges",
+            localField: "_id",
+            foreignField: "_id",
+            as: "college",
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            college: "$_id",
+            collegeName: {
+              $arrayElemAt: ["$college.collegeName", 0],
+            },
+            activeUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+            inactiveUser: {
+              $sum: {
+                $map: {
+                  input: "$hasTradeDataCounts",
+                  as: "entry",
+                  in: {
+                    $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                  },
+                },
+              },
+            },
+            totalUser: {
+              $add: [{
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", true] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }, {
+                $sum: {
+                  $map: {
+                    input: "$hasTradeDataCounts",
+                    as: "entry",
+                    in: {
+                      $cond: [{ $eq: ["$$entry.hasTradeData", false] }, "$$entry.count", 0],
+                    },
+                  },
+                },
+              }],
+            },
+          },
+        },        
+        {
+          $sort: { totalUser: -1 },
+        },
+      ])
+
+      res.status(200).json({status: 'success', data: collegeuser});
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({status:'error', message: 'Something went wrong'});
+    }
+  }
+
   exports.getCurrentBatch = async(req,res,next) =>{
     console.log('current');
     const userId = req.user._id;
@@ -317,7 +547,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
         return res.json({status: 'success', data: internships[internships.length-1]});    
     }
     console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
-    console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
+    console.log("Condition:",new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate);
     return res.json({status: 'success', data: {}, message:'No active internships'});
   }
 
@@ -355,10 +585,16 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     }).select('internshipBatch');
     let internships = userBatches.internshipBatch.filter((item)=>item?.career?.listingType == 'Workshop');
     // console.log("userBatches", userBatches);
-    if(new Date().toISOString().substring(0,10) <= internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
-        return res.json({status: 'success', data: {}, message:'No active workshops'});    
+    // if(new Date().toISOString().substring(0,10) <= internships[internships.length-1]?.batchEndDate.toISOString().substring(0,10)){
+    //     return res.json({status: 'success', data: {}, message:'No active workshops'});    
+    // }
+    // res.json({status: 'success', data: internships[internships.length-1]});
+    if(new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate){
+        return res.json({status: 'success', data: internships[internships.length-1]});    
     }
-    res.json({status: 'success', data: internships[internships.length-1]});
+    console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
+    console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
+    return res.json({status: 'success', data: {}, message:'No active internships'});
   }
   
   

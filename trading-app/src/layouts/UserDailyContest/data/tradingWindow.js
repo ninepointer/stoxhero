@@ -1,14 +1,5 @@
 import { React, useState, useEffect, useContext, useCallback, useMemo } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import { userContext } from '../../../AuthContext';
-import moment from 'moment'
 
-// prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
-import tradesicon from '../../../assets/images/tradesicon.png'
-
-// @mui material components
 import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
@@ -19,21 +10,15 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import { InfinityTraderRole, tenxTrader } from "../../../variables";
-import ContestCup from '../../../assets/images/candlestick-chart.png'
-import ContestCarousel from '../../../assets/images/target.png'
-import Timer from '../timer'
-import ProgressBar from "../progressBar";
-import { HiUserGroup } from 'react-icons/hi';
 import AMargin from '../../../assets/images/amargin.png'
 import Profit from '../../../assets/images/profit.png'
 import Tcost from '../../../assets/images/tcost.png'
-import Chain from '../../../assets/images/chain.png'
-import Nifty from '../../../assets/images/niftycharticon.png'
-import BNifty from '../../../assets/images/bniftycharticon.png'
-import FNifty from '../../../assets/images/fniftycharticon.png'
+// import Chain from '../../../assets/images/chain.png'
+// import Nifty from '../../../assets/images/niftycharticon.png'
+// import BNifty from '../../../assets/images/bniftycharticon.png'
+// import FNifty from '../../../assets/images/fniftycharticon.png'
 
-import { Divider } from "@mui/material";
+// import { Divider } from "@mui/material";
 import OptionChain from "./optionChain";
 import { NetPnlContext } from "../../../PnlContext";
 import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
@@ -41,20 +26,59 @@ import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { dailyContest } from '../../../variables';
 import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
+import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/StockIndexDailyContest";
+import Leaderboard from '../data/dailyContestLeaderboard'
+import DailyContestMyRank from '../data/dailyContestMyRank'
+// import { NetPnlContext } from '../../../PnlContext';
+import {useNavigate} from "react-router-dom"
+import { userContext } from "../../../AuthContext";
 
 
-
-function Header({ socket, contestId }) {
+function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [yesterdayData, setyesterdayData] = useState({});
     const [availbaleMargin, setAvailbleMargin] = useState([]);
-    const [showOption, setShowOption] = useState(false);
     const pnl = useContext(NetPnlContext);
-    const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
-  
+    const navigate = useNavigate();
+    const [myRank, setMyRank] = useState(0);
+    const getDetails = useContext(userContext)
+    let contestId = data?.data;
+    let endTime = data?.endTime;
+    useEffect(() => {
+        socket.on("serverTime", (time) => {
+            const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
+            const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
+            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            if (serverTimeString === endTimeString) {
+                navigate(`/contest/result`, {
+                    state: { contestId: contestId}
+                })
+            }
+        });
+    }, []);
+
+    // useEffect(()=>{
+    //     socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
+    //         setMyRank(data);
+    //       console.log("this is leaderboard data", data)
+    //     })
+    // }, [])
+
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
+
+      const memoizedStockIndex = useMemo(() => {
+        return <StockIndexDailyContest socket={socket} />;
+      }, [socket]);
+
+      const memoizedLeaderboard = useMemo(() => {
+        return <Leaderboard socket={socket} name={data?.name} />;
+      }, [socket, data?.name]);
+
+      const memoizedDailyContestMyRank = useMemo(() => {
+        return <DailyContestMyRank socket={socket} />;
+      }, [socket]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
@@ -62,8 +86,9 @@ function Header({ socket, contestId }) {
           isGetStartedClicked={isGetStartedClicked}
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
+          contestData={data}
         />;
-      }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+      }, [data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
     
       const memoizedInstrumentDetails = useMemo(() => {
         return <WatchList
@@ -72,8 +97,9 @@ function Header({ socket, contestId }) {
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
           subscriptionId={contestId}
+          contestData={data}
         />;
-      }, [contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+      }, [data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
     
       const memoizedOverallPnl = useMemo(() => {
         return <OverallPnl
@@ -83,9 +109,11 @@ function Header({ socket, contestId }) {
           from={dailyContest}
           subscriptionId={contestId}
           setAvailbleMargin={setAvailbleMargin}
+          contestData={data}
         />;
-      }, [contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
+      }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     
+    //   console.log("yesterdayData", yesterdayData);
 
     return (
         <>
@@ -97,8 +125,8 @@ function Header({ socket, contestId }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Portfolio:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Portfolio:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (yesterdayData?.totalFund) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(yesterdayData?.totalFund)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-yesterdayData?.totalFund))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -106,8 +134,8 @@ function Header({ socket, contestId }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Tcost} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Margin:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Margin:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (yesterdayData?.totalFund + pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((yesterdayData?.totalFund + pnl?.netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(yesterdayData?.totalFund + pnl?.netPnl)))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -115,8 +143,8 @@ function Header({ socket, contestId }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Profit} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Gross Profit:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Gross Profit:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}> { (pnl?.grossPnlAndBrokerage?.grossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.grossPnlAndBrokerage?.grossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.grossPnlAndBrokerage?.grossPnl))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -124,8 +152,8 @@ function Header({ socket, contestId }) {
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
                                         <MDBox display='flex' justifyContent='flex-start'><img src={Profit} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Net Profit:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Net Profit:</MDTypography></MDBox>
+                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.netPnl))}</MDTypography></MDBox>
                                     </MDBox>
                                 </MDButton>
                             </Grid>
@@ -137,43 +165,9 @@ function Header({ socket, contestId }) {
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
                         <Grid container spacing={1} xs={12} md={12} lg={12}>
                             <Grid item xs={12} md={6} lg={3}>
-                                {/* <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={Chain} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>Option Chain</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton> */}
-                                <OptionChain socket={socket} />
+                                <OptionChain socket={socket} data={data}/>
                             </Grid>
-
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={Nifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>NIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={BNifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>BANK NIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={FNifty} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13} fontWeight='bold'>FINNIFTY:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={13}>1,000,000</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-
+                            {memoizedStockIndex}
                         </Grid>
                     </MDBox>
                 </MDBox>
@@ -188,6 +182,22 @@ function Header({ socket, contestId }) {
                     <Grid item xs={12} md={6} lg={12} >
                         {memoizedInstrumentDetails}
                     </Grid>
+                </Grid>
+
+                <Grid container spacing={0.5} p={0} mt={0.5} sx={{ display: 'flex', flexDirection: 'row' }}>
+                    
+                    <Grid item xs={12} md={12} lg={8} >
+                        <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
+                            {memoizedLeaderboard}
+                        </MDBox>
+                    </Grid>
+                    
+                    <Grid item xs={12} md={12} lg={4} >
+                        <MDBox sx={{ backgroundColor: '#1A73E8', height: '100%' }} borderRadius={3}>
+                            {memoizedDailyContestMyRank}
+                        </MDBox>
+                    </Grid>
+                    
                 </Grid>
 
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>

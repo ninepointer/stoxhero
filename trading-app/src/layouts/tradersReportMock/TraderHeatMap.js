@@ -31,7 +31,7 @@ useEffect(()=>{
     pnlCalculation(valueInDate1,valueInDate2)
       overallPnl = 0;
 
-      axios.get(`${baseUrl}api/v1/readuserdetails`)
+      axios.get(`${baseUrl}api/v1/readuserdetails`, {withCredentials: true})
         .then((res)=>{
           let data = res.data;
           let traderdata = data.filter((elem) => {

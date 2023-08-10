@@ -5,7 +5,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ReactGA from "react-ga"
 
 // react-router-dom components
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -27,11 +27,14 @@ import bgImage1 from "../../../assets/images/bgBanner1.jpg";
 import bgImage2 from "../../../assets/images/bgBanner2.jpg";
 import backgroundImage from "../../../layouts/HomePage/assets/images/section1/backgroud.jpg";
 import { InputAdornment } from "@mui/material";
+import axios from 'axios';
+import { adminRole, InfinityTraderRole, userRole } from '../../../variables';
+import { userContext } from '../../../AuthContext';
 
 
 
 function Cover(props) {
-
+  const navigate = useNavigate();
   const [showEmailOTP, setShowEmailOTP] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(true);
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
@@ -39,6 +42,7 @@ function Cover(props) {
   const [submitClicked, setSubmitClicked] = useState(false);
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const setDetails = useContext(userContext);
 
 
   const [formstate, setformstate] = useState({
@@ -89,7 +93,30 @@ function Cover(props) {
       };
     }, [resendTimer, timerActive]);
 
-
+    const userDetail = async ()=>{
+      try{
+          const res = await axios.get(`${baseUrl}api/v1/loginDetail`, {
+              withCredentials: true,
+              headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Credentials": true
+              },
+          });
+                   
+          setDetails.setUserDetail(res.data);
+          
+          //console.log("this is data of particular user", res.data);
+  
+          if(!res.status === 200){
+              throw new Error(res.error);
+          }
+          return res.data;
+      } catch(err){
+          //console.log("Fail to fetch data of user");
+          //console.log(err);
+      }
+    }  
   async function formSubmit() {
     setSubmitClicked(true)
     setformstate(formstate);
@@ -172,13 +199,14 @@ function Cover(props) {
   async function otpConfirmation() {
     // console.log(formstate.email_otp)
     validatePassword();
+
     const res = await fetch(`${baseUrl}api/v1/verifyotp`, {
 
       method: "PATCH",
       // credentials:"include",
       headers: {
         "content-type": "application/json",
-        "Access-Control-Allow-Credentials": false
+        "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
         first_name: formstate.first_name,
@@ -194,9 +222,25 @@ function Cover(props) {
 
 
     const data = await res.json();
-    // console.log(data.status);
     if (data.status === "Success") {
-      setShowConfirmation(false)
+      setDetails.setUserDetail(data.data);
+      setShowConfirmation(false);
+      const userData = await userDetail();
+      if(userData?.role?.roleName === adminRole){
+        const from = location.state?.from || "/infinitydashboard";
+        navigate(from);
+      }
+      else if(userData?.role?.roleName === "data"){
+        const from = location.state?.from || "/analytics";
+        navigate(from);
+      } 
+      else if(userData?.role?.roleName === userRole){
+        const from = location.state?.from || "/stoxherodashboard";
+        navigate(from);
+      }
+      else if(userData?.role?.roleName === InfinityTraderRole){
+        navigate("/infinitytrading");
+      }
       return openSuccessSB("Account Created", data.message);
     } else {
       return openInfoSB("Error", data.message);

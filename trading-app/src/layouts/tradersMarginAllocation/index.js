@@ -31,7 +31,7 @@ function Billing() {
   const [marginDetails, setMarginDetails] = useState([]);
   const [render, setRender] = useState(true);
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`)
+    axios.get(`${baseUrl}api/v1/getUserMarginDetailsAll`, {withCredentials: true})
       .then((res)=>{
               console.log(res.data);
               setMarginDetails(res.data);
@@ -50,10 +50,6 @@ function Billing() {
           <Grid container spacing={3}>
             <Grid item xs={12} lg={7}>
               <Grid container spacing={3}>
-                {/* <Grid item xs={12} xl={6}>
-                  <MasterCard number={4562112245947852} holder="jack peterson" expires="11/22" />
-                </Grid> */}
-                
                 <Grid item xs={12}>
                   <AddFunds marginDetails = {marginDetails} render={render} setRender={setRender}/>
                 </Grid>

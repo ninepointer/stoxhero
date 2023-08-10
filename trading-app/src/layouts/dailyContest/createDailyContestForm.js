@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -11,6 +12,7 @@ import MDButton from "../../components/MDButton"
 import { CircularProgress, formLabelClasses } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
+import { styled } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -20,6 +22,7 @@ import AllowedUsers from './data/notifyUsers';
 import { IoMdAddCircle } from 'react-icons/io';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import dayjs from 'dayjs';
+import Autocomplete from '@mui/material/Autocomplete';
 import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -27,6 +30,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
 import PotentialUser from "./data/potentialUsers"
+import Shared from "./data/shared";
+
+const CustomAutocomplete = styled(Autocomplete)`
+  .MuiAutocomplete-clearIndicator {
+    color: white;
+  }
+`;
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -42,6 +52,7 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const contest = location?.state?.data;
+  const [collegeSelectedOption, setCollegeSelectedOption] = useState();
   console.log('id hai', contest);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -55,6 +66,7 @@ function Index() {
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [dailyContest, setDailyContest] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
+  const [college, setCollege] = useState([]);
   // const [careers,setCareers] = useState([]);
   const [action, setAction] = useState(false);
   // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
@@ -66,13 +78,18 @@ function Index() {
     allowedUsers: [{ addedOn: '', userId: '' }],
     contestStatus: '' || contest?.contestStatus,
     contestType: '' || contest?.contestType,
+    contestFor: '' || contest?.contestFor,
+    collegeCode: '' || contest?.collegeCode,
     contestOn: '' || contest?.contestOn,
     maxParticipants: '' || contest?.maxParticipants,
     payoutPercentage: '' || contest?.payoutPercentage,
     entryFee: '' || contest?.entryFee,
     description: '' || contest?.description,
-    portfolio: "" || contest?.portfolio?._id,
-
+    portfolio: {
+      id: "" || contest?.portfolio?._id,
+      name: "" || contest?.portfolio?.portfolioName
+    },
+    college: "" || contest?.college?._id,
     contestExpiry: "" || contest?.contestExpiry,
     isNifty: "" || contest?.isNifty,
     isBankNifty: "" || contest?.isBankNifty,
@@ -96,7 +113,7 @@ function Index() {
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`)
+    axios.get(`${baseUrl}api/v1/portfolio/dailycontestportfolio`, {withCredentials: true})
       .then((res) => {
         console.log("Contest Portfolios :", res?.data?.data)
         setPortfolios(res?.data?.data);
@@ -104,20 +121,25 @@ function Index() {
         return new Error(err)
       })
 
+    axios.get(`${baseUrl}api/v1/college`,{withCredentials: true})
+    .then((res) => {
+      console.log("College Lists :", res?.data?.data)
+      setCollege(res?.data?.data);
+    }).catch((err) => {
+      return new Error(err)
+    })
 
-    // axios.get(`${baseUrl}api/v1/dailycontest/${contest?._id}`)
-    //   .then((res) => {
-    //     setDailyContest(res?.data?.data);
-    //     setTimeout(() => {
-    //       setIsLoading(false)
-    //     }, 500)
-    //     //   setIsLoading(false).setTimeout(30000);
-    //   }).catch((err) => {
-    //     console.log("Error in useeffect: ", err)
-    //   })
+    axios.get(`${baseUrl}api/v1/college/${contest?.college?._id}`,{withCredentials: true})
+    .then((res) => {
+      console.log("College :", res?.data?.data)
+      setCollegeSelectedOption(res?.data?.data);
+    }).catch((err) => {
+      return new Error(err)
+    })
+
   }, [])
 
-
+  // console.log("College:", collegeSelectedOption)
   const handlePortfolioChange = (event) => {
     const {
       target: { value },
@@ -127,25 +149,41 @@ function Index() {
     })
     setFormState(prevState => ({
       ...prevState,
-      // portfolio: { id: portfolioId[0]?._id, portfolioName: portfolioId[0]?.portfolioName, portfolioValue: portfolioId[0]?.portfolioValue }
-      portfolio: portfolioId[0]?._id
+      portfolio: {
+        ...prevState.portfolio,
+        id: portfolioId[0]?._id,
+        name: portfolioId[0]?.portfolioName
+      }
+    }));
+    // console.log("portfolioId", portfolioId, formState)
+  };
+
+  const handleCollegeChange = (event, newValue) => {
+    console.log("College Selection:",newValue)
+    setCollegeSelectedOption(newValue);
+    setFormState(prevState => ({
+      ...prevState,
+      college: newValue?._id
 
     }))
-    console.log("portfolioId", portfolioId, formState)
+    // setTraderId(newValue);
   };
 
 
   async function onSubmit(e, formState) {
-    console.log("inside submit")
+    // console.log("inside submit")
     e.preventDefault()
     console.log(formState)
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.portfolio) {
+    if(formState.contestStartTime > formState.contestEndTime){
+      return openErrorSB("Error", "Date range is not valid.")
+    }
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.contestType || !formState.portfolio.id || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -154,7 +192,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -174,35 +212,42 @@ function Index() {
     }
   }
 
-  console.log("dailyContest", dailyContest)
+  // console.log("dailyContest", dailyContest)
 
   async function onEdit(e, formState) {
     e.preventDefault()
-    console.log("Edited FormState: ", formState, contest?._id)
+    console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
     setSaving(true)
-    console.log(formState)
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.career || !formState.portfolio) {
+    console.log("formstate", formState)
+
+    if(new Date(formState.contestStartTime).toISOString() > new Date(formState.contestEndTime).toISOString()){
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
+      return openErrorSB("Error", "Date range is not valid.")
+    }
+    
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || !formState.contestFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
-      method: "PATCH",
+      method: "PUT",
       credentials: "include",
       headers: {
         "content-type": "application/json",
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, contestOn, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
     const data = await res.json();
     console.log(data);
-    if (data.status === 422 || data.error || !data) {
+    if (data.status === 500 || data.error || !data) {
       openErrorSB("Error", data.error)
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else {
       openSuccessSB("Contest Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
@@ -266,6 +311,8 @@ function Index() {
     }
   };
 
+  // console.log("check stoxhero", formState?.isNifty , contest?.contestFor , dailyContest?.contestFor )
+
   return (
     <>
       {isLoading ? (
@@ -292,11 +339,16 @@ function Index() {
                     name='contestName'
                     fullWidth
                     defaultValue={editing ? formState?.contestName : contest?.contestName}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        contestName: e.target.value
+                      }))
+                    }}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
@@ -318,7 +370,7 @@ function Index() {
                 </Grid>
 
 
-                <Grid item xs={12} md={6} xl={3} mt={-1} mb={2.5}>
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['MobileDateTimePicker']}>
                       <DemoItem>
@@ -339,7 +391,104 @@ function Index() {
                   </LocalizationProvider>
                 </Grid>
 
-                {!contest && <Grid item xs={12} md={3} xl={3}>
+                <Grid item xs={12} md={3} xl={3}>
+                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
+                    <InputLabel id="demo-multiple-name-label">Contest For</InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name='contestFor'
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      // defaultValue={id ? portfolios?.portfolio : ''}
+                      value={formState?.contestFor}
+                      // onChange={handleTypeChange}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          contestFor: e.target.value
+                        }))
+                      }}
+                      input={<OutlinedInput label="Contest For" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      <MenuItem
+                        value='StoxHero'
+                      >
+                        StoxHero
+                      </MenuItem>
+                      <MenuItem
+                        value='College'
+                      >
+                        College
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
+                  <>
+                    <Grid item xs={12} md={3} xl={6}>
+                      <CustomAutocomplete
+                        id="country-select-demo"
+                        sx={{
+                          width: 526,
+                          height: 10,
+                          '& .MuiAutocomplete-clearIndicator': {
+                            color: 'black',
+                          },
+                        }}
+                        options={college}
+                        disabled={((isSubmitted || contest) && (!editing || saving))}
+                        value={collegeSelectedOption}
+                        onChange={handleCollegeChange}
+                        autoHighlight
+                        getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
+                        renderOption={(props, option) => (
+                          <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                            {option.collegeName + ' - ' + option.zone}
+                          </MDBox>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="College"
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                              style: { color: 'grey', height: 11 }, // set text color to white
+                            }}
+                            InputLabelProps={{
+                              style: { color: 'grey' },
+                            }}
+                          // SelectProps={{
+                          //   MenuProps: {
+                          //     PaperProps: {
+                          //       style: { height: '10px' }, // Replace '200px' with your desired width
+                          //     },
+                          //   },
+                          // }}
+                          />
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={3}>
+                      <TextField
+                        disabled={((isSubmitted || contest) && (!editing || saving))}
+                        id="outlined-required"
+                        label='College Code *'
+                        name='collegeCode'
+                        fullWidth
+                        defaultValue={editing ? formState?.collegeCode : contest?.collegeCode}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                  </>
+                }
+
+                {!contest && 
+                <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
                     <Select
@@ -383,7 +532,13 @@ function Index() {
                     fullWidth
                     type='number'
                     defaultValue={editing ? formState?.maxParticipants : contest?.maxParticipants}
-                    onChange={handleChange}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        maxParticipants: parseInt(e.target.value, 10)
+                      }))
+                    }}
                   />
                 </Grid>
 
@@ -396,20 +551,13 @@ function Index() {
                     fullWidth
                     type='number'
                     defaultValue={editing ? formState?.payoutPercentage : contest?.payoutPercentage}
-                    onChange={handleChange}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6} xl={3} mb={2}>
-                  <TextField
-                    disabled={((isSubmitted || contest) && (!editing || saving))}
-                    id="outlined-required"
-                    label='Contest On *'
-                    name='contestOn'
-                    fullWidth
-                    type='text'
-                    defaultValue={editing ? formState?.contestOn : contest?.contestOn}
-                    onChange={handleChange}
+                    // onChange={handleChange}
+                    onChange={(e) => {
+                      setFormState(prevState => ({
+                        ...prevState,
+                        payoutPercentage: (e.target.value)
+                      }))
+                    }}
                   />
                 </Grid>
 
@@ -452,7 +600,7 @@ function Index() {
                       id="demo-multiple-name"
                       name='portfolio'
                       disabled={((isSubmitted || contest) && (!editing || saving))}
-                      value={formState?.portfolio?.name || dailyContest?.portfolio?.portfolioName}
+                      value={formState?.portfolio?.name || dailyContest?.portfolio?.portfolioName || contest?.portfolio?.portfolioName}
                       onChange={handlePortfolioChange}
                       input={<OutlinedInput label="Portfolio" />}
                       sx={{ minHeight: 45 }}
@@ -527,7 +675,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isNifty'
-                      value={formState?.isNifty || contest?.isNifty}
+                      value={(contest?.isNifty !== undefined && !editing && formState?.isNifty === undefined) ? contest?.isNifty : formState?.isNifty}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -538,8 +686,8 @@ function Index() {
                       label="Is Nifty"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -551,7 +699,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isBankNifty'
-                      value={formState?.isBankNifty || contest?.isBankNifty}
+                      value={(contest?.isBankNifty !== undefined && !editing && formState?.isBankNifty === undefined) ? contest?.isBankNifty : formState?.isBankNifty}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -562,8 +710,8 @@ function Index() {
                       label="Is BankNifty"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -575,7 +723,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isFinNifty'
-                      value={formState?.isFinNifty || contest?.isFinNifty}
+                      value={(contest?.isFinNifty !== undefined && !editing && formState?.isFinNifty === undefined) ? contest?.isFinNifty : formState?.isFinNifty}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -586,8 +734,8 @@ function Index() {
                       label="Is FinNifty"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -599,7 +747,7 @@ function Index() {
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"
                       name='isAllIndex'
-                      value={formState?.isAllIndex || contest?.isAllIndex}
+                      value={(contest?.isAllIndex !== undefined && !editing && formState?.isAllIndex === undefined) ? contest?.isAllIndex : formState?.isAllIndex}
                       disabled={((isSubmitted || contest) && (!editing || saving))}
                       onChange={(e) => {
                         setFormState(prevState => ({
@@ -610,8 +758,8 @@ function Index() {
                       label="Is All Index"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="true">TRUE</MenuItem>
-                      <MenuItem value="false">FALSE</MenuItem>
+                      <MenuItem value={true}>TRUE</MenuItem>
+                      <MenuItem value={false}>FALSE</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -634,17 +782,18 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/dailycontest") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/contestdashboard/dailycontest") }}>
                       Cancel
                     </MDButton>
                   </>
                 )}
                 {(isSubmitted || contest) && !editing && (
                   <>
+                  {contest?.contestStatus !== "Completed" &&
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
-                    </MDButton>
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/dailycontest') }}>
+                    </MDButton>}
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/contestdashboard/dailycontest') }}>
                       Back
                     </MDButton>
                   </>
@@ -674,24 +823,6 @@ function Index() {
                 )}
               </Grid>
 
-              {/* {(isSubmitted || contest) && !editing &&
-                <Grid item xs={12} md={6} xl={12}>
-
-                  <Grid container spacing={2}>
-
-                    <Grid item xs={12} md={6} xl={12} mb={1}>
-                      <MDTypography variant="caption" fontWeight="bold" color="text" textTransform="uppercase">
-                        Add Allowed Users
-                      </MDTypography>
-                    </Grid>
-
-                    <User contestId={contest?._id ? contest?._id : dailyContest?._id} setUpdatedDocument={setUpdatedDocument} />
-
-
-                  </Grid>
-
-                </Grid>} */}
-
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
                   <AllowedUsers saving={saving} dailyContest={contest?._id ? contest : dailyContest} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} action={action} setAction={setAction} />
@@ -707,6 +838,12 @@ function Index() {
               {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                 <MDBox>
                   <PotentialUser dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
+                </MDBox>
+              </Grid>}
+
+              {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                <MDBox>
+                  <Shared dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                 </MDBox>
               </Grid>}
 
