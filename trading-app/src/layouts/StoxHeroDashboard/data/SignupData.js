@@ -33,7 +33,7 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                                 {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.todayUsers[0]?.count ? signupData[0]?.todayUsers[0]?.count : 0)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.yesterdayUsers[0]?.count ? signupData[0]?.yesterdayUsers[0]?.count : 0)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={signupData[0]?.todayUsers[0]?.count > signupData[0]?.yesterdayUsers[0]?.count ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(signupData[0]?.todayUsers[0]?.count??0-signupData[0]?.yesterdayUsers[0]?.count??0))/(signupData[0]?.yesterdayUsers[0]?.count??0 ? signupData[0]?.yesterdayUsers[0]?.count??0 : signupData[0]?.todayUsers[0]?.count??0)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(signupData[0]?.todayUsers[0]?.count-signupData[0]?.yesterdayUsers[0]?.count))/(signupData[0]?.yesterdayUsers[0]?.count)*100).toFixed(0)}%</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{signupData[0]?.todayUsers[0]?.count > signupData[0]?.yesterdayUsers[0]?.count ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
                             </MDTypography>
@@ -69,12 +69,12 @@ export default function Dashboard({signupData, rollingActiveUsers, overallTradeI
                             </MDTypography>
                         </MDBox>
                         <MDBox>
-                            <MDTypography fontSize={13} color={signupData[0]?.thisMonthUsers[0]?.count??0 > signupData[0]?.lastMonthUsers[0]?.count??0 ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                            <MDTypography fontSize={13} color={signupData[0]?.thisMonthUsers[0]?.count > signupData[0]?.lastMonthUsers[0]?.count ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.thisMonthUsers[0]?.count??0)} || {new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(signupData[0]?.lastMonthUsers[0]?.count??0)}
                             </MDTypography>
-                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={signupData[0]?.thisMonthUsers[0]?.count??0 > signupData[0]?.lastMonthUsers[0]?.count??0 ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={signupData[0]?.thisMonthUsers[0]?.count > signupData[0]?.lastMonthUsers[0]?.count ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs((signupData[0]?.thisMonthUsers[0]?.count??0)-(signupData[0]?.lastMonthUsers[0]?.count??0)))/(signupData[0]?.lastMonthUsers[0]?.count??0)*100).toFixed(0)}%</span>&nbsp;
-                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{signupData[0]?.thisMonthUsers[0]?.count??0 > signupData[0]?.lastMonthUsers[0]?.count??0 ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{signupData[0]?.thisMonthUsers[0]?.count > signupData[0]?.lastMonthUsers[0]?.count ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
                                 <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last month</span>
                             </MDTypography>
                         </MDBox>

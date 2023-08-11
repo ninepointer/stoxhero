@@ -177,7 +177,8 @@ export default function LabTabs({socket}) {
         return new Error(err);
     })
 
-    axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlyesterday`)
+    axios.get(`${baseUrl}api/v1/infinityTrade/live/overallinfinitylivecompanypnlyesterday`, {withCredentials:true})
+    
     .then((res) => {
         console.log(res.data.data)
         setLiveTradeYesterdayData(res.data.data);
@@ -410,7 +411,7 @@ export default function LabTabs({socket}) {
                 <>
                 <Grid container>
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (StoxHero) - {new Date(lastMockTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (StoxHero) - {new Date(lastMockTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "short"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
@@ -446,7 +447,7 @@ export default function LabTabs({socket}) {
                     </Grid>
                     
                     <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (Infinity) - {new Date(lastLiveTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "long"})}</MDTypography>
+                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Last Trading Day (Infinity) - {new Date(lastLiveTradingDate).toLocaleDateString("en-US", {day: "numeric",month: "short",year: "numeric", weekday: "short"})}</MDTypography>
                         <Grid container mt={1}>
                             <Grid item lg={4}>
                                 <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>

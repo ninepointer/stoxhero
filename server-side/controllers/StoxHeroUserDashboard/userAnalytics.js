@@ -6,7 +6,7 @@ const PaperTrading = require("../../models/mock-trade/paperTrade");
 const InternshipTrading = require("../../models/mock-trade/internshipTrade")
 const Wallet = require("../../models/UserWallet/userWalletSchema")
 const { ObjectId } = require('mongodb');
-
+const Withdrawal = require('../../models/withdrawal/withdrawal');
 
 
 // Controller for getting all contests
@@ -1163,13 +1163,47 @@ exports.getOverallRevenue = async (req, res) => {
       const { title, ...revenue } = item;
       data[title] = revenue;
     });
-
+    const getTotalAmountForDateRange = async (startDate, endDate) => {
+      const pipeline = [
+          {
+              $match: {
+                  withdrawalSettlementDate: {
+                      $gte: startDate,
+                      ...(endDate && { $lt: endDate })
+                  }
+              }
+          },
+          {
+              $group: {
+                  _id: null,
+                  totalAmount: { $sum: "$amount" }
+              }
+          }
+      ];
+  
+      const results = await Withdrawal.aggregate(pipeline);
+      return results[0] ? results[0].totalAmount : 0;
+  };
+  
+  // Get total amounts for each timeframe
+  const todaysTotal = await getTotalAmountForDateRange(startOfToday);
+  const yesterdaysTotal = await getTotalAmountForDateRange(startOfYesterday, startOfToday);
+  const thisWeeksTotal = await getTotalAmountForDateRange(startOfThisWeek);
+  const lastWeeksTotal = await getTotalAmountForDateRange(startOfLastWeek, startOfThisWeek);
+  const thisMonthsTotal = await getTotalAmountForDateRange(startOfThisMonth);
+  const lastMonthsTotal = await getTotalAmountForDateRange(startOfLastMonth, startOfThisMonth);
+  const thisYearsTotal = await getTotalAmountForDateRange(startOfThisYear);
+  const lastYearsTotal = await getTotalAmountForDateRange(startOfLastYear, startOfThisYear);
+  
+    
     // console.log("Revenue Details:", data);
 
     const response = {
       status: "success",
       message: "Overall Revenue information fetched successfully",
-      data: data,
+      data: {...data, todaysWithdrawals:todaysTotal, yesterdaysWithdrawals:yesterdaysTotal, thisWeeksWithdrawals:thisWeeksTotal,
+         lastWeeksWithdrawals:lastWeeksTotal, thisMonthsWithdrawals:thisMonthsTotal, lastMonthsWithdrawals:lastMonthsTotal, thisYearsWithdrawals:thisYearsTotal,
+          lastYearsWithdrawals:lastYearsTotal },
     };
 
     res.status(200).json(response);

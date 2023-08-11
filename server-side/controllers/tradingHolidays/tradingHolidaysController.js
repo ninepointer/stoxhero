@@ -15,8 +15,10 @@ const filterObj = (obj, ...allowedFields) => {
 exports.createTradingHoliday = async(req, res, next)=>{
     
     const{holidayName, description, holidayDate, status } = req.body;
+    const holidayModDate = new Date(holidayDate.toString());
+    holidayModDate.setDate(holidayDate.getDate()+1);
 
-    if(await TradingHoliday.findOne({holidayDate})) return res.status(400).json({message:'This holiday already exists.'});
+    if(await TradingHoliday.findOne({holidayDate:{$gt: new Date(holidayDate.toString().setHours(0,0,0)), $lte: new Date(holidayDate.toString().setHours(23,59,59))}})) return res.status(400).json({message:'This holiday already exists.'});
 
     const holiday = await TradingHoliday.create({
         holidayName:holidayName.trim(), 

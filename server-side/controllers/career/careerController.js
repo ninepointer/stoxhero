@@ -510,7 +510,7 @@ exports.getCareerApplications = async(req, res, next)=>{
 }
 exports.getCareerApplicantions = async(req, res, next) => {
   const { id } = req.params;
-  const careerApplications = await CareerApplication.find({career: id, applicationStatus: 'Applied'})
+  const careerApplications = await CareerApplication.find({career: id, applicationStatus: 'Applied', status:'OTP Verified'})
                               .sort({_id: -1})
                               .select('first_name last_name mobileNo email collegeName dob appliedOn priorTradingExperience source campaignCode applicationStatus linkedInProfileLink');
 

@@ -18,7 +18,7 @@ export default function Charts({dailyContestUsers}) {
 
   const options = {
     title: {
-      text: 'Daily Unique Contest Users',
+      text: 'Daily Unique Total Contest Users',
       left: 'left',
     },
     tooltip: {

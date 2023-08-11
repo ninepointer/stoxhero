@@ -93,9 +93,10 @@ export default function TraderDetails({completedContest, isLoading}) {
         {
           type: 'value',
           name: '# of Contests',
-          min: -8,
+          min: -3.2,
           max: 8,
-          interval: 2,
+          offset: 0,
+          // interval: 2,
           axisLabel: {
             formatter: `{value}`
           }
@@ -105,6 +106,7 @@ export default function TraderDetails({completedContest, isLoading}) {
         {
           name: 'Net P&L/100',
           type: 'bar',
+          yAxisIndex: 0,
           tooltip: {
             formatter: '{c} ₹'
           },
@@ -113,6 +115,7 @@ export default function TraderDetails({completedContest, isLoading}) {
         {
           name: 'Payout',
           type: 'bar',
+          yAxisIndex: 0,
           tooltip: {
             formatter: '{c} ₹'
           },
