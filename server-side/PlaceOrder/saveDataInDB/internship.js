@@ -3,6 +3,12 @@ const InternshipTrade = require("../../models/mock-trade/internshipTrade");
 
 
 exports.internTrade = async (req, res) => {
+  let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
+    validity, variety, algoBoxId, order_id, instrumentToken,
+    realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
+
+  let {brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+
     InternshipTrade.findOne({order_id : order_id})
     .then((dataExist)=>{
         if(dataExist){

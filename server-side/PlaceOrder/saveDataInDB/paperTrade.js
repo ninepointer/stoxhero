@@ -4,6 +4,12 @@ const PaperTrade = require("../../models/mock-trade/paperTrade");
 
 
 exports.paperTrade = async (req, res) => {
+  let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
+    validity, variety, algoBoxId, order_id, instrumentToken,
+    realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
+
+  let {brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+
     PaperTrade.findOne({order_id : order_id})
     .then((dateExist)=>{
         if(dateExist){
