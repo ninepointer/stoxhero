@@ -19,9 +19,11 @@ const infinityTrader = new Schema({
     },
     average_price:{
         type: Number,
+        required: true
     },
     Quantity:{
         type: Number,
+        required: true
     },
     Product:{
         type: String,
@@ -56,7 +58,8 @@ const infinityTrader = new Schema({
         required: true
     },
     brokerage:{
-        type: Number,     
+        type: Number,  
+        required: true   
     },
     isRealTrade:{ 
         type: Boolean,
@@ -72,11 +75,11 @@ const infinityTrader = new Schema({
     },
     amount:{
         type: Number,
-        // required: true        
+        required: true        
     },
     trade_time:{
         type: Date,
-        // required: true        
+        required: true        
     },
     isMissed:{
         type: Boolean,
@@ -85,15 +88,17 @@ const infinityTrader = new Schema({
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
-        // required : true
+        required : true
     },
     createdOn:{
         type: Date,
-        default: ()=>new Date()
+        default: ()=>new Date(),
+        required: true
     },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true
     }
 
 })

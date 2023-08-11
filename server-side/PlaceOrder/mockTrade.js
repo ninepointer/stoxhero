@@ -5,7 +5,7 @@ const {client, getValue} = require('../marketData/redisClient');
 const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice");
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
-// const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
+const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
 // const {PaperTrade} = require("./saveDataInDB/paperTrade")
 // const {tenxTrade} = require("./saveDataInDB/tenx")
 // const {internTrade} = require("./saveDataInDB/internship")
@@ -126,17 +126,23 @@ exports.mockTrade = async (req, res) => {
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
 
-
+    let otherData={
+        originalLastPriceUser: originalLastPriceUser,
+        originalLastPriceCompany: originalLastPriceCompany,
+        trade_time: trade_time,
+        brokerageUser: brokerageUser,
+        brokerageCompany: brokerageCompany
+    }
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
 
-        await infinityTrade(req, res)
+        await infinityTrade(req, res, otherData)
 
     }
 
     if(dailyContest){
 
-
+        await dailyContestTrade(req, res, otherData)
     }
     
     if(paperTrade){

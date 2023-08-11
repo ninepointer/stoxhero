@@ -7,12 +7,13 @@ const {marginCalculationTrader, marginCalculationCompany} = require("../../marke
 const {clientForIORedis} = require('../../marketData/redisClient');
 
 
-exports.infinityTrade = async (req, res) => {
+exports.infinityTrade = async (req, res, otherData) => {
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
+    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
+        validity, variety, algoBoxId, order_id, instrumentToken,
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
 
+    let {brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
     const session = await mongoose.startSession();
     try{
 

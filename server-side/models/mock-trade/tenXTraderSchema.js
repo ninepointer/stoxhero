@@ -15,9 +15,11 @@ const tenXTraderSchema = new mongoose.Schema({
     },
     average_price:{
         type: Number,
+        required: true
     },
     Quantity:{
         type: Number,
+        required: true
     },
     Product:{
         type: String,
@@ -64,28 +66,31 @@ const tenXTraderSchema = new mongoose.Schema({
     },
     amount:{
         type: Number,
-        // required: true        
+        required: true        
     },
     trade_time:{
         type: Date,
-        // required: true        
+        required: true        
     },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
-        // required : true
+        required : true
     },
     createdOn:{
         type: Date,
-        default: ()=>new Date()
+        default: ()=>new Date(),
+        required: true
     },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true
     },
     subscriptionId:{
         type: Schema.Types.ObjectId,
         ref: 'tenx-subscription',
+        required: true
     }
 
 })

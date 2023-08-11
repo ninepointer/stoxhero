@@ -6,7 +6,13 @@ const {clientForIORedis} = require('../../marketData/redisClient');
 
 
 
-exports.dailyContestTrade = async (req, res) => {
+exports.dailyContestTrade = async (req, res, otherData) => {
+    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
+        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
+
+        let {brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+
     const session = await mongoose.startSession();
     try{
 
