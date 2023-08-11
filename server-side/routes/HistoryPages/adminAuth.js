@@ -1203,7 +1203,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-08-03T00:00:00.000+00:00"
+  let expiryDate = "2023-08-11T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})
