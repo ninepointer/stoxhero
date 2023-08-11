@@ -2,6 +2,12 @@ const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 
 
 exports.tenxTrade = async (req, res) => {
+  let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
+    validity, variety, algoBoxId, order_id, instrumentToken,
+    realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
+
+  let {brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+
     TenxTrader.findOne({order_id : order_id})
     .then((dataExist)=>{
         if(dataExist){

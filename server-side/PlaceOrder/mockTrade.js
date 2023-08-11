@@ -6,9 +6,9 @@ const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
-// const {PaperTrade} = require("./saveDataInDB/paperTrade")
-// const {tenxTrade} = require("./saveDataInDB/tenx")
-// const {internTrade} = require("./saveDataInDB/internship")
+const {PaperTrade} = require("./saveDataInDB/paperTrade")
+const {tenxTrade} = require("./saveDataInDB/tenx")
+const {internTrade} = require("./saveDataInDB/internship")
 const infinityTrade = require("./saveDataInDB/infinity")
 
 exports.mockTrade = async (req, res) => {
@@ -159,15 +159,15 @@ exports.mockTrade = async (req, res) => {
     }
     
     if(paperTrade){
-        
+        await PaperTrade(req, res, otherData)
     }
     
     if(tenxTraderPath){
-        
+        await tenxTrade(req, res, otherData)
     }
 
     if(internPath){
-        
+        await internTrade(req, res, otherData)
     }
 
 
