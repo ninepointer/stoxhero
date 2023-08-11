@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo, useContext, useRef ,Fragment } from "react";
 import axios from "axios"
 import ReactGA from "react-ga"
-
-// react-router components
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 // @mui material components
