@@ -50,33 +50,46 @@ exports.mockTrade = async (req, res) => {
         let brokerageDetailBuyUser;
         let brokerageDetailSellUser;
 
-        if(isRedisConnected && await client.exists('brokerage', `buy-company`)){
+        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)){
             brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
+            brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
         } else{
-            const data = await BrokerageDetail.find({transaction:"BUY", accountType: accountType});
-            await client.HSET('brokerage', `buy-company`, JSON.stringify(data));
+            brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType});
+            await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
         }
 
-        if(isRedisConnected && await client.exists('brokerage', `sell-company`)){
+        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)){
+            
             brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
+            brokerageDetailSell = JSON.parse(brokerageDetailSell);
+            console.log("in if 2nd if", brokerageDetailSell)
         } else{
-            const data = await await BrokerageDetail.find({transaction:"SELL", accountType: accountType});
-            await client.HSET('brokerage', `sell-company`, JSON.stringify(data));
+            console.log("in if 2nd else")
+            brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType});
+            await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
         }
 
-        if(isRedisConnected && await client.exists('brokerage', `buy-user`)){
+        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)){
+            console.log("in if 3rd if")
             brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
+            brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
         } else{
-            const data = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
-            await client.HSET('brokerage', `buy-user`, JSON.stringify(data));
+            brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+            await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
         }
 
-        if(isRedisConnected && await client.exists('brokerage', `sell-user`)){
+        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)){
             brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
+            brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
         } else{
-            const data = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
-            await client.HSET('brokerage', `sell-user`, JSON.stringify(data));
+            brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
+            await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
         }    
+
+        // console.log(brokerageDetailBuy,
+        //     brokerageDetailSell,
+        //     brokerageDetailBuyUser,
+        //     brokerageDetailSellUser)
 
     if(buyOrSell === "SELL"){
         Quantity = "-"+Quantity;
@@ -116,13 +129,13 @@ exports.mockTrade = async (req, res) => {
 
     if(realBuyOrSell === "BUY"){
         brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailBuy[0]);
-    } else{
+    } else if(realBuyOrSell === "SELL"){
         brokerageCompany = sellBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailSell[0]);
     }
 
     if(buyOrSell === "BUY"){
         brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailBuyUser[0]);
-    } else{
+    } else if(buyOrSell === "SELL"){
         brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
     }
 
