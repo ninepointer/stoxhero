@@ -1,4 +1,3 @@
-// const axios = require("axios")
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
 const singleLivePrice = require('../marketData/sigleLivePrice');
 const {client, getValue} = require('../marketData/redisClient');
@@ -6,10 +5,10 @@ const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
 const Setting = require("../models/settings/setting");
 const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
-const {PaperTrade} = require("./saveDataInDB/paperTrade")
+const {virtualTrade} = require("./saveDataInDB/paperTrade")
 const {tenxTrade} = require("./saveDataInDB/tenx")
 const {internTrade} = require("./saveDataInDB/internship")
-const infinityTrade = require("./saveDataInDB/infinity")
+const {infinityTrade} = require("./saveDataInDB/infinity")
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -21,81 +20,72 @@ exports.mockTrade = async (req, res) => {
     const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
+    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
+        validity, variety, instrumentToken, tenxTraderPath, internPath,
+        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest } = req.body 
 
-        if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
-            return res.status(422).json({error : "Something went wrong"})
-        }
+    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
+        return res.status(422).json({error : "Something went wrong"})
+    }
 
-        order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+    req.body.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
 
-        console.log("caseStudy 8: mocktrade", )
+    console.log("caseStudy 8: mocktrade", )
 
-        if(exchange === "NFO"){
-            exchangeSegment = 2;
-        }
+    if(exchange === "NFO"){
+        exchangeSegment = 2;
+    }
 
-        let accountType;
-        if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
-            accountType = xtsAccountType;
-        } else{
-            accountType = zerodhaAccountType;
-        }
+    let accountType;
+    if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
+        accountType = xtsAccountType;
+    } else{
+        accountType = zerodhaAccountType;
+    }
 
 
-        let brokerageDetailBuy;
-        let brokerageDetailSell;
-        let brokerageDetailBuyUser;
-        let brokerageDetailSellUser;
+    let brokerageDetailBuy;
+    let brokerageDetailSell;
+    let brokerageDetailBuyUser;
+    let brokerageDetailSellUser;
 
-        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)){
-            brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
-            brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
-        } else{
-            brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType});
-            await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
-        }
+    if(isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)){
+        brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
+        brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
+    } else{
+        brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType});
+        await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
+    }
 
-        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)){
-            
-            brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
-            brokerageDetailSell = JSON.parse(brokerageDetailSell);
-            console.log("in if 2nd if", brokerageDetailSell)
-        } else{
-            console.log("in if 2nd else")
-            brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType});
-            await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
-        }
+    if(isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)){
+        brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
+        brokerageDetailSell = JSON.parse(brokerageDetailSell);
+    } else{
+        brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType});
+        await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
+    }
 
-        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)){
-            console.log("in if 3rd if")
-            brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
-            brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
-        } else{
-            brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
-            await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
-        }
+    if(isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)){
+        brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
+        brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
+    } else{
+        brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+        await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
+    }
 
-        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)){
-            brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
-            brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
-        } else{
-            brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
-            await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
-        }    
-
-        // console.log(brokerageDetailBuy,
-        //     brokerageDetailSell,
-        //     brokerageDetailBuyUser,
-        //     brokerageDetailSellUser)
+    if(isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)){
+        brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
+        brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
+    } else{
+        brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
+        await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
+    }
 
     if(buyOrSell === "SELL"){
-        Quantity = "-"+Quantity;
+        req.body.Quantity = "-"+Quantity;
     }
     if(realBuyOrSell === "SELL"){
-        realQuantity = "-"+realQuantity;
+        req.body.realQuantity = "-"+realQuantity;
     }
 
     let originalLastPriceUser;
@@ -115,7 +105,6 @@ exports.mockTrade = async (req, res) => {
 
         trade_time = new Date(newTimeStamp);
         if(trade_time < new Date()){
-            console.log("in if")
             const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
             trade_time = trade_time.getTime() + subtractedTime;
         }
@@ -144,22 +133,21 @@ exports.mockTrade = async (req, res) => {
         originalLastPriceCompany: originalLastPriceCompany,
         trade_time: trade_time,
         brokerageUser: brokerageUser,
-        brokerageCompany: brokerageCompany
+        brokerageCompany: brokerageCompany,
+        isRedisConnected: isRedisConnected,
+        secondsRemaining: secondsRemaining
     }
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
-
         await infinityTrade(req, res, otherData)
-
     }
 
     if(dailyContest){
-
         await dailyContestTrade(req, res, otherData)
     }
     
     if(paperTrade){
-        await PaperTrade(req, res, otherData)
+        await virtualTrade(req, res, otherData)
     }
     
     if(tenxTraderPath){
@@ -169,8 +157,6 @@ exports.mockTrade = async (req, res) => {
     if(internPath){
         await internTrade(req, res, otherData)
     }
-
-
 }
 
 

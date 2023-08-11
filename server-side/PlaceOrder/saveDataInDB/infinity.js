@@ -2,7 +2,7 @@ const InfinityTrader = require("../../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany");
 const io = require('../../marketData/socketio');
 const mongoose = require('mongoose')
-const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers, lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../../services/adminRedis/infinityMock");
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../../services/adminRedis/infinityMock");
 const {marginCalculationTrader, marginCalculationCompany} = require("../../marketData/marginData");
 const {clientForIORedis} = require('../../marketData/redisClient');
 
@@ -10,10 +10,10 @@ const {clientForIORedis} = require('../../marketData/redisClient');
 exports.infinityTrade = async (req, res, otherData) => {
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
+        validity, variety, algoBoxId, order_id, instrumentToken, realBuyOrSell, realQuantity, 
+        real_instrument_token, realSymbol, trader } = req.body 
 
-    let {brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+    let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
     const session = await mongoose.startSession();
     try{
 

@@ -1,53 +1,55 @@
 const express = require('express');
 const nodeCron = require("node-cron");
-const router = express.Router();
+// const router = express.Router();
 const cors = require('cors');
 const app = express();
-const dotenv = require('dotenv');
+// const dotenv = require('dotenv');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
 
 // const fetch = require('./marketData/placeOrder');
 app.use(require("cookie-parser")());
-const fetchData = require('./marketData/fetchToken');
+// const fetchData = require('./marketData/fetchToken');
 const io = require('./marketData/socketio');
-const { createNewTicker, disconnectTicker, getTicker,
-  subscribeTokens, getTicks, onError, getMargins,
+const { createNewTicker, disconnectTicker,
+  subscribeTokens, onError,
   onOrderUpdate, getTicksForContest, getTicksForUserPosition,
   getTicksForCompanySide, 
-  getDummyTicks} = require('./marketData/kiteTicker');
+  } = require('./marketData/kiteTicker');
 const getKiteCred = require('./marketData/getKiteCred');
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
 const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
-let { client, isRedisConnected, setValue } = require("./marketData/redisClient");
+let { client, setValue } = require("./marketData/redisClient");
 // const {autoTradeContest} = require('./controllers/contestTradeController');
 const { appLive, appOffline, infinityLive, infinityOffline } = require('./controllers/appSetting');
-const { deletePnlKey } = require("./controllers/deletePnlKey");
+// const { deletePnlKey } = require("./controllers/deletePnlKey");
 const { subscribeInstrument, getXTSTicksForUserPosition,
   onDisconnect, getXTSTicksForCompanySide } = require("./services/xts/xtsMarket")
 const { xtsMarketLogin } = require("./services/xts/xtsMarket");
 const { interactiveLogin } = require("./services/xts/xtsInteractive");
 // const { interactiveLogin } = require("./services/xts/xtsInteractive copy");
 const { autoExpireTenXSubscription } = require("./controllers/tenXTradeController");
-const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
-const { DummyMarketData } = require('./marketData/dummyMarketData');
-const { Kafka } = require('kafkajs')
+// const tenx = require("./controllers/AutoTradeCut/autoTradeCut");
+// const { DummyMarketData } = require('./marketData/dummyMarketData');
+// const { Kafka } = require('kafkajs')
 // const takeAutoTenxTrade = require("./controllers/AutoTradeCut/autoTrade");
 const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("./controllers/AutoTradeCut/mainManually");
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
 const Setting = require("./models/settings/setting");
-const test = require("./kafkaTest");
+// const test = require("./kafkaTest");
 
-const {xtsAccountType, zerodhaAccountType} = require("./constant")
+const {zerodhaAccountType} = require("./constant")
 const {openPrice} = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
 const {updateUserWallet} = require('./controllers/internshipTradeController');
-const {creditAmountToWallet} = require("./controllers/dailyContestController");
+// const {creditAmountToWallet} = require("./controllers/dailyContestController");
 const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
 const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./controllers/dailyContestTradeController");
+
+require('./db/conn');
 
 const hpp = require("hpp")
 const limiter = rateLimit({
@@ -221,10 +223,10 @@ getKiteCred.getAccess().then(async (data)=>{
 });
 
 //emitting leaderboard for contest.
-if(process.env.PROD === "true"){
+// if(process.env.PROD === "true"){
   sendLeaderboardData().then(()=>{});
   sendMyRankData().then(()=>{});
-}
+// }
 emitServerTime().then(()=>{});
 
 
@@ -323,9 +325,6 @@ app.use('/api/v1/userdashboard', require('./routes/UserDashboard/dashboardRoutes
 app.use('/api/v1/post', require("./routes/post/postRoutes"));
 app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
 app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
-
-
-require('./db/conn');
 
 Setting.find().then((res) => {
 

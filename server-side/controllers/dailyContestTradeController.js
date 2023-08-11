@@ -2086,6 +2086,7 @@ async function processContestQueue() {
 
 
 exports.sendMyRankData = async () => {
+
     try{
         const activeContest = await DailyContest.find({contestStatus: "Active"});
 
@@ -2096,7 +2097,6 @@ exports.sendMyRankData = async () => {
                 // Define the start and end time for processing (9 am to 3:18 pm)
                 const startTime = new Date(currentTime);
                 startTime.setHours(3, 0, 0, 0);
-            
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
                 if (currentTime >= startTime && currentTime <= endTime) {
@@ -2105,13 +2105,12 @@ exports.sendMyRankData = async () => {
                     for(let i = 0; i < contest?.length; i++){
                         const room = io.sockets.adapter.rooms.get(contest[i]?._id?.toString());
                         const socketIds = Array.from(room ?? []);
-                        // console.log("socketIds", socketIds)
                         for(let j = 0; j < socketIds?.length; j++){
                             userId = await client.get(socketIds[j]);
                             // console.log("userId", userId)
                             let data = await client.get(`dailyContestData:${userId}`);
                             data = JSON.parse(data);
-                            // console.log("data", data);
+                            console.log("data", data);
                             if(data){
                                 let {id, employeeId} = data;
                                 const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);

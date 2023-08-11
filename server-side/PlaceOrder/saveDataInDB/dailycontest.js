@@ -3,15 +3,16 @@ const DailyContestMockCompany = require("../../models/DailyContest/dailyContestM
 const io = require('../../marketData/socketio');
 const mongoose = require('mongoose')
 const {clientForIORedis} = require('../../marketData/redisClient');
+const {lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../../services/adminRedis/infinityMock");
 
 
 
 exports.dailyContestTrade = async (req, res, otherData) => {
-    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId, exchangeInstrumentToken, fromAdmin,
-        validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath, internPath, contestId,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, dailyContest } = req.body 
+    let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
+        validity, variety, algoBoxId, order_id, instrumentToken, contestId,
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 
 
-        let {brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
+        let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser, originalLastPriceUser, originalLastPriceCompany, trade_time} = otherData;
 
     const session = await mongoose.startSession();
     try{
@@ -57,14 +58,12 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         const traderOverallPnl = results[0][1];
         const companyOverallPnl = results[1][1];
         const traderWisePnl = results[2][1];
-        // console.log("overallpnl", traderOverallPnl, companyOverallPnl, traderWisePnl)
 
         const overallPnlUser = await overallpnlDailyContest(algoTrader[0], trader, traderOverallPnl, contestId);
         const redisValueOverall = await overallMockPnlCompanyDailyContest(mockTradeDetails[0], companyOverallPnl, contestId);
         const redisValueTrader = await traderWiseMockPnlCompanyDailyContest(mockTradeDetails[0], traderWisePnl, contestId);
         const lastTradeMock = await lastTradeDataMockDailyContest(mockTradeDetails[0], contestId);
 
-        // console.log("setting data", overallPnlUser, redisValueOverall, redisValueTrader, lastTradeMock)
         const pipelineForSet = clientForIORedis.pipeline();
 
         await pipelineForSet.set(`${trader.toString()}${contestId.toString()} overallpnlDailyContest`, overallPnlUser);
