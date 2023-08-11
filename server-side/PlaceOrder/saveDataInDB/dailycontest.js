@@ -1,8 +1,8 @@
-const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
-const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockCompany");
-const io = require('../marketData/socketio');
+const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
+const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
+const io = require('../../marketData/socketio');
 const mongoose = require('mongoose')
-const {clientForIORedis} = require('../marketData/redisClient');
+const {clientForIORedis} = require('../../marketData/redisClient');
 
 
 

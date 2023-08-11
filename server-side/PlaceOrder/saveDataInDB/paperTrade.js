@@ -1,4 +1,4 @@
-const PaperTrade = require("../models/mock-trade/paperTrade");
+const PaperTrade = require("../../models/mock-trade/paperTrade");
 
 
 

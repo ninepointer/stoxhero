@@ -1,4 +1,4 @@
-const TenxTrader = require("../models/mock-trade/tenXTraderSchema");
+const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 
 
 exports.tenxTrade = async (req, res) => {

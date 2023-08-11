@@ -1,4 +1,4 @@
-const InternshipTrade = require("../models/mock-trade/internshipTrade");
+const InternshipTrade = require("../../models/mock-trade/internshipTrade");
 
 
 

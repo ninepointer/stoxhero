@@ -130,7 +130,7 @@ exports.mockTrade = async (req, res) => {
 
     if(!paperTrade && isAlgoTrader && !dailyContest){
 
-        // await infinityTrade(req, res)
+        await infinityTrade(req, res)
 
     }
 

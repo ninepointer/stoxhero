@@ -1,10 +1,10 @@
-const InfinityTrader = require("../models/mock-trade/infinityTrader");
-const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
-const io = require('../marketData/socketio');
+const InfinityTrader = require("../../models/mock-trade/infinityTrader");
+const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany");
+const io = require('../../marketData/socketio');
 const mongoose = require('mongoose')
-const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers, lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../services/adminRedis/infinityMock");
-const {marginCalculationTrader, marginCalculationCompany} = require("../marketData/marginData");
-const {clientForIORedis} = require('../marketData/redisClient');
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers, lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../../services/adminRedis/infinityMock");
+const {marginCalculationTrader, marginCalculationCompany} = require("../../marketData/marginData");
+const {clientForIORedis} = require('../../marketData/redisClient');
 
 
 exports.infinityTrade = async (req, res) => {
