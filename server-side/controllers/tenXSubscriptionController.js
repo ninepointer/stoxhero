@@ -417,6 +417,7 @@ exports.myActiveSubsciption = async(req, res, next)=>{
         }
       }
       const tenXSubs = await TenXSubscription.find({_id: {$in: mySubs}})
+      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio")
       
       res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
@@ -424,4 +425,3 @@ exports.myActiveSubsciption = async(req, res, next)=>{
       res.status(500).json({status: 'error', message: 'Something went wrong'});
   }     
 };
-

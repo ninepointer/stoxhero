@@ -23,7 +23,7 @@ router.route('/renew').patch(Authenticate, renewSubscription);
 router.route('/mySubscription').get(Authenticate, userSubscriptions);
 
 
-router.route('/myActiveSuscription').get(Authenticate, myActiveSubsciption)
+router.route('/myactivesubscription').get(Authenticate, myActiveSubsciption)
 
 router.route('/subscriptionpurchaseintent/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getTenXSubscriptionPurchaseIntent);
 router.route('/draft').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftTenXSubs);
