@@ -25,9 +25,10 @@ const tenx = async () => {
         $match:
         {
           trade_time: {
-            $gte: today
+            $gte: new Date("2023-08-11")
           },
           status: "COMPLETE",
+          // todo-vijay
         },
       },
       {
@@ -167,9 +168,10 @@ const internship = async () => {
         $match:
         {
           trade_time: {
-            $gte: today
+            $gte: new Date("2023-08-11")
           },
           status: "COMPLETE",
+          // todo-vijay
         },
       },
       {
@@ -310,9 +312,10 @@ const paperTrade = async () => {
         $match:
         {
           trade_time: {
-            $gte: today
+            $gte: new Date("2023-08-11")
           },
           status: "COMPLETE",
+          // todo-vijay
         },
       },
       {
@@ -449,10 +452,10 @@ const infinityTrade = async () => {
         $match:
         {
           trade_time: {
-            $gte: today
+            $gte: new Date("2023-08-11")
           },
           status: "COMPLETE",
-          // appOrderId: null
+          // todo-vijay
         },
       },
       {
@@ -615,10 +618,10 @@ const dailyContestMock = async () => {
         $match:
         {
           trade_time: {
-            $gte: today
+            $gte: new Date("2023-08-11")
           },
           status: "COMPLETE",
-          // appOrderId: null
+          // todo-vijay
         },
       },
       {

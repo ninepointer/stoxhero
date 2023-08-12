@@ -20,14 +20,6 @@ router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (r
     if(!accountId || !accessToken || !status || !accountType){
         return res.status(422).json({error : "Please fill all fields"})
     }
-
-    // RequestToken.findOne({accessToken : accessToken})
-    // .then((accountIdExist)=>{
-    //     if(accountIdExist){
-    //         //console.log("accountId already");
-    //         return res.status(422).json({error : "Access Token already exist..."})
-    //     }
-    // }).catch(err => {console.log("fail in accesstoken auth")});
     const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, lastModifiedBy: req.user._id, createdBy: req.user._id, accountType});
 
     requestTokens.save().then(async ()=>{
@@ -46,12 +38,12 @@ router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (r
 })
 
 router.post("/autologin", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
-    // await client.del(`kiteCredToday:${process.env.PROD}`);
-    let isRedisConnected = getValue();
-    await deletePnlKey();
-    if(isRedisConnected){
-        await client.del(`referralLeaderboard:${process.env.PROD}`);
-    }
+    await client.del(`kiteCredToday:${process.env.PROD}`);
+    // let isRedisConnected = getValue();
+    // await deletePnlKey();
+    // if(isRedisConnected){
+    //     await client.del(`referralLeaderboard:${process.env.PROD}`);
+    // }
     const {accountId, apiKey, apiSecret, status, uId} = req.body;
     req.body.createdBy = req.user._id;
     if(!accountId || !apiKey || !apiSecret || !status || !uId){

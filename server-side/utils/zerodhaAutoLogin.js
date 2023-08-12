@@ -49,22 +49,12 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
           const accessToken = response.access_token;
           console.log("Access Token: ",accessToken);
 
-          // AccessAndRequestToken.findOne({_id : _id})
-          // .then((accountIdExist)=>{
-          //     if(accountIdExist){
-          //         //console.log("accountId already");
-          //         return resp.status(422).json({error : "account Id already exist..."})
-          //     }
-          // }).catch(err => {console.log("fail in accesstoken auth")});
-
           const requestTokens = new AccessAndRequestToken({accountId, accessToken, requestToken, status, createdBy: new ObjectId(userId), lastModifiedBy: new ObjectId(userId), accountType: zerodhaAccountType});
       
           requestTokens.save().then(async ()=>{
-            
-              // await client.del(`kiteCredToday:${process.env.PROD}`);
+              await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey: ApiKey, getAccessToken: accessToken}));
               disconnectTicker();
               getKiteCred.getAccess().then((data) => {
-                  //console.log(data);
                   createNewTicker(data.getApiKey, data.getAccessToken);
               });
               

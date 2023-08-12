@@ -223,10 +223,10 @@ getKiteCred.getAccess().then(async (data)=>{
 });
 
 //emitting leaderboard for contest.
-// if(process.env.PROD === "true"){
+if(process.env.PROD === "true"){
   sendLeaderboardData().then(()=>{});
   sendMyRankData().then(()=>{});
-// }
+}
 emitServerTime().then(()=>{});
 
 
@@ -369,15 +369,7 @@ Setting.find().then((res) => {
     let weekDay = date.getDay();
     if(weekDay > 0 && weekDay < 6){
         const job = nodeCron.schedule(`0 30 10 * * ${weekDay}`, cronJobForHistoryData);
-        // const onlineApp = nodeCron.schedule(`50 3 * * ${weekDay}`, ()=>{
-        //   appLive();
-        //   infinityLive()
-        // });
-        // const offlineApp = nodeCron.schedule(`49 9 * * ${weekDay}`, ()=>{
-        //   appOffline();
-        //   infinityOffline();
-        // });
-        // const autotrade = nodeCron.schedule('50 9 * * *', test); 
+        
         const autotrade = nodeCron.schedule(`50 9 * * *`, async () => {
           autoCutMainManually();
           autoCutMainManuallyMock();
@@ -385,7 +377,6 @@ Setting.find().then((res) => {
           creditAmount();
         });
 
-        
         const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {
           saveLiveUsedMargin();
           saveMockUsedMargin();
@@ -406,6 +397,15 @@ Setting.find().then((res) => {
       
     }
   }
+
+  const autotrade = nodeCron.schedule(`48 16 * * *`, async () => {
+    autoCutMainManually();
+    autoCutMainManuallyMock();
+    changeStatus();
+    creditAmount();
+  });
+
+  //todo-vijay
 
 const PORT = process.env.PORT||5002;
 const server = app.listen(PORT);

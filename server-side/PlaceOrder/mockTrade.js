@@ -99,9 +99,10 @@ exports.mockTrade = async (req, res) => {
         } else {
             liveData = await singleLivePrice(exchange, symbol)
         }
-        newTimeStamp = liveData[0]?.timestamp;
-        originalLastPriceUser = liveData[0]?.last_price;
-        originalLastPriceCompany = liveData[0]?.last_price;
+
+        newTimeStamp = liveData?.timestamp;
+        originalLastPriceUser = liveData?.last_price;
+        originalLastPriceCompany = liveData?.last_price;
 
         trade_time = new Date(newTimeStamp);
         if(trade_time < new Date()){
