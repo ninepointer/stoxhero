@@ -204,6 +204,9 @@ exports.renewSubscription = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
 
+      if(!tenXSubs.allowRenewal){
+        return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+      }
       const users = tenXSubs.users;
       const Subslen = tenXSubs.users.length;
       // const payoutPercentage = 10;
@@ -403,3 +406,23 @@ exports.renewSubscription = async(req, res, next)=>{
       res.status(500).json({status: 'error', message: 'Something went wrong'});
   }     
 };
+
+exports.myActiveSubsciption = async(req, res, next)=>{
+  const userId = req.user._id;
+  try{
+      const userData = await User.findOne({_id: new ObjectId(userId)})
+      let mySubs = [];
+      for(let elem of userData.subscription){
+        if(elem.status === "Live"){
+          mySubs.push(elem.subscriptionId);
+        }
+      }
+      const tenXSubs = await TenXSubscription.find({_id: {$in: mySubs}})
+      
+      res.status(201).json({status: 'success', data: tenXSubs});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+

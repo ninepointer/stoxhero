@@ -67,6 +67,10 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     try{
 
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
+        
+        if(!subs.allowPurchase){
+            return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+        }
 
         for(let i = 0; i < subs.users.length; i++){
             if(subs.users[i].userId.toString() == userId.toString() && subs.users[i].status == "Live"){
