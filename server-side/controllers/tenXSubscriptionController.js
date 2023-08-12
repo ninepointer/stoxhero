@@ -206,7 +206,6 @@ exports.renewSubscription = async(req, res, next)=>{
 
       const users = tenXSubs.users;
       const Subslen = tenXSubs.users.length;
-      // const payoutPercentage = 10;
       for (let j = 0; j < users.length; j++) {
         if(users[j].userId.toString() === userId.toString()){
           const status = users[j].status;
