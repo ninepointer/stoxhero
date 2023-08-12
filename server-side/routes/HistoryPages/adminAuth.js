@@ -71,6 +71,19 @@ const InternBatch = require("../../models/Careers/internBatch")
 
 
 
+router.get("/addFeildInTenx", async (req, res) => {
+  //todo-vijay - run this on sunday
+  const updateResult = await TenxSubscription.updateMany(
+    {}, // An empty filter matches all documents in the collection
+    {
+      $set: {
+        allowPurchase: false,
+        allowRenewal: false
+      }
+    }
+  );  res.send(updateResult);
+});
+
 router.get("/collegeData", async (req, res) => {
   // {
   //   from: "colleges",
@@ -170,10 +183,11 @@ router.get("/tenxUpdate", async (req, res) => {
   const x = await TenxSubscription.find();
 
   for(let elem of x){
-    if(elem.plan_name==="Beginner" || elem.plan_name==="Intermediate" || elem.plan_name==="Pro"){
+    if(elem.plan_name==="Beginner"){
+    //  || elem.plan_name==="Intermediate" || elem.plan_name==="Pro"){
       for(subelem of elem.users){
         if(!subelem.fee){
-          subelem.fee = elem.discounted_price
+          subelem.fee = 49
         }
       }
       elem.save();
