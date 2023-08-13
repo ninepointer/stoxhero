@@ -77,6 +77,14 @@ const TenXSubscription = new mongoose.Schema({
     lastModifiedBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail'
+    },
+    allowPurchase:{
+        type:Boolean,
+        default: true
+    },
+    allowRenewal:{
+        type:Boolean,
+        default: true
     }
 });
 

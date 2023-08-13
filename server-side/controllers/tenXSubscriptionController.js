@@ -23,11 +23,11 @@ exports.createTenXSubscription = async(req, res, next)=>{
     console.log(req.body)
     const{
         plan_name, actual_price, discounted_price, features, validity, validityPeriod,
-        status, portfolio, profitCap } = req.body;
+        status, portfolio, profitCap, allowPurchase, allowRenewal } = req.body;
     if(await TenXSubscription.findOne({plan_name, status: "Active" })) return res.status(400).json({message:'This subscription already exists.'});
 
     const tenXSubs = await TenXSubscription.create({plan_name:plan_name.trim(), actual_price, discounted_price, features, validity, validityPeriod,
-        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap});
+        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap, allowPurchase, allowRenewal});
     
     res.status(201).json({message: 'TenX Subscription successfully created.', data:tenXSubs});
 }
@@ -39,7 +39,7 @@ exports.editTanx = async(req, res, next) => {
     const tenx = await TenXSubscription.findById(id);
 
     const filteredBody = filterObj(req.body, "plan_name", "actual_price", "discounted_price", "validity", "validityPeriod", 
-        "status", "profitCap", "portfolio");
+        "status", "profitCap", "portfolio", "allowPurchase", "allowRenewal");
     if(req.body.features)filteredBody.features=[...tenx.features,
         {orderNo:req.body.features.orderNo,
             description:req.body.features.description,}]
@@ -88,7 +88,7 @@ exports.removeFeature = async(req, res, next) => {
 
 exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
-        const tenXSubs = await TenXSubscription.find({status: "Active"})
+        const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
         .populate('portfolio', 'portfolioName portfolioValue')
         .sort({$natural: 1})
         
@@ -417,8 +417,7 @@ exports.myActiveSubsciption = async(req, res, next)=>{
         }
       }
       const tenXSubs = await TenXSubscription.find({_id: {$in: mySubs}})
-      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio")
-      
+      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features").populate('portfolio', 'portfolioName portfolioValue')      
       res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
       console.log(e);

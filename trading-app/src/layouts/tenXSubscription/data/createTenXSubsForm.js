@@ -63,7 +63,9 @@ const [formState,setFormState] = useState({
         id: "",
         name: ""
     },
-    status:''
+    status:'',
+    allowPurchase:'',
+    allowRenewal:''
 });
 
 React.useEffect(()=>{
@@ -123,7 +125,7 @@ async function onEdit(e,formState){
         setTimeout(()=>{setSaving(false);setEditing(true)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
-    const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
+    const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
         method: "PATCH",
@@ -133,7 +135,7 @@ async function onEdit(e,formState){
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap 
+            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal 
         })
     });
 
@@ -174,7 +176,7 @@ async function onEdit(e,formState){
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
     setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    const {plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap } = formState;
+    const {plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
     const res = await fetch(`${baseUrl}api/v1/tenX/create`, {
         method: "POST",
         credentials:"include",
@@ -184,7 +186,7 @@ async function onEdit(e,formState){
         },
         body: JSON.stringify({
             plan_name, actual_price, discounted_price, validity, 
-            validityPeriod, status, portfolio: portfolio.id, profitCap
+            validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal
         })
     });
     
@@ -483,7 +485,49 @@ async function onEdit(e,formState){
                     </Select>
                 </FormControl>
             </Grid>
-                
+            <Grid item xs={12} md={6} xl={3}>
+                <FormControl sx={{width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Allow Purchase</InputLabel>
+                    <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    name='status'
+                    value={formState?.status || tenXSubs?.status}
+                    // value={oldObjectId ? contestData?.status : formState?.status}
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    onChange={(e) => {setFormState(prevState => ({
+                        ...prevState,
+                        allowPurchase: e.target.value
+                    }))}}
+                    label="Status"
+                    sx={{ minHeight:43 }}
+                    >
+                    <MenuItem value={true}>True</MenuItem>
+                    <MenuItem value={false}>False</MenuItem>
+                    </Select>
+                </FormControl>
+            </Grid><Grid item xs={12} md={6} xl={3}>
+                <FormControl sx={{width: "100%" }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Allow Renewal</InputLabel>
+                    <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    name='status'
+                    value={formState?.status || tenXSubs?.status}
+                    // value={oldObjectId ? contestData?.status : formState?.status}
+                    disabled={((isSubmitted || id) && (!editing || saving))}
+                    onChange={(e) => {setFormState(prevState => ({
+                        ...prevState,
+                        allowRenewal: e.target.value
+                    }))}}
+                    label="Status"
+                    sx={{ minHeight:43 }}
+                    >
+                    <MenuItem value={true}>True</MenuItem>
+                    <MenuItem value={false}>False</MenuItem>
+                    </Select>
+                </FormControl>
+            </Grid>    
             </Grid>
 
             </Grid>

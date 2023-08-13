@@ -12,7 +12,7 @@ const restrictTo = require('../../authentication/authorization');
 // router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
 router.route('/create').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createTenXSubscription);
 router.route('/capturepurchaseintent').post(Authenticate, createTenXPurchaseIntent);
-router.route('/active').get(Authenticate, getActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs);
+router.route('/active').get(Authenticate, getActiveTenXSubs);
 router.route('/inactive').get(Authenticate, getInactiveTenXSubs);
 router.route('/beginner').get(Authenticate, getBeginnerSubscription);
 router.route('/intermediate').get(Authenticate, getIntermediateSubscription);
