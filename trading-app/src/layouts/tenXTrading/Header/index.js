@@ -41,7 +41,6 @@ export default function TenXSubscriptions() {
   }, [])
 
   const card = (props)=> {
-
     return (
     <React.Fragment>
       <CardContent sx={{height: 'auto', flex:1 ,padding:2}} justifyContent="center">
@@ -128,7 +127,7 @@ export default function TenXSubscriptions() {
               <MDTypography color='dark' style={{fontSize:"15px", lineHeight:4.5}}>{props.upto}</MDTypography>
             </MDBox>
             
-            <Dialogue amount={props.actual_discountPrice} name={props.plan} id={props.id} walletCash={cashBalance} />
+            <Dialogue amount={props.actual_discountPrice} name={props.plan} id={props.id} walletCash={cashBalance} allowRenewal={props.allowRenewal} />
 
 
           
@@ -162,9 +161,6 @@ export default function TenXSubscriptions() {
     Promise.all([call1, call2])
     .then(([api1Response, api2Response]) => {
       // Process the responses here
-      console.log('call1', api1Response.data.data);
-      console.log('call2',api2Response.data.data);
-      console.log('result', api1Response.data.data.filter(obj1 => !api2Response.data.data.some(obj2 => JSON.stringify(obj1) === JSON.stringify(obj2))))
       setActiveTenXSubs(api1Response.data.data.filter(obj1 => !api2Response.data.data.some(obj2 => JSON.stringify(obj1) === JSON.stringify(obj2))));
       setCurrentTenXSubs(api2Response.data.data);
     })
@@ -176,7 +172,6 @@ export default function TenXSubscriptions() {
 
   },[])
 
-  console.log("cashBalance", cashBalance)
 
   return (
    
@@ -224,6 +219,7 @@ export default function TenXSubscriptions() {
                 discountPrice: elem.discounted_price+"/-",
                 actual_discountPrice: elem.discounted_price,
                 validity: elem.validity,
+                allowRenewal: elem?.allowRenewal,
                 validityPeriods: elem.validity+" trading "+elem.validityPeriod,
                 plan1: elem?.features[0]?.description,
                 plan2: elem.features[1]?.description,
@@ -256,6 +252,7 @@ export default function TenXSubscriptions() {
                 discountPrice: elem.discounted_price+"/-",
                 actual_discountPrice: elem.discounted_price,
                 validity: elem.validity,
+                allowRenewal: elem?.allowRenewal,
                 validityPeriods: elem.validity+" trading "+elem.validityPeriod,
                 plan1: elem?.features[0]?.description,
                 plan2: elem.features[1]?.description,

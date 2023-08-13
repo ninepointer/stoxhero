@@ -33,7 +33,7 @@ import Renew from './renew/renew';
 
 
 
-export default function Dialogue({amount, name, id, walletCash}) {
+export default function Dialogue({amount, name, id, walletCash, allowRenewal}) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -52,8 +52,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   useEffect(()=>{
 
-    console.log("in useEffect")
-
     axios.get(`${baseUrl}api/v1/loginDetail`, {
       withCredentials: true,
       headers: {
@@ -64,12 +62,10 @@ export default function Dialogue({amount, name, id, walletCash}) {
     })
     .then((res)=>{
       setUpdatedUser(res.data);
-      console.log("subscribed", res.data)
       let subscribed = (res.data?.subscription)?.filter((elem)=>{
         return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
       })
 
-      console.log("subscribed", subscribed)
       if(subscribed?.length > 0){
         setIsSubscribed(true);
       }
@@ -113,7 +109,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
   };
 
   async function captureIntent(){
-    console.log(getDetails)
     handleClickOpen();
     const res = await fetch(`${baseUrl}api/v1/tenX/capturepurchaseintent`, {
         method: "POST",
@@ -144,7 +139,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
       })
     });
     const dataResp = await res.json();
-    console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
         openSuccessSB("error", dataResp.message)
     } else {
@@ -152,7 +146,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
             ...messege,
             thanksMessege: "Congrats you have unlocked your TenX trading subscription"
         })
-        console.log(dataResp.data)
         setUpdatedUser(dataResp.data);
         // openSuccessSB("success", dataResp.message)
     }
@@ -219,13 +212,13 @@ export default function Dialogue({amount, name, id, walletCash}) {
         {isSubscribed ?
         <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
           <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
-          <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>
+          {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>}
         </MDBox>
         :
         messege.thanksMessege ?
         <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
           <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
-          <Renew amount={amount} name={name} id={id} walletCash={walletCash} />
+          {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} />}
         </MDBox>
         :
         <MDBox>
