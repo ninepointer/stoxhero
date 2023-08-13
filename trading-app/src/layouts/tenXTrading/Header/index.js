@@ -210,7 +210,7 @@ export default function TenXSubscriptions() {
          {
 
           currentTenXSubs?.map((elem,index)=>(
-            <Grid item key={elem._id} xs={12} md={6} lg={4}>
+            <Grid mt={2} item key={elem._id} xs={12} md={6} lg={4}>
               
               <Card style={{background:"#fff"}} variant="outlined">
               {card({
@@ -237,7 +237,7 @@ export default function TenXSubscriptions() {
           }
           
       </Grid>
-    {activeTenXSubs?.length > 0 && <MDTypography color='white' fontWeight='bold'>Available Tenx Plans</MDTypography>}
+    {activeTenXSubs?.length > 0 && <MDTypography mt={2} mb={2} color='white' fontWeight='bold'>Available Tenx Plans</MDTypography>}
     <Grid container spacing={3} mb={1}>
          {
 
