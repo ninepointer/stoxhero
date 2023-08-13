@@ -128,20 +128,11 @@ export default function TenXSubscriptions() {
               </MDTypography>
               <MDTypography color='dark' style={{fontSize:"15px", lineHeight:4.5}}>{props.upto}</MDTypography>
             </MDBox>
-            
             <Dialogue checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={props.actual_discountPrice} name={props.plan} id={props.id} walletCash={cashBalance} />
-
-
-          
           </MDBox>
-  
         </MDBox>
-         
       </CardContent>
-      
-     
     </React.Fragment>
-  
   )}
 
   useEffect(()=>{
@@ -216,7 +207,6 @@ export default function TenXSubscriptions() {
                   color: elem.plan_name === 'Beginner' ? 'info' : elem.plan_name === 'Intermediate' ? 'success' : 'error',
                   icon: elem.plan_name === 'Beginner' ? beginner : elem.plan_name === 'Intermediate' ? intermediate : pro,
                   price: elem.actual_price + "/-",
-                  // upto: "/"+elem.validity+" trading "+elem.validityPeriod,
                   discount: "₹",
                   discountPrice: elem.discounted_price + "/-",
                   actual_discountPrice: elem.discounted_price,
@@ -227,6 +217,7 @@ export default function TenXSubscriptions() {
                   plan3: elem.features[2]?.description,
                   plan4: elem.features[3]?.description,
                   plan5: elem.features[4]?.description,
+                  // allowRenewal: elem.
                 })}
               </Card>
             </Grid>

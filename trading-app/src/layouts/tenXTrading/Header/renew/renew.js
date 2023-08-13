@@ -15,29 +15,16 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Title from '../../../HomePage/components/Title'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-
-// import Box from '@mui/material/Box';
-// import Card from '@mui/material/Card';
-// import CardActions from '@mui/material/CardActions';
-// import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-// import MDTypography from '../../../../components/MDTypography';
-// import { CopyToClipboard } from 'react-copy-to-clipboard';
-// import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../../components/MDSnackbar';
-import {useNavigate} from 'react-router-dom';
+// import {useNavigate} from 'react-router-dom';
 import { Typography } from '@mui/material';
 
 
-
-
-
 export default function Renew({amount, name, id, walletCash}) {
-  // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
   const [updatedUser, setUpdatedUser] = React.useState({});
-//   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isContinue, setIsContinue] = useState(false);
   const [setting, setSetting] = useState([]);
   const [messege, setMessege] = useState({
@@ -45,15 +32,9 @@ export default function Renew({amount, name, id, walletCash}) {
     thanksMessege: ""
   })
 
-  const navigate = useNavigate();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-//   const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
-
   useEffect(()=>{
-
-    console.log("in useEffect")
-
     axios.get(`${baseUrl}api/v1/loginDetail`, {
       withCredentials: true,
       headers: {
@@ -68,12 +49,6 @@ export default function Renew({amount, name, id, walletCash}) {
       let subscribed = (res.data?.subscription)?.filter((elem)=>{
         return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
       })
-
-    //   console.log("subscribed", subscribed)
-    //   if(subscribed?.length > 0){
-    //     setIsSubscribed(true);
-    //   }
-
     }).catch((err)=>{
       console.log("Fail to fetch data of user", err);
     })
@@ -98,9 +73,6 @@ export default function Renew({amount, name, id, walletCash}) {
     let subscribed = (updatedUser?.subscription)?.filter((elem)=>{
       return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
     })
-    // if(subscribed?.length > 0){
-    //   setIsSubscribed(true);
-    // }
   }, [updatedUser])
 
 
