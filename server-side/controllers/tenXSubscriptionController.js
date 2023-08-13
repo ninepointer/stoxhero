@@ -99,6 +99,19 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     }     
 };
 
+exports.getAdminActiveTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
+      .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({$natural: 1})
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
 exports.getInactiveTenXSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find({status: "Inactive"})

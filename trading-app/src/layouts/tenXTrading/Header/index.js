@@ -17,6 +17,7 @@ export default function TenXSubscriptions() {
   const [cashBalance, setCashBalance] = React.useState(0);
   const [activeTenXSubs,setActiveTenXSubs] = useState([]);
   const [currentTenXSubs,setCurrentTenXSubs] = useState([]);
+  let [checkPayment, setCheckPayment] = useState(true)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
@@ -126,23 +127,12 @@ export default function TenXSubscriptions() {
               </MDTypography>
               <MDTypography color='dark' style={{fontSize:"15px", lineHeight:4.5}}>{props.upto}</MDTypography>
             </MDBox>
-            
-            <Dialogue amount={props.actual_discountPrice} name={props.plan} id={props.id} walletCash={cashBalance} allowRenewal={props.allowRenewal} />
-
-
-          
+            <Dialogue checkPayment={checkPayment} setCheckPayment={setCheckPayment} amount={props.actual_discountPrice} name={props.plan} id={props.id} walletCash={cashBalance} allowRenewal={props.allowRenewal} />
           </MDBox>
-  
         </MDBox>
-         
       </CardContent>
-      
-     
     </React.Fragment>
-  
   )}
-
-
 
   useEffect(()=>{
   
@@ -170,8 +160,7 @@ export default function TenXSubscriptions() {
     });
 
 
-  },[])
-
+  },[checkPayment])
 
   return (
    
@@ -200,11 +189,11 @@ export default function TenXSubscriptions() {
         </MDTypography>
       </MDBox>
     </MDBox>
-    {currentTenXSubs?.length >0 && <MDTypography fontWeight='bold' color='white'>Subscribed TenX Plans</MDTypography>}     
-    <Grid container spacing={3} mb={1}>
-         {
+      {currentTenXSubs?.length > 0 && <MDTypography fontWeight='bold' color='white'>Subscribed TenX Plans</MDTypography>}
+      <Grid container spacing={3} mb={1}>
+        {
 
-          currentTenXSubs?.map((elem,index)=>(
+          currentTenXSubs?.map((elem, index) => (
             <Grid mt={2} item key={elem._id} xs={12} md={6} lg={4}>
               
               <Card style={{background:"#fff"}} variant="outlined">
@@ -263,8 +252,40 @@ export default function TenXSubscriptions() {
               </Card>
             </Grid>
           ))
-          }
-          
+        }
+
+      </Grid>
+      {activeTenXSubs?.length > 0 && <MDTypography mt={2} mb={2} color='white' fontWeight='bold'>Available Tenx Plans</MDTypography>}
+      <Grid container spacing={3} mb={1}>
+        {
+
+          activeTenXSubs?.map((elem, index) => (
+            <Grid item key={elem._id} xs={12} md={6} lg={4}>
+
+              <Card style={{ background: "#fff" }} variant="outlined">
+                {card({
+                  id: elem._id,
+                  plan: elem.plan_name,
+                  color: elem.plan_name === 'Beginner' ? 'info' : elem.plan_name === 'Intermediate' ? 'success' : 'error',
+                  icon: elem.plan_name === 'Beginner' ? beginner : elem.plan_name === 'Intermediate' ? intermediate : pro,
+                  price: elem.actual_price + "/-",
+                  // upto: "/"+elem.validity+" trading "+elem.validityPeriod,
+                  discount: "₹",
+                  discountPrice: elem.discounted_price + "/-",
+                  actual_discountPrice: elem.discounted_price,
+                  validity: elem.validity,
+                  validityPeriods: elem.validity + " trading " + elem.validityPeriod,
+                  plan1: elem?.features[0]?.description,
+                  plan2: elem.features[1]?.description,
+                  plan3: elem.features[2]?.description,
+                  plan4: elem.features[3]?.description,
+                  plan5: elem.features[4]?.description,
+                })}
+              </Card>
+            </Grid>
+          ))
+        }
+
       </Grid>
 
     </MDBox>

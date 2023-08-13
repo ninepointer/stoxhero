@@ -21,9 +21,9 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 // import CardActions from '@mui/material/CardActions';
 // import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-import MDTypography from '../../../components/MDTypography';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {BiCopy} from 'react-icons/bi'
+// import MDTypography from '../../../components/MDTypography';
+// import { CopyToClipboard } from 'react-copy-to-clipboard';
+// import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
 import { Typography } from '@mui/material';
@@ -33,7 +33,7 @@ import Renew from './renew/renew';
 
 
 
-export default function Dialogue({amount, name, id, walletCash, allowRenewal}) {
+export default function Dialogue({amount, name, id, walletCash, setCheckPayment, checkPayment, allowRenewal}) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -48,7 +48,7 @@ export default function Dialogue({amount, name, id, walletCash, allowRenewal}) {
   const navigate = useNavigate();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
+  // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(()=>{
 
@@ -106,6 +106,7 @@ export default function Dialogue({amount, name, id, walletCash, allowRenewal}) {
 
   const handleClose = () => {
     setOpen(false);
+    setCheckPayment(!checkPayment)
   };
 
   async function captureIntent(){
@@ -127,6 +128,10 @@ export default function Dialogue({amount, name, id, walletCash, allowRenewal}) {
     if(walletCash < amount){
       return;
     }
+
+    // if(!tenXSubs.allowRenewal){
+    //   return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+    // }
     const res = await fetch(`${baseUrl}api/v1/userwallet/deduct`, {
       method: "PATCH",
       credentials: "include",
@@ -147,6 +152,7 @@ export default function Dialogue({amount, name, id, walletCash, allowRenewal}) {
             thanksMessege: "Congrats you have unlocked your TenX trading subscription"
         })
         setUpdatedUser(dataResp.data);
+        
         // openSuccessSB("success", dataResp.message)
     }
   }

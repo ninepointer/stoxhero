@@ -12,7 +12,7 @@ export default function ActiveTenXSubscriptions() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     async function getTenXActiveSubs (){
-        const res = await fetch(`${baseUrl}api/v1/tenX/active`, {
+        const res = await fetch(`${baseUrl}api/v1/tenX/adminactive`, {
           method: "GET",
           credentials:"include",
           headers: {

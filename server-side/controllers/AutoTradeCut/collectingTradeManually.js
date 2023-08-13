@@ -18,17 +18,15 @@ const tenx = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  // let tradeArr = [];
   const data = await TenxTrader.aggregate(
     [
       {
         $match:
         {
           trade_time: {
-            $gte: new Date("2023-08-11")
+            $gte: today
           },
           status: "COMPLETE",
-          // todo-vijay
         },
       },
       {
@@ -168,10 +166,9 @@ const internship = async () => {
         $match:
         {
           trade_time: {
-            $gte: new Date("2023-08-11")
+            $gte: today
           },
           status: "COMPLETE",
-          // todo-vijay
         },
       },
       {
@@ -312,10 +309,9 @@ const paperTrade = async () => {
         $match:
         {
           trade_time: {
-            $gte: new Date("2023-08-11")
+            $gte: today
           },
           status: "COMPLETE",
-          // todo-vijay
         },
       },
       {
@@ -452,10 +448,9 @@ const infinityTrade = async () => {
         $match:
         {
           trade_time: {
-            $gte: new Date("2023-08-11")
+            $gte: today
           },
           status: "COMPLETE",
-          // todo-vijay
         },
       },
       {
@@ -618,10 +613,9 @@ const dailyContestMock = async () => {
         $match:
         {
           trade_time: {
-            $gte: new Date("2023-08-11")
+            $gte: today
           },
           status: "COMPLETE",
-          // todo-vijay
         },
       },
       {
