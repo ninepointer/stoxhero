@@ -134,9 +134,9 @@ export default function Dialogue({amount, name, id, walletCash, setCheckPayment,
       return;
     }
 
-    if(!tenXSubs.allowRenewal){
-      return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
-    }
+    // if(!tenXSubs.allowRenewal){
+    //   return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+    // }
     const res = await fetch(`${baseUrl}api/v1/userwallet/deduct`, {
       method: "PATCH",
       credentials: "include",
