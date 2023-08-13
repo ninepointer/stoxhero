@@ -398,14 +398,6 @@ Setting.find().then((res) => {
     }
   }
 
-  const autotrade = nodeCron.schedule(`48 16 * * *`, async () => {
-    autoCutMainManually();
-    autoCutMainManuallyMock();
-    changeStatus();
-    creditAmount();
-  });
-
-  //todo-vijay
 
 const PORT = process.env.PORT||5002;
 const server = app.listen(PORT);

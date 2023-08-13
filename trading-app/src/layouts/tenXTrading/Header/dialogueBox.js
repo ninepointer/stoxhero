@@ -21,9 +21,9 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 // import CardActions from '@mui/material/CardActions';
 // import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-import MDTypography from '../../../components/MDTypography';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {BiCopy} from 'react-icons/bi'
+// import MDTypography from '../../../components/MDTypography';
+// import { CopyToClipboard } from 'react-copy-to-clipboard';
+// import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
 import { Typography } from '@mui/material';
@@ -33,7 +33,7 @@ import Renew from './renew/renew';
 
 
 
-export default function Dialogue({amount, name, id, walletCash}) {
+export default function Dialogue({amount, name, id, walletCash, setCheckPayment, checkPayment}) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -110,6 +110,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   const handleClose = () => {
     setOpen(false);
+    setCheckPayment(!checkPayment)
   };
 
   async function captureIntent(){
@@ -154,6 +155,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
         })
         console.log(dataResp.data)
         setUpdatedUser(dataResp.data);
+        
         // openSuccessSB("success", dataResp.message)
     }
   }

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const {createTenXSubscription, editTanx, getActiveTenXSubs, renewSubscription,
     getTenXSubscription, editFeature, getBeginnerSubscription, getIntermediateSubscription, 
-    getProSubscription, removeFeature, getTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, 
+    getProSubscription, removeFeature, getAdminActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, 
     createTenXPurchaseIntent, getTenXSubscriptionPurchaseIntent, myActiveSubsciption} = require("../../controllers/tenXSubscriptionController");
 const Authenticate = require('../../authentication/authentication');
 const tenXTradeRoute = require("../mockTrade/tenXTradeRoute")
@@ -13,6 +13,7 @@ const restrictTo = require('../../authentication/authorization');
 router.route('/create').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createTenXSubscription);
 router.route('/capturepurchaseintent').post(Authenticate, createTenXPurchaseIntent);
 router.route('/active').get(Authenticate, getActiveTenXSubs);
+router.route('/adminactive').get(Authenticate, getAdminActiveTenXSubs);
 router.route('/inactive').get(Authenticate, getInactiveTenXSubs);
 router.route('/beginner').get(Authenticate, getBeginnerSubscription);
 router.route('/intermediate').get(Authenticate, getIntermediateSubscription);
