@@ -438,7 +438,7 @@ exports.saveLiveUsedMargin = async ()=>{
               runningLots: finalArr[i].lots,
               transaction_type: buyOrSell,
               noOfTrader: finalArr[i].noOfTrader,
-              ltp: liveData[0].last_price,
+              ltp: liveData?.last_price,
             })
             // console.log(total, marginData.data.data.orders[0]);
           } catch (e) {
@@ -600,7 +600,7 @@ exports.saveMockUsedMargin = async ()=>{
               runningLots: finalArr[i].lots,
               transaction_type: buyOrSell,
               noOfTrader: finalArr[i].noOfTrader,
-              ltp: liveData[0].last_price,
+              ltp: liveData?.last_price,
             })
             // console.log(total, marginData.data.data.orders[0]);
           } catch (e) {
@@ -762,7 +762,7 @@ exports.saveMockDailyContestUsedMargin = async ()=>{
               runningLots: finalArr[i].lots,
               transaction_type: buyOrSell,
               noOfTrader: finalArr[i].noOfTrader,
-              ltp: liveData[0].last_price,
+              ltp: liveData?.last_price,
             })
             // console.log(total, marginData.data.data.orders[0]);
           } catch (e) {
