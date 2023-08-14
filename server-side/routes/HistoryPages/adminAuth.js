@@ -77,8 +77,9 @@ router.get("/addFeildInTenx", async (req, res) => {
     {}, // An empty filter matches all documents in the collection
     {
       $set: {
-        allowPurchase: false,
-        allowRenewal: false
+        // allowPurchase: false,
+        // allowRenewal: false
+        status: "Inactive"
       }
     }
   );  res.send(updateResult);
