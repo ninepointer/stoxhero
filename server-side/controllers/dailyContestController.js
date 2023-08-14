@@ -811,21 +811,30 @@ exports.verifyCollageCode = async (req, res) => {
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
-        const result = await Contest.findByIdAndUpdate(
-            id,
-            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
+        if (contest?.entryFee === 0) {
 
-        if (!result) {
-            return res.status(404).json({ status: "error", message: "Something went wrong." });
+
+            const result = await Contest.findByIdAndUpdate(
+                id,
+                { $push: { participants: { userId: userId, participatedOn: new Date() } } },
+                { new: true }  // This option ensures the updated document is returned
+            );
+
+            if (!result) {
+                return res.status(404).json({ status: "error", message: "Something went wrong." });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: "Participate successfully",
+                data: result
+            });
+        } else {
+            res.status(200).json({
+                status: "success",
+                message: "Code varified",
+            });
         }
-
-        res.status(200).json({
-            status: "success",
-            message: "Participate successfully",
-            data: result
-        });
     } catch (error) {
         res.status(500).json({
             status: "error",
