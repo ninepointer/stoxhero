@@ -45,7 +45,6 @@ const [updatedDocument, setUpdatedDocument] = useState([]);
 const [tenXData,setTenXData] = useState([])
 const [subscriptionCount,setSubscriptionCount] = useState([]);
 
-console.log("location", location, id)
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 const [formState,setFormState] = useState({
@@ -71,7 +70,6 @@ const [formState,setFormState] = useState({
 React.useEffect(()=>{
     axios.get(`${baseUrl}api/v1/portfolio/tenx`, {withCredentials: true})
     .then((res)=>{
-      console.log(res?.data?.data)
       setPortfolios(res?.data?.data);
     }).catch((err)=>{
         return new Error(err)
@@ -79,7 +77,6 @@ React.useEffect(()=>{
 
     axios.get(`${baseUrl}api/v1/tenX/${id}`, {withCredentials: true})
     .then((res)=>{
-      console.log(res?.data?.data)
       setTenXSubs(res?.data?.data);
       setTimeout(()=>{
         setIsLoading(false)
@@ -96,7 +93,6 @@ React.useEffect(()=>{
     .then((res)=>{
         setTenXData(res.data.data);
         setUpdatedDocument(res.data.data)
-        console.log("tenX data is", res.data)
         setFormState({
             plan_name: res.data.data?.plan_name || '',
             actual_price: res.data.data?.actual_price || '',
@@ -106,6 +102,8 @@ React.useEffect(()=>{
             validity: res.data.data?.validity || '',
             validityPeriod: res.data.data?.validityPeriod || '',
             portfolio: res.data.data?.portfolio?.portfolioName || '',
+            allowPurchase: res.data.data?.allowPurchase || '',
+            allowRenewal: res.data.data?.allowRenewal || ''
           });
             setTimeout(()=>{setIsLoading(false)},500) 
         // setIsLoading(false)
@@ -117,7 +115,6 @@ React.useEffect(()=>{
 },[])
 
 async function onEdit(e,formState){
-    console.log("in edit", formState)
     e.preventDefault()
     setSaving(true)
     
@@ -140,7 +137,6 @@ async function onEdit(e,formState){
     });
 
     const data = await res.json();
-    console.log(data);
     if (data.status === 422 || data.error || !data) {
         openErrorSB("Error",data.error)
     } else {
@@ -164,12 +160,10 @@ async function onEdit(e,formState){
       ...prevState,
       portfolio: {id: portfolioId[0]?._id, name: portfolioId[0]?.portfolioName}
     }))
-    console.log("portfolioId", portfolioId, formState)
   };
 
   async function onSubmit(e,formState){
     e.preventDefault()
-    console.log(formState);
     if(!formState.plan_name || !formState.profitCap || !formState.portfolio || !formState.actual_price || !formState.discounted_price || !formState.validity || !formState.validityPeriod || !formState.status){
     
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
@@ -205,7 +199,6 @@ async function onEdit(e,formState){
   async function onAddFeature(e,childFormState,setChildFormState){
     e.preventDefault()
     setSaving(true)
-    console.log("edit", id,newObjectId)
     if(!childFormState?.orderNo || !childFormState?.description){
         setTimeout(()=>{setCreating(false);setIsSubmitted(false)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
@@ -224,7 +217,6 @@ async function onEdit(e,formState){
         })
     });
     const data = await res.json();
-    console.log(data);
     if (data.status === 422 || data.error || !data) {
         openErrorSB("Error",data.error)
     } else {
@@ -491,15 +483,15 @@ async function onEdit(e,formState){
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    name='status'
-                    value={formState?.status || tenXSubs?.status}
+                    name='allowPurchase'
+                    value={formState?.allowPurchase || tenXSubs?.allowRenewal}
                     // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         allowPurchase: e.target.value
                     }))}}
-                    label="Status"
+                    label="Allow Purchase"
                     sx={{ minHeight:43 }}
                     >
                     <MenuItem value={true}>True</MenuItem>
@@ -512,15 +504,15 @@ async function onEdit(e,formState){
                     <Select
                     labelId="demo-simple-select-autowidth-label"
                     id="demo-simple-select-autowidth"
-                    name='status'
-                    value={formState?.status || tenXSubs?.status}
+                    name='allowRenewal'
+                    value={formState?.allowRenewal || tenXSubs?.allowRenewal}
                     // value={oldObjectId ? contestData?.status : formState?.status}
                     disabled={((isSubmitted || id) && (!editing || saving))}
                     onChange={(e) => {setFormState(prevState => ({
                         ...prevState,
                         allowRenewal: e.target.value
                     }))}}
-                    label="Status"
+                    label="Allow Renewal"
                     sx={{ minHeight:43 }}
                     >
                     <MenuItem value={true}>True</MenuItem>

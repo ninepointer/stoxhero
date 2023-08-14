@@ -88,7 +88,7 @@ exports.removeFeature = async(req, res, next) => {
 
 exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
-        const tenXSubs = await TenXSubscription.find({status: "Active", allowPurchase: true}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
+        const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal')
         .populate('portfolio', 'portfolioName portfolioValue')
         .sort({$natural: 1})
         
@@ -430,7 +430,7 @@ exports.myActiveSubsciption = async(req, res, next)=>{
         }
       }
       const tenXSubs = await TenXSubscription.find({_id: {$in: mySubs}})
-      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features").populate('portfolio', 'portfolioName portfolioValue')      
+      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features allowPurchase allowRenewal").populate('portfolio', 'portfolioName portfolioValue')      
       res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
       console.log(e);
