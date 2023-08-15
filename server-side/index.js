@@ -30,16 +30,29 @@ const {commonProcess} = require("./commonChildProcess");
 const {singleProcess} = require("./singleChildProcess");
 
 
-// let newCors = process.env.NODE_ENV === "production" ? "http://3.110.187.5/" : "http://localhost:3000"
-app.use(cors({
-  credentials: true,
+let newCors = process.env.NODE_ENV === "production" ? "http://3.110.187.5/" : "http://localhost:3000"
+// app.use(cors({
+//   credentials: true,
 
-  // origin: "http://3.7.187.183/"  // staging
-  // origin: "http://3.108.76.71/"  // production
-  origin: "http://localhost:3000"
+//   // origin: "http://3.7.187.183/"  // staging
+//   // origin: "http://3.108.76.71/"  // production
+//   origin: "*"
 
-}));
+// }));
 
+// const allowedOrigins = ['http://localhost:3000']; // Add other allowed origins if needed
+
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     if (allowedOrigins.includes(origin) || !origin) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+// };
+
+app.use(cors());
 
 
 
@@ -68,8 +81,10 @@ async function childProcess() {
     // Create an HTTP server for Socket.IO
 
     await singleProcess();
+
   } else{
     await commonProcess();
+
   }
 
   
