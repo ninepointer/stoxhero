@@ -64,23 +64,23 @@ import InternshipAnalytics from './layouts/internshipAnalytics/index';
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
-import UserDailyContestCollage from './layouts/UserDailyContest copy';
+import UserDailyContestCollage from './layouts/UserDailyContestCollage';
 import UserBattle from './layouts/UserBattle'
 import SchoolIcon from '@mui/icons-material/School';
 import BattleDetails from './layouts/UserBattle/battleInfo'
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
-import CollegeContestTradingWindow from './layouts/UserDailyContest copy/ContestTradingView'
+import CollegeContestTradingWindow from './layouts/UserDailyContestCollage/ContestTradingView'
 
 import Chart from './layouts/charts/index';
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
-import DailyCollegeContestOrder from "./layouts/UserDailyContest copy/Orders"
+import DailyCollegeContestOrder from "./layouts/UserDailyContestCollage/Orders"
 
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
-import CompletedDailyCollegeContest from "./layouts/UserDailyContest copy/pastContestMain"
+import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/pastContestMain"
 import DailyContestResultPage from "./layouts/UserDailyContest/data/result-page/resultIndex"
 import ContestScoreboard from './layouts/contestScoreboard'
-import DailyCollegeContestResultPage from "./layouts/UserDailyContest copy/data/result-page/resultIndex"
+import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/data/result-page/resultIndex"
 import BattleIcon from "./assets/images/swords.png"
 
 import Challenge from './layouts/UserDailyChallenge'

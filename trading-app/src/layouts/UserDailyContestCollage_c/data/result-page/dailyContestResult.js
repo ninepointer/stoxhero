@@ -1,7 +1,6 @@
 import React,{useState, useEffect, memo, useMemo, useCallback, useRef, useContext} from 'react'
 import MDBox from '../../../../components/MDBox'
 import Grid from '@mui/material/Grid'
-import ReactGA from "react-ga"
 import MDTypography from '../../../../components/MDTypography'
 import { Divider } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -27,7 +26,7 @@ import { NetPnlContext } from "../../../../PnlContext";
 function ContestResultPage () {
     const getDetails = useContext(userContext);
     const [myRank, setMyRankProps] = useState([]);
-    // const [myPnl, setMyPnl] = useState([]);
+    const [myPnl, setMyPnl] = useState([]);
     const location = useLocation();
     const  contestId  = location?.state?.contestId;
     const nevigate = useNavigate();
@@ -35,10 +34,8 @@ function ContestResultPage () {
     const [contestData, setContest] = useState([]);
     const pnl = useContext(NetPnlContext);
 
-    useEffect(() => {
-        ReactGA.pageview(window.location.pathname)
-      }, []);
-      
+    console.log("pnl data is", pnl?.netPnl, pnl)
+
     let style = {
       textAlign: "center", 
       fontSize: ".99rem", 

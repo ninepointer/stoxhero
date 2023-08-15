@@ -2,7 +2,6 @@ import { React, useState, useEffect, useContext, useCallback, useMemo } from "re
 // import axios from "axios";
 // import { Link } from "react-router-dom";
 // import moment from 'moment'
-import ReactGA from "react-ga"
 
 
 // @mui material components
@@ -33,7 +32,7 @@ import { NetPnlContext } from "../../../PnlContext";
 
 function Leaderboard({socket}) {
 
-    const [myRank, setMyRankData] = useState();
+    const [myRank, setMyRank] = useState();
     const getDetails = useContext(userContext);
     const pnl = useContext(NetPnlContext);
     const [loading, setIsLoading] = useState(true);
@@ -41,7 +40,7 @@ function Leaderboard({socket}) {
     useEffect(()=>{
         socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
 
-            setMyRankData((prev) => (data !== null ? data : prev));
+            setMyRank(data)
             setIsLoading(false);
           console.log("this is leaderboard data", data)
         })

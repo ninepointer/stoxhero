@@ -2,6 +2,7 @@ import { React, useState, useEffect, useContext, useCallback, useMemo } from "re
 // import axios from "axios";
 // import { Link } from "react-router-dom";
 // import moment from 'moment'
+import ReactGA from "react-ga"
 
 
 // @mui material components
@@ -39,14 +40,11 @@ function Leaderboard({socket, name}) {
 
             setLeaderboard(data);
             setIsLoading(false);
-
-            if(!data){
-                let timer = setTimeout(() => {
-                    setIsLoading(false);
-                }, 5000);
-            }
-            //   console.log("this is leaderboard data", data)
         })
+
+        let timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
 
     }, [])
 

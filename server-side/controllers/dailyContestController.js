@@ -788,13 +788,13 @@ exports.verifyCollageCode = async (req, res) => {
             ]
         })
 
-        if (getActiveContest.length > 0) {
-            if (!contest.potentialParticipants.includes(userId)) {
-                contest.potentialParticipants.push(userId);
-                contest.save();
-            }
-            return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
-        }
+        // if (getActiveContest.length > 0) {
+        //     if (!contest.potentialParticipants.includes(userId)) {
+        //         contest.potentialParticipants.push(userId);
+        //         contest.save();
+        //     }
+        //     return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
+        // }
 
         // console.log("collageCode", collegeCode, contest?.collegeCode)
 
@@ -813,6 +813,13 @@ exports.verifyCollageCode = async (req, res) => {
 
         if (contest?.entryFee === 0) {
 
+            if (getActiveContest.length > 0) {
+                if (!contest.potentialParticipants.includes(userId)) {
+                    contest.potentialParticipants.push(userId);
+                    contest.save();
+                }
+                return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
+            }
 
             const result = await Contest.findByIdAndUpdate(
                 id,

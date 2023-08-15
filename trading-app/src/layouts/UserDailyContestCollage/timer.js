@@ -6,6 +6,7 @@ const Timer = ({socket, date, setTimeDifference, id, elem}) => {
 
   useEffect(()=>{
     socket.on("serverTime", (data)=>{
+      // console.log("serverTime", data)
       setServerTime(data)
     })
   }, [])
@@ -14,6 +15,7 @@ const Timer = ({socket, date, setTimeDifference, id, elem}) => {
     const targetDate = new Date(date); // Replace with your specific date and time
     const now = new Date(serverTime);
     const timeDifference = targetDate - now;
+    // console.log("timediffrence timer", timeDifference)
     setTimeDifference(prevArray => {
       const index = prevArray.findIndex(item => item.id === id);
 
@@ -48,7 +50,7 @@ const Timer = ({socket, date, setTimeDifference, id, elem}) => {
 
   return (
     <div>
-      <p>{remainingTime}</p>
+      <p style={{color: elem.entryFee>0 ? "white" : "black"}}>{remainingTime}</p>
     </div>
   );
 };

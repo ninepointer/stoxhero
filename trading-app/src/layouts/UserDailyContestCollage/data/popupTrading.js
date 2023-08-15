@@ -33,17 +33,13 @@ const PopupTrading = ({elem, timeDifference}) => {
     };
 
     const handleClose = async (e) => {
-
         setOpen(false);
     };
 
-
     async function openPopupAndCheckParticipant(elem){
         let isParticipated = elem?.participants.some(elem => {
-            // console.log("isParticipated", elem?.userId?._id?.toString(), getDetails?.userDetails?._id?.toString())
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })
-        // console.log("isParticipated", isParticipated)
         if (isParticipated) {
             navigate(`/collegecontest/${elem.contestName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime }

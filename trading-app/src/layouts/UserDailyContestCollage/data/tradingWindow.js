@@ -1,14 +1,5 @@
 import { React, useState, useEffect, useContext, useCallback, useMemo } from "react";
-// import axios from "axios";
-// import { Link } from "react-router-dom";
-// import { userContext } from '../../../AuthContext';
-// import moment from 'moment'
 
-// // prop-types is a library for typechecking of props.
-// import PropTypes from "prop-types";
-// import tradesicon from '../../../assets/images/tradesicon.png'
-
-// @mui material components
 import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
@@ -19,21 +10,15 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-// import { InfinityTraderRole, tenxTrader } from "../../../variables";
-// import ContestCup from '../../../assets/images/candlestick-chart.png'
-// import ContestCarousel from '../../../assets/images/target.png'
-// import Timer from '../timer'
-// import ProgressBar from "../progressBar";
-// import { HiUserGroup } from 'react-icons/hi';
 import AMargin from '../../../assets/images/amargin.png'
 import Profit from '../../../assets/images/profit.png'
 import Tcost from '../../../assets/images/tcost.png'
-import Chain from '../../../assets/images/chain.png'
-import Nifty from '../../../assets/images/niftycharticon.png'
-import BNifty from '../../../assets/images/bniftycharticon.png'
-import FNifty from '../../../assets/images/fniftycharticon.png'
+// import Chain from '../../../assets/images/chain.png'
+// import Nifty from '../../../assets/images/niftycharticon.png'
+// import BNifty from '../../../assets/images/bniftycharticon.png'
+// import FNifty from '../../../assets/images/fniftycharticon.png'
 
-import { Divider } from "@mui/material";
+// import { Divider } from "@mui/material";
 import OptionChain from "./optionChain";
 import { NetPnlContext } from "../../../PnlContext";
 import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
@@ -46,19 +31,18 @@ import Leaderboard from '../data/dailyContestLeaderboard'
 import DailyContestMyRank from '../data/dailyContestMyRank'
 // import { NetPnlContext } from '../../../PnlContext';
 import {useNavigate} from "react-router-dom"
-
+import { userContext } from "../../../AuthContext";
 
 
 function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [yesterdayData, setyesterdayData] = useState({});
     const [availbaleMargin, setAvailbleMargin] = useState([]);
-    const [portfolio, setPortfolio] = useState();
-    // const [showOption, setShowOption] = useState(false);
     const pnl = useContext(NetPnlContext);
-    let contestId = data?.data;
     const navigate = useNavigate();
-
+    const [myRank, setMyRank] = useState(0);
+    const getDetails = useContext(userContext)
+    let contestId = data?.data;
     let endTime = data?.endTime;
     useEffect(() => {
         socket.on("serverTime", (time) => {
@@ -66,13 +50,19 @@ function Header({ socket, data }) {
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
             console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
-                navigate(`/collegecontest/result`, {
+                navigate(`/contest/result`, {
                     state: { contestId: contestId}
                 })
             }
         });
     }, []);
 
+    // useEffect(()=>{
+    //     socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
+    //         setMyRank(data);
+    //       console.log("this is leaderboard data", data)
+    //     })
+    // }, [])
 
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);

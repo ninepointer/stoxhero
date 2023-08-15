@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import './ProgressBar.css';
 
 function ProgressBar({progress}) {
+//   const [progress, setProgress] = useState(props.progress);
 
   const fillWidth = {
-    width: `${progress}%`,
-    backgroundColor: "white"
+    width: `${progress}%`
   };
 
   return (
