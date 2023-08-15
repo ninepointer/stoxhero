@@ -6,25 +6,26 @@ import MDTypography from "../../../components/MDTypography";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton"
 import {userContext} from "../../../AuthContext";
-import axios from "axios";
+// import axios from "axios";
 import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import { IoMdAddCircle } from 'react-icons/io';
+import TabContext from '@material-ui/lab/TabContext';
+// import { IoMdAddCircle } from 'react-icons/io';
 
 //Icons
 
-import { GrFormNextLink } from 'react-icons/gr';
+// import { GrFormNextLink } from 'react-icons/gr';
 
 //Data
-import RuleData from '../data/battleRuleData';
+// import RuleData from '../data/battleRuleData';
 
 
 
-function CreateContest({createRuleForm, setCreateRuleForm, battle, ruleObj}) {
+export default function CreateContest({createRuleForm, setCreateRuleForm, battle, ruleObj}) {
 
 const [isSubmitted,setIsSubmitted] = useState(false);
 const getDetails = useContext(userContext);
@@ -415,5 +416,4 @@ const renderErrorSB = (
     </>
     )
 }
-
-export default CreateContest;
+// export default CreateContest;

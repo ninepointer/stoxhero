@@ -33,7 +33,7 @@ import Timer from "./timer";
 // import { AiOutlineLineChart } from "react-icons/ai";
 
 
-function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData}) {
+function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData, setWatchList}) {
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
@@ -122,6 +122,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   url = url.slice(1);
 
+  console.log("isAllIndex url", isAllIndex, url);
   if(from === dailyContest){
     endPoint = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
   } else{
@@ -130,6 +131,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
 
   useEffect(()=>{
+    console.log("endPoint", endPoint)
     axios.get(`${endPoint}`,{
       withCredentials: true,
       headers: {
@@ -139,7 +141,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       },
     })
     .then((res) => {
-        setInstrumentData(res.data.data)
+        setInstrumentData(res.data.data);
+        setWatchList(res.data.data);
     }).catch((err) => {
         return new Error(err);
     })

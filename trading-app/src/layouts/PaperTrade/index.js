@@ -18,10 +18,10 @@ import { userContext } from "../../AuthContext";
 
 
 function UserPosition() {
-  // const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  const [watchList, setWatchList] = useState([]);
 
 
   let socket;
@@ -48,40 +48,26 @@ function UserPosition() {
     setIsGetStartedClicked(value);
   }, []);
 
-  // const memoizedSetReRender = useCallback((value) => {
-  //   setReRender(value);
-  // }, []);
-
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
-      
-      // reRender={reRender}
-      // setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={'paperTrade'}
+      watchList={watchList}
     />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [watchList, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <InstrumentDetails
       socket={socket}
-      // reRender={reRender}
-      // setReRender={setReRender}
-      // setReRender={}
-      // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"paperTrade"}
+      setWatchList={setWatchList}
     />;
-  }, [socket, handleSetIsGetStartedClicked]);
+  }, [setWatchList, socket, handleSetIsGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallGrid
-      
-      // reRender={reRender}
-      // setReRender={memoizedSetReRender}
-      // setReRender={}
-      // isGetStartedClicked={isGetStartedClicked}
       socket={socket}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"paperTrade"}
@@ -95,19 +81,14 @@ function UserPosition() {
       <DashboardNavbar />
       <MDBox py={0} mt={1}>
 
-        {/* <StockIndex /> */}
-        {/* <StockIndex socket={socket}/> */}
         {memoizedStockIndex}
 
-        {/* <MemoizedTradableInstrument /> */}
-        {/* <TradableInstrument socket={socket} reRender={reRender} setReRender={setReRender} isGetStartedClicked={isGetStartedClicked} setIsGetStartedClicked={setIsGetStartedClicked}/> */}
         {memoizedTradableInstrument}
 
         <MDBox mt={0}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
               {memoizedInstrumentDetails}
-              {/* <InstrumentDetails socket={socket} Render={{ reRender, setReRender }} setIsGetStartedClicked={setIsGetStartedClicked} /> */}
             </Grid>
           </Grid>
         </MDBox>
