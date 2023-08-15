@@ -1,6 +1,6 @@
-import { React, useState, useEffect, useContext } from "react";
-import axios from "axios";
-import { userContext } from '../../../AuthContext';
+import { React, useEffect } from "react";
+// import axios from "axios";
+// import { userContext } from '../../../AuthContext';
 import ReactGA from "react-ga"
 
 // @mui material components
@@ -12,17 +12,17 @@ import MDBox from "../../../components/MDBox";
 // Material Dashboard 2 React base styles
 
 // Images
-import MDButton from "../../../components/MDButton";
-import MDTypography from "../../../components/MDTypography";
-import {InfinityTraderRole, tenxTrader} from "../../../variables";
-import ContestCup from '../../../assets/images/candlestick-chart.png'
-import { Divider } from "@mui/material";
+// import MDButton from "../../../components/MDButton";
+// import MDTypography from "../../../components/MDTypography";
+// import {InfinityTraderRole, tenxTrader} from "../../../variables";
+// import ContestCup from '../../../assets/images/candlestick-chart.png'
+// import { Divider } from "@mui/material";
 import ContestHeader from './contestHeader'
 import Contests from './contests'
 
 
 
-function Header({ children }) {
+function Header() {
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
   }, []);

@@ -18,7 +18,7 @@ function sleep(ms) {
 
 async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
 
-  console.log(ApiKey,SecretKey,UserId,Password)
+  console.log(ApiKey,SecretKey,UserId,Password, totp(process.env.KUSH_ACCOUNT_HASH_CODE))
     const {accountId, status} = req.body;
     const {userId} = req.user;
     (async () => {

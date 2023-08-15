@@ -52,7 +52,7 @@ const EarlySubscribedInstrument = async () => {
           indexName = "NIFTY FIN SERVICE";
         }
         const liveData = await singleLivePrice("NSE", indexName);
-        let ltp = liveData[0]?.last_price;
+        let ltp = liveData?.last_price;
 
         console.log("last_price", ltp)
         const aboveDocs = await TradableInstrument.aggregate([
@@ -184,7 +184,7 @@ const optionChain = async (req, res) => {
           indexName = "NIFTY FIN SERVICE";
         }
         const liveData = await singleLivePrice("NSE", indexName);
-        let ltp = liveData[0]?.last_price;
+        let ltp = liveData?.last_price;
 
         console.log("last_price", ltp)
         const aboveDocs = await TradableInstrument.aggregate([

@@ -22,6 +22,7 @@ export default function InfinityTrading({socket}) {
   const [yesterdayData, setyesterdayData] = useState({});
   const [availbaleMargin, setAvailbleMargin] = useState([]);
   const pnl = useContext(NetPnlContext);
+  const [watchList, setWatchList] = useState([]);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
 
   useEffect(() => {
@@ -43,8 +44,9 @@ export default function InfinityTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
-    />;
-  }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+      watchList={watchList}
+      />;
+    }, [watchList, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -52,8 +54,9 @@ export default function InfinityTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
-    />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+      setWatchList={setWatchList}
+      />;
+    }, [setWatchList, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl

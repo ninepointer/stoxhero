@@ -32,7 +32,6 @@ const OptionChain = ({ socket, data }) => {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    // console.log("initialValue", initialValue, isNifty, isBank, isFin, isAll, data?.isBank )
     const [selectIndex, setSelectIndex] = useState(initialValue);
     const [belowCE, setBelowCE] = useState([]);
     const [aboveCE, setAboveCE] = useState([]);
@@ -45,23 +44,26 @@ const OptionChain = ({ socket, data }) => {
 
 
     useEffect(()=>{
-    socket.emit("company-ticks", true)
-    socket.on("tick", (data) => {
-        console.log("this is live market data", data);
-        setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
-            instrumentMap.set(instrument.instrument_token, instrument);
-        });
-        return Array.from(instrumentMap.values());
-        });
-    })
-    }, [])
+        if(open){
+            socket.emit("company-ticks", true)
+            socket.on("tick", (data) => {
+                console.log("this is live market data", data);
+                setMarketData(prevInstruments => {
+                const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+                data.forEach(instrument => {
+                    instrumentMap.set(instrument.instrument_token, instrument);
+                });
+                return Array.from(instrumentMap.values());
+                });
+            })
+        }
+    }, [open])
 
     useEffect(() => {
-        setIsLoading(true)
-        console.log("Inside Use Effect")
-        axios.get(`${baseUrl}api/v1/optionChain/${selectIndex}`, {withCredentials: true})
+        if(open){
+            setIsLoading(true)
+            console.log("Inside Use Effect")
+            axios.get(`${baseUrl}api/v1/optionChain/${selectIndex}`, {withCredentials: true})
             .then((res) => {
                 console.log(res.data)
 
@@ -81,8 +83,6 @@ const OptionChain = ({ socket, data }) => {
                 setAboveCE(aboveCEData);
                 setBelowPE(belowPEData);
                 setAbovePE(abovePEData);
-                // setBelow(res.data.belowSpot);
-                // setAbove(res.data.aboveSpot);
                 setIsLoading(false)
             }).catch((err) => {
                 //window.alert("Server Down");
@@ -91,7 +91,8 @@ const OptionChain = ({ socket, data }) => {
                 }, 500)
                 return new Error(err);
             })
-    }, [selectIndex])
+        }
+    }, [selectIndex, open])
 
     useEffect(() => {
         return () => {

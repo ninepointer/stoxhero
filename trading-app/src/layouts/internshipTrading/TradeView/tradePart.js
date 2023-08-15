@@ -26,6 +26,7 @@ export default function TenXTrading({socket, BatchId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   const [availbaleMargin, setAvailbleMargin] = useState([]);
+  const [watchList, setWatchList] = useState([]);
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
@@ -46,8 +47,9 @@ export default function TenXTrading({socket, BatchId}) {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={internshipTrader}
       subscriptionId={BatchId}
-    />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked, BatchId]);
+      watchList={watchList}
+      />;
+    }, [watchList, isGetStartedClicked, handleSetIsGetStartedClicked, BatchId]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -56,8 +58,9 @@ export default function TenXTrading({socket, BatchId}) {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={internshipTrader}
       subscriptionId={BatchId}
-    />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked, BatchId]);
+      setWatchList={setWatchList}
+      />;
+    }, [setWatchList, socket, handleSetIsGetStartedClicked, isGetStartedClicked, BatchId]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
