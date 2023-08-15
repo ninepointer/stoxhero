@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, 'config.env') })
-app.use(require("cookie-parser")());
+
 const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -21,39 +21,10 @@ const limiter = rateLimit({
 })
 // Apply the rate limiting middleware to all requests
 // app.use(limiter)
-app.use(mongoSanitize());
-app.use(helmet());
-app.use(xssClean());
-app.use(hpp());
+
 
 const {commonProcess} = require("./commonChildProcess");
 const {singleProcess} = require("./singleChildProcess");
-
-
-let newCors = process.env.NODE_ENV === "production" ? "http://3.110.187.5/" : "http://localhost:3000"
-// app.use(cors({
-//   credentials: true,
-
-//   // origin: "http://3.7.187.183/"  // staging
-//   // origin: "http://3.108.76.71/"  // production
-//   origin: "*"
-
-// }));
-
-// const allowedOrigins = ['http://localhost:3000']; // Add other allowed origins if needed
-
-// const corsOptions = {
-//   origin: (origin, callback) => {
-//     if (allowedOrigins.includes(origin) || !origin) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-// };
-
-app.use(cors());
-
 
 
 if (cluster.isMaster) {

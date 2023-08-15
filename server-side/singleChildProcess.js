@@ -29,6 +29,11 @@ const {updateUserWallet} = require('./controllers/internshipTradeController');
 const {EarlySubscribedInstrument} = require("./marketData/earlySubscribeInstrument")
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const helmet = require("helmet");
+const mongoSanitize = require('express-mongo-sanitize');
+const xssClean = require("xss-clean");
+const hpp = require("hpp")
 
 
 async function singleProcess() {
@@ -260,7 +265,20 @@ async function singleProcess() {
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
+    app.use(require("cookie-parser")());
+    app.use(cors({
+        credentials: true,
+      
+        // origin: "http://3.7.187.183/"  // staging
+        // origin: "http://3.108.76.71/"  // production
+        origin: 'http://localhost:3000'
+      
+      }));
 
+      app.use(mongoSanitize());
+      app.use(helmet());
+      app.use(xssClean());
+      app.use(hpp());
 
     app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
     app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))

@@ -147,6 +147,7 @@ router.post("/resendmobileotp", async(req, res)=>{
 router.get("/loginDetail", authentication, async (req, res)=>{
     const id = req.user._id;
     
+    
     const user = await UserDetail.findOne({_id: id, status: "Active"})
     .populate('role', 'roleName')
     .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')

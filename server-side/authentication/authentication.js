@@ -7,6 +7,7 @@ const { ObjectId } = require("bson");
 const Authenticate = async (req, res, next) => {
     let isRedisConnected = getValue();
     let token;
+    console.log("token", req.cookies)
     try {
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             token = req.headers?.authorization?.split(' ')[1];
