@@ -7,7 +7,7 @@ const TradableInstrument = require("../../models/Instruments/tradableInstruments
 const {xtsAccountType} = require("../../constant");
 const fetchXTSToken = require("./xtsHelper/fetchXTSToken");
 const {client, isRedisConnected} = require("../../marketData/redisClient");
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const {save} = require("./xtsHelper/saveXtsCred");
 const { ObjectId } = require('mongodb');
 
@@ -277,6 +277,7 @@ const getXTSTicksForUserPosition = async (socket, id) => {
 
 
 const emitTicks = async (userId) => {
+  const io = getIOValue();
   let intervalId;
   if (intervalId) {
     clearInterval(intervalId);

@@ -10,12 +10,13 @@ const PaperTrade = require("../../models/mock-trade/paperTrade");
 const InternshipTrade = require("../../models/mock-trade/internshipTrade");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany")
 const mongoose = require('mongoose');
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const { xtsAccountType, zerodhaAccountType } = require("../../constant");
 const {marginCalculationTrader, marginCalculationCompany} = require("../../marketData/marginData");
 
 const takeAutoTenxTrade = async (tradeDetails) => {
   return new Promise(async (resolve, reject) => {
+    const io = getIOValue();
     let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -132,7 +133,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
 const takeAutoInternshipTrade = async (tradeDetails) => {
   return new Promise(async (resolve, reject) => {
-
+    const io = getIOValue();
     let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -252,7 +253,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
 const takeAutoPaperTrade = async (tradeDetails) => {
   return new Promise(async (resolve, reject) => {
-
+    const io = getIOValue();
     let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -373,7 +374,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
 const takeAutoInfinityTrade = async (tradeDetails) => {
   return new Promise(async (resolve, reject) => {
-
+    const io = getIOValue();
     let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -537,7 +538,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
 const takeAutoDailyContestMockTrade = async (tradeDetails) => {
   return new Promise(async (resolve, reject) => {
-
+    const io = getIOValue();
     let isRedisConnected = getValue();
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`

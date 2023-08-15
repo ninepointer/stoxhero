@@ -1,33 +1,29 @@
 const { Server } = require('socket.io');
 
-const io = new Server(9000, {
+
+let io;
+
+async function setIOValue() {
+  console.log("socket running...........................................")
+  io = new Server(9000, {
     cors: {
-        origin: 'http://localhost:3000',
-        //  origin: "http://3.110.187.5/",
-        methods: ['GET', 'POST', 'PATCH'],
-      }
+      origin: 'http://localhost:3000',
+      //  origin: "http://3.110.187.5/",
+      methods: ['GET', 'POST', 'PATCH'],
+    }
 
-});
+  });
+}
 
-// console.log("socket running...........................................")
+function getIOValue(){
+  return io;
+}
 
-module.exports = io;
 
 
-// const { Server } = require('socket.io');
+module.exports = {setIOValue, getIOValue}
 
-// let ioInstance; // Singleton instance
+// module.exports = io;
 
-// function initializeSocketIO() {
-//     if (!ioInstance) {
-//         ioInstance = new Server(9000, {
-//             cors: {
-//                 origin: 'http://localhost:3000',
-//                 methods: ['GET', 'POST', 'PATCH'],
-//             }
-//         });
-//     }
-//     return ioInstance;
-// }
 
-// module.exports = initializeSocketIO();
+// 
