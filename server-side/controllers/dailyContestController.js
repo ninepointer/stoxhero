@@ -340,7 +340,7 @@ exports.ongoingContestAdmin = async (req, res) => {
 exports.getUpcomingCollegeContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gt: new Date() }, contestFor: "College"
+            contestEndTime: { $gt: new Date() }, contestFor: "College", contestStatus: "Active"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
