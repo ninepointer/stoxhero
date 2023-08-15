@@ -1,7 +1,7 @@
 const XTSInteractive = require('xts-interactive-api').Interactive;
 const XTSInteractiveWS = require('xts-interactive-api').WS;
 const RetrieveOrder = require("../../models/TradeDetails/retreiveOrder")
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const { xtsAccountType, zerodhaAccountType} = require("../../constant");
 const { client, getValue, clientForIORedis } = require('../../marketData/redisClient');
 const InfinityLiveTrader = require("../../models/TradeDetails/infinityLiveUser");
@@ -124,6 +124,7 @@ const placedOrderData = async () => {
 
 const placedOrderDataHelper = async(initialTime, orderData) => {
   let isRedisConnected = getValue();
+  const io = getIOValue();
   let date = new Date();
   // console.log("inside placedOrderDataHelper")
   let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
@@ -486,7 +487,7 @@ const autoPlaceOrder = (obj, res) => {
 const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   
   let isRedisConnected = getValue();
-
+  const io = getIOValue();
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity } = traderData
 
@@ -818,7 +819,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 }
 
 const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
-  
+  const io = getIOValue();
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData } = traderData
 

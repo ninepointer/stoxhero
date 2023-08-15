@@ -1,6 +1,6 @@
 const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
 const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const mongoose = require('mongoose')
 const {clientForIORedis} = require('../../marketData/redisClient');
 const {lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../../services/adminRedis/infinityMock");
@@ -8,6 +8,7 @@ const {lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, over
 
 
 exports.dailyContestTrade = async (req, res, otherData) => {
+    const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, contestId,
         realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader } = req.body 

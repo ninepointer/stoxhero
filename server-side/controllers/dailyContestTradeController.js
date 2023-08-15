@@ -9,7 +9,7 @@ const User = require("../models/User/userDetailSchema")
 const Instrument = require("../models/Instruments/instrumentSchema")
 const getKiteCred = require('../marketData/getKiteCred');
 const axios = require("axios")
-const io = require('../marketData/socketio');
+const {getIOValue} = require('../marketData/socketio');
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -2050,6 +2050,7 @@ exports.sendLeaderboardData = async () => {
 };
 
 async function processContestQueue() {
+    const io = getIOValue();
     // Get the current time
     const currentTime = new Date();
     // Define the start and end time for processing (9 am to 3:18 pm)
@@ -2086,7 +2087,7 @@ async function processContestQueue() {
 
 
 exports.sendMyRankData = async () => {
-
+    const io = getIOValue();
     try{
         const activeContest = await DailyContest.find({contestStatus: "Active"});
 
@@ -2134,6 +2135,7 @@ exports.sendMyRankData = async () => {
 }
 
 exports.emitServerTime = async () => {
+    const io = getIOValue();
     const interval = setInterval(() => {
         io.emit('serverTime', new Date());
     }, 1000); // Emit every second (adjust as needed)

@@ -6,7 +6,7 @@ const StockIndex = require("../models/StockIndex/stockIndexSchema");
 const ContestInstrument = require("../models/Instruments/contestInstrument");
 const {DummyMarketData} = require("./dummyMarketData")
 const User = require("../models/User/userDetailSchema")
-const io = require('../marketData/socketio');
+const {getIOValue} = require('../marketData/socketio');
 const {client, getValue} = require("./redisClient");
 const { ObjectId } = require('mongodb');
 const {xtsAccountType, zerodhaAccountType} = require("../constant");
@@ -60,6 +60,7 @@ const unSubscribeTokens = async(token) => {
 }
 
 const getTicks = async (socket) => {
+  const io = getIOValue();
   let isRedisConnected = getValue();
   let indecies;
   if(isRedisConnected){
@@ -145,12 +146,14 @@ const getTicks = async (socket) => {
 }
 
 const getDummyTicks = async(socket) => {
+  const io = getIOValue();
   let userId = await client.get(socket.id);
   let filteredTicks = await DummyMarketData(socket);
   io.to(userId).emit('tick-room-test', filteredTicks);
 }
 
 const getTicksForUserPosition = async (socket, id) => {
+  const io = getIOValue();
   let isRedisConnected = getValue();
   // console.log("this is getter1", getValue());
   let indecies;

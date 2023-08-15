@@ -11,6 +11,8 @@ const moment = require('moment');
 router.post("/login", async (req, res) => {
     const { userId, pass } = req.body;
 
+    console.log(req.body)
+
     if (!userId || !pass) {
         return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
     }
