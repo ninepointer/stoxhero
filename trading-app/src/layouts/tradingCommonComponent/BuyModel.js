@@ -313,21 +313,21 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
       console.log("no response if")
         messageObj.color = 'success'
         messageObj.icon = 'check'
-        messageObj.title = "Trade Successfull";
+        messageObj.title = "Trade Successful";
         messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
         setSuccessSB(true);
 
         // success.current = true;
         // message.current.color = 'success'
         // message.current.icon = 'check'
-        // message.current.title = "Trade Successfull";
+        // message.current.title = "Trade Successful";
         // message.current.content = `Traded ${content.Quantity} of ${content.symbol}`;
         // renderSuccessSB = (
         //   <MDSnackbar
         //     color= "success"
         //     icon= "check"
-        //     title="Trade Successfull"
-        //     content="Trade Successfull"
+        //     title="Trade Successful"
+        //     content="Trade Successful"
         //     open={true}
         //     onClose={closeSuccessSB}
         //     close={closeSuccessSB}
