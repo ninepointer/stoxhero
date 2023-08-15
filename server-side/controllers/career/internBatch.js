@@ -596,5 +596,371 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
     return res.json({status: 'success', data: {}, message:'No active internships'});
   }
+
+  exports.batchWiseActiveAndInactiveUser = async(req,res,next) =>{
+   
+    const {id} = req.params;
+   
+    const activeUserPipe = [
+      {
+        $match:
+          {
+            _id: new ObjectId(id),
+          },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "intern-trades",
+          localField: "participants.user",
+          foreignField: "trader",
+          as: "tradeData",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.user",
+          foreignField: "_id",
+          as: "userData",
+        },
+      },
+      {
+        $match: {
+          $expr: {
+            $gt: [
+              {
+                $size: "$tradeData",
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $unwind:
+          {
+            path: "$tradeData",
+          },
+      },
+      {
+        $match: {
+          "tradeData.batch": new ObjectId(id),
+          "tradeData.status": "COMPLETE"
+        },
+      },
+      {
+        $group:
+          {
+            _id: {
+              userId: "$participants.user",
+              first_name: {
+                $arrayElemAt: [
+                  "$userData.first_name",
+                  0,
+                ],
+              },
+              last_name: {
+                $arrayElemAt: [
+                  "$userData.last_name",
+                  0,
+                ],
+              },
+              mobile: {
+                $arrayElemAt: ["$userData.mobile", 0],
+              },
+              email: {
+                $arrayElemAt: ["$userData.email", 0],
+              },
+            },
+            tradingDays: {
+              $addToSet: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$tradeData.trade_time",
+                },
+              },
+            },
+          },
+      },
+      {
+        $project:
+          {
+            _id: 0,
+            name: {
+              $concat: [
+                "$_id.first_name",
+                " ",
+                "$_id.last_name",
+              ],
+            },
+            email: "$_id.email",
+            mobile: "$_id.mobile",
+            tradingDays: {
+              $size: "$tradingDays",
+            },
+            userId: "$_id.userId",
+          },
+      },
+      {
+        $sort: {
+          tradingDays: -1
+        }
+      }
+    ]
+
+    const inactiveUserPipe =   [
+      {
+        $match:
+    
+          {
+            _id: new ObjectId(id),
+          },
+      },
+      {
+        $unwind: {
+          path: "$participants",
+        },
+      },
+      {
+        $lookup: {
+          from: "intern-trades",
+          localField: "participants.user",
+          foreignField: "trader",
+          as: "tradeData",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.user",
+          foreignField: "_id",
+          as: "userData",
+        },
+      },
+      {
+        $match: {
+          $expr: {
+            $eq: [
+              {
+                $size: "$tradeData",
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$participants.user",
+            first_name: {
+              $arrayElemAt: [
+                "$userData.first_name",
+                0,
+              ],
+            },
+            last_name: {
+              $arrayElemAt: [
+                "$userData.last_name",
+                0,
+              ],
+            },
+            mobile: {
+              $arrayElemAt: ["$userData.mobile", 0],
+            },
+            email: {
+              $arrayElemAt: ["$userData.email", 0],
+            },
+          },
+        },
+      },
+      {
+        $project:
+          {
+            _id: 0,
+            name: {
+              $concat: [
+                "$_id.first_name",
+                " ",
+                "$_id.last_name",
+              ],
+            },
+            email: "$_id.email",
+            mobile: "$_id.mobile",
+            userId: "$_id.userId",
+          },
+      },
+    ]
+
+    const active = await Batch.aggregate(activeUserPipe)
+    const inactive = await Batch.aggregate(inactiveUserPipe)
   
+    return res.json({status: 'success', active: active, inactive: inactive});
+  }
+
+  exports.batchAndCollegeWiseUser = async(req,res,next) =>{
+   
+    const {id, college} = req.params;
+
+    // console.log(id, college)
+   
+    const userPipe = [
+      {
+        $match: {
+          _id: new ObjectId(id),
+        },
+      },
+      {
+        $unwind: "$participants",
+      },
+      {
+        $lookup: {
+          from: "intern-trades",
+          localField: "participants.user",
+          foreignField: "trader",
+          as: "tradeData",
+        },
+      },
+      {
+        $match:
+          {
+            "participants.college": new ObjectId(
+              college
+            ),
+          },
+      },
+      {
+        $lookup:
+          {
+            from: "user-personal-details",
+            localField: "participants.user",
+            foreignField: "_id",
+            as: "userData",
+          },
+      },
+      {
+        $project:
+          {
+            first_name: {
+              $arrayElemAt: [
+                "$userData.first_name",
+                0,
+              ],
+            },
+            last_name: {
+              $arrayElemAt: [
+                "$userData.last_name",
+                0,
+              ],
+            },
+            mobile: {
+              $arrayElemAt: ["$userData.mobile", 0],
+            },
+            email: {
+              $arrayElemAt: ["$userData.email", 0],
+            },
+            _id: 0,
+            tradeData: {
+              $size: "$tradeData"
+            }
+          },
+      },
+    ]
+
+    const userData = await Batch.aggregate(userPipe)
+
+    const activeUsers = [];
+    const inactiveUsers = [];
+
+    for (const doc of userData) {
+      if (doc.tradeData > 0) {
+        activeUsers.push(doc);
+      } else {
+        inactiveUsers.push(doc);
+      }
+    }
+  
+    return res.json({status: 'success', active: activeUsers, inactive: inactiveUsers});
+  }
+  
+
+  
+
+
+
+
+
+
+
+
+  // [
+  //   {
+  //     $match: {
+  //       _id: ObjectId("646f5295035caf88a30dd5da"),
+  //     },
+  //   },
+  //   {
+  //     $unwind: "$participants",
+  //   },
+  //   {
+  //     $lookup: {
+  //       from: "intern-trades",
+  //       localField: "participants.user",
+  //       foreignField: "trader",
+  //       as: "tradeData",
+  //     },
+  //   },
+  //   {
+  //     $match:
+  //       {
+  //         "participants.college": ObjectId(
+  //           "64708c99ae1d4cffe2779742"
+  //         ),
+  //       },
+  //   },
+  //   {
+  //     $lookup:
+  //       {
+  //         from: "user-personal-details",
+  //         localField: "participants.user",
+  //         foreignField: "_id",
+  //         as: "userData",
+  //       },
+  //   },
+  //   {
+  //     $project:
+  //       {
+  //         first_name: {
+  //           $arrayElemAt: [
+  //             "$userData.first_name",
+  //             0,
+  //           ],
+  //         },
+  //         last_name: {
+  //           $arrayElemAt: [
+  //             "$userData.last_name",
+  //             0,
+  //           ],
+  //         },
+  //         mobile: {
+  //           $arrayElemAt: ["$userData.mobile", 0],
+  //         },
+  //         email: {
+  //           $arrayElemAt: ["$userData.email", 0],
+  //         },
+  //         _id: 0,
+  //         tradeData: {
+  //           $size: "tradeData"
+  //         }
+  //       },
+  //   },
+  // ]
+
+  // 64708c99ae1d4cffe2779742
+  // 64709adde5ef90f4210d64d5
   
