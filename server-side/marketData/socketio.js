@@ -9,19 +9,25 @@ const io = new Server(9000, {
 
 });
 
+// console.log("socket running...........................................")
+
 module.exports = io;
 
 
-// {
-//   "MessageCode":1512,
-//   "MessageVersion":4,
-//   "ApplicationType":0,
-//   "TokenID":0,
-//   "ExchangeSegment":1,
-//   "ExchangeInstrumentID":2885,
-//   "BookType":1,
-//   "XMarketType":1,
-//   "LastTradedPrice":2495,
-//   "LastTradedQunatity":1,
-//   "LastUpdateTime":
+// const { Server } = require('socket.io');
+
+// let ioInstance; // Singleton instance
+
+// function initializeSocketIO() {
+//     if (!ioInstance) {
+//         ioInstance = new Server(9000, {
+//             cors: {
+//                 origin: 'http://localhost:3000',
+//                 methods: ['GET', 'POST', 'PATCH'],
+//             }
+//         });
+//     }
+//     return ioInstance;
 // }
+
+// module.exports = initializeSocketIO();
