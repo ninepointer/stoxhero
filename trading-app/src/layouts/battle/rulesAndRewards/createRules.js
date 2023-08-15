@@ -415,4 +415,5 @@ const renderErrorSB = (
     </>
     )
 }
+
 export default CreateContest;
