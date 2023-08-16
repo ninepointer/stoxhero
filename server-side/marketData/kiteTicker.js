@@ -33,13 +33,9 @@ const disconnectTicker = () => {
 }
 
 const subscribeTokens = async() => {
-  // getKiteCred.getAccess().then(async (data)=>{
     let tokens = await fetchToken();
-    // console.log("token in kite", tokens)
     let data = ticker?.subscribe(tokens);
     ticker.setMode(ticker.modeFull, tokens);
-    // console.log("data of subscription", data)
-  // });
 }
 
 const subscribeSingleToken = async(instrumentToken) => {
@@ -48,15 +44,10 @@ const subscribeSingleToken = async(instrumentToken) => {
  
 }
 
-// const unSubscribeSingleToken = async(instrumentToken) => {
-//   ticker.unsubscribe(instrumentToken);
-// }
-
 const unSubscribeTokens = async(token) => {
     let tokens = [];
     tokens?.push(token)
    let x =  ticker.unsubscribe(tokens);
-  //  console.log("unsubscribed token", x, tokens); 
 }
 
 const getTicks = async (socket) => {
@@ -253,46 +244,8 @@ const getTicksForUserPosition = async (socket, id) => {
 
 }
 
-const getTicksForContest = async (socket) => {
-
-  // ticker.on('ticks', async (ticks) => {
-
-
-  //   try{
-  //     let contestId = await client.get(socket.id)
-  //     let instruments = await client.SMEMBERS((contestId))
-  //     // console.log(contestId, instruments)
-  //     let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-  //     // console.log(instrumentTokenArr)
-  //     let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
-    
-  //     if(filteredTicks.length > 0){
-  //       io.to(`${contestId}`).emit('contest-ticks', filteredTicks);
-  //     }
-  //     // console.log("performance", performance.now()-now, socket.id);
-
-  //     filteredTicks = null;
-  //     ticks = null;
-  //     indexData = null;
-  //     instrumentTokenArr = null;
-  //     instruments = null;
-
-
-  //   } catch (err){
-  //     // console.log(err)
-  //   }
-
-
-  // });
-}
-
 const getTicksForCompanySide = async (socket) => {
-
-  // console.log("in ticks")
   ticker.on('ticks', async (ticks) => {
-
-    // console.log("tick", ticks)
-
     try {
       socket.emit('tick', ticks);
       ticks = null;
@@ -364,4 +317,4 @@ const onOrderUpdate = ()=>{
 
 
 const getTicker = () => ticker;
-module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken, getTicksForContest, getTicksForUserPosition, getDummyTicks, getTicksForCompanySide };
+module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken, getTicksForUserPosition, getDummyTicks, getTicksForCompanySide };

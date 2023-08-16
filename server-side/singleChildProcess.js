@@ -157,12 +157,12 @@ async function singleProcess() {
 
             });
 
-            socket.on('contest', async (data) => {
-                // console.log("in contest event")
-                await getTicksForContest(socket);
-                await onError();
+            // socket.on('contest', async (data) => {
+            //     // console.log("in contest event")
+            //     await getTicksForContest(socket);
+            //     await onError();
 
-            });
+            // });
             await subscribeTokens(); //TODO toggle
 
         });
