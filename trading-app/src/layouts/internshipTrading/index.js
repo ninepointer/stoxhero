@@ -17,20 +17,20 @@ import Header from "./Header";
 function Tables() {
   // const { columns, rows } = authorsTableData();
   // const { columns: pColumns, rows: pRows } = projectsTableData();
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  const getDetails = useContext(userContext);
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  // const getDetails = useContext(userContext);
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
 
   useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id)
-    })
+    // socket.on("connect", () => {
+    //   socket.emit('userId', getDetails.userDetails._id)
+    //   socket.emit("user-ticks", getDetails.userDetails._id)
+    // })
     ReactGA.pageview(window.location.pathname)
   }, []);
 
@@ -38,7 +38,7 @@ function Tables() {
     <>
     <DashboardLayout>
       <DashboardNavbar />
-      <Header socket={socket}/>
+      <Header/>
       <Footer />
     </DashboardLayout>
     </>

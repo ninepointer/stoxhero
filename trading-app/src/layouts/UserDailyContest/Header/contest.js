@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ReactGA from "react-ga"
 import { CircularProgress, Divider, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -17,22 +17,26 @@ import SchoolIcon from '@mui/icons-material/School';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { io } from 'socket.io-client';
+import { socketContext } from '../../../socketContext';
 
 export default function LabTabs() {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
     let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-    let socket;
-    try {
-      socket = io.connect(`${baseUrl1}`)
-    } catch (err) {
-      throw new Error(err);
-    }
+    // let socket;
+    // try {
+    //   socket = io.connect(`${baseUrl1}`)
+    // } catch (err) {
+    //   throw new Error(err);
+    // }
+
+    const socket = useContext(socketContext);
+
   
     useEffect(() => {
-      socket.on("connect", () => {
-        console.log("socket connected", socket.id)
-      })
+    //   socket.on("connect", () => {
+    //     console.log("socket connected", socket.id)
+    //   })
       ReactGA.pageview(window.location.pathname)
     }, []);
 

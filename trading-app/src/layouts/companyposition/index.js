@@ -1,7 +1,7 @@
 
 import React from "react";
 import axios from "axios";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import {useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { io } from "socket.io-client";
 // @mui material components
 import { Chart } from 'chart.js/auto';
@@ -27,6 +27,7 @@ import LiveOverallCompanyPNL from "./components/LiveOverallCompanyPNL";
 import MockTraderwiseCompanyPNL from "./components/MockTraderwiseCompanyPNL";
 import LiveTraderwiseCompanyPNL from "./components/LiveTraderwiseCompanyPNL";
 import { useLocation } from "react-router-dom"
+import { socketContext } from "../../socketContext";
 
 function CompanyPosition() {
   let location = useLocation();
@@ -34,12 +35,14 @@ function CompanyPosition() {
   let isXts = location?.state?.xts;
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  const socket = useContext(socketContext);
+
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
 
 
   const [userPermission, setUserPermission] = useState([]);
@@ -57,9 +60,9 @@ function CompanyPosition() {
   }, []);
 
   useEffect(() => {
-    socket.on("connect", () => {
+    // socket.on("connect", () => {
       socket.emit("company-ticks", true)
-    })
+    // })
 
   }, []);
 

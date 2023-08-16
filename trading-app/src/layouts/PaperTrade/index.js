@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef,useContext, useMemo, useReducer, useCallback } from "react";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 // @mui material components
 import { Chart } from 'chart.js/auto';
 // Chart.register(...registerables);
@@ -13,6 +13,8 @@ import MarginGrid from "../tradingCommonComponent/MarginDetails/MarginGrid";
 import TradableInstrument from "../tradingCommonComponent/TradableInstrument/TradableInstrument";
 import StockIndex from "../tradingCommonComponent/StockIndex/StockIndex";
 import { userContext } from "../../AuthContext";
+import { socketContext } from "../../socketContext";
+// import { SocketContext } from "../../socketContext";
 
 
 
@@ -20,24 +22,23 @@ import { userContext } from "../../AuthContext";
 function UserPosition() {
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const [watchList, setWatchList] = useState([]);
+  const socket = useContext(socketContext);
 
 
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
   
 
 
   useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id)
-    })
+    socket.emit('userId', getDetails.userDetails._id)
+    socket.emit("user-ticks", getDetails.userDetails._id)
   }, []);
 
   const memoizedStockIndex = useMemo(() => {

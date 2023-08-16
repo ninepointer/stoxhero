@@ -8,6 +8,7 @@ import { useEffect, useContext, useState} from "react";
 import { userContext } from "../../AuthContext";
 import ReactGA from "react-ga"
 import { useLocation } from "react-router-dom";
+import { socketContext } from "../../socketContext";
 
 function Tables() {
 
@@ -15,25 +16,30 @@ function Tables() {
   const getDetails = useContext(userContext);
   // const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
+  const socket = useContext(socketContext);
 
   console.log("location", location);
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-    console.log("socket 1st", socket.id)
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  //   console.log("socket 1st", socket.id)
 
-  } catch (err) {
-    throw new Error(err);
-  }
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
 
 
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("socket connected", socket.id)
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id);
-      socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});
-    })
+    // socket.on("connect", () => {
+    //   console.log("socket connected", socket.id)
+    //   socket.emit('userId', getDetails.userDetails._id)
+    //   socket.emit("user-ticks", getDetails.userDetails._id);
+    //   socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});
+    // })
+    socket.emit('userId', getDetails.userDetails._id)
+    socket.emit("user-ticks", getDetails.userDetails._id);
+    socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});
+
     ReactGA.pageview(window.location.pathname)
   }, []);
 
