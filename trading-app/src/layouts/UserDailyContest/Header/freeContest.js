@@ -269,7 +269,7 @@ function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                                            <ProgressBar progress={progressBar} />
+                                                            <ProgressBar entryFee={elem?.entryFee} progress={progressBar} />
                                                         </MDBox>
                                                     </Grid>
 

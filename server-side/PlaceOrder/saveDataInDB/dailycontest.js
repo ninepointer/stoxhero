@@ -86,12 +86,11 @@ exports.dailyContestTrade = async (req, res, otherData) => {
             await pipeline.exec();
         }
         // Commit the transaction
-        // console.log("before")
-        io.emit("updatePnl", mockTradeDetails)
-        // console.log("after")
+
+        io?.emit("updatePnl", mockTradeDetails)
+       
         if(fromAdmin){
-            // console.log("in admin side")
-            io.emit(`${trader.toString()}autoCut`, algoTrader)
+            io?.emit(`${trader.toString()}autoCut`, algoTrader)
         }
 
         if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                await session.commitTransaction();
@@ -112,7 +111,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         const results = await pipeline.exec();
         await session.abortTransaction();
         console.error('Transaction failed, documents not saved:', err);
-        res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
+        res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
     } finally {
     // End the session
         session.endSession();

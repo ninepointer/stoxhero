@@ -112,7 +112,7 @@ function TenxOrderDetail({infinityView, selectedSubscription, setselectedSubscri
             minHeight="4em"
             placeholder="Select Subscription"
             variant="outlined"
-            sx={{ width: "150px", marginRight: '8px',  }}
+            sx={{ width: "220px", marginRight: '8px',  }}
             onChange={(e) => { onChangeSubs(e) }}
             InputLabelProps={{
               style: { color: '#ffffff' },
@@ -120,7 +120,7 @@ function TenxOrderDetail({infinityView, selectedSubscription, setselectedSubscri
             SelectProps={{
               MenuProps: {
                 PaperProps: {
-                  style: { width: '150px' }, // Replace '200px' with your desired width
+                  style: { width: '220px' }, // Replace '200px' with your desired width
                 },
               },
             }}
@@ -140,7 +140,7 @@ function TenxOrderDetail({infinityView, selectedSubscription, setselectedSubscri
             minHeight="4em"
             placeholder="Select Type"
             variant="outlined"
-            sx={{ width: '300px', marginRight: '8px' }}
+            sx={{ width: '370px', marginRight: '8px' }}
             // onChange={(e) => setUserSubs((e.target.value).split("-")[1])}
             onChange={(e)=>{setUserSubs(selectedSubscription?.userPurchaseDetail.filter((item) => changeDateFormat(item.subscribedOn) == ((e.target.value).split("-")[1]))[0]) }}
             InputLabelProps={{
@@ -149,7 +149,7 @@ function TenxOrderDetail({infinityView, selectedSubscription, setselectedSubscri
             SelectProps={{
               MenuProps: {
                 PaperProps: {
-                  style: { width: '300px' }, // Replace '200px' with your desired width
+                  style: { width: '370px' }, // Replace '200px' with your desired width
                 },
               },
             }}

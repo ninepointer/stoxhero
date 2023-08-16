@@ -14,10 +14,10 @@ const { createNewTicker, disconnectTicker,
     getTicksForCompanySide, 
     } = require('./marketData/kiteTicker');
     
-    const getKiteCred = require('./marketData/getKiteCred');
-    const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
-    
-    let { client, setValue } = require("./marketData/redisClient");
+const getKiteCred = require('./marketData/getKiteCred');
+const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
+
+let { client, setValue } = require("./marketData/redisClient");
 const { appLive, appOffline, infinityLive, infinityOffline } = require('./controllers/appSetting');
 const { autoExpireTenXSubscription } = require("./controllers/tenXTradeController");
 const Setting = require("./models/settings/setting");
@@ -45,9 +45,7 @@ async function singleProcess() {
     let setting;
     Setting.find()
         .then((res) => {
-
             setting = res[0].toggle;
-
         })
 
 
@@ -75,10 +73,6 @@ async function singleProcess() {
         })
 
 
-
-
-
-    // console.log("index.js")
     getKiteCred.getAccess().then(async (data) => {
         // console.log(data)
         let interval;

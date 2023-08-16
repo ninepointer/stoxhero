@@ -2,25 +2,28 @@ const express = require('express');
 const app = express();
 let { client, setValue } = require("./marketData/redisClient");
 const cors = require('cors');
-
+const {setIOValue} = require('./marketData/socketio');
+const Setting = require("./models/settings/setting");
 const helmet = require("helmet");
 const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require("xss-clean");
 const hpp = require("hpp")
+const {zerodhaAccountType} = require("./constant")
 
 
 async function commonProcess() {
+    // await setIOValue();
     client.connect()
-    .then(async (res) => {
-        // isRedisConnected = true ; 
-        setValue(true);
-        console.log("redis connected", res)
-    })
-    .catch((err) => {
-        // isRedisConnected = false;
-        setValue(false);
-        console.log("redis not connected", err)
-    })
+        .then(async (res) => {
+            // isRedisConnected = true ; 
+            setValue(true);
+            console.log("redis connected", res)
+        })
+        .catch((err) => {
+            // isRedisConnected = false;
+            setValue(false);
+            console.log("redis not connected", err)
+        })
 
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
@@ -28,18 +31,28 @@ async function commonProcess() {
 
     app.use(cors({
         credentials: true,
-      
+
         // origin: "http://3.7.187.183/"  // staging
         // origin: "http://3.108.76.71/"  // production
         origin: 'http://localhost:3000'
-      
-      }));
-      app.use(require("cookie-parser")());
 
-      app.use(mongoSanitize());
-        app.use(helmet());
-        app.use(xssClean());
-        app.use(hpp());
+    }));
+    app.use(require("cookie-parser")());
+
+    app.use(mongoSanitize());
+    app.use(helmet());
+    app.use(xssClean());
+    app.use(hpp());
+
+    Setting.find()
+    .then((res) => {
+        // setting = res[0].toggle;
+        if (res[0]?.toggle?.ltp == zerodhaAccountType || res[0]?.toggle?.complete == zerodhaAccountType) {
+            app.use('/api/v1', require("./marketData/livePrice"));
+        } else {
+            app.use('/api/v1', require("./services/xts/xtsHelper/xtsLivePrice"));
+        }
+    })
 
     app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
     app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))

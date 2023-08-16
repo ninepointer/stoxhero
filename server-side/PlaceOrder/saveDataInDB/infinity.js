@@ -114,7 +114,7 @@ exports.infinityTrade = async (req, res, otherData) => {
         const results = await pipeline.exec();
 
         await session.abortTransaction();
-        res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
+        res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
     } finally {
     // End the session
         session.endSession();
