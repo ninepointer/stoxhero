@@ -14,8 +14,9 @@ const {xtsAccountType, zerodhaAccountType} = require("../constant");
 
 
 let ticker;
+let ticks = [];
 
-const createNewTicker = (api_key, access_token) => {
+const createNewTicker = async (api_key, access_token) => {
   console.log("createNewTicker")
     ticker = new kiteTicker({
         api_key,
@@ -24,7 +25,18 @@ const createNewTicker = (api_key, access_token) => {
    
     ticker?.connect();
     ticker?.autoReconnect(true, 10000000000, 5);
+    await ticksData()
     return ticker;    
+}
+
+const ticksData = async () => {
+  ticker.on('ticks', async (data) => {
+    try {
+      ticks = data;
+    } catch (err) {
+      console.log(err)
+    }
+  });
 }
 
 const disconnectTicker = () => {
@@ -41,7 +53,6 @@ const subscribeTokens = async() => {
 const subscribeSingleToken = async(instrumentToken) => {
   ticker?.subscribe(instrumentToken);
   ticker.setMode(ticker.modeFull, instrumentToken);
- 
 }
 
 const unSubscribeTokens = async(token) => {
@@ -67,8 +78,8 @@ const getTicks = async (socket) => {
     indecies = JSON.parse(indecies);
   }
 
-  ticker.on('ticks', async (ticks) => {
-    socket.emit('tick', ticks);
+  // ticker.on('ticks', async (ticks) => {
+    // socket.emit('tick', ticks);
 
     // socket.emit('check', ticks);
 
@@ -133,7 +144,7 @@ const getTicks = async (socket) => {
     }
 
 
-  });
+  // });
 }
 
 const getDummyTicks = async(socket) => {
@@ -164,8 +175,9 @@ const getTicksForUserPosition = async (socket, id) => {
 
   try {
     // console.log("above ticks", ticker)
-    ticker.on('ticks', async (ticks) => {
+    // ticker.on('ticks', async (ticks) => {
 
+    // console.log("ticks" , ticks)
       let indexObj = {};
       let now = performance.now();
       // populate hash table with indexObj from indecies
@@ -237,7 +249,7 @@ const getTicksForUserPosition = async (socket, id) => {
       } catch (err) {
         // console.log(err)
       }
-    });
+    // });
   } catch (e) {
     console.log(e)
   }
@@ -245,14 +257,15 @@ const getTicksForUserPosition = async (socket, id) => {
 }
 
 const getTicksForCompanySide = async (socket) => {
-  ticker.on('ticks', async (ticks) => {
+  // ticker.on('ticks', async (ticks) => {
     try {
+      
       socket.emit('tick', ticks);
-      ticks = null;
+      // ticks = null;
     } catch (err) {
       console.log(err)
     }
-  });
+  // });
 }
 
 const onError = ()=>{

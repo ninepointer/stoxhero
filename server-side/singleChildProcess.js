@@ -10,9 +10,10 @@ const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, s
 const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
     subscribeTokens, onError,
-    onOrderUpdate, getTicksForContest, getTicksForUserPosition,
+    onOrderUpdate, getTicksForUserPosition,
     getTicksForCompanySide, 
     } = require('./marketData/kiteTicker');
+    // getTicksForContest
     
 const getKiteCred = require('./marketData/getKiteCred');
 const cronJobForHistoryData = require("./marketData/getinstrumenttickshistorydata");
