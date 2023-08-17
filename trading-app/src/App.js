@@ -66,6 +66,7 @@ import Privacy from "./layouts/HomePage/pages/Privacy";
 import Terms from "./layouts/HomePage/pages/Tnc";
 import Contests from "../src/layouts/UserDailyContest/Header/contests";
 import ProtectedRoute from "./ProtectedRoute";
+import { socketContext } from "./socketContext";
 
 
 const TRACKING_ID = "UA-264098426-2"
@@ -94,7 +95,7 @@ export default function App() {
   const location = useLocation();
   let noCookie = false;
   let myLocation = useRef(location);
-
+  const socket = useContext(socketContext)
   
   //get userdetail who is loggedin
   const setDetails = useContext(userContext);
@@ -124,6 +125,12 @@ export default function App() {
       // navigate("/")
       setIsLoading(false);
     })
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      socket.close();
+    }
   }, [])
 
 
