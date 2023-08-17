@@ -1,7 +1,7 @@
 
 import React from "react";
 import axios from "axios";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useContext, useMemo } from "react";
 import { io } from "socket.io-client";
 // @mui material components
 import { Chart } from 'chart.js/auto';
@@ -36,27 +36,31 @@ import MockOverallCompanyPNL from "./Component/MockOverallCompanyPNL";
 import LiveOverallCompanyPNL from "./Component/LiveOverallCompanyPNL";
 import MockTraderwiseCompanyPNL from "./Component/MockTraderwiseCompanyPNL";
 import LiveTraderwiseCompanyPNL from "./Component/LiveTraderwiseCompanyPNL";
+import { socketContext } from "../../socketContext";
 // import OrdersOverview from "./components/OrdersOverview";
 
 function AlgoBoxMain({batchName}) {
 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-    let socket;
-    try{
-        socket = io.connect(`${baseUrl1}`)
-    } catch(err){
-        throw new Error(err);
-    }
+    // let socket;
+    // try{
+    //     socket = io.connect(`${baseUrl1}`)
+    // } catch(err){
+    //     throw new Error(err);
+    // }
+
+    const socket = useContext(socketContext);
+
   
        
       useEffect(()=>{
   
           //console.log(socket);
-          socket.on("connect", ()=>{
+        //   socket.on("connect", ()=>{
               //console.log(socket.id);
               socket.emit("company-ticks",true)
-          })
+        //   })
 
   
       }, []);

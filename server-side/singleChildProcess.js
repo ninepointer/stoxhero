@@ -78,6 +78,7 @@ async function singleProcess() {
         // console.log(data)
         let interval;
         await createNewTicker(data.getApiKey, data.getAccessToken);
+        await subscribeInstrument();
         io.on("connection", async (socket) => {
             // console.log(socket.id, "socket id") 
             socket.on('userId', async (data) => {
@@ -168,8 +169,6 @@ async function singleProcess() {
 
         });
 
-
-        await subscribeInstrument();
         io.on('disconnection', () => { disconnectTicker() }); //TODO toggle
         io.on('disconnection', () => { onDisconnect() });
 

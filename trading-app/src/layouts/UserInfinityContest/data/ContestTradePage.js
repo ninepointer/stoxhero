@@ -87,11 +87,11 @@ function ContestTradeView () {
     }, []);
 
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     React.useEffect(()=>{
       console.log("contest useEffect")

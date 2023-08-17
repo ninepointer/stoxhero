@@ -49,7 +49,7 @@ const {placeOrder} = require("../../services/xts/xtsInteractive");
 // const fetchToken = require("../../marketData/generateSingleToken");
 // const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
-const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
+const {saveLiveUsedMargin, saveMockUsedMargin} = require("../../controllers/marginRequired");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
@@ -927,6 +927,8 @@ router.get("/duplicate", async (req, res) => {
 
 router.get("/usedMargin", async (req, res) => {
   await saveLiveUsedMargin();
+  await saveMockUsedMargin();
+  res.send("ok")
 });
 
 router.get("/setOpenPrice", async (req, res) => {

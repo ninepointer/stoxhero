@@ -426,7 +426,7 @@ exports.saveLiveUsedMargin = async ()=>{
   
           try {
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers });
-            liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
+            let liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
             // console.log(liveData)
             zerodhaMargin = marginData.data.data.orders[0].total;
             // total += zerodhaMargin;
@@ -588,8 +588,8 @@ exports.saveMockUsedMargin = async ()=>{
   
           try {
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers });
-            liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
-            // console.log(liveData)
+            let liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
+            console.log(liveData)
             zerodhaMargin = marginData.data.data.orders[0].total;
             // total += zerodhaMargin;
             // console.log(zerodhaMargin);

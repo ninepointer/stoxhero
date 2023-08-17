@@ -100,12 +100,12 @@ function MockTraderwiseCompantPNL(props) {
 
   }, [props.batchName])
 
-  useEffect(() => {
-    return () => {
-      //console.log('closing');
-      props.socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //     //console.log('closing');
+  //     props.socket.close();
+  //   }
+  // }, [])
 
   // useEffect(() => {
   //   // Get Lastest Trade timestamp

@@ -65,11 +65,11 @@ function InstrumentsData({contestId, socket, portfolioId, Render, isFromHistory}
     }, [])
 
     
-    useEffect(() => {
-        return () => {
-            socket.close();
-        }
-    }, [])
+    // useEffect(() => {
+    //     return () => {
+    //         socket.close();
+    //     }
+    // }, [])
 
     useEffect(()=>{
         // console.log("contestId", contestId)

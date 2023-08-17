@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Instrument = require("../../models/Instruments/instrumentSchema");
-const { unSubscribeTokens, subscribeSingleToken} = require('../../marketData/kiteTicker');
+const { unSubscribeTokens, subscribeSingleToken, getTicker} = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
 const {client, getValue} = require("../../marketData/redisClient");
@@ -150,7 +150,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         res.status(201).json({ message: "Instrument Added" });
                     }).catch((err) => {
                         console.log(err);
-                        res.status(500).json({ error: "Failed to enter data" })
+                        res.status(500).json({ error: "Failed to enter data", err: err })
                     });
                 }
             }).catch(err => { console.log("fail") });
@@ -216,6 +216,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken,
                         contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment)
                     });
+                    // console.log("addingInstruments", addingInstruments)
                     addingInstruments.save().then(async () => {
 
                         try {
@@ -249,6 +250,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                         }
 
                         await subscribeSingleToken(instrumentToken);//TODO toggle
+
                         await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                         let getInstruments = await User.findOne({ _id: _id });
                         getInstruments.watchlistInstruments.push(addingInstruments._id)
@@ -256,13 +258,15 @@ router.post("/addInstrument", authentication, async (req, res) => {
 
                         const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
                             $set: {
-
                                 watchlistInstruments: getInstruments.watchlistInstruments
                             }
 
                         })
                         res.status(201).json({ message: "Instrument Added" });
-                    }).catch((err) => res.status(500).json({ err: err, error: "Failed to enter data" }));
+                    }).catch((err) =>{
+                        console.log("err is", err)
+                         res.status(500).json({ err: err, error: "Failed to enter data" })
+                    });
 
                 }
             }).catch(err => { console.log("fail") });
@@ -363,14 +367,21 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
                 let instrument = await client.LRANGE(`${_id.toString()}: instrument`, 0, -1)
 
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
-                // console.log("in else removeInstrument", removeInstrument, instrument)
+                console.log("in else removeInstrument", removeInstrument, instrument)
             }
 
               const obj = {
                 instrumentToken: instrumentToken,
                 exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
               }
-              const redisClient = await client.SREM((_id).toString(), JSON.stringify(obj));
+              
+              let instruments = await client.SMEMBERS((_id)?.toString());
+              let removeFromSet = instruments.filter((elem)=>{
+                return elem.includes(instrumentToken.toString())
+              })
+
+              const redisClient = await client.SREM((_id).toString(), removeFromSet[0]);
+              console.log("redisClient", JSON.stringify(obj), _id, redisClient, instruments)
               user.watchlistInstruments.splice(index, 1); // remove the element at the index
 
             } catch(err){

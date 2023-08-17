@@ -116,11 +116,11 @@ function MockOverallCompantPNL({socket, algoId, algoName}) {
     }, [marketData])
 
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     tradeData.map((elem)=>{
         totalTransactionCost += Number(elem.brokerage);

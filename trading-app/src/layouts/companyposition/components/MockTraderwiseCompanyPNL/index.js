@@ -109,12 +109,12 @@ function MockTraderwiseCompantPNL(props) {
 
   }, [trackEvent]) 
 
-  useEffect(() => {
-    return () => {
-        //console.log('closing');
-        props.socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       //console.log('closing');
+  //       props.socket.close();
+  //   }
+  // }, [])
 
 
   useEffect(()=>{

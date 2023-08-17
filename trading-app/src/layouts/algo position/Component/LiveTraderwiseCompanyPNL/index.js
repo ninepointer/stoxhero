@@ -99,12 +99,12 @@ function LiveTraderwiseCompantPNL(props) {
     })
   }, [marketData])
 
-  useEffect(() => {
-    return () => {
-        //console.log('closing');
-        props.socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       //console.log('closing');
+  //       props.socket.close();
+  //   }
+  // }, [])
 
   useEffect(()=>{
          // Get Lastest Trade timestamp

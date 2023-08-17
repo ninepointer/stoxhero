@@ -64,11 +64,11 @@ function TraderwiseTraderPNL({socket }) {
 
   }, [selectedSubscription]) 
 
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       socket.close();
+  //   }
+  // }, [])
 
   let mapForParticularUser = new Map();
     for(let i = 0; i < allTrade.length; i++){

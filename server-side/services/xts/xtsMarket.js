@@ -93,7 +93,7 @@ const subscribeInstrument = async()=>{
 
 const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
   // console.log(exchangeSegment)
-  let response3 = await xtsMarketDataAPI.subscription({
+  let response3 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -103,7 +103,7 @@ const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
     xtsMessageCode: 1512,
   });
 
-  let response4 = await xtsMarketDataAPI.subscription({
+  let response4 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,

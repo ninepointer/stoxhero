@@ -134,11 +134,11 @@ const Timer = ({socket}) => {
 
   }, [serverTime, setting, nextTradingDay]);
 
-  useEffect(() => {
-    return () => {
-      socket.close();
-    }
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     socket.close();
+  //   }
+  // }, []);
 
   function changeDateFormat(givenDate) {
 
