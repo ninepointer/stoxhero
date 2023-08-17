@@ -1343,6 +1343,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     {
       $match: {
         "trade.status": "COMPLETE",
+        "trade.subscriptionId": new ObjectId(id),
         $expr: {
           $and: [
             {
@@ -1513,6 +1514,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     {
       $match: {
         "trade.status": "COMPLETE",
+        "trade.subscriptionId": new ObjectId(id),
         $expr: {
           $and: [
             {
@@ -1540,6 +1542,7 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
           cap: "$profitCap",
           expiredBy: "$users.expiredBy",
           isRenew: "$users.isRenew",
+          validity: "$validity"
         },
         amount: {
           $sum: {
@@ -1598,11 +1601,11 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
             else: {
               $cond: {
                 if: {
-                  $eq: [
+                  $gte: [
                     {
                       $size: "$tradingDays",
                     },
-                    "$validity",
+                    "$_id.validity",
                   ],
                 },
                 then: {

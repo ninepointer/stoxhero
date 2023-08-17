@@ -51,7 +51,7 @@ export default function LabTabs() {
 
 
   useEffect(()=>{
-    axios.get(`${apiUrl}tenX/active`, {withCredentials: true})
+    axios.get(`${apiUrl}tenX/allsubscription`, {withCredentials: true})
     .then((res)=>{
       setSubscription(res.data.data);
       setselectedSubscription(res.data.data[0])

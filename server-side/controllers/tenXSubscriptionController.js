@@ -112,6 +112,21 @@ exports.getAdminActiveTenXSubs = async(req, res, next)=>{
   }     
 };
 
+exports.getAllTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find().select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
+      .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({$natural: 1})
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+// {trader: ObjectId('648fe5463a4a89e10e1f367e'), subscriptionId: ObjectId('645cc7162f0bba5a7a3ff40a'), status: "COMPLETE", trade_time: {$gte: new Date("2023-07-09"), $lt: new Date("2023-07-11")}}
+
 exports.getInactiveTenXSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find({status: "Inactive"})

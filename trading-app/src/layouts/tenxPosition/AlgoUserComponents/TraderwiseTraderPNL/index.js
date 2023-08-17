@@ -24,7 +24,7 @@ function TraderwiseTraderPNL({socket }) {
   const [selectedSubscription, setselectedSubscription] = useState();
 
   useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/tenX/active`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/tenX/allsubscription`, {withCredentials: true})
     .then((res)=>{
       setSubscription(res.data.data);
       setselectedSubscription(res.data.data[0]?._id)

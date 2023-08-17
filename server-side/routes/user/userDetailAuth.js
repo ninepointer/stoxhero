@@ -673,7 +673,7 @@ router.get("/myreferrals/:id", Authenticate, (req, res)=>{
   })
 });
 
-router.get('/earnings', Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req,res, next)=>{
+router.get('/earnings', Authenticate, async (req,res, next)=>{
   const id = req.user._id;
   try{
     const userReferrals = await UserDetail.findById(id).select('referrals');
