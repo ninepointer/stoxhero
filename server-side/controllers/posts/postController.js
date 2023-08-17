@@ -3,7 +3,7 @@ const Post = require('../../models/Post/posts');
 
 // Create a new contact
 exports.createPost = async (req, res) => {
-    console.log(req.body)
+    // console.log(req.body)
     let {post, postedBy} = req.body;
     try {
         const post1 = await Post.create({post: post, postedBy: postedBy});

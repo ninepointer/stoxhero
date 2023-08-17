@@ -31,7 +31,7 @@ exports.overallPnl = async (req, res, next) => {
 
   const matchingTime = new Date(time) > today ? time : today;
 
-  console.log(new Date(time) ,today)
+  // console.log(new Date(time) ,today)
 
   try {
 
@@ -290,7 +290,7 @@ exports.marginDetail = async (req, res, next) => {
         },
       ])
 
-      console.log("subscription", subscription);
+      // console.log("subscription", subscription);
       if (subscription.length > 0) {
         if (isRedisConnected) {
           await client.set(`${req.user._id.toString()}${subscriptionId.toString()} openingBalanceAndMarginTenx`, JSON.stringify(subscription[0]))
@@ -354,7 +354,7 @@ exports.tradingDays = async (req, res, next) => {
 
   
   const today = new Date();
-  console.log("subscriptionId", subscriptionId, userId, today)
+  // console.log("subscriptionId", subscriptionId, userId, today)
 
   const tradingDays = await TenXTrader.aggregate([
     {
@@ -525,7 +525,7 @@ exports.tradingDays = async (req, res, next) => {
 
 exports.autoExpireTenXSubscription = async () => {
   console.log("autoExpireSubscription running");
-  const subscription = await Subscription.find({ status: "Active" });
+  const subscription = await Subscription.find();
 
   for (let i = 0; i < subscription.length; i++) {
     let users = subscription[i].users;
@@ -751,7 +751,8 @@ exports.autoExpireTenXSubscription = async () => {
             }
           }
  
-          if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays === validity){
+          console.log(payoutAmount, tradingDays[0]?.totalTradingDays, new ObjectId(userId));
+          if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays >= validity){
             const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
             wallet.transactions = [...wallet.transactions, {
                   title: 'TenX Trading Payout',
@@ -924,17 +925,17 @@ exports.traderWiseMockTrader = async (req, res, next) => {
 
   
   let x = await TenXTrader.aggregate(pipeline)
-  console.log(id, x)
+  // console.log(id, x)
   res.status(201).json({ message: "data received", data: x });
 }
 
 exports.overallTenXPnl = async (req, res, next) => {
-    console.log("Inside overall tenx pnl")
+    // console.log("Inside overall tenx pnl")
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);    
-    console.log(today)
+    // console.log(today)
     let pnlDetails = await TenXTrader.aggregate([
       {
         $match: {
@@ -1766,7 +1767,7 @@ exports.userSubscriptions = async (req, res) => {
     
     const subs = await Subscription.find({"users.userId": new ObjectId(userId)});
     
-    console.log("userId", userId)
+    // console.log("userId", userId)
     let main = [];
 
     for(let elem of subs){

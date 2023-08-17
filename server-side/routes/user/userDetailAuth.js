@@ -773,7 +773,7 @@ router.get("/newuserreferralstoday", Authenticate, restrictTo('Admin', 'SuperAdm
   const today = new Date(todayDate);
   const newuser = UserDetail.find({joining_date:{$gte: today},referredBy : { $exists: true }}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
-      console.log(data)
+      // console.log(data)
       return res.status(200).json({data : data, count: data.length});
   })
   .catch((err)=>{

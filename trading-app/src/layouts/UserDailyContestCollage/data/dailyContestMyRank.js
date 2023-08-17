@@ -43,7 +43,7 @@ function Leaderboard({socket}) {
 
             setMyRankData((prev) => (data !== null ? data : prev));
             setIsLoading(false);
-          console.log("this is leaderboard data", data)
+        //   console.log("this is leaderboard data", data)
         })
     
       }, [])

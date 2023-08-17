@@ -241,7 +241,7 @@ exports.initiatePayment = async (req, res) => {
                 'X-VERIFY': checksum
             }
         });
-        console.log(response);
+        // console.log(response);
         res.json(response.data);
     } catch (error) {
         console.error('Error initiating payment:', error);
@@ -267,7 +267,7 @@ exports.handleCallback = async (req, res, next) => {
         const encodedResponse = req.body.response;
         const decodedString = Buffer.from(encodedResponse, 'base64').toString('utf8');
         const decodedResponse = JSON.parse(decodedString);
-        console.log('decoded response', decodedResponse);
+        // console.log('decoded response', decodedResponse);
         const payment = await Payment.findOne({merchantTransactionId: decodedResponse.data.merchantTransactionId});
         payment.gatewayResponse = decodedResponse;
 
@@ -345,7 +345,7 @@ exports.checkPaymentStatus = async(req,res, next) => {
         const {merchantTransactionId} = req.params;
         const merchantId = 'MERCHANTUAT';
         const payment  = await Payment.findOne({merchantTransactionId});
-        console.log('payment', payment);
+        // console.log('payment', payment);
         const saltKey = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'; // This should be stored securely, not hardcoded
         const saltIndex = '1';
         const toHash = `/pg/v1/status/${merchantId}/${merchantTransactionId}`+ saltKey;

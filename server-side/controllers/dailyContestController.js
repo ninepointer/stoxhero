@@ -1336,7 +1336,7 @@ exports.getDailyContestAllUsers = async (req, res) => {
         
         const contestusers = []
 
-        console.log("Contest Traders:",contestTraders)
+        // console.log("Contest Traders:",contestTraders)
         contestTraders[0].totalcontest.forEach(entry => {
             const { date, traders } = entry;
     

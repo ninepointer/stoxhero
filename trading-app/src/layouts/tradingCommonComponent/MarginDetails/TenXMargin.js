@@ -21,7 +21,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  console.log("todayAmount", todayAmount, pnlData)
+  // console.log("todayAmount", todayAmount, pnlData)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`,{
@@ -52,7 +52,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
   let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
   
-  console.log("checkmargin", netPnl, fundDetail, fundDetail)
+  // console.log("checkmargin", netPnl, fundDetail, fundDetail)
     
     return (<>
   

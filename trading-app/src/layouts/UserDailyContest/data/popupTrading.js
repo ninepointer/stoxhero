@@ -58,7 +58,7 @@ const PopupTrading = ({elem, timeDifference}) => {
     const getDetails = useContext(userContext);
     
 
-    console.log("main data", open)
+    // console.log("main data", open)
     const navigate = useNavigate();
 
     const handleClose = async (e) => {
@@ -91,7 +91,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         });
 
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         if (data.status === "error" || data.error || !data) {
             setOpen(true);
             setData(data.message)

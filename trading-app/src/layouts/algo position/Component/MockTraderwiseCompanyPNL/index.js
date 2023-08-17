@@ -193,7 +193,7 @@ function viewTraderFullReport(){
   
 }
 
-console.log("re rendering index mock")
+// console.log("re rendering index mock")
 
 finalTraderPnl.map((subelem, index)=>{
   let obj = {};

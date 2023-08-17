@@ -86,7 +86,7 @@ function Header() {
       },
     })
     .then((res) => {
-        console.log("Orders:",res.data)
+        // console.log("Orders:",res.data)
         setData(res.data.data)
         setCount(res.data.count)
         setFilteredData(res.data.data)
@@ -97,7 +97,7 @@ function Header() {
     })
     
   }, [getDetails,view,paperurl1,paperurl2])
-  console.log(data);
+  // console.log(data);
 
   function backHandler(){
     if(skip <= 0){
@@ -114,7 +114,7 @@ function Header() {
         },
     })
     .then((res) => {
-        console.log("Orders:",res.data)
+        // console.log("Orders:",res.data)
         setData(res.data.data)
         setCount(res.data.count)
         setFilteredData(res.data.data)
@@ -127,10 +127,10 @@ function Header() {
 
   function nextHandler(){
     if(skip+limitSetting >= count){
-      console.log("inside skip",count,skip+limitSetting)  
+      // console.log("inside skip",count,skip+limitSetting)  
       return;
     }
-    console.log("inside next handler")
+    // console.log("inside next handler")
     setSkip(prev => prev+limitSetting);
     setOrders([]);
     axios.get(`${baseUrl}api/v1/paperTrade/${paperurl}?skip=${skip+limitSetting}&limit=${limitSetting}`,{
@@ -142,7 +142,7 @@ function Header() {
         },
     })
     .then((res) => {
-        console.log("orders",res.data)
+        // console.log("orders",res.data)
         setData(res.data.data)
         setCount(res.data.count)
         setFilteredData(res.data.data)
@@ -168,7 +168,7 @@ function Header() {
         },
     })
     .then((res) => {
-        console.log("Orders:",res.data)
+        // console.log("Orders:",res.data)
         setInternshipData(res.data.data)
         setInternshipCount(res.data.count)
         setInternshipFilteredData(res.data.data)
@@ -194,7 +194,7 @@ function Header() {
         },
     })
     .then((res) => {
-        console.log("orders",res.data)
+        // console.log("orders",res.data)
         setInternshipData(res.data.data)
         setInternshipCount(res.data.count)
         setInternshipFilteredData(res.data.data)
@@ -206,7 +206,7 @@ function Header() {
   }
 
   useEffect(()=>{
-    console.log("infinityBaseUrl", infinityBaseUrl, getDetails.userDetails.role.roleName == tenxTrader)
+    // console.log("infinityBaseUrl", infinityBaseUrl, getDetails.userDetails.role.roleName == tenxTrader)
     if((selectedSubscription || userSubs) && getDetails.userDetails.role.roleName !== InfinityTraderRole){
       
       axios.get(`${baseUrl}api/v1/${infinityBaseUrl}/${infinityUrl}?skip=${InfinitySkip}&limit=${limitSetting}`,{
@@ -218,7 +218,7 @@ function Header() {
         },
       })
       .then((res) => {
-          console.log("infinity orders",res.data)
+          // console.log("infinity orders",res.data)
           setInfinityData(res.data.data)
           setInfinityCount(res.data.count)
           setInfinityFilteredData(res.data.data)
@@ -237,7 +237,7 @@ function Header() {
         },
       })
       .then((res) => {
-          console.log("infinity orders",res.data)
+          // console.log("infinity orders",res.data)
           setInfinityData(res.data.data)
           setInfinityCount(res.data.count)
           setInfinityFilteredData(res.data.data)
@@ -251,9 +251,9 @@ function Header() {
   }, [getDetails,infinityView,url1,url2, selectedSubscription, userSubs])
 
   useEffect(()=>{
-    console.log('intern of',getDetails.userDetails);
+    // console.log('intern of',getDetails.userDetails);
     if(getDetails.userDetails?.internshipBatch?.length>0){
-      console.log('intern hai');
+      // console.log('intern hai');
       axios.get(`${baseUrl}api/v1/internship/${internshipUrl}?skip=${internshipSkip}&limit=${limitSetting}`,{
         withCredentials: true,
         headers: {
@@ -263,7 +263,7 @@ function Header() {
         },
       })
       .then((res) => {
-          console.log("internship orders",res.data)
+          // console.log("internship orders",res.data)
           setInternshipData(res.data.data)
           setInternshipCount(res.data.count)
           setInternshipFilteredData(res.data.data)
@@ -290,7 +290,7 @@ function Header() {
         },
     })
     .then((res) => {
-      console.log("orders",res.data)
+      // console.log("orders",res.data)
       setInfinityData(res.data.data)
       setInfinityCount(res.data.count)
       setInfinityFilteredData(res.data.data)
@@ -303,10 +303,10 @@ function Header() {
 
   function infinityNextHandler(){
     if(InfinitySkip+limitSetting >= infinityCount){
-      console.log("inside InfinitySkip",infinityCount,InfinitySkip+limitSetting)  
+      // console.log("inside InfinitySkip",infinityCount,InfinitySkip+limitSetting)  
       return;
     }
-    console.log("inside next handler")
+    // console.log("inside next handler")
     setInfinitySkip(prev => prev+limitSetting);
     setInfinityData([]);
     axios.get(`${baseUrl}api/v1/${infinityBaseUrl}/${infinityUrl}?skip=${InfinitySkip+limitSetting}&limit=${limitSetting}`,{
@@ -318,7 +318,7 @@ function Header() {
         },
     })
     .then((res) => {
-        console.log("orders",res.data)
+        // console.log("orders",res.data)
         setInfinityData(res.data.data)
         setInfinityCount(res.data.count)
         setInfinityFilteredData(res.data.data)
@@ -330,9 +330,9 @@ function Header() {
   }
 
   function handleInternshipClick(){
-    console.log("HandleClick",rejectedFilter)
+    // console.log("HandleClick",rejectedFilter)
     setInternshipFilteredData(internshipData?.filter((item)=> {
-       console.log(!buyInternshipFilter,!sellInternshipFilter)
+      //  console.log(!buyInternshipFilter,!sellInternshipFilter)
        if(buyInternshipFilter && item.buyOrSell === 'BUY') {
         return true;
         }
@@ -357,9 +357,9 @@ function Header() {
   },[buyInternshipFilter,sellInternshipFilter,rejectedFilter,completeFilter]);
 
   function handleClick(){
-    console.log("HandleClick",rejectedFilter)
+    // console.log("HandleClick",rejectedFilter)
     setFilteredData(data?.filter((item)=> {
-       console.log(!buyFilter,!sellFilter)
+      //  console.log(!buyFilter,!sellFilter)
        if(buyFilter && item.buyOrSell === 'BUY') {
         return true;
         }
@@ -380,9 +380,9 @@ function Header() {
   },[buyInfinityFilter,sellInfinityFilter,rejectedFilter,completeFilter])
 
   function handleInfinityClick(){
-    console.log("HandleClick",rejectedFilter)
+    // console.log("HandleClick",rejectedFilter)
     setInfinityFilteredData(infinityData?.filter((item)=> {
-       console.log(!buyInfinityFilter,!sellInfinityFilter)
+      //  console.log(!buyInfinityFilter,!sellInfinityFilter)
        if(buyInfinityFilter && item.buyOrSell === 'BUY') {
         return true;
         }

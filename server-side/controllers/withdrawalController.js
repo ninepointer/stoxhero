@@ -464,7 +464,7 @@ exports.approveWithdrawal = async(req, res, next) => {
     try{
 
         const withdrawalId = req.params.id;
-        console.log('req body', req.body);
+        // console.log('req body', req.body);
         const{transactionId, settlementMethod, settlementAccount, recipientReference} = req.body;
         if(!transactionId || !settlementMethod || !settlementAccount || !recipientReference ){
             return res.status(404).json({status:'error', message: 'Required fields missing'});

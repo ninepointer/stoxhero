@@ -65,7 +65,7 @@ const xtsMarketLogin = async ()=>{
 
 const onDisconnect = async()=>{
   xtsMarketDataWS.onDisconnect((disconnect) => {
-    console.log("xts socket disconnected", disconnect);
+    // console.log("xts socket disconnected", disconnect);
   });
 }
 

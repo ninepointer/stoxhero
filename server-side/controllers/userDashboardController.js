@@ -167,7 +167,7 @@ exports.getDashboardStats = async (req, res, next) => {
           return res.status(400).send({ error: 'Invalid type' });
       }
     
-      console.log('result', result);
+      // console.log('result', result);
     
       let maxProfitStreak = 0;
         let maxLossStreak = 0;
@@ -214,7 +214,7 @@ exports.getDashboardStats = async (req, res, next) => {
         const averageProfit = profitValues.reduce((a, b) => a + b, 0) / profitValues.length || 0;
         const averageLoss = lossValues.reduce((a, b) => a + b, 0) / lossValues.length || 0;
         const portfolio = await Portfolio.findById(result[result.length - 1]?.portfolio);
-        console.log('portfolio', portfolio, result[result.length-1]);
+        // console.log('portfolio', portfolio, result[result.length-1]);
         profitValues.sort((a, b) => a - b);
         lossValues.sort((a, b) => a - b);
         // console.log(profitValues, lossValues)
@@ -225,7 +225,7 @@ exports.getDashboardStats = async (req, res, next) => {
         lossValues.length%2 === 0 ? (lossValues[Math.floor(lossValues.length / 2)] + lossValues[Math.floor((lossValues.length / 2)-1)])/2 : lossValues[Math.floor(lossValues.length / 2)];
         const maxProfitOpeningBalance =  maxProfitIndex != 0?portfolio?.portfolioValue??0+result[maxProfitIndex-1]?.npnl:portfolio?.portfolioValue??0+result[maxProfitIndex]?.npnl;
         const maxLossOpeningBalance = maxLossIndex != 0?portfolio?.portfolioValue??0+result[maxLossIndex-1]?.npnl:portfolio.portfolioValue??0+result[maxLossIndex];
-        console.log(maxProfitOpeningBalance, maxLossOpeningBalance, maxProfitIndex);
+        // console.log(maxProfitOpeningBalance, maxLossOpeningBalance, maxProfitIndex);
         const data = {
         //   firstName: user.first_name,
         //   lastName: user.last_name,
@@ -393,7 +393,7 @@ exports.getDashboardStatsContest = async (req, res,next) => {
       },
     ])
     const contests = await DailyContest.countDocuments({contestEndTime:{$lte: endDate.toDate(), $gte: startDate.toDate()}});
-    console.log('result', result.length, contests);
+    // console.log('result', result.length, contests);
     let maxProfitStreak = 0;
     let maxLossStreak = 0;
     let currentProfitStreak = 0;
@@ -692,7 +692,7 @@ async function countTradingDays(startDate, endDate) {
         holidayDate: { $gte: start.toDate(), $lte: end.toDate() },
         isDeleted: false,
     });
-    console.log('holidays', holidays.length);
+    // console.log('holidays', holidays.length);
 
     // Convert all holiday dates to string format for easy comparison
     const holidayDates = holidays.map(h => moment(h.holidayDate).format('YYYY-MM-DD'));
@@ -833,7 +833,7 @@ exports.getUserSummary = async(req,res,next) => {
         .reduce((acc, current, index, arr) => {
           return acc + (current - acc) / (index + 1);
       }, 0); 
-        console.log('tenX return', tenxReturn);
+        // console.log('tenX return', tenxReturn);
         const contestData = await ContestTrade.aggregate([
           [
             {
@@ -934,12 +934,12 @@ exports.getUserSummary = async(req,res,next) => {
             },
           ]
         ]);
-        console.log('contest data', contestData);
+        // console.log('contest data', contestData);
         let contestReturn = contestData.map((item)=>item.npnl/item.portfolio)
         .reduce((acc, current, index, arr) => {
           return acc + (current - acc) / (index + 1);
       }, 0);
-        console.log('contest return', contestReturn);
+        // console.log('contest return', contestReturn);
         
         
       // console.log('contest data',contestData);      

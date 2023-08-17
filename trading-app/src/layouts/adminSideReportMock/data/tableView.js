@@ -116,7 +116,7 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
               let cummData = cumulativeData?.filter((subelem) => {
                 return elem?.date === subelem?._id?.date;
               })
-              console.log("cummData", cummData)
+              // console.log("cummData", cummData)
               const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error"
               const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error"
               const cummgpnlcolor = (cummData[0]?.totalGpnl) >= 0 ? "success" : "error"
@@ -252,7 +252,7 @@ export default function TableView({whichTab, dateWiseData, cumulativeData}) {
                 const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error"
                 const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error"
                 // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek-1];
-                console.log("elem?.createdBy", elem?.createdBy)
+                // console.log("elem?.createdBy", elem?.createdBy)
                 return (
 
 

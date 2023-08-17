@@ -30,7 +30,7 @@ const PnlAndMarginData = ({contestId}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  console.log("margin", todayAmount)
+//   console.log("margin", todayAmount)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/myPnlandCreditData`,{

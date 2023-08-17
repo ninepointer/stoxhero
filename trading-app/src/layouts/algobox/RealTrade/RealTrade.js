@@ -66,7 +66,7 @@ export default function RealTrade({ Render, id, tradingAlgo }) {
         .then((api1Response) => {
             console.dir("api1Response.data", api1Response)
             if(api1Response.data === "ok"){
-                console.log("in response")
+                // console.log("in response")
                 window.alert("switched to mock trade succesfull");
                 reRender ? setReRender(false) : setReRender(true);
             }

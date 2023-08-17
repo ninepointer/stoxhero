@@ -294,7 +294,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   };
  //handleBuyClick
 
- console.log("watchList", watchList)
+//  console.log("watchList", watchList)
 
   return (
     <MDBox sx={{backgroundColor:"white", display:"flex", borderRadius:2, marginBottom:2}}>

@@ -25,7 +25,7 @@ const PopupTrading = ({elem, timeDifference}) => {
     const [collegeCode, setCollegeCode] = useState();
     const [errorMsg, setErrorMsg] = useState("");
 
-    console.log("main data", open)
+    // console.log("main data", open)
     const navigate = useNavigate();
 
     const handleClickOpen = async () => {
@@ -65,7 +65,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         });
 
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         if (data.status === "error" || data.error || !data) {
             setOpen(true);
             

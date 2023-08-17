@@ -8,7 +8,7 @@ const TraderDetails = require("../models/User/userDetailSchema");
 exports.traderDailyPnlCalculation = async(date) => {
   //Extracting timestamp from the instrument history data
   //let date = '2023-01-09';
-  console.log("in traderDailyPnlCalculation")
+  // console.log("in traderDailyPnlCalculation")
 
   const traderdailyPnl = await TraderDailyPnlData.find({timestamp: {$regex:date}})
   //console.log("Trader Daily PNL Table Records for Today: "+traderdailyPnl.length);

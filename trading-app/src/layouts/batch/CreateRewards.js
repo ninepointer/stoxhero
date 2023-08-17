@@ -34,13 +34,13 @@ const [formState,setFormState] = useState({
 });
 
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-console.log("Inside Child Component",isSubmitted)
+// console.log("Inside Child Component",isSubmitted)
 React.useEffect(()=>{
 
   axios.get(`${baseUrl}api/v1/contest/${id}`)
   .then((res)=>{
           setContestData(res.data[0]);
-          console.log(res.data[0])
+          // console.log(res.data[0])
           setId(res.data[0]._id)
           setFormState({
             contestName: res.data[0]?.contestName || '',
@@ -67,8 +67,8 @@ React.useEffect(()=>{
 async function onAddReward(e,childFormState,setChildFormState){
   e.preventDefault()
   setSaving(true)
-  console.log(childFormState)
-  console.log(newObjectId)
+  // console.log(childFormState)
+  // console.log(newObjectId)
   if(!childFormState?.rankStart || !childFormState?.rankEnd || !childFormState?.reward 
     || !childFormState?.currency
     )

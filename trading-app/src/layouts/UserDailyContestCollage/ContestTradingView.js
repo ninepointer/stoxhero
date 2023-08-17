@@ -17,7 +17,7 @@ function Tables() {
   // const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const socket = useContext(socketContext);
-  console.log("location", location);
+  // console.log("location", location);
   // let socket;
   // try {
   //   socket = io.connect(`${baseUrl1}`)

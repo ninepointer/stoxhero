@@ -410,7 +410,7 @@ const autoPlaceOrder = (obj, res) => {
         singleUser,
         marginData
       } = obj;
-      console.log(obj)
+      // console.log(obj)
       let isRedisConnected = getValue();
       isReverseTrade = false;
       let exchangeSegment;
@@ -764,7 +764,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     let redisApproval = pipelineForSet?._result[0][1] === "OK" && pipelineForSet?._result[1][1] === "OK" && pipelineForSet?._result[2][1] === "OK" && pipelineForSet?._result[3][1] === "OK" && pipelineForSet?._result[4][1] === "OK"
 
     if (redisApproval) {
-      console.log("in redisApproval")
+      // console.log("in redisApproval")
       await session.commitTransaction();
     } else if (status == "REJECTED") {
       console.log("in rejected")
@@ -1004,7 +1004,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
     if(!dontSendResp){
       if(singleUser){
         const updateRealTrade = await UserPermission.updateOne({userId: new ObjectId(trader)}, { $set: { isRealTradeEnable: false } })
-        console.log("updateRealTrade", updateRealTrade)
+        // console.log("updateRealTrade", updateRealTrade)
       } else{
         const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } })
 

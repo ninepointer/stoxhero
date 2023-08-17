@@ -94,7 +94,7 @@ function LiveOverallCompantPNL({socket, algoId, algoName}) {
       // Get Lastest Trade timestamp
       axios.get(`${baseUrl}api/v1/getlastestlivetradecompany`, {withCredentials:true})
       .then((res)=>{
-          console.log("Latest Live Trade:",res.data);
+          // console.log("Latest Live Trade:",res.data);
           setLatestTradeTimearr(res.data);
           setLatestTradeTime(res.data.trade_time) ;
           setLatestTradeBy(res.data.createdBy) ;
@@ -102,7 +102,7 @@ function LiveOverallCompantPNL({socket, algoId, algoName}) {
           setLatestTradeQuantity(res.data.Quantity) ;
           setLatestTradeSymbol(res.data.symbol) ;
           setLatestTradeStatus(res.data.status)
-          console.log(lastestTradeTimearr);
+          // console.log(lastestTradeTimearr);
       }).catch((err) => { 
         return new Error(err);
       })

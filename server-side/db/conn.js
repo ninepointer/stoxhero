@@ -12,8 +12,8 @@ const infinity = process.env.INFINITYDB
 
     // mongoose.connect(devDB, {
         //  mongoose.connect(DB, {
-        mongoose.connect(stagingDB, {
-            // mongoose.connect(infinity, {
+        // mongoose.connect(stagingDB, {
+            mongoose.connect(infinity, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     // useFindAndModify: false

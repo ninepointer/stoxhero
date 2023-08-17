@@ -18,7 +18,7 @@ exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
   const { firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career } = req.body;
-  console.log("Career Application: ",req.body)
+  // console.log("Career Application: ",req.body)
   const data = await CareerApplication.create({
     first_name: firstName.trim(),
     last_name: lastName.trim(),

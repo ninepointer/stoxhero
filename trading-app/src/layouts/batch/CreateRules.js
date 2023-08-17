@@ -48,7 +48,7 @@ React.useEffect(()=>{
     axios.get(`${baseUrl}api/v1/contestrule/${id}`)
     .then((res)=>{
             setRuleData(res.data[0]);
-            console.log("Contest Rule Object: ",res.data[0])
+            // console.log("Contest Rule Object: ",res.data[0])
             setId(res.data[0]._id)
             setFormState({
             ruleName: res.data[0]?.ruleName || '',
@@ -73,7 +73,7 @@ React.useEffect(()=>{
 async function onNext(e,formState){
 e.preventDefault()
 setCreating(true)
-console.log("Rule Form State: ",formState)
+// console.log("Rule Form State: ",formState)
 
 if(
   !formState?.ruleName || !formState?.status){

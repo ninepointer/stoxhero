@@ -35,7 +35,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
 const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
-  console.log("rendering : buy", contestId)
+  // console.log("rendering : buy", contestId)
   const tradeSound = new Howl({
     src : [sound],
     html5 : true
@@ -178,7 +178,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
   }
 
   async function placeOrder() {
-    console.log("exchangeInstrumentToken", exchangeInstrumentToken)
+    // console.log("exchangeInstrumentToken", exchangeInstrumentToken)
     const { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, TriggerPrice, stopLoss, validity, variety } = buyFormDetails;
     let endPoint 
     let paperTrade = false;
@@ -220,14 +220,14 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
         })
     });
     const dataResp = await res.json();
-    console.log("dataResp", dataResp, res)
+    // console.log("dataResp", dataResp, res)
     if (dataResp.status === 422 || dataResp.error || !dataResp) {
-        console.log("dataResp if")
+        // console.log("dataResp if")
         // window.alert(dataResp.error);
         openSuccessSB('error', dataResp.error)
         //////console.log("Failed to Trade");
     } else {
-      console.log("dataResp else")
+      // console.log("dataResp else")
       //console.log("caseStudy 3: place resp")
       tradeSound.play();
         if(dataResp.message === "COMPLETE"){
@@ -310,7 +310,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
     // //console.log("Value: ",value)
     if(value === "complete"){
 
-      console.log("no response if")
+      // console.log("no response if")
         messageObj.color = 'success'
         messageObj.icon = 'check'
         messageObj.title = "Trade Successful";

@@ -50,7 +50,7 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
         });
         
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         if(data.status === "error" || data.error || !data){
             // openSuccessSB("error", data.message)
         }else{

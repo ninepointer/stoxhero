@@ -85,7 +85,7 @@ React.useEffect(()=>{
     axios.get(`${baseUrl}api/v1/contest/${id}`)
     .then((res)=>{
         setBatchData(res?.data?.data);
-        console.log("Contest Data in Create Contest Form: ",res?.data?.data)
+        // console.log("Contest Data in Create Contest Form: ",res?.data?.data)
         setLinkedContestRule(res?.data?.data?.contestRule._id)
         // setId(res?.data?.data._id)
         setFormState({
@@ -157,7 +157,7 @@ if (data.batchStatus === 422 || data.error || !data) {
     openSuccessSB("Contest Created",data.message)
     setNewObjectId(data.data._id)
     setIsSubmitted(true)
-    console.log("setting linked contest rule to: ",data.data.contestRule)
+    // console.log("setting linked contest rule to: ",data.data.contestRule)
     // setLinkedContestRule(data?.data?.contestRule)
     // console.log(data.data)
     setBatchData(data.data)
@@ -169,7 +169,7 @@ if (data.batchStatus === 422 || data.error || !data) {
 async function onEdit(e,formState){
   e.preventDefault()
   setSaving(true)
-  console.log(formState)
+  // console.log(formState)
   if(
     !formState?.batchName || !formState?.batchLimit || !formState?.participantRevenueSharing || 
     !formState?.batchStartDate || !formState?.batchEndDate || !formState?.applicationStartDate || 
@@ -194,13 +194,13 @@ async function onEdit(e,formState){
     });
 
   const data = await res.json();
-  console.log(data);
+  // console.log(data);
   if (data.batchStatus === 422 || data.error || !data) {
       openErrorSB("Error","data.error")
   } else {
       openSuccessSB("Contest Edited",data.displayName + " | " + data.instrumentSymbol + " | " + data.exchange + " | " + data.batchStatus)
       setTimeout(()=>{setSaving(false);setEditing(false)},500)
-      console.log("entry succesfull");
+      // console.log("entry succesfull");
   }
 }
 
@@ -215,7 +215,7 @@ setContent(content)
 setSuccessSB(true);
 }
 const closeSuccessSB = () => setSuccessSB(false);
-console.log("contestRules",contestRules)
+// console.log("contestRules",contestRules)
 
 
 const renderSuccessSB = (
@@ -252,7 +252,7 @@ const renderErrorSB = (
 />
 );
 
-console.log("Old Object Id: ",oldObjectId)
+// console.log("Old Object Id: ",oldObjectId)
 
     return (
     <>

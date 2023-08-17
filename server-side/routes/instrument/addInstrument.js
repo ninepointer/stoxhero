@@ -175,7 +175,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
 
                         })
                         try {
-                            console.log((_id).toString(), instrumentToken)
+                            // console.log((_id).toString(), instrumentToken)
                             // const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
                             if (isRedisConnected) {
                                 let obj = {
@@ -201,7 +201,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                                 chartInstrument: dataExist.chartInstrument
                             }))
 
-                            console.log("instrument", instrument)
+                            // console.log("instrument", instrument)
                             // }
 
                         } catch (err) {
@@ -367,7 +367,7 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
                 let instrument = await client.LRANGE(`${_id.toString()}: instrument`, 0, -1)
 
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
-                console.log("in else removeInstrument", removeInstrument, instrument)
+                // console.log("in else removeInstrument", removeInstrument, instrument)
             }
 
               const obj = {
@@ -381,7 +381,7 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
               })
 
               const redisClient = await client.SREM((_id).toString(), removeFromSet[0]);
-              console.log("redisClient", JSON.stringify(obj), _id, redisClient, instruments)
+            //   console.log("redisClient", JSON.stringify(obj), _id, redisClient, instruments)
               user.watchlistInstruments.splice(index, 1); // remove the element at the index
 
             } catch(err){

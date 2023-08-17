@@ -30,7 +30,7 @@ const BattleRewards = ({battle}) => {
       axios.get(`${baseUrl}api/v1/battles/${battle}/rewards`)
       .then((res)=>{
                 setbattleRewards(res.data.data);
-                console.log(res.data.data);
+                // console.log(res.data.data);
         }).catch((err)=>{
           return new Error(err);
       })

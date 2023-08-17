@@ -47,7 +47,7 @@ const OptionChain = ({ socket, data }) => {
     useEffect(()=>{
     socket.emit("company-ticks", true)
     socket.on("tick", (data) => {
-        console.log("this is live market data", data);
+        // console.log("this is live market data", data);
         setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -60,10 +60,10 @@ const OptionChain = ({ socket, data }) => {
 
     useEffect(() => {
         setIsLoading(true)
-        console.log("Inside Use Effect")
+        // console.log("Inside Use Effect")
         axios.get(`${baseUrl}api/v1/optionChain/${selectIndex}`, {withCredentials: true})
             .then((res) => {
-                console.log(res.data)
+                // console.log(res.data)
 
                 let belowCEData = (res.data.belowSpot).filter((elem) => {
                     return elem.instrument_type === "CE"
@@ -249,7 +249,7 @@ const OptionChain = ({ socket, data }) => {
                                         let offerPe = liveDataPE[0]?.depth?.sell[0]?.price
 
                                         // const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
-                                        console.log("is hover", elem.isHover)
+                                        // console.log("is hover", elem.isHover)
                                         return (
                                             <Grid
                                                 onMouseOver={() => handleMouseOver(index)}
@@ -327,7 +327,7 @@ const OptionChain = ({ socket, data }) => {
                                             return elem?.strike == subelem?.strike;
                                         })
 
-                                        console.log("checking pe", elem?.instrument_type)
+                                        // console.log("checking pe", elem?.instrument_type)
 
                                         let liveData = marketData.filter((subelem) => {
                                             return elem.instrument_token == subelem.instrument_token || elem.exchange_token == subelem.instrument_token

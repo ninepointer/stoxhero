@@ -29,7 +29,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
     Promise.all([call1])
     .then(([api1Response]) => {
       // Process the responses here
-      console.log(api1Response.data.data);
+      // console.log(api1Response.data.data);
       setActiveCareer(api1Response.data.data)
     })
     .catch((error) => {
@@ -37,7 +37,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
       console.error(error);
     });
   },[])
-  console.log("Applicant Count: ",applicationCount)
+  // console.log("Applicant Count: ",applicationCount)
     return (
       <>
       {activeCareer.length > 0 ?

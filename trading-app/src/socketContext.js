@@ -6,7 +6,7 @@ export const socketContext = React.createContext();
 
 export default function SocketContext({children}) {
     // const getDetails = useContext(userContext);
-    console.log("socket is connected 1st")
+    // console.log("socket is connected 1st")
     let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
 
     let socket;
@@ -21,9 +21,9 @@ export default function SocketContext({children}) {
     }
 
     useEffect(() => {
-        console.log("socket is connected 2nd", socket)
+        // console.log("socket is connected 2nd", socket)
         socket.on("connect", () => {
-            console.log("socket is connected 3rd", socket)
+            // console.log("socket is connected 3rd", socket)
         //   socket.emit('userId', getDetails.userDetails._id)
         //   socket.emit("user-ticks", getDetails.userDetails._id)
         })

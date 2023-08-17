@@ -33,7 +33,7 @@ function ExitPosition({contestId, maxLot, lotSize, traderId, socket, subscriptio
     src : [sound],
     html5 : true
   })
-  console.log("rendering : exit", quantity)
+  // console.log("rendering : exit", quantity)
   let checkBuyOrSell;
   if (quantity > 0) {
     checkBuyOrSell = "BUY"
@@ -142,7 +142,7 @@ function ExitPosition({contestId, maxLot, lotSize, traderId, socket, subscriptio
     optionData.push(<MenuItem value={i * lotSize}>{i * lotSize}</MenuItem>)
   }
 
-console.log("lotSize", lotSize, maxLot)
+// console.log("lotSize", lotSize, maxLot)
 
   async function exitPosition(e, uId) {
     if(buttonClicked){

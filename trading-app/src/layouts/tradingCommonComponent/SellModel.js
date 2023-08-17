@@ -32,10 +32,10 @@ import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader 
 
 
 const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, contestId}) => {
-  console.log("rendering in userPosition: sellModel", exchange)
+  // console.log("rendering in userPosition: sellModel", exchange)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
-  console.log("rendering : sell");
+  // console.log("rendering : sell");
   const tradeSound = new Howl({
     src : [sound],
     html5 : true

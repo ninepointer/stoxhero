@@ -10,7 +10,7 @@ const CareerSchema = require("../../models/Careers/careerSchema");
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
 
 exports.createGroupDiscussion = async(req, res, next)=>{
-    console.log(req.body) // batchID
+    // console.log(req.body) // batchID
     const{gdTitle, gdTopic, gdStartDate, 
         gdEndDate, meetLink, batch } = req.body;
 
@@ -58,7 +58,7 @@ exports.getBatchGroupDiscussion = async(req, res, next)=>{
 exports.editGroupDiscussion = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
 
     const gd = await GroupDiscussion.findOneAndUpdate({_id : id}, {
         $set:{
@@ -81,7 +81,7 @@ exports.editGroupDiscussion = async(req, res, next) => {
 exports.approveUser = async (req, res, next) => {
     const id = req.params.id;
     const userId = req.body.userId;
-    console.log("id is,", id);
+    // console.log("id is,", id);
     try {
       const user = await User.findById(new ObjectId(userId));
       if (!user) {
@@ -128,7 +128,7 @@ exports.addUserToGd = async(req, res, next) => {
     user = await User.findOne({mobile: career.mobileNo}).select('_id');
     if(user){
       const existinggds = await GroupDiscussion.find({'participants.user': user._id});
-      console.log('existing gds', existinggds);
+      // console.log('existing gds', existinggds);
       const batchesArr = await Promise.all(existinggds.map((elem)=>{
         return Batch.findById(elem.batch).select('_id career batchStartDate batchEndDate') 
       }));

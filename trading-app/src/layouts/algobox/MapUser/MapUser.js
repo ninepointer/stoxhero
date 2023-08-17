@@ -42,7 +42,7 @@ const MapUser = ({algoId}) => {
   const [permissionData, setPermissionData] = useState([]);
   const [addUser, setAddUser] = useState([]);
 
-  console.log("permissionData", permissionData)
+  // console.log("permissionData", permissionData)
 
 
   async function realTradeChange(e, userId, realTrade, userName){
@@ -50,7 +50,7 @@ const MapUser = ({algoId}) => {
     let perticularUserWithMappedAlgo = permissionData.filter((elem)=>{
       return elem.algoId?._id === algoId && elem.userId?._id === userId
     })
-    console.log(userId, realTrade)
+    // console.log(userId, realTrade)
     if(realTrade !== undefined){
       if(realTrade){
         realTrade = false;
@@ -99,14 +99,14 @@ const MapUser = ({algoId}) => {
   }
 
   async function tradeEnableChange(e, userId, tradeEnable, userName){
-    console.log("e, userId, tradeEnable, userName", e, userId, tradeEnable, userName)
+    // console.log("e, userId, tradeEnable, userName", e, userId, tradeEnable, userName)
     if(tradeEnable !== undefined){
       if(tradeEnable){
         tradeEnable = false;
       } else{
         tradeEnable = true;
       }
-      console.log("permissionData", permissionData)
+      // console.log("permissionData", permissionData)
       let perticularUserWithMappedAlgo = permissionData.filter((elem)=>{
         return elem.algoId?._id === algoId && elem.userId?._id === userId
       })
@@ -139,7 +139,7 @@ const MapUser = ({algoId}) => {
           
       }
     } else{
-      console.log("tradeEnable", tradeEnable,e)
+      // console.log("tradeEnable", tradeEnable,e)
       if(algoData.tradingEnable){
         tradeEnable = false;
       } else{
@@ -157,7 +157,7 @@ const MapUser = ({algoId}) => {
   })
 
   let newData = [];
-  console.log("addUser", addUser, "permissionDataUpdated", permissionDataUpdated);
+  // console.log("addUser", addUser, "permissionDataUpdated", permissionDataUpdated);
   if(addUser.length !== 0 && permissionDataUpdated.length !== 0){
     for(let i = 0; i < addUser.length; i++){
       for(let j = 0; j < permissionDataUpdated.length; j++){
@@ -294,7 +294,7 @@ const MapUser = ({algoId}) => {
       }
   }
 
-  console.log("this is name", newData)
+  // console.log("this is name", newData)
 
   newData.map((elem)=>{
 

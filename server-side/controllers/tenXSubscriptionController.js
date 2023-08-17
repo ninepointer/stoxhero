@@ -20,7 +20,7 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.createTenXSubscription = async(req, res, next)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const{
         plan_name, actual_price, discounted_price, features, validity, validityPeriod,
         status, portfolio, profitCap, allowPurchase, allowRenewal } = req.body;
@@ -45,7 +45,7 @@ exports.editTanx = async(req, res, next) => {
             description:req.body.features.description,}]
     filteredBody.lastModifiedBy = req.user._id;    
 
-    console.log(filteredBody)
+    // console.log(filteredBody)
     const updated = await TenXSubscription.findByIdAndUpdate(id, filteredBody, { new: true });
 
     res.status(200).json({message: 'Successfully edited tenx.', data: updated});
@@ -55,7 +55,7 @@ exports.editFeature = async(req, res, next) => {
     const id = req.params.id;
     const {orderNo, description} = req.body;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const updated = await TenXSubscription.findOneAndUpdate(
         { "features._id": id }, // filter to match the feature object with the given _id
         {
@@ -74,7 +74,7 @@ exports.removeFeature = async(req, res, next) => {
     const id = req.params.id;
     // const {orderNo, description} = req.body;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const updatedDoc = await TenXSubscription.findOneAndUpdate(
         { "features._id": id }, // filter to match the feature object with the given _id
         {
@@ -152,12 +152,12 @@ exports.getTenXSubscription = async(req, res, next)=>{
 };
 
 exports.createTenXPurchaseIntent = async(req, res, next)=>{
-  console.log(req.body)
+  // console.log(req.body)
   try{
   const{ purchase_intent_by, tenXSubscription } = req.body;
 
   const tenXPurchaseIntent = await TenXPurchaseIntent.create({purchase_intent_by, tenXSubscription});
-  console.log(tenXPurchaseIntent)
+  // console.log(tenXPurchaseIntent)
   res.status(201).json({message: 'TenX Purchase Intent Captured Successfully.', data:tenXPurchaseIntent});
   }
   catch{(err)=>{res.status(401).json({message: "Something went wrong", error:err}); }}  
@@ -228,7 +228,7 @@ exports.renewSubscription = async(req, res, next)=>{
           const subscribedOn = users[j].subscribedOn;
 
           if(status === "Live"){
-            console.log(new Date(subscribedOn))
+            // console.log(new Date(subscribedOn))
   
             const user = await User.findOne({ _id: new ObjectId(userId) });
             let len = user.subscription.length;
@@ -238,7 +238,7 @@ exports.renewSubscription = async(req, res, next)=>{
                 user.subscription[k].status = "Expired";
                 user.subscription[k].expiredOn = new Date();
                 user.subscription[k].expiredBy = "User";
-                console.log("this is user", user)
+                // console.log("this is user", user)
                 await user.save();
                 break;
               }
@@ -249,7 +249,7 @@ exports.renewSubscription = async(req, res, next)=>{
                 tenXSubs.users[k].status = "Expired";
                 tenXSubs.users[k].expiredOn = new Date();
                 tenXSubs.users[k].expiredBy = "User";
-                console.log("this is tenXSubs", tenXSubs)
+                // console.log("this is tenXSubs", tenXSubs)
                 await tenXSubs.save();
                 break;
               }
@@ -258,16 +258,14 @@ exports.renewSubscription = async(req, res, next)=>{
         }
       }
 
-      console.log("all three", subscriptionAmount, subscriptionName, subscriptionId)
+      // console.log("all three", subscriptionAmount, subscriptionName, subscriptionId)
         
       for(let i = 0; i < tenXSubs.users.length; i++){
           if(tenXSubs.users[i].userId.toString() == userId.toString() && tenXSubs.users[i].status == "Live"){
-              console.log("getting that user")
               return res.status(404).json({status:'error', message: 'Something went wrong.'});
           }
       }
 
-      console.log("outside of for loop")
 
       const wallet = await Wallet.findOne({userId: userId});
       wallet.transactions = [...wallet.transactions, {

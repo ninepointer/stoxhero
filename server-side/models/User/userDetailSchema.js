@@ -337,10 +337,10 @@ const userDetailSchema = new mongoose.Schema({
 
 //Adding the ninepointer id before saving
 userDetailSchema.pre('save', async function(next){
-    console.log("inside employee id generator code")
+    // console.log("inside employee id generator code")
     if(!this.employeeid || this.isNew){
         const count = await this.constructor.countDocuments();
-        console.log("Count of Documents: ",count)
+        // console.log("Count of Documents: ",count)
         let userId = this.email.split('@')[0]
         let userIds = await userPersonalDetail.find({employeeid:userId})
         if(userIds.length > 0)
@@ -381,7 +381,7 @@ userDetailSchema.methods.generateAuthToken = async function(){
 }
 
 userDetailSchema.pre('save', async function(next){
-    console.log("inside employee", this._id)
+    // console.log("inside employee", this._id)
     if(!this.createdBy || this.isNew){
         this.createdBy = this._id;
         next();
@@ -395,7 +395,7 @@ userDetailSchema.methods.changedPasswordAfter = function(JWTiat) {
             this.passwordChangedAt.getTime() / 1000, // Convert to UNIX timestamp
             10
         );
-        console.log('changed at', this.passwordChangedAt);
+        // console.log('changed at', this.passwordChangedAt);
         return JWTiat < changedTimeStamp; // True if the password was changed after token issuance
     }
     // False means not changed

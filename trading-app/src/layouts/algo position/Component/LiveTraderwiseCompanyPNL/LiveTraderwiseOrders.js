@@ -84,7 +84,7 @@ let totalRunningLots = 0;
     })
   }, [])
 
-  console.log("orderData", orderData)
+  // console.log("orderData", orderData)
   orderData.map((elem,index)=>{
     let obj = {};
 

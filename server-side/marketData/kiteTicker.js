@@ -41,11 +41,9 @@ const ticksData = async () => {
   let isRedisConnected = getValue();
   ticker.on('ticks', async (ticks) => {
     let instrumentTokenArr;
-    
+
     if (userId && isRedisConnected && await client.exists((userId)?.toString())) {
       let instruments = await client.SMEMBERS((userId)?.toString())
-      // instrumentTokenArr = new Set(instruments)
-      // console.log("instruments", instruments)
       const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
       instrumentTokenArr = new Set();
 
@@ -53,36 +51,39 @@ const ticksData = async () => {
         instrumentTokenArr.add(obj.instrumentToken);
         instrumentTokenArr.add(obj.exchangeInstrumentToken);
       });
-
-      // console.log("this is instrumentTokenArr");
     }
 
-    // console.log("instrumentTokenArr && indecies.length", instrumentTokenArr , indecies.length)
 
-    if(instrumentTokenArr && indecies.length){
-    let indexObj = {};
-    // populate hash table with indexObj from indecies
-    for (let i = 0; i < indecies?.length; i++) {
-      indexObj[indecies[i]?.instrumentToken] = true;
-    }
-    indexData = ticks.filter(function (item) {
-      return indexObj[item.instrument_token];
-    });
-    filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
-
-    try {
-      if (indexData?.length > 0) {
-        io.to(`${userId}`).emit('index-tick', indexData)
+    if (indecies.length) {
+      let indexObj = {};
+      // populate hash table with indexObj from indecies
+      for (let i = 0; i < indecies?.length; i++) {
+        indexObj[indecies[i]?.instrumentToken] = true;
       }
+      indexData = ticks.filter(function (item) {
+        return indexObj[item.instrument_token];
+      });
 
-
-      if (filteredTicks.length > 0) {
-        io.to(`${userId}`).emit('tick-room', filteredTicks);
+      try {
+        if (indexData?.length > 0) {
+          io.to(`${userId}`).emit('index-tick', indexData)
+        }
+      } catch (err) {
+        console.log(err)
       }
-    } catch (err) {
-      console.log(err)
     }
-  }
+
+    if (instrumentTokenArr) {
+      filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
+
+      try {
+        if (filteredTicks.length > 0) {
+          io.to(`${userId}`).emit('tick-room', filteredTicks);
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    }
   });
 }
 
@@ -178,7 +179,7 @@ const getTicks = async (socket) => {
         io.to(`${userId}`).emit('tick-room', filteredTicks);
       }
 
-      console.log("performance", performance.now()-now, socket.id);
+      // console.log("performance", performance.now()-now, socket.id);
 
       filteredTicks = null;
       ticks = null;
@@ -278,7 +279,7 @@ const getTicksForUserPosition = async (socket, id) => {
           instrumentTokenArr = new Set(instrumentTokenArr)
         }
 
-        console.log("instrumentTokenArr", instrumentTokenArr)
+        // console.log("instrumentTokenArr", instrumentTokenArr)
 
         // filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
         // if (indexData?.length > 0) {

@@ -19,7 +19,7 @@ export default function UserTodayTradeData() {
   const getDetails = useContext(userContext);
   let url = getDetails.userDetails.isAlgoTrader ? "gethistorymocktradesparticularuser" : "gethistorymocktradesparticulartrader"
 
-  console.log("getDetails", getDetails)
+  // console.log("getDetails", getDetails)
 
   useEffect(()=>{
 
@@ -94,8 +94,8 @@ export default function UserTodayTradeData() {
       </MDTypography>
     );
     
-    console.log(typeof(horders));
-    console.log(horders)
+    // console.log(typeof(horders));
+    // console.log(horders)
     historyorders.push(horders)
   })
 

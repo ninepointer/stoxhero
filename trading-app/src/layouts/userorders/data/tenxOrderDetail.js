@@ -77,7 +77,7 @@ function TenxOrderDetail({infinityView, selectedSubscription, setselectedSubscri
         // Format the date as "dd Month yyyy | hh:mm AM/PM"
         const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
 
-        console.log(formattedDate);
+        // console.log(formattedDate);
 
         // Helper function to get the month name
         function getMonthName(month) {
@@ -100,7 +100,7 @@ function TenxOrderDetail({infinityView, selectedSubscription, setselectedSubscri
 
     }
 
-    console.log("userSubs", userSubs)
+    // console.log("userSubs", userSubs)
 
     return (
 

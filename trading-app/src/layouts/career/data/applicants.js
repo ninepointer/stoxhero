@@ -11,7 +11,7 @@ import MDSnackbar from '../../../components/MDSnackbar';
 
 
 export default function Applicants({career, action, setAction}) {
-    console.log("Career", career);
+    // console.log("Career", career);
     const [open, setOpen] = useState(false);
     const [selectedApplicant, setSelectedApplicant] = useState();
     const [selectedApplicantName, setSelectedApplicantName]=useState();
@@ -87,7 +87,7 @@ export default function Applicants({career, action, setAction}) {
             Promise.all([call1])
             .then(([api1Response]) => {
             // Process the responses here
-            console.log(api1Response.data.data);
+            // console.log(api1Response.data.data);
             setCareerApplications(api1Response.data.data)
             setApplicationCount(api1Response.data.count);
             })

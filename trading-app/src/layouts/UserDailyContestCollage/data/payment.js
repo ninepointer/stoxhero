@@ -67,14 +67,14 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
           return transaction.transactionType === "Cash";
         });
-        console.log((res.data.data)?.transactions);
+        // console.log((res.data.data)?.transactions);
   
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
           return total + transaction?.amount;
         }, 0);
   
         setUserWallet(totalCashAmount.toFixed(2));
-        console.log("totalCashAmount", totalCashAmount)
+        // console.log("totalCashAmount", totalCashAmount)
   
       }).catch((err) => {
         console.log("Fail to fetch data of user", err);
@@ -138,7 +138,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       })
     });
     const dataResp = await res.json();
-    console.log(dataResp);
+    // console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
       // openSuccessSB("error", dataResp.message)
       setMessege({
@@ -183,7 +183,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       });
 
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       if (data.status === "error" || data.error || !data) {
           setOpen(true);
           
