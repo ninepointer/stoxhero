@@ -42,7 +42,7 @@ const ticksData = async () => {
     // console.log("userId", userId)
 
     for(let userId of userIdArr){
-      console.log("userId", userId)
+      // console.log("userId", userId)
       if (userId && isRedisConnected && await client.exists((userId)?.toString())) {
         let instruments = await client.SMEMBERS((userId)?.toString())
         const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
@@ -103,7 +103,7 @@ const subscribeTokens = async() => {
 }
 
 const subscribeSingleToken = async(instrumentToken) => {
-    console.log(ticker)
+    // console.log(ticker)
   ticker?.subscribe(instrumentToken);
   ticker?.setMode(ticker.modeFull, instrumentToken);
 }

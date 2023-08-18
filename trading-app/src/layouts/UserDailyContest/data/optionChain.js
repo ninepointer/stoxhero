@@ -105,7 +105,7 @@ const OptionChain = ({ socket, data }) => {
     };
 
     const handleClose = async (e) => {
-
+        socket.emit("leave-company-room", true)
         setOpen(false);
     };
 
