@@ -17,7 +17,7 @@ let ticker;
 let liveticks = [];
 let indecies = [];
 // let instrumentTokenArr ;
-let userId;
+let userIdArr = [];
 
 const createNewTicker = async (api_key, access_token) => {
   console.log("createNewTicker")
@@ -32,57 +32,60 @@ const createNewTicker = async (api_key, access_token) => {
     return ticker;    
 }
 
-// function getTicker(){
-//   return ticker;
-// }
-
 const ticksData = async () => {
   const io = getIOValue();
   let isRedisConnected = getValue();
   ticker.on('ticks', async (ticks) => {
     let instrumentTokenArr;
     liveticks = ticks;
-    if (userId && isRedisConnected && await client.exists((userId)?.toString())) {
-      let instruments = await client.SMEMBERS((userId)?.toString())
-      const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
-      instrumentTokenArr = new Set();
 
-      parsedInstruments.forEach(obj => {
-        instrumentTokenArr.add(obj.instrumentToken);
-        instrumentTokenArr.add(obj.exchangeInstrumentToken);
-      });
-    }
+    // console.log("userId", userId)
 
-    if (indecies.length) {
-      let indexObj = {};
-      // populate hash table with indexObj from indecies
-      for (let i = 0; i < indecies?.length; i++) {
-        indexObj[indecies[i]?.instrumentToken] = true;
+    for(let userId of userIdArr){
+      console.log("userId", userId)
+      if (userId && isRedisConnected && await client.exists((userId)?.toString())) {
+        let instruments = await client.SMEMBERS((userId)?.toString())
+        const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
+        instrumentTokenArr = new Set();
+  
+        parsedInstruments.forEach(obj => {
+          instrumentTokenArr.add(obj.instrumentToken);
+          instrumentTokenArr.add(obj.exchangeInstrumentToken);
+        });
       }
-      indexData = ticks.filter(function (item) {
-        return indexObj[item.instrument_token];
-      });
-
-      try {
-        if (indexData?.length > 0) {
-          io.to(`${userId}`).emit('index-tick', indexData)
+  
+      if (indecies.length) {
+        let indexObj = {};
+        // populate hash table with indexObj from indecies
+        for (let i = 0; i < indecies?.length; i++) {
+          indexObj[indecies[i]?.instrumentToken] = true;
         }
-      } catch (err) {
-        console.log(err)
-      }
-    }
-
-    if (instrumentTokenArr) {
-      filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
-
-      try {
-        if (filteredTicks.length > 0) {
-          io.to(`${userId}`).emit('tick-room', filteredTicks);
+        indexData = ticks.filter(function (item) {
+          return indexObj[item.instrument_token];
+        });
+  
+        try {
+          if (indexData?.length > 0) {
+            io.to(`${userId}`).emit('index-tick', indexData)
+          }
+        } catch (err) {
+          console.log(err)
         }
-      } catch (err) {
-        console.log(err)
+      }
+  
+      if (instrumentTokenArr) {
+        filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
+  
+        try {
+          if (filteredTicks.length > 0) {
+            io.to(`${userId}`).emit('tick-room', filteredTicks);
+          }
+        } catch (err) {
+          console.log(err)
+        }
       }
     }
+
 
     io.to(`company-side`).emit('tick', ticks);
   });
@@ -243,9 +246,10 @@ const getTicksForUserPosition = async (socket, id) => {
 
       try {
         // let instrumentTokenArr;
-        // let userI
+        let userId;
         if (isRedisConnected) {
           userId = await client.get(socket.id);
+          userIdArr.push(userId.toString());
         }
         // console.log(isRedisConnected)
         if (isRedisConnected && await client.exists((userId)?.toString())) {
