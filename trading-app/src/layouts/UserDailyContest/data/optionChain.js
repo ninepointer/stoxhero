@@ -94,11 +94,11 @@ const OptionChain = ({ socket, data }) => {
         }
     }, [selectIndex, open])
 
-    useEffect(() => {
-        return () => {
-          socket?.close();
-        }
-    }, []);
+    // useEffect(() => {
+    //     return () => {
+    //       socket?.close();
+    //     }
+    // }, []);
 
     const handleClickOpen = async () => {
         setOpen(true);

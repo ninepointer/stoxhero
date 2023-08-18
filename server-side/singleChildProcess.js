@@ -131,6 +131,7 @@ async function singleProcess() {
 
 
             socket.on('company-ticks', async (data) => {
+                socket.join("company-side")
                 console.log("in company-ticks event")
                 if (setting?.ltp == zerodhaAccountType || setting?.complete == zerodhaAccountType) {
                     await getTicksForCompanySide(socket);

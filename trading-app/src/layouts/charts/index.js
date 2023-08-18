@@ -40,7 +40,7 @@ const Index = () => {
       // console.log('history', convertData(data.Result));
     });
 
-    const getHistory = () => {
+    function getHistory() {
       // console.log('calling getHistory', period, timeFrame);
       socket.emit('GetHistory', {
         MessageType: 'GetHistory',
@@ -54,7 +54,7 @@ const Index = () => {
     }
 
     // console.log("period", period, timeFrame)
-    const getLive = () => {
+    function getLive(){
       socket.emit('SubscribeRealtime', {
         MessageType: 'SubscribeRealtime',
         Exchange: 'NFO',
@@ -104,7 +104,7 @@ const Index = () => {
 
     return () => {
       clearTimeout(timeoutId);
-      socket.disconnect();
+      // socket.disconnect();
     };
   }, [minuteTimeframe]);
 

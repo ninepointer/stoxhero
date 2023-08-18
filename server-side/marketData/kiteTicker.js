@@ -14,7 +14,7 @@ const {xtsAccountType, zerodhaAccountType} = require("../constant");
 
 
 let ticker;
-// let ticks = [];
+let liveticks = [];
 let indecies = [];
 // let instrumentTokenArr ;
 let userId;
@@ -41,7 +41,7 @@ const ticksData = async () => {
   let isRedisConnected = getValue();
   ticker.on('ticks', async (ticks) => {
     let instrumentTokenArr;
-
+    liveticks = ticks;
     if (userId && isRedisConnected && await client.exists((userId)?.toString())) {
       let instruments = await client.SMEMBERS((userId)?.toString())
       const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
@@ -52,7 +52,6 @@ const ticksData = async () => {
         instrumentTokenArr.add(obj.exchangeInstrumentToken);
       });
     }
-
 
     if (indecies.length) {
       let indexObj = {};
@@ -84,6 +83,8 @@ const ticksData = async () => {
         console.log(err)
       }
     }
+
+    io.to(`company-side`).emit('tick', ticks);
   });
 }
 
@@ -311,7 +312,7 @@ const getTicksForCompanySide = async (socket) => {
   // ticker.on('ticks', async (ticks) => {
     try {
       
-      socket.emit('tick', ticks);
+      socket.emit('tick', liveticks);
       // ticks = null;
     } catch (err) {
       console.log(err)

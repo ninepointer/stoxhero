@@ -95,8 +95,6 @@ function StockIndexDailyContest({ socket }) {
         <>
             {finalArr.map((e) => {
                 return (
-
-
                     <Grid item xs={12} md={6} lg={3}>
                         <MDButton style={{ minWidth: '100%' }}>
                             <MDBox display='flex' alignItems='center'>
