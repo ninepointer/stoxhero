@@ -643,10 +643,11 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
         if((req).incomeProofDocumentUrl) filteredBody.incomeProofDocument = (req).incomeProofDocumentUrl;
         for(key of Object.keys(filteredBody)){
-          if(filteredBody[key]=='undefined'){
+          if(filteredBody[key]=='undefined' || filteredBody[key]=='null'){
             filteredBody[key]=""
           }
         }
+        console.log('body',filteredBody)
         const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
     
         res.status(200).json({message:'Edit successful',status:'success',data: userData});

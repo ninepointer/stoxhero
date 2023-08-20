@@ -23,6 +23,9 @@ const Authenticate = async (req, res, next) => {
         if (isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)) {
             user = await client.get(`${verifyToken._id.toString()}authenticatedUser`);
             user = JSON.parse(user);
+            if(user?.role?.toString()=='644903ac236de3fd7cfd755c'){
+                return res.status(400).json({status:'error', message:'Invalid request'});
+            }
             user._id = new ObjectId(user._id);
             await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 180);
             if(new Date(user?.passwordChangedAt)>new Date(verifyToken?.iat)){
@@ -35,6 +38,9 @@ const Authenticate = async (req, res, next) => {
 
             if (!user) { 
                 return res.status(404).json({ status: 'error', message: 'User not found' });
+            }
+            if(user?.role?.toString()=='644903ac236de3fd7cfd755c'){
+                return res.status(400).json({status:'error', message:'Invalid request'});
             }
             if (user.changedPasswordAfter(verifyToken.iat)) {
                 return res.status(401).send({ status: "error", message: "User recently changed password! Please log in again." });
