@@ -13,7 +13,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 import { TextField, Typography } from '@mui/material';
-import paymentQr from '../../../assets/images/paymentQr.jpeg';
+import paymentQr from '../../../assets/images/paymentQrc.jpg';
 import { userContext } from '../../../AuthContext';
 import MDTypography from '../../../components/MDTypography';
 // import MDTypography from '../../../components/MDTypography';

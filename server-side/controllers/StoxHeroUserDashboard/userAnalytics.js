@@ -1167,7 +1167,7 @@ exports.getOverallRevenue = async (req, res) => {
       const pipeline = [
           {
               $match: {
-                  withdrawalSettlementDate: {
+                  withdrawalRequestDate: {
                       $gte: startDate,
                       ...(endDate && { $lt: endDate })
                   }

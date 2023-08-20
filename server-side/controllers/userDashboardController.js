@@ -954,7 +954,7 @@ exports.getUserSummary = async(req,res,next) => {
             }
         }).select('subscriptions');
         let totalTenXPortfolioValue = user.subscription.reduce((total, subscription) => {
-            return total + subscription.subscriptionId.portfolio.portfolioValue;
+            return total + subscription?.subscriptionId?.portfolio?.portfolioValue;
           }, 0);
         // console.log('user data', virtualData, tenxData, contestData, user);
         res.status(200).json({status:'success', data:{totalTenXPortfolioValue, tenxData: tenxData[0]??{}, virtualData:virtualData[0]??{}, contestReturn, tenxReturn}});

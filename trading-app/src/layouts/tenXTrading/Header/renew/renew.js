@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-import paymentQr from '../../../../assets/images/paymentQr.jpeg';
+import paymentQr from '../../../../assets/images/paymentQrc.jpg';
 
 //icons
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';

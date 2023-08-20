@@ -118,6 +118,13 @@ router.patch("/verifyotp", async (req, res) => {
         })
     }
 
+    if(await User.findOne({mobile:user?.mobile})){
+        return res.status(400).json({
+            status: 'error',
+            message: "Account already exists with this mobile number."
+        })
+    }
+
 
     let referredBy;
     let campaign;

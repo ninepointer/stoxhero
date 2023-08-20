@@ -643,7 +643,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
         if((req).incomeProofDocumentUrl) filteredBody.incomeProofDocument = (req).incomeProofDocumentUrl;
         for(key of Object.keys(filteredBody)){
-          if(filteredBody[key]=='undefined'){
+          if(filteredBody[key]=='undefined' || filteredBody[key] == 'null'){
             filteredBody[key]=""
           }
         }
