@@ -15,13 +15,9 @@ const paperTrade = new mongoose.Schema({
         type: String,
         // required: true
     },
-    // createdBy:{
-    //     type: String,
-    //     required : true
-    // },
     average_price:{
         type: Number,
-        // required: true
+        required: true
     },
     Quantity:{
         type: Number,
@@ -35,10 +31,6 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    // order_timestamp:{
-    //     type: String,
-    //     required: true
-    // },
     variety:{
         type: String,
         required: true
@@ -63,12 +55,9 @@ const paperTrade = new mongoose.Schema({
         type: String,
         required: true
     },
-    // userId:{
-    //     type: String,
-    //     required: true        
-    // },
     brokerage:{
-        type: Number,        
+        type: Number,  
+        required: true      
     },
     instrumentToken:{
         type: Number, 
@@ -78,35 +67,33 @@ const paperTrade = new mongoose.Schema({
         type: Number,
         required : true
     },
-    // tradeBy:{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'user-personal-detail',      
-    // },
     amount:{
         type: Number,
-        // required: true        
+        required: true        
     },
     trade_time:{
         type: Date,
-        // required: true        
+        required: true        
     },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
-        // required : true
+        required : true
     },
     createdOn:{
         type: Date,
-        default: ()=>new Date()
+        default: ()=>new Date(),
+        required: true
     },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true
     },
     portfolioId:{
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio',
-        // required : true
+        required : true
     }
 })
 

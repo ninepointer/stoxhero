@@ -1,14 +1,5 @@
 import { React, useState, useEffect, useContext, useCallback, useMemo } from "react";
-// import axios from "axios";
-// import { Link } from "react-router-dom";
-// import { userContext } from '../../../AuthContext';
-// import moment from 'moment'
 
-// // prop-types is a library for typechecking of props.
-// import PropTypes from "prop-types";
-// import tradesicon from '../../../assets/images/tradesicon.png'
-
-// @mui material components
 import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
@@ -19,60 +10,62 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-// import { InfinityTraderRole, tenxTrader } from "../../../variables";
-// import ContestCup from '../../../assets/images/candlestick-chart.png'
-// import ContestCarousel from '../../../assets/images/target.png'
-// import Timer from '../timer'
-// import ProgressBar from "../progressBar";
-// import { HiUserGroup } from 'react-icons/hi';
 import AMargin from '../../../assets/images/amargin.png'
 import Profit from '../../../assets/images/profit.png'
 import Tcost from '../../../assets/images/tcost.png'
-import Chain from '../../../assets/images/chain.png'
-import Nifty from '../../../assets/images/niftycharticon.png'
-import BNifty from '../../../assets/images/bniftycharticon.png'
-import FNifty from '../../../assets/images/fniftycharticon.png'
+// import Chain from '../../../assets/images/chain.png'
+// import Nifty from '../../../assets/images/niftycharticon.png'
+// import BNifty from '../../../assets/images/bniftycharticon.png'
+// import FNifty from '../../../assets/images/fniftycharticon.png'
 
-import { Divider } from "@mui/material";
-import OptionChain from "./optionChain";
+// import { Divider } from "@mui/material";
+// import OptionChain from "./optionChain";
 import { NetPnlContext } from "../../../PnlContext";
 import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { dailyContest } from '../../../variables';
-import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
+// import DailyContestMargin from '../../tradingCommonComponent/MarginDetails/DailyContestMargin';
 import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/StockIndexDailyContest";
 import Leaderboard from '../data/dailyContestLeaderboard'
 import DailyContestMyRank from '../data/dailyContestMyRank'
 // import { NetPnlContext } from '../../../PnlContext';
 import {useNavigate} from "react-router-dom"
-
+import PnlAndMarginData from "../../UserDailyContest/data/pnlAndMarginData";
+import OptionChain from "../../UserDailyContest/data/optionChain";
+// import { userContext } from "../../../AuthContext";
 
 
 function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [yesterdayData, setyesterdayData] = useState({});
     const [availbaleMargin, setAvailbleMargin] = useState([]);
-    const [portfolio, setPortfolio] = useState();
-    // const [showOption, setShowOption] = useState(false);
+    const [watchList, setWatchList] = useState([]);
     const pnl = useContext(NetPnlContext);
-    let contestId = data?.data;
     const navigate = useNavigate();
-
+    // const [myRank, setMyRank] = useState(0);
+    // const getDetails = useContext(userContext)
+    let contestId = data?.data;
     let endTime = data?.endTime;
     useEffect(() => {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
-            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
-                navigate(`/collegecontest/result`, {
+                navigate(`/contest/result`, {
                     state: { contestId: contestId}
                 })
             }
         });
     }, []);
 
+    // useEffect(()=>{
+    //     socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
+    //         setMyRank(data);
+    //       console.log("this is leaderboard data", data)
+    //     })
+    // }, [])
 
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
@@ -97,8 +90,9 @@ function Header({ socket, data }) {
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
           contestData={data}
+          watchList={watchList}
         />;
-      }, [data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+      }, [watchList, data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
     
       const memoizedInstrumentDetails = useMemo(() => {
         return <WatchList
@@ -108,8 +102,9 @@ function Header({ socket, data }) {
           from={dailyContest}
           subscriptionId={contestId}
           contestData={data}
+          setWatchList={setWatchList}
         />;
-      }, [data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+      }, [setWatchList, data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
     
       const memoizedOverallPnl = useMemo(() => {
         return <OverallPnl
@@ -130,7 +125,7 @@ function Header({ socket, data }) {
             <MDBox color="dark" mt={2} mb={1} borderRadius={10} minHeight='80vH'>
                 <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
-                        <Grid container spacing={1} xs={12} md={12} lg={12}>
+                        {/* <Grid container spacing={1} xs={12} md={12} lg={12}>
                             <Grid item xs={12} md={6} lg={3}>
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
@@ -167,7 +162,8 @@ function Header({ socket, data }) {
                                     </MDBox>
                                 </MDButton>
                             </Grid>
-                        </Grid>
+                        </Grid> */}
+                        <PnlAndMarginData contestId={contestId} />
                     </MDBox>
                 </MDBox>
 
@@ -216,11 +212,11 @@ function Header({ socket, data }) {
                     </Grid>
                 </Grid>
 
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid spacing={-4} item xs={12} md={6} lg={12} >
                         <DailyContestMargin contestId={contestId} availbaleMargin={availbaleMargin} setyesterdayData={setyesterdayData} />
                     </Grid>
-                </Grid>
+                </Grid> */}
             </MDBox>
         </>
     );

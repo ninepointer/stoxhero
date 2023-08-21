@@ -94,7 +94,7 @@ exports.getTradeInformation = async (req, res) => {
     // Create a date-wise mapping of DAUs for different products
     const dateWiseTradeInformation = {};
 
-    console.log(virtualTraders)
+    // console.log(virtualTraders)
     const response = {
       status: "success",
       message: "Contest Scoreboard fetched successfully",
@@ -713,7 +713,7 @@ exports.getRollingActiveUsersOnPlatform = async (req, res) => {
     startOfYesterday.setUTCHours(0, 0, 0, 0);
     const endOfYesterday = new Date(startOfToday - 1); // Get end of yesterday
     // endOfYesterday.setUTCHours(0, 0, 0, 0);
-    console.log("Days:",thirtyDaysAgo,startOfToday,startOfYesterday,endOfYesterday)
+    // console.log("Days:",thirtyDaysAgo,startOfToday,startOfYesterday,endOfYesterday)
     const sevenDaysAgo = new Date(new Date().setDate(new Date().getDate()-7));
     sevenDaysAgo.setUTCHours(0, 0, 0, 0);
     const sevenDaysAgoBasedOnYesterday = new Date(yesterday.setDate(yesterday.getDate()-7));

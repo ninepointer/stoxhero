@@ -60,15 +60,14 @@ exports.newTrade = async (req, res, next) => {
   let trade_time = "";
   try{
       
-    //console.log("above")
-      let liveData = await singleLivePrice(exchange, symbol)
-      console.log(liveData)
-      for(let elem of liveData){
-          if(elem.instrument_token == instrumentToken){
-              newTimeStamp = elem.timestamp;
-              originalLastPriceUser = elem.last_price;
-          }
-      }
+      // let liveData = await singleLivePrice(exchange, symbol)
+      // console.log(liveData)
+      // for(let elem of liveData){
+      //     if(elem.instrument_token == instrumentToken){
+      //         newTimeStamp = elem.timestamp;
+      //         originalLastPriceUser = elem.last_price;
+      //     }
+      // }
       trade_time = new Date(newTimeStamp);
 
 
@@ -281,14 +280,14 @@ exports.takeAutoTrade = async (tradeDetails, contestId) => {
   try{
       
     //console.log("above")
-      let liveData = await singleLivePrice(exchange, symbol)
-      // //console.log(liveData)
-      for(let elem of liveData){
-          if(elem.instrument_token == instrumentToken){
-              newTimeStamp = elem.timestamp;
-              originalLastPriceUser = elem.last_price;
-          }
-      }
+      // let liveData = await singleLivePrice(exchange, symbol)
+      // // //console.log(liveData)
+      // for(let elem of liveData){
+      //     if(elem.instrument_token == instrumentToken){
+      //         newTimeStamp = elem.timestamp;
+      //         originalLastPriceUser = elem.last_price;
+      //     }
+      // }
 
 
       trade_time = new Date(newTimeStamp);

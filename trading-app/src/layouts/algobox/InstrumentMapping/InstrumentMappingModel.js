@@ -53,7 +53,7 @@ const InstrumentMappingModel = ({Render}) => {
 
   async function formSubmit(e) {
     setFormData(formData);
-    console.log(formData)
+    // console.log(formData)
     const { incoming_instrument, incoming_instrument_code, outgoing_instrument, outgoing_instrument_code, status } = formData;
 
     const res = await fetch(`${baseUrl}api/v1/instrumentAlgo`, {
@@ -68,13 +68,13 @@ const InstrumentMappingModel = ({Render}) => {
     });
 
     const data = await res.json();
-    console.log(data);
+    // console.log(data);
     if (data.status === 422 || data.error || !data) {
         window.alert(data.error);
-        console.log("invalid entry");
+        // console.log("invalid entry");
     } else {
         window.alert("entry succesfull");
-        console.log("entry succesfull");
+        // console.log("entry succesfull");
     }
     reRender ? setReRender(false) : setReRender(true)
     setOpen(false);

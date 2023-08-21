@@ -13,7 +13,7 @@ import {AiOutlineLineChart} from 'react-icons/ai'
 
 
 function StockIndex({socket}) {
-    console.log("rendering : stock index")
+    // console.log("rendering : stock index")
     //console.log("rendering stock index")
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [indexData, setIndexData] = useState([]);

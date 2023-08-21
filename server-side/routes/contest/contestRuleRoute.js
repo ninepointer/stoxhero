@@ -9,12 +9,12 @@ const User = require("../../models/User/userDetailSchema")
 
 router.post("/contestrule",authentication, async (req, res)=>{
 
-    console.log(req.body);
+    // console.log(req.body);
     // const id = req.user;
 
     try{
         let {ruleName, status} = req.body;
-        console.log(req.body)
+        // console.log(req.body)
         const id = req.user._id;
 
         if(!ruleName || !status){

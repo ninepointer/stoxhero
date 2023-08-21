@@ -29,7 +29,7 @@ const ContestRules = () => {
       axios.get(`${baseUrl}api/v1/contestrule`)
       .then((res)=>{
                 setContestRules(res.data);
-                console.log(res.data)
+                // console.log(res.data)
         }).catch((err)=>{
           return new Error(err);
       })
@@ -67,7 +67,7 @@ const ContestRules = () => {
     rows.push(contestRule)
   })
 
-      console.log(rows)
+      // console.log(rows)
 
     return (
     <>

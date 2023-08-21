@@ -84,7 +84,7 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
 
     useEffect(()=>{
       socket.on(`${(getDetails.userDetails._id).toString()}autoCut`, (data)=>{
-        console.log("in the pnl event", data)
+        // console.log("in the pnl event", data)
         setTimeout(()=>{
           setTrackEvent(data);
         })
@@ -102,7 +102,7 @@ function OverallGrid({socket, setIsGetStartedClicked, from, subscriptionId}) {
     }, [])
 
 
-    console.log("tradeData", tradeData, marketDetails.marketData)
+    // console.log("tradeData", tradeData, marketDetails.marketData)
 
     tradeData.map((subelem, index)=>{
       let obj = {};

@@ -1,5 +1,5 @@
 import { React, useState, useEffect, useContext } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
@@ -21,23 +21,21 @@ import Timer from '../timer'
 import ProgressBar from "../progressBar";
 import { HiUserGroup } from 'react-icons/hi';
 
-import { Box, CircularProgress, Divider, Tooltip, Typography } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
-function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
+function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    const [serverTime, setServerTime] = useState();
-    const [loading, setIsLoading] = useState(true);
 
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
-      }, []);
+    }, []);
 
     const initialInterestedCounts = contest.reduce((acc, elem) => {
         acc[elem._id] = {
@@ -47,15 +45,6 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
         return acc;
     }, {});
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
-
-    // const initialPayment = contest.reduce((acc, elem) => {
-    //     acc[elem._id] = {
-    //         payment: false,
-    //         count: elem?.interestedUsers?.length || 0,
-    //     };
-    //     return acc;
-    // }, {});
-    // const [paymentState, setPaymentState] = useState(initialPayment);
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/contest'
@@ -78,35 +67,6 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
         });
     };
 
-    useEffect(() => {
-        if (serverTime) {
-            setTimeout(() => {
-                setIsLoading(false)
-            }, 1000)
-        }
-    }, [serverTime])
-
-    useEffect(() => {
-        axios.get(`${baseUrl}api/v1/servertime`)
-            .then((res) => {
-                setServerTime(res.data.data);
-            })
-    }, [])
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            axios.get(`${baseUrl}api/v1/servertime`)
-                .then((res) => {
-                    console.log("server time", res.data.data)
-                    setServerTime(res.data.data);
-                });
-        }, 5000);
-
-        return () => {
-            clearInterval(interval);
-        };
-    }, []);
-
     function changeDateFormat(givenDate) {
 
         const date = new Date(givenDate);
@@ -118,7 +78,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
         // Format the date as "dd Month yyyy | hh:mm AM/PM"
         const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
 
-        console.log(formattedDate);
+        // console.log(formattedDate);
 
         // Helper function to get the month name
         function getMonthName(month) {
@@ -183,6 +143,8 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
         />
     );
 
+    // console.log("timediffrence", timeDifference)
+
     return (
         <>
             <MDBox display='flex' justifyContent='center'>
@@ -221,7 +183,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                         return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
                                     })
 
-                                    // console.log("timeDifference", particularContestTime[0]?.value )
+                                    // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                                     return (
                                         <Grid item xs={12} md={12} lg={6} borderRadius={3}>
                                             <MDButton variant="contained" style={{ backgroundColor: "#252525" }} color={"#252525"} size="small">
@@ -262,7 +224,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                {!loading && <Timer elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />}
+                                                                <Timer socket={socket} elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} />
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -279,7 +241,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                                            <ProgressBar progress={progressBar} />
+                                                            <ProgressBar entryFee={elem?.entryFee} progress={progressBar} />
                                                         </MDBox>
                                                     </Grid>
 
@@ -326,8 +288,6 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
-
-
                                                 </Grid>
                                             </MDButton>
 

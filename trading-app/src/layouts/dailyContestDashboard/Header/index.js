@@ -160,11 +160,11 @@ export default function LabTabs({socket}) {
     // })
   }, [trackEvent])
 
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+//   useEffect(() => {
+//     return () => {
+//         socket.close();
+//     }
+//   }, [])
 
 //   const [mockMarginData, setMockMarginData] = useState();
 //   const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);

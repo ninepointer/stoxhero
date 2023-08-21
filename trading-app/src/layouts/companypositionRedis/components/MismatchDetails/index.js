@@ -89,11 +89,11 @@ function MismatchDetails({socket}) {
     })
   }, [])
 
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       socket.close();
+  //   }
+  // }, [])
 
 
   // console.log("Open Position Data: ",OpenPositionData, tradeData)

@@ -11,6 +11,7 @@ import axios from "axios";
 // import Header from "./Header";
 import { userContext } from "../../../AuthContext";
 import TenXTrading from "./tradePart";
+import { socketContext } from "../../../socketContext";
 
 function TradeViewTenX() {
   console.log("rendering in userPosition: infinity")
@@ -21,6 +22,7 @@ function TradeViewTenX() {
   console.log("subscriptionId", subscriptionId)
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradingDayData, setTradingDayData] = useState([]);
+  const socket = useContext(socketContext);
 
   useEffect(()=>{
 
@@ -51,18 +53,22 @@ function TradeViewTenX() {
     return () => abortController.abort();
   }, [])
 
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
 
   useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id)
-    })
+    // socket.on("connect", () => {
+    //   console.log("socket is connected 3rd")
+    //   socket.emit('userId', getDetails.userDetails._id)
+    //   socket.emit("user-ticks", getDetails.userDetails._id)
+    // })
+    socket.emit('userId', getDetails.userDetails._id)
+    socket.emit("user-ticks", getDetails.userDetails._id)
+
     ReactGA.pageview(window.location.pathname)
   }, []);
 

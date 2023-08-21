@@ -44,7 +44,7 @@ const marginApi = async (tradeData, quantity) => {
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
             zerodhaMargin = marginData.data.data.orders[0].total;
 
-            console.log("zerodhaMargin", zerodhaMargin);
+            // console.log("zerodhaMargin", zerodhaMargin);
         } catch (e) {
             console.log("error fetching zerodha margin", e);
         }
@@ -422,7 +422,7 @@ exports.marginCalculationCompanyLive = async (marginData, data, ltp, order_id, i
     let {Quantity, userQuantity, symbol, realBuyOrSell, realQuantity, trader, autoTrade, buyOrSell} = data;
     let {isReleaseFund, isAddMoreFund, isSquareOff, zerodhaMargin, runningLots} = marginData;
 
-    console.log("data is", data, marginData)
+    // console.log("data is", data, marginData)
     if(autoTrade && realBuyOrSell === "SELL"){
         runningLots = -runningLots;
     }

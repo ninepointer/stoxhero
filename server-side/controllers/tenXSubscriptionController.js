@@ -20,14 +20,14 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.createTenXSubscription = async(req, res, next)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const{
         plan_name, actual_price, discounted_price, features, validity, validityPeriod,
-        status, portfolio, profitCap } = req.body;
+        status, portfolio, profitCap, allowPurchase, allowRenewal } = req.body;
     if(await TenXSubscription.findOne({plan_name, status: "Active" })) return res.status(400).json({message:'This subscription already exists.'});
 
     const tenXSubs = await TenXSubscription.create({plan_name:plan_name.trim(), actual_price, discounted_price, features, validity, validityPeriod,
-        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap});
+        status, createdBy: req.user._id, lastModifiedBy: req.user._id, portfolio, profitCap, allowPurchase, allowRenewal});
     
     res.status(201).json({message: 'TenX Subscription successfully created.', data:tenXSubs});
 }
@@ -39,13 +39,13 @@ exports.editTanx = async(req, res, next) => {
     const tenx = await TenXSubscription.findById(id);
 
     const filteredBody = filterObj(req.body, "plan_name", "actual_price", "discounted_price", "validity", "validityPeriod", 
-        "status", "profitCap", "portfolio");
+        "status", "profitCap", "portfolio", "allowPurchase", "allowRenewal");
     if(req.body.features)filteredBody.features=[...tenx.features,
         {orderNo:req.body.features.orderNo,
             description:req.body.features.description,}]
     filteredBody.lastModifiedBy = req.user._id;    
 
-    console.log(filteredBody)
+    // console.log(filteredBody)
     const updated = await TenXSubscription.findByIdAndUpdate(id, filteredBody, { new: true });
 
     res.status(200).json({message: 'Successfully edited tenx.', data: updated});
@@ -55,7 +55,7 @@ exports.editFeature = async(req, res, next) => {
     const id = req.params.id;
     const {orderNo, description} = req.body;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const updated = await TenXSubscription.findOneAndUpdate(
         { "features._id": id }, // filter to match the feature object with the given _id
         {
@@ -74,7 +74,7 @@ exports.removeFeature = async(req, res, next) => {
     const id = req.params.id;
     // const {orderNo, description} = req.body;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const updatedDoc = await TenXSubscription.findOneAndUpdate(
         { "features._id": id }, // filter to match the feature object with the given _id
         {
@@ -88,7 +88,7 @@ exports.removeFeature = async(req, res, next) => {
 
 exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
-        const tenXSubs = await TenXSubscription.find({status: "Active"})
+        const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal')
         .populate('portfolio', 'portfolioName portfolioValue')
         .sort({$natural: 1})
         
@@ -98,6 +98,34 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }     
 };
+
+exports.getAdminActiveTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
+      .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({$natural: 1})
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.getAllTenXSubs = async(req, res, next)=>{
+  try{
+      const tenXSubs = await TenXSubscription.find().select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
+      .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({$natural: 1})
+      
+      res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+// {trader: ObjectId('648fe5463a4a89e10e1f367e'), subscriptionId: ObjectId('645cc7162f0bba5a7a3ff40a'), status: "COMPLETE", trade_time: {$gte: new Date("2023-07-09"), $lt: new Date("2023-07-11")}}
 
 exports.getInactiveTenXSubs = async(req, res, next)=>{
   try{
@@ -139,12 +167,12 @@ exports.getTenXSubscription = async(req, res, next)=>{
 };
 
 exports.createTenXPurchaseIntent = async(req, res, next)=>{
-  console.log(req.body)
+  // console.log(req.body)
   try{
   const{ purchase_intent_by, tenXSubscription } = req.body;
 
   const tenXPurchaseIntent = await TenXPurchaseIntent.create({purchase_intent_by, tenXSubscription});
-  console.log(tenXPurchaseIntent)
+  // console.log(tenXPurchaseIntent)
   res.status(201).json({message: 'TenX Purchase Intent Captured Successfully.', data:tenXPurchaseIntent});
   }
   catch{(err)=>{res.status(401).json({message: "Something went wrong", error:err}); }}  
@@ -204,16 +232,18 @@ exports.renewSubscription = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
 
+      if(!tenXSubs.allowRenewal){
+        return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+      }
       const users = tenXSubs.users;
       const Subslen = tenXSubs.users.length;
-      // const payoutPercentage = 10;
       for (let j = 0; j < users.length; j++) {
         if(users[j].userId.toString() === userId.toString()){
           const status = users[j].status;
           const subscribedOn = users[j].subscribedOn;
 
           if(status === "Live"){
-            console.log(new Date(subscribedOn))
+            // console.log(new Date(subscribedOn))
   
             const user = await User.findOne({ _id: new ObjectId(userId) });
             let len = user.subscription.length;
@@ -223,7 +253,7 @@ exports.renewSubscription = async(req, res, next)=>{
                 user.subscription[k].status = "Expired";
                 user.subscription[k].expiredOn = new Date();
                 user.subscription[k].expiredBy = "User";
-                console.log("this is user", user)
+                // console.log("this is user", user)
                 await user.save();
                 break;
               }
@@ -234,7 +264,7 @@ exports.renewSubscription = async(req, res, next)=>{
                 tenXSubs.users[k].status = "Expired";
                 tenXSubs.users[k].expiredOn = new Date();
                 tenXSubs.users[k].expiredBy = "User";
-                console.log("this is tenXSubs", tenXSubs)
+                // console.log("this is tenXSubs", tenXSubs)
                 await tenXSubs.save();
                 break;
               }
@@ -243,16 +273,14 @@ exports.renewSubscription = async(req, res, next)=>{
         }
       }
 
-      console.log("all three", subscriptionAmount, subscriptionName, subscriptionId)
+      // console.log("all three", subscriptionAmount, subscriptionName, subscriptionId)
         
       for(let i = 0; i < tenXSubs.users.length; i++){
           if(tenXSubs.users[i].userId.toString() == userId.toString() && tenXSubs.users[i].status == "Live"){
-              console.log("getting that user")
               return res.status(404).json({status:'error', message: 'Something went wrong.'});
           }
       }
 
-      console.log("outside of for loop")
 
       const wallet = await Wallet.findOne({userId: userId});
       wallet.transactions = [...wallet.transactions, {
@@ -398,6 +426,25 @@ exports.renewSubscription = async(req, res, next)=>{
       }
       
       res.status(201).json({status: 'success', message: 'Subscription renewed successfully.'});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }     
+};
+
+exports.myActiveSubsciption = async(req, res, next)=>{
+  const userId = req.user._id;
+  try{
+      const userData = await User.findOne({_id: new ObjectId(userId)})
+      let mySubs = [];
+      for(let elem of userData.subscription){
+        if(elem.status === "Live"){
+          mySubs.push(elem.subscriptionId);
+        }
+      }
+      const tenXSubs = await TenXSubscription.find({_id: {$in: mySubs}})
+      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features allowPurchase allowRenewal").populate('portfolio', 'portfolioName portfolioValue')      
+      res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
       console.log(e);
       res.status(500).json({status: 'error', message: 'Something went wrong'});

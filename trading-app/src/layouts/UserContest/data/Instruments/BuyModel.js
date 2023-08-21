@@ -212,7 +212,7 @@ const BuyModel = ({setBuyState, exchange, symbol, instrumentToken, symbolName, l
     if(value === "complete"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
-        messageObj.title = "Trade Successfull";
+        messageObj.title = "Trade Successful";
         messageObj.content = `Traded ${content.Quantity} of ${content.symbol}`;
 
     };

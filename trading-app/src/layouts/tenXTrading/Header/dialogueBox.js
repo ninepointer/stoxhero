@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-import paymentQr from '../../../assets/images/paymentQr.jpeg';
+import paymentQr from '../../../assets/images/paymentQrc.jpg';
 
 //icons
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -21,9 +21,9 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 // import CardActions from '@mui/material/CardActions';
 // import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-import MDTypography from '../../../components/MDTypography';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {BiCopy} from 'react-icons/bi'
+// import MDTypography from '../../../components/MDTypography';
+// import { CopyToClipboard } from 'react-copy-to-clipboard';
+// import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from '../../../components/MDSnackbar';
 import {useNavigate} from 'react-router-dom';
 import { Typography } from '@mui/material';
@@ -33,7 +33,7 @@ import Renew from './renew/renew';
 
 
 
-export default function Dialogue({amount, name, id, walletCash}) {
+export default function Dialogue({amount, name, id, walletCash, setCheckPayment, checkPayment, allowRenewal}) {
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -48,11 +48,9 @@ export default function Dialogue({amount, name, id, walletCash}) {
   const navigate = useNavigate();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-  const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
+  // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(()=>{
-
-    console.log("in useEffect")
 
     axios.get(`${baseUrl}api/v1/loginDetail`, {
       withCredentials: true,
@@ -64,12 +62,10 @@ export default function Dialogue({amount, name, id, walletCash}) {
     })
     .then((res)=>{
       setUpdatedUser(res.data);
-      console.log("subscribed", res.data)
       let subscribed = (res.data?.subscription)?.filter((elem)=>{
         return (elem?.subscriptionId?._id)?.toString() === (id)?.toString() && elem?.status === "Live";
       })
 
-      console.log("subscribed", subscribed)
       if(subscribed?.length > 0){
         setIsSubscribed(true);
       }
@@ -110,10 +106,10 @@ export default function Dialogue({amount, name, id, walletCash}) {
 
   const handleClose = () => {
     setOpen(false);
+    setCheckPayment(!checkPayment)
   };
 
   async function captureIntent(){
-    console.log(getDetails)
     handleClickOpen();
     const res = await fetch(`${baseUrl}api/v1/tenX/capturepurchaseintent`, {
         method: "POST",
@@ -132,6 +128,10 @@ export default function Dialogue({amount, name, id, walletCash}) {
     if(walletCash < amount){
       return;
     }
+
+    // if(!tenXSubs.allowRenewal){
+    //   return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
+    // }
     const res = await fetch(`${baseUrl}api/v1/userwallet/deduct`, {
       method: "PATCH",
       credentials: "include",
@@ -144,7 +144,6 @@ export default function Dialogue({amount, name, id, walletCash}) {
       })
     });
     const dataResp = await res.json();
-    console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
         openSuccessSB("error", dataResp.message)
     } else {
@@ -152,8 +151,8 @@ export default function Dialogue({amount, name, id, walletCash}) {
             ...messege,
             thanksMessege: "Congrats you have unlocked your TenX trading subscription"
         })
-        console.log(dataResp.data)
         setUpdatedUser(dataResp.data);
+        
         // openSuccessSB("success", dataResp.message)
     }
   }
@@ -169,7 +168,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
     if(value === "success"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
-        messageObj.title = "Successfull";
+        messageObj.title = "Successful";
         messageObj.content = content
     };
     if(value === "reject"){
@@ -218,14 +217,14 @@ export default function Dialogue({amount, name, id, walletCash}) {
     <>
         {isSubscribed ?
         <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
-          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
-          <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+          {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>}
         </MDBox>
         :
         messege.thanksMessege ?
         <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
-          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
-          <Renew amount={amount} name={name} id={id} walletCash={walletCash} />
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
+          {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} />}
         </MDBox>
         :
         <MDBox>

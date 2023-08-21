@@ -39,7 +39,7 @@ export default function DailyContestOrders() {
         }
     })
       .then((res)=>{
-          console.log(res.data)
+          // console.log(res.data)
           setData(res.data.data);
           // setCount(res.data.count);
           setIsLoading(false)
@@ -52,6 +52,65 @@ export default function DailyContestOrders() {
       })
   },[])
 
+//   function backHandler(){
+//     if(skip <= 0){
+//         return;
+//     }
+//     setSkip(prev => prev-limitSetting);
+//     setData([]);
+//     setIsLoading(true)
+//     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip-limitSetting}&limit=${limitSetting}`,{
+//         withCredentials: false,
+//         headers: {
+//             Accept: "application/json",
+//             "Content-Type": "application/json",
+//             "Access-Control-Allow-Credentials": false
+//         },
+//     })
+//     .then((res) => {
+//         console.log("Orders:",res.data)
+//         setData(res.data.data)
+//         setCount(res.data.count)
+//         setTimeout(()=>{
+//             setIsLoading(false)
+//           },500)
+//     }).catch((err) => {
+//         console.log(err)
+//         setIsLoading(false)
+//         return new Error(err);
+//     })
+//   }
+
+//   function nextHandler(){
+//     if(skip+limitSetting >= count){
+//       console.log("inside skip",count,skip+limitSetting)  
+//       return;
+//     }
+//     console.log("inside next handler")
+//     setSkip(prev => prev+limitSetting);
+//     setData([]);
+//     setIsLoading(true)
+//     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip+limitSetting}&limit=${limitSetting}`,{
+//         withCredentials: false,
+//         headers: {
+//             Accept: "application/json",
+//             "Content-Type": "application/json",
+//             "Access-Control-Allow-Credentials": false
+//         },
+//     })
+//     .then((res) => {
+//         console.log("orders",res.data)
+//         setData(res.data.data)
+//         setCount(res.data.count)
+//         setTimeout(()=>{
+//             setIsLoading(false)
+//           },500)
+//     }).catch((err) => {
+//         console.log(err)
+//         setIsLoading(false)
+//         return new Error(err);
+//     })
+//   }
 
   return (
 
@@ -62,14 +121,19 @@ export default function DailyContestOrders() {
           size='small'
           m={1}
           component={Link}
+          // disabled={timeDifference > 0}
           to={{
-              pathname: `/completedcollegecontests`,
+              pathname: `/completedcontests`,
           }}
+          // onClick={() => { participateUserToContest(elem) }}
       >
           <MDTypography color='warning' fontWeight='bold' fontSize={10}>BACK TO COMPLETED CONTEST</MDTypography>
       </MDButton>
       <Grid container mt={1}>
         <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>
+              {/* <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                <MDTypography color="light" fontSize={13} fontWeight="bold">Intern Name</MDTypography>
+              </Grid> */}
               <Grid item xs={12} md={2} lg={1.5}>
                 <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Contract</MDTypography>
               </Grid>

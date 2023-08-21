@@ -27,14 +27,14 @@ import PopupTrading from "../data/popupTrading";
 import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
-function Header({ contest, isInterested, setIsInterested, showPay, setShowPay }) {
+function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     // const [contest, setContest] = useState([]);
     // const [isInterested, setIsInterested] = useState(false);
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    const [serverTime, setServerTime] = useState();
-    const [loading, setIsLoading] = useState(true);
+    // const [serverTime, setServerTime] = useState();
+    // const [loading, setIsLoading] = useState(true);
     // const [showPay, setShowPay] = useState(true);
 
     const initialInterestedCounts = contest.reduce((acc, elem) => {
@@ -67,34 +67,34 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
         });
     };
 
-    useEffect(() => {
-        if (serverTime) {
-            setTimeout(() => {
-                setIsLoading(false)
-            }, 1000)
-        }
-    }, [serverTime])
+    // useEffect(() => {
+    //     if (serverTime) {
+    //         setTimeout(() => {
+    //             setIsLoading(false)
+    //         }, 1000)
+    //     }
+    // }, [serverTime])
 
-    useEffect(() => {
-        axios.get(`${baseUrl}api/v1/servertime`)
-            .then((res) => {
-                setServerTime(res.data.data);
-            })
-    }, [])
+    // useEffect(() => {
+    //     axios.get(`${baseUrl}api/v1/servertime`)
+    //         .then((res) => {
+    //             setServerTime(res.data.data);
+    //         })
+    // }, [])
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            axios.get(`${baseUrl}api/v1/servertime`)
-                .then((res) => {
-                    console.log("server time", res.data.data)
-                    setServerTime(res.data.data);
-                });
-        }, 5000);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         axios.get(`${baseUrl}api/v1/servertime`)
+    //             .then((res) => {
+    //                 console.log("server time", res.data.data)
+    //                 setServerTime(res.data.data);
+    //             });
+    //     }, 5000);
 
-        return () => {
-            clearInterval(interval);
-        };
-    }, []);
+    //     return () => {
+    //         clearInterval(interval);
+    //     };
+    // }, []);
 
     function changeDateFormat(givenDate) {
 
@@ -107,7 +107,7 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
         // Format the date as "dd Month yyyy | hh:mm AM/PM"
         const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
 
-        console.log(formattedDate);
+        // console.log(formattedDate);
 
         // Helper function to get the month name
         function getMonthName(month) {
@@ -252,7 +252,7 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                {!loading && <Timer elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} serverTime={serverTime} />}
+                                                                <Timer socket={socket} elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} />
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>
@@ -269,7 +269,7 @@ function Header({ contest, isInterested, setIsInterested, showPay, setShowPay })
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                                            <ProgressBar progress={progressBar} />
+                                                            <ProgressBar entryFee={elem?.entryFee} progress={progressBar} />
                                                         </MDBox>
                                                     </Grid>
 

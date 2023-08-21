@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {memo, useEffect, useState} from 'react';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import Dialog from '@mui/material/Dialog';
@@ -13,18 +13,18 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 import { Typography } from '@mui/material';
-import paymentQr from '../../../assets/images/paymentQr.jpeg';
-import MDTypography from '../../../components/MDTypography';
-import { userContext } from '../../../AuthContext';
-import { useNavigate } from 'react-router-dom';
-import ReactGA from "react-ga"
+import paymentQr from '../../../assets/images/paymentQrc.jpg';
+// import MDTypography from '../../../components/MDTypography';
+// import { userContext } from '../../../AuthContext';
+// import { useNavigate } from 'react-router-dom';
+// import ReactGA from "react-ga"
 
 
 
 
 
 
-export default function Payment({ elem, setShowPay, showPay }) {
+const Payment = ({ elem, setShowPay, showPay }) => {
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
   const [setting, setSetting] = useState([]);
@@ -33,58 +33,56 @@ export default function Payment({ elem, setShowPay, showPay }) {
     thanksMessege: "",
     error: ""
   })
-  // const getDetails = useContext(userContext);
-  // const navigate = useNavigate();
-
-  // const [showThanksMessage, setShowThanksMessage] = useState(false);
 
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/userwallet/my`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
-    .then((res) => {
+    if(open){
+      axios.get(`${baseUrl}api/v1/userwallet/my`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+      .then((res) => {
+  
+        const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
+          return transaction.transactionType === "Cash";
+        });
+        // console.log((res.data.data)?.transactions);
+  
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+          return total + transaction?.amount;
+        }, 0);
+  
+        setUserWallet(totalCashAmount.toFixed(2));
+        // console.log("totalCashAmount", totalCashAmount)
+  
+      }).catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      })
+  
+      axios.get(`${baseUrl}api/v1/readsetting`, {
+        withCredentials: true,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Credentials": true
+        },
+      })
+      .then((res) => {
+        setSetting(res?.data[0]);
+  
+      }).catch((err) => {
+        console.log("Fail to fetch data of user", err);
+      })
+    }
 
-      const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
-        return transaction.transactionType === "Cash";
-      });
-      console.log((res.data.data)?.transactions);
-
-      const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
-        return total + transaction?.amount;
-      }, 0);
-
-      setUserWallet(totalCashAmount.toFixed(2));
-      console.log("totalCashAmount", totalCashAmount)
-
-    }).catch((err) => {
-      console.log("Fail to fetch data of user", err);
-    })
-
-    axios.get(`${baseUrl}api/v1/readsetting`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true
-      },
-    })
-    .then((res) => {
-      setSetting(res?.data[0]);
-
-    }).catch((err) => {
-      console.log("Fail to fetch data of user", err);
-    })
-
-  }, [])
+  }, [open])
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -134,7 +132,7 @@ export default function Payment({ elem, setShowPay, showPay }) {
       })
     });
     const dataResp = await res.json();
-    console.log(dataResp);
+    // console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
       // openSuccessSB("error", dataResp.message)
       setMessege({
@@ -298,3 +296,5 @@ export default function Payment({ elem, setShowPay, showPay }) {
   );
 
 }
+
+export default memo(Payment);

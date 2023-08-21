@@ -41,7 +41,7 @@ exports.resizePhoto = (req, res, next) => {
     sharp(req.file.buffer).resize({width: 500, height: 500}).toBuffer()
     .then((resizedImageBuffer) => {
       req.file.buffer = resizedImageBuffer;
-      console.log("Resized:",resizedImageBuffer)
+    //   console.log("Resized:",resizedImageBuffer)
       next();
     })
     .catch((err) => {
@@ -71,8 +71,8 @@ exports.uploadToS3 = async(req, res, next) => {
     
     s3.upload((params)).promise()
       .then((s3Data) => {
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).uploadUrl = s3Data.Location;
         next();
       })
@@ -105,7 +105,7 @@ exports.approveKYC = async(req,res,next) => {
       user.KYCStatus = 'Approved';
       user.KYCActionDate = new Date();
       user.lastModified = new Date();
-      console.log('user',user?.dob);
+    //   console.log('user',user?.dob);
       await user.save({validateBeforeSave:false});
       if(process.env.PROD == 'true'){
         sendMail(user.email, 'KYC Approved - StoxHero', `

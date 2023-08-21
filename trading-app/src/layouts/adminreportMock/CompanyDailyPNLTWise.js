@@ -71,7 +71,7 @@ const TableTwo = () => {
     
     let tradername = [];
     let tradernpnl = [];
-    console.log("traderpnldata", traderpnldata)
+    // console.log("traderpnldata", traderpnldata)
     traderpnldata?.map((elem)=>{
     let tpnl = {}
     tradername.push(elem._id);

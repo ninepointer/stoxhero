@@ -10,7 +10,7 @@ exports.contestChecks = async(req,res,next) => {
         }
     
         let user = dailyContest.participants.filter((elem)=>{
-            console.log(userId, elem?.userId)
+            // console.log(userId, elem?.userId)
             return elem?.userId?.toString() === userId?.toString()
         })
 

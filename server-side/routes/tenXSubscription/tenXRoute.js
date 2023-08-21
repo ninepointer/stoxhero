@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const {createTenXSubscription, editTanx, getActiveTenXSubs, renewSubscription,
     getTenXSubscription, editFeature, getBeginnerSubscription, getIntermediateSubscription, 
-    getProSubscription, removeFeature, getTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, 
-    createTenXPurchaseIntent, getTenXSubscriptionPurchaseIntent} = require("../../controllers/tenXSubscriptionController");
+    getProSubscription, removeFeature, getAdminActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, 
+    createTenXPurchaseIntent, getAllTenXSubs, getTenXSubscriptionPurchaseIntent, myActiveSubsciption} = require("../../controllers/tenXSubscriptionController");
 const Authenticate = require('../../authentication/authentication');
 const tenXTradeRoute = require("../mockTrade/tenXTradeRoute")
 const {myTodaysTrade, myHistoryTrade, tradingDays, userSubscriptions} = require("../../controllers/tenXTradeController")
@@ -12,7 +12,10 @@ const restrictTo = require('../../authentication/authorization');
 // router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
 router.route('/create').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createTenXSubscription);
 router.route('/capturepurchaseintent').post(Authenticate, createTenXPurchaseIntent);
-router.route('/active').get(Authenticate, getActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs);
+router.route('/active').get(Authenticate, getActiveTenXSubs);
+router.route('/adminactive').get(Authenticate, getAdminActiveTenXSubs);
+router.route('/allsubscription').get(Authenticate, getAllTenXSubs);
+
 router.route('/inactive').get(Authenticate, getInactiveTenXSubs);
 router.route('/beginner').get(Authenticate, getBeginnerSubscription);
 router.route('/intermediate').get(Authenticate, getIntermediateSubscription);
@@ -23,7 +26,7 @@ router.route('/renew').patch(Authenticate, renewSubscription);
 router.route('/mySubscription').get(Authenticate, userSubscriptions);
 
 
-// router.route('/countTradingDays').get(Authenticate, tradingDays)
+router.route('/myactivesubscription').get(Authenticate, myActiveSubsciption)
 
 router.route('/subscriptionpurchaseintent/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getTenXSubscriptionPurchaseIntent);
 router.route('/draft').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftTenXSubs);

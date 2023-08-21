@@ -125,17 +125,17 @@ let totalRunningLots = 0;
   }, [marketData])
 
 
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       socket.close();
+  //   }
+  // }, [])
 
   tradeData.map((elem)=>{
       totalTransactionCost += Number(elem.brokerage);
   })
 
-  console.log("tradeData", tradeData)
+  // console.log("tradeData", tradeData)
   tradeData.map((subelem, index)=>{
     let obj = {};
     totalRunningLots += Number(subelem.lots)
@@ -281,7 +281,7 @@ const renderMenu = (
 );
 
 
-console.log("mock live view", rows)
+// console.log("mock live view", rows)
 
 return (
 <div>

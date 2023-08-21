@@ -93,3 +93,89 @@ async function test(){
 
 module.exports = test;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[
+  // {
+  //   "symbol": "NIFTY2360118700PE",
+  //   "type": "Buy",
+  //   "amount": 1756847,
+  //   "lot": 10300
+  // },
+
+  
+  // {
+  //   "symbol": "NIFTY2360118600PE",
+  //   "type": "Buy",
+  //   "amount": 29404.000000000004,
+  //   "lot": 400
+  // },
+
+  
+  // {
+  //   "symbol": "NIFTY2360118650CE",
+  //   "type": "Buy",
+  //   "amount": 21391,
+  //   "lot": 1000
+  // },
+
+  
+  // {
+  //   "symbol": "NIFTY2360118650CE",
+  //   "type": "Sell",
+  //   "amount": 21875,
+  //   "lot": 1500
+  // },
+
+  
+  // {
+  //   "symbol": "NIFTY2360118600PE",
+  //   "type": "Sell",
+  //   "amount": 110105,
+  //   "lot": 2000
+  // },
+
+  
+  {
+    "symbol": "BANKNIFTY2360144300PE",
+    "type": "Sell",
+    "amount": 1110762,
+    "lot": 2700
+  },
+
+  
+  // {
+  //   "symbol": "NIFTY2360118400CE",
+  //   "type": "Sell",
+  //   "amount": 6950,
+  //   "lot": 50
+  // },
+
+  
+  // {
+  //   "symbol": "NIFTY2360118400CE",
+  //   "type": "Buy",
+  //   "amount": 7600,
+  //   "lot": 50
+  // },
+  // {
+  //   "symbol": "NIFTY2360118700PE",
+  //   "type": "Sell",
+  //   "amount": 1730051,
+  //   "lot": 10300
+  // }
+]

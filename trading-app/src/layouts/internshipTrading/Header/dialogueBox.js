@@ -146,7 +146,7 @@ export default function Dialogue({amount, name, id, walletCash}) {
     if(value === "success"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
-        messageObj.title = "Successfull";
+        messageObj.title = "Successful";
         messageObj.content = content
     };
     if(value === "reject"){

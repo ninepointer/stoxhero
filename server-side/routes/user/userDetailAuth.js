@@ -643,7 +643,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
         // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
         if((req).incomeProofDocumentUrl) filteredBody.incomeProofDocument = (req).incomeProofDocumentUrl;
         for(key of Object.keys(filteredBody)){
-          if(filteredBody[key]=='undefined'){
+          if(filteredBody[key]=='undefined' || filteredBody[key] == 'null'){
             filteredBody[key]=""
           }
         }
@@ -673,7 +673,7 @@ router.get("/myreferrals/:id", Authenticate, (req, res)=>{
   })
 });
 
-router.get('/earnings', Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req,res, next)=>{
+router.get('/earnings', Authenticate, async (req,res, next)=>{
   const id = req.user._id;
   try{
     const userReferrals = await UserDetail.findById(id).select('referrals');
@@ -773,7 +773,7 @@ router.get("/newuserreferralstoday", Authenticate, restrictTo('Admin', 'SuperAdm
   const today = new Date(todayDate);
   const newuser = UserDetail.find({joining_date:{$gte: today},referredBy : { $exists: true }}).populate('referredBy','first_name last_name').populate('campaign','campaignName campaignCode')
   .then((data)=>{
-      console.log(data)
+      // console.log(data)
       return res.status(200).json({data : data, count: data.length});
   })
   .catch((err)=>{

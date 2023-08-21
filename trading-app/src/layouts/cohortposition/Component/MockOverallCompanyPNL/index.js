@@ -75,11 +75,11 @@ function MockOverallCompantPNL({ socket, batchName }) {
 
   console.log("trade cohort", tradeData)
 
-  useEffect(() => {
-    return () => {
-      socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //     socket.close();
+  //   }
+  // }, [])
 
   tradeData.map((elem) => {
     totalTransactionCost += Number(elem.brokerage);

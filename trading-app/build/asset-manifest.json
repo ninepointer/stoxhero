@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.8e42465e.css",
-    "main.js": "/static/js/main.8de11b79.js",
+    "main.css": "/static/css/main.244a8c77.css",
+    "main.js": "/static/js/main.13753568.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.3e810b52.chunk.js": "/static/js/513.3e810b52.chunk.js",
     "static/media/backgroundmatt.jpg": "/static/media/backgroundmatt.f34f28c63ba78e5986d2.jpg",
@@ -29,7 +29,7 @@
     "static/media/about1.png": "/static/media/about1.f2ff5c407490beb959c8.png",
     "static/media/main-bg-1_1.webp": "/static/media/main-bg-1_1.b051114fdd6a41f500f0.webp",
     "static/media/wallet-buy.png": "/static/media/wallet-buy.73ff4537d14f90cdd751.png",
-    "static/media/paymentQr.jpeg": "/static/media/paymentQr.7f65aca58b1ebb75e5f3.jpeg",
+    "static/media/paymentQrc.jpg": "/static/media/paymentQrc.276551d24b426b1b6901.jpg",
     "static/media/battleicon.png": "/static/media/battleicon.167d1293e54a185a7260.png",
     "static/media/cancelled.jpg": "/static/media/cancelled.26c3f116735c004854a4.jpg",
     "static/media/news-image.png": "/static/media/news-image.855ff87f184705fcbd09.png",
@@ -161,13 +161,13 @@
     "static/media/mew.svg": "/static/media/mew.b0269a00f9248097aadb55069a898680.svg",
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
-    "main.8e42465e.css.map": "/static/css/main.8e42465e.css.map",
-    "main.8de11b79.js.map": "/static/js/main.8de11b79.js.map",
+    "main.244a8c77.css.map": "/static/css/main.244a8c77.css.map",
+    "main.13753568.js.map": "/static/js/main.13753568.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.3e810b52.chunk.js.map": "/static/js/513.3e810b52.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8e42465e.css",
-    "static/js/main.8de11b79.js"
+    "static/css/main.244a8c77.css",
+    "static/js/main.13753568.js"
   ]
 }

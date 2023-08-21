@@ -18,7 +18,6 @@ const tenx = async () => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  // let tradeArr = [];
   const data = await TenxTrader.aggregate(
     [
       {
@@ -452,7 +451,6 @@ const infinityTrade = async () => {
             $gte: today
           },
           status: "COMPLETE",
-          // appOrderId: null
         },
       },
       {
@@ -618,7 +616,6 @@ const dailyContestMock = async () => {
             $gte: today
           },
           status: "COMPLETE",
-          // appOrderId: null
         },
       },
       {

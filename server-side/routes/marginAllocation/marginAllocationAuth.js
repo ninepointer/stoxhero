@@ -13,7 +13,7 @@ const restrictTo = require('../../authentication/authorization');
 router.post("/setmargin", authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
   let isRedisConnected = getValue();
     const {amount, userId} = req.body;
-    console.log(amount, userId)
+    // console.log(amount, userId)
     if(!userId || !amount){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please fill all the feilds"})
@@ -27,15 +27,15 @@ router.post("/setmargin", authentication, restrictTo('Admin', 'SuperAdmin'), asy
 
     const userdetail = await UserDetail.findOne({_id: new ObjectId(userId)});
     let fund = (userdetail.fund ? userdetail.fund : 0);
-    console.log("fund before", fund);
+    // console.log("fund before", fund);
     fund = Number(fund) + Number(amount);
-    console.log("fund after", fund);
+    // console.log("fund after", fund);
    await userdetail.updateOne({fund: fund});
 
    if (isRedisConnected && await client.exists(`${userId.toString()} openingBalanceAndMargin`)) {
     let marginDetail = await client.get(`${userId.toString()} openingBalanceAndMargin`)
     marginDetail = JSON.parse(marginDetail);
-    console.log(marginDetail)
+    // console.log(marginDetail)
 
     marginDetail.totalFund = fund;
 

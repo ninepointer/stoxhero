@@ -100,12 +100,12 @@ function MockTraderwiseCompantPNL(props) {
 
   }, [marketData]) 
 
-  useEffect(() => {
-    return () => {
-        //console.log('closing');
-        props.socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       //console.log('closing');
+  //       props.socket.close();
+  //   }
+  // }, [])
 
   useEffect(()=>{
           // Get Lastest Trade timestamp
@@ -193,7 +193,7 @@ function viewTraderFullReport(){
   
 }
 
-console.log("re rendering index mock")
+// console.log("re rendering index mock")
 
 finalTraderPnl.map((subelem, index)=>{
   let obj = {};

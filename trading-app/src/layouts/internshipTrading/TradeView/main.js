@@ -13,6 +13,7 @@ import { userContext } from "../../../AuthContext";
 import InternshipTrading from "./tradePart";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
+import { socketContext } from "../../../socketContext";
 
 function TradeViewTenX() {
   // console.log("rendering in userPosition: infinity");
@@ -22,6 +23,7 @@ function TradeViewTenX() {
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const getDetails = useContext(userContext);
   // const location = useLocation();
+  const socket = useContext(socketContext);
   const batchArr = getDetails?.userDetails?.internshipBatch
   const BatchId = getDetails?.userDetails.internshipBatch[batchArr.length - 1]?._id||'123';
   // console.log("BatchId", getDetails?.userDetails.internshipBatch[batchArr.length - 1]?._id)
@@ -44,19 +46,22 @@ function TradeViewTenX() {
   })()
 }, [])
 
-  let socket;
-  console.log('batch id', location );
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  // let socket;
+  // console.log('batch id', location );
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
 
   useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id)
-    })
+    // socket.on("connect", () => {
+    //   socket.emit('userId', getDetails.userDetails._id)
+    //   socket.emit("user-ticks", getDetails.userDetails._id)
+    // })
+    socket.emit('userId', getDetails.userDetails._id)
+    socket.emit("user-ticks", getDetails.userDetails._id)
+
     ReactGA.pageview(window.location.pathname)
   }, []);
   // console.log("BatchId", BatchId)

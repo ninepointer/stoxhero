@@ -11,6 +11,8 @@ const moment = require('moment');
 router.post("/login", async (req, res) => {
     const { userId, pass } = req.body;
 
+    // console.log(req.body)
+
     if (!userId || !pass) {
         return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
     }
@@ -144,6 +146,7 @@ router.post("/resendmobileotp", async(req, res)=>{
 
 router.get("/loginDetail", authentication, async (req, res)=>{
     const id = req.user._id;
+    
     
     const user = await UserDetail.findOne({_id: id, status: "Active"})
     .populate('role', 'roleName')

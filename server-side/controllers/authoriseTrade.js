@@ -182,9 +182,9 @@ exports.fundCheck = async (req, res, next) => {
         } else {
             // console.log("in else", Boolean(!userFunds))
             if (!userFunds || (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0)) {
-                let { exchange, symbol, buyOrSell, Quantity, Price, Product, OrderType, exchangeInstrumentToken,
-                    TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, realTrade,
-                    realBuyOrSell, realQuantity, apiKey, accessToken, userId, checkingMultipleAlgoFlag,
+                let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken,
+                    validity, variety, algoBoxId, instrumentToken,
+                    realBuyOrSell, realQuantity,
                     real_instrument_token, realSymbol, trader, order_id } = req.body;
 
                     let myDate = new Date();
@@ -198,19 +198,19 @@ exports.fundCheck = async (req, res, next) => {
                     if (req.user.isAlgoTrader) {
 
                         const mockTradeCompany = new InfinityTradeCompany({
-                            status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity: realQuantity,
+                            status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity: realQuantity,
                             Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
                             placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, exchangeInstrumentToken,
-                            brokerage: null, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: null,
+                            brokerage: 0, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: 0,
                             trade_time: myDate,
                         });
                         await mockTradeCompany.save();
                     }
                     const algoTrader = new InfinityTrader({
-                        status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
+                        status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                        order_id: req.body.order_id, instrumentToken, brokerage: null, exchangeInstrumentToken,
-                        createdBy: req.user._id, trader: req.user._id, amount: null, trade_time: myDate,
+                        order_id: req.body.order_id, instrumentToken, brokerage: 0, exchangeInstrumentToken,
+                        createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
 
                     });
                     console.log("margincall saving")
@@ -351,24 +351,16 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             }
             totalAmount += (element.amount - element.brokerage);
         }
-        // console.log("todayPnlData is", todayPnlData)
         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginPaper`)) {
             let pnl = await client.get(`${req.user._id.toString()} openingBalanceAndMarginPaper`)
             pnl = JSON.parse(pnl);
-            // console.log("pnl is", pnl)
-            // userFunds = pnl?.totalFund;
             if (pnl?.openingBalance) {
                 userNetPnl = (pnl?.openingBalance - userFunds) + totalAmount
             } else {
                 userNetPnl = totalAmount
             }
-            // userNetPnl = (pnl?.openingBalance - userFunds) + totalAmount
         }
 
-        // 20 15
-        // 10 15 -->2nd 50
-        // 0  15
-        // console.log("portfolio", req.body.portfolioId)
         console.log(userFunds, userNetPnl, zerodhaMargin)
         console.log((userFunds + userNetPnl - zerodhaMargin))
 
@@ -379,7 +371,7 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             // console.log("in else")
             if (userNetPnl !== undefined ? Number(userFunds + userNetPnl - zerodhaMargin) < 0 : Number(userFunds - zerodhaMargin) < 0) {
                 let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, validity, variety, createdBy,
-                    instrumentToken, trader, order_id, exchangeInstrumentToken } = req.body;
+                    instrumentToken, trader, order_id, exchangeInstrumentToken, portfolioId } = req.body;
 
                     let myDate = new Date();
                     order_id = `${myDate.getFullYear() - 2000}${String(myDate.getMonth() + 1).padStart(2, '0')}${String(myDate.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
@@ -391,10 +383,10 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
                 try {
 
                     const paperTrade = new PaperTrade({
-                        status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
+                        status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero", exchangeInstrumentToken,
-                        order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id,
-                        trader: trader, amount: null, trade_time: myDate
+                        order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id,
+                        trader: trader, amount: 0, trade_time: myDate, portfolioId: portfolioId
 
                     });
                     console.log("margincall saving")
@@ -539,10 +531,10 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
                 try {
 
                     const tenXTrade = new TenXTrader({
-                        status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
+                        status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                        order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id, exchangeInstrumentToken,
-                        trader: trader, amount: null, trade_time: myDate, subscriptionId
+                        order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id, exchangeInstrumentToken,
+                        trader: trader, amount: 0, trade_time: myDate, subscriptionId
 
                     });
                     console.log("margincall saving")
@@ -786,7 +778,6 @@ exports.contestFundCheck = async (req, res, next) => {
 }
 
 exports.fundCheckInternship = async (req, res, next) => {
-    let isRedisConnected = getValue();
 
     const { exchange, symbol, buyOrSell, variety,
         Product, OrderType, Quantity, subscriptionId } = req.body;
@@ -908,10 +899,10 @@ exports.fundCheckInternship = async (req, res, next) => {
                 try {
 
                     const internshipTrade = new InternshipTrade({
-                        status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
+                        status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                        order_id: order_id, instrumentToken, brokerage: null, createdBy: req.user._id, exchangeInstrumentToken,
-                        trader: trader, amount: null, trade_time: myDate, batch: subscriptionId
+                        order_id: order_id, instrumentToken, brokerage: 0, createdBy: req.user._id, exchangeInstrumentToken,
+                        trader: trader, amount: 0, trade_time: myDate, batch: subscriptionId
 
                     });
                     console.log("margincall saving")
@@ -933,10 +924,8 @@ exports.fundCheckInternship = async (req, res, next) => {
 
 exports.fundCheckDailyContest = async (req, res, next) => {
 
-    // console.log("in fundCheckTenxTrader")
     const { exchange, symbol, buyOrSell, variety,
         Product, OrderType, Quantity, contestId, exchangeInstrumentToken } = req.body;
-    // console.log("contestId: ",contestId)
 
     getKiteCred.getAccess().then(async (data) => {
 
@@ -1065,19 +1054,19 @@ exports.fundCheckDailyContest = async (req, res, next) => {
                 try {
 
                     const mockTradeCompany = new DailyContestMockCompany({
-                        status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity: realQuantity,
+                        status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity: realQuantity,
                         Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType, symbol: realSymbol,
                         placed_by: "stoxhero", algoBox: algoBoxId, order_id, instrumentToken: real_instrument_token, contestId,
-                        brokerage: null, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: null,
+                        brokerage: 0, createdBy: req.user._id, trader: trader, isRealTrade: false, amount: 0,
                         trade_time: myDate, exchangeInstrumentToken
                     });
                     await mockTradeCompany.save();
 
                     const algoTrader = new DailyContestMockUser({
-                        status: "REJECTED", status_message: "insufficient fund", average_price: null, Quantity, Product, buyOrSell,
+                        status: "REJECTED", status_message: "insufficient fund", average_price: 0, Quantity, Product, buyOrSell,
                         variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
-                        order_id: req.body.order_id, instrumentToken, brokerage: null, contestId, exchangeInstrumentToken,
-                        createdBy: req.user._id, trader: req.user._id, amount: null, trade_time: myDate,
+                        order_id: req.body.order_id, instrumentToken, brokerage: 0, contestId, exchangeInstrumentToken,
+                        createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
 
                     });
                     console.log("margincall saving")

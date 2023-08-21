@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, {useState } from "react";
 import { memo } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -11,6 +11,7 @@ import MDButton from '../../../components/MDButton';
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import { Button } from "@mui/material";
+
 
 const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedState, setIsInterestedState }) => {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -49,7 +50,7 @@ const PopupMessage = ({ data, elem, setIsInterested, isInterested, isInterestedS
         });
         
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         if(data.status === "error" || data.error || !data){
             // openSuccessSB("error", data.message)
         }else{

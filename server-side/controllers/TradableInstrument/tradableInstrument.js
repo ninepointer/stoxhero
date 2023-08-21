@@ -9,7 +9,7 @@ exports.tradableInstrument = async (req,res,next) => {
 
     let userId = req.user._id;
     getKiteCred.getAccess().then((data)=>{
-        console.log(data)
+        // console.log(data)
         // createNewTicker(data.getApiKey, data.getAccessToken);
         const url = 'https://api.kite.trade/instruments/NFO';
 

@@ -13,7 +13,7 @@ const restrictTo = require('../../authentication/authorization');
 router.post("/invite", authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res) => {
 
     let date = new Date();
-    console.log(req.body);
+    // console.log(req.body);
     // const id = req.user;
 
     function validateMobileNumber(mobileNumber) {
@@ -44,7 +44,7 @@ router.post("/invite", authentication, restrictTo('Admin', 'SuperAdmin'), async 
     }
 
     if (req.body.mobile) {
-        console.log(!validateMobileNumber(req.body.mobile))
+        // console.log(!validateMobileNumber(req.body.mobile))
         if (!validateMobileNumber(req.body.mobile)) {
             return res.status(400).json({ error: "Please enter a valid 10 digit mobile number." })
         }
@@ -69,7 +69,7 @@ router.post("/invite", authentication, restrictTo('Admin', 'SuperAdmin'), async 
         }
 
         const lead = await Lead.findOne({ $or: [{ email: email }, { mobile: mobile }] })
-        console.log("Lead Data: ", lead);
+        // console.log("Lead Data: ", lead);
         if (!lead) {
 
             // if(email){

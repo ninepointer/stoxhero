@@ -40,6 +40,7 @@ export default function LabTabs({socket}) {
     })
 
     socket.on('tick', (data) => {
+        console.log("market socket data", data)
       setMarketData(prevInstruments => {
         const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
         data.forEach(instrument => {
@@ -125,11 +126,11 @@ export default function LabTabs({socket}) {
   }, [trackEvent])
 
 
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+//   useEffect(() => {
+//     return () => {
+//         socket.close();
+//     }
+//   }, [])
 
 
   tradeData.map((subelem, index)=>{

@@ -14,7 +14,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 // import MDSnackbar from '../../../components/MDSnackbar';
 import { Typography } from '@mui/material';
-import paymentQr from '../../../assets/images/paymentQr.jpeg';
+import paymentQr from '../../../assets/images/paymentQrc.jpg';
 
 
 

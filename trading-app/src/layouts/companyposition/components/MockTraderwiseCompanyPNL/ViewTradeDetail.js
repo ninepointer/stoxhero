@@ -99,11 +99,11 @@ function ViewTradeDetail({userId, socket}) {
       })
     }, [])
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     console.log("tradedata", tradeData)
 

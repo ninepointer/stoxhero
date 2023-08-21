@@ -15,7 +15,7 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.createContest = async(req, res, next)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const{contestName, contestStartDate, contestEndDate, entryOpeningDate, entryClosingDate, 
         stockType, contestOn, contestRule, rewards, entryFee, instruments, maxParticipants, 
         minParticipants,status, contestMargin
@@ -30,7 +30,7 @@ exports.createContest = async(req, res, next)=>{
 }
 
 exports.getContests = async(req, res, next)=>{
-    console.log("inside getContests")
+    // console.log("inside getContests")
     try{
         const contests = await Contest.find({status: "Live"}).populate('contestRule','ruleName');
         
@@ -42,7 +42,7 @@ exports.getContests = async(req, res, next)=>{
 };
 
 exports.getActiveContests = async(req, res, next)=>{
-    console.log("inside ActiveContest")
+    // console.log("inside ActiveContest")
     try {
         const contests = await Contest.find({ contestEndDate: { $gte: new Date() }, status: {$ne: 'Cancelled'}, entryClosingDate:{$gte: new Date()} }).populate('contestRule','ruleName'); 
     
@@ -210,7 +210,7 @@ exports.getContest = async (req,res,next) => {
         .populate('participants.portfolioId', 'portfolioName')
         .populate('lastModifiedBy', { first_name: 1, last_name: 1 })
         .populate('createdBy', { first_name: 1, last_name: 1 });
-        console.log("contest", contest)
+        // console.log("contest", contest)
         if (!contest) {
             // console.log("in if of contest")
           return res.status(200).json({ status: 'success', message: 'Contest not found.', data: {} });

@@ -1,5 +1,5 @@
 const {client, getValue} = require('../marketData/redisClient');
-const io = require('../marketData/socketio');
+const {getIOValue} = require('../marketData/socketio');
 // const DummyMarketData = () => {
 //   return new Promise((resolve) => {
 //     const sendDummyTicks = () => {
@@ -116,6 +116,7 @@ const getFilteredTicks = ()=>{
 }
 
 const DummyMarketData = (socket) => {
+  const io = getIOValue();
   return new Promise(async (resolve, reject) => {
     let timeoutId; // Store the timeout ID
 

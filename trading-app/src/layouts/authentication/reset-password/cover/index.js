@@ -98,7 +98,7 @@ function Cover() {
   });
 
   const data = await res.json();
-  console.log(res.status);
+  // console.log(res.status);
   if(res.status === 200 || res.status === 201){ 
       setResponseMessage({message:data.message,type:'success'});
       openSuccessSB('OTP Sent', data.message);
@@ -106,7 +106,7 @@ function Cover() {
   }else{
       setResponseMessage({message:data.message,type:'error'});
       openInfoSB('Something went wrong' ,data.message);
-      console.log("Invalid Entry");
+      // console.log("Invalid Entry");
   }
 
   }

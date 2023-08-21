@@ -6,25 +6,26 @@ import MDTypography from "../../../components/MDTypography";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton"
 import {userContext} from "../../../AuthContext";
-import axios from "axios";
+// import axios from "axios";
 import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import { IoMdAddCircle } from 'react-icons/io';
+// import MenuItem from '@mui/material/MenuItem';
+// import Select, { SelectChangeEvent } from '@mui/material/Select';
+// import InputLabel from '@mui/material/InputLabel';
+// import FormControl from '@mui/material/FormControl';
+// import { IoMdAddCircle } from 'react-icons/io';
+// import TabContext from '@material-ui/lab/TabContext';
 
 //Icons
 
-import { GrFormNextLink } from 'react-icons/gr';
+// import { GrFormNextLink } from 'react-icons/gr';
 
-//Data
-import RuleData from '../data/battleRuleData';
+// //Data
+// import RuleData from '../data/battleRuleData';
 
 
 
-function CreateContest({createRewardForm, setCreateRewardForm, battle, reward}) {
+export default function CreateContest({createRewardForm, setCreateRewardForm, battle, reward}) {
 
 const [isSubmitted,setIsSubmitted] = useState(false);
 const getDetails = useContext(userContext);
@@ -422,4 +423,4 @@ const renderErrorSB = (
     </>
     )
 }
-export default CreateContest;
+// export default CreateContest;

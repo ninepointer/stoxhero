@@ -49,7 +49,7 @@ const {placeOrder} = require("../../services/xts/xtsInteractive");
 // const fetchToken = require("../../marketData/generateSingleToken");
 // const fetchXTSData = require("../../services/xts/xtsHelper/fetchXTSToken");
 // const {autoCutMainManually} = require("../../controllers/AutoTradeCut/mainManually")
-const {saveLiveUsedMargin} = require("../../controllers/marginRequired");
+const {saveLiveUsedMargin, saveMockUsedMargin} = require("../../controllers/marginRequired");
 const InfinityLiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const InfinityLiveUser = require("../../models/TradeDetails/infinityLiveUser");
 const {openPrice} = require("../../marketData/setOpenPriceFlag");
@@ -70,6 +70,20 @@ const TenxSubscription = require("../../models/TenXSubscription/TenXSubscription
 const InternBatch = require("../../models/Careers/internBatch")
 
 
+
+router.get("/addFeildInTenx", async (req, res) => {
+  //todo-vijay - run this on sunday
+  const updateResult = await TenxSubscription.updateMany(
+    {}, // An empty filter matches all documents in the collection
+    {
+      $set: {
+        // allowPurchase: false,
+        // allowRenewal: false
+        status: "Inactive"
+      }
+    }
+  );  res.send(updateResult);
+});
 
 router.get("/collegeData", async (req, res) => {
   // {
@@ -170,10 +184,11 @@ router.get("/tenxUpdate", async (req, res) => {
   const x = await TenxSubscription.find();
 
   for(let elem of x){
-    if(elem.plan_name==="Beginner" || elem.plan_name==="Intermediate" || elem.plan_name==="Pro"){
+    if(elem.plan_name==="Beginner"){
+    //  || elem.plan_name==="Intermediate" || elem.plan_name==="Pro"){
       for(subelem of elem.users){
         if(!subelem.fee){
-          subelem.fee = elem.discounted_price
+          subelem.fee = 49
         }
       }
       elem.save();
@@ -912,6 +927,8 @@ router.get("/duplicate", async (req, res) => {
 
 router.get("/usedMargin", async (req, res) => {
   await saveLiveUsedMargin();
+  await saveMockUsedMargin();
+  res.send("ok")
 });
 
 router.get("/setOpenPrice", async (req, res) => {
@@ -1203,7 +1220,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-08-03T00:00:00.000+00:00"
+  let expiryDate = "2023-08-18T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})

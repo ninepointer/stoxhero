@@ -88,7 +88,7 @@ exports.getTraderStatss = async (req, res) => {
         maxProfitStreak: maxProfitStreak,
         maxLossStreak: maxLossStreak
       };
-      console.log(data);
+      // console.log(data);
       return res.send(data);
     } catch (error) {
       console.log(error);  
@@ -204,7 +204,7 @@ exports.getTraderStats = async (req, res) => {
     if (!user) {
       return res.status(404).send({ message: 'User not found' });
     }
-    console.log('date fr',new Date(new Date().toISOString().substring(0,10))); 
+    // console.log('date fr',new Date(new Date().toISOString().substring(0,10))); 
     const pipeline = [
       { $match: { 'trader': new  ObjectId(traderId), status:'COMPLETE', trade_time:{$lt: new Date(new Date().toISOString().substring(0,10))} } },
       { $addFields: { 
@@ -280,7 +280,7 @@ exports.getTraderStats = async (req, res) => {
     lossValues?.length%2 === 0 ? (lossValues[Math.floor(lossValues.length / 2)] + lossValues[Math.floor((lossValues.length / 2)-1)])/2 : lossValues[Math.floor(lossValues.length / 2)];
     const maxProfitOpeningBalance = await getTotalCredits(maxProfitDay?._id, user._id)+result[maxProfitIndex-1]?.npnl;
     const maxLossOpeningBalance = await getTotalCredits(maxLossDay?._id, user._id)+result[maxLossIndex-1]?.npnl;
-    console.log(maxProfitOpeningBalance, maxLossOpeningBalance);
+    // console.log(maxProfitOpeningBalance, maxLossOpeningBalance);
     const data = {
       firstName: user.first_name,
       lastName: user.last_name,
@@ -309,7 +309,7 @@ exports.getTraderStats = async (req, res) => {
       maxProfitDayProfitPercent: maxProfitDay?.npnl/maxProfitOpeningBalance *100,
       maxLossDayLossPercent: Math.abs(maxLossDay?.npnl/maxLossOpeningBalance) *100
     };
-    console.log('res',await getTotalCredits(maxProfitDay?._id, user?._id)+result[maxProfitIndex-1]?.npnl);
+    // console.log('res',await getTotalCredits(maxProfitDay?._id, user?._id)+result[maxProfitIndex-1]?.npnl);
     return res.status(200).json({status:'success',data});
   } catch (error) {
     console.log(error);  
@@ -328,7 +328,7 @@ async function countTradingDays(startDate) {
         holidayDate: { $gte: start.toDate(), $lte: end.toDate() },
         isDeleted: false,
     });
-    console.log('holidays', holidays.length);
+    // console.log('holidays', holidays.length);
 
     // Convert all holiday dates to string format for easy comparison
     const holidayDates = holidays.map(h => moment(h.holidayDate).format('YYYY-MM-DD'));
@@ -344,7 +344,7 @@ async function countTradingDays(startDate) {
 
 async function getTotalCredits(dateString, userId){
   const date = new Date(dateString);
-  console.log('dates',dateString, date);
+  // console.log('dates',dateString, date);
   if (isNaN(date.getTime())) {
     console.log('Invalid date');
 }
@@ -396,7 +396,7 @@ exports.getTraderTimePeriodStats = async(req, res ,next) =>{
     const startOfLastMonth = new Date();
     startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
     startOfLastMonth.setDate(1);
-    console.log(startOfLastMonth,startOfMonth,startOfWeek,yesterday);
+    // console.log(startOfLastMonth,startOfMonth,startOfWeek,yesterday);
 
     const recentTrade = await VirtualTrade.find({ 
       trader: traderId, 

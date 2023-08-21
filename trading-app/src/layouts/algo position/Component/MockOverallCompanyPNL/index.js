@@ -100,7 +100,7 @@ function MockOverallCompantPNL({socket, algoId, algoName}) {
       // Get Lastest Trade timestamp
       axios.get(`${baseUrl}api/v1/getlastestmocktradecompany`)
       .then((res)=>{
-          console.log(res.data);
+          // console.log(res.data);
           setLatestTradeTimearr(res.data);
           setLatestTradeTime(res.data.trade_time) ;
           setLatestTradeBy(res.data.createdBy) ;
@@ -108,7 +108,7 @@ function MockOverallCompantPNL({socket, algoId, algoName}) {
           setLatestTradeQuantity(res.data.Quantity) ;
           setLatestTradeSymbol(res.data.symbol) ;
           setLatestTradeStatus(res.data.status)
-            console.log(lastestTradeTimearr);
+            // console.log(lastestTradeTimearr);
       }).catch((err) => { 
         return new Error(err);
       })
@@ -116,11 +116,11 @@ function MockOverallCompantPNL({socket, algoId, algoName}) {
     }, [marketData])
 
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     tradeData.map((elem)=>{
         totalTransactionCost += Number(elem.brokerage);

@@ -9,7 +9,7 @@ const InternshipOrders = require('../../models/mock-trade/internshipTrade')
 
 
 exports.createBatch = async(req, res, next)=>{
-    console.log(req.body) // batchID
+    // console.log(req.body) // batchID
     const{batchName, batchStartDate, batchEndDate, 
         batchStatus, career, portfolio, payoutPercentage, 
         attendancePercentage, referralCount, orientationDate, orientationMeetingLink } = req.body;
@@ -55,7 +55,7 @@ exports.getBatch = async(req, res, next)=>{
 };
 
 exports.getActiveBatches = async(req, res, next)=>{
-    console.log("inside ActiveBatches")
+    // console.log("inside ActiveBatches")
     try {
         const batch = await Batch.find({ batchEndDate: { $gte: new Date() }, batchStatus: 'Active' })
                                 .populate('career','jobTitle')
@@ -69,13 +69,13 @@ exports.getActiveBatches = async(req, res, next)=>{
 };
 
 exports.getCompletedBatches = async(req, res, next)=>{
-    console.log("inside CompletedBatches")
+    // console.log("inside CompletedBatches")
     try {
         const batch = await Batch.find({ batchEndDate: { $lt: new Date() }, batchStatus: 'Active' })
                                 .populate('career','jobTitle')
                                 .populate('portfolio','portfolioName portfolioValue');; 
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
-        console.log(batch)
+        // console.log(batch)
     } catch (e) {
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
@@ -83,13 +83,13 @@ exports.getCompletedBatches = async(req, res, next)=>{
 };
 
 exports.getInactiveBatches = async(req, res, next)=>{
-    console.log("inside InactiveBatches")
+    // console.log("inside InactiveBatches")
     try {
         const batch = await Batch.find({ batchStatus: 'Inactive' })
                                 .populate('career','jobTitle')
                                 .populate('portfolio','portfolioName portfolioValue');; 
         res.status(201).json({status: 'success', data: batch, results: batch.length}); 
-        console.log(batch)
+        // console.log(batch)
     } catch (e) {
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
@@ -99,8 +99,8 @@ exports.getInactiveBatches = async(req, res, next)=>{
 exports.editBatch = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
-    console.log("Batch Data:",req.body)
+    // console.log("id is ,", id)
+    // console.log("Batch Data:",req.body)
 
     const batch = await Batch.findOneAndUpdate({_id : id}, {
         $set:{
@@ -125,7 +125,7 @@ exports.editBatch = async(req, res, next) => {
 exports.approveUser = async (req, res, next) => {
     const id = req.params.id;
     const userId = req.body.userId;
-    console.log("id is,", id);
+    // console.log("id is,", id);
     try {
       const user = await User.findById(new ObjectId(userId));
       if (!user) {
@@ -216,14 +216,14 @@ exports.removeParticipantFromBatch = async(req, res, next) => {
 
         //Find the user in career application
         const user = await User.findById(userId).select('email internshipBatch');
-        console.log('batchId', batchId, batch?.portfolio);
+        // console.log('batchId', batchId, batch?.portfolio);
         const portfolio = await Portfolio.findOne({_id: batch?.portfolio});
-        console.log(portfolio);
+        // console.log(portfolio);
         portfolio.users = portfolio.users.filter((user)=>user?.userId != userId);
         await portfolio.save({validateBeforeSave: false});
-        console.log(user.internshipBatch.filter((item)=>item!=batchId));
+        // console.log(user.internshipBatch.filter((item)=>item!=batchId));
         user.internshipBatch = user.internshipBatch.filter((item)=>item!=batchId);
-        console.log(user.internshipBatch);
+        // console.log(user.internshipBatch);
         const careerApplicant = await CareerApplication.findOne({email: user.email});
         careerApplicant.applicationStatus = 'Shortlisted';
         await user.save({validateBeforeSave: false});
@@ -238,7 +238,7 @@ exports.removeParticipantFromBatch = async(req, res, next) => {
 }
 
 exports.getAllInternshipOrders = async(req, res, next)=>{
-    console.log("Inside Internship all orders API")
+    // console.log("Inside Internship all orders API")
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
     const count = await InternshipOrders.countDocuments()
@@ -248,7 +248,7 @@ exports.getAllInternshipOrders = async(req, res, next)=>{
         .sort({_id: -1})
         .skip(skip)
         .limit(limit);
-        console.log("All Internship Orders",allinternshiporders)
+        // console.log("All Internship Orders",allinternshiporders)
         res.status(201).json({status: 'success', data: allinternshiporders, count: count});    
     }catch(e){
         console.log(e);
@@ -265,14 +265,14 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
     const count = await InternshipOrders.countDocuments({trade_time: {$gte:today}})
-    console.log("Under today orders", today)
+    // console.log("Under today orders", today)
     try {
       const todaysinternshiporders = await InternshipOrders.find({trade_time: {$gte:today}}, {'trader':1,'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
         .populate('trader','employeeid first_name last_name')
         .sort({_id: -1})
         .skip(skip)
         .limit(limit);
-      console.log(todaysinternshiporders)
+      // console.log(todaysinternshiporders)
       res.status(200).json({status: 'success', data: todaysinternshiporders, count:count});
     } catch (e) {
       console.log(e);
@@ -509,7 +509,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
   }
 
   exports.getCurrentBatch = async(req,res,next) =>{
-    console.log('current');
+    // console.log('current');
     const userId = req.user._id;
     const userBatches = await User.findById(userId)
     .populate({
@@ -546,13 +546,13 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     if(new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate){
         return res.json({status: 'success', data: internships[internships.length-1]});    
     }
-    console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
-    console.log("Condition:",new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate);
+    // console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
+    // console.log("Condition:",new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate);
     return res.json({status: 'success', data: {}, message:'No active internships'});
   }
 
   exports.getWorkshops = async(req,res,next) =>{
-    console.log('current');
+    // console.log('current');
     const userId = req.user._id;
     const userBatches = await User.findById(userId)
     .populate({
@@ -570,7 +570,7 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
   }
 
   exports.getCurrentWorkshop = async(req,res,next) =>{
-    console.log('current');
+    // console.log('current');
     const userId = req.user._id;
     const userBatches = await User.findById(userId)
     .populate({
@@ -592,8 +592,8 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     if(new Date()>=internships[internships.length-1]?.batchStartDate && new Date()<=internships[internships.length-1]?.batchEndDate){
         return res.json({status: 'success', data: internships[internships.length-1]});    
     }
-    console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
-    console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
+    // console.log("Internship Details:",internships, new Date(), internships[internships.length-1]?.batchStartDate, internships[internships.length-1]?.batchEndDate)
+    // console.log("Condition:",new Date()<=internships[internships.length-1]?.batchStartDate && new Date()>=internships[internships.length-1]?.batchEndDate );
     return res.json({status: 'success', data: {}, message:'No active internships'});
   }
   

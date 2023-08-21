@@ -58,7 +58,7 @@ const PopupTrading = ({elem, timeDifference}) => {
     const getDetails = useContext(userContext);
     
 
-    console.log("main data", open)
+    // console.log("main data", open)
     const navigate = useNavigate();
 
     const handleClose = async (e) => {
@@ -91,7 +91,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         });
 
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         if (data.status === "error" || data.error || !data) {
             setOpen(true);
             setData(data.message)
@@ -107,7 +107,7 @@ const PopupTrading = ({elem, timeDifference}) => {
 
     return (
         <div>
-            {timeDifference &&
+            {timeDifference ?
             <MDButton
                 variant='outlined'
                 color= {elem?.entryFee>0 ? "light" :'warning'}
@@ -116,7 +116,9 @@ const PopupTrading = ({elem, timeDifference}) => {
                 onClick={() => { participateUserToContest(elem) }}
             >
                 <MDTypography color={elem?.entryFee>0 ? "light" :'warning'} fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
-            </MDButton>}
+            </MDButton>
+            :
+            ""}
             <div>
                 <Dialog
                     fullScreen={fullScreen}
@@ -124,7 +126,6 @@ const PopupTrading = ({elem, timeDifference}) => {
                     onClose={handleClose}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title" sx={{ textAlign: 'center' }}>
-                        {/* {"Option Chain"} */}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText sx={{ display: "flex", flexDirection: "column", marginLeft: 2 }}>

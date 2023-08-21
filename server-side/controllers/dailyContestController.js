@@ -228,7 +228,7 @@ exports.getOnlyUpcomingContests = async (req, res) => {
 exports.getAdminUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestStartTime: { $gt: new Date() }, contestFor: "StoxHero", contestStatus:"Active"
+            contestStartTime: { $gt: new Date() }, contestStatus:"Active"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -340,7 +340,7 @@ exports.ongoingContestAdmin = async (req, res) => {
 exports.getUpcomingCollegeContests = async (req, res) => {
     try {
         const contests = await Contest.find({
-            contestEndTime: { $gt: new Date() }, contestFor: "College"
+            contestEndTime: { $gt: new Date() }, contestFor: "College", contestStatus: "Active"
         }).populate('portfolio', 'portfolioName _id portfolioValue')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
@@ -788,13 +788,13 @@ exports.verifyCollageCode = async (req, res) => {
             ]
         })
 
-        if (getActiveContest.length > 0) {
-            if (!contest.potentialParticipants.includes(userId)) {
-                contest.potentialParticipants.push(userId);
-                contest.save();
-            }
-            return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
-        }
+        // if (getActiveContest.length > 0) {
+        //     if (!contest.potentialParticipants.includes(userId)) {
+        //         contest.potentialParticipants.push(userId);
+        //         contest.save();
+        //     }
+        //     return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
+        // }
 
         // console.log("collageCode", collegeCode, contest?.collegeCode)
 
@@ -811,21 +811,37 @@ exports.verifyCollageCode = async (req, res) => {
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
-        const result = await Contest.findByIdAndUpdate(
-            id,
-            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
+        if (contest?.entryFee === 0) {
 
-        if (!result) {
-            return res.status(404).json({ status: "error", message: "Something went wrong." });
+            if (getActiveContest.length > 0) {
+                if (!contest.potentialParticipants.includes(userId)) {
+                    contest.potentialParticipants.push(userId);
+                    contest.save();
+                }
+                return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
+            }
+
+            const result = await Contest.findByIdAndUpdate(
+                id,
+                { $push: { participants: { userId: userId, participatedOn: new Date() } } },
+                { new: true }  // This option ensures the updated document is returned
+            );
+
+            if (!result) {
+                return res.status(404).json({ status: "error", message: "Something went wrong." });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: "Participate successfully",
+                data: result
+            });
+        } else {
+            res.status(200).json({
+                status: "success",
+                message: "Code varified",
+            });
         }
-
-        res.status(200).json({
-            status: "success",
-            message: "Participate successfully",
-            data: result
-        });
     } catch (error) {
         res.status(500).json({
             status: "error",
@@ -1320,7 +1336,7 @@ exports.getDailyContestAllUsers = async (req, res) => {
         
         const contestusers = []
 
-        console.log("Contest Traders:",contestTraders)
+        // console.log("Contest Traders:",contestTraders)
         contestTraders[0].totalcontest.forEach(entry => {
             const { date, traders } = entry;
     

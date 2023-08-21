@@ -34,8 +34,8 @@ const s3 = new AWS.S3({
 
 
 const resizePhoto = async (req, res, next) => {
-    console.log('resize func');
-    console.log("Uploaded Files: ",req.files)
+    // console.log('resize func');
+    // console.log("Uploaded Files: ",req.files)
     if (!req.files) {
       // no file uploaded, skip to next middleware
       console.log('no file');
@@ -118,8 +118,8 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).profilePhotoUrl = s3Data.Location;
       }
   
@@ -139,8 +139,8 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).aadhaarCardFrontImageUrl = s3Data.Location;
       }
 
@@ -160,8 +160,8 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).aadhaarCardBackImageUrl = s3Data.Location;
       }
       if ((req.files).panCardFrontImage) {
@@ -180,8 +180,8 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).panCardFrontImageUrl = s3Data.Location;
       }
       if ((req.files).passportPhoto) {
@@ -200,8 +200,8 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).passportPhotoUrl = s3Data.Location;
       }
       if ((req.files).addressProofDocument) {
@@ -220,8 +220,8 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).addressProofDocumentUrl = s3Data.Location;
       }
       if ((req.files).incomeProofDocument) {
@@ -240,12 +240,12 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).incomeProofDocumentUrl = s3Data.Location;
       }
   
-      console.log('calling next of s3 upload func');
+      // console.log('calling next of s3 upload func');
       next();
     } catch (err) {
       console.error(err);
@@ -256,7 +256,7 @@ const uploadToS3 = async (req, res, next) => {
 
 
 exports.editUser = async(req, res, next) => {
-        console.log(req.body)
+        // console.log(req.body)
         try{
             const user = await UserDetail.findById(req.user._id);
         
@@ -275,7 +275,7 @@ exports.editUser = async(req, res, next) => {
             );
     
             filteredBody.lastModifiedBy = req.user._id;
-            console.log("Profile Photo Url: ",req.profilePhotoUrl)
+            // console.log("Profile Photo Url: ",req.profilePhotoUrl)
             // if((req).profilePhotoUrl) filteredBody.profilePhoto = (req).profilePhotoUrl;
             // if((req).aadhaarCardFrontImageUrl) filteredBody.aadhaarCardFrontImage = (req).aadhaarCardFrontImageUrl;
             // if((req).aadhaarCardBackImageUrl) filteredBody.aadhaarCardBackImage = (req).aadhaarCardBackImageUrl;
@@ -331,9 +331,9 @@ exports.editUser = async(req, res, next) => {
             }
             // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
             if((req).incomeProofDocumentUrl) filteredBody.incomeProofDocument = (req).incomeProofDocumentUrl;
-            console.log(filteredBody)
+            // console.log(filteredBody)
             const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
-            console.log(userData);
+            // console.log(userData);
         
             res.status(200).json({message:'Edit successful',status:'success',data: userData});
     
@@ -430,7 +430,7 @@ exports.changePassword = async (req, res) => {
     yesterdayDate.setUTCHours(0, 0, 0, 0)
     let eodDate = new Date();
     eodDate.setUTCHours(23, 59, 59, 999)
-    console.log("Yesterday Date:",yesterdayDate,now)
+    // console.log("Yesterday Date:",yesterdayDate,now)
 
     let startOfThisMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
     let startOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1, 0, 0, 0, 0));
@@ -448,7 +448,7 @@ exports.changePassword = async (req, res) => {
     let startOfThisYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 0, 0, 0, 0));
     let startOfLastYear = new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1, 0, 0, 0, 0));
     let endOfLastYear = new Date(startOfThisYear - 1);
-    console.log("Year Dates:",startOfThisYear,startOfLastYear,endOfLastYear)
+    // console.log("Year Dates:",startOfThisYear,startOfLastYear,endOfLastYear)
     
 
     const pipeline = [

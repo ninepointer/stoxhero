@@ -34,7 +34,7 @@ const Timer = ({socket}) => {
 
   useEffect(()=>{
     socket.on("serverTime", (data)=>{
-      console.log("serverTime", data)
+      // console.log("serverTime", data)
       setServerTime(data)
     })
   }, [])
@@ -50,7 +50,7 @@ const Timer = ({socket}) => {
       const appEndTime = new Date(setting[0]?.time?.appEndTime);
       const endTimer = new Date(setting[0]?.time?.timerStartTimeInEnd);
 
-      console.log("timerStartInOnline", appStartTime, startTimer, appEndTime, endTimer)
+      // console.log("timerStartInOnline", appStartTime, startTimer, appEndTime, endTimer)
 
       appStartTime.setHours(appStartTime.getHours() - 5);
       appStartTime.setMinutes(appStartTime.getMinutes() - 30);
@@ -114,7 +114,7 @@ const Timer = ({socket}) => {
       }
 
       if(now.getTime() > appOfflineTime.getTime()) {
-        let time = new Date(`${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`);
+        // let time = new Date(`${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`);
         // console.log("changeDateFormat", changeDateFormat(time))
         setRemainingTime(`Trading Resumes at ${changeDateFormat(nextTradingDay)}`);
         setColor("red")
@@ -134,11 +134,11 @@ const Timer = ({socket}) => {
 
   }, [serverTime, setting, nextTradingDay]);
 
-  useEffect(() => {
-    return () => {
-      socket.close();
-    }
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     socket.close();
+  //   }
+  // }, []);
 
   function changeDateFormat(givenDate) {
 
@@ -151,7 +151,7 @@ const Timer = ({socket}) => {
     // Format the date as "dd Month yyyy | hh:mm AM/PM"
     const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} ${formatTime(appStartHour, appStartMinute)}`;
 
-    console.log(formattedDate);
+    // console.log(formattedDate);
 
     // Helper function to get the month name
     function getMonthName(month) {

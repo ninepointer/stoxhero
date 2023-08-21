@@ -67,12 +67,12 @@ function TraderwiseTraderPNL({socket, selectedBatch, setSelectedBatch, batches, 
 
   }, [selectedBatch]) 
 
-  useEffect(() => {
-    return () => {
-        //console.log('closing');
-        socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       //console.log('closing');
+  //       socket.close();
+  //   }
+  // }, [])
 
 
   let mapForParticularUser = new Map();
