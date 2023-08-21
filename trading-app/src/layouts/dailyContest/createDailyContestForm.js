@@ -32,6 +32,7 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 import PotentialUser from "./data/potentialUsers"
 import Shared from "./data/shared";
 import MultiSelectCollege from './CollegeContestComponent/MultipleCollege';
+import MultiSelectMaster from './CollegeContestComponent/MultiSelectMaster';
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -509,16 +510,16 @@ function Index() {
                         value={masterSelectedOption}
                         onChange={handleContestMasterChange}
                         autoHighlight
-                        getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
+                        getOptionLabel={(option) => option?.contestMaster?.first_name + " " + option?.contestMaster?.last_name + ' - ' + option?.contestMasterMobile}
                         renderOption={(props, option) => (
                           <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                            {option.collegeName + ' - ' + option.zone}
+                            {option?.contestMaster?.first_name + " " + option?.contestMaster?.last_name + ' - ' + option?.contestMasterMobile}
                           </MDBox>
                         )}
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="College"
+                            label="Contest Master"
                             inputProps={{
                               ...params.inputProps,
                               autoComplete: 'new-password', // disable autocomplete and autofill
@@ -532,7 +533,7 @@ function Index() {
                       />
                     </Grid>
 
-                    <Grid item xs={12} md={6} xl={3}>
+                    <Grid item xs={12} md={6} xl={6} mt={3}>
                       <TextField
                         disabled={((isSubmitted || contest) && (!editing || saving))}
                         id="outlined-required"
@@ -544,8 +545,12 @@ function Index() {
                       />
                     </Grid>
 
-                    <Grid item xs={12} md={6} xl={3}>
+                    <Grid item xs={12} md={6} xl={6} mt={3}>
                         <MultiSelectCollege collegeList={college}/>
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={6} mt={3}>
+                        <MultiSelectMaster masterList={contestMaster}/>
                     </Grid>
                   </>
                 }

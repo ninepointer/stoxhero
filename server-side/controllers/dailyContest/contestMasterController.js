@@ -99,8 +99,8 @@ exports.deleteContest = async (req, res) => {
 // Controller for getting all contests
 exports.getAllContestMaster = async (req, res) => {
     try {
-        const contests = await ContestMaster.find()
-
+        const contests = await ContestMaster.find().populate('contestMaster', 'first_name last_name')
+        console.log(contests)
         res.status(200).json({
             status: "success",
             message: "Contests fetched successfully",

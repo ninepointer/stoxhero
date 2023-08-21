@@ -188,18 +188,18 @@ function Index() {
     async function onSubmit(e, formState) {
         // console.log("inside submit")
         e.preventDefault()
-        console.log(formState)
+        console.log("poc", poc)
         // if(formState.contestStartTime > formState.contestEndTime){
         //   return openErrorSB("Error", "Date range is not valid.")
         // }
 
-        if (!formState.contestMaster || !formState.contestMasterMobile || !formState.stoxheroPOC || !formState.college || !formState.status) {
+        if (!formState.college || !formState.status) {
             setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
             return openErrorSB("Missing Field", "Please fill all the mandatory fields")
         }
 
         setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-        const { contestMaster, contestMasterMobile, stoxheroPOC, college, status } = formState;
+        const { stoxheroPOC, college, status, inviteCode } = formState;
         const res = await fetch(`${baseUrl}api/v1/contestmaster`, {
             method: "POST",
             credentials: "include",
@@ -208,7 +208,7 @@ function Index() {
                 "Access-Control-Allow-Credentials": true
             },
             body: JSON.stringify({
-                contestMaster, contestMasterMobile, stoxheroPOC, college, status
+                contestMaster: value?._id, contestMasterMobile: value?.mobile, stoxheroPOC: pocValue?._id, college, status, inviteCode
             })
         });
 
@@ -358,25 +358,10 @@ function Index() {
                         </MDBox>
 
                         <Grid container display="flex" flexDirection="row" justifyContent="space-between">
-                            <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12}>
-                                <Grid item xs={12} md={6} xl={3}>
-                                    <TextField
-                                        disabled={((isSubmitted || contest) && (!editing || saving))}
-                                        id="outlined-required"
-                                        label='Contest Master *'
-                                        name='contestMaster'
-                                        fullWidth
-                                        defaultValue={editing ? formState?.contestMaster : contest?.contestMaster}
-                                        onChange={(e) => {
-                                            setFormState(prevState => ({
-                                                ...prevState,
-                                                contestMaster: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
+                            <Grid container spacing={2} mt={0.5} mb={0} xs={12} md={9} xl={12} lg={12}>
 
-                                <Grid item xs={12} md={3} xl={6}>
+
+                                <Grid item xs={12} md={3} xl={6} lg={12}>
                                     <CustomAutocomplete
                                         id="country-select-demo"
                                         sx={{
@@ -414,27 +399,7 @@ function Index() {
                                     />
                                 </Grid>
 
-
-                                <Grid item xs={12} md={6} xl={3} mb={2}>
-                                    <TextField
-                                        disabled={((isSubmitted || contest) && (!editing || saving))}
-                                        id="outlined-required"
-                                        label='Contest Mobile No.'
-                                        name='contestMasterMobile'
-                                        fullWidth
-                                        type='number'
-                                        defaultValue={editing ? formState?.contestMasterMobile : contest?.contestMasterMobile}
-                                        // onChange={handleChange}
-                                        onChange={(e) => {
-                                            setFormState(prevState => ({
-                                                ...prevState,
-                                                contestMasterMobile: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} md={6} xl={3} mb={2}>
+                                <Grid item xs={12} md={6} xl={3} mb={2} lg={12}>
                                     <TextField
                                         disabled={((isSubmitted || contest) && (!editing || saving))}
                                         id="outlined-required"
@@ -453,7 +418,7 @@ function Index() {
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} md={3} xl={6}>
+                                <Grid item xs={12} md={3} xl={6} lg={12}>
                                     <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
                                         <CustomAutocomplete2
                                             id="country-select-demo"
@@ -492,7 +457,7 @@ function Index() {
                                     </MDBox>
                                 </Grid>
 
-                                <Grid item xs={12} md={3} xl={6}>
+                                <Grid item xs={12} md={3} xl={6} lg={12}>
                                     <MDBox sx={{ display: 'flex', alignItems: 'center' }}>
                                         <CustomAutocomplete3
                                             id="country-select-demo"
@@ -516,7 +481,7 @@ function Index() {
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
-                                                    label="Choose a Trader"
+                                                    label="Choose a StoxHero POC"
                                                     inputProps={{
                                                         ...params.inputProps,
                                                         autoComplete: 'new-password', // disable autocomplete and autofill
@@ -528,14 +493,10 @@ function Index() {
                                                 />
                                             )}
                                         />
-
-
                                     </MDBox>
-
                                 </Grid>
 
-
-                                <Grid item xs={12} md={6} xl={3}>
+                                <Grid item xs={12} md={6} xl={3} lg={12}>
                                     <FormControl sx={{ width: "100%" }}>
                                         <InputLabel id="demo-simple-select-autowidth-label">Status *</InputLabel>
                                         <Select
@@ -559,7 +520,6 @@ function Index() {
                                         </Select>
                                     </FormControl>
                                 </Grid>
-
 
                             </Grid>
 
@@ -620,29 +580,29 @@ function Index() {
                                 )}
                             </Grid>
 
-                            {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                            {/* {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
                                 <MDBox>
                                     <AllowedUsers saving={saving} dailyContest={contest?._id ? contest : dailyContest} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} action={action} setAction={setAction} />
                                 </MDBox>
-                            </Grid>}
+                            </Grid>} */}
 
-                            {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                            {/* {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                                 <MDBox>
                                     <RegisteredUsers dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                                 </MDBox>
-                            </Grid>}
+                            </Grid>} */}
 
-                            {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                            {/* {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                                 <MDBox>
                                     <PotentialUser dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                                 </MDBox>
-                            </Grid>}
+                            </Grid>} */}
 
-                            {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                            {/* {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
                                 <MDBox>
                                     <Shared dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
                                 </MDBox>
-                            </Grid>}
+                            </Grid>} */}
 
                         </Grid>
 

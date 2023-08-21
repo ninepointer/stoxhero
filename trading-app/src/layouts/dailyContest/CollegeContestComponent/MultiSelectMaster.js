@@ -11,7 +11,7 @@ import {
 import CancelIcon from "@mui/icons-material/Cancel";
 
 
-export default function MultiSelectCollege({collegeList}) {
+export default function MultiSelectMaster({masterList}) {
   // console.log("collegeList", collegeList)
   const [selectedNames, setSelectedNames] = useState([]);
   console.log("selectedNames", selectedNames)
@@ -44,9 +44,9 @@ export default function MultiSelectCollege({collegeList}) {
           </Stack>
         )}
       >
-        {collegeList.map((elem) => (
-          <MenuItem key={elem._id} value={elem?.collegeName}>
-            {elem?.collegeName}
+        {masterList.map((elem) => (
+          <MenuItem key={elem._id} value={elem?.contestMaster?.first_name+" "+elem?.contestMaster?.last_name+"-"+elem?.contestMasterMobile+"-"+elem?.inviteCode}>
+            {elem?.contestMaster?.first_name+" "+elem?.contestMaster?.last_name+"-"+elem?.contestMasterMobile+"-"+elem?.inviteCode}
           </MenuItem>
         ))}
       </Select>
