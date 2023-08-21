@@ -1525,7 +1525,16 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
             },
             {
               $gte: [
-                "$users.expiredOn",
+                {
+                  $dateFromString: {
+                    dateString: {
+                      $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$users.expiredOn"
+                      }
+                    }
+                  }
+                },
                 "$trade.trade_time",
               ],
             },
