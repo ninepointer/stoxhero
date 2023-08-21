@@ -675,7 +675,7 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/contestdashboard/dailycontest`,
+                        pathname: `/contestdashboard/contestmaster`,
                     }}
                 >
                     <Grid container xs={12} md={12} lg={12}>

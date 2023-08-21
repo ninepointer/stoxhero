@@ -15,17 +15,7 @@ exports.createContest = async (req, res) => {
     try {
         const { contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex } = req.body;
-        // console.log(req.body)
-
-        // const getContest = await Contest.findOne({collegeCode: collegeCode});
-        // if(getContest?.collegeCode){
-        //     return res.status(500).json({
-        //         status:'error',
-        //         message: "College Code is already exist.",
-
-        //     });
-        // }
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, contestLiveTime } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 

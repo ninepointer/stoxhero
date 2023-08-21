@@ -31,8 +31,15 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
 import PotentialUser from "./data/potentialUsers"
 import Shared from "./data/shared";
+import MultiSelectCollege from './CollegeContestComponent/MultipleCollege';
 
 const CustomAutocomplete = styled(Autocomplete)`
+  .MuiAutocomplete-clearIndicator {
+    color: white;
+  }
+`;
+
+const CustomAutocomplete2 = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
     color: white;
   }
@@ -67,7 +74,9 @@ function Index() {
   const [dailyContest, setDailyContest] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
   const [college, setCollege] = useState([]);
-  // const [careers,setCareers] = useState([]);
+  const [contestMaster,setContestMaster] = useState([]);
+  const [masterSelectedOption, setMasterSelectedOption] = useState();
+
   const [action, setAction] = useState(false);
   // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
 
@@ -137,6 +146,14 @@ function Index() {
       return new Error(err)
     })
 
+    axios.get(`${baseUrl}api/v1/contestmaster`,{withCredentials: true})
+    .then((res) => {
+      // console.log("College :", res?.data?.data)
+      setContestMaster(res?.data?.data);
+    }).catch((err) => {
+      return new Error(err)
+    })
+
   }, [])
 
   // console.log("College:", collegeSelectedOption)
@@ -164,6 +181,17 @@ function Index() {
     setFormState(prevState => ({
       ...prevState,
       college: newValue?._id
+
+    }))
+    // setTraderId(newValue);
+  };
+
+  const handleContestMasterChange = (event, newValue) => {
+    console.log("College Selection:",newValue)
+    setMasterSelectedOption(newValue);
+    setFormState(prevState => ({
+      ...prevState,
+      contestMaster: newValue?._id
 
     }))
     // setTraderId(newValue);
@@ -461,13 +489,44 @@ function Index() {
                             InputLabelProps={{
                               style: { color: 'grey' },
                             }}
-                          // SelectProps={{
-                          //   MenuProps: {
-                          //     PaperProps: {
-                          //       style: { height: '10px' }, // Replace '200px' with your desired width
-                          //     },
-                          //   },
-                          // }}
+                          />
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={3} xl={6}>
+                      <CustomAutocomplete2
+                        id="country-select-demo"
+                        sx={{
+                          width: 526,
+                          height: 10,
+                          '& .MuiAutocomplete-clearIndicator': {
+                            color: 'black',
+                          },
+                        }}
+                        options={contestMaster}
+                        disabled={((isSubmitted || contest) && (!editing || saving))}
+                        value={masterSelectedOption}
+                        onChange={handleContestMasterChange}
+                        autoHighlight
+                        getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
+                        renderOption={(props, option) => (
+                          <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                            {option.collegeName + ' - ' + option.zone}
+                          </MDBox>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="College"
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password', // disable autocomplete and autofill
+                              style: { color: 'grey', height: 11 }, // set text color to white
+                            }}
+                            InputLabelProps={{
+                              style: { color: 'grey' },
+                            }}
                           />
                         )}
                       />
@@ -483,6 +542,10 @@ function Index() {
                         defaultValue={editing ? formState?.collegeCode : contest?.collegeCode}
                         onChange={handleChange}
                       />
+                    </Grid>
+
+                    <Grid item xs={12} md={6} xl={3}>
+                        <MultiSelectCollege collegeList={college}/>
                     </Grid>
                   </>
                 }

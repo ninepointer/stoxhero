@@ -255,10 +255,10 @@ function Users({contestId, setUpdatedDocument}) {
                       <Grid xs={5} lg={3}>{elem.mobile}</Grid>
                       <Grid xs={5} lg={3} mr={4} display="flex" justifyContent="space-between">
                         {/* {perticularInstrumentData.length ? */}
-                        {/* <Grid lg={3}>
+                        <Grid lg={3}>
                           <MDButton size="small" color="secondary" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { removeUser(elem._id, "Remove") }}>-</MDButton>
                         </Grid>
-                        : */}
+                        
                         <Grid lg={3}>
                           {/* <Tooltip title="Add Instrument" placement="top"> */}
                           <MDButton size="small" color="warning" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { addUser(elem._id, "Add") }}>+</MDButton>

@@ -23,6 +23,10 @@ const contestMasterSchema = new Schema({
         required: true,
         enum: ['Active','Inactive']
     },
+    inviteCode:{
+        type:String,
+        required: true,
+    },
     createdOn:{
         type: Date,
         required : true,

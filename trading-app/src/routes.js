@@ -44,6 +44,9 @@ import CareerList from './layouts/career'
 import CareerDetails from './layouts/career/careerDetails'
 import BatchDetails from './layouts/internBatch/batchDetails'
 import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
+import CreateContestMaster from './layouts/dailyContest/ContestMaster/ContestMaster'
+import CreateContestTempate from './layouts/dailyContest/ContestTemplate/ContestTemplate'
+
 import BattleDetails from './layouts/battle/battleDetails'
 import CampaignDetails from './layouts/campaign/campaignDetails'
 import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
@@ -78,7 +81,8 @@ import InfinityMining from './layouts/InfinityMining'
 import PaymentTest from './layouts/paymentTest/index'
 import ContestScoreboard from './layouts/contestScoreboard'
 import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
-
+import ContestMaster from "./layouts/dailyContest/contestMaster"
+import ContestTemplate from "./layouts/dailyContest/contestTemplate"
 
 // import DummyPage from "./layouts/UserContest/dummyContestTradePage";
 
@@ -399,6 +403,14 @@ const routes = [
     component: <DailyContestDetails />,
   },
   {
+    route: "/createContestMaster",
+    component: <CreateContestMaster />,
+  },
+  {
+    route: "/createContestTempate",
+    component: <CreateContestTempate />,
+  },
+  {
     route: "/battledetails",
     component: <BattleDetails />,
   },
@@ -594,6 +606,22 @@ const routes = [
     // icon: <SupervisorAccountIcon/>,
     route: "/contestdashboard/dailycontestposition",
     component: <DailyContestPosition />,
+  },
+  {
+    // type: "collapse",
+    // name: "Tenx Position",
+    key: "contestmaster",
+    // icon: <SupervisorAccountIcon/>,
+    route: "/contestdashboard/contestmaster",
+    component: <ContestMaster />,
+  },
+  {
+    // type: "collapse",
+    // name: "Tenx Position",
+    key: "contesttemplate",
+    // icon: <SupervisorAccountIcon/>,
+    route: "/contestdashboard/contesttemplate",
+    component: <ContestTemplate />,
   },
 
   {
