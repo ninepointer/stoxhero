@@ -487,7 +487,7 @@ function Index() {
                   </>
                 }
 
-                {!contest && 
+                {/* {!contest &&  */}
                 <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
@@ -521,8 +521,8 @@ function Index() {
                       </MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>}
-
+                </Grid>
+                {/* } */}
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
