@@ -32,10 +32,10 @@ function Header({ children }) {
 
   return (
     
-    <MDBox color="dark" mt={2} mb={1} p={1} borderRadius={10} display='flex' justifyContent='center' minHeight='80vh'
-    sx={{
-        backgroundImage: `url(${Background})`,
-      }}
+    <MDBox bgColor='dark' color="dark" mt={2} mb={1} p={1} borderRadius={10} display='flex' justifyContent='center' minHeight='auto'
+    // sx={{
+    //     backgroundImage: `url(${Background})`,
+    //   }}
     >
     <MDBox>
         <Grid container display='flex' justifyContent='center' alignContent='center' alignItems='center'>

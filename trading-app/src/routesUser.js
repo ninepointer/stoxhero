@@ -82,6 +82,7 @@ import DailyContestResultPage from "./layouts/UserDailyContest/data/result-page/
 import ContestScoreboard from './layouts/contestScoreboard'
 import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/data/result-page/resultIndex"
 import BattleIcon from "./assets/images/swords.png"
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
 import Challenge from './layouts/UserDailyChallenge'
 const routes = [
@@ -147,7 +148,7 @@ const routes = [
     type: "collapse",
     name: "Battle Ground",
     key: "battleground",
-    icon: <img src={BattleIcon} width={15}></img>,
+    icon: <LocalFireDepartmentIcon/>,
     route: "/battleground",
     component: <UserBattle />,
   },
