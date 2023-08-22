@@ -7,23 +7,20 @@ const restrictTo = require('../../authentication/authorization');
 router.post('/', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.createContest);
 router.get('/', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllContestMaster);
 
-// router.get('/contest/dailycontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestUsers);
-// router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestAllUsers);
-// router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
-// router.patch('/feededuct', Authenticate, contestController.deductSubscriptionAmount);
+router.get('/user', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.contestMasterBySearch);
 router.get('/:id', Authenticate, contestController.getContestMaster);
 
 router.put('/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editContest);
 // router.put('/purchaseintent/:id', Authenticate, contestController.purchaseIntent);
 
 router.delete('/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.deleteContest);
-// router.put('/contest/:id/participate', Authenticate, contestController.participateUsers);
+// router.put('/contest/:id', Authenticate, contestController.getContestMasterList);
 // router.put('/contest/:id/varifycodeandparticipate', Authenticate, contestController.verifyCollageCode);
 
 // router.put('/contest/:id/register',Authenticate, contestController.registerUserToContest);
 // router.put('/contest/:id/share',Authenticate, contestController.copyAndShare);
 
-// router.put('/contest/:id/allow/:userId', contestController.addAllowedUser);
+router.put('/:id/allow/:contestMasterId', contestController.addContestMaster);
 // router.put('/contest/:id/remove/:userId', contestController.removeAllowedUser);
 
 // Routes for getting contests 

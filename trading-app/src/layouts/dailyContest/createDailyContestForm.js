@@ -33,6 +33,8 @@ import PotentialUser from "./data/potentialUsers"
 import Shared from "./data/shared";
 import MultiSelectCollege from './CollegeContestComponent/MultipleCollege';
 import MultiSelectMaster from './CollegeContestComponent/MultiSelectMaster';
+import Users from './CollegeContestComponent/addContestMaster';
+import ContestMasterList from './CollegeContestComponent/contestMasterList';
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -583,14 +585,14 @@ function Index() {
                       <>
 
                         {/* multiple college */}
-                        <Grid item xs={12} md={6} xl={6} mt={3}>
+                        {/* <Grid item xs={12} md={6} xl={6} mt={3}>
                           <MultiSelectCollege collegeList={college} />
-                        </Grid>
+                        </Grid> */}
 
                         {/* multiple contest master */}
-                        <Grid item xs={12} md={6} xl={6} mt={3}>
+                        {/* <Grid item xs={12} md={6} xl={6} mt={3}>
                           <MultiSelectMaster masterList={contestMaster} />
-                        </Grid>
+                        </Grid> */}
                       </>
                     }
                   </>
@@ -698,8 +700,7 @@ function Index() {
                     defaultValue={editing ? formState?.description : contest?.description}
                     onChange={handleChange}
                   />
-                </Grid>
-
+                </Grid>{}Y+ 
                 <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
@@ -930,6 +931,13 @@ function Index() {
                   </>
                 )}
               </Grid>
+
+              {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                <MDBox>
+                  <Users contestId={contest?._id ? contest?._id : dailyContest?._id} setUpdatedDocument={setUpdatedDocument} />
+                  <ContestMasterList dailyContest={contest?._id ? contest : dailyContest}/>
+                </MDBox>
+              </Grid>}
 
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>

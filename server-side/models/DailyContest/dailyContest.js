@@ -65,8 +65,8 @@ const contestSchema = new Schema({
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         sharedAt:{type:Date}
     }],
-    allowedUsers:[{
-        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+    contestMaster:[{
+        contestMasterId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         addedOn:{type:Date},
     }],
     purchaseIntent:[{

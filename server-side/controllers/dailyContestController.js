@@ -1371,3 +1371,107 @@ exports.getDailyContestAllUsers = async (req, res) => {
         });
     }
 };
+
+// Controller for adding a user to allowedUsers
+exports.getContestMasterList = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the contest and the user to add
+
+        // if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
+        //     return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+        // }
+
+        const result = await Contest.aggregate(
+            [
+                {
+                    $match:
+                    {
+                        _id: new ObjectId(id),
+                    },
+                },
+                {
+                    $unwind:
+                    {
+                        path: "$contestMaster",
+                    },
+                },
+                {
+                    $lookup:
+                    {
+                        from: "daily-contest-masters",
+                        localField:
+                            "contestMaster.contestMasterId",
+                        foreignField: "_id",
+                        as: "result",
+                    },
+                },
+                {
+                    $unwind:
+                    {
+                        path: "$result",
+                    },
+                },
+                {
+                    $lookup:
+                    {
+                        from: "user-personal-details",
+                        localField: "result.contestMaster",
+                        foreignField: "_id",
+                        as: "user",
+                    },
+                },
+                {
+                    $unwind:
+                    {
+                        path: "$user",
+                    },
+                },
+                {
+                    $lookup:
+                    {
+                        from: "colleges",
+                        localField: "result.college",
+                        foreignField: "_id",
+                        as: "collegeData",
+                    },
+                },
+                {
+                    $project:
+                    {
+                        collegeId: {
+                            $arrayElemAt: ["$collegeData._id", 0],
+                        },
+                        collegeName: {
+                            $arrayElemAt: [
+                                "$collegeData.collegeName",
+                                0,
+                            ],
+                        },
+                        first_name: "$user.first_name",
+                        last_name: "$user.last_name",
+                        mobile: "$user.mobile",
+                        userId: "$user._id",
+                        inviteCode: "$result.inviteCode",
+                        _id: 0,
+                    },
+                },
+            ]
+        )
+
+        if (!result) {
+            return res.status(404).json({ status: "error", message: "Contest not found" });
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: "fetched successfully",
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};

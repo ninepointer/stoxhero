@@ -10,7 +10,7 @@ import Grid from "@mui/material/Grid";
 // Material Dashboard 2 React components
 
 // import MDButton from "../";
-import MDButton from "../../components/MDButton";
+import MDButton from "../../../components/MDButton";
 // import MDSnackbar from "../../../components/MDSnackbar";
 // import { userContext } from "../../../AuthContext";
 // import { Tooltip } from '@mui/material';
@@ -19,7 +19,7 @@ import MDButton from "../../components/MDButton";
 
 
 // Material Dashboard 2 React components
-import MDBox from "../../components/MDBox";
+import MDBox from "../../../components/MDBox";
 import TextField from '@mui/material/TextField';
 // import { createTheme } from '@mui/material/styles';
 import { RxCross2 } from 'react-icons/rx';
@@ -27,11 +27,11 @@ import { AiOutlineSearch } from 'react-icons/ai';
 // import { userContext } from "../../AuthContext";
 // import BuyModel from "../BuyModel";
 // import SellModel from "../SellModel";
-import { marketDataContext } from "../../MarketDataContext";
+import { marketDataContext } from "../../../MarketDataContext";
 // import uniqid from "uniqid"
-import { renderContext } from "../../renderContext";
+import { renderContext } from "../../../renderContext";
 // import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
-import { userContext } from "../../AuthContext";
+import { userContext } from "../../../AuthContext";
 
 const initialState = {
   userData: [],
@@ -159,7 +159,7 @@ function Users({contestId, setUpdatedDocument}) {
     }
 
 
-    axios.get(`${baseUrl}api/v1/dailycontest/contestusers?search=${data}`, {
+    axios.get(`${baseUrl}api/v1/contestmaster/user?search=${data}`, {
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -178,8 +178,8 @@ function Users({contestId, setUpdatedDocument}) {
     })
   }
 
-  async function addUser(userId){
-    axios.put(`${baseUrl}api/v1/dailycontest/contest/${contestId}/allow/${userId}`, {
+  async function addUser(contestMasterId){
+    axios.put(`${baseUrl}api/v1/contestmaster/${contestId}/allow/${contestMasterId}`, {
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -250,16 +250,18 @@ function Users({contestId, setUpdatedDocument}) {
                         }
                       }}
                     >
-                      <Grid sx={{ color: "white", textAlign: "center", display: { xs: 'none', lg: 'block' } }} xs={0} lg={3}>{elem.first_name + " " + elem.last_name}</Grid>
-                      <Grid sx={{ display: { xs: 'none', lg: 'block' } }} xs={0} lg={3}>{elem.email}</Grid>
-                      <Grid xs={5} lg={3}>{elem.mobile}</Grid>
-                      <Grid xs={5} lg={3} mr={4} display="flex" justifyContent="space-between">
+                      {/* sx={{ display: { xs: 'none', lg: 'block' } }} sx={{ textAlign: "center", display: { xs: 'none', lg: 'block' } }}  */}
+                      <Grid  lg={2}>{elem?.first_name + " " + elem?.last_name}</Grid>
+                      <Grid  lg={2}>{elem.mobile}</Grid>
+                      <Grid  lg={1}>{elem.inviteCode}</Grid>
+                      <Grid  lg={6}>{elem?.collegeName}</Grid>
+                      <Grid  lg={1} display="flex" justifyContent="space-between">
                         {/* {perticularInstrumentData.length ? */}
-                        <Grid lg={3}>
+                        {/* <Grid lg={3}>
                           <MDButton size="small" color="secondary" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { removeUser(elem._id, "Remove") }}>-</MDButton>
-                        </Grid>
+                        </Grid> */}
                         
-                        <Grid lg={3}>
+                        <Grid lg={12}>
                           {/* <Tooltip title="Add Instrument" placement="top"> */}
                           <MDButton size="small" color="warning" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { addUser(elem._id, "Add") }}>+</MDButton>
                           {/* </Tooltip> */}

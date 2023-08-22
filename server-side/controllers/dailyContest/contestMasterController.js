@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const ContestMaster = require('../../models/DailyContest/dailyContestMaster'); // Assuming your model is exported as ContestMaster from the mentioned path
 const User = require("../../models/User/userDetailSchema");
 const { ObjectId } = require('mongodb');
+const Contest = require("../../models/DailyContest/dailyContest")
 
 
 // Controller for creating a contest
@@ -100,6 +101,7 @@ exports.deleteContest = async (req, res) => {
 exports.getAllContestMaster = async (req, res) => {
     try {
         const contests = await ContestMaster.find().populate('contestMaster', 'first_name last_name')
+        .populate('college', 'collegeName')
         console.log(contests)
         res.status(200).json({
             status: "success",
@@ -124,6 +126,129 @@ exports.getContestMaster = async (req, res) => {
             status: "success",
             message: "Contests fetched successfully",
             data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+// Controller for getting users
+exports.contestMasterBySearch = async (req, res) => {
+    const searchString = req.query.search;
+    try {
+
+        const data = await ContestMaster.aggregate([
+            {
+              $lookup: {
+                from: "user-personal-details",
+                localField: "contestMaster",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            {
+              $unwind: {
+                path: "$user",
+              },
+            },
+            {
+              $match: {
+                $and: [
+                  {
+                    $or: [
+                      {
+                        "user.first_name": {
+                          $regex: searchString,
+                          $options: "i",
+                        },
+                      },
+                      {
+                        "user.last_name": {
+                          $regex: searchString,
+                          $options: "i",
+                        },
+                      },
+                      {
+                        "user.mobile": {
+                          $regex: searchString,
+                          $options: "i",
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    status: "Active",
+                  },
+                ],
+              },
+            },
+            {
+              $lookup: {
+                from: "colleges",
+                localField: "college",
+                foreignField: "_id",
+                as: "college",
+              },
+            },
+            {
+              $unwind: {
+                path: "$college",
+              },
+            },
+            {
+              $project: {
+                collegeId: "$college._id",
+                collegeName: "$college.collegeName",
+                first_name: "$user.first_name",
+                last_name: "$user.last_name",
+                mobile: "$user.mobile",
+                email: "$user.email",
+                userId: "$user._id",
+                inviteCode: "$inviteCode",
+              },
+            },
+          ])
+        res.status(200).json({
+            status: "success",
+            message: "Getting User successfully",
+            data: data
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+// Controller for adding a user to allowedUsers
+exports.addContestMaster = async (req, res) => {
+    try {
+        const { id, contestMasterId } = req.params; // ID of the contest and the user to add
+
+        if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(contestMasterId)) {
+            return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+        }
+
+        const result = await Contest.findByIdAndUpdate(
+            id,
+            { $push: { contestMaster: { contestMasterId: contestMasterId, addedOn: new Date() } } },
+            { new: true }  // This option ensures the updated document is returned
+        );
+
+        if (!result) {
+            return res.status(404).json({ status: "error", message: "Contest not found" });
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: "User added to allowedUsers successfully",
+            data: result
         });
     } catch (error) {
         res.status(500).json({

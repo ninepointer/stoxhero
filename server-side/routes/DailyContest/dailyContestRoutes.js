@@ -21,7 +21,7 @@ router.put('/contest/:id/varifycodeandparticipate', Authenticate, contestControl
 router.put('/contest/:id/register',Authenticate, contestController.registerUserToContest);
 router.put('/contest/:id/share',Authenticate, contestController.copyAndShare);
 
-// router.put('/contest/:id/allow/:userId', contestController.addAllowedUser);
+router.get('/contest/:id/contestMasters', contestController.getContestMasterList);
 // router.put('/contest/:id/remove/:userId', contestController.removeAllowedUser);
 
 // Routes for getting contests 
