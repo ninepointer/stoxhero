@@ -13,6 +13,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function MultiSelectMaster({masterList}) {
   // console.log("collegeList", collegeList)
+  // 
   const [selectedNames, setSelectedNames] = useState([]);
   console.log("selectedNames", selectedNames)
   return (
@@ -21,7 +22,10 @@ export default function MultiSelectMaster({masterList}) {
       <Select
         multiple
         value={selectedNames}
-        onChange={(e) => setSelectedNames(e.target.value)}
+        onChange={(e) => {
+          console.log("value.......", e.target.value, [masterList.filter((elem) => elem.mobile === (e.target.value[0]).split("-")[1].trim())[0]?._id])
+          // return setSelectedNames([masterList.filter((elem) => elem.mobile === (e.target.value[0]).split("-")[1].trim())[0]?._id] )
+        }}
         input={<OutlinedInput label="Multiple Select" />}
         renderValue={(selected) => (
           <Stack gap={1} direction="row" flexWrap="wrap">
@@ -49,6 +53,7 @@ export default function MultiSelectMaster({masterList}) {
             {elem?.contestMaster?.first_name+" "+elem?.contestMaster?.last_name+"-"+elem?.contestMasterMobile+"-"+elem?.inviteCode}
           </MenuItem>
         ))}
+        
       </Select>
     </FormControl>
   );

@@ -105,6 +105,7 @@ function Index() {
     isBankNifty: "" || contest?.isBankNifty,
     isFinNifty: "" || contest?.isFinNifty,
     isAllIndex: "" || contest?.isAllIndex,
+    collegeContestType: "" || contest?.collegeContestType,
 
     registeredUsers: {
       userId: "",
@@ -457,105 +458,144 @@ function Index() {
 
                 {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
                   <>
-                    <Grid item xs={12} md={3} xl={6}>
-                      <CustomAutocomplete
-                        id="country-select-demo"
-                        sx={{
-                          width: 526,
-                          height: 10,
-                          '& .MuiAutocomplete-clearIndicator': {
-                            color: 'black',
-                          },
-                        }}
-                        options={college}
-                        disabled={((isSubmitted || contest) && (!editing || saving))}
-                        value={collegeSelectedOption}
-                        onChange={handleCollegeChange}
-                        autoHighlight
-                        getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
-                        renderOption={(props, option) => (
-                          <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                            {option.collegeName + ' - ' + option.zone}
-                          </MDBox>
-                        )}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="College"
-                            inputProps={{
-                              ...params.inputProps,
-                              autoComplete: 'new-password', // disable autocomplete and autofill
-                              style: { color: 'grey', height: 11 }, // set text color to white
+
+                    {/* contestType */}
+                    <Grid item xs={12} md={3} xl={3}>
+                      <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
+                        <InputLabel id="demo-multiple-name-label">College Contest Type</InputLabel>
+                        <Select
+                          labelId="demo-multiple-name-label"
+                          id="demo-multiple-name"
+                          name='collegeContestType'
+                          disabled={((isSubmitted || contest) && (!editing || saving))}
+                          // defaultValue={id ? portfolios?.portfolio : ''}
+                          value={formState?.collegeContestType}
+                          // onChange={handleTypeChange}
+                          onChange={(e) => {
+                            setFormState(prevState => ({
+                              ...prevState,
+                              collegeContestType: e.target.value
+                            }))
+                          }}
+                          input={<OutlinedInput label="College Contest Type" />}
+                          sx={{ minHeight: 45 }}
+                          MenuProps={MenuProps}
+                        >
+                          <MenuItem
+                            value='Inter-College'
+                          >
+                            Inter-College
+                          </MenuItem>
+                          <MenuItem
+                            value='Intra-College'
+                          >
+                            Intra-College
+                          </MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    {(formState?.collegeContestType === "Intra-College" || contest?.collegeContestType === "Intra-College") &&
+
+                      <>
+                        {/* single college */}
+                        <Grid item xs={12} md={3} xl={6}>
+                          <CustomAutocomplete
+                            id="country-select-demo"
+                            sx={{
+                              width: 526,
+                              height: 10,
+                              '& .MuiAutocomplete-clearIndicator': {
+                                color: 'black',
+                              },
                             }}
-                            InputLabelProps={{
-                              style: { color: 'grey' },
-                            }}
+                            options={college}
+                            disabled={((isSubmitted || contest) && (!editing || saving))}
+                            value={collegeSelectedOption}
+                            onChange={handleCollegeChange}
+                            autoHighlight
+                            getOptionLabel={(option) => option.collegeName + ' - ' + option.zone}
+                            renderOption={(props, option) => (
+                              <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                                {option.collegeName + ' - ' + option.zone}
+                              </MDBox>
+                            )}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="College"
+                                inputProps={{
+                                  ...params.inputProps,
+                                  autoComplete: 'new-password', // disable autocomplete and autofill
+                                  style: { color: 'grey', height: 11 }, // set text color to white
+                                }}
+                                InputLabelProps={{
+                                  style: { color: 'grey' },
+                                }}
+                              />
+                            )}
                           />
-                        )}
-                      />
-                    </Grid>
+                        </Grid>
 
-                    <Grid item xs={12} md={3} xl={6}>
-                      <CustomAutocomplete2
-                        id="country-select-demo"
-                        sx={{
-                          width: 526,
-                          height: 10,
-                          '& .MuiAutocomplete-clearIndicator': {
-                            color: 'black',
-                          },
-                        }}
-                        options={contestMaster}
-                        disabled={((isSubmitted || contest) && (!editing || saving))}
-                        value={masterSelectedOption}
-                        onChange={handleContestMasterChange}
-                        autoHighlight
-                        getOptionLabel={(option) => option?.contestMaster?.first_name + " " + option?.contestMaster?.last_name + ' - ' + option?.contestMasterMobile}
-                        renderOption={(props, option) => (
-                          <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                            {option?.contestMaster?.first_name + " " + option?.contestMaster?.last_name + ' - ' + option?.contestMasterMobile}
-                          </MDBox>
-                        )}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Contest Master"
-                            inputProps={{
-                              ...params.inputProps,
-                              autoComplete: 'new-password', // disable autocomplete and autofill
-                              style: { color: 'grey', height: 11 }, // set text color to white
+                        {/* contest master */}
+                        <Grid item xs={12} md={3} xl={6}>
+                          <CustomAutocomplete2
+                            id="country-select-demo"
+                            sx={{
+                              width: 526,
+                              height: 10,
+                              '& .MuiAutocomplete-clearIndicator': {
+                                color: 'black',
+                              },
                             }}
-                            InputLabelProps={{
-                              style: { color: 'grey' },
-                            }}
+                            options={contestMaster}
+                            disabled={((isSubmitted || contest) && (!editing || saving))}
+                            value={masterSelectedOption}
+                            onChange={handleContestMasterChange}
+                            autoHighlight
+                            getOptionLabel={(option) => option?.contestMaster?.first_name + " " + option?.contestMaster?.last_name + ' - ' + option?.contestMasterMobile + " - " + `(${option?.inviteCode})`}
+                            renderOption={(props, option) => (
+                              <MDBox component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                                {option?.contestMaster?.first_name + " " + option?.contestMaster?.last_name + ' - ' + option?.contestMasterMobile  + " - " + `(${option?.inviteCode})`}
+                              </MDBox>
+                            )}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Contest Master"
+                                inputProps={{
+                                  ...params.inputProps,
+                                  autoComplete: 'new-password', // disable autocomplete and autofill
+                                  style: { color: 'grey', height: 11 }, // set text color to white
+                                }}
+                                InputLabelProps={{
+                                  style: { color: 'grey' },
+                                }}
+                              />
+                            )}
                           />
-                        )}
-                      />
-                    </Grid>
+                        </Grid>
+                      </>
+                    }
 
-                    <Grid item xs={12} md={6} xl={6} mt={3}>
-                      <TextField
-                        disabled={((isSubmitted || contest) && (!editing || saving))}
-                        id="outlined-required"
-                        label='College Code *'
-                        name='collegeCode'
-                        fullWidth
-                        defaultValue={editing ? formState?.collegeCode : contest?.collegeCode}
-                        onChange={handleChange}
-                      />
-                    </Grid>
+                    {(formState?.collegeContestType === "Inter-College" || contest?.collegeContestType === "Inter-College") &&
 
-                    <Grid item xs={12} md={6} xl={6} mt={3}>
-                        <MultiSelectCollege collegeList={college}/>
-                    </Grid>
+                      <>
 
-                    <Grid item xs={12} md={6} xl={6} mt={3}>
-                        <MultiSelectMaster masterList={contestMaster}/>
-                    </Grid>
+                        {/* multiple college */}
+                        <Grid item xs={12} md={6} xl={6} mt={3}>
+                          <MultiSelectCollege collegeList={college} />
+                        </Grid>
+
+                        {/* multiple contest master */}
+                        <Grid item xs={12} md={6} xl={6} mt={3}>
+                          <MultiSelectMaster masterList={contestMaster} />
+                        </Grid>
+                      </>
+                    }
                   </>
                 }
 
-                {/* {!contest &&  */}
                 <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
