@@ -41,7 +41,7 @@ const TradingAlgo = () => {
         axios.get(`${baseUrl}api/v1/readtradingAlgo`, {withCredentials: true})
         .then((res)=>{
             setAlgoData(res.data)
-            console.log(res.data);
+            // console.log(res.data);
         }).catch((err)=>{
             return new Error(err);
         })
@@ -66,7 +66,7 @@ const TradingAlgo = () => {
             })
         });
         const dataResp = await res.json();
-        console.log(dataResp);
+        // console.log(dataResp);
         if (dataResp.status === 422 || dataResp.error || !dataResp) {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
@@ -86,7 +86,7 @@ const TradingAlgo = () => {
         } else{
             isDefault = true;
         }
-        console.log("isDefault", isDefault)
+        // console.log("isDefault", isDefault)
         const res = await fetch(`${baseUrl}api/v1/updatedefaultalgo/${id}`, {
             method: "PATCH",
             credentials: "include",
@@ -99,8 +99,8 @@ const TradingAlgo = () => {
             })
         });
         const dataResp = await res.json();
-        console.log("isDefault", dataResp)
-        console.log(dataResp);
+        // console.log("isDefault", dataResp)
+        // console.log(dataResp);
         if (dataResp.status === 422 || dataResp.error) {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
@@ -133,7 +133,7 @@ const TradingAlgo = () => {
             })
         });
         const dataResp = await res.json();
-        console.log(dataResp);
+        // console.log(dataResp);
         if (dataResp.status === 422 || dataResp.error || !dataResp) {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
@@ -165,7 +165,7 @@ const TradingAlgo = () => {
             })
         });
         const dataResp = await res.json();
-        console.log(dataResp);
+        // console.log(dataResp);
         if (dataResp.status === 422 || dataResp.error || !dataResp) {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
@@ -197,7 +197,7 @@ const TradingAlgo = () => {
             })
         });
         const dataResp = await res.json();
-        console.log(dataResp);
+        // console.log(dataResp);
         if (dataResp.status === 422 || dataResp.error || !dataResp) {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");
@@ -230,7 +230,7 @@ const TradingAlgo = () => {
             })
         });
         const dataResp = await res.json();
-        console.log(dataResp);
+        // console.log(dataResp);
         if (dataResp.status === 422 || dataResp.error || !dataResp) {
             window.alert(dataResp.error);
             // console.log("Failed to Edit");

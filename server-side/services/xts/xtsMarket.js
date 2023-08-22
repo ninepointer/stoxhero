@@ -7,7 +7,7 @@ const TradableInstrument = require("../../models/Instruments/tradableInstruments
 const {xtsAccountType} = require("../../constant");
 const fetchXTSToken = require("./xtsHelper/fetchXTSToken");
 const {client, isRedisConnected} = require("../../marketData/redisClient");
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const {save} = require("./xtsHelper/saveXtsCred");
 const { ObjectId } = require('mongodb');
 
@@ -65,7 +65,7 @@ const xtsMarketLogin = async ()=>{
 
 const onDisconnect = async()=>{
   xtsMarketDataWS.onDisconnect((disconnect) => {
-    console.log("xts socket disconnected", disconnect);
+    // console.log("xts socket disconnected", disconnect);
   });
 }
 
@@ -93,7 +93,7 @@ const subscribeInstrument = async()=>{
 
 const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
   // console.log(exchangeSegment)
-  let response3 = await xtsMarketDataAPI.subscription({
+  let response3 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -103,7 +103,7 @@ const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
     xtsMessageCode: 1512,
   });
 
-  let response4 = await xtsMarketDataAPI.subscription({
+  let response4 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -277,6 +277,7 @@ const getXTSTicksForUserPosition = async (socket, id) => {
 
 
 const emitTicks = async (userId) => {
+  const io = getIOValue();
   let intervalId;
   if (intervalId) {
     clearInterval(intervalId);

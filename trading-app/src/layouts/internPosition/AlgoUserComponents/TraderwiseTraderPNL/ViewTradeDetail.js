@@ -123,11 +123,11 @@ function ViewTradeDetail({userId, socket}) {
     }, [marketData])
 
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     tradeData.map((elem)=>{
         totalTransactionCost += Number(elem.brokerage);

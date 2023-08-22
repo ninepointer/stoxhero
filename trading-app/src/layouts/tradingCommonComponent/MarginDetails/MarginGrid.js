@@ -14,7 +14,7 @@ import MDAvatar from '../../../components/MDAvatar';
 import { renderContext } from '../../../renderContext';
 
 const MarginGrid = () => {
-  console.log("rendering : papermargin")
+  // console.log("rendering : papermargin")
   //console.log("rendering in userPosition: marginGrid")
   const { netPnl, totalRunningLots, pnlData  } = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"

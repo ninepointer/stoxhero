@@ -79,7 +79,7 @@ function PastContest() {
         const interval = setInterval(() => {
           axios.get(`${baseUrl}api/v1/servertime`)
             .then((res) => {
-                console.log("server time", res.data.data)
+                // console.log("server time", res.data.data)
               setServerTime(res.data.data);
             });
         }, 5000);
@@ -102,7 +102,7 @@ function PastContest() {
         // Format the date as "dd Month yyyy | hh:mm AM/PM"
         const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
 
-        console.log(formattedDate);
+        // console.log(formattedDate);
 
         // Helper function to get the month name
         function getMonthName(month) {

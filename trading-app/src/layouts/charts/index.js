@@ -3,6 +3,7 @@ import CandlestickChart from './chart';
 import io from 'socket.io-client';
 import { userContext } from "../../AuthContext";
 import { useLocation } from 'react-router-dom';
+import { socketContext } from '../../socketContext';
 
 
 const Index = () => {
@@ -17,17 +18,19 @@ const Index = () => {
   const [instrument, setInstrument] = useState(location?.search?.split('=')[1] ?? 'NIFTY-I')
   const [livePoints, setLivePoints] = useState([]);
   // const [liveData, setLiveData] = useState();
+  const socket = useContext(socketContext);
+
   const socketUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
 
-  const socket = io.connect(socketUrl);
+  // const socket = io.connect(socketUrl);
   useEffect(() => {
-    socket.on('connect', () => {
+    // socket.on('connect', () => {
       socket.emit('userId', getDetails.userDetails._id);
       socket.emit('chart-room', {userId: getDetails.userDetails._id, instruemnt: instrument});
 
       getHistory(); // Get the history right after establishing the WebSocket connection
       getLive();
-    });
+    // });
 
     socket.on('HistoryOHLCResult', data => {
       // Convert and set the historical data
@@ -37,7 +40,7 @@ const Index = () => {
       // console.log('history', convertData(data.Result));
     });
 
-    const getHistory = () => {
+    function getHistory() {
       // console.log('calling getHistory', period, timeFrame);
       socket.emit('GetHistory', {
         MessageType: 'GetHistory',
@@ -51,7 +54,7 @@ const Index = () => {
     }
 
     // console.log("period", period, timeFrame)
-    const getLive = () => {
+    function getLive(){
       socket.emit('SubscribeRealtime', {
         MessageType: 'SubscribeRealtime',
         Exchange: 'NFO',
@@ -101,7 +104,7 @@ const Index = () => {
 
     return () => {
       clearTimeout(timeoutId);
-      socket.disconnect();
+      // socket.disconnect();
     };
   }, [minuteTimeframe]);
 

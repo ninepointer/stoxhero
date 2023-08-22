@@ -17,7 +17,7 @@ export default function UserTodayTradeData() {
 
   const [data, setData] = useState([]);
   const getDetails = useContext(userContext);
-  console.log("getDetails", getDetails)
+  // console.log("getDetails", getDetails)
   let url = getDetails.userDetails.isAlgoTrader ? "gettodaysmocktradesparticularuser" : "gettodaysmocktradesparticulartrader"
 
   useEffect(()=>{
@@ -93,8 +93,8 @@ export default function UserTodayTradeData() {
       </MDTypography>
     );
     
-    console.log(typeof(torders));
-    console.log(torders)
+    // console.log(typeof(torders));
+    // console.log(torders)
     todaysorders.push(torders)
   })
 

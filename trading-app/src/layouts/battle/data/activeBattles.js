@@ -29,7 +29,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
     Promise.all([call1])
     .then(([api1Response]) => {
       // Process the responses here
-      console.log(api1Response.data.data);
+      // console.log(api1Response.data.data);
       setUpcomingContest(api1Response.data.data)
     })
     .catch((error) => {

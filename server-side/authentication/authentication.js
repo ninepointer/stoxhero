@@ -29,7 +29,7 @@ const Authenticate = async (req, res, next) => {
             user._id = new ObjectId(user._id);
             await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 180);
             if(new Date(user?.passwordChangedAt)>new Date(verifyToken?.iat)){
-                console.log('password changed');
+                // console.log('password changed');
             }
         } else {
             

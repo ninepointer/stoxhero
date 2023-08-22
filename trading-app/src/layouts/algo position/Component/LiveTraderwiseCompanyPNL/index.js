@@ -35,7 +35,7 @@ function LiveTraderwiseCompantPNL(props) {
   const [lastestLiveTradeQunaity, setLatestLiveTradeQuantity] = useState([]);
   const [lastestLiveTradeStatus, setLatestLiveTradeStatus] = useState([]);
 
-  console.log("re rendering index live")
+  // console.log("re rendering index live")
   // const {render, setRender} = Render
 
   const renderMenu = (
@@ -99,12 +99,12 @@ function LiveTraderwiseCompantPNL(props) {
     })
   }, [marketData])
 
-  useEffect(() => {
-    return () => {
-        //console.log('closing');
-        props.socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       //console.log('closing');
+  //       props.socket.close();
+  //   }
+  // }, [])
 
   useEffect(()=>{
          // Get Lastest Trade timestamp

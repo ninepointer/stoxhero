@@ -7,13 +7,13 @@ const ProtectedRoute = ({children }) => {
     const isAuthenticated = !!Cookies.get("jwtoken"); // Check if JWT exists in cookies
     const navigate = useNavigate();
     const location = useLocation();
-    console.log('token', Cookies.get("jwtoken"));
+    // console.log('token', Cookies.get("jwtoken"));
   
     // console.log('condition')
     if (!isAuthenticated) {
       setTimeout(() => {
         navigate('/login', { state: { from: location } });
-        console.log('navigated');
+        // console.log('navigated');
      }, 400);
       return null;
     }

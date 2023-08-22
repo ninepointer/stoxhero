@@ -39,7 +39,7 @@ export default function DailyContestOrders() {
         }
     })
       .then((res)=>{
-          console.log(res.data)
+          // console.log(res.data)
           setData(res.data.data);
           // setCount(res.data.count);
           setIsLoading(false)

@@ -111,11 +111,11 @@ function MockOverallCompantPNL({socket}) {
     }, [trackEvent])
 
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     console.log("tradeData 1", tradeData)
 

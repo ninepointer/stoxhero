@@ -33,14 +33,14 @@ import Timer from "./timer";
 // import { AiOutlineLineChart } from "react-icons/ai";
 
 
-function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData}) {
+function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData, setWatchList}) {
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
   //console.log("socket print", socket)
   const getDetail = useContext(userContext);
-  console.log("rendering : InstrumentDetails", subscriptionId)
+  // console.log("rendering : InstrumentDetails", subscriptionId)
   let styleTD = {
     textAlign: "center",
     fontSize: "11px",
@@ -79,7 +79,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
   }, [])
 
   useEffect(() => {
-    console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
+    // console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
     axios.get(`${baseUrl}api/v1/readsetting`, {withCredentials: true})
       .then((res) => {
         setShowTimer(res.data[0].timer)
@@ -91,12 +91,12 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       });
   }, []);
 
-  useEffect(() => {
-    return () => {
-      // socket.emit('removeKey', socket.id)
-      socket.close();
-    }
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     // socket.emit('removeKey', socket.id)
+  //     socket.close();
+  //   }
+  // }, []);
 
   const [instrumentData, setInstrumentData] = useState([]);
 
@@ -122,6 +122,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   url = url.slice(1);
 
+  // console.log("isAllIndex url", isAllIndex, url);
   if(from === dailyContest){
     endPoint = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
   } else{
@@ -130,6 +131,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
 
   useEffect(()=>{
+    // console.log("endPoint", endPoint)
     axios.get(`${endPoint}`,{
       withCredentials: true,
       headers: {
@@ -139,7 +141,8 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
       },
     })
     .then((res) => {
-        setInstrumentData(res.data.data)
+        setInstrumentData(res.data.data);
+        setWatchList(res.data.data);
     }).catch((err) => {
         return new Error(err);
     })
@@ -148,7 +151,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   const instrumentDetailArr = [];
   instrumentData.map((elem)=>{
-    console.log("instrument date", elem)
+    // console.log("instrument date", elem)
     const date = new Date(elem.contractDate);
     const day = date.getDate(); // returns the day of the month (4 in this case)
     const month = date.toLocaleString('default', { month: 'long' }); // returns the full month name (May in this case)

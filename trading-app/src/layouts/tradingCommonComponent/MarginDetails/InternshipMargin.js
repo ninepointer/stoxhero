@@ -23,7 +23,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  console.log("margin", todayAmount)
+  // console.log("margin", todayAmount)
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/internship/marginDetail/${BatchId}`,{
@@ -40,7 +40,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
       
   }, [render, BatchId]);
 
-  console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail)
+  // console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail)
 
   let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
 
@@ -54,7 +54,7 @@ const InternShipMargin = ({BatchId, setyesterdayData}) => {
   let usedMargin = runningPnl >= 0 ? 0 : runningPnl
   let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
   
-  console.log("checkmargin", netPnl, fundDetail, fundDetail)
+  // console.log("checkmargin", netPnl, fundDetail, fundDetail)
     
     return (<>
   

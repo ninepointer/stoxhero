@@ -40,7 +40,7 @@ const initialState = {
   text: '',
   timeoutId: null,
   addOrRemoveCheck: null,
-  userInstrumentData: [],
+  // userInstrumentData: [],
   instrumentName: ''
 };
 
@@ -64,8 +64,8 @@ function reducer(state, action) {
       return { ...state, addOrRemoveCheck: action.payload };
     case 'setAddOrRemoveCheckTrue':
       return { ...state, addOrRemoveCheck: action.payload };
-    case 'setUserInstrumentData':
-      return { ...state, userInstrumentData: action.payload };
+    // case 'setUserInstrumentData':
+    //   return { ...state, userInstrumentData: action.payload };
     case 'setInstrumentName':
       return { ...state, instrumentName: action.payload };
   
@@ -76,10 +76,8 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, contestData}) {
+function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, contestData, watchList}) {
 
-  // console.log("rendering : tradable instrument", from)
-  //console.log("rendering in userPosition: TradableInstrument", from)
   const {render, setRender} = useContext(renderContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let textRef = useRef(null);
@@ -89,10 +87,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   const [state, dispatch] = useReducer(reducer, initialState);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
-  // const [addButtonClicked, setAddButtonClicked] = useState({
-  //   isClicked: false,
-  //   instrument: ""
-  // })
   const getDetails = useContext(userContext);
 
   const openSuccessSB = () => {
@@ -114,27 +108,28 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   },[isGetStartedClicked])
 
 
-  let url = `isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`
-  let endPointUrl;
-  if(from === dailyContest){
-    endPointUrl = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
-  } else{
-    endPointUrl = `${baseUrl}api/v1/instrumentDetails`
-  }
+  // let url = `isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`
+  // let endPointUrl;
+  // if(from === dailyContest){
+  //   endPointUrl = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
+  // } else{
+  //   endPointUrl = `${baseUrl}api/v1/instrumentDetails`
+  // }
   useEffect(()=>{
-    axios.get(`${endPointUrl}`,{
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-    })
-    .then((res) => {
-        dispatch({ type: 'setUserInstrumentData', payload: (res.data.data) });
-    }).catch((err) => {
-        return new Error(err);
-    })
+    // axios.get(`${endPointUrl}`,{
+    //   withCredentials: true,
+    //   headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //       "Access-Control-Allow-Credentials": true
+    //   },
+    // })
+    // .then((res) => {
+       
+    // }).catch((err) => {
+    //     return new Error(err);
+    // })
+    // dispatch({ type: 'setUserInstrumentData', payload: (watchList) });
   }, [render])
 
 
@@ -213,9 +208,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
     dispatch({ type: 'setInstrumentName', payload: `${strike} ${instrument_type}` });
     if(addOrRemove === "Add"){
-      // if(addButtonClicked.isClicked && addButtonClicked.instrument == instrument_token){
-      //   return;
-      // }
       dispatch({ type: 'setAddOrRemoveCheckTrue', payload: true });
       const res = await fetch(`${baseUrl}api/v1/addInstrument`, {
         method: "POST",
@@ -238,10 +230,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
           window.alert(data.error);
       }else{
         openSuccessSB();
-        // addButtonClicked.isClicked = true;
-        // addButtonClicked.instrument = instrument_token;
-        // setAddButtonClicked(addButtonClicked);
-        //console.log(data.message)
       }
       
     } else{
@@ -306,6 +294,8 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
   };
  //handleBuyClick
 
+//  console.log("watchList", watchList)
+
   return (
     <MDBox sx={{backgroundColor:"white", display:"flex", borderRadius:2, marginBottom:2}}>
       <MDBox display="flex" flexDirection="column" justifyContent="space-between" sx={{width:"100%"}}>
@@ -336,7 +326,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
             // let maxLot = (getDetails?.userDetails?.role?.roleName==infinityTrader) ? 900 : elem.lot_size*36
             elem.sellState = false;
             elem.buyState = false;
-            let perticularInstrumentData = state.userInstrumentData.filter((subElem)=>{
+            let perticularInstrumentData = watchList?.filter((subElem)=>{
               return subElem.instrumentToken === elem.instrument_token
             })
 

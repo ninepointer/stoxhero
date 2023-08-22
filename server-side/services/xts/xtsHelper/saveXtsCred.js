@@ -4,7 +4,7 @@ const {xtsAccountType} = require("../../../constant");
 const { ObjectId } = require("mongodb");
 
 exports.save = async (accountId, token, xtsType) => {
-    const user = await User.findOne({first_name: "System"});
+    const user = await User.findOne({ email: "system@ninepointer.in" });
     const InActiveToken = await RequestToken.findOneAndUpdate({status: "Active", accountType: xtsAccountType, xtsType: xtsType}, {
         $set:{
             status: "Inactive"

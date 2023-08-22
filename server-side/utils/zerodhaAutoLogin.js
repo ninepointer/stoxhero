@@ -18,7 +18,7 @@ function sleep(ms) {
 
 async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
 
-  console.log(ApiKey,SecretKey,UserId,Password)
+  console.log(ApiKey,SecretKey,UserId,Password, totp(process.env.KUSH_ACCOUNT_HASH_CODE))
     const {accountId, status} = req.body;
     const {userId} = req.user;
     (async () => {
@@ -53,6 +53,17 @@ async function zerodhaLogin(ApiKey,SecretKey,UserId,Password, req, resp) {
       
           requestTokens.save().then(async ()=>{
               await client.set(`kiteCredToday:${process.env.PROD}`, JSON.stringify({getApiKey: ApiKey, getAccessToken: accessToken}));
+              let date = new Date();
+
+              let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
+              tempTodayDate = tempTodayDate + "T01:30:00.000Z";
+              const tempDate = new Date(tempTodayDate);
+              const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+                    
+              console.log("secondsRemaining", secondsRemaining)
+          
+              await client.expire(`kiteCredToday:${process.env.PROD}`, secondsRemaining);
+          
               disconnectTicker();
               getKiteCred.getAccess().then((data) => {
                   createNewTicker(data.getApiKey, data.getAccessToken);

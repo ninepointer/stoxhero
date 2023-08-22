@@ -24,3 +24,7 @@ const infinityDB = process.env.INFINITYDB;
     console.log(err);
     console.log("no connection");
 })
+
+
+
+

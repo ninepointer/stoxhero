@@ -21,7 +21,7 @@ import MDButton from "../../../components/MDButton";
 // import bankniftyicon from '../../../assets/images/bankniftyicon.png'
 
 function StockIndexDailyContest({ socket }) {
-    console.log("rendering : infinity stockindex")
+    // console.log("rendering : infinity stockindex")
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [indexData, setIndexData] = useState([]);
     const [indexLiveData, setIndexLiveData] = useState([]);
@@ -40,7 +40,7 @@ function StockIndexDailyContest({ socket }) {
 
     useEffect(() => {
         socket.on("index-tick", (data) => {
-            console.log("index ticks", data)
+            // console.log("index ticks", data)
             setIndexLiveData(prevInstruments => {
                 const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
                 data.forEach(instrument => {
@@ -95,8 +95,6 @@ function StockIndexDailyContest({ socket }) {
         <>
             {finalArr.map((e) => {
                 return (
-
-
                     <Grid item xs={12} md={6} lg={3}>
                         <MDButton style={{ minWidth: '100%' }}>
                             <MDBox display='flex' alignItems='center'>

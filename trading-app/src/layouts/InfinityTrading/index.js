@@ -9,6 +9,7 @@ import ReactGA from "react-ga"
 
 import Header from "./Header";
 import { userContext } from "../../AuthContext";
+import { socketContext } from "../../socketContext";
 
 function Tables() {
   console.log("rendering in userPosition: infinity")
@@ -16,19 +17,21 @@ function Tables() {
   const getDetails = useContext(userContext);
 
 
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
+  const socket = useContext(socketContext);
+
 
   console.log("getDetails.userDetails", getDetails.userDetails)
   useEffect(() => {
-    socket.on("connect", () => {
+    // socket.on("connect", () => {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", getDetails.userDetails._id)
-    })
+    // })
     ReactGA.pageview(window.location.pathname)
   }, []);
   return (

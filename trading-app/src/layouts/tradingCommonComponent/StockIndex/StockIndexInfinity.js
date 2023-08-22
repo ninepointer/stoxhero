@@ -17,7 +17,7 @@ import bankniftyicon from '../../../assets/images/bankniftyicon.png'
 // import bankniftyicon from '../../../assets/images/bankniftyicon.png'
 
 function StockIndex({socket}) {
-    console.log("rendering : infinity stockindex")
+    // console.log("rendering : infinity stockindex")
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [indexData, setIndexData] = useState([]);
     const [indexLiveData, setIndexLiveData] = useState([]);
@@ -36,7 +36,7 @@ function StockIndex({socket}) {
 
     useEffect(()=>{
         socket.on("index-tick", (data) => {
-            console.log("index ticks", data)
+            // console.log("index ticks", data)
             setIndexLiveData(prevInstruments => {
               const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
               data.forEach(instrument => {

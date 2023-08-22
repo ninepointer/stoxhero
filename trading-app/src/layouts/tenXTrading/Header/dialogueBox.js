@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-import paymentQr from '../../../assets/images/paymentQr.jpeg';
+import paymentQr from '../../../assets/images/paymentQrc.jpg';
 
 //icons
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -168,7 +168,7 @@ export default function Dialogue({amount, name, id, walletCash, setCheckPayment,
     if(value === "success"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
-        messageObj.title = "Successfull";
+        messageObj.title = "Successful";
         messageObj.content = content
     };
     if(value === "reject"){
@@ -217,13 +217,13 @@ export default function Dialogue({amount, name, id, walletCash, setCheckPayment,
     <>
         {isSubscribed ?
         <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
-          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
           {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash}/>}
         </MDBox>
         :
         messege.thanksMessege ?
         <MDBox display='flex' justifyContent='center' alignItems='flex-end' gap='2px'>
-          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Trading</MDButton>
+          <MDButton variant="contained" color="dark" sx={{ fontSize: "10px"}} onClick={()=>{navigate(`/tenxtrading/${name}`, {state: {subscriptionId: id}})}} size='small'>Start Trading</MDButton>
           {allowRenewal && <Renew amount={amount} name={name} id={id} walletCash={walletCash} />}
         </MDBox>
         :

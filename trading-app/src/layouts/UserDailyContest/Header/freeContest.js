@@ -107,7 +107,7 @@ function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
         // Format the date as "dd Month yyyy | hh:mm AM/PM"
         const formattedDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()} | ${formatTime(date.getHours(), date.getMinutes())}`;
 
-        console.log(formattedDate);
+        // console.log(formattedDate);
 
         // Helper function to get the month name
         function getMonthName(month) {
@@ -269,7 +269,7 @@ function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
 
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='center' sx={{ width: '100%' }}>
-                                                            <ProgressBar progress={progressBar} />
+                                                            <ProgressBar entryFee={elem?.entryFee} progress={progressBar} />
                                                         </MDBox>
                                                     </Grid>
 

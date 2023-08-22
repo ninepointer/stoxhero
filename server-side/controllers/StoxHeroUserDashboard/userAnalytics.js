@@ -1117,7 +1117,7 @@ exports.getOverallRevenue = async (req, res) => {
     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
     startOfLastYear.setUTCHours(-5, -29, -59, -999);
 
-    console.log("Date TToday & Yesterday:",startOfToday,startOfYesterday)
+    // console.log("Date TToday & Yesterday:",startOfToday,startOfYesterday)
 
     const pipeline = [
       {
@@ -1167,7 +1167,7 @@ exports.getOverallRevenue = async (req, res) => {
       const pipeline = [
           {
               $match: {
-                  withdrawalSettlementDate: {
+                  withdrawalRequestDate: {
                       $gte: startDate,
                       ...(endDate && { $lt: endDate })
                   }

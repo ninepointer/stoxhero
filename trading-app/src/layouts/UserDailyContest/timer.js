@@ -42,11 +42,11 @@ const Timer = ({socket, date, setTimeDifference, id, elem}) => {
     }
   }, [serverTime]);
 
-  useEffect(() => {
-    return () => {
-      socket.close();
-    }
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     socket.close();
+  //   }
+  // }, []);
 
   return (
     <div>

@@ -9,7 +9,7 @@ const emailService = require("../utils/emailService")
 
 exports.createBattle = async (req, res) => {
     try {
-        console.log('req body',req.body)
+        // console.log('req body',req.body)
         const { 
             battleStatus, battleEndTime, battleStartTime, battleLiveTime, description, college, collegeCode,
             battleType, battleFor, entryFee, portfolio, minParticipants, battleExpiry, 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef,useContext, useMemo, useReducer, useCallback } from "react";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 // @mui material components
 import { Chart } from 'chart.js/auto';
 // Chart.register(...registerables);
@@ -13,31 +13,32 @@ import MarginGrid from "../tradingCommonComponent/MarginDetails/MarginGrid";
 import TradableInstrument from "../tradingCommonComponent/TradableInstrument/TradableInstrument";
 import StockIndex from "../tradingCommonComponent/StockIndex/StockIndex";
 import { userContext } from "../../AuthContext";
+import { socketContext } from "../../socketContext";
+// import { SocketContext } from "../../socketContext";
 
 
 
 
 function UserPosition() {
-  // const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
+  const [watchList, setWatchList] = useState([]);
+  const socket = useContext(socketContext);
 
 
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
   
 
 
   useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('userId', getDetails.userDetails._id)
-      socket.emit("user-ticks", getDetails.userDetails._id)
-    })
+    socket.emit('userId', getDetails.userDetails._id)
+    socket.emit("user-ticks", getDetails.userDetails._id)
   }, []);
 
   const memoizedStockIndex = useMemo(() => {
@@ -48,40 +49,26 @@ function UserPosition() {
     setIsGetStartedClicked(value);
   }, []);
 
-  // const memoizedSetReRender = useCallback((value) => {
-  //   setReRender(value);
-  // }, []);
-
   const memoizedTradableInstrument = useMemo(() => {
     return <TradableInstrument
-      
-      // reRender={reRender}
-      // setReRender={memoizedSetReRender}
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={'paperTrade'}
+      watchList={watchList}
     />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked]);
+  }, [watchList, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <InstrumentDetails
       socket={socket}
-      // reRender={reRender}
-      // setReRender={setReRender}
-      // setReRender={}
-      // isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"paperTrade"}
+      setWatchList={setWatchList}
     />;
-  }, [socket, handleSetIsGetStartedClicked]);
+  }, [setWatchList, socket, handleSetIsGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallGrid
-      
-      // reRender={reRender}
-      // setReRender={memoizedSetReRender}
-      // setReRender={}
-      // isGetStartedClicked={isGetStartedClicked}
       socket={socket}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={"paperTrade"}
@@ -95,19 +82,14 @@ function UserPosition() {
       <DashboardNavbar />
       <MDBox py={0} mt={1}>
 
-        {/* <StockIndex /> */}
-        {/* <StockIndex socket={socket}/> */}
         {memoizedStockIndex}
 
-        {/* <MemoizedTradableInstrument /> */}
-        {/* <TradableInstrument socket={socket} reRender={reRender} setReRender={setReRender} isGetStartedClicked={isGetStartedClicked} setIsGetStartedClicked={setIsGetStartedClicked}/> */}
         {memoizedTradableInstrument}
 
         <MDBox mt={0}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
               {memoizedInstrumentDetails}
-              {/* <InstrumentDetails socket={socket} Render={{ reRender, setReRender }} setIsGetStartedClicked={setIsGetStartedClicked} /> */}
             </Grid>
           </Grid>
         </MDBox>

@@ -25,7 +25,7 @@ exports.overallPnl = async (req, res, next) => {
     const tempDate = new Date(tempTodayDate);
     const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
-    console.log(today, batch)
+    // console.log(today, batch)
 
     try{
 
@@ -1203,7 +1203,7 @@ exports.updateUserWallet = async () => {
     
     ])
   
-    console.log(internship)
+    // console.log(internship)
 
     for(let elem of internship){
       const attendanceLimit = elem.attendancePercentage;
@@ -1226,7 +1226,7 @@ exports.updateUserWallet = async () => {
         }
       });
 
-      console.log("holiday date" , elem.endDate, elem.startDate, holiday)
+      // console.log("holiday date" , elem.endDate, elem.startDate, holiday)
 
       const profitCap = 15000;
 
@@ -1641,7 +1641,7 @@ exports.updateUserWallet = async () => {
                 </html>
                 `);
               }
-              console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+              // console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
             }
           }
         }

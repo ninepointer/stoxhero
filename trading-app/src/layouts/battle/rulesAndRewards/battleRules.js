@@ -29,7 +29,7 @@ const BattleRules = ({battle}) => {
       axios.get(`${baseUrl}api/v1/battles/${battle}/rules`)
       .then((res)=>{
                 setbattleRules(res.data.data);
-                console.log(res.data.data);
+                // console.log(res.data.data);
         }).catch((err)=>{
           return new Error(err);
       })
@@ -62,7 +62,7 @@ const BattleRules = ({battle}) => {
     rows.push(battleRule)
   })
 
-      console.log(rows)
+      // console.log(rows)
 
     return (
     <>

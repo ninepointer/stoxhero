@@ -185,7 +185,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
     return (
         <>
             <MDBox p={0.5} width='100%' display='flex' justifyContent='center'>
-                <Grid container spacing={1} display='flex' justifyContent='start' alignItems='center' xs={12} md={12} lg={12}>
+                <Grid container spacing={1} display='flex' justifyContent='center' alignItems='center' xs={12} md={12} lg={12}>
                     {battles?.map((battle) => {
                         return (
                             <Grid item xs={12} md={6} lg={4} key={battle?._id}>

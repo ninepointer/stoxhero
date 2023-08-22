@@ -1,6 +1,6 @@
 const InfinityTrader = require("../../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany");
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const mongoose = require('mongoose')
 const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../../services/adminRedis/infinityMock");
 const {marginCalculationTrader, marginCalculationCompany} = require("../../marketData/marginData");
@@ -9,6 +9,7 @@ const {clientForIORedis} = require('../../marketData/redisClient');
 
 exports.infinityTrade = async (req, res, otherData) => {
 
+    const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, realBuyOrSell, realQuantity, 
         real_instrument_token, realSymbol, trader } = req.body 
@@ -113,7 +114,7 @@ exports.infinityTrade = async (req, res, otherData) => {
         const results = await pipeline.exec();
 
         await session.abortTransaction();
-        res.status(201).json({status: 'error', message: 'Your trade was not completed. Please attempt the trade once more'});
+        res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
     } finally {
     // End the session
         session.endSession();

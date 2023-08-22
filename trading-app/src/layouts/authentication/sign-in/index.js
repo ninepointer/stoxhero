@@ -35,7 +35,7 @@ import { userRole } from '../../../variables';
 import { InfinityTraderRole } from '../../../variables';
 
 function Basic() {
-  console.log('Rendering sign in');
+  // console.log('Rendering sign in');
   // const [rememberMe, setRememberMe] = useState(false);
   const [userId, setEmail] = useState(false);
   const [pass, setPassword] = useState(false);
@@ -196,7 +196,7 @@ function Basic() {
             setInvalidDetail(`Mobile number incorrect`);
 
         }else{
-          console.log(res.status);
+          // console.log(res.status);
           if(res.status == 200 || res.status == 201){
               openSuccessSB("otp sent", data.message);
               setOtpGen(true);
@@ -246,7 +246,7 @@ function Basic() {
             setInvalidDetail(`OTP incorrect`);
         }else{
           let userData = await userDetail();
-          console.log(userData)
+          // console.log(userData)
           if(userData?.role?.roleName === adminRole){
             const from = location.state?.from || "/infinitydashboard";
             navigate(from);
@@ -280,7 +280,7 @@ function Basic() {
         })
       })
       const data = await res.json();
-      console.log(data.status);
+      // console.log(data.status);
       if(data.status === 200 || data.status === 201){ 
           // openSuccessSB("OTP Sent",data.message);
       }else{

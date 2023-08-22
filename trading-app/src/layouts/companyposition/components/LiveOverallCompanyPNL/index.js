@@ -106,11 +106,11 @@ function LiveOverallCompantPNL({socket}) {
   }, [trackEvent])
 
 
-  useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //       socket.close();
+  //   }
+  // }, [])
 
   console.log("latestLive", latestLive)
 

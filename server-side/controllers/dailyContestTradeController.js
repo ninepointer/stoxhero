@@ -9,7 +9,7 @@ const User = require("../models/User/userDetailSchema")
 const Instrument = require("../models/Instruments/instrumentSchema")
 const getKiteCred = require('../marketData/getKiteCred');
 const axios = require("axios")
-const io = require('../marketData/socketio');
+const {getIOValue} = require('../marketData/socketio');
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -854,7 +854,7 @@ exports.overallDailyContestCompanySidePnlThisMonth = async (req, res, next) => {
     // const today = new Date(todayDate);
     let monthStartDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-01`
     monthStartDate = monthStartDate + "T00:00:00.000Z";
-    console.log("Month Start Date:",monthStartDate)
+    // console.log("Month Start Date:",monthStartDate)
 
     const pipeline = [
         {
@@ -896,7 +896,7 @@ exports.overallDailyContestCompanySidePnlThisMonth = async (req, res, next) => {
     ]
 
     let x = await DailyContestMockCompany.aggregate(pipeline)
-    console.log("MTD",x)
+    // console.log("MTD",x)
     res.status(201).json({ message: "data received", data: x });
 }
 
@@ -951,7 +951,7 @@ exports.overallDailyContestCompanySidePnlLifetime = async (req, res, next) => {
     ]
 
     let x = await DailyContestMockCompany.aggregate(pipeline)
-    console.log("Lifetime",x)
+    // console.log("Lifetime",x)
     res.status(201).json({ message: "data received", data: x });
 }
 
@@ -1895,7 +1895,7 @@ const dailyContestLeaderBoard = async (id) => {
 
         const result = await aggregateRanks(ranks);
 
-        console.log("rsult", result.length, id)
+        // console.log("rsult", result.length, id)
         for (rank of result) {
 
             // if(id.toString() === "64b7770016c0eb3bec96a77b"){
@@ -1975,12 +1975,12 @@ exports.getRedisMyRankHTTP = async (req, res) => {
 
     const {id} = req.params;
     const employeeId = req.user.employeeid;
-    console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
+    // console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
     try {
         if (await client.exists(`leaderboard:${id}`)) {
 
             const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
-            console.log("leaderBoardRank", leaderBoardRank)
+            // console.log("leaderBoardRank", leaderBoardRank)
 
             if (leaderBoardRank == null) return null
 
@@ -2050,6 +2050,7 @@ exports.sendLeaderboardData = async () => {
 };
 
 async function processContestQueue() {
+    const io = getIOValue();
     // Get the current time
     const currentTime = new Date();
     // Define the start and end time for processing (9 am to 3:18 pm)
@@ -2086,7 +2087,7 @@ async function processContestQueue() {
 
 
 exports.sendMyRankData = async () => {
-
+    const io = getIOValue();
     try{
         const activeContest = await DailyContest.find({contestStatus: "Active"});
 
@@ -2110,7 +2111,7 @@ exports.sendMyRankData = async () => {
                             // console.log("userId", userId)
                             let data = await client.get(`dailyContestData:${userId}`);
                             data = JSON.parse(data);
-                            console.log("data", data);
+                            // console.log("data", data);
                             if(data){
                                 let {id, employeeId} = data;
                                 const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);
@@ -2134,6 +2135,7 @@ exports.sendMyRankData = async () => {
 }
 
 exports.emitServerTime = async () => {
+    const io = getIOValue();
     const interval = setInterval(() => {
         io.emit('serverTime', new Date());
     }, 1000); // Emit every second (adjust as needed)

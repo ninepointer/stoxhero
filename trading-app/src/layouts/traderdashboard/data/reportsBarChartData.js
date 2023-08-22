@@ -28,12 +28,12 @@ export default function TransactionCostData() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  let socket;
-  try{
-      socket = io.connect(`${baseUrl1}`)
-  } catch(err){
-      throw new Error(err);
-  }
+  // let socket;
+  // try{
+  //     socket = io.connect(`${baseUrl1}`)
+  // } catch(err){
+  //     throw new Error(err);
+  // }
 
   
   // const [tcost, setTCost] = useState();

@@ -255,39 +255,6 @@ export default function TenXSubscriptions() {
         }
 
       </Grid>
-      {activeTenXSubs?.length > 0 && <MDTypography mt={2} mb={2} color='white' fontWeight='bold'>Available Tenx Plans</MDTypography>}
-      <Grid container spacing={3} mb={1}>
-        {
-
-          activeTenXSubs?.map((elem, index) => (
-            <Grid item key={elem._id} xs={12} md={6} lg={4}>
-
-              <Card style={{ background: "#fff" }} variant="outlined">
-                {card({
-                  id: elem._id,
-                  plan: elem.plan_name,
-                  color: elem.plan_name === 'Beginner' ? 'info' : elem.plan_name === 'Intermediate' ? 'success' : 'error',
-                  icon: elem.plan_name === 'Beginner' ? beginner : elem.plan_name === 'Intermediate' ? intermediate : pro,
-                  price: elem.actual_price + "/-",
-                  // upto: "/"+elem.validity+" trading "+elem.validityPeriod,
-                  discount: "₹",
-                  discountPrice: elem.discounted_price + "/-",
-                  actual_discountPrice: elem.discounted_price,
-                  validity: elem.validity,
-                  validityPeriods: elem.validity + " trading " + elem.validityPeriod,
-                  plan1: elem?.features[0]?.description,
-                  plan2: elem.features[1]?.description,
-                  plan3: elem.features[2]?.description,
-                  plan4: elem.features[3]?.description,
-                  plan5: elem.features[4]?.description,
-                })}
-              </Card>
-            </Grid>
-          ))
-        }
-
-      </Grid>
-
     </MDBox>
   );
 }

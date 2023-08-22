@@ -2,7 +2,7 @@ const College = require("../../models/Careers/collageSchema");
 // const User = require("../../models/User/userDetailSchema")
 
 exports.createCollege = async(req, res, next)=>{
-    console.log(req.body) // batchID
+    // console.log(req.body) // batchID
     const{collegeName, zone } = req.body;
 
     if(await College.findOne({collegeName: collegeName.trim()})) return res.status(400).json({message:'This college exists.'});
@@ -38,7 +38,7 @@ exports.getCollege = async(req, res, next) => {
 exports.editCollege = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
 
     const college = await College.findOneAndUpdate({_id : id}, {
         $set:{
@@ -55,7 +55,7 @@ exports.editCollege = async(req, res, next) => {
 exports.deleteCollege = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
 
     const college = await College.findByIdAndUpdate(id, { isDeleted: true })
 

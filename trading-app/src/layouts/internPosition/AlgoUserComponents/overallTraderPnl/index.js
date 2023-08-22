@@ -88,11 +88,11 @@ function OverallTraderPNL({socket, batches, setBatches, selectedBatch, setSelect
     }, [selectedBatch])
 
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     console.log("tradeData", tradeData)
 

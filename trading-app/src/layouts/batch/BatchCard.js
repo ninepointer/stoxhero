@@ -27,7 +27,7 @@ const BatchCard = ({createContestForm,setCreateContestForm,isObjectNew,setIsObje
       axios.get(`${baseUrl}api/v1/batch/active`)
       .then((res)=>{
                 setBatchData(res.data.data);
-                console.log(res.data.data)
+                // console.log(res.data.data)
         }).catch((err)=>{
           return new Error(err);
       })
@@ -62,7 +62,7 @@ const BatchCard = ({createContestForm,setCreateContestForm,isObjectNew,setIsObje
         // combine date and time string with suffix
         const finalFormattedDate = `${dayOfMonth}${suffix} ${formattedDate?.split(" ")[0]}, ${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`;
         
-        console.log(finalFormattedDate); // Output: "3rd April, 9:27 PM"
+        // console.log(finalFormattedDate); // Output: "3rd April, 9:27 PM"
         
      
 

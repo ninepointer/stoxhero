@@ -47,8 +47,8 @@ const s3 = new AWS.S3({
 });
 
 const resizePhoto = async (req, res, next) => {
-    console.log('resize func');
-    console.log(req.files,req.body)
+    // console.log('resize func');
+    // console.log(req.files,req.body)
     if (!req.files) {
       // no file uploaded, skip to next middleware
       console.log('no file');
@@ -85,15 +85,15 @@ const uploadToS3 = async (req, res, next) => {
   
         // upload image to S3 bucket
         const s3Data = await s3.upload(params).promise();
-        console.log('file uploaded');
-        console.log(s3Data.Location);
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
         (req).profilePhotoUrl = s3Data.Location;
       }
       for(file in req.files){
         
       }
   
-      console.log('calling next of s3 upload func');
+      // console.log('calling next of s3 upload func');
       next();
     } catch (err) {
       console.error(err);

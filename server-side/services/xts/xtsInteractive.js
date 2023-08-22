@@ -1,7 +1,7 @@
 const XTSInteractive = require('xts-interactive-api').Interactive;
 const XTSInteractiveWS = require('xts-interactive-api').WS;
 const RetrieveOrder = require("../../models/TradeDetails/retreiveOrder")
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const { xtsAccountType, zerodhaAccountType} = require("../../constant");
 const { client, getValue, clientForIORedis } = require('../../marketData/redisClient');
 const InfinityLiveTrader = require("../../models/TradeDetails/infinityLiveUser");
@@ -124,6 +124,7 @@ const placedOrderData = async () => {
 
 const placedOrderDataHelper = async(initialTime, orderData) => {
   let isRedisConnected = getValue();
+  const io = getIOValue();
   let date = new Date();
   // console.log("inside placedOrderDataHelper")
   let {OrderSide, buyOrSell, ExchangeInstrumentID, ProductType,
@@ -409,7 +410,7 @@ const autoPlaceOrder = (obj, res) => {
         singleUser,
         marginData
       } = obj;
-      console.log(obj)
+      // console.log(obj)
       let isRedisConnected = getValue();
       isReverseTrade = false;
       let exchangeSegment;
@@ -486,7 +487,7 @@ const autoPlaceOrder = (obj, res) => {
 const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
   
   let isRedisConnected = getValue();
-
+  const io = getIOValue();
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity } = traderData
 
@@ -763,7 +764,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     let redisApproval = pipelineForSet?._result[0][1] === "OK" && pipelineForSet?._result[1][1] === "OK" && pipelineForSet?._result[2][1] === "OK" && pipelineForSet?._result[3][1] === "OK" && pipelineForSet?._result[4][1] === "OK"
 
     if (redisApproval) {
-      console.log("in redisApproval")
+      // console.log("in redisApproval")
       await session.commitTransaction();
     } else if (status == "REJECTED") {
       console.log("in rejected")
@@ -818,7 +819,7 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
 }
 
 const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
-  
+  const io = getIOValue();
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
     instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData } = traderData
 
@@ -1003,7 +1004,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
     if(!dontSendResp){
       if(singleUser){
         const updateRealTrade = await UserPermission.updateOne({userId: new ObjectId(trader)}, { $set: { isRealTradeEnable: false } })
-        console.log("updateRealTrade", updateRealTrade)
+        // console.log("updateRealTrade", updateRealTrade)
       } else{
         const updateRealTrade = await UserPermission.updateMany({}, { $set: { isRealTradeEnable: false } })
 

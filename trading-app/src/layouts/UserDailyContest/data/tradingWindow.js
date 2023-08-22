@@ -10,9 +10,6 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import AMargin from '../../../assets/images/amargin.png'
-import Profit from '../../../assets/images/profit.png'
-import Tcost from '../../../assets/images/tcost.png'
 // import Chain from '../../../assets/images/chain.png'
 // import Nifty from '../../../assets/images/niftycharticon.png'
 // import BNifty from '../../../assets/images/bniftycharticon.png'
@@ -31,24 +28,21 @@ import Leaderboard from '../data/dailyContestLeaderboard'
 import DailyContestMyRank from '../data/dailyContestMyRank'
 // import { NetPnlContext } from '../../../PnlContext';
 import {useNavigate} from "react-router-dom"
-import { userContext } from "../../../AuthContext";
+// import { userContext } from "../../../AuthContext";
+import PnlAndMarginData from "./pnlAndMarginData";
 
 
 function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
-    const [yesterdayData, setyesterdayData] = useState({});
-    const [availbaleMargin, setAvailbleMargin] = useState([]);
-    const pnl = useContext(NetPnlContext);
+    const [watchList, setWatchList] = useState([]);
     const navigate = useNavigate();
-    const [myRank, setMyRank] = useState(0);
-    const getDetails = useContext(userContext)
     let contestId = data?.data;
     let endTime = data?.endTime;
     useEffect(() => {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
-            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
                 navigate(`/contest/result`, {
                     state: { contestId: contestId}
@@ -56,14 +50,7 @@ function Header({ socket, data }) {
             }
         });
     }, []);
-
-    // useEffect(()=>{
-    //     socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
-    //         setMyRank(data);
-    //       console.log("this is leaderboard data", data)
-    //     })
-    // }, [])
-
+    
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
       }, []);
@@ -87,8 +74,9 @@ function Header({ socket, data }) {
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
           contestData={data}
+          watchList={watchList}
         />;
-      }, [data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+      }, [watchList, data, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
     
       const memoizedInstrumentDetails = useMemo(() => {
         return <WatchList
@@ -98,8 +86,9 @@ function Header({ socket, data }) {
           from={dailyContest}
           subscriptionId={contestId}
           contestData={data}
+          setWatchList={setWatchList}
         />;
-      }, [data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+      }, [setWatchList, data, contestId, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
     
       const memoizedOverallPnl = useMemo(() => {
         return <OverallPnl
@@ -108,19 +97,18 @@ function Header({ socket, data }) {
           setIsGetStartedClicked={handleSetIsGetStartedClicked}
           from={dailyContest}
           subscriptionId={contestId}
-          setAvailbleMargin={setAvailbleMargin}
+        //   setAvailbleMargin={setAvailbleMargin}
           contestData={data}
         />;
       }, [data, contestId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     
-    //   console.log("yesterdayData", yesterdayData);
 
     return (
         <>
             <MDBox color="dark" mt={2} mb={1} borderRadius={10} minHeight='80vH'>
                 <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
-                        <Grid container spacing={1} xs={12} md={12} lg={12}>
+                        {/* <Grid container spacing={1} xs={12} md={12} lg={12}>
                             <Grid item xs={12} md={6} lg={3}>
                                 <MDButton style={{ minWidth: '100%' }}>
                                     <MDBox display='flex' alignItems='center'>
@@ -157,7 +145,8 @@ function Header({ socket, data }) {
                                     </MDBox>
                                 </MDButton>
                             </Grid>
-                        </Grid>
+                        </Grid> */}
+                        <PnlAndMarginData contestId={contestId} />
                     </MDBox>
                 </MDBox>
 
@@ -206,11 +195,11 @@ function Header({ socket, data }) {
                     </Grid>
                 </Grid>
 
-                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid spacing={-4} item xs={12} md={6} lg={12} >
                         <DailyContestMargin contestId={contestId} availbaleMargin={availbaleMargin} setyesterdayData={setyesterdayData} />
                     </Grid>
-                </Grid>
+                </Grid> */}
             </MDBox>
         </>
     );

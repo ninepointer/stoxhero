@@ -27,6 +27,8 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   const [availbaleMargin, setAvailbleMargin] = useState([]);
   const navigate = useNavigate();
+  const [watchList, setWatchList] = useState([]);
+
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;
@@ -43,8 +45,9 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={tenxTrader}
       subscriptionId={subscriptionId}
+      watchList={watchList}
     />;
-  }, [isGetStartedClicked, handleSetIsGetStartedClicked, subscriptionId]);
+  }, [watchList, isGetStartedClicked, handleSetIsGetStartedClicked, subscriptionId]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -53,8 +56,9 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={tenxTrader}
       subscriptionId={subscriptionId}
+      setWatchList={setWatchList}
     />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
+  }, [setWatchList, socket, handleSetIsGetStartedClicked, isGetStartedClicked, subscriptionId]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl

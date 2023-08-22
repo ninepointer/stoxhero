@@ -13,7 +13,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
 import { Typography } from '@mui/material';
-import paymentQr from '../../../assets/images/paymentQr.jpeg';
+import paymentQr from '../../../assets/images/paymentQrc.jpg';
 // import MDTypography from '../../../components/MDTypography';
 // import { userContext } from '../../../AuthContext';
 // import { useNavigate } from 'react-router-dom';
@@ -53,14 +53,14 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         const cashTransactions = (res.data.data)?.transactions?.filter((transaction) => {
           return transaction.transactionType === "Cash";
         });
-        console.log((res.data.data)?.transactions);
+        // console.log((res.data.data)?.transactions);
   
         const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
           return total + transaction?.amount;
         }, 0);
   
         setUserWallet(totalCashAmount.toFixed(2));
-        console.log("totalCashAmount", totalCashAmount)
+        // console.log("totalCashAmount", totalCashAmount)
   
       }).catch((err) => {
         console.log("Fail to fetch data of user", err);
@@ -132,7 +132,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       })
     });
     const dataResp = await res.json();
-    console.log(dataResp);
+    // console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
       // openSuccessSB("error", dataResp.message)
       setMessege({

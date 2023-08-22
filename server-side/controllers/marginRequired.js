@@ -426,7 +426,7 @@ exports.saveLiveUsedMargin = async ()=>{
   
           try {
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers });
-            liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
+            let liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
             // console.log(liveData)
             zerodhaMargin = marginData.data.data.orders[0].total;
             // total += zerodhaMargin;
@@ -438,7 +438,7 @@ exports.saveLiveUsedMargin = async ()=>{
               runningLots: finalArr[i].lots,
               transaction_type: buyOrSell,
               noOfTrader: finalArr[i].noOfTrader,
-              ltp: liveData[0].last_price,
+              ltp: liveData?.last_price,
             })
             // console.log(total, marginData.data.data.orders[0]);
           } catch (e) {
@@ -588,8 +588,8 @@ exports.saveMockUsedMargin = async ()=>{
   
           try {
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers });
-            liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
-            // console.log(liveData)
+            let liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
+            console.log(liveData)
             zerodhaMargin = marginData.data.data.orders[0].total;
             // total += zerodhaMargin;
             // console.log(zerodhaMargin);
@@ -600,7 +600,7 @@ exports.saveMockUsedMargin = async ()=>{
               runningLots: finalArr[i].lots,
               transaction_type: buyOrSell,
               noOfTrader: finalArr[i].noOfTrader,
-              ltp: liveData[0].last_price,
+              ltp: liveData?.last_price,
             })
             // console.log(total, marginData.data.data.orders[0]);
           } catch (e) {
@@ -762,7 +762,7 @@ exports.saveMockDailyContestUsedMargin = async ()=>{
               runningLots: finalArr[i].lots,
               transaction_type: buyOrSell,
               noOfTrader: finalArr[i].noOfTrader,
-              ltp: liveData[0].last_price,
+              ltp: liveData?.last_price,
             })
             // console.log(total, marginData.data.data.orders[0]);
           } catch (e) {

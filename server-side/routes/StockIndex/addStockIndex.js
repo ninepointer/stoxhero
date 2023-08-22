@@ -18,10 +18,10 @@ router.post("/stockindex",authentication, restrictTo('Admin', 'SuperAdmin'), asy
 
     try{
         let {exchangeSegment, accountType, displayName, exchange, instrumentSymbol, status} = req.body;
-        console.log(req.body)
+        // console.log(req.body)
         const id = req.user._id;
         let instrumentToken = await fetchToken(exchange, instrumentSymbol);
-        console.log("Instrument Token: ",instrumentToken)
+        // console.log("Instrument Token: ",instrumentToken)
 
         if(!displayName || !exchange || !instrumentSymbol || !status || !instrumentToken){
             if(!instrumentToken){

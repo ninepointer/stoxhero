@@ -77,11 +77,11 @@ function OverallTraderPNL({socket}) {
     }, [])
 
 
-    useEffect(() => {
-      return () => {
-          socket.close();
-      }
-    }, [])
+    // useEffect(() => {
+    //   return () => {
+    //       socket.close();
+    //   }
+    // }, [])
 
     console.log("tradeData", tradeData)
 

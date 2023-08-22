@@ -9,6 +9,7 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import { AiOutlineEdit } from 'react-icons/ai';
 import { CircularProgress } from "@mui/material";
+// import TabContext from '@material-ui/lab/TabContext';
 
 
 import battleRewardData from "../data/battleRewardData";
@@ -29,7 +30,7 @@ const BattleRewards = ({battle}) => {
       axios.get(`${baseUrl}api/v1/battles/${battle}/rewards`)
       .then((res)=>{
                 setbattleRewards(res.data.data);
-                console.log(res.data.data);
+                // console.log(res.data.data);
         }).catch((err)=>{
           return new Error(err);
       })

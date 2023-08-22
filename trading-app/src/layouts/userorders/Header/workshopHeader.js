@@ -86,7 +86,7 @@ function Header() {
         },
     })
     .then((res) => {
-        console.log("Orders:",res.data)
+        // console.log("Orders:",res.data)
         setInternshipData(res.data.data)
         setInternshipCount(res.data.count)
         setInternshipFilteredData(res.data.data)
@@ -112,7 +112,7 @@ function Header() {
         },
     })
     .then((res) => {
-        console.log("orders",res.data)
+        // console.log("orders",res.data)
         setInternshipData(res.data.data)
         setInternshipCount(res.data.count)
         setInternshipFilteredData(res.data.data)
@@ -136,7 +136,7 @@ function Header() {
         },
       })
       .then((res) => {
-          console.log("internship orders",res.data)
+          // console.log("internship orders",res.data)
           setInternshipData(res.data.data)
           setInternshipCount(res.data.count)
           setInternshipFilteredData(res.data.data)
@@ -152,7 +152,7 @@ function Header() {
   function handleInternshipClick(){
     // console.log("HandleClick",rejectedFilter)
     setInternshipFilteredData(internshipData?.filter((item)=> {
-       console.log(!buyInternshipFilter,!sellInternshipFilter)
+      //  console.log(!buyInternshipFilter,!sellInternshipFilter)
        if(buyInternshipFilter && item.buyOrSell === 'BUY') {
         return true;
         }

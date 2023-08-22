@@ -36,7 +36,7 @@ const InstrumentMapping = () => {
         axios.get(`${baseUrl}api/v1/readInstrumentAlgo`, {withCredentials: true})
         .then((res)=>{
             setMappingData(res.data)
-            console.log(res.data);
+            // console.log(res.data);
         }).catch((err)=>{
             return new Error(err);
         })

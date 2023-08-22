@@ -1,6 +1,6 @@
 
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useContext } from "react";
 import { io } from "socket.io-client";
 // @mui material components
 import { Chart } from 'chart.js/auto';
@@ -21,25 +21,29 @@ import MDBox from "../../components/MDBox";
 
 // import OverallTraderPnl from "./AlgoUserComponents/overallTraderPnl";
 import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
+import { socketContext } from "../../socketContext";
 
 function AlgoUser() {
 
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  let socket;
-  try{
-      socket = io.connect(`${baseUrl1}`)
-  } catch(err){
-      throw new Error(err);
-  }
+  // let socket;
+  // try{
+  //     socket = io.connect(`${baseUrl1}`)
+  // } catch(err){
+  //     throw new Error(err);
+  // }
+
+  const socket = useContext(socketContext);
+
 
    
     useEffect(()=>{
 
         //console.log(socket);
-        socket.on("connect", ()=>{
+        // socket.on("connect", ()=>{
             socket.emit("company-ticks", true)
-        })
+        // })
 
     }, []);
 

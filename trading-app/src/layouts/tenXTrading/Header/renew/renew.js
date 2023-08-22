@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-import paymentQr from '../../../../assets/images/paymentQr.jpeg';
+import paymentQr from '../../../../assets/images/paymentQrc.jpg';
 
 //icons
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -141,7 +141,7 @@ export default function Renew({amount, name, id, walletCash}) {
     if(value === "success"){
         messageObj.color = 'success'
         messageObj.icon = 'check'
-        messageObj.title = "Successfull";
+        messageObj.title = "Successful";
         messageObj.content = content
     };
     if(value === "reject"){

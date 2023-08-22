@@ -32,7 +32,6 @@ const OptionChain = ({ socket, data }) => {
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    // console.log("initialValue", initialValue, isNifty, isBank, isFin, isAll, data?.isBank )
     const [selectIndex, setSelectIndex] = useState(initialValue);
     const [belowCE, setBelowCE] = useState([]);
     const [aboveCE, setAboveCE] = useState([]);
@@ -45,25 +44,28 @@ const OptionChain = ({ socket, data }) => {
 
 
     useEffect(()=>{
-    socket.emit("company-ticks", true)
-    socket.on("tick", (data) => {
-        console.log("this is live market data", data);
-        setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
-            instrumentMap.set(instrument.instrument_token, instrument);
-        });
-        return Array.from(instrumentMap.values());
-        });
-    })
-    }, [])
+        if(open){
+            socket.emit("company-ticks", true)
+            socket.on("tick", (data) => {
+                // console.log("this is live market data", data);
+                setMarketData(prevInstruments => {
+                const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
+                data.forEach(instrument => {
+                    instrumentMap.set(instrument.instrument_token, instrument);
+                });
+                return Array.from(instrumentMap.values());
+                });
+            })
+        }
+    }, [open])
 
     useEffect(() => {
-        setIsLoading(true)
-        console.log("Inside Use Effect")
-        axios.get(`${baseUrl}api/v1/optionChain/${selectIndex}`, {withCredentials: true})
+        if(open){
+            setIsLoading(true)
+            // console.log("Inside Use Effect")
+            axios.get(`${baseUrl}api/v1/optionChain/${selectIndex}`, {withCredentials: true})
             .then((res) => {
-                console.log(res.data)
+                // console.log(res.data)
 
                 let belowCEData = (res.data.belowSpot).filter((elem) => {
                     return elem.instrument_type === "CE"
@@ -81,8 +83,6 @@ const OptionChain = ({ socket, data }) => {
                 setAboveCE(aboveCEData);
                 setBelowPE(belowPEData);
                 setAbovePE(abovePEData);
-                // setBelow(res.data.belowSpot);
-                // setAbove(res.data.aboveSpot);
                 setIsLoading(false)
             }).catch((err) => {
                 //window.alert("Server Down");
@@ -91,20 +91,21 @@ const OptionChain = ({ socket, data }) => {
                 }, 500)
                 return new Error(err);
             })
-    }, [selectIndex])
-
-    useEffect(() => {
-        return () => {
-          socket?.close();
         }
-    }, []);
+    }, [selectIndex, open])
+
+    // useEffect(() => {
+    //     return () => {
+    //       socket?.close();
+    //     }
+    // }, []);
 
     const handleClickOpen = async () => {
         setOpen(true);
     };
 
     const handleClose = async (e) => {
-
+        socket.emit("leave-company-room", true)
         setOpen(false);
     };
 
@@ -249,7 +250,7 @@ const OptionChain = ({ socket, data }) => {
                                         let offerPe = liveDataPE[0]?.depth?.sell[0]?.price
 
                                         // const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
-                                        console.log("is hover", elem.isHover)
+                                        // console.log("is hover", elem.isHover)
                                         return (
                                             <Grid
                                                 onMouseOver={() => handleMouseOver(index)}
@@ -327,7 +328,7 @@ const OptionChain = ({ socket, data }) => {
                                             return elem?.strike == subelem?.strike;
                                         })
 
-                                        console.log("checking pe", elem?.instrument_type)
+                                        // console.log("checking pe", elem?.instrument_type)
 
                                         let liveData = marketData.filter((subelem) => {
                                             return elem.instrument_token == subelem.instrument_token || elem.exchange_token == subelem.instrument_token

@@ -20,7 +20,7 @@ exports.liveTrade = async (reqBody, res) => {
          createdOn, uId, algoBox, instrumentToken, realTrade, realBuyOrSell, realQuantity, apiKey, 
          accessToken, userId, real_instrument_token, realSymbol, switching, dontSendResp, tradeBy} = reqBody
 
-         console.log(reqBody)
+        //  console.log(reqBody)
 
          if(switching){
             tradeBy = "System"
@@ -81,7 +81,7 @@ exports.liveTrade = async (reqBody, res) => {
     .then(async (resp)=>{
 
         const order_Id = resp.data.data.order_id
-        console.log("order_id", resp.data.data.order_id);
+        // console.log("order_id", resp.data.data.order_id);
 
         const url2 = `https://api.kite.trade/orders/${order_Id}`;
       
