@@ -10,10 +10,10 @@ import axios from "axios";
 
 
 export default function ContestMasterList({saving,dailyContest, action, updatedDocument}) {
-    const [open, setOpen] = useState(false);
+    // const [open, setOpen] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contestMasters,setContestMaster] = React.useState([]);
-    let [update,setUpdate] = React.useState(true);
+    // let [update,setUpdate] = React.useState(true);
     const [contestMasterCount,setContestMasterCount] = useState(0);
     async function getAllowedUsers() {
       let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contest/${dailyContest?._id}/contestMasters`, {
@@ -38,7 +38,7 @@ export default function ContestMasterList({saving,dailyContest, action, updatedD
 
     useEffect(()=>{
       getAllowedUsers();
-    },[saving, open, update, updatedDocument])
+    },[saving, updatedDocument])
 
     console.log("dailyContest", dailyContest)
 

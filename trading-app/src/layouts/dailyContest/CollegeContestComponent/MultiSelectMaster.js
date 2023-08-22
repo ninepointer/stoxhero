@@ -23,7 +23,7 @@ export default function MultiSelectMaster({masterList}) {
         multiple
         value={selectedNames}
         onChange={(e) => {
-          console.log("value.......", e.target.value, [masterList.filter((elem) => elem.contestMasterMobile === (e.target.value[0]).split("-")[1].trim())[0]?._id])
+          // console.log("value.......", e.target.value, [masterList.filter((elem) => elem.contestMasterMobile === (e.target.value[0]).split("-")[1].trim())[0]?._id])
           return setSelectedNames([masterList.filter((elem) => elem.contestMasterMobile === (e.target.value[0]).split("-")[1].trim())[0]?._id] )
         }}
         // onChange={(e) => setSelectedNames(e.target.value)}

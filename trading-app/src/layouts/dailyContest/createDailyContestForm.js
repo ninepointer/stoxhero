@@ -81,7 +81,7 @@ function Index() {
   const [masterSelectedOption, setMasterSelectedOption] = useState();
 
   const [action, setAction] = useState(false);
-  // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
+  const [updateContestMasterDocument, setUpdateContestMasterDoc] = useState([]);
 
   const [formState, setFormState] = useState({
     contestName: '' || contest?.contestName,
@@ -934,8 +934,8 @@ function Index() {
 
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
-                  <Users contestId={contest?._id ? contest?._id : dailyContest?._id} setUpdatedDocument={setUpdatedDocument} />
-                  <ContestMasterList dailyContest={contest?._id ? contest : dailyContest}/>
+                  <Users setUpdateContestMasterDoc={setUpdateContestMasterDoc} contestId={contest?._id ? contest?._id : dailyContest?._id} setUpdatedDocument={setUpdatedDocument} />
+                  <ContestMasterList updateContestMasterDocument={updateContestMasterDocument} dailyContest={contest?._id ? contest : dailyContest}/>
                 </MDBox>
               </Grid>}
 

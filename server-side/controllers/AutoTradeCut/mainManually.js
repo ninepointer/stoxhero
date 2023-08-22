@@ -80,9 +80,10 @@ const autoCutMainManuallyMock = async() => {
     if(data.length === 0){
         await tenx();
         await paperTrade();
-        await internship();
+        
         await infinityTrade();
         await dailyContestMock();
+        await internship();
         return;
     }
 

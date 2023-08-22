@@ -7,8 +7,9 @@ const Internship = require("../../models/mock-trade/internshipTrade");
 const PaperTrader = require("../../models/mock-trade/paperTrade");
 const User = require("../../models/User/userDetailSchema");
 const {autoPlaceOrder} = require("../../services/xts/xtsInteractive")
-const { takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade, takeAutoDailyContestMockTrade } = require("./autoTradeManually");
+const { takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade, takeAutoDailyContestMockTrade, takeInternshipTrades } = require("./autoTradeManually");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
+const singleLivePrice = require('../../marketData/sigleLivePrice');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -922,5 +923,125 @@ const infinityTradeLive = async () => {
   });
 };
 
-module.exports = { dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive };
+const internshipTradeMod = async () => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
 
+  // let tradeArr = [];
+  const data = await Internship.aggregate(
+    [
+      {
+        $match:
+        {
+          trade_time: {
+            $gte: today
+          },
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group:
+        {
+          _id: {
+            userId: "$trader",
+            batch: "$batch",
+            exchange: "$exchange",
+            symbol: "$symbol",
+            instrumentToken: "$instrumentToken",
+exchangeInstrumentToken: "$exchangeInstrumentToken",
+            variety: "$variety",
+            validity: "$validity",
+            order_type: "$order_type",
+            Product: "$Product",
+          },
+          runningLots: {
+            $sum: "$Quantity",
+          },
+          takeTradeQuantity: {
+            $sum: {
+              $multiply: ["$Quantity", -1],
+            },
+          },
+        },
+      },
+      {
+        $project:
+        {
+          _id: 0,
+          userId: "$_id.userId",
+          batch: "$_id.batch",
+          exchange: "$_id.exchange",
+          symbol: "$_id.symbol",
+          instrumentToken: "$_id.instrumentToken",
+          exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+          variety: "$_id.variety",
+          validity: "$_id.validity",
+          order_type: "$_id.order_type",
+          Product: "$_id.Product",
+          runningLots: "$runningLots",
+          takeTradeQuantity: "$takeTradeQuantity",
+        },
+      },
+      {
+        $match: {
+          runningLots: {
+            $ne: 0
+          },
+        }
+      }
+
+    ]
+  );
+  const system = await User.findOne({email:'system@ninepointer.in'}).select('_id');  
+  //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
+  const uniqueTokensMap = {};
+  const uniqueInstrumentObjects = data.filter(item => {
+      if (!uniqueTokensMap[item.instrumentToken]) {
+          uniqueTokensMap[item.instrumentToken] = true;
+          return true; // Keep this item
+      }
+      return false; // Discard this item
+  }).map(item => ({
+      instrumentToken: item.instrumentToken,
+      exchange: item.exchange,
+      symbol: item.symbol
+  }));
+  const pricesByTokens = await fetchPricesForTokens(uniqueInstrumentObjects);
+  const tradeObjects = data.map((item)=>{
+    return {
+      status: "COMPLETE", average_price: pricesByTokens?.item?.instrumentToken, Quantity: -item?. runningLots, Product:item?.Product, 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:item?.variety, validity: item?.validity, exchange:item?.exchange, order_type:item?.OrderType, 
+      symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
+      instrumentToken: item?.instrumentToken, brokerage: brokerageUser,batch: item?.batch, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?. trader, amount: (Number(-item?.runningLots) * pricesByTokens?.item?.instrumentToken), trade_time: new Date(),
+    }
+  });
+  
+  await takeInternshipTrades(tradeObjects);
+
+}
+
+async function fetchPricesForTokens(tokenObjects) {
+  // Initiate all the fetch operations in parallel
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  const fetchPromises = tokenObjects.map(async (obj) => {
+      const priceObj = await singleLivePrice(obj.exchange, obj.symbol);
+      return{price: priceObj.last_price, token: obj.token}
+  });
+
+  // Wait for all fetch operations to complete
+  const fetchedPrices = await Promise.all(fetchPromises);
+
+  // Convert the array of results into the desired object format
+  const priceByToken = {};
+  for (let item of fetchedPrices) {
+      priceByToken[item.token] = item.price;
+  }
+
+  return priceByToken;
+}
+
+
+module.exports = { dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive, internshipTradeMod };

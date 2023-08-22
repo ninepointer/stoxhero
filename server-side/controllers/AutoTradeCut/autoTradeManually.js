@@ -767,4 +767,140 @@ async function brokerage(){
 
 }
 
-module.exports = { takeAutoDailyContestMockTrade, takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade };
+const takeInternshipTrades = async(tradeObjs)=>{
+  return new Promise(async (resolve, reject) => {
+    const io = getIOValue();
+    let isRedisConnected = getValue();
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T23:59:59.999Z";
+    const today = new Date(todayDate);
+    const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+    const {brokerageDetailBuyUser, brokerageDetailSellUser} = await brokerage();
+
+
+    //console.log("1st")
+    
+
+    tradeObjs.forEach((trade, index) => {
+      let brokerageUser;
+      if (buyOrSell === "BUY") {
+          brokerageUser = buyBrokerage(Math.abs(Number(trade?.amount)), brokerageDetailBuyUser[0]);
+      } else {
+          brokerageUser = sellBrokerage(Math.abs(Number(trade?.amount)), brokerageDetailSellUser[0]);
+      }
+      tradeObjs[index] = {...trade, brokerage:brokerageUser};
+  });
+
+  try {
+    await InternshipTrade.insertMany(tradeObjs);
+    console.log('Documents inserted');
+    for(trade of tradeObjs){
+      if (isRedisConnected && await client.exists(`${trade?.trader.toString()}${trade?.batch.toString()}: overallpnlIntern`)) {
+        let pnl = await client.get(`${trade?.trader.toString()}${trade?.batch.toString()}: overallpnlIntern`)
+        pnl = JSON.parse(pnl);
+        const matchingElement = pnl.find((element) => (element._id.instrumentToken === trade?.instrumentToken && element._id.product === trade?.Product));
+  
+        // if instrument is same then just updating value
+        if (matchingElement) {
+          // Update the values of the matching element with the values of the first document
+          matchingElement.amount += (trade?.amount * -1);
+          matchingElement.brokerage += Number(trade?.brokerage);
+          matchingElement.lastaverageprice = trade?.average_price;
+          matchingElement.lots += Number(trade?.Quantity);
+  
+        } else {
+          // Create a new element if instrument is not matching
+          pnl.push({
+            _id: {
+              symbol: trade?.symbol,
+              product: trade?.Product,
+              instrumentToken: trade?.instrumentToken,
+              exchange: trade?.exchange,
+            },
+            amount: (trade?.amount * -1),
+            brokerage: Number(trade?.brokerage),
+            lots: Number(trade?.Quantity),
+            lastaverageprice: trade?.average_price,
+          });
+        }
+  
+        await client.set(`${trade?.trader.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(pnl))
+  
+      }
+  
+      if (isRedisConnected) {
+        await client.expire(`${trade?.trader.toString()}${trade?.batch.toString()}: overallpnlIntern`, secondsRemaining);
+      }
+  
+      io.emit(`${trade?.trader.toString()}autoCut`, trade);
+    }
+    resolve();
+} catch (err) {
+    console.error('Error inserting documents:', err);
+}
+    // InternshipTrade.findOne({ order_id: order_id })
+    //   .then((dataExist) => {
+    //     if (dataExist) {
+    //       console.log("data already exist in internship autotrade")
+    //       return;
+    //     }
+
+    //     const internship = new InternshipTrade({
+    //       status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+    //       variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+    //       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch, exchangeInstrumentToken,
+    //       createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
+    //     });
+
+    //     internship.save().then(async () => {
+          
+    //       if (isRedisConnected && await client.exists(`${trader.toString()}${batch.toString()}: overallpnlIntern`)) {
+    //         let pnl = await client.get(`${trader.toString()}${batch.toString()}: overallpnlIntern`)
+    //         pnl = JSON.parse(pnl);
+    //         const matchingElement = pnl.find((element) => (element._id.instrumentToken === internship.instrumentToken && element._id.product === internship.Product));
+
+    //         // if instrument is same then just updating value
+    //         if (matchingElement) {
+    //           // Update the values of the matching element with the values of the first document
+    //           matchingElement.amount += (internship.amount * -1);
+    //           matchingElement.brokerage += Number(internship.brokerage);
+    //           matchingElement.lastaverageprice = internship.average_price;
+    //           matchingElement.lots += Number(internship.Quantity);
+
+    //         } else {
+    //           // Create a new element if instrument is not matching
+    //           pnl.push({
+    //             _id: {
+    //               symbol: internship.symbol,
+    //               product: internship.Product,
+    //               instrumentToken: internship.instrumentToken,
+    //               exchange: internship.exchange,
+    //             },
+    //             amount: (internship.amount * -1),
+    //             brokerage: Number(internship.brokerage),
+    //             lots: Number(internship.Quantity),
+    //             lastaverageprice: internship.average_price,
+    //           });
+    //         }
+
+    //         await client.set(`${trader.toString()}${batch.toString()}: overallpnlIntern`, JSON.stringify(pnl))
+
+    //       }
+
+    //       if (isRedisConnected) {
+    //         await client.expire(`${trader.toString()}${batch.toString()}: overallpnlIntern`, secondsRemaining);
+    //       }
+
+    //       io.emit(`${trader.toString()}autoCut`, internship);
+    //       resolve();
+    //     }).catch((err) => {
+    //       console.log("in err autotrade", err)
+    //       reject(err);
+    //     });
+
+    //   }).catch(err => { console.log("fail", err); reject(err); });
+  });
+}
+
+module.exports = { takeAutoDailyContestMockTrade, takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade, takeInternshipTrades };
