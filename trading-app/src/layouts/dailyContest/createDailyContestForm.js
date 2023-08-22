@@ -87,6 +87,7 @@ function Index() {
     contestName: '' || contest?.contestName,
     contestStartTime: dayjs(contest?.contestStartTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
     contestEndTime: dayjs(contest?.contestEndTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
+    contestLiveTime: dayjs(contest?.contestLiveTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
     allowedUsers: [{ addedOn: '', userId: '' }],
     contestStatus: '' || contest?.contestStatus,
     contestType: '' || contest?.contestType,
@@ -215,7 +216,7 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const {collegeContestType, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry, contestLiveTime } = formState;
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
       method: "POST",
       credentials: "include",
@@ -224,7 +225,11 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, 
+        maxParticipants, payoutPercentage, entryFee, description, 
+        portfolio: portfolio?.id, contestType, contestFor, collegeCode: [masterSelectedOption?.inviteCode], 
+        college, isNifty, isBankNifty, isFinNifty, isAllIndex, 
+        contestExpiry, collegeContestType, contestLiveTime, contestMasterId: masterSelectedOption?._id
       })
     });
 
@@ -261,7 +266,7 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const {collegeContestType, contestLiveTime, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
       method: "PUT",
@@ -271,7 +276,11 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestName, contestStartTime, contestEndTime, contestStatus, 
+        maxParticipants, payoutPercentage, entryFee, description, 
+        portfolio: portfolio?.id, contestType, contestFor, 
+        collegeCode, college, isNifty, isBankNifty, isFinNifty, 
+        isAllIndex, contestExpiry, collegeContestType, contestLiveTime
       })
     });
 
@@ -413,6 +422,27 @@ function Index() {
                           onChange={(newValue) => {
                             if (newValue && newValue.isValid()) {
                               setFormState(prevState => ({ ...prevState, contestEndTime: newValue }))
+                            }
+                          }}
+                          minDateTime={null}
+                          sx={{ width: '100%' }}
+                        />
+                      </DemoItem>
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['MobileDateTimePicker']}>
+                      <DemoItem>
+                        <MobileDateTimePicker
+                          label="Contest Live Time"
+                          disabled={((isSubmitted || contest) && (!editing || saving))}
+                          value={formState?.contestLiveTime || dayjs(dailyContest?.contestLiveTime)}
+                          onChange={(newValue) => {
+                            if (newValue && newValue.isValid()) {
+                              setFormState(prevState => ({ ...prevState, contestLiveTime: newValue }))
                             }
                           }}
                           minDateTime={null}
@@ -700,7 +730,7 @@ function Index() {
                     defaultValue={editing ? formState?.description : contest?.description}
                     onChange={handleChange}
                   />
-                </Grid>{}Y+ 
+                </Grid>
                 <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Portfolio</InputLabel>
@@ -932,7 +962,7 @@ function Index() {
                 )}
               </Grid>
 
-              {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
+              {((isSubmitted || contest) && (formState?.collegeContestType === "Inter-College" || contest?.collegeContestType === "Inter-College")) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>
                   <Users setUpdateContestMasterDoc={setUpdateContestMasterDoc} contestId={contest?._id ? contest?._id : dailyContest?._id} setUpdatedDocument={setUpdatedDocument} />
                   <ContestMasterList updateContestMasterDocument={updateContestMasterDocument} dailyContest={contest?._id ? contest : dailyContest}/>

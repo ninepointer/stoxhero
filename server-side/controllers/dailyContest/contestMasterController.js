@@ -230,15 +230,22 @@ exports.contestMasterBySearch = async (req, res) => {
 exports.addContestMaster = async (req, res) => {
     try {
         const { id, contestMasterId } = req.params; // ID of the contest and the user to add
-
+        const {inviteCode, collegeId} = req.body;
+        console.log(inviteCode, collegeId, id, contestMasterId)
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(contestMasterId)) {
             return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
         }
 
         const result = await Contest.findByIdAndUpdate(
-            id,
-            { $push: { contestMaster: { contestMasterId: contestMasterId, addedOn: new Date() } } },
-            { new: true }  // This option ensures the updated document is returned
+          id,
+          {
+            $push: {
+              contestMaster: { contestMasterId: contestMasterId, addedOn: new Date() },
+              collegeCode: inviteCode,
+              college: collegeId
+            }
+          },
+          { new: true } // This option ensures the updated document is returned
         );
 
         if (!result) {
@@ -251,11 +258,40 @@ exports.addContestMaster = async (req, res) => {
             data: result
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             status: "error",
             message: "Something went wrong",
             error: error.message
         });
     }
+};
+
+exports.removeContestMaster = async (req, res) => {
+  try {
+      const { id, contestMasterId } = req.params; // ID of the contest and the user to remove
+
+      if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(contestMasterId)) {
+          return res.status(400).json({ status: "success", message: "Invalid contest ID or user ID" });
+      }
+
+      const contest = await Contest.findOne({ _id: id });
+      let participants = contest?.contestMaster?.filter((item) => (item.contestMasterId).toString() != contestMasterId.toString());
+      contest.contestMaster = [...participants];
+      // console.log(contest.allowedUsers, userId)
+      await contest.save({ validateBeforeSave: false });
+
+      res.status(200).json({
+          status: "success",
+          message: "User removed from allowedUsers successfully",
+          data: contest
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: "error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
 };
 

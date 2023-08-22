@@ -14,6 +14,10 @@ const contestSchema = new Schema({
         type:Date,
         required: true
     },
+    contestLiveTime:{
+        type:Date,
+        required: true
+    },
     contestOn:{
         type:String,
         // required:true
@@ -32,10 +36,15 @@ const contestSchema = new Schema({
         enum: ['StoxHero','College'],
         required: true,
     },
-    collegeCode:{
+    collegeContestType:{
+        type: String,
+        // enum: ['StoxHero','College'],
+        required: true,
+    },
+    collegeCode:[{
         type: String,
         // required: true,
-    },
+    }],
     entryFee:{
         type:Number,
         default: 0
@@ -48,10 +57,10 @@ const contestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio',
     },
-    college:{
+    college:[{
         type: Schema.Types.ObjectId,
         ref: 'college',
-    },
+    }],
     interestedUsers:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         registeredOn:{type:Date},

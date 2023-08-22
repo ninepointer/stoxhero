@@ -75,7 +75,7 @@ function reducer(state, action) {
 }
 
 
-function Users({contestId, setUpdatedDocument}) {
+function Users({contestId, setUpdateContestMasterDoc}) {
 
   //console.log("rendering in userPosition: Users", from)
   const {render, setRender} = useContext(renderContext);
@@ -95,38 +95,6 @@ function Users({contestId, setUpdatedDocument}) {
   const closeSuccessSB = () => {
     return dispatch({ type: 'closeSuccess', payload: false });
   }
-
-//   useEffect(()=>{
-//     if(isGetStartedClicked){
-//       textRef.current.focus();
-//       // setValueInText
-//       dispatch({ type: 'setValueInText', payload: 'NIFTY' });
-//       // setText('17300CE');
-//       sendSearchReq('NIFTY');
-//       setIsGetStartedClicked(false)
-//     }
-//   },[isGetStartedClicked])
-
-
-//   useEffect(()=>{
-//     axios.get(`${baseUrl}api/v1/instrumentDetails`,{
-//       withCredentials: true,
-//       headers: {
-//           Accept: "application/json",
-//           "Content-Type": "application/json",
-//           "Access-Control-Allow-Credentials": true
-//       },
-//     })
-//     .then((res) => {
-//         ////console.log("live price data", res)
-//         dispatch({ type: 'setUserInstrumentData', payload: (res.data.data) });
-//         // setUserInstrumentData(res.data);
-//         // setDetails.setMarketData(data);
-//     }).catch((err) => {
-//         return new Error(err);
-//     })
-//   }, [render])
-
 
   function sendSearchReq(e) {
     // let newData += data
@@ -150,9 +118,6 @@ function Users({contestId, setUpdatedDocument}) {
   }
 
   function sendRequest(data){
-
-
-    //console.log("input value", data)
     if(data == ""){
       dispatch({ type: 'setEmptyUserData', payload: [] });
       return;
@@ -168,35 +133,66 @@ function Users({contestId, setUpdatedDocument}) {
       },
     })
     .then((res)=>{
-      //console.log("instrumentData", res.data)
-      // setUser(res.data)
       dispatch({ type: 'setUser', payload: (res?.data?.data) });
-
-
     }).catch((err)=>{
       //console.log(err);
     })
   }
 
-  async function addUser(contestMasterId){
-    axios.put(`${baseUrl}api/v1/contestmaster/${contestId}/allow/${contestMasterId}`, {
-      withCredentials: true,
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      },
-    })
-    .then((res)=>{
-      //console.log("instrumentData", res.data)
-      // setUser(res.data)
-      dispatch({ type: 'setUser', payload: (res?.data?.data) });
-      setUpdatedDocument(res?.data?.data)
-
-    }).catch((err)=>{
-      //console.log(err);
-    })
+  async function addUser(elem) {
+    const { _id, inviteCode, collegeId } = elem;
+    try {
+      const response = await axios.put(
+        `${baseUrl}api/v1/contestmaster/${contestId}/allow/${_id}`,
+        {
+          inviteCode: inviteCode,
+          collegeId: collegeId
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+          }
+        }
+      );
+      const responseData = response?.data?.data;
+      dispatch({ type: 'setUser', payload: responseData });
+      setUpdateContestMasterDoc(responseData);
+    } catch (error) {
+      // Handle error here
+      console.error(error);
+    }
   }
+
+  async function removeUser(elem) {
+    const { _id, inviteCode, collegeId } = elem;
+    try {
+      const response = await axios.put(
+        `${baseUrl}api/v1/contestmaster/${contestId}/allow/${_id}`,
+        {
+          inviteCode: inviteCode,
+          collegeId: collegeId
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true
+          }
+        }
+      );
+      const responseData = response?.data?.data;
+      dispatch({ type: 'setUser', payload: responseData });
+      setUpdateContestMasterDoc(responseData);
+    } catch (error) {
+      // Handle error here
+      console.error(error);
+    }
+  }
+  
 
 
 
@@ -250,33 +246,22 @@ function Users({contestId, setUpdatedDocument}) {
                         }
                       }}
                     >
-                      {/* sx={{ display: { xs: 'none', lg: 'block' } }} sx={{ textAlign: "center", display: { xs: 'none', lg: 'block' } }}  */}
                       <Grid  lg={2}>{elem?.first_name + " " + elem?.last_name}</Grid>
-                      <Grid  lg={2}>{elem.mobile}</Grid>
+                      <Grid  lg={1.8}>{elem.mobile}</Grid>
                       <Grid  lg={1}>{elem.inviteCode}</Grid>
                       <Grid  lg={6}>{elem?.collegeName}</Grid>
                       <Grid  lg={1} display="flex" justifyContent="space-between">
-                        {/* {perticularInstrumentData.length ? */}
-                        {/* <Grid lg={3}>
-                          <MDButton size="small" color="secondary" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { removeUser(elem._id, "Remove") }}>-</MDButton>
-                        </Grid> */}
-                        
                         <Grid lg={12}>
-                          {/* <Tooltip title="Add Instrument" placement="top"> */}
-                          <MDButton size="small" color="warning" sx={{ marginRight: 0.5, minWidth: 2, minHeight: 3 }} onClick={() => { addUser(elem._id, "Add") }}>+</MDButton>
-                          {/* </Tooltip> */}
+                          <MDButton size="small" color="warning" sx={{minWidth: 2, minHeight: 3 }} onClick={() => { addUser(elem, "Add") }}>+</MDButton>
                         </Grid>
-                        {/* } */}
                       </Grid>
                     </Grid>
                   )}
-                  {/* {renderSuccessSB} */}
                 </>
               )
             }))
           }
         </MDBox>
-        {/* <Users userData={userData} render={render} setRender={setRender} uId={uId} /> */}
       </MDBox>
     </MDBox>
   )

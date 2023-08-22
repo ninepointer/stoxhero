@@ -13,9 +13,10 @@ const emailService = require("../utils/emailService")
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const { contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
-            contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, contestLiveTime } = req.body;
+        const { collegeContestType, contestLiveTime, contestStatus, contestEndTime, contestStartTime, 
+                contestOn, description, college, collegeCode, contestMasterId,
+                contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
+                maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -29,7 +30,7 @@ exports.createContest = async (req, res) => {
         const contest = await Contest.create({
             maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, contestLiveTime, collegeContestType, contestMaster: [{userId: contestMasterId, addedOn: new Date()}]
         });
 
         // console.log(contest)

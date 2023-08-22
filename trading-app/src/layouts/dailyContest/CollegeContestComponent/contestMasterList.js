@@ -9,7 +9,7 @@ import axios from "axios";
 // import moment from 'moment';
 
 
-export default function ContestMasterList({saving,dailyContest, action, updatedDocument}) {
+export default function ContestMasterList({saving,dailyContest, action, updateContestMasterDocument}) {
     // const [open, setOpen] = useState(false);
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contestMasters,setContestMaster] = React.useState([]);
@@ -38,7 +38,7 @@ export default function ContestMasterList({saving,dailyContest, action, updatedD
 
     useEffect(()=>{
       getAllowedUsers();
-    },[saving, updatedDocument])
+    },[updateContestMasterDocument])
 
     console.log("dailyContest", dailyContest)
 
