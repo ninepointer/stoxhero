@@ -22,10 +22,10 @@ const contestTemplateSchema = new Schema({
         type: String,
         required: true,
     },
-    collegeCode:{
+    collegeCode:[{
         type: String,
         // required: true,
-    },
+    }],
     entryFee:{
         type:Number,
         default: 0
@@ -38,10 +38,14 @@ const contestTemplateSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio',
     },
-    college:{
+    college:[{
         type: Schema.Types.ObjectId,
         ref: 'college',
-    },
+    }],
+    contestMaster:[{
+        contestMasterId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        addedOn:{type:Date},
+    }],
     maxParticipants:{
         type:Number,
         required: true

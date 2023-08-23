@@ -1,32 +1,34 @@
 const mongoose = require('mongoose');
-const ContestTemplate = require('../../models/DailyContest/dailyContestTemplate'); // Assuming your model is exported as ContestTemplate from the mentioned path
-const User = require("../../models/User/userDetailSchema");
+const Contest = require('../../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
 const { ObjectId } = require('mongodb');
 
 
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const { contestMaster ,contestMasterMobile ,stoxheroPOC ,college ,status } = req.body;
+        const { contestStatus, contestEndTime, contestStartTime, contestOn, description,
+            contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, contestLiveTime } = req.body;
 
-        const getContestMaster = await ContestTemplate.findOne({ contestMasterMobile: contestMasterMobile });
+        const getContest = await Contest.findOne({ contestName: contestName });
 
-        if (getContestMaster) {
+        if (getContest) {
             return res.status(500).json({
                 status: 'error',
-                message: "ContestTemplate is already exist with this name.",
+                message: "Contest is already exist with this name.",
             });
         }
 
-        const contest = await ContestTemplate.create({
-            contestMaster ,contestMasterMobile ,stoxheroPOC ,college ,status,
-            createdBy: req.user._id, lastModifiedBy: req.user._id,
+        const contest = await Contest.create({
+            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
+            contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, contestLiveTime
         });
 
         // console.log(contest)
         res.status(201).json({
             status: 'success',
-            message: "ContestTemplate created successfully",
+            message: "Contest created successfully",
             data: contest
         });
     } catch (error) {
@@ -49,15 +51,24 @@ exports.editContest = async (req, res) => {
             return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
 
-        const result = await ContestTemplate.findByIdAndUpdate(id, updates, { new: true });
+        // const getContest = await Contest.findOne({contestName: updates?.contestName});
+
+        // if(getContest){
+        //     return res.status(500).json({
+        //         status:'error',
+        //         message: "Contest is already exist with this name.",
+        //     });
+        // }
+
+        const result = await Contest.findByIdAndUpdate(id, updates, { new: true });
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "ContestTemplate not found" });
+            return res.status(404).json({ status: "error", message: "Contest not found" });
         }
 
         res.status(200).json({
             status: 'success',
-            message: "ContestTemplate updated successfully",
+            message: "Contest updated successfully",
         });
     } catch (error) {
         res.status(500).json({
@@ -77,15 +88,15 @@ exports.deleteContest = async (req, res) => {
             return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
 
-        const result = await ContestTemplate.findByIdAndDelete(id);
+        const result = await Contest.findByIdAndDelete(id);
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "ContestTemplate not found" });
+            return res.status(404).json({ status: "error", message: "Contest not found" });
         }
 
         res.status(200).json({
             status: "success",
-            message: "ContestTemplate deleted successfully",
+            message: "Contest deleted successfully",
             data: result
         });
     } catch (error) {
@@ -97,9 +108,9 @@ exports.deleteContest = async (req, res) => {
     }
 };
 // Controller for getting all contests
-exports.getAllContestMaster = async (req, res) => {
+exports.getAllContests = async (req, res) => {
     try {
-        const contests = await ContestTemplate.find()
+        const contests = await Contest.find({}).sort({ contestStartTime: -1 })
 
         res.status(200).json({
             status: "success",
@@ -115,3 +126,25 @@ exports.getAllContestMaster = async (req, res) => {
     }
 };
 
+// Controller for getting all contests
+exports.getContest = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const contests = await Contest.findOne({ _id: id })
+            .populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('college', 'collegeName zone')
+            .sort({ contestStartTime: -1 })
+
+        res.status(200).json({
+            status: "success",
+            message: "Contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
