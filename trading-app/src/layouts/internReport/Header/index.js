@@ -31,6 +31,12 @@ export default function LabTabs() {
   const [selectedBatches, setSelectedBatches] = useState();
   const [userData, setUserData] = useState([]);
   const [holiday, setHoliday] = useState();
+  const [collegeData, setCollegeData] = useState([]);
+
+  const [user, setUser] = useState({
+    activeUser: [],
+    inactiveUser: []
+  })
   const [dates, setDate] = useState({
     startDate: "",
     endDate: ""
@@ -101,6 +107,33 @@ export default function LabTabs() {
     }
   }, [dateWiseData])
 
+  useEffect(()=>{
+    if(selectedBatches){
+    axios.get(`${apiUrl}internbatch/batchwiseuser/${selectedBatches?._id}`, {withCredentials: true})
+    .then((res) => {
+      user.activeUser = res.data.active;
+      user.inactiveUser = res.data.inactive;
+      setUser(user);
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
+  }
+  }, [selectedBatches])
+
+  useEffect(() => {
+    if(selectedBatches){
+    axios.get(`${apiUrl}internbatch/collegewiseuser/${selectedBatches._id}`, { withCredentials: true })
+      .then((res) => {
+        // Check if the start date is after the end date
+        setCollegeData(res.data.data)
+      })
+      .catch((err) => {
+        throw new Error(err);
+      });
+    }
+  }, [selectedBatches])
+
   const handleShowDetails = async() => {
     // const from = startDate.format('YYYY-MM-DD');
     // const to = endDate.format('YYYY-MM-DD');
@@ -162,6 +195,7 @@ export default function LabTabs() {
     return formattedDate;
 
   }
+
   return (
 
     <MDBox bgColor="dark" color="light" mt={2} mb={1} p={2} borderRadius={10} minHeight='100vh'>
@@ -329,7 +363,7 @@ export default function LabTabs() {
         <Grid item xs={12} md={6} lg={12} overflow='auto'>
           <MDBox p={1} borderRadius={4}>
             {(alignment === dailPnl || userData) &&
-              <TableView whichTab={alignment} dateWiseData={dateWiseData} userData={userData} batches={batches} dates={dates} holiday={holiday} />}
+              <TableView collegeData={collegeData} inactiveUser={user.inactiveUser} activeUser={user.activeUser} whichTab={alignment} dateWiseData={dateWiseData} userData={userData} batches={batches} dates={dates} holiday={holiday} id={selectedBatches?._id}/>}
           </MDBox>
         </Grid>
 
