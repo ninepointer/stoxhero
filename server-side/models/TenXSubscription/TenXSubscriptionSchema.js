@@ -22,6 +22,10 @@ const TenXSubscription = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    isRecommended:{
+        type: Boolean,
+        default: false,
+    },
     portfolio:{
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio' 
