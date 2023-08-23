@@ -95,15 +95,17 @@ export default function LabTabs() {
       const currentDate = moment();
       const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
 
-      axios.get(`${apiUrl}tradingholiday/dates/${startDate}/${endDate}`, {withCredentials: true})
-        .then((res) => {
-          // Check if the start date is after the end date
-          console.log("holiday", res.data.data)
-          setHoliday(res.data.data)
-        })
-        .catch((err) => {
-          throw new Error(err);
-        });
+      if(startDate && endDate){
+        axios.get(`${apiUrl}tradingholiday/dates/${startDate}/${endDate}`, {withCredentials: true})
+          .then((res) => {
+            // Check if the start date is after the end date
+            console.log("holiday", res.data.data)
+            setHoliday(res.data.data)
+          })
+          .catch((err) => {
+            throw new Error(err);
+          });
+        }
     }
   }, [dateWiseData])
 
