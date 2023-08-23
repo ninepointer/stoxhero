@@ -639,13 +639,15 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/contestdashboard/dailycontest`,
+                        pathname: `/contestdashboard/contesttemplate`,
                     }}
                 >
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Template</MDTypography>
+                            <MDTypography fontSize={15} style={{ color:
+                                
+                                "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Template</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">

@@ -611,7 +611,7 @@ const routes = [
     // type: "collapse",
     // name: "Tenx Position",
     key: "contestmaster",
-    // icon: <SupervisorAccountIcon/>,
+    icon: <SupervisorAccountIcon/>,
     route: "/contestdashboard/contestmaster",
     component: <ContestMaster />,
   },
