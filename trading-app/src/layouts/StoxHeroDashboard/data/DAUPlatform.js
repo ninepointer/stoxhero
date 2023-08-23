@@ -18,7 +18,7 @@ export default function Charts({dailyActiveUsersPlatform}) {
 
   const options = {
     title: {
-      text: 'DAUUs (Platform)',
+      text: 'StoxHero DAUs (Platform)',
       left: 'left',
     },
     tooltip: {

@@ -93,10 +93,10 @@ export default function SubscriptionPurchaseIntent({tenXSubscription, purchaseIn
       <MDBox mt={1}>
         <DataTable
           table={{ columns, rows }}
-          showTotalEntries={false}
+          showTotalEntries={true}
           isSorted={false}
-          // noEndBorder
-          entriesPerPage={false}
+          noEndBorder
+          entriesPerPage={true}
         />
       </MDBox>
     </Card>

@@ -13,32 +13,7 @@ export default function TenXSubscribers({tenXSubscription, subscriptionCount, se
     setSubscriptionCount(tenXSubscription?.users?.length)
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [tenXSubsPurchaseIntent,setTenXSubsPurchaseIntent] = React.useState([]);
-    // async function getSubscriptionPurchaseIntent(){
-    //     let call1 = axios.get(`${baseUrl}api/v1/tenx/subscriptionpurchaseintent/${tenXSubscription}`,{
-    //         withCredentials: true,
-    //         headers: {
-    //             Accept: "application/json",
-    //             "Content-Type": "application/json",
-    //             "Access-Control-Allow-Credentials": true
-    //           },
-    //         })
-    //         Promise.all([call1])
-    //         .then(([api1Response]) => {
-    //         // Process the responses here
-    //         console.log(api1Response.data.data);
-    //         setTenXSubsPurchaseIntent(api1Response.data.data)
-    //         setPurchaseIntentCount(api1Response.data.count);
-    //         })
-    //         .catch((error) => {
-    //         // Handle errors here
-    //         console.error(error);
-    //         });
-    // }
-
-    // useEffect(()=>{
-    //   getSubscriptionPurchaseIntent();
-    // },[])
-
+   
     let columns = [
         { Header: "#", accessor: "index", align: "center" },
         { Header: "Full Name", accessor: "fullname", align: "center" },
@@ -93,17 +68,17 @@ export default function TenXSubscribers({tenXSubscription, subscriptionCount, se
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox width="100%" display="flex" justifyContent="center" alignItems="center" sx={{backgroundColor:"lightgrey",borderRadius:"2px"}}>
           <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
-            Users who Purchased the Subscription({subscriptionCount})
+            Users who bought {tenXSubscription.plan_name} Subscription({subscriptionCount})
           </MDTypography>
         </MDBox>
       </MDBox>
       <MDBox mt={1}>
         <DataTable
           table={{ columns, rows }}
-          showTotalEntries={false}
+          showTotalEntries={true}
           isSorted={false}
-          // noEndBorder
-          entriesPerPage={false}
+          noEndBorder
+          entriesPerPage={true}
         />
       </MDBox>
     </Card>

@@ -47,7 +47,7 @@ export default function TenXSubscriptions() {
       <CardContent sx={{height: 'auto', flex:1 ,padding:2}} justifyContent="center">
         <MDBox mb={-3}>
         
-          <MDBox bgColor={props.color} p={1} mb={2} sx={{height:"auto",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"10px"}}>
+          <MDBox bgColor='success' p={1} mb={2} sx={{height:"auto",boxShadow:("box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15)"),borderRadius:"10px"}}>
   
             <Grid  container spacing={1} justifyContent="center" alignItems="center">
               <Grid item xs={12} mt={1}>
@@ -59,7 +59,7 @@ export default function TenXSubscriptions() {
                       border: '2px solid lightgray'
                     }}
                   />
-                  <MDTypography fontSize={25} color='light' ml={1} fontWeight="bold">
+                  <MDTypography fontSize={15} color='light' ml={1} fontWeight="bold">
                     {props.plan}
                   </MDTypography>
                 </MDBox>

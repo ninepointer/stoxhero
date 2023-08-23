@@ -4,15 +4,20 @@ const { Server } = require('socket.io');
 let io;
 
 async function setIOValue() {
-  console.log("socket running.")
-  io = new Server(9000, {
-    cors: {
-      origin: 'http://localhost:3000',
-      //  origin: "http://3.110.187.5/",
-      methods: ['GET', 'POST', 'PATCH'],
-    }
+  try{
+    console.log("socket running.")
+    io = new Server(9000, {
+      cors: {
+        origin: 'http://localhost:3000',
+        //  origin: "http://3.110.187.5/",
+        methods: ['GET', 'POST', 'PATCH'],
+      }
+  
+    });
+  } catch(err){
+    console.log(err)
+  }
 
-  });
 }
 
 function getIOValue(){

@@ -235,7 +235,7 @@ export default function App() {
       <CacheProvider value={rtlCache}>
         <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
           <CssBaseline />
-          {layout === "infinitydashboard" && (
+          {layout === "stoxherouserdashboard" && (
             <>
               {
                 (getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName == InfinityTraderRole || getDetails?.userDetails?.role?.roleName === "data") &&
@@ -313,7 +313,7 @@ export default function App() {
           :
           pathname == "/" || !pathname ?
           <Route path="/" element={<Navigate 
-            to={getDetails?.userDetails.role?.roleName === adminRole ? "/infinitydashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard'} 
+            to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard'} 
             />} />
             :
             <Route path="/" element={<Home />} />
