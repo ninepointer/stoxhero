@@ -18,6 +18,7 @@ exports.createContest = async (req, res) => {
                 contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
                 maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex } = req.body;
 
+            console.log("contestLiveTime", contestLiveTime)
         const getContest = await Contest.findOne({ contestName: contestName });
 
         if (getContest) {
@@ -28,7 +29,7 @@ exports.createContest = async (req, res) => {
         }
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
+            maxParticipants, status: contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, contestLiveTime, collegeContestType, contestMaster: [{userId: contestMasterId, addedOn: new Date()}]
         });
@@ -853,7 +854,7 @@ exports.creditAmountToWallet = async () => {
 
         const contest = await Contest.find({ contestStatus: "Completed", payoutStatus: null, contestEndTime: {$gte: today} });
 
-        // console.log(contest.length, contest)
+        console.log(contest.length, today, "contest")
         for (let j = 0; j < contest.length; j++) {
             // if (contest[j].contestEndTime < new Date()) {
             for (let i = 0; i < contest[j]?.participants?.length; i++) {

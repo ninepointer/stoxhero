@@ -322,6 +322,14 @@ const routes = [
     component: <TutorialVideo />,
   },
   {
+    type: "collapse",
+    name: "Contest Master",
+    key: "contestmaster",
+    icon: <CurrencyRupeeIcon/>,
+    route: "/contestmaster",
+    component: <TenXTrading />,
+  },
+  {
     key: "profile",
     route: "/profile",
     component: <Profile />,

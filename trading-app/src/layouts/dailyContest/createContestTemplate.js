@@ -95,6 +95,7 @@ function Index() {
     isBankNifty: "" || contest?.isBankNifty,
     isFinNifty: "" || contest?.isFinNifty,
     isAllIndex: "" || contest?.isAllIndex,
+    contestLiveTime: "" || contest?.contestLiveTime,
 
     registeredUsers: {
       userId: "",
@@ -121,21 +122,21 @@ function Index() {
         return new Error(err)
       })
 
-    axios.get(`${baseUrl}api/v1/college`,{withCredentials: true})
-    .then((res) => {
-      console.log("College Lists :", res?.data?.data)
-      setCollege(res?.data?.data);
-    }).catch((err) => {
-      return new Error(err)
-    })
+    // axios.get(`${baseUrl}api/v1/college`,{withCredentials: true})
+    // .then((res) => {
+    //   console.log("College Lists :", res?.data?.data)
+    //   setCollege(res?.data?.data);
+    // }).catch((err) => {
+    //   return new Error(err)
+    // })
 
-    axios.get(`${baseUrl}api/v1/college/${contest?.college?._id}`,{withCredentials: true})
-    .then((res) => {
-      console.log("College :", res?.data?.data)
-      setCollegeSelectedOption(res?.data?.data);
-    }).catch((err) => {
-      return new Error(err)
-    })
+    // axios.get(`${baseUrl}api/v1/college/${contest?.college?._id}`,{withCredentials: true})
+    // .then((res) => {
+    //   console.log("College :", res?.data?.data)
+    //   setCollegeSelectedOption(res?.data?.data);
+    // }).catch((err) => {
+    //   return new Error(err)
+    // })
 
   }, [])
 
@@ -158,16 +159,16 @@ function Index() {
     // console.log("portfolioId", portfolioId, formState)
   };
 
-  const handleCollegeChange = (event, newValue) => {
-    console.log("College Selection:",newValue)
-    setCollegeSelectedOption(newValue);
-    setFormState(prevState => ({
-      ...prevState,
-      college: newValue?._id
+  // const handleCollegeChange = (event, newValue) => {
+  //   console.log("College Selection:",newValue)
+  //   setCollegeSelectedOption(newValue);
+  //   setFormState(prevState => ({
+  //     ...prevState,
+  //     college: newValue?._id
 
-    }))
-    // setTraderId(newValue);
-  };
+  //   }))
+  //   // setTraderId(newValue);
+  // };
 
 
   async function onSubmit(e, formState) {
@@ -183,8 +184,8 @@ function Index() {
     }
 
     setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
+    const {contestLiveTime,  contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const res = await fetch(`${baseUrl}api/v1/contesttemplate`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -192,7 +193,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestLiveTime, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor: "College", collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -212,8 +213,6 @@ function Index() {
     }
   }
 
-  // console.log("dailyContest", dailyContest)
-
   async function onEdit(e, formState) {
     e.preventDefault()
     console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
@@ -225,13 +224,13 @@ function Index() {
       return openErrorSB("Error", "Date range is not valid.")
     }
     
-    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || !formState.contestFor || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
+    if (!formState.contestName || !formState.contestStartTime || !formState.contestEndTime || !formState.contestStatus || !formState.maxParticipants || !formState.payoutPercentage || !formState.description || !formState.contestType || !formState.portfolio || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty && !formState.isAllIndex) ) {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
+    const { contestLiveTime, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry } = formState;
 
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/contest/${contest?._id}`, {
+    const res = await fetch(`${baseUrl}api/v1/contesttemplate/${contest?._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -239,7 +238,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor, collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
+        contestLiveTime, contestName, contestStartTime, contestEndTime, contestStatus, maxParticipants, payoutPercentage, entryFee, description, portfolio: portfolio?.id, contestType, contestFor: "College", collegeCode, college, isNifty, isBankNifty, isFinNifty, isAllIndex, contestExpiry
       })
     });
 
@@ -391,7 +390,28 @@ function Index() {
                   </LocalizationProvider>
                 </Grid>
 
-                <Grid item xs={12} md={3} xl={3}>
+                <Grid item xs={12} md={6} xl={3} mt={-1} mb={1}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['MobileDateTimePicker']}>
+                      <DemoItem>
+                        <MobileDateTimePicker
+                          label="Contest Live Time"
+                          disabled={((isSubmitted || contest) && (!editing || saving))}
+                          value={formState?.contestLiveTime || dayjs(dailyContest?.contestLiveTime)}
+                          onChange={(newValue) => {
+                            if (newValue && newValue.isValid()) {
+                              setFormState(prevState => ({ ...prevState, contestLiveTime: newValue }))
+                            }
+                          }}
+                          minDateTime={null}
+                          sx={{ width: '100%' }}
+                        />
+                      </DemoItem>
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </Grid>
+
+                {/* <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Contest For</InputLabel>
                     <Select
@@ -424,9 +444,9 @@ function Index() {
                       </MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
+                {/* {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
                   <>
                     <Grid item xs={12} md={3} xl={6}>
                       <CustomAutocomplete
@@ -485,9 +505,8 @@ function Index() {
                       />
                     </Grid>
                   </>
-                }
+                } */}
 
-                {/* {!contest &&  */}
                 <Grid item xs={12} md={3} xl={3}>
                   <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
                     <InputLabel id="demo-multiple-name-label">Contest Type</InputLabel>
@@ -636,9 +655,10 @@ function Index() {
                       label="Contest Status"
                       sx={{ minHeight: 43 }}
                     >
-                      <MenuItem value="Active">Active</MenuItem>
+                      
                       <MenuItem value="Draft">Draft</MenuItem>
-                      <MenuItem value="Cancelled">Cancelled</MenuItem>
+                      <MenuItem value="Submitted">Submitted</MenuItem>
+                      <MenuItem value="Approved">Approved</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 
 // react-router-dom components
@@ -46,6 +46,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const collapseName = location.pathname.replace("/", "");
   const getDetails = useContext(userContext);
   const batchInfo = getDetails.userDetails.internshipBatch
+  const [isContestMaster, setIsContestMaster] = useState(false);
   let textColor = "white";
 
   if (transparentSidenav || (whiteSidenav && !darkMode)) {
@@ -60,11 +61,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   async function goOut(){
     await axios.get(`${baseUrl}api/v1/logout`, {
       withCredentials: true,
-      // headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //     "Access-Control-Allow-Credentials": true
-      // },
   });
     navigate("/");
     getDetails.setUserDetail('');
@@ -90,6 +86,17 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
+  useEffect(()=>{
+    axios.get(`${baseUrl}api/v1/contestmaster/ids`, {
+      withCredentials: true,
+    }).then((res)=>{
+      let data = res.data.data.filter((elem)=>{
+        return elem.contestMaster.toString() === getDetails.userDetails._id.toString();
+      })
+      setIsContestMaster(data.length ? true : false);
+    })
+  }, [])
+
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
   const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
     let returnValue;
@@ -97,7 +104,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     if (type === "collapse" ) {
       if(key=="internship" && batchInfo.length == 0){
         // console.log("in route if", key)
-      } else{
+      }else if(key=="contestmaster" && !isContestMaster){
+
+      }else{
         // console.log("in route else", key, batchInfo.length)
         returnValue = href ? (
           <Link

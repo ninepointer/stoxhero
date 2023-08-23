@@ -577,7 +577,6 @@ router.get("/afterContest", async (req, res) => {
   await autoCutMainManually();
   await autoCutMainManuallyMock();
   await changeStatus();
-  await creditAmount();
   res.send("ok");
 });
 

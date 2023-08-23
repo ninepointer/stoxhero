@@ -8,6 +8,8 @@ router.post('/', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestControl
 router.get('/', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllContestMaster);
 
 router.get('/user', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.contestMasterBySearch);
+router.get('/ids', Authenticate, contestController.getContestMasterIds);
+
 router.get('/:id', Authenticate, contestController.getContestMaster);
 
 router.put('/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editContest);

@@ -295,3 +295,20 @@ exports.removeContestMaster = async (req, res) => {
   }
 };
 
+exports.getContestMasterIds = async (req, res) => {
+  try {
+    const ids = await ContestMaster.find().select("contestMaster")
+
+    res.status(200).json({
+      status: "success",
+      message: "ids fetched successfully",
+      data: ids
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
