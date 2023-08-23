@@ -19,7 +19,7 @@ export default function Charts({dailyActiveUsers}) {
 
   const options = {
     title: {
-      text: 'DAUUs (Product Wise)',
+      text: 'StoxHero DAUs (Product Wise)',
       left: 'left',
     },
     tooltip: {

@@ -269,7 +269,7 @@ function Header({ contest, showPay, setShowPay, isInterested, setIsInterested })
                     <MDBox>
                         <Grid container spacing={1} mt ={2} display='flex' justifyContent='center' alignItems='center' xs={12} md={12} lg={12}>
                             <MDBox sx={{border:'1px solid white', width: '70vw', height:'40vh', display:'flex', justifyContent:'center', alignItems:'center', borderRadius:'12px'}}>
-                                <MDTypography color='white'>No upcoming Battles.</MDTypography>
+                                <MDTypography color='white'>No upcoming battles</MDTypography>
                             </MDBox>
                         </Grid>
                     </MDBox>

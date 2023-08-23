@@ -149,38 +149,9 @@ export default function LabTabs({socket}) {
         setIsLoading(false)
         return new Error(err);
     }) 
-
-    // axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`)
-    // .then((res) => {
-    //     setCompletedContest(res?.data?.data);
-    //     console.log("Completed Contest Red:",res.data)
-    // }).catch((err) => {
-    //     setIsLoading(false)
-    //     return new Error(err);
-    // })
   }, [trackEvent])
 
-//   useEffect(() => {
-//     return () => {
-//         socket.close();
-//     }
-//   }, [])
 
-//   const [mockMarginData, setMockMarginData] = useState();
-//   const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);
-//   let [refreshMockMargin, setRefreshMockMargin] = useState(true);
-
-//   useEffect(()=>{
-//     setIsLoadMockMargin(false)
-//     axios.get(`${baseUrl}api/v1/usedMargin/dailycontest`)
-//       .then((res) => {
-//         console.log(res.data);
-//         setMockMarginData(res.data.data)
-//         setIsLoadMockMargin(true)
-//       }).catch((err) => {
-//         return new Error(err);
-//       })
-//   }, [refreshMockMargin])
 
   tradeData.map((subelem, index)=>{
     let obj = {};
@@ -631,168 +602,79 @@ export default function LabTabs({socket}) {
 
             </Grid>
 
-            {/* <Grid item xs={12} md={6} lg={3}>
-                <MDButton 
-                    variant="contained" 
-                    color={"error"} 
-                    size="small" 
-                    component = {Link}
+            <Grid item xs={12} md={6} lg={3}>
+
+                <MDButton
+                    variant="contained"
+                    color={"info"}
+                    size="small"
+                    component={Link}
                     to={{
-                        pathname: `/careerlist`,
-                        }}
-                    >
-                        <Grid container>
-                            
-                            <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>Queries</MDTypography>
-                            </Grid>
-                            
-                            <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                <MDBox display="flex" flexDirection="column">
-                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all virtual trader's queries here!</MDTypography>
-                                </MDBox>
-                            </Grid>
+                        pathname: `/contestdashboard/dailycontest`,
+                    }}
+                >
+                    <Grid container xs={12} md={12} lg={12}>
 
-                            <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={9} style={{color:"white"}}>Active Postings: <span style={{fontSize:11,fontWeight:700}}>4</span></MDTypography>
-                            </Grid>
-    
-                            <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                <MDTypography fontSize={9} style={{color:"white"}}>Total Postings: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
-                            </Grid>
-    
+                        <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Template</MDTypography>
                         </Grid>
-                </MDButton>
-        </Grid>
 
-        <Grid item lg={3}>
-                
-                <MDButton 
-                    variant="contained" 
-                    color={"error"} 
-                    size="small" 
-                    component = {Link}
-                    to={{
-                        pathname: `/wallet`,
-                        }}
-                    >
-                        <Grid container>
-                            
-                            <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Wallet</MDTypography>
-                            </Grid>
-                            
-                            <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                <MDBox display='flex' justifyContent='left'>
-                                <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your wallet transacrions here!</MDTypography>
-                                </MDBox>
-                            </Grid>
-
-                            <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                            </Grid>
-    
+                        <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                            <MDBox display="flex" flexDirection="column">
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily Contest here!</MDTypography>
+                            </MDBox>
                         </Grid>
-                </MDButton>
-            
-        </Grid> */}
 
-            {/* <Grid item lg={3}>
-                
-                <MDButton 
-                    variant="contained" 
-                    color={"warning"} 
-                    size="small" 
-                    component = {Link}
-                    to={{
-                        pathname: `/analytics`,
-                        }}
-                    >
-                        <Grid container>
-                            
-                            <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Analytics</MDTypography>
-                            </Grid>
-                            
-                            <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                <MDBox display='flex' justifyContent='left'>
-                                <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your trading analytics here!</MDTypography>
-                                </MDBox>
-                            </Grid>
-
-                            <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                            </Grid>
-    
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
                         </Grid>
+
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                        </Grid>
+
+                    </Grid>
                 </MDButton>
 
-        </Grid>
+            </Grid>
 
-        <Grid item lg={3}>
-                
-                <MDButton 
-                    variant="contained" 
-                    color={"success"} 
-                    size="small" 
-                    component = {Link}
+            <Grid item xs={12} md={6} lg={3}>
+
+                <MDButton
+                    variant="contained"
+                    color={"error"}
+                    size="small"
+                    component={Link}
                     to={{
-                        pathname: `/myportfolio`,
-                        }}
-                    >
-                        <Grid container>
-                            
-                            <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Portfolio</MDTypography>
-                            </Grid>
-                            
-                            <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                <MDBox display='flex' justifyContent='left'>
-                                <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your funds details here!</MDTypography>
-                                </MDBox>
-                            </Grid>
+                        pathname: `/contestdashboard/dailycontest`,
+                    }}
+                >
+                    <Grid container xs={12} md={12} lg={12}>
 
-                            <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                            </Grid>
-    
+                        <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Masters</MDTypography>
                         </Grid>
+
+                        <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
+                            <MDBox display="flex" flexDirection="column">
+                                <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}>Create Daily Contest here!</MDTypography>
+                            </MDBox>
+                        </Grid>
+
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="left">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Free Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>10</span></MDTypography>
+                        </Grid>
+
+                        <Grid item xs={6} md={6} lg={6} mb={1} display="flex" justifyContent="right">
+                            <MDTypography fontSize={9} style={{ color: "white" }}>Total Paid Contests: <span style={{ fontSize: 11, fontWeight: 700 }}>5</span></MDTypography>
+                        </Grid>
+
+                    </Grid>
                 </MDButton>
 
-        </Grid>
+            </Grid>
 
-        <Grid item lg={3}>
-                
-                <MDButton 
-                    variant="contained" 
-                    color={"primary"} 
-                    size="small" 
-                    component = {Link}
-                    to={{
-                        pathname: `/myreferrals`,
-                        }}
-                    >
-                        <Grid container>
-                            
-                            <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={15} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Referrals</MDTypography>
-                            </Grid>
-                            
-                            <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                <MDBox display='flex' justifyContent='left'>
-                                <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your referrals here!</MDTypography>
-                                </MDBox>
-                            </Grid>
-
-                            <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                            </Grid>
-    
-                        </Grid>
-                </MDButton>
-
-        </Grid> */}
-
+           
         </Grid>
 
         <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
@@ -802,14 +684,6 @@ export default function LabTabs({socket}) {
                 </MDBox>
             </Grid>
         </Grid>
-
-        {/* <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
-            <Grid item xs={12} md={12} lg={12}>
-                <MDBox p={0.5}>
-                    { dailyContestUsers && <DailyContestUsers dailyContestUsers={dailyContestUsers}/>}
-                </MDBox>
-            </Grid>
-        </Grid> */}
 
         <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>

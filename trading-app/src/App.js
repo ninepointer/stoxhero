@@ -235,7 +235,7 @@ export default function App() {
       <CacheProvider value={rtlCache}>
         <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
           <CssBaseline />
-          {layout === "infinitydashboard" && (
+          {layout === "stoxherouserdashboard" && (
             <>
               {
                 (getDetails?.userDetails?.role?.roleName == adminRole || getDetails?.userDetails?.role?.roleName == userRole|| getDetails?.userDetails?.role?.roleName == InfinityTraderRole || getDetails?.userDetails?.role?.roleName === "data") &&

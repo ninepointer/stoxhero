@@ -155,7 +155,7 @@ function Basic() {
             let userData = await userDetail();
 
             if(userData.role?.roleName === adminRole){
-              const from = location.state?.from || "/infinitydashboard";
+              const from = location.state?.from || "/stoxherouserdashboard";
               navigate(from);
             }
             else if(userData.role?.roleName === "data"){
@@ -254,9 +254,6 @@ function Basic() {
           else if(userData?.role?.roleName === userRole){
             const from = location.state?.from || "/stoxherodashboard";
               navigate(from);
-          }
-          else if(userData?.role?.roleName === InfinityTraderRole){
-            navigate("/infinitytrading");
           }
         }
 

@@ -20,7 +20,7 @@ export default function Charts({weeklyActiveUsersPlatform}) {
 
   const options = {
     title: {
-      text: 'WAUUs (Platform)',
+      text: 'StoxHero WAUs (Platform)',
       left: 'left',
     },
     tooltip: {
