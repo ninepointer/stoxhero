@@ -1,7 +1,7 @@
 const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
-const contestController = require('../../controllers/dailyContestController');
+const contestController = require('../../controllers/dailyContest/contestTemplateController');
 const restrictTo = require('../../authentication/authorization');
 
 router.post('/', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.createContest);

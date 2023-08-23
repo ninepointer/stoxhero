@@ -52,7 +52,7 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const contest = location?.state?.data;
-  const [collegeSelectedOption, setCollegeSelectedOption] = useState();
+  // const [collegeSelectedOption, setCollegeSelectedOption] = useState();
   console.log('id hai', contest);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -66,7 +66,7 @@ function Index() {
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [dailyContest, setDailyContest] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
-  const [college, setCollege] = useState([]);
+  // const [college, setCollege] = useState([]);
   // const [careers,setCareers] = useState([]);
   const [action, setAction] = useState(false);
   // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
@@ -95,7 +95,9 @@ function Index() {
     isBankNifty: "" || contest?.isBankNifty,
     isFinNifty: "" || contest?.isFinNifty,
     isAllIndex: "" || contest?.isAllIndex,
-    contestLiveTime: "" || contest?.contestLiveTime,
+    contestLiveTime: dayjs(contest?.contestLiveTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
+
+    // contestLiveTime: "" || contest?.contestLiveTime,
 
     registeredUsers: {
       userId: "",

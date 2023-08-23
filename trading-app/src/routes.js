@@ -149,7 +149,7 @@ import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
 import KYC from './layouts/KYC/index';
 import MarginDetails from './layouts/margindetails'
 // import BadgeIcon from '@mui/icons-material/Badge';
-// import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CareerDashboard from './layouts/careerdashboard'
 import VirtualDashboard from './layouts/virtualdashboard'
 import InternshipOrders from './layouts/internshipOrders'
@@ -611,7 +611,7 @@ const routes = [
     // type: "collapse",
     // name: "Tenx Position",
     key: "contestmaster",
-    icon: <SupervisorAccountIcon/>,
+    // icon: <SupervisorAccountIcon/>,
     route: "/contestdashboard/contestmaster",
     component: <ContestMaster />,
   },

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Contest = require('../../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
+const Contest = require('../../models/DailyContest/dailyContestTemplate'); // Assuming your model is exported as Contest from the mentioned path
 const { ObjectId } = require('mongodb');
 
 
@@ -10,6 +10,7 @@ exports.createContest = async (req, res) => {
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
             maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, contestLiveTime } = req.body;
 
+            console.log("contestLiveTime", contestStartTime, contestLiveTime)
         const getContest = await Contest.findOne({ contestName: contestName });
 
         if (getContest) {
@@ -20,9 +21,9 @@ exports.createContest = async (req, res) => {
         }
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
-            contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, contestLiveTime
+            maxParticipants, status: contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
+            contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, contestLiveTime
         });
 
         // console.log(contest)

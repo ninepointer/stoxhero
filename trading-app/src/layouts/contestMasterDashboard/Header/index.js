@@ -209,7 +209,7 @@ export default function LabTabs({socket}) {
             <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Contest Dashboard</MDTypography>
         </MDBox>
 
-        <Grid container xs={12} md={12} lg={12}>
+        {/* <Grid container xs={12} md={12} lg={12}>
             <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
                 {isLoading ? 
                     <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
@@ -345,9 +345,9 @@ export default function LabTabs({socket}) {
                 </>
                 }
             </Grid>
-        </Grid>
+        </Grid> */}
 
-        <Grid container xs={12} md={12} lg={12} mt={1}>
+        {/* <Grid container xs={12} md={12} lg={12} mt={1}>
             <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
                 {isLoading ? 
                     <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
@@ -483,7 +483,7 @@ export default function LabTabs({socket}) {
                 </>
                 }
             </Grid>
-        </Grid>
+        </Grid> */}
 
         <Grid container spacing={1} xs={12} md={12} lg={12} mt={0.5} mb={0.5} display='flex' justifyContent='center' alignItems='center'>
 
