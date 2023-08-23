@@ -30,6 +30,7 @@ import { renderContext } from "../../../renderContext";
 import { InfinityTraderRole, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
 import Timer from "./timer";
+import AutoCutPopUp from "./tradecutPopup";
 // import { AiOutlineLineChart } from "react-icons/ai";
 
 
@@ -331,6 +332,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
               <TiMediaRecord sx={{margin:10}}/> {isAppLive ? "System Live" : "System Offline"}
               </>
               }
+              <AutoCutPopUp socket={socket} />
             </MDTypography>
         </MDBox>
       </MDBox>
