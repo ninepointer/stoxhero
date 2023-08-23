@@ -19,7 +19,7 @@ export default function Charts({monthlyActiveUsers}) {
 
   const options = {
     title: {
-      text: 'MAUUs (Product Wise)',
+      text: 'StoxHero MAUs (Product Wise)',
       left: 'left',
     },
     tooltip: {

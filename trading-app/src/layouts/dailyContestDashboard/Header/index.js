@@ -149,38 +149,9 @@ export default function LabTabs({socket}) {
         setIsLoading(false)
         return new Error(err);
     }) 
-
-    // axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`)
-    // .then((res) => {
-    //     setCompletedContest(res?.data?.data);
-    //     console.log("Completed Contest Red:",res.data)
-    // }).catch((err) => {
-    //     setIsLoading(false)
-    //     return new Error(err);
-    // })
   }, [trackEvent])
 
-//   useEffect(() => {
-//     return () => {
-//         socket.close();
-//     }
-//   }, [])
 
-//   const [mockMarginData, setMockMarginData] = useState();
-//   const [isLoadMockMargin, setIsLoadMockMargin] = useState(false);
-//   let [refreshMockMargin, setRefreshMockMargin] = useState(true);
-
-//   useEffect(()=>{
-//     setIsLoadMockMargin(false)
-//     axios.get(`${baseUrl}api/v1/usedMargin/dailycontest`)
-//       .then((res) => {
-//         console.log(res.data);
-//         setMockMarginData(res.data.data)
-//         setIsLoadMockMargin(true)
-//       }).catch((err) => {
-//         return new Error(err);
-//       })
-//   }, [refreshMockMargin])
 
   tradeData.map((subelem, index)=>{
     let obj = {};
@@ -713,14 +684,6 @@ export default function LabTabs({socket}) {
                 </MDBox>
             </Grid>
         </Grid>
-
-        {/* <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
-            <Grid item xs={12} md={12} lg={12}>
-                <MDBox p={0.5}>
-                    { dailyContestUsers && <DailyContestUsers dailyContestUsers={dailyContestUsers}/>}
-                </MDBox>
-            </Grid>
-        </Grid> */}
 
         <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>

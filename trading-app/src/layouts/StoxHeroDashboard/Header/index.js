@@ -17,6 +17,7 @@ import MAUPlatform from '../data/MAUPlatform'
 import WAUPlatform from '../data/WAUPlatform'
 import SignUpData from '../data/SignupData'
 import RevenuePayout from '../data/RevenuePayout'
+import DailyKPI from '../data/DailyKPI'
 
 
 export default function Dashboard() {
@@ -146,6 +147,25 @@ export default function Dashboard() {
   return (
    
     <MDBox bgColor="light" color="light" mt={2} mb={1} borderRadius={10} minHeight='auto'>
+
+          {/* <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
+            <Grid item xs={12} md={12} lg={12}>
+                {isLoading ?
+                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <CircularProgress color='info'/>
+                  </MDBox>
+                  <MDBox display='flex' justifyContent='center' alignItems='center'>
+                    <MDTypography fontSize={15}>Loading Daily KPI Data...</MDTypography>
+                  </MDBox>
+                </MDBox>
+                :
+                <MDBox>
+                  <DailyKPI/>
+                </MDBox>
+                }
+            </Grid>
+          </Grid> */}
 
           <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
             <Grid item xs={12} md={12} lg={12}>
