@@ -5,12 +5,18 @@ const DailyContestLiveUser = require("../../models/DailyContest/dailyContestLive
 
 
 exports.overallLivePnlToday = async(req, res, next)=>{
+    let {id} = req.params;
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);    
     let pnlLiveDetails = await DailyContestLiveCompany.aggregate([
-        {
+      {
+        $match: {
+          contestId: new ObjectId(id)
+    },
+    },  
+      {
         $lookup: {
             from: 'algo-tradings',
             localField: 'algoBox',
@@ -131,85 +137,96 @@ exports.getLetestLiveTradeCompany = async(req, res, next)=>{
 }
 
 exports.traderLiveComapny = async(req, res, next)=>{
-    let date = new Date();
+  let {id} = req.params;  
+  let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);    
-    let pnlDetails = await DailyContestLiveCompany.aggregate([
+  let pnlDetails = await DailyContestLiveCompany.aggregate([
     {
-        $lookup: {
+      $match: {
+        contestId: new ObjectId(id)
+      },
+    },
+    {
+      $lookup: {
         from: 'algo-tradings',
         localField: 'algoBox',
         foreignField: '_id',
         as: 'algoBox'
-        }
+      }
     },
     {
-        $lookup: {
+      $lookup: {
         from: "user-personal-details",
         localField: "trader",
         foreignField: "_id",
         as: "user",
-        },
+      },
     },
     {
-        $match: {
+      $match: {
         trade_time: {
-            $gte: today
+          $gte: today
         },
         status: "COMPLETE",
         "algoBox.isDefault": true
-        },
-    },
-    { $group: 
-        { _id: 
-            {
-                "traderId": "$trader",
-                "traderName": {
-                    $arrayElemAt:[ "$user.name", 0]},
-                          "symbol": "$instrumentToken",
-          "exchangeInstrumentToken": "$exchangeInstrumentToken",
-                "algoId": {
-                    $arrayElemAt:["$algoBox._id", 0]},
-                "algoName": {
-                    $arrayElemAt:["$algoBox.algoName", 0]}
-            },
-            amount: {
-                $sum: {$multiply : ["$amount", -1]}
-            },
-            brokerage: {
-                $sum: {$toDouble : "$brokerage"}
-            },
-            lots: {
-                $sum: {$toInt : "$Quantity"}
-            },
-            trades: {
-                $count: {}
-            },
-            lotUsed: {
-                $sum: {$abs : {$toInt : "$Quantity"}}
-            }
-        }
+      },
     },
     {
-        $project: {
+      $group:
+      {
+        _id:
+        {
+          "traderId": "$trader",
+          "traderName": {
+            $arrayElemAt: ["$user.name", 0]
+          },
+          "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
+          "algoId": {
+            $arrayElemAt: ["$algoBox._id", 0]
+          },
+          "algoName": {
+            $arrayElemAt: ["$algoBox.algoName", 0]
+          }
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        lots: {
+          $sum: { $toInt: "$Quantity" }
+        },
+        trades: {
+          $count: {}
+        },
+        lotUsed: {
+          $sum: { $abs: { $toInt: "$Quantity" } }
+        }
+      }
+    },
+    {
+      $project: {
         _id: 0,
-        traderId: "$_id.traderId", 
-        traderName: "$_id.traderName", 
-        symbol: "$_id.symbol", 
+        traderId: "$_id.traderId",
+        traderName: "$_id.traderName",
+        symbol: "$_id.symbol",
         exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-        algoId: "$_id.algoId", 
+        algoId: "$_id.algoId",
         algoName: "$_id.algoName",
         amount: 1,
         brokerage: 1,
         lots: 1,
         trades: 1,
         lotUsed: 1
-        
-        }
+
+      }
     },
-    { $sort: {_id: -1}},    
-    ])
+    { $sort: { _id: -1 } },
+  ])
     res.status(201).json({message: 'Live Trader Data Company.', data: pnlDetails});
 }
 

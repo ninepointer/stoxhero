@@ -143,6 +143,28 @@ exports.getAllContests = async (req, res) => {
     }
 };
 
+
+// Controller for getting all contests
+exports.getAllLiveContests = async (req, res) => {
+    try {
+        const contests = await Contest.find({contestType: "Live"})
+        .populate('portfolio', 'portfolioValue portfolioName')
+        .sort({ contestStartTime: -1 })
+
+        res.status(200).json({
+            status: "success",
+            message: "Contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
 // Controller for getting all contests
 exports.getContest = async (req, res) => {
     const { id } = req.params;

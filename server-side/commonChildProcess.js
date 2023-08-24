@@ -61,6 +61,7 @@ async function commonProcess() {
     app.use('/api/v1', require("./routes/expense/categoryAuth"))
     app.use('/api/v1', require("./routes/setting/settingAuth"))
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
+    app.use('/api/v1/dailycontest', require('./routes/DailyContest/dailyContestLiveTrade'));
 
     //  TODO toggle
     app.use('/api/v1', require("./marketData/Margin"));

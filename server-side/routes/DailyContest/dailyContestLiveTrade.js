@@ -17,15 +17,12 @@ router.route('/live/overallcompanypnltoday').get(Authenticate, restrictTo('Admin
 router.route('/live/overallinfinitylivecompanypnlyesterday').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallInfinityLiveCompanyPnlYesterday)
 router.route('/live/overallinfinitylivecompanypnlMTD').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallInfinityLiveCompanyPnlMTD)
 router.route('/live/liveandtotaltradercounttoday').get(Authenticate, restrictTo('Admin', 'Super Admin'), mockLiveTotalTradersCountLiveSide)
-router.route('/livePnlCompany').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallLivePnlToday)
 router.route('/live/letestTradeCompany').get(Authenticate, restrictTo('Admin', 'Super Admin'), getLetestLiveTradeCompany)
-router.route('/live/traderWiseCompany').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderLiveComapny)
+
+router.route('/livePnlCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallLivePnlToday)
+router.route('/live/traderWiseCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderLiveComapny)
 
 router.route('/live/traderPnlCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), pnlTraderCompany)
-// router.route('/live/companyorders').get(Authenticate, restrictTo('Admin', 'Super Admin'), getAllLiveOrders);
-// router.route('/live/userorders').get(Authenticate, restrictTo('Admin', 'Super Admin'), getAllTradersLiveOrders);
-// router.route('/live/companyorderstoday').get(Authenticate, restrictTo('Admin', 'Super Admin'), getAllLiveOrdersForToday);
-// router.route('/live/userorderstoday').get(Authenticate, restrictTo('Admin', 'Super Admin'), getAllTradersLiveOrdersForToday);
 router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), companyDailyPnlTWiseLive)
 router.route('/live/brokerreportmatch/:printDate/:fromDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), brokerReportMatchLive)
 router.route('/live/traderwisetraderpnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderPnlTWiseLive)
