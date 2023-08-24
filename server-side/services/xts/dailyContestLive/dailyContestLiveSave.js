@@ -11,6 +11,7 @@ const {overallMockPnlCompanyDailyContest, traderWiseMockPnlCompanyDailyContest, 
 const mongoose = require('mongoose');
 const { ObjectId } = require('mongodb');
 const axios = require("axios");
+const AccessToken = require("../../../models/Trading Account/requestTokenSchema");
 
 
 
@@ -45,8 +46,18 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
       } else {
         buyOrSell = "BUY"
       }
+
+      let token;
+      if(await client.exists('interactive-token')){
+        console.log("in if condition")
+        token = await client.get('interactive-token');
+        token = JSON.parse(token);
+      } else{
+        let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+        token = tokenData.accessToken
+      }
   
-      const response = await xtsInteractiveAPI.placeOrder({
+      let orderData = new URLSearchParams({
         exchangeSegment: exchangeSegment,
         exchangeInstrumentID: ExchangeInstrumentID,
         productType: ProductType,
@@ -58,7 +69,17 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         limitPrice: 0,
         stopPrice: 0,
         clientID: process.env.XTS_CLIENTID,
-      });
+      })
+  
+      let headers = {
+        'Authorization': token,
+        "content-type": "application/x-www-form-urlencoded"
+      }
+  
+  
+     let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+     const response = placedOrder.data;
+  
       await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
   
       if(!autoTrade)
