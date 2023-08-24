@@ -735,7 +735,7 @@ async function brokerage(){
       brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
       brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
   } else{
-      brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: zerodhaAccountType});
+      brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
       await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
   }
 
@@ -743,7 +743,7 @@ async function brokerage(){
       brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
       brokerageDetailSell = JSON.parse(brokerageDetailSell);
   } else{
-      brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: zerodhaAccountType});
+      brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
       await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
   }
 

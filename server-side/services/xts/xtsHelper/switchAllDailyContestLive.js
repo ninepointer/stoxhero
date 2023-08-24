@@ -15,7 +15,8 @@ const contestTradeLive = async (req, res) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
     const contestId = req.params.id;
-    const contest = await Contest.findByIdAndUpdate(contestId, {currentLiveStatus:'Mock'});
+    const contest = await Contest.findByIdAndUpdate(contestId, {currentLiveStatus:'Mock'}, { new: true });
+    console.log('contest', contest);
 
     
 
@@ -89,6 +90,7 @@ const contestTradeLive = async (req, res) => {
 
     if(data.length === 0){
         res.status(200).json({message: "no real trade found. switched successfully."})
+        return;
     }
 
     // console.log(data)
@@ -138,6 +140,7 @@ const contestTradeLive = async (req, res) => {
         Obj.dontSendResp = (i !== (data.length - 1));
         Obj.createdBy = createdBy;
         Obj.mockSwitch = true;
+        Obj.contestId = contestId;
 
         const processOrder = async () => {
             if (quantity == 0) {
@@ -343,4 +346,4 @@ const infinityTradeLiveSingle = async (res, req) => {
     return;
 }
 
-module.exports = { infinityTradeLive, infinityTradeLiveSingle };
+module.exports = { contestTradeLive };

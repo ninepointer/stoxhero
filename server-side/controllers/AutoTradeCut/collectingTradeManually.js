@@ -1,6 +1,7 @@
 const InfinityTrader = require("../../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
+const ContestLiveTradeCompany = require("../../models/DailyContest/dailyContestLiveCompany");
 const Algo = require("../../models/AlgoBox/tradingAlgoSchema")
 const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 const Internship = require("../../models/mock-trade/internshipTrade");
@@ -1201,6 +1202,7 @@ const contestTradeLive = async () => {
           $group: {
             _id: {
               userId: "$trader",
+              contestId:"$contestId",
               // subscriptionId: "$subscriptionId",
               exchange: "$exchange",
               symbol: "$symbol",
@@ -1226,6 +1228,7 @@ const contestTradeLive = async () => {
           $project: {
             _id: 0,
             userId: "$_id.userId",
+            contestId:"$_id.contestId",
             // subscriptionId: "$_id.subscriptionId",
             exchange: "$_id.exchange",
             symbol: "$_id.symbol",
@@ -1248,7 +1251,9 @@ const contestTradeLive = async () => {
           }
         }
       ]);
-
+      if(data.length ==0){
+        return;
+      }
       // console.log("collectiong", data);
 
       for (let i = 0; i < data.length; i++) {
@@ -1296,6 +1301,7 @@ const contestTradeLive = async () => {
         Obj.autoTrade = true;
         Obj.dontSendResp = true;
         Obj.createdBy = createdBy;
+        Obj.contestId = data[i].contestId;
 
         const processOrder = async () => {
           if (quantity == 0) {
@@ -1305,7 +1311,7 @@ const contestTradeLive = async () => {
             let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
 
             Obj.Quantity = tempQuantity;
-            Obj.userQuantity = tempQuantity / algoBox.lotMultipler;
+            Obj.userQuantity = tempQuantity / algoBox?.lotMultipler;
             Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
             // console.log("before autoplaceorder in elseif");
             Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
