@@ -281,7 +281,6 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
       let pipelineForSet; 
       
       // if(isInsertedAllDB){
-        //todo-vijay
       if(isInsertedAllDB !== null && status == "COMPLETE"){
         pipelineForSet = clientForIORedis.pipeline();
   

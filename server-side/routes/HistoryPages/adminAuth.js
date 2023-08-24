@@ -72,7 +72,6 @@ const InternBatch = require("../../models/Careers/internBatch")
 
 
 router.get("/addFeildInTenx", async (req, res) => {
-  //todo-vijay - run this on sunday
   const updateResult = await TenxSubscription.updateMany(
     {}, // An empty filter matches all documents in the collection
     {

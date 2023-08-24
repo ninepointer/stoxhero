@@ -19,8 +19,8 @@ router.route('/live/overallinfinitylivecompanypnlMTD').get(Authenticate, restric
 router.route('/live/liveandtotaltradercounttoday').get(Authenticate, restrictTo('Admin', 'Super Admin'), mockLiveTotalTradersCountLiveSide)
 router.route('/live/letestTradeCompany').get(Authenticate, restrictTo('Admin', 'Super Admin'), getLetestLiveTradeCompany)
 
-router.route('/livePnlCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallLivePnlToday)
-router.route('/live/traderWiseCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderLiveComapny)
+router.route('/livePnlCompany/:id').get(Authenticate, overallLivePnlToday)
+router.route('/live/traderWiseCompany/:id').get(Authenticate, traderLiveComapny)
 
 router.route('/live/traderPnlCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), pnlTraderCompany)
 router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), companyDailyPnlTWiseLive)
