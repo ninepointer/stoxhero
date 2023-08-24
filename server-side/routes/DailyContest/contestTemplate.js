@@ -5,7 +5,7 @@ const contestController = require('../../controllers/dailyContest/contestTemplat
 const restrictTo = require('../../authentication/authorization');
 
 router.post('/', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.createContest);
-// router.get('/contest/dailycontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestUsers);
+router.get('/', Authenticate, contestController.getAllContests);
 // router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestAllUsers);
 // router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
 // router.patch('/feededuct', Authenticate, contestController.deductSubscriptionAmount);

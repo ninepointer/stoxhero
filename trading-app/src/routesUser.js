@@ -85,6 +85,9 @@ import BattleIcon from "./assets/images/swords.png"
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import ContestMasterDashBoard from "./layouts/contestMasterDashboard"
 import Challenge from './layouts/UserDailyChallenge'
+import ContestMasterTemplate from './layouts/contestMasterDashboard/contestTemplate'
+import EditContestMasterTemplate from "./layouts/contestMasterDashboard/contestTemplate/Template"
+
 const routes = [
 
   {
@@ -329,6 +332,34 @@ const routes = [
     route: "/contestmaster",
     component: <ContestMasterDashBoard />,
   },
+
+  {
+    // type: "collapse",
+    // name: "Contest Master",
+    key: "contestmaster",
+    // icon: <CurrencyRupeeIcon/>,
+    route: "/contestmaster/contesttemplate",
+    component: <ContestMasterTemplate />,
+  },
+
+  {
+    // type: "collapse",
+    // name: "Contest Master",
+    key: "edittemplate",
+    // icon: <CurrencyRupeeIcon/>,
+    route: "/contestmaster/edittemplate",
+    component: <EditContestMasterTemplate />,
+  },
+
+  {
+    // type: "collapse",
+    // name: "Contest Master",
+    key: "contestmaster",
+    // icon: <CurrencyRupeeIcon/>,
+    route: "/contestmaster/contestreport",
+    component: <ContestMasterDashBoard />,
+  },
+
   {
     key: "profile",
     route: "/profile",

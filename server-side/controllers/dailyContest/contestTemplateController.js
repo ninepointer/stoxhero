@@ -111,7 +111,10 @@ exports.deleteContest = async (req, res) => {
 // Controller for getting all contests
 exports.getAllContests = async (req, res) => {
     try {
-        const contests = await Contest.find({}).sort({ contestStartTime: -1 })
+        const contests = await Contest.find({})
+        .sort({ contestStartTime: -1 })
+        .select("-__v -lastModifiedOn -createdOn -lastModifiedBy -createdBy")
+        .populate("portfolio", 'portfolioName portfolioValue')
 
         res.status(200).json({
             status: "success",

@@ -11,19 +11,8 @@ import { socketContext } from '../../socketContext';
 function Tables() {
   const socket = useContext(socketContext);
 
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  // let socket;
-  // try{
-  //     socket = io.connect(`${baseUrl1}`)
-  // } catch(err){
-  //     throw new Error(err);
-  // }
-
   useEffect(() => {
-    // socket.on("connect", () => {
-      socket.emit("company-ticks", true)
-    // })
-
+    socket.emit("company-ticks", true)
   }, []);
 
   return (
