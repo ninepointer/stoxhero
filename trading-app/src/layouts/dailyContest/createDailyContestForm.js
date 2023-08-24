@@ -646,7 +646,7 @@ function Index() {
 
                 <Grid item xs={12} md={6} xl={3}>
                   <FormControl sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-autowidth-label">Contest Live Status *</InputLabel>
+                    <InputLabel id="demo-simple-select-autowidth-label">Current Live Status *</InputLabel>
                     <Select
                       labelId="demo-simple-select-autowidth-label"
                       id="demo-simple-select-autowidth"

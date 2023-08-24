@@ -78,7 +78,7 @@ function LiveOverallCompantPNL({ socket, id }) {
 
     useEffect(() => {
 
-        axios.get(`${baseUrl}api/v1/dailycontest/livePnlCompany/${id}`)
+        axios.get(`${baseUrl}api/v1/dailycontest/livePnlCompany/${id}`, {withCredentials: true})
             .then((res) => {
                 setTradeData(res.data.data);
             }).catch((err) => {
