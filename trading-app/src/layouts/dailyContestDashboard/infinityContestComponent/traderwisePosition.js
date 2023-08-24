@@ -56,7 +56,7 @@ function LiveTraderwiseCompantPNL(props) {
 
     useEffect(() => {
 
-        axios.get(`${baseUrl}api/v1/dailycontest/live/traderWiseCompany/${props.id}`)
+        axios.get(`${baseUrl}api/v1/dailycontest/live/traderWiseCompany/${props.id}`, {withCredentials: true})
             .then((res) => {
                 setAllTrade(res.data.data);
             }).catch((err) => {
