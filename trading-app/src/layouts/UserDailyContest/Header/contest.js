@@ -80,12 +80,12 @@ export default function LabTabs() {
         <MDBox bgColor="dark" color="light" display='flex' justifyContent='center' flexDirection='column'  mb={1} borderRadius={10} minHeight='auto'>
 
             {isLoading ?
-                <MDBox mt={10} mb={10} display="flex" justifyContent="center" alignItems="center">
+                <MDBox mt={10} mb={10} display="flex" minWidth='100%' justifyContent="center" alignItems="center">
                     <CircularProgress color='light' />
                 </MDBox>
                 :
                 <>
-                    <MDBox mt={0} mb={1} p={0.5} width='100%' bgColor='light' minHeight='auto' display='flex' justifyContent='space-between' borderRadius={7}>
+                    <MDBox mt={0} mb={1} p={0.5} minWidth='100%' bgColor='light' minHeight='auto' display='flex' justifyContent='space-between' borderRadius={7}>
                         <MDButton bgColor='dark' color={"warning"} size='small'
                             component={Link}
                             to={{

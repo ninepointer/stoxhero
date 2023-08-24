@@ -6,6 +6,7 @@ import {Grid, CircularProgress, Divider} from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import { Link } from "react-router-dom";
 import CachedIcon from '@mui/icons-material/Cached';
+import LiveContest from '../data/infinityContests'
 
 //data
 import CompanySideContestDailyChart from '../data/companySideContestDailyChart'
@@ -179,6 +180,99 @@ export default function LabTabs({socket}) {
         <MDBox display='flex' justifyContent='left'>
             <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Contest Dashboard</MDTypography>
         </MDBox>
+
+        {/* <Grid container xs={12} md={12} lg={12} mb={1}>
+            <Grid item boxShadow={2} minHeight='auto' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
+                {isLoading ? 
+                    <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
+                        <CircularProgress color='info'/>
+                    </MDBox>
+                :
+                <>
+                <Grid container xs={12} md={12} lg={12} p={1}>
+                    <Grid item xs={12} md={6} lg={6}>
+
+                            <MDButton
+                                variant="contained"
+                                color={"text"}
+                                size="small"
+                                component={Link}
+                                to={{
+                                    pathname: `/contestdashboard/dailycontestposition`,
+                                }}
+                            >
+                        <Grid container xs={12} md={12} lg={12}>
+
+                            <Grid item xs={6} md={6} lg={4} mt={1} display="flex" justifyContent="left">
+                                <MDTypography fontSize={12} style={{ color: "white", paddingLeft: 2, paddingRight: 2, fontWeight: 'bold', border:'1px solid white', borderRadius:5 }}>Thursday Options Champions</MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} mt={1} display="flex" justifyContent="center">
+                                <MDTypography fontSize={12} style={{ color: "white", paddingLeft: 2, paddingRight: 2, fontWeight: 'bold', border:'1px solid white', borderRadius:5 }}>Current Status: Live</MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} mt={1} display="flex" justifyContent="right">
+                                <MDTypography fontSize={12} style={{ color: "white", paddingLeft: 2, paddingRight: 2, fontWeight: 'bold', border:'1px solid white', borderRadius:5 }}>Type: StoxHero</MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={12} display="flex" justifyContent="center">
+                                <Divider style={{backgroundColor: 'white', height: '2px', minWidth: '100%'}} />
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="left">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>Entry: <span style={{ fontSize: 12, fontWeight: 700 }}>₹149</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="center">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>Portfolio: <span style={{ fontSize: 12, fontWeight: 700 }}>₹100,000</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="right">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>% Payout: <span style={{ fontSize: 12, fontWeight: 700 }}>1 %</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={12} display="flex" justifyContent="center">
+                                <Divider style={{backgroundColor: 'white', height: '2px', minWidth: '100%'}} />
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="left">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>Gross: <span style={{ fontSize: 12, fontWeight: 700 }}>+₹10,00,000</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="center">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>Brokerage: <span style={{ fontSize: 12, fontWeight: 700 }}>₹10,000</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="right">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>Net: <span style={{ fontSize: 12, fontWeight: 700 }}>+₹9,90,000</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="left">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>(+) Traders: <span style={{ fontSize: 12, fontWeight: 700 }}>5</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} display="flex" justifyContent="center">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>(-) Traders: <span style={{ fontSize: 12, fontWeight: 700 }}>10</span></MDTypography>
+                            </Grid>
+
+                            <Grid item xs={6} md={6} lg={4} mb={1} display="flex" justifyContent="right">
+                                <MDTypography fontSize={12} style={{ color: "white" }}>Total Traders: <span style={{ fontSize: 12, fontWeight: 700 }}>15</span></MDTypography>
+                            </Grid>
+
+                        </Grid>
+                    </MDButton>
+
+                    </Grid>
+                </Grid>
+                </>
+                }
+            </Grid>
+        </Grid> */}
+        <Grid container xs={12} md={12} lg={12} mb={1}>
+            <MDBox>
+                <LiveContest/>
+            </MDBox>
+        </Grid>
 
         <Grid container xs={12} md={12} lg={12}>
             <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>

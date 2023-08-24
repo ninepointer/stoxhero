@@ -19,6 +19,7 @@ import MDBox from "../../../components/MDBox";
 // import { Divider } from "@mui/material";
 import ContestHeader from './contestHeader'
 import Contests from './contests'
+import PredictWin from '../../predictWin/data/predictWin'
 
 
 
@@ -36,6 +37,9 @@ function Header() {
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' minWidth='100%'>
             <ContestHeader/>
           </Grid>
+          {/* <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' minWidth='100%'>
+            <PredictWin/>
+          </Grid> */}
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' minWidth='100%'>
             <Contests/>
           </Grid>
