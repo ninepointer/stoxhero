@@ -227,7 +227,7 @@ function Cover(props) {
       setShowConfirmation(false);
       const userData = await userDetail();
       if(userData?.role?.roleName === adminRole){
-        const from = location.state?.from || "/infinitydashboard";
+        const from = location.state?.from || "/tenxdashboard";
         navigate(from);
       }
       else if(userData?.role?.roleName === "data"){

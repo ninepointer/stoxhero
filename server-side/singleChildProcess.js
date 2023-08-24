@@ -231,7 +231,7 @@ async function singleProcess() {
                 autoCutMainManually();
                 autoCutMainManuallyMock();
                 changeStatus();
-                creditAmount();
+                // creditAmount();
             });
 
             const saveMargin = nodeCron.schedule(`*/5 3-10 * * ${weekDay}`, () => {

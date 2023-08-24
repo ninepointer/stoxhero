@@ -17,7 +17,7 @@ router.post("/login", async (req, res) => {
         return res.status(422).json({ status: 'error', message: "Please provide login credentials" });
     }
 
-    const userLogin = await UserDetail.findOne({ email: userId, status: "Active" })
+    const userLogin = await UserDetail.findOne({ email: userId, status: "Active" }).select('_id role password');
 
 
     if (!userLogin || !(await userLogin.correctPassword(pass, userLogin.password))) {
@@ -27,7 +27,9 @@ router.post("/login", async (req, res) => {
         if (!userLogin) {
             return res.status(422).json({ status: 'error', message: "Invalid credentials" });
         } else {
-
+            if(userLogin?.role?.toString()=='644903ac236de3fd7cfd755c'){
+                return res.status(400).json({status:'error', message:'Invalid request'});
+            }
             const token = await userLogin.generateAuthToken();
 
             res.cookie("jwtoken", token, {
