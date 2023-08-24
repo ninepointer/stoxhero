@@ -32,7 +32,7 @@ router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoize
 })
 
 router.post("/placingOrderDailyContest", isAppLive, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
-    // console.log("caseStudy 4: placing", req.body)
+    console.log("caseStudy 4: placing", req.body)
     req.dailyContest = true;
     const setting = await Setting.find();
 

@@ -27,6 +27,11 @@ const contestSchema = new Schema({
         enum: ['Mock','Live'],
         required: true,
     },
+    currentLiveStatus:{
+        type: String,
+        enum: ['Mock','Live'],
+        required: true,
+    },
     contestFor:{
         type: String,
         enum: ['StoxHero','College'],

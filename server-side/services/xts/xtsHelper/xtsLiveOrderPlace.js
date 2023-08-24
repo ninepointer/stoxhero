@@ -1,30 +1,6 @@
-
-
-// const axios = require("axios")
-// const BrokerageDetail = require("../../../models/Trading Account/brokerageSchema");
-// const PaperTrade = require("../../../models/mock-trade/paperTrade");
-// const singleLivePrice = require('../../../marketData/sigleLivePrice');
-// const StoxheroTrader = require("../../../models/mock-trade/stoxheroTrader");
-// const InfinityLiveTrader = require("../../../models/TradeDetails/infinityLiveUser");
-// const InfinityLiveCompany = require("../../../models/TradeDetails/liveTradeSchema");
-// const InfinityMockTrader = require("../../../models/mock-trade/infinityTrader");
-// const InfinityMockCompany = require("../../../models/mock-trade/infinityTradeCompany");
-// const StoxheroTradeCompany = require("../../../models/mock-trade/stoxheroTradeCompany");
-// const io = require('../../../marketData/socketio');
-// const {client} = require('../../../marketData/redisClient');
-// const mongoose = require('mongoose');
-// const singleXTSLivePrice = require("./singleXTSLivePrice");
 const {placeOrder} = require("../xtsInteractive")
-// const RetreiveOrder = require("../../../models/TradeDetails/retreiveOrder");
-// const {xtsAccountType} = require("../../../constant");
 
 exports.liveTrade = async (req, res) => {
-    // let date = new Date();
-    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    // todayDate = todayDate + "T23:59:59.999Z";
-    // const today = new Date(todayDate);
-    // const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
-
 
     let {algoBoxId, exchange, symbol, buyOrSell, Quantity, 
         Product, OrderType, validity, variety,trader,
@@ -48,6 +24,8 @@ exports.liveTrade = async (req, res) => {
         Quantity: realQuantity,
         // orderUniqueIdentifier: `${req.user.first_name}${req.user.mobile}`
     }
+
+    console.log(obj)
     const placeorder = await placeOrder(obj, req, res);
 
 }

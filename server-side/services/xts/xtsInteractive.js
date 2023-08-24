@@ -16,11 +16,11 @@ const { save } = require("./xtsHelper/saveXtsCred");
 const { ObjectId } = require('mongodb');
 const RequestToken = require("../../models/Trading Account/requestTokenSchema")
 const axios = require("axios");
-const {overallLivePnlRedis, overallLivePnlTraderWiseRedis, letestTradeLive} = require("../adminRedis/infinityLive")
-const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../adminRedis/infinityMock");
+const {overallLivePnlRedis, overallLivePnlTraderWiseRedis, letestTradeLive} = require("../adminRedis/Live")
+const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, overallPnlUsers} = require("../adminRedis/Mock");
 const UserPermission = require("../../models/User/permissionSchema");
 const {marginCalculationCompanyLive, marginCalculationTraderLive} = require("../../marketData/marginData");
-
+const {dailyContestLiveSave} = require("./dailyContestLive/dailyContestLiveSave")
 let xtsInteractiveWS;
 let xtsInteractiveAPI;
 // let isReverseTrade = false;
@@ -187,10 +187,14 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
     return;
   }
 
-  if(traderData?.trader){
-    // console.log("inside getPlacedOrderAndSave")
+  if(traderData?.trader && !orderData?.OrderUniqueIdentifier.includes("DC")){
 
     await getPlacedOrderAndSave(orderData, traderData, startTime);
+    return;
+  }
+  if(traderData?.trader && orderData?.OrderUniqueIdentifier.includes("DC")){
+
+    await dailyContestLiveSave(orderData, traderData, startTime);
     return;
   }
 }
@@ -212,6 +216,13 @@ const placeOrder = async (obj, req, res) => {
       obj.validity = "IOC"
     }
 
+    let orderIdentifier;
+
+    if(req.body.dailyContest === true){
+      orderIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}DC`
+    } else{
+      orderIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+    }
     const response = await xtsInteractiveAPI.placeOrder({
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: obj.exchangeInstrumentToken,
@@ -224,7 +235,8 @@ const placeOrder = async (obj, req, res) => {
       limitPrice: 0,
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
-      orderUniqueIdentifier: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
+      orderUniqueIdentifier: orderIdentifier,
+      
     });
 
     //check status, if status is 400 then send below error response.
@@ -246,15 +258,14 @@ const placeOrder = async (obj, req, res) => {
       uniqueId: `${req.user.first_name}${req.user.mobile}`,
       marginData: req.body.marginData,
       OrderType: req.body.OrderType,
-      Product: req.body.Product
+      Product: req.body.Product,
+      dailyContestId: req.body.contestId
     }
 
     // console.log(traderDataObj, response?.result?.AppOrderID)
     if (response?.result?.AppOrderID) {
       if (isRedisConnected && await client.exists(`liveOrderBackupKey`)) {
         let data = await client.HSET('liveOrderBackupKey', (response?.result?.AppOrderID).toString(), JSON.stringify(traderDataObj));
-        // traderData = JSON.parse(data);
-        // console.log("this is data", data);
         const save = await RedisBackup.create(traderDataObj)
         // console.log(save)
       } else {
@@ -500,7 +511,6 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     if (exchange === "NFO") {
       exchangeSegment = 2;
     }
-    // console.log("inside getPlacedOrderAndSave for check")
 
   if (Date.now() - startTime >= 10000) {
     let exchangeSegment;
@@ -688,8 +698,6 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
     const algoTraderLive = await InfinityLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
     const mockCompany = await InfinityMockCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDocMock }, { upsert: true, session });
     const algoTrader = await InfinityMockTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDocMock }, { upsert: true, session });
-
-    // console.log(liveCompanyTrade, algoTraderLive, mockCompany, algoTrader, new Date())
 
      isInsertedAllDB = (algoTrader.upsertedId && mockCompany.upsertedId && algoTraderLive.upsertedId && liveCompanyTrade.upsertedId)
 
