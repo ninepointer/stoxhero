@@ -87,6 +87,10 @@ const redisBackup = new Schema({
         type: String,
         // required: true
     },
+    dailyContestId: {
+        type: Schema.Types.ObjectId,
+        ref: 'daily-contests', 
+    }
 })
 
 const RedisDetail = mongoose.model("liveOrder-key-backup", redisBackup);

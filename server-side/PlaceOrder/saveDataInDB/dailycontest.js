@@ -3,7 +3,7 @@ const DailyContestMockCompany = require("../../models/DailyContest/dailyContestM
 const {getIOValue} = require('../../marketData/socketio');
 const mongoose = require('mongoose')
 const {clientForIORedis} = require('../../marketData/redisClient');
-const {lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../../services/adminRedis/infinityMock");
+const {lastTradeDataMockDailyContest, traderWiseMockPnlCompanyDailyContest, overallMockPnlCompanyDailyContest, overallpnlDailyContest} = require("../../services/adminRedis/Mock");
 
 
 

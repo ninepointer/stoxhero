@@ -74,11 +74,6 @@ function TraderwiseTraderPNL({ socket }) {
 
   }, [selectedContest, trackEvent])
 
-  // useEffect(() => {
-  //   return () => {
-  //     socket.close();
-  //   }
-  // }, [])
 
   let mapForParticularUser = new Map();
   for (let i = 0; i < allTrade.length; i++) {

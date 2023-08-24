@@ -41,7 +41,7 @@ function DataTable({
   const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 10;
   const entries = entriesPerPage.entries
     ? entriesPerPage.entries.map((el) => el.toString())
-    : ["10", "20", "30", "40", "50"];
+    : ["10", "20", "30", "40", "50", "100", "300", "500"];
   const columns = useMemo(() => table.columns, [table]);
   const data = useMemo(() => table.rows, [table]);
 
@@ -291,7 +291,7 @@ function DataTable({
 
 // Setting default values for the props of DataTable
 DataTable.defaultProps = {
-  entriesPerPage: { defaultValue: 50, entries: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50] },
+  entriesPerPage: { defaultValue: 50, entries: [5, 20, 40, 60, 100, 200, 500, 1000] },
   canSearch: false,
   showTotalEntries: true,
   pagination: { variant: "gradient", color: "info" },
