@@ -24,31 +24,11 @@ import { socketContext } from "../../socketContext";
 function TraderPosition() {
   const socket = useContext(socketContext);
 
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  // let socket;
-  // try{
-  //     socket = io.connect(`${baseUrl1}`)
-  // } catch(err){
-  //     throw new Error(err);
-  // }
 
    
     useEffect(()=>{
 
-        //console.log(socket);
-        // socket.on("connect", ()=>{
-            //console.log(socket.id);
-            socket.emit("company-ticks", true)
-        // })
-        // socket.on("noToken", (data)=>{
-        //     //console.log("no token");
-        //     window.alert(data);
-        // })
-        // socket.on("wrongToken", (data)=>{
-        //     //console.log("wrong Token");
-        //     window.alert(data);
-        // })
+      socket.emit("company-ticks", true)
 
     }, []);
 

@@ -16,6 +16,8 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import FeatureData from './featureData';
 import TenXSubscriptionPurchaseIntent from './tenXSubscriptionPurchaseIntent'
 import TenXSubscribers from './tenXSubscriber'
+import ActiveTenXSubscribers from './ActivetenXSubscriber'
+import ExpiredTenXSubscribers from './ExpiredtenXSubscribers'
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 10;
@@ -44,6 +46,8 @@ const [newObjectId, setNewObjectId] = useState("");
 const [updatedDocument, setUpdatedDocument] = useState([]);
 const [tenXData,setTenXData] = useState([])
 const [subscriptionCount,setSubscriptionCount] = useState([]);
+const [LiveTenXSubs,setLiveTenXSubs] = useState([]);
+const [ExpiredTenXSubs,setExpiredTenXSubs] = useState([]);
 
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
@@ -51,6 +55,7 @@ const [formState,setFormState] = useState({
     plan_name:'',
     actual_price:'',
     discounted_price:'',
+    isRecommended: '',
     features: {
         orderNo: "",
         description: ""
@@ -78,13 +83,16 @@ React.useEffect(()=>{
     axios.get(`${baseUrl}api/v1/tenX/${id}`, {withCredentials: true})
     .then((res)=>{
       setTenXSubs(res?.data?.data);
+      setLiveTenXSubs(res?.data?.data?.users?.filter(user => user.status === 'Live'))
+      setExpiredTenXSubs(res?.data?.data?.users?.filter(user => user.status === 'Expired'))
       setTimeout(()=>{
         setIsLoading(false)
       },500)
     //   setIsLoading(false).setTimeout(30000);
     }).catch((err)=>{
         return new Error(err)
-    })    
+    }) 
+
 },[])
 
 React.useEffect(()=>{
@@ -122,7 +130,7 @@ async function onEdit(e,formState){
         setTimeout(()=>{setSaving(false);setEditing(true)},500)
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
-    const { plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
+    const { plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/tenX/${id}`, {
         method: "PATCH",
@@ -132,7 +140,7 @@ async function onEdit(e,formState){
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal 
+            plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal 
         })
     });
 
@@ -170,7 +178,7 @@ async function onEdit(e,formState){
         return openErrorSB("Missing Field","Please fill all the mandatory fields")
     }
     setTimeout(()=>{setCreating(false);setIsSubmitted(true)},500)
-    const {plan_name, actual_price, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
+    const {plan_name, actual_price, isRecommended, discounted_price, validity, validityPeriod, status, portfolio, profitCap, allowPurchase, allowRenewal } = formState;
     const res = await fetch(`${baseUrl}api/v1/tenX/create`, {
         method: "POST",
         credentials:"include",
@@ -179,7 +187,7 @@ async function onEdit(e,formState){
             "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-            plan_name, actual_price, discounted_price, validity, 
+            plan_name, actual_price, isRecommended, discounted_price, validity, 
             validityPeriod, status, portfolio: portfolio.id, profitCap, allowPurchase, allowRenewal
         })
     });
@@ -477,6 +485,7 @@ async function onEdit(e,formState){
                     </Select>
                 </FormControl>
             </Grid>
+
             <Grid item xs={12} md={6} xl={3}>
                 <FormControl sx={{width: "100%" }}>
                     <InputLabel id="demo-simple-select-autowidth-label">Allow Purchase</InputLabel>
@@ -633,7 +642,19 @@ async function onEdit(e,formState){
 
                 {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
                     <MDBox>
+                        <ActiveTenXSubscribers tenXSubscription={LiveTenXSubs} subscriptionCount={LiveTenXSubs?.length}/>
+                    </MDBox>
+                </Grid>}
+
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
                         <TenXSubscribers tenXSubscription={tenXSubs} subscriptionCount={subscriptionCount} setSubscriptionCount={setSubscriptionCount}/>
+                    </MDBox>
+                </Grid>}
+
+                {(id || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                    <MDBox>
+                        <ExpiredTenXSubscribers tenXSubscription={ExpiredTenXSubs}/>
                     </MDBox>
                 </Grid>}
 

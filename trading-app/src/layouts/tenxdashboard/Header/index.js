@@ -771,6 +771,58 @@ export default function LabTabs({socket}) {
                                 Tutorial Videos
                             </MDButton>
                         </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"error"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/setting`,
+                                  }}
+                            >
+                                App Settings
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"primary"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/trading-accounts`,
+                                  }}
+                            >
+                                Trading Account
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"info"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/instruments`,
+                                  }}
+                            >
+                                Instruments
+                            </MDButton>
+                        </Grid>
+                        <Grid item fullWidth>
+                            <MDButton 
+                                variant="contained" 
+                                color={"warning"} 
+                                size="small" 
+                                component = {Link}
+                                to={{
+                                    pathname: `/algobox`,
+                                  }}
+                            >
+                                Algo Box
+                            </MDButton>
+                        </Grid>
                     </Grid>
                 </MDBox>
                 

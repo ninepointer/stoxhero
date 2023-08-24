@@ -647,6 +647,7 @@ router.patch('/userdetail/me', authController.protect, currentUser, uploadMultip
             filteredBody[key]=""
           }
         }
+        console.log('body',filteredBody)
         const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, {new: true});
     
         res.status(200).json({message:'Edit successful',status:'success',data: userData});

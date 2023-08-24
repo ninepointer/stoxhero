@@ -90,7 +90,7 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
         const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal')
         .populate('portfolio', 'portfolioName portfolioValue')
-        .sort({$natural: 1})
+        .sort({discounted_price: 1})
         
         res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
     }catch(e){
@@ -101,9 +101,9 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
 
 exports.getAdminActiveTenXSubs = async(req, res, next)=>{
   try{
-      const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
+      const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features users')
       .populate('portfolio', 'portfolioName portfolioValue')
-      .sort({$natural: 1})
+      .sort({discounted_price: -1})
       
       res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
   }catch(e){
@@ -114,9 +114,9 @@ exports.getAdminActiveTenXSubs = async(req, res, next)=>{
 
 exports.getAllTenXSubs = async(req, res, next)=>{
   try{
-      const tenXSubs = await TenXSubscription.find().select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features')
+      const tenXSubs = await TenXSubscription.find().select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features users')
       .populate('portfolio', 'portfolioName portfolioValue')
-      .sort({$natural: 1})
+      .sort({discounted_price: -1})
       
       res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
   }catch(e){
@@ -131,6 +131,7 @@ exports.getInactiveTenXSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find({status: "Inactive"})
       .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({discounted_price: -1})
       
       res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
   }catch(e){
@@ -144,6 +145,7 @@ exports.getDraftTenXSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find({status: "Draft"})
       .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({discounted_price: -1})
       
       res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
   }catch(e){
@@ -159,7 +161,8 @@ exports.getTenXSubscription = async(req, res, next)=>{
     try{
     const tenXSubscription = await TenXSubscription.findById(id)
     .populate('portfolio', 'portfolioName portfolioValue')
-    .populate('users.userId','first_name last_name mobile email');
+    .populate('users.userId','first_name last_name mobile email')
+    .sort({discounted_price: -1});
 
     res.status(201).json({message: "TenXSubscription Retrived",data: tenXSubscription});    
     }
@@ -443,7 +446,9 @@ exports.myActiveSubsciption = async(req, res, next)=>{
         }
       }
       const tenXSubs = await TenXSubscription.find({_id: {$in: mySubs}})
-      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features allowPurchase allowRenewal").populate('portfolio', 'portfolioName portfolioValue')      
+      .select("_id plan_name actual_price discounted_price profitCap validity validityPeriod status portfolio features allowPurchase allowRenewal")
+      .populate('portfolio', 'portfolioName portfolioValue')
+      .sort({discounted_price: 1})  
       res.status(201).json({status: 'success', data: tenXSubs});    
   }catch(e){
       console.log(e);

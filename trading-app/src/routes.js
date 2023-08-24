@@ -77,7 +77,6 @@ import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import BattleDashboard from './layouts/battleDashboard'
-import InfinityMining from './layouts/InfinityMining'
 import PaymentTest from './layouts/paymentTest/index'
 import ContestScoreboard from './layouts/contestScoreboard'
 import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
@@ -172,27 +171,11 @@ const routes = [
 
   {
     type: "collapse",
-    name: "Infinity Dashboard",
-    key: "infinitydashboard",
-    icon: <AllInclusiveIcon/>,
-    route: "/infinitydashboard",
-    component: <InfinityDashboard />,
-  },
-  {
-    type: "collapse",
     name: "StoxHero Dashboard",
     key: "stoxherouserdashboard",
     icon: <AllInclusiveIcon/>,
     route: "/stoxherouserdashboard",
     component: <StoxHeroUserDashboard />,
-  },
-  {
-    type: "collapse",
-    name: "Infinity Mining",
-    key: "infinitymining",
-    icon: <TroubleshootIcon/>,
-    route: "/infinitymining",
-    component: <InfinityMining />,
   },
   {
     type: "collapse",
@@ -267,23 +250,6 @@ const routes = [
     route: "/internshipleaderboard",
     component: <InternshipLeaderboard />,
   },
-    {
-    // type: "collapse",
-    // name: "Company Dashboard",
-    key: "backreportxts",
-    // icon: <DashboardIcon/>,
-    route: "/backreportxts",
-    component: <BackReportXTS />,
-  },
-  {
-    // type: "collapse",
-    // name: "Company Dashboard",
-    key: "margindetails",
-    // icon: <DashboardIcon/>,
-    route: "/margindetails",
-    component: <MarginDetails />,
-  },
-
   {
     // type: "collapse",
     // name: "Company Dashboard",
@@ -474,14 +440,6 @@ const routes = [
     route: "tradingholiday",
     component: <TradingHolidaysDetails />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Payment",
-  //   key: "payment",
-  //   icon: <BusinessIcon/>,
-  //   route: "payment",
-  //   component: <Payment />,
-  // },
   {
     // type: "collapse",
     // name: "Arena",
@@ -534,14 +492,6 @@ const routes = [
     route: "/arena/contest/trade",
     component: <ContestTradePage />,
   },
-  // {
-  //   // type: "collapse",
-  //   // name: "Arena", 
-  //   // key: "arena", DummyPage
-  //   // icon: <BusinessIcon/>,
-  //   route: "arena/contest/notstarted",
-  //   component: <DummyPage />,
-  // },
   {
     // type: "collapse",
     // name: "Company Position",
@@ -574,14 +524,6 @@ const routes = [
     // icon: <BusinessIcon/>,
     route: "/traderposition",
     component: <TraderPosition />,
-  },
-  {
-    type: "collapse",
-    name: "OverallPnl Trader",
-    key: "overalltraderpnl",
-    icon: <BusinessIcon/>,
-    route: "/overalltraderpnl",
-    component: <OverallPnlTrader />,
   },
   {
     // type: "collapse",

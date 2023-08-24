@@ -96,6 +96,8 @@ const Timer = ({socket}) => {
       if (now.getTime() >= timerStartInOffline.getTime() && now.getTime() <= appOfflineTime.getTime()) {
         const timeDifference = appOfflineTime - now;
 
+        // console.log("timeDifference", timeDifference)
+
         const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
@@ -114,6 +116,7 @@ const Timer = ({socket}) => {
       }
 
       if(now.getTime() > appOfflineTime.getTime()) {
+        // console.log("timeDifference in off", now, appOfflineTime)
         // let time = new Date(`${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`);
         // console.log("changeDateFormat", changeDateFormat(time))
         setRemainingTime(`Trading Resumes at ${changeDateFormat(nextTradingDay)}`);
@@ -127,6 +130,7 @@ const Timer = ({socket}) => {
         setTimerVisibility(false);
       }
     } else{
+      // console.log("timeDifference in off 2")
       setRemainingTime(changeDateFormat(nextTradingDay) && `Trading Resumes at ${changeDateFormat(nextTradingDay)}`);
       setColor("red")
       setTimerVisibility(false);
