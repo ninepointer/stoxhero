@@ -162,6 +162,7 @@ import Chart from './layouts/charts/index';
 import Withdrawal from "./layouts/withdrawals";
 import WalletPayment from "./layouts/walletPayment";
 import PaymentStatus from "./layouts/paymentTest/paymentStatus";
+import InfinityContest from "./layouts/dailyContestDashboard/data/infinityContestHeader"
 
 const routes = [
 
@@ -520,6 +521,14 @@ const routes = [
     // icon: <BadgeIcon/>,
     route: "/internposition",
     component: <InternPosition />,
+  },
+  {
+    // type: "collapse",
+    // name: "Intern Position",
+    key: "infinitycontest",
+    // icon: <BadgeIcon/>,
+    route: "/contestdashboard/infinitycontest",
+    component: <InfinityContest />,
   },
   {
     // type: "collapse",
