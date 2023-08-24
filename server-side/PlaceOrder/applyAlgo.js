@@ -157,7 +157,7 @@ const DailyContestApplyAlgo = async (req, res, next)=>{
                 return elem.tradingAccount === element.accountId
             })
 
-            if(dailyContest?.contestType === "Live"){
+            if(dailyContest?.currentLiveStatus === "Live"){
                 const { apiKey } = apiKeyParticular[0];
                 const { accessToken } = accessTokenParticular[0];
 

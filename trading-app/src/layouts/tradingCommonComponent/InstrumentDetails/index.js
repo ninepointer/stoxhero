@@ -211,11 +211,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel contestId={subscriptionId} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
+      <BuyModel contest={contestData} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel contestId={subscriptionId} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel contest={contestData} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (

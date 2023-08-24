@@ -12,30 +12,12 @@ import { socketContext } from "../../socketContext";
 
 function Tables() {
 
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const getDetails = useContext(userContext);
-  // const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const socket = useContext(socketContext);
 
-  // console.log("location", location);
-  // let socket;
-  // try {
-  //   socket = io.connect(`${baseUrl1}`)
-  //   console.log("socket 1st", socket.id)
-
-  // } catch (err) {
-  //   throw new Error(err);
-  // }
-
-
   useEffect(() => {
-    // socket.on("connect", () => {
-    //   console.log("socket connected", socket.id)
-    //   socket.emit('userId', getDetails.userDetails._id)
-    //   socket.emit("user-ticks", getDetails.userDetails._id);
-    //   socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});
-    // })
+
     socket.emit('userId', getDetails.userDetails._id)
     socket.emit("user-ticks", getDetails.userDetails._id);
     socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});

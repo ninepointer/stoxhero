@@ -280,6 +280,14 @@ async function singleProcess() {
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
 
     //  TODO toggle
+    app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
+    app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
+    app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
+    app.use('/api/v1', require("./PlaceOrder/mainLiveContest"));
+
+    app.use('/api/v1', require("./PlaceOrder/main"));
+    app.use('/api/v1', require("./PlaceOrder/switching"));
+
     app.use('/api/v1', require("./marketData/Margin"));
     app.use('/api/v1', require("./routes/user/userLogin"));
     app.use('/api/v1', require('./routes/TradeData/getUserTrade'));
@@ -290,6 +298,8 @@ async function singleProcess() {
     app.use('/api/v1', require('./routes/CronJobsRouter/getHistoryData'));
     app.use('/api/v1', require('./routes/CronJobsRouter/historyTrade'));
     app.use('/api/v1', require('./routes/AlgoBox/tradingAlgoAuth'));
+    app.use('/api/v1/dailycontest', require('./routes/DailyContest/dailyContestLiveTrade'));
+
     app.use('/api/v1', require("./marketData/getRetrieveOrder"));
     app.use('/api/v1', require('./marketData/switchToRealTrade'));
     app.use('/api/v1', require('./services/xts/xtsHelper/xtsMarginDetails'));
@@ -341,11 +351,6 @@ async function singleProcess() {
     app.use('/api/v1/brokerreport', require("./routes/BrokerReport/brokerReportRoutes"))
     app.use('/api/v1/contestscoreboard', require("./routes/DailyContest/contestScoreboard"))
     app.use('/api/v1/instrumentpnl', require("./routes/instrumentPNL/instrumentPNL"));
-    app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
-    app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
-    app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
-    app.use('/api/v1', require("./PlaceOrder/main"));
-    app.use('/api/v1', require("./PlaceOrder/switching"));
     app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
     app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));
     app.use('/api/v1/infinitymining', require("./routes/infinityMining/infinityMiningRoutes"));
@@ -361,7 +366,6 @@ async function singleProcess() {
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
     app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
     
-
 
 
 

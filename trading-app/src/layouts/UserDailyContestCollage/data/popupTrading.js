@@ -42,7 +42,7 @@ const PopupTrading = ({elem, timeDifference}) => {
         })
         if (isParticipated) {
             navigate(`/collegecontest/${elem.contestName}`, {
-                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime, currentLiveStatus: elem?.currentLiveStatus }
             });
             return;
         } else{
@@ -76,7 +76,7 @@ const PopupTrading = ({elem, timeDifference}) => {
             }
         } else {
             navigate(`/collegecontest/${elem.contestName}`, {
-                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime }
+                state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime, currentLiveStatus: elem?.currentLiveStatus }
             });
         }
     }

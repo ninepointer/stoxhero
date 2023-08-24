@@ -7,6 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
+import { Grid } from "@mui/material";
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
@@ -251,7 +252,7 @@ function TraderwiseTraderPNL({ socket }) {
 
   rows.push(obj);
 
-  console.log("rows", rows)
+  console.log("Selected", selectedContest)
 
   return (
     <>
@@ -284,36 +285,81 @@ function TraderwiseTraderPNL({ socket }) {
                 </MenuItem>
               ))}
             </TextField>
-            <MDBox sx={{ display: 'flex', alignItems: 'center', padding: "2px 0px 2px 10px" }}>
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Payout%:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.payoutPercentage}</MDTypography>
-              </MDBox>
-
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Entry Fee:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee}</MDTypography>
-              </MDBox>
-
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Max Participant:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.maxParticipants}</MDTypography>
-              </MDBox>
-
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Participant:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.participants?.length}</MDTypography>
-              </MDBox>
-
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Expected Collection:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee * selectedContest?.maxParticipants}</MDTypography>
-              </MDBox>
-
-              <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
-                <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
-                <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * selectedContest?.participants?.length)}</MDTypography>
-              </MDBox>
+            <MDBox style={{backgroundColor:`${selectedContest?.entryFee > 0 ? 'lightgreen' : 'yellow'}`}} borderRadius={3} m={1}>
+              <Grid container xs={12} md={12} lg={12}>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Payout%:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.payoutPercentage}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Entry Fee:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Max Participant:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.maxParticipants}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Participant:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{selectedContest?.participants?.length}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Expected Collection:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >₹{selectedContest?.entryFee * selectedContest?.maxParticipants}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Collected Fee:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.entryFee * selectedContest?.participants?.length)}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Portfolio:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >₹{(selectedContest?.portfolio.portfolioValue)}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Contest Type:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.contestType)}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>Contest For:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.contestFor)}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>NIFTY:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.isNifty === true ? 'Yes' : 'No')}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>BANKNIFTY:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.isBankNifty === true ? 'Yes' : 'No')}</MDTypography>
+                    </MDBox>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} p={1}>
+                      <MDTypography fontSize={11}>FINNIFTY:&nbsp;</MDTypography>
+                      <MDTypography fontSize={13} fontWeight="bold" >{(selectedContest?.isFinNifty === true ? 'Yes' : 'No')}</MDTypography>
+                    </MDBox>
+                  </Grid>
+              </Grid>
             </MDBox>
           </MDBox>
 

@@ -21,6 +21,8 @@ const {overallMockPnlRedis, overallMockPnlTraderWiseRedis, letestTradeMock, over
 const UserPermission = require("../../models/User/permissionSchema");
 const {marginCalculationCompanyLive, marginCalculationTraderLive} = require("../../marketData/marginData");
 const {dailyContestLiveSave} = require("./dailyContestLive/dailyContestLiveSave")
+const AccessToken = require("../../models/Trading Account/requestTokenSchema");
+
 let xtsInteractiveWS;
 let xtsInteractiveAPI;
 // let isReverseTrade = false;
@@ -63,9 +65,14 @@ const interactiveLogin = async () => {
       if(process.env.PROD){
         await ifServerCrashAfterOrder();
       }
-      if(process.env.PROD === "true"){
+
+      //todo-vijay
+      // if(process.env.PROD === "true"){
+        await client.set('interactive-token', JSON.stringify(logIn?.result?.token))
         await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
-      }
+      // }
+
+      // await client.set('interactiveApi', JSON.stringify(xtsInteractiveAPI));
 
       // await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
 
@@ -145,7 +152,18 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
       buyOrSell = "BUY"
     }
 
-    const response = await xtsInteractiveAPI.placeOrder({
+
+    let token;
+    if(await client.exists('interactive-token')){
+      console.log("in if condition")
+      token = await client.get('interactive-token');
+      token = JSON.parse(token);
+    } else{
+      let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+      token = tokenData.accessToken
+    }
+
+    let orderData = new URLSearchParams({
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
       productType: ProductType,
@@ -157,7 +175,19 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
       limitPrice: 0,
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
-    });
+    })
+
+    let headers = {
+      'Authorization': token,
+      "content-type": "application/x-www-form-urlencoded"
+    }
+
+
+   let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+   const response = placedOrder.data;
+
+    
+    
 
     // isReverseTrade = true;
     await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
@@ -228,7 +258,19 @@ const placeOrder = async (obj, req, res) => {
     } else{
       orderIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
     }
-    const response = await xtsInteractiveAPI.placeOrder({
+
+
+    let token;
+    if(await client.exists('interactive-token')){
+      console.log("in if condition")
+      token = await client.get('interactive-token');
+      token = JSON.parse(token);
+    } else{
+      let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+      token = tokenData.accessToken
+    }
+
+    let orderData = new URLSearchParams({
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: obj.exchangeInstrumentToken,
       productType: obj.Product,
@@ -241,8 +283,21 @@ const placeOrder = async (obj, req, res) => {
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
       orderUniqueIdentifier: orderIdentifier,
-      
-    });
+
+    })
+
+    let headers = {
+      'Authorization': token,
+      "content-type": "application/x-www-form-urlencoded"
+    }
+
+
+   let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+
+
+
+    const response = placedOrder.data;
+    // await xtsInteractiveAPI.placeOrder();
 
     //check status, if status is 400 then send below error response.
     console.log("response", response)
@@ -319,7 +374,18 @@ const ifNoResponseFromXTS = async (uniqueId) => {
         } else{
           OrderSide = "BUY"
         }
-        const response = await xtsInteractiveAPI.placeOrder({
+
+        let token;
+        if(await client.exists('interactive-token')){
+          console.log("in if condition")
+          token = await client.get('interactive-token');
+          token = JSON.parse(token);
+        } else{
+          let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+          token = tokenData.accessToken
+        }
+    
+        let orderData = new URLSearchParams({
           exchangeSegment: ExchangeSegment,
           exchangeInstrumentID: ExchangeInstrumentID,
           productType: ProductType,
@@ -331,7 +397,16 @@ const ifNoResponseFromXTS = async (uniqueId) => {
           limitPrice: 0,
           stopPrice: 0,
           clientID: process.env.XTS_CLIENTID,
-        });
+        })
+    
+        let headers = {
+          'Authorization': token,
+          "content-type": "application/x-www-form-urlencoded"
+        }
+    
+    
+       let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+       const response = placedOrder.data;
       }
     }
   } catch (err) {
@@ -379,7 +454,17 @@ const ifServerCrashAfterOrder = async () => {
   
       // console.log("openTrade", openTrade[i])
   
-      const tradeRsponse = await xtsInteractiveAPI.placeOrder({
+      let token;
+      if(await client.exists('interactive-token')){
+        console.log("in if condition")
+        token = await client.get('interactive-token');
+        token = JSON.parse(token);
+      } else{
+        let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+        token = tokenData.accessToken
+      }
+  
+      let orderData = new URLSearchParams({
         exchangeSegment: ExchangeSegment,
         exchangeInstrumentID: ExchangeInstrumentID,
         productType: ProductType,
@@ -391,7 +476,16 @@ const ifServerCrashAfterOrder = async () => {
         limitPrice: 0,
         stopPrice: 0,
         clientID: process.env.XTS_CLIENTID,
-      });
+      })
+  
+      let headers = {
+        'Authorization': token,
+        "content-type": "application/x-www-form-urlencoded"
+      }
+  
+  
+     let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+     const response = placedOrder.data;
       // console.log(tradeRsponse)
     }
 
@@ -443,7 +537,18 @@ const autoPlaceOrder = (obj, res) => {
       } else {
         uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
       }
-      const response = await xtsInteractiveAPI.placeOrder({
+
+      let token;
+      if(await client.exists('interactive-token')){
+        console.log("in if condition")
+        token = await client.get('interactive-token');
+        token = JSON.parse(token);
+      } else{
+        let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+        token = tokenData.accessToken
+      }
+  
+      let orderData = new URLSearchParams({
         exchangeSegment: exchangeSegment,
         exchangeInstrumentID: exchangeInstrumentToken,
         productType: Product,
@@ -456,7 +561,18 @@ const autoPlaceOrder = (obj, res) => {
         stopPrice: 0,
         clientID: process.env.XTS_CLIENTID,
         orderUniqueIdentifier: uniqueIdentifier
-      });
+      })
+  
+      let headers = {
+        'Authorization': token,
+        "content-type": "application/x-www-form-urlencoded"
+      }
+  
+  
+     let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+     const response = placedOrder.data;
+
+      // const response = await xtsInteractiveAPI.placeOrder();
 
       let traderDataObj = {
         appOrderId: response?.result?.AppOrderID,
@@ -532,7 +648,17 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       buyOrSell = "BUY"
     }
 
-    const response = await xtsInteractiveAPI.placeOrder({
+    let token;
+    if(await client.exists('interactive-token')){
+      console.log("in if condition")
+      token = await client.get('interactive-token');
+      token = JSON.parse(token);
+    } else{
+      let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+      token = tokenData.accessToken
+    }
+
+    let orderData = new URLSearchParams({
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
       productType: ProductType,
@@ -544,7 +670,17 @@ const getPlacedOrderAndSave = async (orderData, traderData, startTime) => {
       limitPrice: 0,
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
-    });
+    })
+
+    let headers = {
+      'Authorization': token,
+      "content-type": "application/x-www-form-urlencoded"
+    }
+
+
+   let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+   const response = placedOrder.data;
+
     await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
 
     if(!autoTrade)
@@ -859,7 +995,17 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       buyOrSell = "BUY"
     }
 
-    const response = await xtsInteractiveAPI.placeOrder({
+    let token;
+    if(await client.exists('interactive-token')){
+      console.log("in if condition")
+      token = await client.get('interactive-token');
+      token = JSON.parse(token);
+    } else{
+      let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+      token = tokenData.accessToken
+    }
+
+    let orderData = new URLSearchParams({
       exchangeSegment: exchangeSegment,
       exchangeInstrumentID: ExchangeInstrumentID,
       productType: ProductType,
@@ -871,7 +1017,17 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
       limitPrice: 0,
       stopPrice: 0,
       clientID: process.env.XTS_CLIENTID,
-    });
+    })
+
+    let headers = {
+      'Authorization': token,
+      "content-type": "application/x-www-form-urlencoded"
+    }
+
+
+   let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+   const response = placedOrder.data;
+
     await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
 
     if(!autoTrade)
