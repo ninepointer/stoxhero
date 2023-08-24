@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.9feb6d18.css",
-    "main.js": "/static/js/main.4c021f02.js",
+    "main.js": "/static/js/main.0e9fe407.js",
     "static/js/498.71b2877e.chunk.js": "/static/js/498.71b2877e.chunk.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.562b0700.chunk.js": "/static/js/513.562b0700.chunk.js",
@@ -85,6 +85,7 @@
     "static/media/profit.png": "/static/media/profit.f6b3aca919a6874d41c8.png",
     "static/media/sadness.png": "/static/media/sadness.5a0bcb560a8cb5088119.png",
     "static/media/banknifty.png": "/static/media/banknifty.062f46c1696ac2c32914.png",
+    "static/media/indeximage.png": "/static/media/indeximage.22b667bd93561373961e.png",
     "static/media/Trading4.webp": "/static/media/Trading4.78bd6a9ac4c35d603f88.webp",
     "static/media/team-1.jpg": "/static/media/team-1.0fd36e0ee93dcfacdef8.jpg",
     "static/media/amargin.png": "/static/media/amargin.d955aa228b595f7fde3f.png",
@@ -163,13 +164,13 @@
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
     "main.9feb6d18.css.map": "/static/css/main.9feb6d18.css.map",
-    "main.4c021f02.js.map": "/static/js/main.4c021f02.js.map",
+    "main.0e9fe407.js.map": "/static/js/main.0e9fe407.js.map",
     "498.71b2877e.chunk.js.map": "/static/js/498.71b2877e.chunk.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.562b0700.chunk.js.map": "/static/js/513.562b0700.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.9feb6d18.css",
-    "static/js/main.4c021f02.js"
+    "static/js/main.0e9fe407.js"
   ]
 }
