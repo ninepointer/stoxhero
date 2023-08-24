@@ -197,6 +197,11 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
     await dailyContestLiveSave(orderData, traderData, startTime);
     return;
   }
+  //TODO
+  //includes SDC
+  //save live dailyContest
+
+
 }
 
 const placeOrder = async (obj, req, res) => {
@@ -432,6 +437,7 @@ const autoPlaceOrder = (obj, res) => {
         exchangeSegment = 'NSECM'
       }
       let uniqueIdentifier;
+      //CONDITION FOR DC AND SDC
       if (mockSwitch) {
         uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}TMS`
       } else {

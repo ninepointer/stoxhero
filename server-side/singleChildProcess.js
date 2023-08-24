@@ -254,7 +254,6 @@ async function singleProcess() {
 
         }
     }
-
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));
     app.use(require("cookie-parser")());
@@ -361,6 +360,7 @@ async function singleProcess() {
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
     app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
+    
 
 
 
