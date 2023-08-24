@@ -46,13 +46,6 @@ exports.liveTrade = async (reqBody, res) => {
     let orderData;
 
 
-    // variety = "amo";
-    // Price = 7;
-    // TriggerPrice = 7;
-    // realQuantity = 10;
-    // OrderType = "LIMIT";
-    // Product = "MIS"
-
     if(variety === "amo"){
         orderData = new URLSearchParams({
             "tradingsymbol":realSymbol,

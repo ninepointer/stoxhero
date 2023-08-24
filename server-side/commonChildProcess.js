@@ -128,6 +128,8 @@ async function commonProcess() {
     app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
     app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));
     app.use('/api/v1', require("./PlaceOrder/main"));
+    app.use('/api/v1', require("./PlaceOrder/mainLiveContest"));
+
     app.use('/api/v1', require("./PlaceOrder/switching"));
     app.use('/api/v1/analytics', require("./routes/analytics/analytics"));
     app.use('/api/v1/appmetrics', require("./routes/appMetrics/appMetricsRoutes"));

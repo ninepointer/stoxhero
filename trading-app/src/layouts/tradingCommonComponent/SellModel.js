@@ -31,7 +31,7 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, contestId}) => {
+const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, contest}) => {
   // console.log("rendering in userPosition: sellModel", exchange)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -201,7 +201,11 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
       trader = traderId;
       fromAdmin = true;
     }else if(from === dailyContest){
-      endPoint = 'placingOrderDailyContest';
+      if(contest?.currentLiveStatus==="Live"){
+        endPoint = 'placingLiveOrderDailyContest';
+      } else{
+        endPoint = 'placingOrderDailyContest';
+      }
     }
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
@@ -211,7 +215,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
         },
         body: JSON.stringify({
             
-          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId,
+          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId: contest?.data,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, internPath,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath
