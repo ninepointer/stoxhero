@@ -14,7 +14,7 @@ const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xt
 const {contestChecks} = require("../PlaceOrder/dailyContestChecks")
 
 
-router.post("/placingLiveOrderDailyContest", isAppLive, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
+router.post("/placingLiveOrderDailyContest", authentication, isAppLive, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
     req.dailyContest = true;
     const setting = await Setting.find();
 
