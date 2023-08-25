@@ -22,6 +22,8 @@ const UserPermission = require("../../models/User/permissionSchema");
 const {marginCalculationCompanyLive, marginCalculationTraderLive} = require("../../marketData/marginData");
 const {dailyContestLiveSave} = require("./dailyContestLive/dailyContestLiveSave")
 const AccessToken = require("../../models/Trading Account/requestTokenSchema");
+const DailyContestLiveCompany = require('../../models/DailyContest/dailyContestLiveCompany');
+const DailyContestLiveTrader = require('../../models/DailyContest/dailyContestLiveUser');
 
 let xtsInteractiveWS;
 let xtsInteractiveAPI;
@@ -224,6 +226,15 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
     await dailyContestLiveSave(orderData, traderData, startTime);
     return;
   }
+  //TODO
+  //includes SDC
+  if(traderData?.trader && orderData?.OrderUniqueIdentifier.includes("SDC")){
+    await saveToMockSwitchContest(orderData, traderData, startTime);
+    return;
+  }
+
+
+
 }
 
 const placeOrder = async (obj, req, res) => {
@@ -510,7 +521,8 @@ const autoPlaceOrder = (obj, res) => {
         userQuantity,
         instrumentToken,
         singleUser,
-        marginData
+        marginData,
+        contestId
       } = obj;
       // console.log(obj)
       let isRedisConnected = getValue();
@@ -523,8 +535,13 @@ const autoPlaceOrder = (obj, res) => {
         exchangeSegment = 'NSECM'
       }
       let uniqueIdentifier;
-      if (mockSwitch) {
+      //CONDITION FOR DC AND SDC
+      if(contestId && !mockSwitch){
+        uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}DC`
+      }else if (!contestId && mockSwitch) {
         uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}TMS`
+      }else if (contestId && mockSwitch) {
+        uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}SDC`
       } else {
         uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
       }
@@ -584,7 +601,8 @@ const autoPlaceOrder = (obj, res) => {
         singleUser: singleUser,
         marginData: marginData,
         OrderType: OrderType,
-        Product: Product
+        Product: Product,
+        contestId: contestId
       }
 
       if (response?.result?.AppOrderID) {
@@ -1200,6 +1218,225 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
   return;
 }
 
+const saveToMockSwitchContest = async (orderData, traderData, startTime, res) => {
+  const io = getIOValue();
+  let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
+    instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData, contestId } = traderData
+
+  let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
+    TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
+    ExchangeTransactTime, LastUpdateDateTime, CancelRejectReason } = orderData;
+
+    if (exchange === "NFO") {
+      exchangeSegment = 2;
+    }
+
+  if (Date.now() - startTime >= 10000) {
+    let exchangeSegment;
+    if (exchange === "NFO") {
+      exchangeSegment = 'NSEFO'
+    }
+    if (exchange === "NSE") {
+      exchangeSegment = 'NSECM'
+    }
+    if (OrderSide === "Buy") {
+      buyOrSell = "SELL"
+    } else {
+      buyOrSell = "BUY"
+    }
+
+    let token;
+    if(await client.exists('interactive-token')){
+      console.log("in if condition")
+      token = await client.get('interactive-token');
+      token = JSON.parse(token);
+    } else{
+      let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+      token = tokenData.accessToken
+    }
+
+    let orderData = new URLSearchParams({
+      exchangeSegment: exchangeSegment,
+      exchangeInstrumentID: ExchangeInstrumentID,
+      productType: ProductType,
+      orderType: OrderType,
+      orderSide: buyOrSell,
+      timeInForce: TimeInForce,
+      disclosedQuantity: 0,
+      orderQuantity: Math.abs(OrderQuantity),
+      limitPrice: 0,
+      stopPrice: 0,
+      clientID: process.env.XTS_CLIENTID,
+    })
+
+    let headers = {
+      'Authorization': token,
+      "content-type": "application/x-www-form-urlencoded"
+    }
+
+
+   let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+   const response = placedOrder.data;
+
+    await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
+
+    if(!autoTrade)
+    io.emit(`sendResponse${trader.toString()}`, { message: "Something went wrong. Please try again.", status: "Error" })
+    return; // Terminate recursion
+  }
+
+
+
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T23:59:59.999Z";
+  const today = new Date(todayDate);
+  const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+
+
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", accountType: xtsAccountType });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", accountType: xtsAccountType });
+  const brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType });
+  const brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType });
+
+  const session = await mongoose.startSession();
+
+
+  try {
+    let status, transaction_type, order_type;
+    session.startTransaction();
+    if (OrderStatus === "Rejected") {
+      status = "REJECTED";
+    } else if (OrderStatus === "Filled") {
+      status = "COMPLETE";
+    }
+
+    if (OrderSide == "Sell") {
+      transaction_type = "SELL";
+    } else if (OrderSide == "Buy") {
+      transaction_type = "BUY";
+    }
+
+    if (!CancelRejectReason) {
+      CancelRejectReason = "null"
+    }
+    if (!ExchangeTransactTime) {
+      ExchangeTransactTime = "null"
+    }
+    if (!ExchangeOrderID) {
+      ExchangeOrderID = "null"
+    }
+    if (!OrderAverageTradedPrice) {
+      OrderAverageTradedPrice = 0;
+    }
+
+    if (transaction_type == "SELL") {
+      OrderQuantity = 0 - OrderQuantity;
+    }
+    if (buyOrSell == "SELL") {
+      Quantity = 0 - Quantity;
+    }
+
+    if(OrderType === "Market"){
+      order_type = "MARKET";
+    }
+
+    function buyBrokerage(totalAmount, buyBrokerData) {//brokerageDetailBuy[0]
+      let brokerage = Number(buyBrokerData.brokerageCharge);
+      let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
+      let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+      let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
+      let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
+      let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
+      let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+      return finalCharge;
+    }
+
+    function sellBrokerage(totalAmount, sellBrokerData) {//brokerageDetailSell[0]
+        let brokerage = Number(sellBrokerData.brokerageCharge);
+        let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+        let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+        let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
+        let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+        let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
+        let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+
+        return finalCharge
+    }
+
+    let brokerageCompany = 0;
+    let brokerageUser = 0;
+
+    if (transaction_type === "BUY" && status == "COMPLETE") {
+      brokerageCompany = buyBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice, brokerageDetailBuy[0]);
+    } else if (transaction_type === "SELL" && status == "COMPLETE")  {
+      brokerageCompany = sellBrokerage(Math.abs(Number(OrderQuantity)) * OrderAverageTradedPrice, brokerageDetailSell[0]);
+    }
+
+    if (buyOrSell === "BUY" && status == "COMPLETE") {
+      brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice, brokerageDetailBuyUser[0]);
+    } else if (buyOrSell === "SELL" && status == "COMPLETE") {
+      brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * OrderAverageTradedPrice, brokerageDetailSellUser[0]);
+    }
+
+    let order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${AppOrderID}`;
+
+    
+    //TODO:Check Document fields
+    const companyDoc = {
+      appOrderId: AppOrderID, order_id: order_id,
+      disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
+      status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
+      Product: ProductType, buyOrSell: transaction_type, contestId: contestId,
+      variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
+      algoBox: algoBoxId, instrumentToken, brokerage: brokerageCompany,
+      trader: trader, isRealTrade: true, amount: (Number(OrderQuantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
+      exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
+      exchangeInstrumentToken: ExchangeInstrumentID
+    }
+
+    const traderDoc = {
+      appOrderId: AppOrderID, order_id: order_id,
+      disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
+      status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: Quantity,
+      Product: ProductType, buyOrSell: buyOrSell,
+      variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
+      instrumentToken, brokerage: brokerageUser, trader: trader,
+      isRealTrade: true, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
+      exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
+      exchangeInstrumentToken: ExchangeInstrumentID, contestId: contestId
+    }
+
+
+
+    const liveCompanyTrade = await DailyContestLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
+    const algoTraderLive = await DailyContestLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
+
+      await session.commitTransaction();
+
+    // console.log("data saved in retreive order for", AppOrderID)
+
+    // console.log("dontSendResp bahr", dontSendResp)
+    // if (!dontSendResp && redisApproval) {
+    //   await client.expire(`liveOrderBackupKey`, 600);
+    //   await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
+    //   io.emit(`sendResponse${trader.toString()}`, { message: { Quantity: Quantity, symbol: symbol }, status: "complete" })
+    //   // return res.status(201).json({ message: responseMsg, err: responseErr })
+    // }
+
+  } catch (err) {
+
+    await session.abortTransaction();
+
+    console.error('Transaction failed, documents not saved:', err);
+    // await saveToMockSwitch(orderData, traderData, startTime);
+
+  } finally {
+    session.endSession();
+  }
+
+  return;
+}
 
 module.exports = { interactiveLogin, placeOrder, autoPlaceOrder, ifServerCrashAfterOrder };
 

@@ -1,6 +1,7 @@
 const InfinityTrader = require("../../models/mock-trade/infinityTrader");
 const InfinityTradeCompany = require("../../models/mock-trade/infinityTradeCompany");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
+const ContestLiveTradeCompany = require("../../models/DailyContest/dailyContestLiveCompany");
 const Algo = require("../../models/AlgoBox/tradingAlgoSchema")
 const TenxTrader = require("../../models/mock-trade/tenXTraderSchema");
 const Internship = require("../../models/mock-trade/internshipTrade");
@@ -1180,6 +1181,166 @@ async function fetchPricesForTokensArr(tokenObjects) {
   }
 }
 
+const contestTradeLive = async () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let date = new Date();
+      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+      todayDate = todayDate + "T00:00:00.000Z";
+      const today = new Date(todayDate);
 
-module.exports = { dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive, internshipTradeMod, dailyContestMockMod };
+      const data = await ContestLiveTradeCompany.aggregate([
+        {
+          $match: {
+            trade_time: {
+              $gte: today
+            },
+            status: "COMPLETE",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              userId: "$trader",
+              contestId:"$contestId",
+              // subscriptionId: "$subscriptionId",
+              exchange: "$exchange",
+              symbol: "$symbol",
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
+              variety: "$variety",
+              validity: "$validity",
+              order_type: "$order_type",
+              Product: "$Product",
+              algoBoxId: "$algoBox"
+            },
+            runningLots: {
+              $sum: "$Quantity",
+            },
+            takeTradeQuantity: {
+              $sum: {
+                $multiply: ["$Quantity", -1],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: "$_id.userId",
+            contestId:"$_id.contestId",
+            // subscriptionId: "$_id.subscriptionId",
+            exchange: "$_id.exchange",
+            symbol: "$_id.symbol",
+            instrumentToken: "$_id.instrumentToken",
+            exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+            variety: "$_id.variety",
+            validity: "$_id.validity",
+            order_type: "$_id.order_type",
+            Product: "$_id.Product",
+            runningLots: "$runningLots",
+            takeTradeQuantity: "$takeTradeQuantity",
+            algoBoxId: "$_id.algoBoxId"
+          },
+        },
+        {
+          $match: {
+            runningLots: {
+              $ne: 0
+            },
+          }
+        }
+      ]);
+      if(data.length ==0){
+        return;
+      }
+      // console.log("collectiong", data);
+
+      for (let i = 0; i < data.length; i++) {
+        let date = new Date();
+        let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
+        let quantity = Math.abs(data[i].runningLots);
+
+        let algoBox = await Algo.findOne({ status: "Active" });
+
+        let realBuyOrSell;
+        if (transaction_type === "BUY") {
+          realBuyOrSell = "SELL";
+        } else {
+          realBuyOrSell = "BUY";
+        }
+
+        let buyOrSell;
+        if (algoBox.transactionChange) {
+          if (realBuyOrSell === "BUY") {
+            buyOrSell = "SELL";
+          } else {
+            buyOrSell = "BUY";
+          }
+        } else {
+          buyOrSell = realBuyOrSell;
+        }
+
+        let system = await User.findOne({ email: "system@ninepointer.in" });
+        let createdBy = system._id;
+
+        let Obj = {};
+        Obj.symbol = data[i].symbol;
+        Obj.Product = data[i].Product;
+        Obj.instrumentToken = data[i].instrumentToken;
+        Obj.exchangeInstrumentToken = data[i].exchangeInstrumentToken;
+        Obj.real_instrument_token = data[i].instrumentToken;
+        Obj.exchange = data[i].exchange;
+        Obj.validity = data[i].validity;
+        Obj.OrderType = data[i].order_type;
+        Obj.variety = data[i].variety;
+        Obj.buyOrSell = buyOrSell;
+        Obj.realBuyOrSell = realBuyOrSell;
+        Obj.trader = data[i].userId;
+        Obj.algoBoxId = data[i].algoBoxId;
+        Obj.autoTrade = true;
+        Obj.dontSendResp = true;
+        Obj.createdBy = createdBy;
+        Obj.contestId = data[i].contestId;
+
+        const processOrder = async () => {
+          if (quantity == 0) {
+            return;
+          }
+           else if (quantity > (data[i].symbol.includes("BANK") ? 900 : 1800)) {
+            let tempQuantity = data[i].symbol.includes("BANK") ? 900 : 1800;
+
+            Obj.Quantity = tempQuantity;
+            Obj.userQuantity = tempQuantity / algoBox?.lotMultipler;
+            Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+            // console.log("before autoplaceorder in elseif");
+            Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
+
+            await autoPlaceOrder(Obj);
+            quantity = quantity - tempQuantity;
+            await delay(300);
+            return processOrder(); // Ensure that the promise returned by processOrder is returned
+          } else {
+            Obj.Quantity = quantity;
+            Obj.userQuantity = quantity / algoBox.lotMultipler;
+            Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
+            Obj.marginData = {isSquareOff: true, isAddMoreFund: false, isReleaseFund: false, zerodhaMargin: 0, runningLots: quantity};
+
+            // console.log("before autoplaceorder in else");
+            await autoPlaceOrder(Obj);
+          }
+        };
+
+        await processOrder();
+      }
+
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+
+module.exports = { dailyContestMock, tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive, internshipTradeMod, dailyContestMockMod };
 
