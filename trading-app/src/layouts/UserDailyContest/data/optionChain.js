@@ -28,7 +28,7 @@ const OptionChain = ({ socket, data }) => {
     let contestId = data?.data;
 
     let initialValue = isNifty ? "NIFTY50" : isBank ? "BANKNIFTY" : isFin ? "FINNIFTY" : isAll && "NIFTY50" ;
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -94,12 +94,6 @@ const OptionChain = ({ socket, data }) => {
         }
     }, [selectIndex, open])
 
-    // useEffect(() => {
-    //     return () => {
-    //       socket?.close();
-    //     }
-    // }, []);
-
     const handleClickOpen = async () => {
         setOpen(true);
     };
@@ -153,7 +147,6 @@ const OptionChain = ({ socket, data }) => {
                                     color="success"
                                     value={selectIndex}
                                     minHeight="4em"
-                                    // helperText="Please select subscription"
                                     InputProps={{
                                         style: { color: "dark" } // Change the color value to the desired text color
                                     }}
@@ -163,7 +156,6 @@ const OptionChain = ({ socket, data }) => {
                                         width: "150px"
                                     }}
                                     variant="outlined"
-                                    // sx={{ marginḶeft: 1, padding: 1, width: "150px", color: "success" }}
                                     onChange={(e) => { setSelectIndex(e.target.value) }}
                                 >
                                     {(data?.isBank || data?.isAll) &&
@@ -248,9 +240,7 @@ const OptionChain = ({ socket, data }) => {
 
                                         let bidPe = liveDataPE[0]?.depth?.buy[0]?.price
                                         let offerPe = liveDataPE[0]?.depth?.sell[0]?.price
-
-                                        // const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
-                                        // console.log("is hover", elem.isHover)
+                                        
                                         return (
                                             <Grid
                                                 onMouseOver={() => handleMouseOver(index)}

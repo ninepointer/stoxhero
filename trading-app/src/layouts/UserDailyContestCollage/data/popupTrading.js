@@ -16,7 +16,7 @@ import { Box, TextField } from "@mui/material";
 
 const PopupTrading = ({elem, timeDifference}) => {
 
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [open, setOpen] = React.useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -41,7 +41,7 @@ const PopupTrading = ({elem, timeDifference}) => {
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })
         if (isParticipated) {
-            navigate(`/collegecontest/${elem.contestName}`, {
+            navigate(`/collegecontests/${elem.contestName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime }
             });
             return;
@@ -75,7 +75,7 @@ const PopupTrading = ({elem, timeDifference}) => {
                 setData(data.message)
             }
         } else {
-            navigate(`/collegecontest/${elem.contestName}`, {
+            navigate(`/collegecontests/${elem.contestName}`, {
                 state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime }
             });
         }

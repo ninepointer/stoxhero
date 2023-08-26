@@ -29,7 +29,7 @@ const ContestCard = () => {
   const [contestData,setContestData] = useState([]);
   const [isLoading,setIsLoading] = useState(false);
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const getDetails = useContext(userContext)
   let timerStyle = {
     textAlign: "center", 
@@ -142,7 +142,7 @@ const ContestCard = () => {
             <MDBox variant="contained" color="light" size="small" 
             component={Link} 
             to={{
-              pathname: `/contest/${e?.contestName}`,
+              pathname: `/contests/${e?.contestName}`,
             }}
             state= {{entry: e?.participants?.length, minEntry: e?.minParticipants, contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy, fromMyContest: true}}
             >

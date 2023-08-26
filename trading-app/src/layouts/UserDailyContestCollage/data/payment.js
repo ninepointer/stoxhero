@@ -49,7 +49,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   })
 
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
 
   useEffect(() => {
@@ -158,9 +158,6 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
     })
     if (isParticipated) {
-        // navigate(`/collegecontest/${elem.contestName}`, {
-        //     state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.contestEndTime }
-        // });
         setIsCodeSubmit(true);
         return;
     } else{
@@ -194,9 +191,6 @@ const Payment = ({ elem, setShowPay, showPay }) => {
           }
       } 
       else {
-          // navigate(`/collegecontest/${elem.contestName}`, {
-          //     state: { data: elem._id, isNifty: elem.isNifty, isBank: elem.isBankNifty, isFin: elem.isFinNifty, isAll: elem.isAllIndex, name: elem?.contestName, endTime: elem?.contestEndTime }
-          // });
           setIsCodeSubmit(true);
       }
   }

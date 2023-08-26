@@ -16,7 +16,7 @@ import MDAvatar from '../../../components/MDAvatar';
 import logo from '../../../assets/images/logo1.jpeg'
 
 const Scoreboard = () => {
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [sortedTraders, setSortedTraders] = useState([]);
   const [traders, setTraders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,11 +60,6 @@ const Scoreboard = () => {
     });
   },[])
 
-//   useEffect(() => {
-//     const sorted = [...traders].sort((a, b) => b.earnings - a.earnings);
-//     setSortedTraders(sorted);
-//   }, []);
-
   return (
     <Box mt={0} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
       <MDBox p={1} bgColor='primary' width='100%' display='flex' justifyContent='center' alignItems='center'>
@@ -76,7 +71,7 @@ const Scoreboard = () => {
         </MDBox>
         <MDBox ml={1}>
           <MDTypography color='light' fontWeight='bold'>
-              StoxHero Options Trading Contest Scoreboard
+              StoxHero Contest Scoreboard
           </MDTypography>
         </MDBox>
       </MDBox>
@@ -87,13 +82,13 @@ const Scoreboard = () => {
        :
         <Box sx={{ maxWidth: '100%', width: '100%', margin: '0 auto' }} component={Paper}>   
         <Grid container mt={1} display='flex' justifyContent='center'>
-            <Grid item xs={12} md={6} lg={4} mt={1} display='flex' justifyContent='left'>
+            <Grid item xs={12} md={6} lg={1} mt={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Rank</MDTypography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3} mt={1} display='flex' justifyContent='left'>
                 <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
-                    <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
+                    <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
                         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Trader</MDTypography>
-                    </MDBox>
-                    <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
-                        <MDTypography fontSize={15} fontWeight='bold' color='dark'></MDTypography>
                     </MDBox>
                 </MDBox>
             </Grid>
@@ -116,15 +111,20 @@ const Scoreboard = () => {
         {traders.map((trader, index) => (
         <>
         <Grid container mb={1} display='flex' justifyContent='center' alignItems='center' sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}>
-            <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
-                <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
+            <Grid item xs={12} md={6} lg={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} color='dark'>
+                    {index+1}
+                </MDTypography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='center' width='100%'>
+                <MDBox display='flex' justifyContent='flex-start' alignItems='center' width='100%'>
+                <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={9} mr={1}>
                   <Avatar
                       src={trader?.traderProfilePhoto ? trader?.traderProfilePhoto : ''}
                       alt={trader?.traderFirstName}
                     />
                 </MDBox>
-                <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
+                <MDBox display='flex' justifyContent='flex-start' alignItems='center'>
                     <MDTypography fontSize={15} color='dark'>
                         {convertName(trader.traderFirstName)} {convertName(trader.traderLastName)}
                     </MDTypography></MDBox>

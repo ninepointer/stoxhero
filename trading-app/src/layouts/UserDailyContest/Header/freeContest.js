@@ -28,15 +28,9 @@ import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
 function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    // const [contest, setContest] = useState([]);
-    // const [isInterested, setIsInterested] = useState(false);
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    // const [serverTime, setServerTime] = useState();
-    // const [loading, setIsLoading] = useState(true);
-    // const [showPay, setShowPay] = useState(true);
-
     const initialInterestedCounts = contest.reduce((acc, elem) => {
         acc[elem._id] = {
             interested: false,
@@ -47,7 +41,7 @@ function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
     const [isInterestedState, setIsInterestedState] = useState(initialInterestedCounts);
 
     const handleCopy = async (id) => {
-        let text = 'https://stoxhero.com/contest'
+        let text = 'https://stoxhero.com/contests'
         const textarea = document.createElement('textarea');
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -67,35 +61,6 @@ function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
         });
     };
 
-    // useEffect(() => {
-    //     if (serverTime) {
-    //         setTimeout(() => {
-    //             setIsLoading(false)
-    //         }, 1000)
-    //     }
-    // }, [serverTime])
-
-    // useEffect(() => {
-    //     axios.get(`${baseUrl}api/v1/servertime`)
-    //         .then((res) => {
-    //             setServerTime(res.data.data);
-    //         })
-    // }, [])
-
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         axios.get(`${baseUrl}api/v1/servertime`)
-    //             .then((res) => {
-    //                 console.log("server time", res.data.data)
-    //                 setServerTime(res.data.data);
-    //             });
-    //     }, 5000);
-
-    //     return () => {
-    //         clearInterval(interval);
-    //     };
-    // }, []);
-
     function changeDateFormat(givenDate) {
 
         const date = new Date(givenDate);
@@ -112,8 +77,8 @@ function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
         // Helper function to get the month name
         function getMonthName(month) {
             const monthNames = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             ];
             return monthNames[month];
         }

@@ -19,8 +19,6 @@ import MDAvatar from "../../../components/MDAvatar";
 import MDTypography from "../../../components/MDTypography";
 import AMargin from '../../../assets/images/amargin.png'
 import logo from '../../../assets/images/logo1.jpeg'
-// import Profit from '../../../assets/images/profit.png'
-// import Tcost from '../../../assets/images/tcost.png'
 import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
@@ -43,7 +41,7 @@ function Leaderboard({socket}) {
 
             setMyRankData((prev) => (data !== null ? data : prev));
             setIsLoading(false);
-        //   console.log("this is leaderboard data", data)
+    
         })
     
       }, [])

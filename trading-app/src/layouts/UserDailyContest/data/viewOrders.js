@@ -16,20 +16,15 @@ import { useLocation, Link } from "react-router-dom";
 
 export default function DailyContestOrders() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  // let [skip, setSkip] = useState(0);
-  // const limitSetting = 10;
-  // const [count, setCount] = useState(0);
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [isLoading,setIsLoading] = useState(false);
   const [data, setData] = useState([]);
-  // const getDetails = useContext(userContext);
   const location = useLocation();
 
   let contestId = location?.state?.data;
   
   useEffect(()=>{
       setIsLoading(true)
-    //   console.log("Inside Use Effect")
       axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/my/todayorders`, {
         withCredentials: true,
         headers: {
@@ -39,78 +34,15 @@ export default function DailyContestOrders() {
         }
     })
       .then((res)=>{
-          // console.log(res.data)
           setData(res.data.data);
-          // setCount(res.data.count);
           setIsLoading(false)
       }).catch((err)=>{
-          //window.alert("Server Down");
           setTimeout(()=>{
             setIsLoading(false)
           },500) 
           return new Error(err);
       })
   },[])
-
-//   function backHandler(){
-//     if(skip <= 0){
-//         return;
-//     }
-//     setSkip(prev => prev-limitSetting);
-//     setData([]);
-//     setIsLoading(true)
-//     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip-limitSetting}&limit=${limitSetting}`,{
-//         withCredentials: false,
-//         headers: {
-//             Accept: "application/json",
-//             "Content-Type": "application/json",
-//             "Access-Control-Allow-Credentials": false
-//         },
-//     })
-//     .then((res) => {
-//         console.log("Orders:",res.data)
-//         setData(res.data.data)
-//         setCount(res.data.count)
-//         setTimeout(()=>{
-//             setIsLoading(false)
-//           },500)
-//     }).catch((err) => {
-//         console.log(err)
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-//   }
-
-//   function nextHandler(){
-//     if(skip+limitSetting >= count){
-//       console.log("inside skip",count,skip+limitSetting)  
-//       return;
-//     }
-//     console.log("inside next handler")
-//     setSkip(prev => prev+limitSetting);
-//     setData([]);
-//     setIsLoading(true)
-//     axios.get(`${baseUrl}api/v1/internbatch/todaysorders?skip=${skip+limitSetting}&limit=${limitSetting}`,{
-//         withCredentials: false,
-//         headers: {
-//             Accept: "application/json",
-//             "Content-Type": "application/json",
-//             "Access-Control-Allow-Credentials": false
-//         },
-//     })
-//     .then((res) => {
-//         console.log("orders",res.data)
-//         setData(res.data.data)
-//         setCount(res.data.count)
-//         setTimeout(()=>{
-//             setIsLoading(false)
-//           },500)
-//     }).catch((err) => {
-//         console.log(err)
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-//   }
 
   return (
 
@@ -121,19 +53,14 @@ export default function DailyContestOrders() {
           size='small'
           m={1}
           component={Link}
-          // disabled={timeDifference > 0}
           to={{
-              pathname: `/completedcontests`,
+              pathname: `/contests`,
           }}
-          // onClick={() => { participateUserToContest(elem) }}
       >
           <MDTypography color='warning' fontWeight='bold' fontSize={10}>BACK TO COMPLETED CONTEST</MDTypography>
       </MDButton>
       <Grid container mt={1}>
         <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>
-              {/* <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Intern Name</MDTypography>
-              </Grid> */}
               <Grid item xs={12} md={2} lg={1.5}>
                 <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Contract</MDTypography>
               </Grid>
@@ -169,9 +96,6 @@ export default function DailyContestOrders() {
               
                     
                     <Grid container mt={1} p={1} style={{border:'1px solid white', borderRadius:5}}>
-                        {/* <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{fullName.slice(0, 20) + (fullName.length > 20 ? '...' : '')}</MDTypography>
-                        </Grid> */}
                         <Grid item xs={12} md={2} lg={1.5}>
                             <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
                         </Grid>
