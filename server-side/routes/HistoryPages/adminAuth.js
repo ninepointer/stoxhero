@@ -57,7 +57,7 @@ const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
-const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
+const {saveMissedData, saveRetreiveData, saveDailyContestMissedData} = require("../../utils/insertData");
 // const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
 // const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 // const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
@@ -756,7 +756,8 @@ router.get("/data", async (req, res) => {
 
 
 router.get("/saveMissedData", async (req, res) => {
-  await saveMissedData();
+  // await saveMissedData();
+  await saveDailyContestMissedData();
   res.send("ok")
 })
 

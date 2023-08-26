@@ -3,7 +3,7 @@ const router = express.Router({mergeParams: true});
 
 const {traderPnlTWiseSingleUserLive, companyDailyPnlTWiseSingleUserLive, 
         companyPnlReportLive, brokerReportMatchLive, traderPnlTWiseLive, traderMatrixPnlLive, pnlTraderCompany, overallLivePnlToday, 
-        getLetestLiveTradeCompany, overallInfinityLiveCompanyPnlYesterday,
+        getLetestLiveTradeCompany, overallInfinityLiveCompanyPnlYesterday, overallAllContestPnlCompany,
         traderLiveComapny, overallPnlBatchWiseLive, traderwiseBatchLive,overallInfinityLiveCompanyPnlMTD, 
         overallCompanySidePnlLive, mockLiveTotalTradersCountLiveSide, companyDailyPnlTWiseLive, 
         } = require("../../controllers/dailyContest/dailyContestLiveCompany")
@@ -18,6 +18,7 @@ router.route('/live/overallinfinitylivecompanypnlyesterday').get(Authenticate, r
 router.route('/live/overallinfinitylivecompanypnlMTD').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallInfinityLiveCompanyPnlMTD)
 router.route('/live/liveandtotaltradercounttoday').get(Authenticate, restrictTo('Admin', 'Super Admin'), mockLiveTotalTradersCountLiveSide)
 router.route('/live/letestTradeCompany').get(Authenticate, restrictTo('Admin', 'Super Admin'), getLetestLiveTradeCompany)
+router.route('/live/overallAllContestPnlCompany').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallAllContestPnlCompany)
 
 router.route('/livePnlCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallLivePnlToday)
 router.route('/live/traderWiseCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderLiveComapny)

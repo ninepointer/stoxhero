@@ -37,14 +37,6 @@ function CompanyPosition() {
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const socket = useContext(socketContext);
 
-  // let socket;
-  // try {
-  //   socket = io.connect(`${baseUrl1}`)
-  // } catch (err) {
-  //   throw new Error(err);
-  // }
-
-
   const [userPermission, setUserPermission] = useState([]);
 
   useEffect(() => {

@@ -270,7 +270,7 @@ export default function LabTabs({socket}) {
         </Grid> */}
         <Grid container xs={12} md={12} lg={12} mb={1}>
             <MDBox>
-                <LiveContest/>
+                <LiveContest socket={socket}/>
             </MDBox>
         </Grid>
 

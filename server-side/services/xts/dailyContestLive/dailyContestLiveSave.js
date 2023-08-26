@@ -277,7 +277,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
       const lastTradeMock = await lastTradeDataMockDailyContest(companyDocMock, liveLastTrade, dailyContestId);
       const lastTradeLive = await lastTradeDataLiveDailyContest(companyDocMock, mockLastTrade, dailyContestId);
   
-      // console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
+      console.log("overallPnlUser", overallPnlUser, lastTradeLive, dailyContestId)
       let pipelineForSet; 
       
       // if(isInsertedAllDB){

@@ -68,11 +68,10 @@ const interactiveLogin = async () => {
         await ifServerCrashAfterOrder();
       }
 
-      //todo-vijay
-    //  if(process.env.PROD === "true"){
+     if(process.env.PROD === "true"){
         await client.set('interactive-token', JSON.stringify(logIn?.result?.token))
         await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
-    //  }
+     }
 
 
     })();
@@ -545,6 +544,8 @@ const autoPlaceOrder = (obj, res) => {
       } else {
         uniqueIdentifier = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
       }
+
+      console.log("uniqueIdentifier", uniqueIdentifier)
 
       let token;
       if(await client.exists('interactive-token')){

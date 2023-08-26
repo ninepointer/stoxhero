@@ -249,10 +249,11 @@ async function singleProcess() {
                 subscribeTokens();
             });
 
-            const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireTenXSubscription);
-            const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
 
         }
+        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireTenXSubscription);
+        const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+
     }
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "20kb" }));

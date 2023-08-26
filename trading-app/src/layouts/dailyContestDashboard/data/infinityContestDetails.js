@@ -34,6 +34,10 @@ function TraderwiseTraderPNL() {
     console.log("location", location)
     const socket = useContext(socketContext);
 
+    useEffect(() => {
+      socket.emit("company-ticks", true)  
+    }, []);
+
   return (
     <>
 

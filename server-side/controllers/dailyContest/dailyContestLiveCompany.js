@@ -2631,3 +2631,165 @@ exports.brokerReportMatchLive = async (req, res, next) => {
 
   res.status(201).json({ message: "data received", data: x, cumulative: result });
 }
+
+
+exports.overallAllContestPnlCompany = async (req, res, next) => {
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  // console.log(today)
+  let pnlDetails = await DailyContestLiveCompany.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: today
+          // $gte: new Date("2023-08-25"),
+        },
+        status: "COMPLETE",
+      },
+    },
+    {
+      $lookup: {
+        from: "daily-contests",
+        localField: "contestId",
+        foreignField: "_id",
+        as: "contestData",
+      },
+    },
+    {
+      $match: {
+        "contestData.contestType": "Live",
+      },
+    },
+    {
+      $facet: {
+        "pnl": [
+          {
+            $group: {
+              _id: {
+                contest: {
+                  $arrayElemAt: [
+                    "$contestData._id",
+                    0,
+                  ],
+                },
+                symbol: "$symbol",
+                product: "$Product",
+                instrumentToken: "$instrumentToken",
+                exchangeInstrumentToken:
+                  "$exchangeInstrumentToken",
+              },
+              amount: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+              lots: {
+                $sum: {
+                  $toInt: "$Quantity",
+                },
+              },
+              totallots: {
+                $sum: {
+                  $toInt: {
+                    $abs: "$Quantity",
+                  },
+                },
+              },
+              trades: {
+                $count: {},
+              },
+            },
+          },
+          {
+            $sort: {
+              _id: -1,
+            },
+          },
+        ],
+        "traderInfo": [
+          {
+            $group: {
+              _id: {
+                contest: {
+                  $arrayElemAt: [
+                    "$contestData._id",
+                    0,
+                  ],
+                },
+                trader: "$trader",
+              },
+              amount: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: {
+                  $toDouble: "$brokerage",
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              contest: "$_id.contest",
+              npnl: {
+                $subtract: [
+                  "$amount",
+                  "$brokerage",
+                ],
+              },
+              trader: "$_id.trader",
+              _id: 0,
+            },
+          },
+          {
+            $group: {
+              _id: {
+                contest: "$contest",
+              },
+              positiveTraderCount: {
+                $sum: {
+                  $cond: [
+                    {
+                      $gte: ["$npnl", 0],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              negativeTraderCount: {
+                $sum: {
+                  $cond: [
+                    {
+                      $lt: ["$npnl", 0],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              contestId: "$_id.contest",
+              positiveTraderCount: 1,
+              negativeTraderCount: 1,
+            },
+          },
+        ],
+      },
+    },
+  ])
+  res.status(201).json({ message: "pnl received", data: pnlDetails });
+}

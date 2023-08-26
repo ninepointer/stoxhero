@@ -93,7 +93,7 @@ const contestTradeLive = async (req, res) => {
         return;
     }
 
-    // console.log(data)
+    console.log("live data for switch",  data)
     for (let i = 0; i < data.length; i++) {
         // console.log("value of i", i)
         let date = new Date();
