@@ -144,10 +144,10 @@ exports.getAllContests = async (req, res) => {
 };
 
 
-// Controller for getting all contests
+// Controller for getting all contests , 
 exports.getAllLiveContests = async (req, res) => {
     try {
-        const contests = await Contest.find({contestType: "Live"})
+        const contests = await Contest.find({contestType: "Live", contestStatus: "Active"})
         .populate('portfolio', 'portfolioValue portfolioName')
         .sort({ contestStartTime: -1 })
 

@@ -120,16 +120,15 @@ export default function LabTabs({socket}) {
                                 let totalAbsLots = 0;
 
                                 let contestTradeData = tradeData.filter((subelem)=>{
-                                    console.log(elem?._id?.toString() , subelem?._id?.contest?.toString())
                                     return elem?._id?.toString() === subelem?._id?.contest?.toString();
                                 })
 
                                 let contestTraderData = traderData.filter((subelem)=>{
-                                    console.log(elem?._id?.toString() , subelem?.contestId?.toString())
                                     return elem?._id?.toString() === subelem?.contestId?.toString();
                                 })
 
-                                console.log("contestTradeData", contestTradeData, contestTraderData)
+                                console.log("contestTraderData", contestTradeData)
+
 
                                 contestTradeData.map((subelem, index)=>{
                                     let obj = {};
@@ -141,6 +140,7 @@ export default function LabTabs({socket}) {
                                     let liveDetail = marketData.filter((elem)=>{
                                         return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
                                     })
+                                    console.log("liveDetail", liveDetail)
                                     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
                                     totalGrossPnl += updatedValue;
                                 
