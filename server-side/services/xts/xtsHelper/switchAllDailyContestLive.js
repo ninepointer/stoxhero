@@ -29,7 +29,7 @@ const contestTradeLive = async (req, res) => {
                         $gte: today
                     },
                     status: "COMPLETE",
-                    contestId: contestId
+                    contestId: new ObjectId(contestId)
                 },
             },
             {
@@ -88,12 +88,13 @@ const contestTradeLive = async (req, res) => {
         ]
     );
 
+    console.log("live data for switch",  data, data.length)
     if(data.length === 0){
         res.status(200).json({message: "no real trade found. switched successfully."})
         return;
     }
 
-    console.log("live data for switch",  data)
+    // console.log("live data for switch",  data)
     for (let i = 0; i < data.length; i++) {
         // console.log("value of i", i)
         let date = new Date();
@@ -142,6 +143,7 @@ const contestTradeLive = async (req, res) => {
         Obj.mockSwitch = true;
         Obj.contestId = contestId;
 
+        console.log("this is obj", Obj)
         const processOrder = async () => {
             if (quantity == 0) {
                 return;
@@ -151,15 +153,15 @@ const contestTradeLive = async (req, res) => {
                     if (i === (data.length - 1)) {
                     Obj.dontSendResp = true;
                 }
-                // console.log("in else-if", Obj.dontSendResp, i, (data.length - 1))
+                console.log("in else-if", Obj.dontSendResp, i, (data.length - 1))
                 Obj.Quantity = tempQuantity;
                 Obj.userQuantity = tempQuantity / algoBox.lotMultipler;
                 Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
-                // console.log("before autoPlaceOrder else-if", Obj);
+                console.log("before autoPlaceOrder else-if", Obj);
                 Obj.marginData = {isSquareOff: false, isAddMoreFund: false, isReleaseFund: true, zerodhaMargin: 0, runningLots: quantity};
 
                 await autoPlaceOrder(Obj, res);
-                //console.log("now in if", performance.now()-now, quantity);
+                // console.log("now in if", performance.now()-now, quantity);
                 quantity = quantity - tempQuantity;
                 await delay(300);
                 processOrder();
@@ -167,12 +169,12 @@ const contestTradeLive = async (req, res) => {
                 Obj.Quantity = quantity;
                 Obj.userQuantity = quantity / algoBox.lotMultipler;
                 Obj.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`;
-                // console.log("in else", Obj.dontSendResp, i, (data.length - 1))
+                console.log("in else", Obj.dontSendResp, i, (data.length - 1))
                 if (i === (data.length - 1)) {
                     Obj.dontSendResp = false;
                 }
-                //console.log("now in else", performance.now()-now, quantity);
-                // console.log("before autoPlaceOrder else", Obj);
+                // console.log("now in else", performance.now()-now, quantity);
+                console.log("before autoPlaceOrder else", Obj);
                 Obj.marginData = {isSquareOff: true, isAddMoreFund: false, isReleaseFund: false, zerodhaMargin: 0, runningLots: quantity};
 
                 await autoPlaceOrder(Obj, res);

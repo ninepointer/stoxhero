@@ -7,7 +7,7 @@ const Contest = require('../../models/DailyContest/dailyContest'); // Assuming y
 
 const autoCutMainManually = async() => {
     await infinityTradeLive();
-    // await contestTradeLive();
+    await contestTradeLive();
 }
 
 const autoCutMainManuallyMock = async() => {

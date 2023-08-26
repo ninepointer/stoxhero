@@ -523,7 +523,9 @@ const autoPlaceOrder = (obj, res) => {
         marginData,
         contestId
       } = obj;
-      // console.log(obj)
+
+
+      console.log("in autoplace order", obj)
       let isRedisConnected = getValue();
       isReverseTrade = false;
       let exchangeSegment;
