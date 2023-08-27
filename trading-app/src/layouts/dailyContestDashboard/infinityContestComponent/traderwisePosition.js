@@ -7,9 +7,39 @@ import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 // Material Dashboard 2 React examples
 import DataTable from "../../../examples/Tables/DataTable";
+import {apiUrl} from '../../../constants/constants';
 
 function LiveTraderwiseCompantPNL(props) {
+    const [isLive, setIsLive] = useState(false);
+    const [action, setAction] = useState(false);
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
+    const getContest = async() =>{
+        const res = await axios.get(`${apiUrl}dailycontest/contest/${props.id}`, {withCredentials:true});
+        console.log('live status', res.data.data);
+        if(res?.data?.data?.currentLiveStatus == 'Live'){
+            console.log('setting live')
+            setIsLive(true);
+        }
+    }
+    const switchToMock = async() =>{
+        if(isLive){
+            const id = props.id;
+            try{
+                const res = await axios.get(`${baseUrl}api/v1/switchRealToMockContest/${id}`, {withCredentials:true});
+                if(res.status == 200){
+                setIsLive(false);
+                setAction(!action);
+                }
+                console.log(res.data);
+            }catch(e){
+                console.log(e);
+            }
+        }
+    }
+
+    useEffect(()=>{
+        getContest();
+    },[action]);
 
     let columns = [
         { Header: "Trader Name", accessor: "traderName", width: "15%", align: "center" },
@@ -271,15 +301,16 @@ function LiveTraderwiseCompantPNL(props) {
         rows.push(obj);
     }
 
-    console.log("Cumulative Row: ", rows)
+
 
     return (
         <MDBox display='flex' justifyContent='center' flexDirection='column' m={1}>
             <MDBox bgColor='grey' p={1} borderRadius={3} display='flex' justifyContent='space-between' alignItems='center'>
                 <MDBox><MDTypography fontSize={15} fontWeight='bold' color='light'>Traderwise P&L (Company Side)</MDTypography></MDBox>
                 <MDBox display='flex' justifyContent='space-between' alignItems='center'>
-                    <MDBox><MDTypography fontSize={15} fontWeight='bold' color='light'>Current Status: Mock</MDTypography></MDBox>
-                    <MDBox><Switch {...label} /></MDBox>
+                    <MDBox><MDTypography fontSize={15} fontWeight='bold' color='light'>Current Status:Mock</MDTypography></MDBox>
+                    <MDBox><Switch checked={isLive} onChange={() => {switchToMock()}} /></MDBox>
+                    <MDBox><MDTypography fontSize={15} fontWeight='bold' color='light'>Live</MDTypography></MDBox>
                 </MDBox>
             </MDBox>
             <DataTable

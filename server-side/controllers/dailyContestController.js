@@ -170,7 +170,7 @@ exports.getContest = async (req, res) => {
     const { id } = req.params;
     try {
         const contests = await Contest.findOne({ _id: id })
-            .populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess')
+            .populate('allowedUsers.userId', 'first_name last_name email mobile creationProcess currentLiveStatus')
             .populate('college', 'collegeName zone')
             .sort({ contestStartTime: -1 })
 
