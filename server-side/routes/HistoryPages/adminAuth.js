@@ -57,7 +57,7 @@ const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
-const {saveMissedData, saveRetreiveData, saveDailyContestMissedData} = require("../../utils/insertData");
+const {saveMissedData, saveRetreiveData, saveDailyContestMissedData, saveNewRetreiveData} = require("../../utils/insertData");
 // const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
 // const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 // const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
@@ -661,7 +661,8 @@ router.get("/getMismatch", async (req, res) => {
 })
 
 router.get("/insertInRetreive", async (req, res) => {
-  await saveRetreiveData("NIFTY2360118700PE", 1730051, 10300, 1815175.00, 10800, "Sell", "2023-05-31", "31");
+  // await saveRetreiveData("NIFTY23AUG17800PE", 1730051, 10300, 1815175.00, 10800, "Sell", "2023-05-31", "31");
+  await saveNewRetreiveData("NIFTY23AUG18600PE", 3.25, 1700, "Buy", "2023-08-25", "25")
   res.send("ok")
 })
 
@@ -758,6 +759,7 @@ router.get("/data", async (req, res) => {
 router.get("/saveMissedData", async (req, res) => {
   // await saveMissedData();
   await saveDailyContestMissedData();
+  
   res.send("ok")
 })
 

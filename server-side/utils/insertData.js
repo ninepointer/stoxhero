@@ -524,5 +524,65 @@ const saveRetreiveData = async (symbol, amount1, lot1, amount2, lot2, type, date
 
 }
 
+const saveNewRetreiveData = async (symbol, price, lot, type, dateString, date) => {
 
-module.exports = { saveMissedData, saveRetreiveData, saveDailyContestMissedData };
+    const tradable = await Tradable.findOne({tradingsymbol: symbol});
+
+    // let price = amount ;
+    let quantity = lot ;
+
+    let Obj = {
+        
+        average_price: price,
+        disclosed_quantity: 0,
+        exchange: "NFO",
+        
+        exchange_timestamp: new Date(`${dateString}T13:41:08.000+00:00`),
+        exchange_update_timestamp: new Date(`${dateString}T13:41:08.000+00:00`),
+        
+        instrument_token: tradable?.exchange_token,
+        order_timestamp: new Date(`${dateString}T13:41:08.000+00:00`),
+        order_type: "Market",
+        placed_by: "CF1",
+        price: 0,
+        product: "NRML",
+        // quantity: lot2-lot1,
+        status: "COMPLETE",
+        status_message: "",
+        transaction_type: type,
+        validity: "DAY"
+    }
+
+    // console.log(obj);
+    // const retreivedData = 
+
+
+    const processOrder = async () => {
+        if (quantity == 0) {
+          return;
+        } else if (quantity > 1800) {
+          Obj.quantity = 1800;
+          Obj.order_id = `2308${date}${Math.floor(100000000 + Math.random() * 900000000)}`;
+          Obj.guid = `2308${date}${Math.floor(100000000 + Math.random() * 900000000)}11000000${Math.floor(100000000 + Math.random() * 900000000)}`;
+          Obj.exchange_order_id = `11000000${Math.floor(100000000 + Math.random() * 900000000)}`;
+          let data = await RetreiveOrder.create(Obj)
+          console.log(data)
+          quantity = quantity - 1800;
+          return processOrder(); // Ensure that the promise returned by processOrder is returned
+        } else {
+          Obj.quantity = quantity;
+          Obj.order_id = `2308${date}${Math.floor(100000000 + Math.random() * 900000000)}`;
+          Obj.guid = `2308${date}${Math.floor(100000000 + Math.random() * 900000000)}11000000${Math.floor(100000000 + Math.random() * 900000000)}`;
+          Obj.exchange_order_id = `11000000${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+          let data = await RetreiveOrder.create(Obj)
+          console.log(data)
+        }
+      };
+
+      await processOrder();
+
+}
+
+
+module.exports = { saveNewRetreiveData, saveMissedData, saveRetreiveData, saveDailyContestMissedData };
