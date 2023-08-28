@@ -163,6 +163,7 @@ import Withdrawal from "./layouts/withdrawals";
 import WalletPayment from "./layouts/walletPayment";
 import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 import InfinityContest from "./layouts/dailyContestDashboard/data/infinityContestHeader"
+import DailyContestLiveReport from "./layouts/dailyContestReportLive"
 
 const routes = [
 
@@ -256,18 +257,17 @@ const routes = [
     component: <TenxReport />,
   },
   {
-    // type: "collapse",
-    // name: "Company Dashboard",DailyContestReport
     key: "dailycontestreport",
-    // icon: <DashboardIcon/>,
     route: "/contestdashboard/dailycontestreport",
     component: <DailyContestReport />,
   },
   {
-    // type: "collapse",
-    // name: "Company Dashboard",
+    key: "dailycontestreportlive",
+    route: "/contestdashboard/dailycontestreportlive",
+    component: <DailyContestLiveReport />,
+  },
+  {
     key: "internreport",
-    // icon: <DashboardIcon/>,
     route: "/internreport",
     component: <InternReport />,
   },

@@ -23,6 +23,7 @@ import MismatchDetails from "../infinityContestComponent/mismatchReport";
 import { socketContext } from "../../../socketContext";
 import LiveOverallCompantPNL from "../infinityContestComponent/instrumentPosition";
 import LiveTraderwiseCompantPNL from "../infinityContestComponent/traderwisePosition";
+import MockTraderwiseCompantPNL from "../infinityContestComponent/traderWisePositionMock";
 // import instrumentdata from "../data/mismatch"
 // import { TextField } from "@mui/material";
 
@@ -134,7 +135,7 @@ function TraderwiseTraderPNL() {
           <MismatchDetails socket={socket} id={contestData?._id}/>
 
           <LiveTraderwiseCompantPNL socket={socket} id={contestData?._id} />
-
+          <MockTraderwiseCompantPNL socket={socket} id={contestData?._id} />
           <LiveOverallCompantPNL socket={socket} id={contestData?._id} />
         </Card>
         </MDBox>

@@ -68,7 +68,7 @@ const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMa
 const DailyContest = require("../../models/DailyContest/dailyContest")
 const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
 const InternBatch = require("../../models/Careers/internBatch")
-
+const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveCompany")
 
 
 router.get("/addFeildInTenx", async (req, res) => {
@@ -177,6 +177,114 @@ router.get("/collegeData", async (req, res) => {
   res.send(x)
 
 });
+
+router.get("/retreive", async (req, res) => {
+
+  const x = await RetreiveOrder.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          status: "COMPLETE",
+          order_timestamp: {
+            $gte: new Date("2023-08-25"),
+          },
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            transaction_type: "$transaction_type",
+            instrument_token: "$instrument_token",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$average_price",
+                "$quantity",
+              ],
+            },
+          },
+          quantity: {
+            $sum: "$quantity",
+          },
+        },
+    },
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          "_id.transaction_type": "Buy",
+        },
+    },
+  ])
+
+  res.send(x)
+
+});
+
+router.get("/livecontest", async (req, res) => {
+
+  const x = await DailyLiveContest.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          status: "COMPLETE",
+          trade_time: {
+            $gte: new Date("2023-08-25"),
+          },
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            buyOrSell: "$buyOrSell",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+          },
+          amount: {
+            $sum: "$amount",
+          },
+          quantity: {
+            $sum: "$Quantity",
+          },
+        },
+    },
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          "_id.buyOrSell": "BUY",
+        },
+    },
+  ])
+
+  res.send(x)
+
+});
+
+
+//{contestId: null, symbol: "NIFTY23AUG18700PE", trade_time: {$gte: new Date("2023-08-28")}}
+
+
 
 router.get("/tenxUpdate", async (req, res) => {
 

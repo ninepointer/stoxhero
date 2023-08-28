@@ -276,7 +276,7 @@ function LiveTraderwiseCompantPNL(props) {
     return (
         <MDBox display='flex' justifyContent='center' flexDirection='column' m={1}>
             <MDBox bgColor='grey' p={1} borderRadius={3} display='flex' justifyContent='space-between' alignItems='center'>
-                <MDBox><MDTypography fontSize={15} fontWeight='bold' color='light'>Traderwise P&L (Company Side)</MDTypography></MDBox>
+                <MDBox><MDTypography fontSize={15} fontWeight='bold' color='light'>Traderwise P&L Live (Company Side)</MDTypography></MDBox>
                 <MDBox display='flex' justifyContent='space-between' alignItems='center'>
                     <MDBox><MDTypography fontSize={15} fontWeight='bold' color='light'>Current Status: Mock</MDTypography></MDBox>
                     <MDBox><Switch {...label} /></MDBox>

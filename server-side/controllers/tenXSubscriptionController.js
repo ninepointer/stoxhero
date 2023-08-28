@@ -275,8 +275,6 @@ exports.renewSubscription = async(req, res, next)=>{
           }
         }
       }
-
-      // console.log("all three", subscriptionAmount, subscriptionName, subscriptionId)
         
       for(let i = 0; i < tenXSubs.users.length; i++){
           if(tenXSubs.users[i].userId.toString() == userId.toString() && tenXSubs.users[i].status == "Live"){
