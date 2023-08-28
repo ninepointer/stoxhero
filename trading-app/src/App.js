@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useContext, useRef ,Fragment } from "react";
 import axios from "axios"
 import ReactGA from "react-ga"
-import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate, Redirect } from "react-router-dom";
 
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
@@ -70,7 +70,17 @@ import { socketContext } from "./socketContext";
 
 
 const TRACKING_ID = "UA-264098426-2"
-ReactGA.initialize(TRACKING_ID)
+ReactGA.initialize(TRACKING_ID);
+
+function NotFound() {
+  let navigate = useNavigate();
+  // Redirecting to home when the component is loaded
+  useEffect(() => {
+    navigate("/");
+  }, [navigate]);
+
+  return null;  // You can also return some "Not Found" text or component here if you prefer
+}
 
 export default function App() {
   const cookieValue = Cookies.get("jwtoken");
@@ -198,7 +208,6 @@ export default function App() {
           key={route.key} />;
         }
       }
-
       return null;
     });
 
@@ -316,7 +325,7 @@ export default function App() {
             to={getDetails?.userDetails.role?.roleName === adminRole ? "/tenxdashboard" : getDetails.userDetails?.designation == 'Equity Trader' ? '/infinitytrading':'/stoxherodashboard'} 
             />} />
             :
-            <Route path="/" element={<Home />} />
+            <Route path="*" element={<NotFound />} />
           // <Route path="/" element={<Navigate to={pathname} />} />
           // <Route path="/" element={<Navigate to="/virtualtrading" />} />
           
@@ -334,6 +343,7 @@ export default function App() {
           <Route path='/about' element={<About/>}/>
           <Route path='/contact' element={<Contact/>}/>
           <Route path='/workshops' element={<Workshops location={myLocation.current}/>}/>
+          <Route path="*" element={<NotFound />} />
 
         </Routes>
       </ThemeProvider>
