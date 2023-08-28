@@ -865,7 +865,9 @@ function MyProfile({profilePhoto,setProfilePhoto}) {
               <Icon
                 fontSize="small"
                 onClick={() => {
-                  setEditableBD(true);
+                  if(formStateKYC.KYCStatus != 'Approved'){
+                    setEditableBD(true);
+                  }
                 }}
               >
                 edit
