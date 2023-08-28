@@ -220,17 +220,17 @@ const placedOrderDataHelper = async(initialTime, orderData) => {
     await getPlacedOrderAndSave(orderData, traderData, startTime);
     return;
   }
+  //includes SDC
+  if(traderData?.trader && orderData?.OrderUniqueIdentifier.includes("SDC")){
+    await saveToMockSwitchContest(orderData, traderData, startTime);
+    return;
+  }
   if(traderData?.trader && orderData?.OrderUniqueIdentifier.includes("DC")){
 
     await dailyContestLiveSave(orderData, traderData, startTime);
     return;
   }
   //TODO
-  //includes SDC
-  if(traderData?.trader && orderData?.OrderUniqueIdentifier.includes("SDC")){
-    await saveToMockSwitchContest(orderData, traderData, startTime);
-    return;
-  }
 
 
 
@@ -584,7 +584,7 @@ const autoPlaceOrder = (obj, res) => {
      const response = placedOrder.data;
 
       // const response = await xtsInteractiveAPI.placeOrder();
-
+      console.log('algoBoxId', algoBoxId)
       let traderDataObj = {
         appOrderId: response?.result?.AppOrderID,
         order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${response?.result?.AppOrderID}`,
@@ -605,8 +605,10 @@ const autoPlaceOrder = (obj, res) => {
         marginData: marginData,
         OrderType: OrderType,
         Product: Product,
-        contestId: contestId
+        dailyContestId: contestId
       }
+
+      console.log('traderData object', traderDataObj);
 
       if (response?.result?.AppOrderID) {
         if (isRedisConnected) {
@@ -1224,7 +1226,7 @@ const saveToMockSwitch = async (orderData, traderData, startTime, res) => {
 const saveToMockSwitchContest = async (orderData, traderData, startTime, res) => {
   const io = getIOValue();
   let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-    instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData, contestId } = traderData
+    instrumentToken, dontSendResp, tradedBy, autoTrade, singleUser, marginData, dailyContestId } = traderData
 
   let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
     TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
@@ -1390,7 +1392,7 @@ const saveToMockSwitchContest = async (orderData, traderData, startTime, res) =>
       appOrderId: AppOrderID, order_id: order_id,
       disclosed_quantity: OrderDisclosedQuantity, price: OrderPrice, guid: `${ExchangeOrderID}${AppOrderID}`,
       status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
-      Product: ProductType, buyOrSell: transaction_type, contestId: contestId,
+      Product: ProductType, buyOrSell: transaction_type, contestId: dailyContestId,
       variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
       algoBox: algoBoxId, instrumentToken, brokerage: brokerageCompany,
       trader: trader, isRealTrade: true, amount: (Number(OrderQuantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
@@ -1407,7 +1409,7 @@ const saveToMockSwitchContest = async (orderData, traderData, startTime, res) =>
       instrumentToken, brokerage: brokerageUser, trader: trader,
       isRealTrade: true, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
-      exchangeInstrumentToken: ExchangeInstrumentID, contestId: contestId
+      exchangeInstrumentToken: ExchangeInstrumentID, contestId: dailyContestId
     }
 
 

@@ -101,7 +101,7 @@ const contestTradeLive = async (req, res) => {
         let transaction_type = data[i].runningLots > 0 ? "BUY" : "SELL";
         let quantity = Math.abs(data[i].runningLots);
 
-        let algoBox = await Algo.findOne({ status: "Active" })
+        let algoBox = await Algo.findOne({ status: "Active" });
 
         let realBuyOrSell
         if (transaction_type === "BUY") {

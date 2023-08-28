@@ -28,7 +28,7 @@ router.post("/placingLiveOrderDailyContest", authentication, isAppLive, contestC
         }
         //  TODO toggle
     } else{
-        // MockTradeFunc.mockTrade(req, res);
+        MockTradeFunc.mockTrade(req, res);
     }
     
 })
