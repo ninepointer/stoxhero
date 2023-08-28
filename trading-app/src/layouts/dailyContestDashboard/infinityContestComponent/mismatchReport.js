@@ -81,7 +81,7 @@ function MismatchDetails({socket, id}) {
     })
 
 
-    axios.get(`${baseUrl}api/v1/dailycontest/livePnlCompany/${id}`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/dailycontest/livePnlCompanymismatch`, {withCredentials: true})
     .then((res) => {
         setTradeData(res.data.data);
 
@@ -230,26 +230,23 @@ function MismatchDetails({socket, id}) {
 
 
   return (
+    <>
+      {(tradeData.length > 0) &&
 
-    <MDBox display='flex' justifyContent='center' flexDirection='column' m={1}>
-    <MDBox bgColor='grey' p={1} borderRadius={3}>
-        <MDTypography fontSize={15} color='light' fontWeight='bold'>Mismatch Report</MDTypography>
-    </MDBox>
+        <MDBox display='flex' justifyContent='center' flexDirection='column' m={1}>
+          <MDBox bgColor='grey' p={1} borderRadius={3}>
+            <MDTypography fontSize={15} color='light' fontWeight='bold'>Mismatch Report</MDTypography>
+          </MDBox>
 
-    {rows.length === 0 ? (
-      <MDBox display="flex" flexDirection="column" mb={4} sx={{alignItems:"center"}}>
-        <TbEqualNot style={{fontSize: '30px', color:"green"}}/>
-        <Typography style={{fontSize: '20px',color:"grey"}}>No open trades on XTS/Zerodha</Typography>
-        <Typography mb={2} fontSize={15} color="grey">This section shows mismatch of App and XTS/Zerodha trades</Typography> 
-      </MDBox>)
-      :
-    <DataTable
-      table={{ columns, rows }}
-      showTotalEntries={false}
-      isSorted={false}
-      noEndBorder
-    />}
-  </MDBox>
+          <DataTable
+            table={{ columns, rows }}
+            showTotalEntries={false}
+            isSorted={false}
+            noEndBorder
+          />
+        </MDBox>
+      }
+    </>
 
   );
 }

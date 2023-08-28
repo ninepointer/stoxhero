@@ -7,6 +7,7 @@ import MDTypography from '../../../components/MDTypography';
 import CachedIcon from '@mui/icons-material/Cached';
 
 import { Link } from "react-router-dom";
+import MismatchDetails from '../infinityContestComponent/mismatchReport';
 // import CachedIcon from '@mui/icons-material/Cached';
 
 // //data
@@ -112,6 +113,7 @@ export default function LabTabs({socket}) {
                             <MDBox bgColor='light' borderRadius={5} display='flex' justifyContent='center' mb={1}>
                                 <MDTypography color='dark' fontSize={15} fontWeight='bold'>Infinity Contests - Company Side Details</MDTypography>
                             </MDBox>
+                            {/* <MismatchDetails socket={socket} /> */}
                             {liveContest.map((elem) => {
                                 let totalTransactionCost = 0;
                                 let totalGrossPnl = 0;
@@ -127,7 +129,7 @@ export default function LabTabs({socket}) {
                                     return elem?._id?.toString() === subelem?.contestId?.toString();
                                 })
 
-                                console.log("contestTraderData", contestTradeData)
+                                // console.log("contestTraderData", contestTradeData)
 
 
                                 contestTradeData.map((subelem, index)=>{
@@ -140,7 +142,7 @@ export default function LabTabs({socket}) {
                                     let liveDetail = marketData.filter((elem)=>{
                                         return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
                                     })
-                                    console.log("liveDetail", liveDetail)
+                                    // console.log("liveDetail", liveDetail)
                                     let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
                                     totalGrossPnl += updatedValue;
                                 
@@ -275,6 +277,7 @@ export default function LabTabs({socket}) {
                             })}
 
                         </MDBox>
+                        
 
                     </>
                 }

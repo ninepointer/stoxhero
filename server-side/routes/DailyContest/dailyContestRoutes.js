@@ -40,6 +40,7 @@ router.get('/contests/completed', Authenticate, contestController.getCompletedCo
 router.get('/contests/collegeupcoming', Authenticate, contestController.getUpcomingCollegeContests);
 router.get('/contests/collegecompleted', Authenticate, contestController.getCompletedCollegeContests);
 
+router.get('/contests/completedadminLive', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCommpletedContestsAdminLive);
 router.get('/contests/completedadmin', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCommpletedContestsAdmin);
 router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDraftContests);
 
