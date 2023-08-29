@@ -220,6 +220,36 @@ exports.getUpcomingContests = async (req, res) => {
     }
 };
 
+exports.getCollegeUserUpcomingContests = async (req, res) => {
+    try {
+        const contests = await Contest.find({
+            contestStartTime: { $gt: new Date() }, contestFor: "College", contestStatus:"Active"
+        },
+        {
+            allowedUsers: 0,
+            potentialParticipants: 0,
+            contestSharedBy: 0,
+            purchaseIntent: 0
+        })
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ contestStartTime: 1 })
+
+        res.status(200).json({
+            status: "success",
+            message: "Upcoming contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+};
+
 exports.getUserUpcomingContests = async (req, res) => {
     try {
         const contests = await Contest.find({
@@ -256,6 +286,39 @@ exports.getUserLiveContests = async (req, res) => {
             contestStartTime: { $lte: new Date() },
             contestEndTime: { $gte: new Date() },
             contestFor: "StoxHero", 
+            contestStatus:"Active"
+        },
+        {
+            allowedUsers: 0,
+            potentialParticipants: 0,
+            contestSharedBy: 0,
+            purchaseIntent: 0
+        })
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('interestedUsers.userId', 'first_name last_name email mobile creationProcess')
+        .populate('portfolio', 'portfolioName _id portfolioValue')
+        .sort({ contestStartTime: 1 })
+
+        res.status(200).json({
+            status: "success",
+            message: "Upcoming contests fetched successfully",
+            data: contests
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching upcoming contests",
+            error: error.message
+        });
+    }
+};
+
+exports.getCollegeUserLiveContests = async (req, res) => {
+    try {
+        const contests = await Contest.find({
+            contestStartTime: { $lte: new Date() },
+            contestEndTime: { $gte: new Date() },
+            contestFor: "College", 
             contestStatus:"Active"
         },
         {

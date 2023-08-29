@@ -29,7 +29,10 @@ router.put('/contest/:id/share',Authenticate, contestController.copyAndShare);
 router.get('/contests', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllContests);
 router.get('/contests/upcoming', Authenticate, contestController.getUpcomingContests);
 router.get('/contests/userlive', Authenticate, contestController.getUserLiveContests);
+router.get('/collegecontests/userupcoming', Authenticate, contestController.getCollegeUserUpcomingContests);
+router.get('/collegecontests/userlive', Authenticate, contestController.getCollegeUserLiveContests);
 router.get('/contests/userupcoming', Authenticate, contestController.getUserUpcomingContests);
+
 router.get('/contests/onlyupcoming', Authenticate, contestController.getOnlyUpcomingContests);
 
 router.get('/contests/today', Authenticate, contestController.todaysContest);

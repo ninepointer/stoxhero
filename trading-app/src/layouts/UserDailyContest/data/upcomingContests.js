@@ -12,8 +12,8 @@ import WinnerImage from '../../../assets/images/cup-image.png'
 import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
 
-export default function LabTabs() {
-    const [clicked, setClicked] = useState('live')
+export default function LabTabs({setClicked}) {
+    // const [clicked, setClicked] = useState('live')
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
     const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +21,7 @@ export default function LabTabs() {
     const [isInterested, setIsInterested] = useState(false);
     const [contest, setContest] = useState([]);
     const socket = useContext(socketContext);
+    let [toggleContest, setToggleContest] = useState(false)
 
   
     useEffect(() => {
@@ -47,7 +48,7 @@ export default function LabTabs() {
             setIsLoading(false)
             return new Error(err);
         })
-    }, [isInterested, showPay])
+    }, [isInterested, showPay, toggleContest])
 
     let free = contest.filter((elem)=>{
         return elem?.entryFee === 0;
@@ -57,10 +58,6 @@ export default function LabTabs() {
         return elem?.entryFee !== 0;
     })
 
-    const handleClick = (e) => {
-        console.log(e)
-        setClicked(e)
-      };
 
     return (
 
@@ -81,7 +78,7 @@ export default function LabTabs() {
                                 <MDTypography color="light" fontSize={15} fontWeight="bold" ml={1} mb={0.5} alignItems='center'>Free Contest(s)</MDTypography>
                             </MDBox>
                             <MDBox style={{ minWidth: '100%' }}>
-                                <FreeContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} />
+                                <FreeContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest} />
                             </MDBox>
                         </>
                         }
@@ -94,7 +91,7 @@ export default function LabTabs() {
                                 <MDTypography color="light" fontSize={15} ml={1} mb={0.5} fontWeight="bold">Paid Contest(s)</MDTypography>
                             </MDBox>
                             <MDBox style={{ minWidth: '100%' }}>
-                                <PaidContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay}/>
+                                <PaidContest socket={socket} contest={contest} isInterested={isInterested} setIsInterested={setIsInterested} showPay={showPay} setShowPay={setShowPay} toggleContest={toggleContest} setToggleContest={setToggleContest} />
                             </MDBox>
                         </>
                         }
@@ -105,7 +102,7 @@ export default function LabTabs() {
             <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                 <img src={WinnerImage} width={50} height={50}/>
                 <MDTypography color="light" fontSize={15} mb={1}>No Upcoming Contests</MDTypography>
-                <MDButton color="info" size='small' fontSize={10}>Check Live Contests</MDButton>
+                <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("live")}} >Check Live Contests</MDButton>
             </MDBox>
             }
             </>

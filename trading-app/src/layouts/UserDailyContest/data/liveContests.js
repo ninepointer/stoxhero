@@ -15,8 +15,8 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { io } from 'socket.io-client';
 import { socketContext } from '../../../socketContext';
 
-export default function LabTabs() {
-    const [clicked, setClicked] = useState('live')
+export default function LabTabs({setClicked}) {
+    // const [clicked, setClicked] = useState('live')
     const [isLoading, setIsLoading] = useState(false); 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
@@ -60,10 +60,10 @@ export default function LabTabs() {
         return elem?.entryFee !== 0;
     })
 
-    const handleClick = (e) => {
-        console.log(e)
-        setClicked(e)
-      };
+    // const handleClick = (e) => {
+    //     console.log(e)
+    //     setClicked(e)
+    //   };
 
     return (
 
@@ -106,7 +106,7 @@ export default function LabTabs() {
                 <MDBox style={{minHeight:"20vh"}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
                     <img src={WinnerImage} width={50} height={50}/>
                     <MDTypography color="light" fontSize={15} mb={1}>No Live Contest(s)</MDTypography>
-                    <MDButton color="info" size='small' fontSize={10}>Check Upcoming Contests</MDButton>
+                    <MDButton color="info" size='small' fontSize={10}  onClick={()=>{setClicked("upcoming")}}>Check Upcoming Contests</MDButton>
                 </MDBox>
                 }
             </>

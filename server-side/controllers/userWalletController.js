@@ -67,7 +67,15 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
     try{
 
         const subs = await Subscription.findOne({_id: new ObjectId(subscribedId)});
-        
+        const wallet = await UserWallet.findOne({userId: userId});
+        let amount = 0;
+        for(elem of wallet.transactions){
+          amount += elem.amount;
+        }
+  
+        if(amount < subscriptionAmount){
+          return res.status(404).json({status:'error', message: 'You do not have sufficient funds to purchase this subscription. Please add money to your wallet.'});
+        }
         if(!subs.allowPurchase){
             return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
         }
@@ -82,7 +90,7 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
 
         // console.log("outside of for loop")
 
-        const wallet = await UserWallet.findOne({userId: userId});
+        // const wallet = await UserWallet.findOne({userId: userId});
         wallet.transactions = [...wallet.transactions, {
               title: 'Bought TenX Trading Subscription',
               description: `Amount deducted for the purchase of ${subscriptionName} subscription`,

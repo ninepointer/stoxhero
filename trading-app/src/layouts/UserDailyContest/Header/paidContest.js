@@ -21,7 +21,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
 
-function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
+function Header({toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
@@ -217,7 +217,7 @@ function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
                                                     <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                                <Timer socket={socket} elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} />
+                                                                <Timer toggleContest={toggleContest} setToggleContest={setToggleContest} socket={socket} elem={elem} date={elem?.contestStartTime} id={elem?._id} setTimeDifference={setTimeDifference} />
                                                             </MDBox>
                                                         </MDBox>
                                                     </Grid>

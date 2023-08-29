@@ -149,12 +149,12 @@ export default function LabTabs() {
                         <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center'>
                             {clicked === "live" ?
                             <>
-                                <LiveContests/>
+                                <LiveContests setClicked={setClicked}/>
                             </>
                             :
                             clicked === "upcoming" ?
                             <>
-                                <UpcomingContests/>
+                                <UpcomingContests setClicked={setClicked}/>
                             </>
                             :
                             clicked === "completed" ?

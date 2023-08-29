@@ -7,8 +7,8 @@ import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
 import FreeContest from "../Header/completedContest/freeCompleted";
 import PaidContest from "../Header/completedContest/paidCompeted";
-import MDButton from '../../../components/MDButton';
-import { Link } from "react-router-dom"
+// import MDButton from '../../../components/MDButton';
+// import { Link } from "react-router-dom"
 import axios from "axios";
 
 export default function LabTabs() {
