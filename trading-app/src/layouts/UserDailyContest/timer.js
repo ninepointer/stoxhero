@@ -38,7 +38,7 @@ const Timer = ({socket, date, setTimeDifference, id, elem}) => {
 
       setRemainingTime(`${days} days ${hours} hrs ${minutes} mins ${seconds} secs`);
     } else if(timeDifference <= 0) {
-      setRemainingTime('Contest Started');
+      setRemainingTime(elem?.entryFee === 0 ? 'Started (Click on Join)' : 'Started (Pay Now to Join)');
     }
   }, [serverTime]);
 

@@ -43,8 +43,6 @@ function Header({ socket, data }) {
     const [watchList, setWatchList] = useState([]);
     const pnl = useContext(NetPnlContext);
     const navigate = useNavigate();
-    // const [myRank, setMyRank] = useState(0);
-    // const getDetails = useContext(userContext)
     let contestId = data?.data;
     let endTime = data?.endTime;
     useEffect(() => {
@@ -53,19 +51,13 @@ function Header({ socket, data }) {
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
             // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
-                navigate(`/contest/result`, {
+                navigate(`/contests/result`, {
                     state: { contestId: contestId}
                 })
             }
         });
     }, []);
 
-    // useEffect(()=>{
-    //     socket?.on(`contest-myrank${getDetails.userDetails?._id}`, (data) => {
-    //         setMyRank(data);
-    //       console.log("this is leaderboard data", data)
-    //     })
-    // }, [])
 
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
@@ -125,44 +117,6 @@ function Header({ socket, data }) {
             <MDBox color="dark" mt={2} mb={1} borderRadius={10} minHeight='80vH'>
                 <MDBox bgColor="lightgrey" display='flex' p={1} borderRadius={10}>
                     <MDBox width='100%' minHeight='auto' display='flex' justifyContent='center'>
-                        {/* <Grid container spacing={1} xs={12} md={12} lg={12}>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={AMargin} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Portfolio:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (yesterdayData?.totalFund) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(yesterdayData?.totalFund)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-yesterdayData?.totalFund))}</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={Tcost} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Margin:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (yesterdayData?.totalFund + pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((yesterdayData?.totalFund + pnl?.netPnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-(yesterdayData?.totalFund + pnl?.netPnl)))}</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={Profit} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Gross Profit:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}> { (pnl?.grossPnlAndBrokerage?.grossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.grossPnlAndBrokerage?.grossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.grossPnlAndBrokerage?.grossPnl))}</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={3}>
-                                <MDButton style={{ minWidth: '100%' }}>
-                                    <MDBox display='flex' alignItems='center'>
-                                        <MDBox display='flex' justifyContent='flex-start'><img src={Profit} width='40px' height='40px' /></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11} fontWeight='bold'>Net Profit:</MDTypography></MDBox>
-                                        <MDBox><MDTypography ml={1} fontSize={11}>{ (pnl?.netPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(pnl?.netPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-pnl?.netPnl))}</MDTypography></MDBox>
-                                    </MDBox>
-                                </MDButton>
-                            </Grid>
-                        </Grid> */}
                         <PnlAndMarginData contestId={contestId} />
                     </MDBox>
                 </MDBox>
@@ -211,12 +165,6 @@ function Header({ socket, data }) {
                         {memoizedOverallPnl}
                     </Grid>
                 </Grid>
-
-                {/* <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
-                    <Grid spacing={-4} item xs={12} md={6} lg={12} >
-                        <DailyContestMargin contestId={contestId} availbaleMargin={availbaleMargin} setyesterdayData={setyesterdayData} />
-                    </Grid>
-                </Grid> */}
             </MDBox>
         </>
     );

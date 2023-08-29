@@ -21,7 +21,9 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
     let isRedisConnected = getValue();
     const io = getIOValue();
     let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-      instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity, dailyContestId } = traderData
+      instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity, dailyContestId, contestId } = traderData;
+
+      console.log('contest ids', dailyContestId, contestId);
   
     let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
       TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,

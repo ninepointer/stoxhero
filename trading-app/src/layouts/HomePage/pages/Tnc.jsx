@@ -84,7 +84,19 @@ const TermsAndConditions = () => {
                             </Typography>
                         </Grid>
                         <Grid item xs={12}>
-                            <Typography variant="h5" color="#ffffff">9. Contact</Typography>
+                            <Typography variant="h5" color="#ffffff">9. Duplicate User Accounts</Typography>
+                            <Typography variant="body1" color="#ffffff">
+                                It is imperative that each user account maintains unique KYC particulars, encompassing Aadhaar and PAN details, as well as distinct bank information, including the bank account number and UPI specifications. Should any user's information mirror that of another, the subsequent account(s) in question will be promptly suspended.
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Typography variant="h5" color="#ffffff">10. Account Termination</Typography>
+                            <Typography variant="body1" color="#ffffff">
+                                The trading app platform reserves the right to terminate or suspend your account at any time and for any reason. In the event of account termination, you may lose access to all information associated with your account.
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Typography variant="h5" color="#ffffff">11. Contact</Typography>
                             <Typography variant="body1" color="#ffffff">
                                 For queries, clarifications, or feedback, users can contact StoxHero Games Technologies Private Limited at the provided email and contact.
                             </Typography>

@@ -1,5 +1,4 @@
 import { React, useState, useEffect, useContext } from "react";
-// import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
@@ -7,25 +6,19 @@ import ReactGA from "react-ga"
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
-
-// Material Dashboard 2 React base styles
-
-// Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
+
+// Images
 import ContestCarousel from '../../../assets/images/target.png'
 import WinnerImage from '../../../assets/images/cup-image.png'
-
-
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
 import { HiUserGroup } from 'react-icons/hi';
-
 import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
 import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
-// import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
 function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
@@ -83,8 +76,8 @@ function Header({ contest, showPay, setShowPay, socket, setIsInterested }) {
         // Helper function to get the month name
         function getMonthName(month) {
             const monthNames = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             ];
             return monthNames[month];
         }
