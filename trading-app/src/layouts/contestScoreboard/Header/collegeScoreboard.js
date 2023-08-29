@@ -76,7 +76,7 @@ const Scoreboard = () => {
         </MDBox>
         <MDBox ml={1}>
           <MDTypography color='light' fontWeight='bold'>
-              StoxHero Options Trading College Contest Scoreboard
+              StoxHero College Contest Scoreboard
           </MDTypography>
         </MDBox>
       </MDBox>
@@ -85,15 +85,79 @@ const Scoreboard = () => {
             <CircularProgress color='info'/>
        </MDBox>
        :
+        // <Box sx={{ maxWidth: '100%', width: '100%', margin: '0 auto' }} component={Paper}>   
+        // <Grid container mt={1} display='flex' justifyContent='center'>
+        //     <Grid item xs={12} md={6} lg={4} mt={1} display='flex' justifyContent='left'>
+        //         <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
+        //             <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
+        //                 <MDTypography fontSize={15} fontWeight='bold' color='dark'>Trader</MDTypography>
+        //             </MDBox>
+        //             <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
+        //                 <MDTypography fontSize={15} fontWeight='bold' color='dark'></MDTypography>
+        //             </MDBox>
+        //         </MDBox>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Cash Earned</MDTypography>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Participated</MDTypography>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Contest Won</MDTypography>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} mt={1} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Strike Rate</MDTypography>
+        //     </Grid>
+            
+        // </Grid>
+        // <Divider style={{ backgroundColor: 'grey' }} />
+
+        // {traders.map((trader, index) => (
+        // <>
+        // <Grid container mb={1} display='flex' justifyContent='center' alignItems='center' sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}>
+        //     <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
+        //         <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
+        //         <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
+        //           <Avatar
+        //               src={trader?.traderProfilePhoto ? trader?.traderProfilePhoto : ''}
+        //               alt={trader?.traderFirstName}
+        //             />
+        //         </MDBox>
+        //         <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
+        //             <MDTypography fontSize={15} color='dark'>
+        //                 {convertName(trader.traderFirstName)} {convertName(trader.traderLastName)}
+        //             </MDTypography></MDBox>
+        //         </MDBox>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} color='dark'>
+        //             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(trader?.totalPayout)}
+        //         </MDTypography>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} color='dark'>{trader?.contestParticipated}</MDTypography>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} color='dark'>{trader?.contestWon}</MDTypography>
+        //     </Grid>
+        //     <Grid item xs={12} md={6} lg={2} display='flex' justifyContent='center'>
+        //         <MDTypography fontSize={15} color='dark'>{(trader?.strikeRate).toFixed(2)}%</MDTypography>
+        //     </Grid>
+        // </Grid>
+        // <Divider style={{ backgroundColor: 'grey' }} />
+        // </>
+        // ))}
+        // </Box>
         <Box sx={{ maxWidth: '100%', width: '100%', margin: '0 auto' }} component={Paper}>   
         <Grid container mt={1} display='flex' justifyContent='center'>
-            <Grid item xs={12} md={6} lg={4} mt={1} display='flex' justifyContent='left'>
+            <Grid item xs={12} md={6} lg={1} mt={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} fontWeight='bold' color='dark'>Rank</MDTypography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3} mt={1} display='flex' justifyContent='left'>
                 <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
-                    <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
+                    <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
                         <MDTypography fontSize={15} fontWeight='bold' color='dark'>Trader</MDTypography>
-                    </MDBox>
-                    <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
-                        <MDTypography fontSize={15} fontWeight='bold' color='dark'></MDTypography>
                     </MDBox>
                 </MDBox>
             </Grid>
@@ -116,15 +180,20 @@ const Scoreboard = () => {
         {traders.map((trader, index) => (
         <>
         <Grid container mb={1} display='flex' justifyContent='center' alignItems='center' sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}>
-            <Grid item xs={12} md={6} lg={4} display='flex' justifyContent='center'>
-                <MDBox display='flex' justifyContent='center' alignItems='center' width='100%'>
-                <MDBox display='flex' justifyContent='center' alignItems='center' width='30%'>
+            <Grid item xs={12} md={6} lg={1} display='flex' justifyContent='center'>
+                <MDTypography fontSize={15} color='dark'>
+                    {index+1}
+                </MDTypography>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3} display='flex' justifyContent='center' width='100%'>
+                <MDBox display='flex' justifyContent='flex-start' alignItems='center' width='100%'>
+                <MDBox display='flex' justifyContent='flex-start' alignItems='center' ml={9} mr={1}>
                   <Avatar
                       src={trader?.traderProfilePhoto ? trader?.traderProfilePhoto : ''}
                       alt={trader?.traderFirstName}
                     />
                 </MDBox>
-                <MDBox display='flex' justifyContent='left' alignItems='center' width='70%'>
+                <MDBox display='flex' justifyContent='flex-start' alignItems='center'>
                     <MDTypography fontSize={15} color='dark'>
                         {convertName(trader.traderFirstName)} {convertName(trader.traderLastName)}
                     </MDTypography></MDBox>
@@ -148,7 +217,7 @@ const Scoreboard = () => {
         <Divider style={{ backgroundColor: 'grey' }} />
         </>
         ))}
-      </Box>
+        </Box>
       }
       
     </Box>

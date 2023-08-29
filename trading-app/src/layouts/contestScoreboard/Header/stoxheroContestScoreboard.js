@@ -148,7 +148,7 @@ const Scoreboard = () => {
         <Divider style={{ backgroundColor: 'grey' }} />
         </>
         ))}
-      </Box>
+        </Box>
       }
       
     </Box>
