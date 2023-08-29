@@ -32,15 +32,8 @@ import MyReferrals from "./layouts/referrals"
 import ContestPage from './layouts/UserContest/contestPage'
 import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
 import ContestTradePage from './layouts/UserContest/ContestTrade'
-
-// import DummyTradePage from './layouts/UserContest/dummyContestTradePage'
-// import Dashboard from './layouts/traderHome'
 import MyPortfolio from './layouts/UserPortfolio'
-// import Home from './layouts/UserHome'
-// import HomeIcon from '@mui/icons-material/OtherHouses';
-// import ContestResultPage from "./layouts/UserContest/data/contestTrade/ContestResultPage";
 import ResultPage from "./layouts/UserContest/ResultPage";
-// import MyContestHistoryCard from "./layouts/UserContest/data/MyContestHistoryCard";
 import ContestHistory from "./layouts/UserContest/ContestHistory";
 import ContestHistoryCard from "./layouts/UserContest/ContestHistoryCard";
 import FAQs from "./layouts/FAQs";
@@ -48,8 +41,6 @@ import UserWallet from "./layouts/userWallet"
 import TenXTrading from "./layouts/tenXTrading"
 import UserAnalytics from "./layouts/userAnalytics"
 import About from './layouts/HomePage/pages/About'
-// import Careers from './layouts/HomePage/pages/Career'
-// import WorkShops from './layouts/HomePage/pages/Workshop'
 import Home from './layouts/HomePage/pages/Home'
 import JD from './layouts/HomePage/pages/JobDescription'
 import CareerForm from './layouts/HomePage/pages/CareerForm'
@@ -60,7 +51,6 @@ import CategoryVideos from './layouts/tutorials/Header/categoryVideos';
 import Internship from './layouts/internshipTrading';
 import InternshipTrade from './layouts/internshipTrading/TradeView/main'
 import InternshipAnalytics from './layouts/internshipAnalytics/index';
-// import logo from "../src/assets/images/logo1.jpeg"
 import WorkShopOrders from './layouts/userorders/workshopOrder'
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
 import UserDailyContest from './layouts/UserDailyContest'
@@ -104,23 +94,19 @@ const routes = [
     component: <DailyCollegeContestOrder />,
   },
   {
-
     route: "about",
     component: <About />,
   },
   
   {
-
     route: "jobdescription",
     component: <JD />,
   },
   {
-
     route: "home",
     component: <Home />,
   },
   {
-
     route: "apply",
     component: <CareerForm />,
   },
@@ -155,18 +141,17 @@ const routes = [
   {
     type: "collapse",
     name: "Contests",
-    key: "contest",
+    key: "contests",
     icon: <EmojiEventsIcon/>,
-    route: "/contest",
+    route: "/contests",
     component: <UserDailyContest />,
   },
   {
-    // type: "collapse",
-    // name: "College Contest",
-    key: "collegecontest",
-    // 
-    // icon: <SchoolIcon/>,
-    route: "/collegecontest",
+    type: "collapse",
+    name: "College Contests",
+    key: "collegecontests",
+    icon: <SchoolIcon/>,
+    route: "/collegecontests",
     component: <UserDailyContestCollage />,
   },
   {
@@ -185,14 +170,6 @@ const routes = [
     route: "/internship",
     component: <Internship />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Challenges",
-  //   key: "challenges",
-  //   icon: <MilitaryTechIcon/>,
-  //   route: "/challenges",
-  //   component: <Challenge />,
-  // },
   {
     route: "/workshop",
     component: <Internship />,
@@ -213,50 +190,42 @@ const routes = [
     component: <CategoryVideos />,
   },
   {
-
     route: "/battlestreet/:name",
     component: <ContestPage />,
   },
   {
-
-    route: "/contest/:name",
+    route: "/contests/:name",
     component: <ContestTradingWindow />,
   },
   {
-
-    route: "/collegecontest/:name",
+    route: "/collegecontests/:name",
     component: <CollegeContestTradingWindow />,
   },
   {
-
     route: "battlestreet/:name/register",
     component: <ContestRegisterPage />,
   },
   {
-
     route: "battlestreet/:name/trade",
     component: <ContestTradePage />,
   },
   {
-
     route: "battlestreet/result",
     component: <ResultPage />,
   },
   {
-    route: "contest/result",
+    route: "contests/result",
     component: <DailyContestResultPage />,
   },
   {
-    route: "collegecontest/result",
+    route: "collegecontests/result",
     component: <DailyCollegeContestResultPage />,
   },
   {
-
     route: "battlestreet/history",
     component: <ContestHistory />,
   },
   {
-
     route: "battlestreet/history/:name",
     component: <ContestHistoryCard />,
   },
@@ -341,22 +310,18 @@ const routes = [
     component: <InternshipTrade/>,
   },
   {
-
     route: "/workshop/trade",
     component: <InternshipTrade/>,
   },
   {
-
     route: "/workshop/orders",
     component: <WorkShopOrders/>,
   },
   {
-
     route: "/internship/analytics",
     component: <InternshipAnalytics/>,
   },
   {
-
     route: "/chart",
     component: <Chart/>,
   },

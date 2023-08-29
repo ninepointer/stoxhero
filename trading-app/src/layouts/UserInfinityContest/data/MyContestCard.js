@@ -142,7 +142,7 @@ const ContestCard = () => {
             <MDBox variant="contained" color="light" size="small" 
             component={Link} 
             to={{
-              pathname: `/contest/${e?.contestName}`,
+              pathname: `/contests/${e?.contestName}`,
             }}
             state= {{entry: e?.participants?.length, minEntry: e?.minParticipants, contestId: e?._id, portfolioId: portfolioId[0].portfolioId, isDummy: isDummy, fromMyContest: true}}
             >

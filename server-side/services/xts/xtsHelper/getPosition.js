@@ -43,22 +43,27 @@ router.get("/xtsOverview", async (req, res)=>{
     },
   };
 
-  try{
-    const response = await axios.get(url, authOptions)
-    let position = response.data?.result?.positionList;
+  let obj = {
+    buyAmount: 0,
+    sellAmount: 0,
+    netAmount: 0,
+    quantity: 0
+  };
 
-    let obj = {
-      buyAmount: 0,
-      sellAmount: 0,
-      netAmount: 0,
-      quantity: 0
-    };
-    for(let i = 0; i < position.length; i++){
-      obj.buyAmount += Number(position[i]?.BuyAmount);
-      obj.sellAmount += Number(position[i]?.SellAmount);
-      obj.netAmount += Number(position[i]?.NetAmount);
-      obj.quantity += Number(position[i]?.Quantity);
+  try{
+
+    if (process.env.INTERACTIVE_URL && process.env.XTS_CLIENTID) {
+      const response = await axios.get(url, authOptions)
+      let position = response.data?.result?.positionList;
+
+      for (let i = 0; i < position.length; i++) {
+        obj.buyAmount += Number(position[i]?.BuyAmount);
+        obj.sellAmount += Number(position[i]?.SellAmount);
+        obj.netAmount += Number(position[i]?.NetAmount);
+        obj.quantity += Number(position[i]?.Quantity);
+      }
     }
+    
     res.status(200).json({message: "position data", data: obj})
   } catch (err){
     console.log(err)

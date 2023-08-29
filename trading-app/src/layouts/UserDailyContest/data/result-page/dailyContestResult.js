@@ -73,24 +73,11 @@ function ContestResultPage () {
           return new Error(err);
       })
 
-    //   axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/pnl`, {withCredentials: true})
-    //   .then((res)=>{
-    //         setMyPnl(res?.data?.data);
-    //         // console.log("data is", res?.data?.data)
-    //         // setIsLoading(false)
-    //   }).catch((err)=>{
-    //       return new Error(err);
-    //   })
     },[])
-
-    // const totalAmount = myPnl.reduce((total, acc) => {
-    //       return total + (acc.amount - acc.brokerage);
-    // }, 0);
 
 
     const reward = (pnl?.netPnl) > 0 ? (pnl?.netPnl)*contestData?.payoutPercentage/100 : 0;
-    // console.log("my data", contestData, reward, myRank, totalAmount)  
-
+   
     return (
         <>
             {isLoading ?

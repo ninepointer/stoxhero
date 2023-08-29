@@ -18,7 +18,6 @@ function Tables() {
     <DashboardLayout>
       <DashboardNavbar />
         <DailyContestOrders />
-      {/* <ContestTradingView socket={socket} data={location.state}/> */}
       <Footer />
     </DashboardLayout>
     </>

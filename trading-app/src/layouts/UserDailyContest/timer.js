@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 
-const Timer = ({socket, date, setTimeDifference, id, elem}) => {
+const Timer = ({socket, date, setTimeDifference, id, elem, toggleContest, setToggleContest}) => {
   const [remainingTime, setRemainingTime] = useState(null);
   const [serverTime, setServerTime] = useState();
 
@@ -38,7 +38,10 @@ const Timer = ({socket, date, setTimeDifference, id, elem}) => {
 
       setRemainingTime(`${days} days ${hours} hrs ${minutes} mins ${seconds} secs`);
     } else if(timeDifference <= 0) {
-      setRemainingTime('Contest Started');
+      if(setToggleContest){
+        setToggleContest(!toggleContest);
+      }
+      setRemainingTime(elem?.entryFee === 0 ? 'Started (Click on Join)' : 'Started (Pay Now to Join)');
     }
   }, [serverTime]);
 

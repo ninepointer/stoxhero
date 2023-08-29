@@ -63,8 +63,8 @@ function Header({ contest }) {
         // Helper function to get the month name
         function getMonthName(month) {
             const monthNames = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             ];
             return monthNames[month];
         }
@@ -153,9 +153,7 @@ function Header({ contest }) {
         <>
             <MDBox>
                 <>
-                <MDTypography color="light" fontWeight="bold" >Premium Contest(s)</MDTypography>
-
-<MDBox display='flex' justifyContent='center' alignItems='center'>
+                <MDBox display='flex' justifyContent='center' alignItems='center'>
                     <Grid container xs={12} md={12} lg={12}>
                         {
                             contest.map((elem) => {
@@ -181,10 +179,6 @@ function Header({ contest }) {
                                     })
                                     if (pnl[0]?.contestId) {
                                         return (
-                                            // <MDBox display='flex' flexDirection='row'>
-                                               
-
-                                            // </MDBox>
                                             <Grid py={1} px={1} item xs={12} md={12} lg={6} borderRadius={3}>
                                             <MDButton variant="contained" style={{ backgroundColor: "#252525" }} color={"#252525"} size="small">
                                                 <Grid container display='flex' justifyContent='space-between' alignItems='center'>

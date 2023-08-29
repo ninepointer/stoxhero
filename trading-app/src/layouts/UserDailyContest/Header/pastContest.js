@@ -1,12 +1,5 @@
 import { React, useState, useEffect, useContext } from "react";
 import axios from "axios";
-// import { Link, useNavigate } from "react-router-dom";
-// import { userContext } from '../../../AuthContext';
-// import moment from 'moment'
-
-// prop-types is a library for typechecking of props.
-// import PropTypes from "prop-types";
-// import tradesicon from '../../../assets/images/tradesicon.png'
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -20,18 +13,9 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-// import {InfinityTraderRole, tenxTrader} from "../../../variables";
-// import ContestCup from '../../../assets/images/candlestick-chart.png'
 import ContestCarousel from '../../../assets/images/target.png'
-// import Timer from '../timer'
-// import ProgressBar from "../progressBar";
-// import { HiUserGroup } from 'react-icons/hi';
-
 import { CircularProgress, Divider, Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-// import PopupMessage from "../data/popupMessage";
-// import PopupTrading from "../data/popupTrading";
-// import PastContest from "../data/pastContest";
 import { Link, useNavigate } from "react-router-dom";
 
 
@@ -40,23 +24,10 @@ function Header({ e }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [isInterested, setIsInterested] = useState(false);
-    // const [timeDifference, setTimeDifference] = useState([]);
-    // const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
     const [loading, setIsLoading] = useState(true);
     let [pnlData, setPnlData] = useState([]);
     const navigate = useNavigate();
-
-    // const handleButtonClick = () => {
-    //     const textToCopy = 'https://www.stoxhero.com/contest';
-    //     navigator.clipboard.writeText(textToCopy)
-    //       .then(() => {
-    //         console.log(textToCopy);
-    //       })
-    //       .catch((error) => {
-    //         console.error('Error copying text:', error);
-    //       });
-    //   };
 
     useEffect(() => {
 
@@ -105,22 +76,6 @@ function Header({ e }) {
         })
     }, [])
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //       axios.get(`${baseUrl}api/v1/servertime`)
-    //         .then((res) => {
-    //             console.log("server time", res.data.data)
-    //           setServerTime(res.data.data);
-    //         });
-    //     });
-      
-    //     return () => {
-    //       clearInterval(interval);
-    //     };
-    //   }, []);
-
-    // console.log("serverTime", serverTime)
-
     function changeDateFormat(givenDate) {
 
         const date = new Date(givenDate);
@@ -137,8 +92,8 @@ function Header({ e }) {
         // Helper function to get the month name
         function getMonthName(month) {
             const monthNames = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             ];
             return monthNames[month];
         }

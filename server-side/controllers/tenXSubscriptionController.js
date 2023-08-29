@@ -234,7 +234,15 @@ exports.renewSubscription = async(req, res, next)=>{
   const today = new Date();
   try{
       const tenXSubs = await TenXSubscription.findOne({_id: new ObjectId(subscriptionId)})
+      const wallet = await Wallet.findOne({userId: userId});
+      let amount = 0;
+      for(elem of wallet.transactions){
+        amount += elem.amount;
+      }
 
+      if(amount < subscriptionAmount){
+        return res.status(404).json({status:'error', message: 'You do not have sufficient funds to renew this subscription. Please add money to your wallet.'});
+      }
       if(!tenXSubs.allowRenewal){
         return res.status(404).json({status:'error', message: 'This subscription is no longer available for purchase or renewal. Please purchase a different plan.'});
       }
@@ -283,7 +291,7 @@ exports.renewSubscription = async(req, res, next)=>{
       }
 
 
-      const wallet = await Wallet.findOne({userId: userId});
+      // const wallet = await Wallet.findOne({userId: userId});
       wallet.transactions = [...wallet.transactions, {
             title: 'Bought TenX Trading Subscription',
             description: `Amount deducted for the purchase of ${subscriptionName} subscription`,

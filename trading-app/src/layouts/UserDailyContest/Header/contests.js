@@ -8,8 +8,6 @@ import Contest from './contest'
 
 function Header() {
 
-
-
   useEffect(() => {
     ReactGA.pageview(window.location.pathname)
   }, []);
