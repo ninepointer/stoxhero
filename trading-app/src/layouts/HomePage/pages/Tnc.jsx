@@ -101,6 +101,11 @@ const TermsAndConditions = () => {
                                 For queries, clarifications, or feedback, users can contact StoxHero Games Technologies Private Limited at the provided email and contact.
                             </Typography>
                         </Grid>
+                        <Grid item xs={12}>
+                            <Typography variant="body1" color="#ffffff">
+                            By registering on our platform, you hereby acknowledge and consent to our terms and conditions. Should you have any reservations or concerns regarding these terms, please do not hesitate to reach out to our administrative team for assistance. If necessary, we can facilitate the deactivation of your account upon request.
+                            </Typography>
+                        </Grid>
                     </Grid>
                 </Container>
                 <Footer />
