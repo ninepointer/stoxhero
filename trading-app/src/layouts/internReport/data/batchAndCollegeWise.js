@@ -20,6 +20,9 @@ import { AiOutlineEye } from 'react-icons/ai';
 // import { userContext } from '../../../AuthContext';
 // import { useNavigate } from 'react-router-dom';
 // import ReactGA from "react-ga"
+import { collegeWiseActiveUser, collegeWiseInactiveUser } from './download';
+import { saveAs } from 'file-saver';
+import DownloadIcon from '@mui/icons-material/Download';
 
 
 
@@ -38,7 +41,7 @@ export default function BatchAndCollegeWise({ id, college }) {
     useEffect(() => {
 
         // console.log("id && college", id , college)
-        if(id && college){
+        if(id && college && open){
             axios.get(`${baseUrl}api/v1/internbatch/batchandcollegewise/${id}/${college}`, {
                 withCredentials: true,
                 headers: {
@@ -56,7 +59,7 @@ export default function BatchAndCollegeWise({ id, college }) {
             })
         }
 
-    }, [id, college])
+    }, [id, college, open])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -65,6 +68,24 @@ export default function BatchAndCollegeWise({ id, college }) {
     const handleClose = () => {
         setOpen(false);
     };
+
+    let collegeActiveUser = collegeWiseActiveUser(activeUser);
+    let collegeInactiveUser =  collegeWiseInactiveUser(inactiveUser);
+
+    const handleDownload = (csvData, nameVariable) => {
+        // Create the CSV content
+        // const csvContent = csvData.map(row => row.join(',')).join('\n');
+        const csvContent = csvData?.map((row) => {
+          return row?.map((row1) => row1.join(',')).join('\n');
+        });
+        // const csvContent = 'Date,Weekday,Gross P&L(S) Gross P&L(I) Net P&L(S) Net P&L(I) Net P&L Diff(S-I)\nValue 1,Value 2,Value 3\nValue 4, Value 5, Value 6';
+    
+        // Create a Blob object with the CSV content
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    
+        // Save the file using FileSaver.js
+        saveAs(blob, `${nameVariable}.csv`);
+      }
 
     return (
 
@@ -83,7 +104,12 @@ export default function BatchAndCollegeWise({ id, college }) {
                     {activeUser.length > 0 &&
                     <Grid container spacing={1} mt={2}>
                         <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "#344767", borderRadius: 5 }} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="white" fontSize={13} fontWeight="bold">{`College Wise Active User Info (${activeUser.length})`}</MDTypography>
+                            {/* <MDTypography color="white" fontSize={13} fontWeight="bold">{`College Wise Active User Info (${activeUser.length})`}</MDTypography> */}
+                            <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "white", borderRadius: 5 }} display="flex" justifyContent="space-between" alignContent="center" alignItems="center" pr={1} mr={1}>
+                                <MDTypography ></MDTypography>
+                                <MDTypography color="dark" fontSize={13} fontWeight="bold">{`College Wise Active User Info (${activeUser.length})`}</MDTypography>
+                                <MDTypography style={{cursor: "pointer"}} onClick={() => { handleDownload(collegeActiveUser, "collegeActiveUser") }}><DownloadIcon /> </MDTypography>
+                            </Grid>
                         </Grid>
                         <Grid container p={1} style={{ border: '1px solid #344767', borderRadius: 5 }}>
                             <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
@@ -135,7 +161,13 @@ export default function BatchAndCollegeWise({ id, college }) {
                     {inactiveUser.length > 0 &&
                     <Grid container spacing={1} mt={2}>
                         <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "#344767", borderRadius: 5 }} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="white" fontSize={13} fontWeight="bold">{`College Wise Inactive User Info (${inactiveUser.length})`}</MDTypography>
+                            {/* <MDTypography color="white" fontSize={13} fontWeight="bold">{`College Wise Inactive User Info (${inactiveUser.length})`}</MDTypography> */}
+
+                            <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "white", borderRadius: 5 }} display="flex" justifyContent="space-between" alignContent="center" alignItems="center" pr={1} mr={1}>
+                                <MDTypography ></MDTypography>
+                                <MDTypography color="dark" fontSize={13} fontWeight="bold">{`College Wise Inactive User Info (${inactiveUser.length})`}</MDTypography>
+                                <MDTypography style={{cursor: "pointer"}} onClick={() => { handleDownload(collegeInactiveUser, "collegeInactiveUser") }}><DownloadIcon /> </MDTypography>
+                            </Grid>
                         </Grid>
                         <Grid container p={1} style={{ border: '1px solid #344767', borderRadius: 5 }}>
                             <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">

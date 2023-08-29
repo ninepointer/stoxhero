@@ -110,21 +110,25 @@ export default function LabTabs() {
   }, [dateWiseData])
 
   useEffect(()=>{
-    if(selectedBatches){
+    setUser({});
+    if(selectedBatches && alignment === traderWisePnl){
     axios.get(`${apiUrl}internbatch/batchwiseuser/${selectedBatches?._id}`, {withCredentials: true})
     .then((res) => {
-      user.activeUser = res.data.active;
-      user.inactiveUser = res.data.inactive;
-      setUser(user);
+      const updatedUser = {
+        activeUser: res.data.active,
+        inactiveUser: res.data.inactive
+      };
+      setUser(updatedUser);
     })
     .catch((err) => {
       throw new Error(err);
     });
   }
-  }, [selectedBatches])
+  }, [selectedBatches, alignment])
 
   useEffect(() => {
-    if(selectedBatches){
+    setCollegeData([]);
+    if(selectedBatches && alignment === traderWisePnl){
     axios.get(`${apiUrl}internbatch/collegewiseuser/${selectedBatches._id}`, { withCredentials: true })
       .then((res) => {
         // Check if the start date is after the end date
@@ -134,7 +138,7 @@ export default function LabTabs() {
         throw new Error(err);
       });
     }
-  }, [selectedBatches])
+  }, [selectedBatches, alignment])
 
   const handleShowDetails = async() => {
     // const from = startDate.format('YYYY-MM-DD');

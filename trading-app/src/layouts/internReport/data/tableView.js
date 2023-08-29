@@ -10,13 +10,13 @@ import { saveAs } from 'file-saver';
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Tooltip } from "@mui/material";
 import { Grid } from "@mui/material";
 // import { apiUrl } from '../../../constants/constants';
 import { AiOutlineEye } from "react-icons/ai";
 import BatchAndCollegeWise from "./batchAndCollegeWise";
 import DownloadIcon from '@mui/icons-material/Download';
-
+import {dailyPnlCompany, traderWisePnl, collegeWiseInfo, activeTrader, inactiveTrader} from "./download";
 
 
 export default function TableView({collegeData, holiday, whichTab, dateWiseData, userData, id, inactiveUser, activeUser }) {
@@ -54,50 +54,21 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
 
   console.log("activeUser", activeUser)
 
-  let csvDataFile = [[]]
-  let csvData = [['DATE','WEEKDAY', 'GROSS P&L', 'TRANSACTION COST', 'NET P&L', '# OF TRADES']]
 
-  if (whichTab === "Daily P&L" && dateWiseData) {
-    // dates = Object.keys(dateWiseData)
-    let csvpnlData = Object.values(dateWiseData)
-    csvDataFile = csvpnlData?.map((elem) => {
-      const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek - 1];
+  let pnlData;
 
-      return [elem?._id?.date,
-      moment.utc(new Date(elem?._id?.date)).utcOffset('+00:00').format('dddd'),
-        weekday,
-      elem?.gpnl,
-      elem?.brokerage,
-      elem?.npnl,
-      elem?.noOfTrade]
-    })
+  if(whichTab === "Daily P&L"){
+    pnlData = dailyPnlCompany(dateWiseData);
+  } else{
+    pnlData = traderWisePnl(dateWiseData, holiday, userData);
   }
 
-  csvData = [[...csvData,...csvDataFile]]
+  let activeUserInfo = activeTrader(activeUser);
+  let inactiveUserInfo = inactiveTrader(inactiveUser);
+  let collegeWiseUserInfo = collegeWiseInfo(collegeData);
 
 
-  // let csvDataFile1 = [[]]
-  // let csvData1 = [['TRADER NAME','GROSS P&L', 'TRANSACTION COST', 'NET P&L', '# OF TRADES', 'TRADING DAYS', '# OF REFERRAL', 'PAYOUT', 'ATTENDANCE']]
-
-  // if (whichTab !== "Daily P&L" && dateWiseData) {
-  //   // dates = Object.keys(activeUser)
-  //   let csvpnlData = Object.values(dateWiseData)
-  //   csvDataFile = csvpnlData?.map((elem) => {
-  //     // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek - 1];
-
-  //     return [elem?._id?.date,
-  //     moment.utc(new Date(elem?._id?.date)).utcOffset('+00:00').format('dddd'),
-  //       weekday,
-  //     elem?.gpnl,
-  //     elem?.brokerage,
-  //     elem?.npnl,
-  //     elem?.noOfTrade]
-  //   })
-  // }
-
-  // csvData1 = [[...csvData1,...csvDataFile1]]
-
-  const handleDownload = (csvData) => {
+  const handleDownload = (csvData, nameVariable) => {
     // Create the CSV content
     // const csvContent = csvData.map(row => row.join(',')).join('\n');
     const csvContent = csvData?.map((row) => {
@@ -109,8 +80,74 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
 
     // Save the file using FileSaver.js
-    saveAs(blob, `${"report"}.csv`);
+    saveAs(blob, `${nameVariable}.csv`);
   }
+
+  let traderWisePnlInfo = [];
+  if(whichTab !== "Daily P&L"){
+    dateWiseData?.map((elem)=>{
+      const attendanceLimit = elem.attendancePercentage;
+      const referralLimit = elem.referralCount;
+      const payoutPercentage = elem.payoutPercentage;
+      const reliefAttendanceLimit = attendanceLimit - attendanceLimit * 5 / 100
+      const reliefReferralLimit = referralLimit - referralLimit * 10 / 100
+
+      // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek-1];
+      const referral = userData?.filter((subelem) => {
+        return subelem?._id?.toString() == elem?.userId?.toString();
+      })
+
+      const batchEndDate = moment(elem.batchEndDate);
+      const currentDate = moment();
+      const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
+      const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
+      let refCount = referral[0]?.referrals?.length;
+      elem.isPayout = false;
+      const profitCap = 15000;
+
+      if (attendance >= attendanceLimit && refCount >= referralLimit && elem?.npnl > 0) {
+        console.log("payout 1sr");
+        elem.isPayout = true;
+      }
+
+      if (!(attendance >= attendanceLimit && refCount >= referralLimit) && (attendance >= attendanceLimit || refCount >= referralLimit) && elem?.npnl > 0) {
+        if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
+          elem.isPayout = true;
+          console.log("payout relief");
+        }
+        if (refCount < referralLimit && refCount >= reliefReferralLimit) {
+          elem.isPayout = true;
+          console.log("payout relief");
+        }
+      }
+
+      elem.referral = referral[0]?.referrals?.length;
+      elem.payout = elem.isPayout ? Math.min((elem?.npnl * payoutPercentage / 100).toFixed(0), profitCap) : 0;
+      elem.tradeDay = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0)
+      elem.attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0);
+     traderWisePnlInfo.push(elem);
+
+
+    })
+  }
+
+  traderWisePnlInfo.sort((a,b)=>{
+    if(a.payout > b.payout){
+      return -1;
+    } else if(a.payout <= b.payout){
+      if(a.npnl > b.npnl){
+        return -1;
+      } else if(a.npnl < b.npnl){
+        return 1;
+      } else{
+        return 1;
+      }
+      
+    } else{
+      return 1;
+    }
+  })
+
 
 
   return (
@@ -118,11 +155,16 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
     <MDBox bgColor="dark" color="light" mb={0} borderRadius={10} minWidth='100%' minHeight='auto'>
       {whichTab === "Daily P&L" ?
         <Grid container spacing={1}>
-            <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "white", borderRadius: 5 }} display="flex" justifyContent="space-between" alignContent="center" alignItems="center" pr={1}>
-            <MDTypography ></MDTypography>
-            <MDTypography color="dark" fontSize={13} fontWeight="bold">{`Date Wise P&L`}</MDTypography>
-            <MDTypography  onClick={()=>{handleDownload(csvData)}}><DownloadIcon/> </MDTypography>
+
+          <Grid container p={0.5} mb={1} style={{backgroundColor:'white' ,border: '1px solid white', borderRadius: 5 }}>
+            <Grid item xs={12} md={2} lg={8} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
+              <MDTypography color="dark" fontSize={12} fontWeight="bold">Date Wise - P&L</MDTypography>
+            </Grid>
+            <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
+              <Tooltip title="Download CSV"><MDButton variant='contained' onClick={()=>{handleDownload(pnlData, "dailyPnlIntern")}}><DownloadIcon/></MDButton></Tooltip>
+            </Grid>
           </Grid>
+
           <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
             <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
               <MDTypography color="light" fontSize={9} fontWeight="bold">DATE</MDTypography>
@@ -192,13 +234,22 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
         </Grid>
         :
         <Grid container spacing={1} >
-          <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "white", borderRadius: 5 }} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-
-            {/* <MDTypography ></MDTypography> */}
+          {/* <Grid item xs={12} md={2} lg={12} mb={1} style={{ backgroundColor: "white", borderRadius: 5 }} display="flex" justifyContent="space-between" alignContent="center" alignItems="center" pr={1}>
+            <MDTypography ></MDTypography>
             <MDTypography color="dark" fontSize={13} fontWeight="bold">{`Active User P&L`}</MDTypography>
-            {/* <MDTypography  onClick={()=>{handleDownload(csvData1)}}><DownloadIcon/> </MDTypography> */}
+            <MDTypography  onClick={()=>{handleDownload(pnlData, "traderPnlIntern")}}><DownloadIcon/> </MDTypography>
 
+          </Grid> */}
+
+          <Grid container p={0.5} mb={1} style={{backgroundColor:'white' ,border: '1px solid white', borderRadius: 5 }}>
+            <Grid item xs={12} md={2} lg={8} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
+              <MDTypography color="dark" fontSize={12} fontWeight="bold">Active User - P&L</MDTypography>
+            </Grid>
+            <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
+              <Tooltip title="Download CSV"><MDButton variant='contained' onClick={()=>{handleDownload(pnlData, "traderPnlIntern")}}><DownloadIcon/></MDButton></Tooltip>
+            </Grid>
           </Grid>
+
           <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
             <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
               <MDTypography color="light" fontSize={9} fontWeight="bold">TRADER NAME</MDTypography>
@@ -233,54 +284,15 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
 
 
           {!isLoading ?
-            dateWiseData?.map((elem) => {
+            traderWisePnlInfo?.map((elem) => {
 
               const gpnlcolor = (elem?.gpnl) >= 0 ? "success" : "error";
               const npnlcolor = (elem?.npnl) >= 0 ? "success" : "error";
 
-              const attendanceLimit = elem.attendancePercentage;
-              const referralLimit = elem.referralCount;
-              const payoutPercentage = elem.payoutPercentage;
-              const reliefAttendanceLimit = attendanceLimit - attendanceLimit * 5 / 100
-              const reliefReferralLimit = referralLimit - referralLimit * 10 / 100
-
-              // const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][elem?.dayOfWeek-1];
-              const referral = userData?.filter((subelem) => {
-                return subelem?._id?.toString() == elem?.userId?.toString();
-              })
-
-              const batchEndDate = moment(elem.batchEndDate);
-              const currentDate = moment();
-              const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
-              const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
-              let refCount = referral[0]?.referrals?.length;
-              elem.isPayout = false;
-              const profitCap = 15000;
-
-              if (attendance >= attendanceLimit && refCount >= referralLimit && elem?.npnl > 0) {
-                console.log("payout 1sr");
-                elem.isPayout = true;
-              }
-
-              if (!(attendance >= attendanceLimit && refCount >= referralLimit) && (attendance >= attendanceLimit || refCount >= referralLimit) && elem?.npnl > 0) {
-                if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
-                  elem.isPayout = true;
-                  console.log("payout relief");
-                }
-                if (refCount < referralLimit && refCount >= reliefReferralLimit) {
-                  elem.isPayout = true;
-                  console.log("payout relief");
-                }
-              }
-
-              console.log("working day", elem.isPayout, payoutPercentage)
-
-
-
               return (
                 <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                   <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name.length <= 16 ? elem?.name : elem?.name.slice(0, 13) + "..."}</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.name?.length <= 16 ? elem?.name : elem?.name.slice(0, 13) + "..."}</MDTypography>
                   </Grid>
 
                   <Grid item xs={12} md={2} lg={1.33} display="flex" justifyContent="center" alignContent="center" alignItems="center">
@@ -300,13 +312,13 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
                   </Grid>
 
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{referral[0]?.referrals?.length}</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.referral}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{elem.isPayout ? Math.min((elem?.npnl * payoutPercentage / 100).toFixed(0), profitCap) : 0}</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">₹{elem?.payout}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={1.33}>
-                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{(elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0)}%</MDTypography>
+                    <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.attendance}%</MDTypography>
                   </Grid>
                 </Grid>
               )
@@ -328,9 +340,16 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
         <>
 
           <Grid container spacing={1} mt={2}>
-            <Grid item xs={12} md={2}  lg={12} mb={1} style={{backgroundColor: "white", borderRadius: 5}} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-              <MDTypography color="dark" fontSize={13} fontWeight="bold">{`Active User Info(${activeUser.length})`}</MDTypography>
+
+            <Grid container p={0.5} mb={1} style={{ backgroundColor: 'white', border: '1px solid white', borderRadius: 5 }}>
+              <Grid item xs={12} md={2} lg={8} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
+                <MDTypography color="dark" fontSize={12} fontWeight="bold">{`Active User Info(${activeUser?.length ? activeUser?.length : 0})`}</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
+                <Tooltip title="Download CSV"><MDButton variant='contained' onClick={() => { handleDownload(activeUserInfo, "activeUserInfo") }}><DownloadIcon /></MDButton></Tooltip>
+              </Grid>
             </Grid>
+
             <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
               <Grid item xs={12} md={2} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <MDTypography color="light" fontSize={9} fontWeight="bold">NAME</MDTypography>
@@ -379,9 +398,16 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
           </Grid>
 
           <Grid container spacing={1} mt={2}>
-            <Grid item xs={12} md={2}  lg={12} mb={1} style={{backgroundColor: "white", borderRadius: 5}} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-              <MDTypography color="dark" fontSize={13} fontWeight="bold">{`Inactive User Info(${inactiveUser.length})`}</MDTypography>
+
+            <Grid container p={0.5} mb={1} style={{ backgroundColor: 'white', border: '1px solid white', borderRadius: 5 }}>
+              <Grid item xs={12} md={2} lg={8} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
+                <MDTypography color="dark" fontSize={12} fontWeight="bold">{`Inactive User Info(${inactiveUser?.length ? inactiveUser?.length : 0})`}</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
+                <Tooltip title="Download CSV"><MDButton variant='contained' onClick={() => { handleDownload(inactiveUserInfo, "inactiveUserInfo") }}><DownloadIcon /></MDButton></Tooltip>
+              </Grid>
             </Grid>
+
             <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
               <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <MDTypography color="light" fontSize={9} fontWeight="bold">NAME</MDTypography>
@@ -424,9 +450,16 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
           </Grid>
 
           <Grid container spacing={1} mt={2}>
-            <Grid item xs={12} md={2}  lg={12} mb={1} style={{backgroundColor: "white", borderRadius: 5}} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-              <MDTypography color="dark" fontSize={13} fontWeight="bold">{`College Wise User Info(${collegeData.length})`}</MDTypography>
+
+            <Grid container p={0.5} mb={1} style={{ backgroundColor: 'white', border: '1px solid white', borderRadius: 5 }}>
+              <Grid item xs={12} md={2} lg={8} pl={1} display="flex" justifyContent="flex-start" alignContent="center" alignItems="center">
+                <MDTypography color="dark" fontSize={12} fontWeight="bold">{`College Wise User Info(${collegeData?.length ? collegeData?.length : 0})`}</MDTypography>
+              </Grid>
+              <Grid item xs={12} md={2} lg={4} display="flex" justifyContent="flex-end" alignContent="center" alignItems="center">
+                <Tooltip title="Download CSV"><MDButton variant='contained' onClick={() => { handleDownload(collegeWiseUserInfo, "collegeWiseUserInfo") }}><DownloadIcon /></MDButton></Tooltip>
+              </Grid>
             </Grid>
+
             <Grid container p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
               <Grid item xs={12} md={2} lg={6} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                 <MDTypography color="light" fontSize={9} fontWeight="bold">COLLEGE NAME</MDTypography>

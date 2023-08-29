@@ -1,13 +1,14 @@
-const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, dailyContestMock, internshipTradeMod, dailyContestMockMod} = require("./collectingTradeManually");
+const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive, dailyContestMock, internshipTradeMod, dailyContestMockMod} = require("./collectingTradeManually");
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 const Contest = require('../../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
-
+// const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
+const dailyContestLiveCompany = require("../../models/DailyContest/dailyContestLiveCompany")
 
 const autoCutMainManually = async() => {
-
     await infinityTradeLive();
+    await contestTradeLive();
 }
 
 const autoCutMainManuallyMock = async() => {
@@ -16,11 +17,11 @@ const autoCutMainManuallyMock = async() => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
-    const data = await InfinityLiveTradeCompany.aggregate([
+    const data = await dailyContestLiveCompany.aggregate([
         {
             $match: {
                 trade_time: {
-                    $gte: today
+                    $gte: new Date("2023-08-28"),
                 },
                 status: "COMPLETE",
             },
@@ -33,12 +34,13 @@ const autoCutMainManuallyMock = async() => {
                     exchange: "$exchange",
                     symbol: "$symbol",
                     instrumentToken: "$instrumentToken",
-                    exchangeInstrumentToken: "$exchangeInstrumentToken",
+                    exchangeInstrumentToken:
+                        "$exchangeInstrumentToken",
                     variety: "$variety",
                     validity: "$validity",
                     order_type: "$order_type",
                     Product: "$Product",
-                    algoBoxId: "$algoBox"
+                    algoBoxId: "$algoBox",
                 },
                 runningLots: {
                     $sum: "$Quantity",
@@ -51,30 +53,12 @@ const autoCutMainManuallyMock = async() => {
             },
         },
         {
-            $project: {
-                _id: 0,
-                userId: "$_id.userId",
-                // subscriptionId: "$_id.subscriptionId",
-                exchange: "$_id.exchange",
-                symbol: "$_id.symbol",
-                instrumentToken: "$_id.instrumentToken",
-                exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-                variety: "$_id.variety",
-                validity: "$_id.validity",
-                order_type: "$_id.order_type",
-                Product: "$_id.Product",
-                runningLots: "$runningLots",
-                takeTradeQuantity: "$takeTradeQuantity",
-                algoBoxId: "$_id.algoBoxId"
-            },
-        },
-        {
             $match: {
                 runningLots: {
-                    $ne: 0
+                    $ne: 0,
                 },
-            }
-        }
+            },
+        },
     ]);
 
     if(data.length === 0){

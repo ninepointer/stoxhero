@@ -996,9 +996,7 @@ exports.internshipPnlReport = async (req, res, next) => {
 exports.internshipDailyPnlTWise = async (req, res, next) => {
 
   let { batch } = req.params
-  // startDate = startDate + "T00:00:00.000Z";
-  // endDate = endDate + "T23:59:59.000Z";
-  // console.log("startDate", startDate,endDate )
+
   let pipeline = [
     {
       $lookup: {
@@ -1139,56 +1137,57 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
 exports.updateUserWallet = async () => {
 
 
-  try{
+  try {
 
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    
+
     const internship = await Careers.aggregate([
       {
         $match:
-          {
-            listingType: "Job",
-          },
+        {
+          listingType: "Job",
+        },
       },
       {
         $lookup:
-    
-          {
-            from: "intern-batches",
-            localField: "_id",
-            foreignField: "career",
-            as: "batch",
-          },
+
+        {
+          from: "intern-batches",
+          localField: "_id",
+          foreignField: "career",
+          as: "batch",
+        },
       },
       {
         $unwind:
-    
-          {
-            path: "$batch",
-          },
+
+        {
+          path: "$batch",
+        },
       },
       {
         $match:
-    
-          {
-            $expr: {
-              $eq: [
-                {
-                  $dateToString: {
-                    format: "%Y-%m-%d",
-                    date: "$batch.batchEndDate",
-                  },
+
+        {
+          $expr: {
+            $eq: [
+              {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$batch.batchEndDate",
                 },
-                todayDate,
-              ],
-            },
-            "batch.batchStatus": "Active",
+              },
+              todayDate,
+
+            ],
           },
+          "batch.batchStatus": "Active",
+        },
       },
       {
         $project:
-    
+
         {
           _id: 0,
           batchId: "$batch._id",
@@ -1200,17 +1199,16 @@ exports.updateUserWallet = async () => {
           referralCount: "$batch.referralCount"
         }
       },
-    
-    ])
-  
-    // console.log(internship)
 
-    for(let elem of internship){
+    ])
+
+
+    for (let elem of internship) {
       const attendanceLimit = elem.attendancePercentage;
       const referralLimit = elem.referralCount;
       const payoutPercentage = elem.payoutPercentage;
-      const reliefAttendanceLimit = attendanceLimit - attendanceLimit*5/100
-      const reliefReferralLimit = referralLimit - referralLimit*10/100
+      const reliefAttendanceLimit = attendanceLimit - attendanceLimit * 5 / 100
+      const reliefReferralLimit = referralLimit - referralLimit * 10 / 100
       const workingDays = calculateWorkingDays(elem.startDate, elem.endDate);
       const users = elem.users;
       const batchId = elem.batchId;
@@ -1230,52 +1228,50 @@ exports.updateUserWallet = async () => {
 
       const profitCap = 15000;
 
-
-  
-      const tradingDays = async (userId, batchId)=>{
-        const pipeline = 
-        [
-          {
-            $match: {
-              batch: new ObjectId(batchId),
-              trader: new ObjectId(userId),
-              status: "COMPLETE",
+      const tradingDays = async (userId, batchId) => {
+        const pipeline =
+          [
+            {
+              $match: {
+                batch: new ObjectId(batchId),
+                trader: new ObjectId(userId),
+                status: "COMPLETE",
+              },
             },
-          },
-          {
-            $group: {
-              _id: {
-                date: {
-                  $substr: ["$trade_time", 0, 10],
+            {
+              $group: {
+                _id: {
+                  date: {
+                    $substr: ["$trade_time", 0, 10],
+                  },
+                },
+                count: {
+                  $count: {},
                 },
               },
-              count: {
-                $count: {},
-              },
             },
-          },
-        ]
-      
+          ]
+
         let x = await InternTrades.aggregate(pipeline);
-    
+
         return x.length;
       }
-    
-      const pnl = async (userId, batchId)=>{
+
+      const pnl = async (userId, batchId) => {
         let pnlDetails = await InternTrades.aggregate([
           {
-              $match: {
-                  status: "COMPLETE",
-                  trader: new ObjectId(userId),
-                  batch: new ObjectId(batchId) 
-              },
+            $match: {
+              status: "COMPLETE",
+              trader: new ObjectId(userId),
+              batch: new ObjectId(batchId)
+            },
           },
           {
             $group: {
               _id: {
               },
               amount: {
-                $sum: {$multiply : ["$amount",-1]},
+                $sum: { $multiply: ["$amount", -1] },
               },
               brokerage: {
                 $sum: {
@@ -1286,22 +1282,22 @@ exports.updateUserWallet = async () => {
           },
           {
             $project:
-              /**
-               * specifications: The fields to
-               *   include or exclude.
-               */
-              {
-                _id: 0,
-                npnl: {
-                  $subtract: ["$amount", "$brokerage"],
-                },
+            /**
+             * specifications: The fields to
+             *   include or exclude.
+             */
+            {
+              _id: 0,
+              npnl: {
+                $subtract: ["$amount", "$brokerage"],
               },
+            },
           },
         ])
-  
+
         return pnlDetails[0]?.npnl;
       }
-    
+
       function calculateWorkingDays(startDate, endDate) {
         // Convert the input strings to Date objects
         const start = new Date(startDate);
@@ -1309,47 +1305,48 @@ exports.updateUserWallet = async () => {
         end = end.toISOString().split('T')[0];
         end = new Date(end)
         end.setDate(end.getDate() + 1);
-    
+
         // Check if the start date is after the end date
         if (start > end) {
           return 0;
         }
-      
+
         let workingDays = 0;
         let currentDate = new Date(start);
-      
+
         // Iterate over each day between the start and end dates
         while (currentDate <= end) {
           // Check if the current day is a weekday (Monday to Friday)
           if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
             workingDays++;
           }
-      
+
           // Move to the next day
           currentDate.setDate(currentDate.getDate() + 1);
         }
-      
+
         return workingDays;
       }
-      
-      const referrals = async(user)=>{
-        
+
+      const referrals = async (user) => {
+
         return user?.referrals?.length;
       }
-    
-    
-      for(let i = 0; i < users.length; i++){
-        const user = await User.findOne({_id: new ObjectId(users[i].user)});
+
+
+      for (let i = 0; i < users.length; i++) {
+        const user = await User.findOne({ _id: new ObjectId(users[i].user) });
         const tradingdays = await tradingDays(users[i].user, batchId);
-        const attendance = (tradingdays*100)/(workingDays-holiday.length);
+        const attendance = (tradingdays * 100) / (workingDays - holiday.length);
         const referral = await referrals(user);
         const npnl = await pnl(users[i].user, batchId);
-        const creditAmount = Math.min(npnl*payoutPercentage/100, profitCap)
-        
-        const wallet = await Wallet.findOne({userId: new ObjectId(users[i].user)});
-  
-        if(creditAmount > 0){
+        const creditAmount = Math.min(npnl * payoutPercentage / 100, profitCap)
+
+        const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) });
+
+        if (creditAmount > 0) {
           if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
+
             wallet.transactions = [...wallet.transactions, {
               title: 'Internship Payout',
               description: `Amount credited for your internship profit`,
@@ -1358,7 +1355,7 @@ exports.updateUserWallet = async () => {
               transactionType: 'Cash'
             }];
             wallet.save();
-    
+
             if (process.env.PROD == 'true') {
               sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
               <!DOCTYPE html>
@@ -1445,11 +1442,14 @@ exports.updateUserWallet = async () => {
               </html>
               `);
             }
-            console.log(users[i].user, npnl, creditAmount);
+
+            console.log("no relief", users[i].user, npnl, creditAmount);
+
+
           }
-      
-          if(!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0){
-            if(attendance < attendanceLimit && attendance >= reliefAttendanceLimit){
+
+          if (!(attendance >= attendanceLimit && referral >= referralLimit) && (attendance >= attendanceLimit || referral >= referralLimit) && npnl > 0) {
+            if (attendance < attendanceLimit && attendance >= reliefAttendanceLimit) {
               wallet.transactions = [...wallet.transactions, {
                 title: 'Internship Payout',
                 description: `Amount credited for your internship profit`,
@@ -1546,7 +1546,7 @@ exports.updateUserWallet = async () => {
               }
               console.log("attendance relief");
             }
-            if(referral < referralLimit && referral >= reliefReferralLimit){
+            if (referral < referralLimit && referral >= reliefReferralLimit) {
               wallet.transactions = [...wallet.transactions, {
                 title: 'Internship Payout',
                 description: `Amount credited for your internship profit`,
@@ -1641,13 +1641,13 @@ exports.updateUserWallet = async () => {
                 </html>
                 `);
               }
-              // console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
+              console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
             }
           }
         }
       }
     }
-  } catch(err){
+  } catch (err) {
     console.log(err);
   }
 }

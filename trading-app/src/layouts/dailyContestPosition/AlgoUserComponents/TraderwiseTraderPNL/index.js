@@ -3,6 +3,7 @@ import axios from "axios";
 // @mui material components
 import Card from "@mui/material/Card";
 import MenuItem from "@mui/material/MenuItem";
+import Switch from '@mui/material/Switch';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
@@ -24,14 +25,17 @@ function TraderwiseTraderPNL({ socket }) {
   const [subscriptions, setSubscription] = useState([]);
   const [selectedContest, setselectedContest] = useState();
   const [trackEvent, setTrackEvent] = useState({});
+  const [isLive, setIsLive] = useState(false);
+  const [action, setAction] = useState(false);
 
   useEffect(() => {
     axios.get(`${baseUrl}api/v1/dailycontest/contests/today`, { withCredentials: true })
       .then((res) => {
         setSubscription(res.data.data);
         setselectedContest(res.data.data[0])
+        setIsLive(res.data.data[0]?.currentLiveStatus=='Live');
       }).catch(e => console.log(e));
-  }, [])
+  }, [action]);
 
   useEffect(() => {
     socket.on('updatePnl', (data) => {
@@ -251,8 +255,19 @@ function TraderwiseTraderPNL({ socket }) {
 
 
   rows.push(obj);
-
-  console.log("Selected", selectedContest)
+const switchToMock = async () => {
+  const id = selectedContest?._id;
+  try{
+    const res = await axios.get(`${baseUrl}api/v1/switchRealToMockContest/${id}`, {withCredentials:true});
+    if(res.status == 200){
+      setIsLive(false);
+      setAction(!action);
+    }
+    console.log(res.data);
+  }catch(e){
+    console.log(e);
+  }
+}
 
   return (
     <>
@@ -277,7 +292,7 @@ function TraderwiseTraderPNL({ socket }) {
               // helperText="Please select subscription"
               variant="outlined"
               sx={{ margin: 1, padding: 1, width: "300px" }}
-              onChange={(e) => { setselectedContest(subscriptions.filter((item) => item.contestName == e.target.value)[0]) }}
+              onChange={(e) => { setselectedContest(subscriptions.filter((item) => item.contestName == e.target.value)[0]); setIsLive(subscriptions.filter((item) => item.contestName == e.target.value)[0]?.currentLiveStatus == 'Live') }}
             >
               {subscriptions?.map((option) => (
                 <MenuItem key={option.contestName} value={option.contestName} minHeight="4em">
@@ -285,6 +300,9 @@ function TraderwiseTraderPNL({ socket }) {
                 </MenuItem>
               ))}
             </TextField>
+            <MDBox mt={0.5}>
+              Mock<Switch checked={isLive} onChange={() => {switchToMock()}}/>Live
+          </MDBox>
             <MDBox style={{backgroundColor:`${selectedContest?.entryFee > 0 ? 'lightgreen' : 'yellow'}`}} borderRadius={3} m={1}>
               <Grid container xs={12} md={12} lg={12}>
                   <Grid item xs={12} md={12} lg={2}>

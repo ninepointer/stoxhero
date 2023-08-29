@@ -34,8 +34,7 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contestId}) => {
-  // console.log("rendering : buy", contestId)
+const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contest}) => {
   const tradeSound = new Howl({
     src : [sound],
     html5 : true
@@ -203,8 +202,14 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
       trader = traderId;
       fromAdmin = true;
     }else if(from === dailyContest){
-      endPoint = 'placingOrderDailyContest';
+      if(contest?.currentLiveStatus==="Live"){
+        endPoint = 'placingLiveOrderDailyContest';
+      } else{
+        endPoint = 'placingOrderDailyContest';
+      }
     }
+
+    console.log("contest", contest)
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
         credentials:"include",
@@ -212,7 +217,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, Price, contestId,
+          exchange, symbol, buyOrSell, Quantity, Price, contestId: contest?.data,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath

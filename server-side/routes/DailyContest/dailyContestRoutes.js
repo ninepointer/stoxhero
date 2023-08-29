@@ -5,6 +5,7 @@ const contestController = require('../../controllers/dailyContestController');
 const restrictTo = require('../../authentication/authorization');
 
 router.post('/contest', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.createContest);
+router.get('/livecontest', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllLiveContests);
 router.get('/contest/dailycontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestUsers);
 router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDailyContestAllUsers);
 router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
@@ -41,8 +42,9 @@ router.get('/contests/completed', Authenticate, contestController.getCompletedCo
 router.get('/contests/collegeupcoming', Authenticate, contestController.getUpcomingCollegeContests);
 router.get('/contests/collegecompleted', Authenticate, contestController.getCompletedCollegeContests);
 
+router.get('/contests/completedadminLive', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCommpletedContestsAdminLive);
 router.get('/contests/completedadmin', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getCommpletedContestsAdmin);
-router.get('/contests/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDraftContests);
+router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getDraftContests);
 
 
 

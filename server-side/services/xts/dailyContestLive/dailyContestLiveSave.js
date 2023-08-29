@@ -8,6 +8,10 @@ const DailyContestMockCompany = require("../../../models/DailyContest/dailyConte
 const DailyContestLiveCompany = require("../../../models/DailyContest/dailyContestLiveCompany")
 const {overallLivePnlCompanyDailyContest, traderWiseLivePnlCompanyDailyContest, lastTradeDataLiveDailyContest} = require("../../adminRedis/Live")
 const {overallMockPnlCompanyDailyContest, traderWiseMockPnlCompanyDailyContest, lastTradeDataMockDailyContest, overallpnlDailyContest} = require("../../adminRedis/Mock");
+const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
+const axios = require("axios");
+const AccessToken = require("../../../models/Trading Account/requestTokenSchema");
 
 
 
@@ -17,7 +21,9 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
     let isRedisConnected = getValue();
     const io = getIOValue();
     let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
-      instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity, dailyContestId } = traderData
+      instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity, dailyContestId, contestId } = traderData;
+
+      console.log('contest ids', dailyContestId, contestId);
   
     let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, OrderType, ProductType,
       TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
@@ -42,8 +48,18 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
       } else {
         buyOrSell = "BUY"
       }
+
+      let token;
+      if(await client.exists('interactive-token')){
+        console.log("in if condition")
+        token = await client.get('interactive-token');
+        token = JSON.parse(token);
+      } else{
+        let tokenData = await AccessToken.findOne({xtsType: "Interactive"}).sort({_id: -1});
+        token = tokenData.accessToken
+      }
   
-      const response = await xtsInteractiveAPI.placeOrder({
+      let orderData = new URLSearchParams({
         exchangeSegment: exchangeSegment,
         exchangeInstrumentID: ExchangeInstrumentID,
         productType: ProductType,
@@ -55,7 +71,17 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         limitPrice: 0,
         stopPrice: 0,
         clientID: process.env.XTS_CLIENTID,
-      });
+      })
+  
+      let headers = {
+        'Authorization': token,
+        "content-type": "application/x-www-form-urlencoded"
+      }
+  
+  
+     let placedOrder = await axios.post(`${process.env.INTERACTIVE_URL}/interactive/orders`, orderData, {headers : headers})
+     const response = placedOrder.data;
+  
       await client.HSET('liveOrderBackupKey', `${(response?.result?.AppOrderID).toString()}`, JSON.stringify(traderData));
   
       if(!autoTrade)
@@ -78,7 +104,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
         brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
     } else{
-        brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType});
+        brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: xtsAccountType});
         await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
     }
 
@@ -86,7 +112,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
         brokerageDetailSell = JSON.parse(brokerageDetailSell);
     } else{
-        brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType});
+        brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: xtsAccountType});
         await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
     }
 
@@ -173,7 +199,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
         Product: ProductType, buyOrSell: transaction_type,
         variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
-        algoBox: algoBoxId, instrumentToken, brokerage: brokerageCompany,
+        algoBox: algoBoxId, instrumentToken, brokerage: brokerageCompany, contestId: dailyContestId,
         trader: trader, isRealTrade: true, amount: (Number(OrderQuantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
         exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
         exchangeInstrumentToken: ExchangeInstrumentID
@@ -185,7 +211,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         status, createdBy: tradedBy, average_price: OrderAverageTradedPrice, Quantity: Quantity,
         Product: ProductType, buyOrSell: buyOrSell,
         variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
-        instrumentToken, brokerage: brokerageUser, trader: trader,
+        instrumentToken, brokerage: brokerageUser, trader: trader, contestId: dailyContestId,
         isRealTrade: true, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
         exchange_order_id: ExchangeOrderID, exchange_timestamp: ExchangeTransactTime, isMissed: false,
         exchangeInstrumentToken: ExchangeInstrumentID
@@ -195,7 +221,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         appOrderId: AppOrderID, order_id: order_id,
         status, average_price: OrderAverageTradedPrice, Quantity: OrderQuantity,
         Product: ProductType, buyOrSell: transaction_type, variety, validity: TimeInForce, exchange, order_type: order_type,
-        symbol, placed_by: ClientID, algoBox: algoBoxId,
+        symbol, placed_by: ClientID, algoBox: algoBoxId, contestId: dailyContestId,
         instrumentToken, brokerage: brokerageCompany, createdBy: tradedBy,
         trader: trader, isRealTrade: false, amount: (Number(OrderQuantity) * OrderAverageTradedPrice),
         trade_time: LastUpdateDateTime, exchangeInstrumentToken: ExchangeInstrumentID
@@ -206,7 +232,7 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         status, average_price: OrderAverageTradedPrice, Quantity: Quantity,
         Product: ProductType, buyOrSell, exchangeInstrumentToken: ExchangeInstrumentID,
         variety, validity: TimeInForce, exchange, order_type: order_type, symbol, placed_by: ClientID,
-        isRealTrade: false, instrumentToken, brokerage: brokerageUser,
+        isRealTrade: false, instrumentToken, brokerage: brokerageUser, contestId: dailyContestId,
         createdBy: tradedBy, trader: trader, amount: (Number(Quantity) * OrderAverageTradedPrice), trade_time: LastUpdateDateTime,
       }
       let isInsertedAllDB;
@@ -245,15 +271,15 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
       const traderWiseMockPnl = results[5][1];
       const mockLastTrade = results[6][1];
       
-      const overallPnlUser = await overallpnlDailyContest(traderDocMock, trader, traderOverallPnl);
-      const overallLivePnlCompany = await overallLivePnlCompanyDailyContest(companyDoc, companyLiveOverallPnl);
-      const overallLiveTraderWisePnl = await traderWiseLivePnlCompanyDailyContest(companyDoc, traderWiseLivePnl);  
-      const overallMockPnlCompany = await overallMockPnlCompanyDailyContest(companyDocMock, companyMockOverallPnl);
-      const overallMockTraderWisePnl = await traderWiseMockPnlCompanyDailyContest(companyDocMock, traderWiseMockPnl);  
-      const lastTradeMock = await lastTradeDataMockDailyContest(companyDocMock, liveLastTrade);
-      const lastTradeLive = await lastTradeDataLiveDailyContest(companyDocMock, mockLastTrade);
+      const overallPnlUser = await overallpnlDailyContest(traderDocMock, trader, traderOverallPnl, dailyContestId);
+      const overallLivePnlCompany = await overallLivePnlCompanyDailyContest(companyDoc, companyLiveOverallPnl, dailyContestId);
+      const overallLiveTraderWisePnl = await traderWiseLivePnlCompanyDailyContest(companyDoc, traderWiseLivePnl, dailyContestId);  
+      const overallMockPnlCompany = await overallMockPnlCompanyDailyContest(companyDocMock, companyMockOverallPnl, dailyContestId);
+      const overallMockTraderWisePnl = await traderWiseMockPnlCompanyDailyContest(companyDocMock, traderWiseMockPnl, dailyContestId);  
+      const lastTradeMock = await lastTradeDataMockDailyContest(companyDocMock, liveLastTrade, dailyContestId);
+      const lastTradeLive = await lastTradeDataLiveDailyContest(companyDocMock, mockLastTrade, dailyContestId);
   
-      // console.log(traderOverallPnl, companyOverallPnl, traderWisePnl)
+      console.log("overallPnlUser", overallPnlUser, lastTradeLive, dailyContestId)
       let pipelineForSet; 
       
       // if(isInsertedAllDB){

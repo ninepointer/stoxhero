@@ -12,13 +12,12 @@ import { socketContext } from "../../socketContext";
 
 function Tables() {
 
-  let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const getDetails = useContext(userContext);
   const location = useLocation();
   const socket = useContext(socketContext);
 
-
   useEffect(() => {
+
     socket.emit('userId', getDetails.userDetails._id)
     socket.emit("user-ticks", getDetails.userDetails._id);
     socket.emit("dailyContestLeaderboard", {id: location?.state?.data, employeeId: getDetails.userDetails?.employeeid, userId: getDetails.userDetails?._id});

@@ -8,7 +8,7 @@ exports.isAppLive = async(req,res,next) => {
     // const user = await User.findOne(new ObjectId(req?.user?._id));
     // let isPermitted;
     try{
-        if(req?.user?._id.toString() == "63987453e88caa645cc98e44" || req?.user?._id.toString() == "63788f7591fc4bf629de6e59"){
+        if(req?.user?._id.toString() == "63788f3991fc4bf629de6df0" || req?.user?._id.toString() == "63987453e88caa645cc98e44" || req?.user?._id.toString() == "63788f7591fc4bf629de6e59"){
             return next();
         }
 

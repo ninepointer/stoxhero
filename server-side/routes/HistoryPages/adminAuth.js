@@ -57,7 +57,7 @@ const Permission = require("../../models/User/permissionSchema");
 const {EarlySubscribedInstrument} = require("../../marketData/earlySubscribeInstrument")
 const {subscribeTokens} = require("../../marketData/kiteTicker");
 const {updateUserWallet} = require("../../controllers/internshipTradeController")
-const {saveMissedData, saveRetreiveData} = require("../../utils/insertData");
+const {saveMissedData, saveRetreiveData, saveDailyContestMissedData, saveNewRetreiveData} = require("../../utils/insertData");
 // const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
 // const {creditAmountToWallet} = require("../../controllers/dailyContestController");
 // const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
@@ -68,11 +68,10 @@ const MarginDetailLiveUser = require("../../models/marginUsed/infinityLiveUserMa
 const DailyContest = require("../../models/DailyContest/dailyContest")
 const TenxSubscription = require("../../models/TenXSubscription/TenXSubscriptionSchema");
 const InternBatch = require("../../models/Careers/internBatch")
-
+const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveCompany")
 
 
 router.get("/addFeildInTenx", async (req, res) => {
-  //todo-vijay - run this on sunday
   const updateResult = await TenxSubscription.updateMany(
     {}, // An empty filter matches all documents in the collection
     {
@@ -178,6 +177,114 @@ router.get("/collegeData", async (req, res) => {
   res.send(x)
 
 });
+
+router.get("/retreive", async (req, res) => {
+
+  const x = await RetreiveOrder.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          status: "COMPLETE",
+          order_timestamp: {
+            $gte: new Date("2023-08-25"),
+          },
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            transaction_type: "$transaction_type",
+            instrument_token: "$instrument_token",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$average_price",
+                "$quantity",
+              ],
+            },
+          },
+          quantity: {
+            $sum: "$quantity",
+          },
+        },
+    },
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          "_id.transaction_type": "Buy",
+        },
+    },
+  ])
+
+  res.send(x)
+
+});
+
+router.get("/livecontest", async (req, res) => {
+
+  const x = await DailyLiveContest.aggregate([
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          status: "COMPLETE",
+          trade_time: {
+            $gte: new Date("2023-08-25"),
+          },
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            buyOrSell: "$buyOrSell",
+            exchangeInstrumentToken: "$exchangeInstrumentToken",
+          },
+          amount: {
+            $sum: "$amount",
+          },
+          quantity: {
+            $sum: "$Quantity",
+          },
+        },
+    },
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          "_id.buyOrSell": "BUY",
+        },
+    },
+  ])
+
+  res.send(x)
+
+});
+
+
+//{contestId: null, symbol: "NIFTY23AUG18700PE", trade_time: {$gte: new Date("2023-08-28")}}
+
+
 
 router.get("/tenxUpdate", async (req, res) => {
 
@@ -662,7 +769,8 @@ router.get("/getMismatch", async (req, res) => {
 })
 
 router.get("/insertInRetreive", async (req, res) => {
-  await saveRetreiveData("NIFTY2360118700PE", 1730051, 10300, 1815175.00, 10800, "Sell", "2023-05-31", "31");
+  // await saveRetreiveData("NIFTY23AUG17800PE", 1730051, 10300, 1815175.00, 10800, "Sell", "2023-05-31", "31");
+  await saveNewRetreiveData("NIFTY23AUG18600PE", 3.25, 1700, "Buy", "2023-08-25", "25")
   res.send("ok")
 })
 
@@ -757,7 +865,9 @@ router.get("/data", async (req, res) => {
 
 
 router.get("/saveMissedData", async (req, res) => {
-  await saveMissedData();
+  // await saveMissedData();
+  await saveDailyContestMissedData();
+  
   res.send("ok")
 })
 
@@ -1220,7 +1330,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-08-18T00:00:00.000+00:00"
+  let expiryDate = "2023-08-25T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})

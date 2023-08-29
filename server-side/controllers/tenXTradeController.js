@@ -1654,10 +1654,12 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     },
     {
       $sort: {
-        npnl: -1,
+        payout: -1,
       },
     },
   ]
+
+
 
   let obj = {
     totalLiveUser: 0,
@@ -1668,6 +1670,16 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
   }
   const liveUser = await Subscription.aggregate(live)
   const expiredUser = await Subscription.aggregate(expired)
+
+  liveUser.sort((a, b) => {
+    if (a.npnl > 0 && b.npnl > 0) {
+      return b.tradingDays - a.tradingDays;
+    } else if (a.npnl <= 0 && b.npnl <= 0) {
+      return b.npnl - a.npnl;
+    } else {
+      return b.npnl - a.npnl;
+    }
+  });
 
   for(let elem of liveUser){
     // obj.totalRenewed += elem?.isRenew ? 1 : 0;
