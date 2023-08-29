@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 
 function OnGoingContests() {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [contest, setContest] = useState([]);
     const [ongoing, setOngoing] = useState([]);
     const [upcoming, setUpcoming] = useState([]);

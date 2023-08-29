@@ -14,7 +14,7 @@ import { Link} from "react-router-dom";
 const ActiveCampaigns = ({status}) => {
 const [applicationCount, setApplicationCount] = useState(0);
 const [activeCampaign,setActiveCampaign] = useState([]);
-let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
     let call1 = axios.get(`${baseUrl}api/v1/campaign/status/${status}`,{

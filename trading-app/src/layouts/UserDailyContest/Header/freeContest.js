@@ -28,7 +28,7 @@ import { Link } from "react-router-dom";
 import Payment from "../data/payment"
 
 function Header({ contest, socket, setIsInterested, showPay, setShowPay }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const initialInterestedCounts = contest.reduce((acc, elem) => {

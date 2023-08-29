@@ -29,7 +29,7 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import { Link } from "react-router-dom";
 
 function Header({ contest, showPay, setShowPay, isInterested, setIsInterested }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const [serverTime, setServerTime] = useState();
