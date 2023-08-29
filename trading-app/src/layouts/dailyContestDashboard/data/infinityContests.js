@@ -5,15 +5,11 @@ import MDButton from '../../../components/MDButton';
 import { Grid, CircularProgress, Divider } from '@mui/material';
 import MDTypography from '../../../components/MDTypography';
 import CachedIcon from '@mui/icons-material/Cached';
+import WinnerImage from '../../../assets/images/cup-image.png'
 
 import { Link } from "react-router-dom";
 import MismatchDetails from '../infinityContestComponent/mismatchReport';
-// import CachedIcon from '@mui/icons-material/Cached';
 
-// //data
-// import CompanySideContestDailyChart from './companySideContestDailyChart'
-// import DailyContestUsers from './dailyContestUsers'
-// import DailyPaidContestUsers from './dailyPaidContestUsers'
 
 export default function LabTabs({socket}) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -101,14 +97,15 @@ export default function LabTabs({socket}) {
   
   
     return (
-        <MDBox minWidth='100%'>
-            <Grid item xs={12} md={12} lg={12} p={1} boxShadow={2} minHeight='auto' minWidth='100%' style={{ backgroundColor: 'lightgrey' }} borderRadius={1} display='flex' justifyContent='center'>
+        <MDBox bgColor="dark" color="light" display='flex' justifyContent='center' flexDirection='column'  mb={0.5} borderRadius={10} minHeight='auto' width='100%'>
+            <Grid item xs={12} md={12} lg={12} p={0.5} boxShadow={2} minHeight='auto' minWidth='100%' style={{ backgroundColor: 'lightgrey', minWidth:'100%' }} borderRadius={1} display='flex' justifyContent='center'>
                 {!isLoading ?
                     <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
                         <CircularProgress color='info' />
                     </MDBox>
                     :
                     <>
+                        {liveContest.length != 0 ?
                         <MDBox display='flex' justifyContent='center' flexDirection='column' >
                             <MDBox bgColor='light' borderRadius={5} display='flex' justifyContent='center' mb={1}>
                                 <MDTypography color='dark' fontSize={15} fontWeight='bold'>Infinity Contests - Company Side Details</MDTypography>
@@ -277,8 +274,12 @@ export default function LabTabs({socket}) {
                             })}
 
                         </MDBox>
-                        
-
+                        :
+                        <MDBox style={{minHeight:"10vh", minWidth:'100%'}} border='1px solid white' borderRadius={5} display="flex" justifyContent="center" flexDirection="column" alignContent="center" alignItems="center">
+                            <img src={WinnerImage} width={50} height={50}/>
+                            <MDTypography color="dark" fontSize={15}>No Live Contest(s)</MDTypography>
+                        </MDBox>
+                        }
                     </>
                 }
             </Grid>

@@ -37,7 +37,7 @@ export default function XTSOverview({socket}) {
 
         <>
             <Grid container xs={12} md={12} lg={12} mt={1}>
-                <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{ backgroundColor: 'white' }} borderRadius={1}>
+                <Grid item boxShadow={2} minHeight='auto' minWidth='100%' style={{ backgroundColor: 'white' }} borderRadius={1}>
                     {!isLoading ?
                         <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
                             <CircularProgress color='info' />
@@ -46,24 +46,30 @@ export default function XTSOverview({socket}) {
                         <>
                             <Grid container xs={12} md={12} lg={12}>
                                 <Grid item p={2} xs={12} md={12} lg={12}>
-                                    <MDTypography fontSize={16} fontWeight='bold' color='dark'>XTS Overview</MDTypography>
+                                    <MDTypography fontSize={15} fontWeight='bold' color='dark'>XTS Overview</MDTypography>
                                     <Grid container spacing={.5} xs={12} md={12} lg={12} mt={1}>
-                                        <Grid item xs={4} md={4} lg={3}>
-                                            <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeData ?? 0 ? tradeData?.netAmount >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData?.netAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeData?.netAmount)) : "₹" + 0}</MDTypography>
+                                        <Grid item xs={4} md={4} lg={2.4}>
+                                            <MDTypography color='text' fontSize={12} fontWeight='bold' display='flex' justifyContent='center'>Gross P&L</MDTypography>
+                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeData ?? 0 ? tradeData?.netAmount >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData?.netAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeData?.netAmount)) : "₹" + 0}</MDTypography>
                                         </Grid>
-                                        <Grid item xs={4} md={4} lg={3}>
-                                            <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeData ?? 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.quantity)) : "₹" + 0}</MDTypography>
+                                        <Grid item xs={4} md={4} lg={2.4}>
+                                            <MDTypography color='text' fontSize={12} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
+                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeData ?? 0 ? (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.quantity)) :  0}</MDTypography>
                                         </Grid>
-                                        <Grid item xs={4} md={4} lg={3}>
-                                            <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Buy Amount</MDTypography>
-                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{tradeData ?? 0 ? (tradeData.buyAmount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.buyAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.buyAmount)) : "₹" + 0}</MDTypography>
+                                        <Grid item xs={4} md={4} lg={2.4}>
+                                            <MDTypography color='text' fontSize={12} fontWeight='bold' display='flex' justifyContent='center'>Total Lots</MDTypography>
+                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>
+                                                {/* {tradeData ?? 0 ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.quantity)) : "₹" + 0} */}
+                                                TBC
+                                            </MDTypography>
                                         </Grid>
-                                        <Grid item xs={4} md={4} lg={3}>
-                                            <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Sell Amount</MDTypography>
-                                            {/* <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeData ?? 0 ? new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.sellAmount) : 0}</MDTypography> */}
-                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{tradeData ?? 0 ? (tradeData.sellAmount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.sellAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.sellAmount)) : "₹" + 0}</MDTypography>
+                                        <Grid item xs={4} md={4} lg={2.4}>
+                                            <MDTypography color='text' fontSize={12} fontWeight='bold' display='flex' justifyContent='center'>Buy Amount</MDTypography>
+                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeData ?? 0 ? (tradeData.buyAmount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.buyAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.buyAmount)) : "₹" + 0}</MDTypography>
+                                        </Grid>
+                                        <Grid item xs={4} md={4} lg={2.4}>
+                                            <MDTypography color='text' fontSize={12} fontWeight='bold' display='flex' justifyContent='center'>Sell Amount</MDTypography>
+                                            <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeData ?? 0 ? (tradeData.sellAmount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.sellAmount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeData.sellAmount)) : "₹" + 0}</MDTypography>
 
                                         </Grid>
                                     </Grid>
