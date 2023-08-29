@@ -23,6 +23,7 @@ import backgroundImage from "../../../assets/images/trading.jpg";
 import User from "../User";
 import Roles from "../Roles";
 import SignedUpUsers from "../SignedUpUsers"
+import DeactivateUser from "../deactivateUser";
 
 
 
@@ -110,12 +111,21 @@ function UserHeader({ children }) {
                     <PersonIcon fontSize="small" sx={{ mt: -0.25}}/>
                      }
                 />
+
+                <Tab
+                  label="Deactivated User"
+                  icon={
+                    <PersonIcon fontSize="small" sx={{ mt: -0.25 }} />
+                  }
+                />
              
               </Tabs>
             </AppBar>
             <TabPanel value={tabValue} index={0}><User/> </TabPanel>
             <TabPanel value={tabValue} index={1}><SignedUpUsers /> </TabPanel>
             <TabPanel value={tabValue} index={2}><Roles/> </TabPanel>
+            <TabPanel value={tabValue} index={3}><DeactivateUser/> </TabPanel>
+
             {/* <TabPaneltwo/> */}
           </Grid>
         </Grid>

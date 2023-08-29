@@ -55,9 +55,17 @@ try {
 
 exports.generateOTP = async(req, res, next)=>{
   // console.log(req.body)
+
   const{ firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
   } = req.body
 
+  const inactiveUser = await User.findOne({ $or: [{ email: email }, { mobile: mobile }], status: "Inactive" });
+  if (inactiveUser) {
+    return res.status(400).json({
+      info: "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      status: 'error'
+    });
+  }
   let mobile_otp = otpGenerator.generate(6, {digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false});
   try {
       const data = await CareerApplication.create({
@@ -87,7 +95,7 @@ exports.generateOTP = async(req, res, next)=>{
 
 exports.confirmOTP = async(req, res, next)=>{
   
-  const{ firstName, lastName, email, mobile, dob, collegeName, linkedInProfileLink, priorTradingExperience, source, career, campaignCode, mobile_otp
+  const{ firstName, lastName, email, mobile, campaignCode, mobile_otp
   } = req.body
   // console.log(req.body)
   const correctOTP = await CareerApplication.findOne({$or : [{mobile: mobile}], mobile_otp: mobile_otp})

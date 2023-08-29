@@ -148,7 +148,11 @@ function Basic() {
         //console.log(data);
         if(data.status === 422 || data.error || !data){
             // window.alert(data.error);
-            setInvalidDetail(`Email or Password is incorrect`);
+            if(data.error === "deactivated"){
+              setInvalidDetail(data?.message)
+            } else{
+              setInvalidDetail(`Email or Password is incorrect`);
+            }
         }else{
 
             // this function is extracting data of user who is logged in
@@ -193,7 +197,11 @@ function Basic() {
         //console.log(data);
         if(data.status === 422 || data.error || !data){
             // window.alert(data.error);
-            setInvalidDetail(`Mobile number incorrect`);
+            if(data.error === "deactivated"){
+              setInvalidDetail(data?.message)
+            } else{
+              setInvalidDetail(`Mobile number incorrect`);
+            }
 
         }else{
           // console.log(res.status);
@@ -395,6 +403,12 @@ function Basic() {
           <MDBox mb={2}>
             <MDInput type="text" label="Mobile Number" onChange={handleMobileChange} fullWidth />
           </MDBox>
+          <MDBox mt={3} mb={1} textAlign="center">
+              <MDTypography variant="button" color={invalidDetail && "error"}>
+              {invalidDetail && invalidDetail}
+
+              </MDTypography>
+            </MDBox>
           {!otpGen&&<MDButton variant="gradient" color="dark" onClick={phoneLogin} fullWidth>
           Send OTP
         </MDButton>}

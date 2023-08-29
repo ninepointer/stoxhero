@@ -338,7 +338,7 @@ const CareerForm = () => {
 
                     <Grid item xs={12} md={6} xl={6}>
                       <FormControl sx={{width: "100%" }}>
-                        <InputLabel id="demo-simple-select-autowidth-label">From where you hear about us ? *</InputLabel>
+                        <InputLabel id="demo-simple-select-autowidth-label">From where did you hear about us ? *</InputLabel>
                         <Select
                         labelId="demo-simple-select-autowidth-label"
                         id="demo-simple-select-autowidth"
@@ -365,7 +365,7 @@ const CareerForm = () => {
                         required
                         disabled={otpGenerated}
                         id="outlined-required"
-                        label="LinedIn Profile Link"
+                        label="LinkedIn Profile Link"
                         type="text"
                         fullWidth
                         onChange={(e)=>{setDetails(prevState => ({...prevState, linkedInProfileLink: e.target.value}))}}
