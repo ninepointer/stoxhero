@@ -132,7 +132,7 @@ function OnGoingContests() {
                                                                         </MDTypography>
                                                                     </Grid>
                                                                     <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                        <MDButton size='small' onClick={() => { navigate(`/contest`) }}><MDTypography fontSize={10} fontWeight='bold'>Join Now</MDTypography></MDButton>
+                                                                        <MDButton size='small' onClick={() => { navigate(`/contests`) }}><MDTypography fontSize={10} fontWeight='bold'>Join Now</MDTypography></MDButton>
                                                                     </Grid>
                                                                 </Grid>
                                                                 <style>
