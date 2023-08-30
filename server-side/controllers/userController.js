@@ -284,7 +284,7 @@ exports.deactivateUser = async (req, res) => {
     await client.del(`${deactivatedUser.toString()}authenticatedUser`);
     console.log(deactivatedUser)
     if(isMail){
-      // if (process.env.PROD == 'true') {
+      if (process.env.PROD == 'true') {
         sendMail(email, 'Account Deactivated - StoxHero', `
         <!DOCTYPE html>
         <html>
@@ -451,7 +451,7 @@ exports.deactivateUser = async (req, res) => {
         </body>
         </html>
         `);
-      // }
+      }
     }
 
     // console.log(contest)
