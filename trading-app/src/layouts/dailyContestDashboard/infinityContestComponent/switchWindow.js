@@ -35,6 +35,7 @@ function SwitchWindow(props) {
         { Header: "Abs.Running Lots", accessor: "absRunningLots", width: "12.5%", align: "center" },
         // { Header: "Lots Used", accessor: "lotUsed", width: "12.5%", align: "center" },
         // { Header: "Brokerage", accessor: "brokerage", width: "12.5%", align: "center" },
+        { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
         { Header: "Mock/Live", accessor: "mockLive", width: "12.5%", align: "center" },
         
     ]
@@ -61,7 +62,7 @@ function SwitchWindow(props) {
 
     useEffect(() => {
 
-        axios.get(`${baseUrl}api/v1/dailycontest/live/traderWiseCompany/${props.id}`, {withCredentials: true})
+        axios.get(`${baseUrl}api/v1/dailycontest/live/singleswitchcontest/${props.id}`, {withCredentials: true})
             .then((res) => {
                 setAllTrade(res.data.data);
             }).catch((err) => {
@@ -101,6 +102,7 @@ function SwitchWindow(props) {
                     noOfTrade: allTrade[i].trades,
                     userId: allTrade[i].traderId,
                     algoName: allTrade[i].algoName,
+                    isLive: allTrade[i].isLive,
                     
                 })
             }
@@ -199,12 +201,13 @@ function SwitchWindow(props) {
                     {((subelem.totalPnl) - (subelem.brokerage)) > 0.00 ? "+₹" + (((subelem.totalPnl) - (subelem.brokerage)).toFixed(2)) : "-₹" + ((-((subelem.totalPnl) - (subelem.brokerage))).toFixed(2))}
                 </MDTypography>
             );
-            //  obj.view = (
-            //   <LiveViewTradeDetail userId={subelem.userId}/>
-            // );
-            // obj.orders = (
-            //   <LiveTraderwiseOrders userId={subelem.userId}/>
-            // );
+
+            obj.mockLive = (
+                <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
+                    <Switch checked={subelem.isLive} onChange={() => {}} />
+                </MDTypography>
+            );
+
 
             rows.push(obj);
         })

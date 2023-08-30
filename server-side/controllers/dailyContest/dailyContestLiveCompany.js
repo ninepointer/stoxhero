@@ -407,7 +407,10 @@ exports.switchWindowPnlData = async(req, res, next)=>{
 
   for(elem of pnlDetails){
     for(subelem of contest.participants){
-      // if()
+      if(elem.traderId.toString() === subelem.userId.toString()){
+        elem.isLive = subelem.isLive ? true : false;
+        console.log(elem)
+      }
     }
   }
   
