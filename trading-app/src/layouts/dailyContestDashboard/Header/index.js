@@ -18,45 +18,12 @@ import XTSOverview from '../infinityContestComponent/xtsOverview';
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
-//   const [trackEvent, setTrackEvent] = useState({});
-//   const [marketData, setMarketData] = useState([]);
-//   const [tradeData, setTradeData] = useState([]);
-//   const [dailyContestUsers, setDailyContestUsers] = useState();
   const [dailyAllContestUsers, setDailyAllContestUsers] = useState();
   const [completedContest,setCompletedContest] = useState();
-//   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
-//   const [tradeDataThisMonth, setTradeDataThisMonth] = useState([]);
-//   const [tradeDataLifetime, setTradeDataLifetime] = useState([]);
-//   const [liveTraderCount, setLiveTraderCount] = useState(0);
-//   const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
-//   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
-//   const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-//   let totalTransactionCost = 0;
-//   let totalGrossPnl = 0;
-//   let totalRunningLots = 0;
-//   let totalTurnover = 0;
-//   let totalLots = 0;
-//   let totalTrades = 0;
-//   let totalAbsRunningLots = 0;
+
 
   useEffect(()=>{
-    // axios.get(`${baseUrl}api/v1/getliveprice`)
-    // .then((res) => {
-    //     setMarketData(res.data);
-    // }).catch((err) => {
-    //     return new Error(err);
-    // })
-
-    // socket.on('tick', (data) => {
-    //   setMarketData(prevInstruments => {
-    //     const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-    //     data.forEach(instrument => {
-    //       instrumentMap.set(instrument.instrument_token, instrument);
-    //     });
-    //     return Array.from(instrumentMap.values());
-    //   });
-    // })
 
     axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`, {withCredentials: true})
     .then((res) => {
@@ -90,102 +57,14 @@ export default function LabTabs({socket}) {
     
   },[])
 
-//   useEffect(()=>{
-//     socket.on('updatePnl', (data)=>{
-//       setTimeout(()=>{
-//         setTrackEvent(data);
-//       })
-//     })
-//   }, [])
-
-//   useEffect(()=>{
-//     console.log("Loading: ",isLoading)
-//     setIsLoading(true)
-//     axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnltoday`, {withCredentials: true})
-//     .then((res) => {
-//         setTradeData(res.data.data); 
-//     }).catch((err) => {
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-//     console.log("Loading: ",isLoading)
-//     axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercounttoday`, {withCredentials: true})
-//     .then((res) => {
-//         setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
-//         setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
-//     }).catch((err) => {
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-
-//     axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnlyesterday`, {withCredentials: true})
-//     .then((res) => {
-//         setTradeDataYesterday(res?.data?.data);
-//     }).catch((err) => {
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-
-//     axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnlthismonth`, {withCredentials: true})
-//     .then((res) => {
-//         setTradeDataThisMonth(res?.data?.data[0]);
-//     }).catch((err) => {
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-
-//     axios.get(`${baseUrl}api/v1/dailycontest/trade/overalltraderpnllifetime`, {withCredentials: true})
-//     .then((res) => {
-//         setTradeDataLifetime(res?.data?.data[0]);
-//     }).catch((err) => {
-//         setIsLoading(false)
-//         return new Error(err);
-//     })
-
-//     axios.get(`${baseUrl}api/v1/dailycontest/trade/liveandtotaltradercountyesterday`, {withCredentials: true})
-//     .then((res) => {
-//         setNotLiveTraderCountYesterday(res?.data?.data[0]?.zeroLotsTraderCount)
-//         setLiveTraderCountYesterday(res?.data?.data[0]?.nonZeroLotsTraderCount)
-//         setTimeout(()=>{
-//             setIsLoading(false)
-//         },500)    
-//     }).catch((err) => {
-//         setIsLoading(false)
-//         return new Error(err);
-//     }) 
-//   }, [trackEvent])
-
-
-
-//   tradeData.map((subelem, index)=>{
-//     let obj = {};
-//     totalRunningLots += Number(subelem?.lots)
-//     totalAbsRunningLots += Math.abs(Number(subelem?.lots))
-//     totalTransactionCost += Number(subelem?.brokerage);
-//     totalTurnover += Number(Math.abs(subelem?.turnover));
-//     totalLots += Number(Math.abs(subelem?.totallots))
-//     totalTrades += Number(subelem?.trades)
-
-//     let liveDetail = marketData.filter((elem)=>{
-//         return (elem !== undefined && (elem?.instrument_token == subelem?._id?.instrumentToken || elem?.instrument_token == subelem?._id?.exchangeInstrumentToken));
-//     })
-//     let updatedValue = (subelem?.amount+(subelem?.lots)*liveDetail[0]?.last_price);
-//     totalGrossPnl += updatedValue;
-
-//   })
-
-//   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
-//   const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
-//   const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
-
   return (
     <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} display='flex' flexDirection='column' justifyContent='center' alignItems='center' minHeight='auto' maxWidth='100%'>
         <MDBox display='flex' justifyContent='left'>
             <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>Contest Dashboard</MDTypography>
         </MDBox>
 
-        <Grid container xs={12} md={12} lg={12} mb={1}>
-            <MDBox>
+        <Grid container xs={12} md={12} lg={12}>
+            <MDBox minWidth='100%'>
                 <LiveContest socket={socket}/>
             </MDBox>
         </Grid>

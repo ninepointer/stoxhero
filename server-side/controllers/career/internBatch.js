@@ -5,8 +5,11 @@ const moment = require('moment');
 const GroupDiscussion = require('../../models/Careers/groupDiscussion');
 const CareerApplication = require("../../models/Careers/careerApplicationSchema");
 const Portfolio = require('../../models/userPortfolio/UserPortfolio');
-const InternshipOrders = require('../../models/mock-trade/internshipTrade')
-
+const InternshipOrders = require('../../models/mock-trade/internshipTrade');
+const TradingHoliday = require('../../models/TradingHolidays/tradingHolidays');
+const fs = require('fs');
+const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+const path = require('path');
 
 exports.createBatch = async(req, res, next)=>{
     // console.log(req.body) // batchID
@@ -888,12 +891,156 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     return res.json({status: 'success', active: activeUsers, inactive: inactiveUsers});
   }
   
+exports.getEligibleInternshipBatch = async(req,res, next) => {
+  try{
+    const user = await User.findById(req.user._id)
+    .populate({
+        path: 'internshipBatch',
+        select: 'batchName career batchStartDate batchEndDate attendancePercentage',  // select only 'batchName' and 'career' fields from 'internshipBatch'
+        populate: {
+            path: 'career',
+            select: 'listingType'  // select only 'listingType' from 'career'
+        }
+    });
+    if(!user?.internshipBatch || user?.internshipBatch == 0){
+      return res.status(200).json({data:{}, result:0, message:'No eligible batches'});
+    }
 
-  
+    const batches = user?.internshipBatch;
+    const internshipBatches = batches.filter(batch => 
+      batch.career.listingType === 'Job' && 
+      batch.batchEndDate <= new Date()
+    );
+    if(internshipBatches.length == 0){
+      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+    }
+    const lastBatch = internshipBatches[internshipBatches.length -1];
+    const attendanceDocs = await InternshipOrders.aggregate([
+      {
+        $match: {
+          status: "COMPLETE",
+          batch: new ObjectId(lastBatch._id),
+          trader: new ObjectId(req.user._id)
+        },
+      },
+      {
+        $group: {
+          _id:0,
+          tradingDays: {
+            $addToSet: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$trade_time",
+              },
+            },
+          },
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          tradingDays: {
+            $size: "$tradingDays",
+          },
+        },
+      },
+    ]);
+    
+    if(attendanceDocs.length == 0){
+      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+    }
+    const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate);
+
+    if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
+      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+    }
+    
+    return res.status(200).json({
+      status:'success',
+      message:'eligible for certificate',
+      batch: lastBatch?._id
+    });
+
+  }catch(e){
+    console.log(e);
+    res.status(500).json({status:'error', message:'Something went wrong.'})
+  }
+}
+
+exports.downloadCertificate = async (req,res, next) => {
+  try {
+    // Load the existing PDF into pdf-lib
+    const{name} = req.body;
+    const start = '25th July 2023'
+    const end = '25th August 2023'
+    const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
+    console.log(existingPdfBytes);
+    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+    //Get the first page of the document
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+
+    // Define the coordinates and styling for the text you want to add
+    // Note: You'll have to adjust the coordinates based on where you want to place the text in your PDF
+    firstPage.drawText(name, {
+        x: 300,
+        y: 362,
+        size: 16
+    });
+    firstPage.drawText(start, {
+        x: 450,
+        y: 342,
+        size: 14
+    });
+    firstPage.drawText(end, {
+        x: 620,
+        y: 342,
+        size: 14
+    });
+    // console.log(firstPage);
+    // Serialize the modified PDF back to bytes
+    const pdfBytes = await pdfDoc.save();
+    console.log('file', pdfBytes);
+    const filePath = path.join(__dirname, '/certificateout.pdf');
+    fs.writeFileSync(filePath, pdfBytes);
+    res.download(path.join(__dirname, '/certificateout.pdf'));
+    // Send the PDF as a response
+    // res.setHeader('Content-Disposition', 'attachment; filename=certificate.pdf');
+    // res.setHeader('Content-Type', 'application/pdf');
+    // res.send(pdfBytes);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error generating certificate: ' + err.message);
+}
+}
 
 
 
 
+async function countTradingDays(startDate) {
+  let start = moment(startDate);
+  let end = moment();
+
+  let count = 0;
+
+  // Fetch all holidays from DB
+  const holidays = await TradingHoliday.find({
+      holidayDate: { $gte: start.toDate(), $lte: end.toDate() },
+      isDeleted: false,
+  });
+  // console.log('holidays', holidays.length);
+
+  // Convert all holiday dates to string format for easy comparison
+  const holidayDates = holidays.map(h => moment(h.holidayDate).format('YYYY-MM-DD'));
+
+  for (let m = moment(start); m.isBefore(end); m.add(1, 'days')) {
+      if (m.isoWeekday() <= 5 && !holidayDates.includes(m.format('YYYY-MM-DD'))) { // Monday to Friday are considered trading days
+          count++;
+      }
+  }
+
+  return count;
+}
 
 
 
