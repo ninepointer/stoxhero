@@ -24,6 +24,7 @@ import { socketContext } from "../../../socketContext";
 import LiveOverallCompantPNL from "../infinityContestComponent/instrumentPosition";
 import LiveTraderwiseCompantPNL from "../infinityContestComponent/traderwisePosition";
 import MockTraderwiseCompantPNL from "../infinityContestComponent/traderWisePositionMock";
+import SwitchWindow from "../infinityContestComponent/switchWindow";
 // import instrumentdata from "../data/mismatch"
 // import { TextField } from "@mui/material";
 
@@ -137,6 +138,7 @@ function TraderwiseTraderPNL() {
           <LiveTraderwiseCompantPNL socket={socket} id={contestData?._id} />
           <MockTraderwiseCompantPNL socket={socket} id={contestData?._id} />
           <LiveOverallCompantPNL socket={socket} id={contestData?._id} />
+          <SwitchWindow id={contestData?._id} />
         </Card>
         </MDBox>
 

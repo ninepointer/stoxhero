@@ -13,7 +13,7 @@ const emailService = require("../utils/emailService")
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const { currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
+        const { liveThreshold, currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
             maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType } = req.body;
 
@@ -29,7 +29,7 @@ exports.createContest = async (req, res) => {
         const contest = await Contest.create({
             maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold
         });
 
         // console.log(contest)
@@ -575,7 +575,6 @@ exports.getCompletedContests = async (req, res) => {
     }
 };
 
-
 // Controller for getting completed contests
 exports.getCompletedCollegeContests = async (req, res) => {
     const userId = req.user._id;
@@ -829,18 +828,16 @@ exports.registerUserToContest = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ status: "error", message: "Invalid contest ID or user ID" });
         }
+
         const result = await Contest.findByIdAndUpdate(
             id,
             {
                 $addToSet: {
                     interestedUsers: {
-                        $each: [
-                            {
-                                userId: userId,
-                                registeredOn: new Date(),
-                                status: 'Joined',
-                            },
-                        ],
+                        userId: userId,
+                        registeredOn: new Date(),
+                        status: 'Joined',
+                        isLive: false // Default value, will be updated later
                     },
                 },
             },
@@ -982,8 +979,6 @@ exports.participateUsers = async (req, res) => {
             return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
         }
 
-
-
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
@@ -992,15 +987,59 @@ exports.participateUsers = async (req, res) => {
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
-        const result = await Contest.findByIdAndUpdate(
-            id,
-            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
 
+        const noOfContest = await DailyContestMockUser.aggregate([
+            {
+                $match:
+                {
+                    trader: new ObjectId(
+                        userId
+                    ),
+                    status: "COMPLETE",
+                },
+            },
+            {
+                $group:
+                {
+                    _id: {
+                        contestId: "$contestId",
+                    },
+                },
+            },
+            {
+                $count: "noOfContest",
+            }
+        ])
+
+        const result = await Contest.findOne({ _id: new ObjectId(contestId) });
+
+        
         if (!result) {
             return res.status(404).json({ status: "error", message: "Something went wrong." });
         }
+
+        let obj = {
+            userId: userId,
+            participatedOn: new Date(),
+        }
+        // Now update the isLive field based on the liveThreshold value
+        if ((noOfContest[0]?.noOfContest < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+            obj.isLive = true;
+            console.log("in if")
+        } else {
+            console.log("in else")
+            obj.isLive = false;
+        }
+
+        result.participants.push(obj);
+
+
+
+
+        console.log(result)
+        // Save the updated document
+        await result.save();
+
 
         res.status(200).json({
             status: "success",
@@ -1300,11 +1339,52 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
-        const result = await Contest.findByIdAndUpdate(
-            contestId,
-            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
+        const noOfContest = await DailyContestMockUser.aggregate([
+            {
+                $match:
+                {
+                    trader: new ObjectId(
+                        userId
+                    ),
+                    status: "COMPLETE",
+                },
+            },
+            {
+                $group:
+                {
+                    _id: {
+                        contestId: "$contestId",
+                    },
+                },
+            },
+            {
+                $count: "noOfContest",
+            }
+        ])
+
+        const result = await Contest.findOne({ _id: new ObjectId(contestId) });
+
+        let obj = {
+            userId: userId,
+            participatedOn: new Date(),
+        }
+        // Now update the isLive field based on the liveThreshold value
+        if ((noOfContest[0]?.noOfContest < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+            obj.isLive = true;
+            console.log("in if")
+        } else {
+            console.log("in else")
+            obj.isLive = false;
+        }
+
+        result.participants.push(obj);
+
+
+
+
+        console.log(result)
+        // Save the updated document
+        await result.save();
 
 
         wallet.transactions = [...wallet.transactions, {

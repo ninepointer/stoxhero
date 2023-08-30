@@ -307,7 +307,111 @@ exports.traderLiveComapny = async(req, res, next)=>{
     },
     { $sort: { _id: -1 } },
   ])
-    res.status(201).json({message: 'Live Trader Data Company.', data: pnlDetails});
+  
+  res.status(201).json({message: 'Live Trader Data Company.', data: pnlDetails});
+}
+
+exports.switchWindowPnlData = async(req, res, next)=>{
+  let {id} = req.params;  
+  let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);  
+    
+  const contest = await DailyContest.findOne({_id: new ObjectId(id)});
+  let pnlDetails = await DailyContestLiveCompany.aggregate([
+    {
+      $match: {
+        contestId: new ObjectId(id)
+      },
+    },
+    {
+      $lookup: {
+        from: 'algo-tradings',
+        localField: 'algoBox',
+        foreignField: '_id',
+        as: 'algoBox'
+      }
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $match: {
+        trade_time: {
+          $gte: today
+        },
+        status: "COMPLETE",
+        "algoBox.isDefault": true
+      },
+    },
+    {
+      $group:
+      {
+        _id:
+        {
+          "traderId": "$trader",
+          "traderName": {
+            $arrayElemAt: ["$user.name", 0]
+          },
+          "symbol": "$instrumentToken",
+          "exchangeInstrumentToken": "$exchangeInstrumentToken",
+          "algoId": {
+            $arrayElemAt: ["$algoBox._id", 0]
+          },
+          "algoName": {
+            $arrayElemAt: ["$algoBox.algoName", 0]
+          }
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] }
+        },
+        brokerage: {
+          $sum: { $toDouble: "$brokerage" }
+        },
+        lots: {
+          $sum: { $toInt: "$Quantity" }
+        },
+        trades: {
+          $count: {}
+        },
+        lotUsed: {
+          $sum: { $abs: { $toInt: "$Quantity" } }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        traderId: "$_id.traderId",
+        traderName: "$_id.traderName",
+        symbol: "$_id.symbol",
+        exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+        algoId: "$_id.algoId",
+        algoName: "$_id.algoName",
+        amount: 1,
+        brokerage: 1,
+        lots: 1,
+        trades: 1,
+        lotUsed: 1
+
+      }
+    },
+    { $sort: { _id: -1 } },
+  ])
+
+  for(elem of pnlDetails){
+    for(subelem of contest.participants){
+      // if()
+    }
+  }
+  
+  res.status(201).json({message: 'Live Trader Data Company.', data: pnlDetails});
 }
 
 exports.pnlTraderCompany = async(req, res, next)=>{
@@ -365,191 +469,6 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
 
 
 }
-
-// exports.overallPnlBatchWiseLive = async (req, res, next) => {
-//   let date = new Date();
-//   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//   todayDate = todayDate + "T00:00:00.000Z";
-//   const today = new Date(todayDate); 
-//   const batchName = req.params.batchname;
-
-//   const pipeline = [
-//     {
-//       $lookup: {
-//         from: "user-personal-details",
-//         localField: "trader",
-//         foreignField: "_id",
-//         as: "userDetails",
-//       },
-//     },
-//     {
-//       $project:
-//       {
-//         symbol: 1,
-//         Product: 1,
-//         trade_time: 1,
-//         status: 1,
-//         instrumentToken: 1,
-//         exchangeInstrumentToken: 1,
-//         amount: 1,
-//         buyOrSell: 1,
-//         Quantity: 1,
-//         brokerage: 1,
-//         average_price: 1,
-//         cohort: {
-//           $arrayElemAt: [
-//             "$userDetails.cohort",
-//             0,
-//           ],
-//         },
-//       },
-//     },
-//     {
-//       $match: {
-//         trade_time: {
-//           $gte: today,
-//         },
-//         status: "COMPLETE",
-//         cohort: batchName,
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: {
-//           symbol: "$symbol",
-//           product: "$Product",
-//           instrumentToken: "$instrumentToken",
-//           exchangeInstrumentToken: "$exchangeInstrumentToken",
-//         },
-//         amount: {
-//           $sum: {
-//             $multiply: ["$amount", -1],
-//           },
-//         },
-//         brokerage: {
-//           $sum: {
-//             $toDouble: "$brokerage",
-//           },
-//         },
-//         lots: {
-//           $sum: {
-//             $toInt: "$Quantity",
-//           },
-//         },
-//         lastaverageprice: {
-//           $last: "$average_price",
-//         },
-//       },
-//     },
-//     {
-//       $sort: {
-//         _id: -1,
-//       },
-//     },
-//   ]
-
-//   let x = await DailyContestLiveCompany.aggregate(pipeline)
-//   res.status(201).json({message: "data received", data: x});
-// }
-
-// exports.traderwiseBatchLive = async (req, res, next) => {
-//   let date = new Date();
-//   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//   todayDate = todayDate + "T00:00:00.000Z";
-//   const today = new Date(todayDate); 
-//   const batchName = req.params.batchname;
-
-//   const pipeline = [
-//     {
-//       $lookup: {
-//         from: "user-personal-details",
-//         localField: "trader",
-//         foreignField: "_id",
-//         as: "userDetails",
-//       },
-//     },
-//     {
-//       $project: {
-//         userId: {
-//           $arrayElemAt: [
-//             "$userDetails._id",
-//             0,
-//           ],
-//         },
-//         createdBy: {
-//           $concat: [
-//             { $arrayElemAt: ["$userDetails.first_name", 0] },
-//             " ",
-//             { $arrayElemAt: ["$userDetails.last_name", 0] }
-//           ]
-//         },
-//         trade_time: 1,
-//         status: 1,
-//         traderName: 1,
-//         instrumentToken: 1,
-//         exchangeInstrumentToken: 1,
-//         amount: 1,
-//         Quantity: 1,
-//         brokerage: 1,
-//         cohort: {
-//           $arrayElemAt: ["$userDetails.cohort", 0],
-//         },
-//       },
-//     },
-//     {
-//       $match: {
-//         trade_time: {
-//           $gte: today,
-//         },
-//         status: "COMPLETE",
-//         cohort: batchName,
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: {
-//           traderId: "$userId",
-//           traderName: "$createdBy",
-//           symbol: "$instrumentToken",
-//           exchangeInstrumentToken: "$exchangeInstrumentToken"
-//         },
-//         amount: {
-//           $sum: {
-//             $multiply: ["$amount", -1],
-//           },
-//         },
-//         brokerage: {
-//           $sum: {
-//             $toDouble: "$brokerage",
-//           },
-//         },
-//         lots: {
-//           $sum: {
-//             $toInt: "$Quantity",
-//           },
-//         },
-//         trades: {
-//           $count: {},
-//         },
-//         lotUsed: {
-//           $sum: {
-//             $abs: {
-//               $toInt: "$Quantity",
-//             },
-//           },
-//         },
-//       },
-//     },
-//     {
-//       $sort: {
-//         _id: -1,
-//       },
-//     },
-//   ]
-
-//   let x = await DailyContestLiveCompany.aggregate(pipeline)
-//   res.status(201).json({message: "data received", data: x});
-// }
 
 exports.mockLiveTotalTradersCountLiveSide = async (req, res, next) => {
   let date = new Date();

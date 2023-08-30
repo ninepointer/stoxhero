@@ -45,6 +45,10 @@ const contestSchema = new Schema({
         type:Number,
         default: 0
     },
+    liveThreshold:{
+        type:Number,
+        // default: 0
+    },
     payoutPercentage:{
         type: Number,
         // required: true,
@@ -92,7 +96,8 @@ const contestSchema = new Schema({
     participants:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         participatedOn:{type:Date},
-        payout: {type: Number}
+        payout: {type: Number},
+        isLive: {type: Boolean}
     }],
     maxParticipants:{
         type:Number,
