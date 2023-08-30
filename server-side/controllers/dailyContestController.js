@@ -15,17 +15,7 @@ exports.createContest = async (req, res) => {
     try {
         const { currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex } = req.body;
-        // console.log(req.body)
-
-        // const getContest = await Contest.findOne({collegeCode: collegeCode});
-        // if(getContest?.collegeCode){
-        //     return res.status(500).json({
-        //         status:'error',
-        //         message: "College Code is already exist.",
-
-        //     });
-        // }
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -37,7 +27,7 @@ exports.createContest = async (req, res) => {
         }
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
+            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
             contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus
         });
@@ -702,6 +692,100 @@ exports.removeAllowedUser = async (req, res) => {
     }
 };
 
+exports.getRewards = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const contest = await Contest.findById(id);
+        if (!contest) {
+            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+        }
+        res.status(200).json({ status: 'success', message: 'rewards fetched', data: contest.rewards });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+}
+
+exports.addReward = async (req, res, next) => {
+    const { id } = req.params;
+    const { rankStart, rankEnd, prize } = req.body;
+    if (rankStart > rankEnd) {
+        return res.status(400).json({ status: 'error', message: 'Start Rank should be less than equal to end Rank' });
+    }
+    try {
+        const contest = await Contest.findById(id);
+        if (!contest) {
+            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+        }
+        for (let reward of contest.rewards) {
+            if (contest.rewards.length > 0) {
+                if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
+                    (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
+                    return res.status(400).json({ status: 'error', message: 'Ranks overlap with existing rewards' });
+                }
+            }
+        }
+        contest.rewards.push({ rankStart, rankEnd, prize });
+        await contest.save({ validateBeforeSave: false });
+        res.status(201).json({ status: 'success', message: 'Reward added' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+
+}
+
+exports.editReward = async (req, res) => {
+    const { rewardId, id } = req.params;
+    const { rankStart, rankEnd, prize } = req.body;
+
+    if (rankStart > rankEnd) {
+        return res.status(400).json({ status: 'error', message: 'rankStart must be less than rankEnd' });
+    }
+
+    try {
+        const contest = await Contest.findById(id);
+
+        if (!contest) {
+            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+        }
+
+        const rewardIndex = contest.rewards.findIndex(r => r._id.toString() === rewardId);
+
+        if (rewardIndex === -1) {
+            return res.status(404).json({ status: 'error', message: 'Reward not found' });
+        }
+
+        // Check for overlap with other rewards, excluding the one being edited
+        for (const [index, reward] of contest.rewards.entries()) {
+            if (index === rewardIndex) continue; // Skip the current reward being edited
+            if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
+                (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
+                return res.status(400).json({ status: 'error', message: 'Ranks overlap with existing rewards' });
+            }
+        }
+
+        contest.rewards[rewardIndex] = { rankStart, rankEnd, prize };
+        await contest.save();
+
+        res.status(200).json({ status: 'success', message: 'Reward updated successfully' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+}
 
 // Controller for getting users
 exports.getUsers = async (req, res) => {

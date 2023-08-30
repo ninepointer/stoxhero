@@ -281,6 +281,7 @@ async function singleProcess() {
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
 
     //  TODO toggle
+    app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
     app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
     app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
     app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));

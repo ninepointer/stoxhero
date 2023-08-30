@@ -31,6 +31,8 @@ import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 // import User from './users';
 import PotentialUser from "./data/potentialUsers"
 import Shared from "./data/shared";
+import CreateRewards from './data/reward/createReward';
+import ContestRewards from './data/reward/contestReward';
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -96,6 +98,7 @@ function Index() {
     isFinNifty: "" || contest?.isFinNifty,
     isAllIndex: "" || contest?.isAllIndex,
     currentLiveStatus: "" || contest?.currentLiveStatus,
+    payoutType: "" || contest?.payoutType,
 
     registeredUsers: {
       userId: "",
@@ -427,6 +430,41 @@ function Index() {
                   </FormControl>
                 </Grid>
 
+                <Grid item xs={12} md={3} xl={3}>
+                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
+                    <InputLabel id="demo-multiple-name-label">Payout Type</InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name='payoutType'
+                      disabled={((isSubmitted || contest) && (!editing || saving))}
+                      // defaultValue={id ? portfolios?.portfolio : ''}
+                      value={formState?.payoutType}
+                      // onChange={handleTypeChange}
+                      onChange={(e) => {
+                        setFormState(prevState => ({
+                          ...prevState,
+                          payoutType: e.target.value
+                        }))
+                      }}
+                      input={<OutlinedInput label="Payout Type" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      <MenuItem
+                        value='Reward'
+                      >
+                        Reward
+                      </MenuItem>
+                      <MenuItem
+                        value='Percentage'
+                      >
+                        Percentage
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                
                 {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
                   <>
                     <Grid item xs={12} md={3} xl={6}>
@@ -543,6 +581,7 @@ function Index() {
                   />
                 </Grid>
 
+                {(formState?.payoutType === "Percentage") &&
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
                     disabled={((isSubmitted || contest) && (!editing || saving))}
@@ -561,6 +600,7 @@ function Index() {
                     }}
                   />
                 </Grid>
+                }
 
                 <Grid item xs={12} md={6} xl={3} mb={2}>
                   <TextField
@@ -847,6 +887,14 @@ function Index() {
                   </>
                 )}
               </Grid>
+
+
+              {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
+                <MDBox>
+                <ContestRewards contest={contest!=undefined ? contest?._id : dailyContest?._id}/>
+                </MDBox>
+              </Grid>}
+              
 
               {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
                 <MDBox>

@@ -47,8 +47,19 @@ const contestSchema = new Schema({
     },
     payoutPercentage:{
         type: Number,
-        required: true,
+        // required: true,
     },
+    payoutType:{
+        type: String,
+        enum: ["Reward", "Percentage"]
+        // required: true,
+    },
+    rewards:[{
+        rankStart:{type:Number},
+        rankEnd:Number,
+        prize:{type:String},
+        // prizeValue:Number
+    }],
     portfolio:{
         type: Schema.Types.ObjectId,
         ref: 'user-portfolio',

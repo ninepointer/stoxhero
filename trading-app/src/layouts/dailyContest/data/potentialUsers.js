@@ -1,46 +1,22 @@
 import * as React from 'react';
 import {useEffect, useState} from "react";
 import DataTable from "../../../examples/Tables/DataTable";
-import MDButton from "../../../components/MDButton"
+// import MDButton from "../../../components/MDButton"
 import MDBox from "../../../components/MDBox"
 import MDTypography from "../../../components/MDTypography"
 import Card from "@mui/material/Card";
-import axios from "axios";
+// import axios from "axios";
 // import moment from 'moment';
 
 
 export default function AllowedUsers({saving,dailyContest, action, updatedDocument}) {
-    const [open, setOpen] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-    const [allowedUsers,setAllowedUsers] = React.useState([]);
-    let [update,setUpdate] = React.useState(true);
-    const [allowedUserCount,setAllowedUserCount] = useState(0);
-    // async function getAllowedUsers() {
-    //   let call1 = axios.get(`${baseUrl}api/v1/dailycontest/contest/${dailyContest?._id}`, {
-    //     withCredentials: true,
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //       "Access-Control-Allow-Credentials": true
-    //     },
-    //   })
-    //   Promise.all([call1])
-    //     .then(([api1Response]) => {
-    //       // Process the responses here
-    //       setAllowedUsers(api1Response.data.data?.allowedUsers)
-    //       setAllowedUserCount(api1Response.data?.allowedUsers?.length);
-    //     })
-    //     .catch((error) => {
-    //       // Handle errors here
-    //       console.error(error);
-    //     });
-    // }
+    // const [open, setOpen] = useState(false);
+    // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    // const [allowedUsers,setAllowedUsers] = React.useState([]);
+    // let [update,setUpdate] = React.useState(true);
+    // const [allowedUserCount,setAllowedUserCount] = useState(0);
 
-    // useEffect(()=>{
-    //   getAllowedUsers();
-    // },[saving, open, update, updatedDocument])
-
-    console.log("dailyContest", dailyContest)
+    // console.log("dailyContest", dailyContest)
 
     let columns = [
         { Header: "Name", accessor: "name", align: "center" },
@@ -52,25 +28,6 @@ export default function AllowedUsers({saving,dailyContest, action, updatedDocume
 
     let rows = []
 
-    // async function removeUser(userId){
-    //   axios.put(`${baseUrl}api/v1/dailycontest/contest/${dailyContest._id}/remove/${userId}`, {
-    //     withCredentials: true,
-    //     headers: {
-    //         Accept: "application/json",
-    //         "Content-Type": "application/json",
-    //         "Access-Control-Allow-Credentials": true
-    //     },
-    //   })
-    //   .then((res)=>{
-    //     //console.log("instrumentData", res.data)
-    //     // setUser(res.data)
-    //     // dispatch({ type: 'setUser', payload: (res?.data?.data) });
-    //     setUpdate(!update);
-  
-    //   }).catch((err)=>{
-    //     //console.log(err);
-    //   })
-    // }
 
     dailyContest?.potentialParticipants?.map((elem, index) => {
     let featureObj = {}

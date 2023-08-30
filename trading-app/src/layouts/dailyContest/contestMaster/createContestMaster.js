@@ -580,30 +580,6 @@ function Index() {
                                 )}
                             </Grid>
 
-                            {/* {(isSubmitted || contest) && <Grid item xs={12} md={12} xl={12} mt={2}>
-                                <MDBox>
-                                    <AllowedUsers saving={saving} dailyContest={contest?._id ? contest : dailyContest} updatedDocument={updatedDocument} setUpdatedDocument={setUpdatedDocument} action={action} setAction={setAction} />
-                                </MDBox>
-                            </Grid>} */}
-
-                            {/* {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                                <MDBox>
-                                    <RegisteredUsers dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
-                                </MDBox>
-                            </Grid>} */}
-
-                            {/* {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                                <MDBox>
-                                    <PotentialUser dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
-                                </MDBox>
-                            </Grid>} */}
-
-                            {/* {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                                <MDBox>
-                                    <Shared dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
-                                </MDBox>
-                            </Grid>} */}
-
                         </Grid>
 
                         {renderSuccessSB}

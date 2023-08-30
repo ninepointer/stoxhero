@@ -27,6 +27,9 @@ router.put('/contest/:id/share',Authenticate, contestController.copyAndShare);
 
 // Routes for getting contests 
 router.get('/contests', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllContests);
+router.route('/:id/rewards').get(contestController.getRewards).patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.addReward);
+router.route('/:id/rewards/:rewardId').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editReward);
+
 router.get('/contests/upcoming', Authenticate, contestController.getUpcomingContests);
 router.get('/contests/userlive', Authenticate, contestController.getUserLiveContests);
 router.get('/collegecontests/userupcoming', Authenticate, contestController.getCollegeUserUpcomingContests);
