@@ -157,7 +157,14 @@ const DailyContestApplyAlgo = async (req, res, next)=>{
                 return elem.tradingAccount === element.accountId
             })
 
+            let singleUserLive = [];
             if(dailyContest?.currentLiveStatus === "Live"){
+                singleUserLive = dailyContest?.participants.filter((elem)=>{
+                    return (elem.userId.toString() === req.user._id.toString()) && (elem.isLive);
+                })
+            }
+
+            if(dailyContest?.currentLiveStatus === "Live" && singleUserLive.length > 0){
                 const { apiKey } = apiKeyParticular[0];
                 const { accessToken } = accessTokenParticular[0];
 
@@ -170,8 +177,6 @@ const DailyContestApplyAlgo = async (req, res, next)=>{
                 req.body.algoBoxId = elem._id;
                 req.body.isAlgoTrader = req.user.isAlgoTrader
                 req.body.dailyContest = true;
-
-
             } else{
                 req.body.realSymbol = companyTrade.realSymbol;
                 req.body.real_instrument_token = companyTrade.real_instrument_token;
