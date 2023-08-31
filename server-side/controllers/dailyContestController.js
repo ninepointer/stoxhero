@@ -155,6 +155,33 @@ async function calculateNumContestsForUsers(contestId){
     return result;
 }
 
+exports.switchUser = async (req, res) => {
+    const { contestId } = req.params;
+    const {userId, isLive} = req.body;
+
+    try {
+        const contest = await Contest.findById(contestId);
+        for(elem of contest.participants){
+            if (elem.userId.toString() === userId.toString()){
+                elem.isLive = !isLive;
+            }
+        }
+        await contest.save();
+        res.status(200).json({
+            status: "success",
+            message: "Switched successfully",
+            data: contest
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+}
+
 exports.userContestDetail = async (req, res) => {
     const { id } = req.params;
 

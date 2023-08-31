@@ -14,6 +14,8 @@ router.get('/contest/:id', Authenticate, contestController.getContest);
 router.get('/usercontestdata/:id', Authenticate, contestController.userContestDetail);
 
 router.put('/contest/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editContest);
+router.patch('/switchUser/:contestId', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.switchUser);
+
 router.put('/purchaseintent/:id', Authenticate, contestController.purchaseIntent);
 
 router.delete('/contest/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.deleteContest);
