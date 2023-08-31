@@ -11,6 +11,7 @@ router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'S
 router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
 router.patch('/feededuct', Authenticate, contestController.deductSubscriptionAmount);
 router.get('/contest/:id', Authenticate, contestController.getContest);
+router.get('/usercontestdata/:id', Authenticate, contestController.userContestDetail);
 
 router.put('/contest/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editContest);
 router.put('/purchaseintent/:id', Authenticate, contestController.purchaseIntent);

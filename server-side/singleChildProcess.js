@@ -252,7 +252,7 @@ async function singleProcess() {
 
         }
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireTenXSubscription);
-        const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+        const internshipPayout = nodeCron.schedule(`0 0 15 * * *`, updateUserWallet);
 
     }
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })

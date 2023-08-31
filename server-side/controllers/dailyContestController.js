@@ -69,7 +69,7 @@ exports.editContest = async (req, res) => {
             const  len = contest?.participants?.length;    
             for (let i =0; i<len-1 ;i++) {
                 if (userIdsInSource.has(contest?.participants[i].userId.toString())) {
-                    contest?.participants[i]?.isLive = true;
+                    contest.participants[i].isLive = true;
                 }
             }
             await contest.save({validateBeforeSave:false});
@@ -99,12 +99,12 @@ exports.editContest = async (req, res) => {
 
 //Function to calculate the number of contests users have already participated in
 
-async function calculateNumContestsForUsers(id){
+async function calculateNumContestsForUsers(contestId){
     const pipeline = [
         // Match the contest with the given id
         {
           $match: {
-            _id: ObjectId("64ee4363394876e5334aa672"),
+            _id: new ObjectId(contestId),
           },
         },
         // Deconstruct the participants array to output a document for each participant
@@ -153,6 +153,26 @@ async function calculateNumContestsForUsers(id){
     const result = await Contest.aggregate(pipeline);
 
     return result;
+}
+
+exports.userContestDetail = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const data = await calculateNumContestsForUsers(id);
+        res.status(200).json({
+            status: "success",
+            message: "Fetched successfully",
+            data: data
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
 }
 
 // Controller for deleting a contest
@@ -214,23 +234,23 @@ exports.getAllLiveContests = async (req, res) => {
     // tomorrowDate = tomorrowDate + "T00:00:00.000Z";
     // const tomorrow = new Date(tomorrowDate);
     // Calculate the next day by adding 24 hours (86400000 milliseconds) to the current date
-const nextDay = new Date(today.getTime() + 86400000);
+    const nextDay = new Date(today.getTime() + 86400000);
 
-// Extract year, month, and day from the next day
-const nextYear = nextDay.getFullYear();
-const nextMonth = nextDay.getMonth() + 1; // Months are zero-based, so add 1
-const nextDate = nextDay.getDate();
+    // Extract year, month, and day from the next day
+    const nextYear = nextDay.getFullYear();
+    const nextMonth = nextDay.getMonth() + 1; // Months are zero-based, so add 1
+    const nextDate = nextDay.getDate();
 
-// Format the next day as a string in "YYYY-MM-DD" format
-const formattedNextDay = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-${nextDate.toString().padStart(2, '0')}`;
-const tomorrow = new Date(formattedNextDay);
-  
-  
+    // Format the next day as a string in "YYYY-MM-DD" format
+    const formattedNextDay = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-${nextDate.toString().padStart(2, '0')}`;
+    const tomorrow = new Date(formattedNextDay);
+
+
     console.log(today, tomorrow)
     try {
-        const contests = await Contest.find({contestType: "Live", contestEndTime: {$lt: tomorrow}, contestStartTime: {$gte: today}})
-        .populate('portfolio', 'portfolioValue portfolioName')
-        .sort({ contestStartTime: -1 })
+        const contests = await Contest.find({ contestType: "Live", contestEndTime: { $lt: tomorrow }, contestStartTime: { $gte: today } })
+            .populate('portfolio', 'portfolioValue portfolioName')
+            .sort({ contestStartTime: -1 })
 
         res.status(200).json({
             status: "success",
@@ -1060,8 +1080,6 @@ exports.participateUsers = async (req, res) => {
             ]
         })
 
-        // console.log("getActiveContest", getActiveContest)
-
         if (getActiveContest.length > 0) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
@@ -1079,28 +1097,106 @@ exports.participateUsers = async (req, res) => {
         }
 
 
-        const noOfContest = await DailyContestMockUser.aggregate([
+        const noOfContest = await Contest.aggregate([
+            // Match the contest with the given id
             {
-                $match:
-                {
-                    trader: new ObjectId(
-                        userId
-                    ),
-                    status: "COMPLETE",
-                },
+              $match: {
+                _id: new ObjectId(id),
+              },
+            },
+            // Deconstruct the participants array to output a document for each participant
+            {
+              $unwind: "$participants",
             },
             {
-                $group:
+              $match:
+                /**
+                 * query: The query in MQL.
+                 */
                 {
-                    _id: {
-                        contestId: "$contestId",
+                  "participants.userId": new ObjectId(
+                    userId
+                  ),
+                },
+            },
+            // Gather the userIds of the participants
+            {
+              $group: {
+                _id: null,
+                userIds: {
+                  $addToSet: "$participants.userId",
+                },
+              },
+            },
+            // Match all contests that these users have participated in
+            {
+              $unwind: "$userIds",
+            },
+            {
+              $lookup: {
+                from: "daily-contests",
+                localField: "userIds",
+                foreignField: "participants.userId",
+                as: "userContests",
+              },
+            },
+            // Determine if the contest is free or paid
+            {
+              $unwind: "$userContests",
+            },
+            {
+              $addFields: {
+                "userContests.isFree": {
+                  $eq: ["$userContests.entryFee", 0],
+                },
+                "userContests.isPaid": {
+                  $ne: ["$userContests.entryFee", 0],
+                },
+              },
+            },
+            // Group by userId to count and aggregate required fields
+            {
+              $group: {
+                _id: "$userIds",
+                totalContestsCount: {
+                  $sum: 1,
+                },
+                uniqueTradingDays: {
+                  $addToSet: {
+                    $dateToString: {
+                      format: "%Y-%m-%d",
+                      date: "$userContests.contestStartTime",
                     },
+                  },
                 },
+                totalFreeContests: {
+                  $sum: {
+                    $cond: ["$userContests.isFree", 1, 0],
+                  },
+                },
+                totalPaidContests: {
+                  $sum: {
+                    $cond: ["$userContests.isPaid", 1, 0],
+                  },
+                },
+              },
             },
+            // Format the output
             {
-                $count: "noOfContest",
-            }
-        ])
+              $project: {
+                _id: 0,
+                userId: "$_id",
+                totalContestsCount: 1,
+                totalTradingDays: {
+                  $size: "$uniqueTradingDays",
+                },
+                // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
+                totalFreeContests: 1,
+                totalPaidContests: 1,
+              },
+            },
+          ])
+
 
         const result = await Contest.findOne({ _id: new ObjectId(contestId) });
 
@@ -1114,7 +1210,7 @@ exports.participateUsers = async (req, res) => {
             participatedOn: new Date(),
         }
         // Now update the isLive field based on the liveThreshold value
-        if ((noOfContest[0]?.noOfContest < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+        if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
             obj.isLive = true;
             console.log("in if")
         } else {
@@ -1430,27 +1526,104 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
-        const noOfContest = await DailyContestMockUser.aggregate([
+        const noOfContest = await Contest.aggregate([
+            // Match the contest with the given id
             {
-                $match:
-                {
-                    trader: new ObjectId(
-                        userId
-                    ),
-                    status: "COMPLETE",
+                $match: {
+                    _id: new ObjectId(id),
                 },
             },
+            // Deconstruct the participants array to output a document for each participant
             {
-                $group:
+                $unwind: "$participants",
+            },
+            {
+                $match:
+                /**
+                 * query: The query in MQL.
+                 */
                 {
-                    _id: {
-                        contestId: "$contestId",
+                    "participants.userId": new ObjectId(
+                        userId
+                    ),
+                },
+            },
+            // Gather the userIds of the participants
+            {
+                $group: {
+                    _id: null,
+                    userIds: {
+                        $addToSet: "$participants.userId",
                     },
                 },
             },
+            // Match all contests that these users have participated in
             {
-                $count: "noOfContest",
-            }
+                $unwind: "$userIds",
+            },
+            {
+                $lookup: {
+                    from: "daily-contests",
+                    localField: "userIds",
+                    foreignField: "participants.userId",
+                    as: "userContests",
+                },
+            },
+            // Determine if the contest is free or paid
+            {
+                $unwind: "$userContests",
+            },
+            {
+                $addFields: {
+                    "userContests.isFree": {
+                        $eq: ["$userContests.entryFee", 0],
+                    },
+                    "userContests.isPaid": {
+                        $ne: ["$userContests.entryFee", 0],
+                    },
+                },
+            },
+            // Group by userId to count and aggregate required fields
+            {
+                $group: {
+                    _id: "$userIds",
+                    totalContestsCount: {
+                        $sum: 1,
+                    },
+                    uniqueTradingDays: {
+                        $addToSet: {
+                            $dateToString: {
+                                format: "%Y-%m-%d",
+                                date: "$userContests.contestStartTime",
+                            },
+                        },
+                    },
+                    totalFreeContests: {
+                        $sum: {
+                            $cond: ["$userContests.isFree", 1, 0],
+                        },
+                    },
+                    totalPaidContests: {
+                        $sum: {
+                            $cond: ["$userContests.isPaid", 1, 0],
+                        },
+                    },
+                },
+            },
+            // Format the output
+            {
+                $project: {
+                    _id: 0,
+                    userId: "$_id",
+                    totalContestsCount: 1,
+                    totalTradingDays: {
+                        $size: "$uniqueTradingDays",
+                    },
+                    // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
+                    totalFreeContests: 1,
+                    totalPaidContests: 1,
+                },
+            },
         ])
 
         const result = await Contest.findOne({ _id: new ObjectId(contestId) });
@@ -1460,7 +1633,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             participatedOn: new Date(),
         }
         // Now update the isLive field based on the liveThreshold value
-        if ((noOfContest[0]?.noOfContest < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+        if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
             obj.isLive = true;
             console.log("in if")
         } else {
@@ -1470,10 +1643,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
         result.participants.push(obj);
 
-
-
-
-        console.log(result)
+        // console.log(result)
         // Save the updated document
         await result.save();
 

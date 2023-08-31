@@ -98,11 +98,11 @@ function LiveOverallCompantPNL({ socket, id }) {
         totalRunningLots += Number(subelem.lots)
 
         const liveDetail = marketData.filter((elem) => {
-            console.log("liveDetail2", elem.instrument_token, subelem.exchangeInstrumentToken, (subelem.exchangeInstrumentToken == elem.instrument_token))
+            // console.log("liveDetail2", elem.instrument_token, subelem.exchangeInstrumentToken, (subelem.exchangeInstrumentToken == elem.instrument_token))
             return elem !== undefined && (subelem.instrumentToken == elem.instrument_token || subelem.exchangeInstrumentToken == elem.instrument_token)
         })
 
-        console.log("liveDetail", liveDetail[0]?.instrument_token, subelem?.instrumentToken)
+        // console.log("liveDetail", liveDetail[0]?.instrument_token, subelem?.instrumentToken)
         let updatedValue = (subelem.amount + (subelem.lots) * liveDetail[0]?.last_price);
         totalGrossPnl += updatedValue;
 

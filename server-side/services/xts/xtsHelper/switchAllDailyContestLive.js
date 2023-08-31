@@ -195,6 +195,7 @@ const contestRealMockSingleUser = async (res, req) => {
     const today = new Date(todayDate);
     const contestId = req.params.id;
     const {userId} = req.params;
+    
     const contest = await Contest.findById(contestId);
     for(elem of contest.participants){
         if (elem.userId.toString() === userId.toString()){

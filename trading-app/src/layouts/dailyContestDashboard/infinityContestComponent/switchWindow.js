@@ -30,12 +30,15 @@ function SwitchWindow(props) {
     let columns = [
         { Header: "Trader Name", accessor: "traderName", width: "15%", align: "center" },
         { Header: "Gross P&L", accessor: "grossPnl", width: "12.5%", align: "center" },
-        // { Header: "# of Trades", accessor: "noOfTrade", width: "12.5%", align: "center" },
         { Header: "Running Lots", accessor: "runningLots", width: "12.5%", align: "center" },
-        { Header: "Abs.Running Lots", accessor: "absRunningLots", width: "12.5%", align: "center" },
-        // { Header: "Lots Used", accessor: "lotUsed", width: "12.5%", align: "center" },
-        // { Header: "Brokerage", accessor: "brokerage", width: "12.5%", align: "center" },
+        // { Header: "Abs.Running Lots", accessor: "absRunningLots", width: "12.5%", align: "center" },
         { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
+
+        { Header: "Total Contest", accessor: "totalContest", width: "12.5%", align: "center" },
+        { Header: "Paid Contest", accessor: "paidContest", width: "12.5%", align: "center" },
+        { Header: "Free Contest", accessor: "freeContest", width: "12.5%", align: "center" },
+        { Header: "Trading Day", accessor: "tradingDay", width: "12.5%", align: "center" },
+
         { Header: "Mock/Live", accessor: "mockLive", width: "12.5%", align: "center" },
         
     ]
@@ -46,6 +49,7 @@ function SwitchWindow(props) {
 
     const [allTrade, setAllTrade] = useState([]);
     const [marketData, setMarketData] = useState([]);
+    const [userContestDetail, setUserContestDetails] = useState([]);
     let [switchResponse, setSwitchResponse] = useState(true);
 
     useEffect(() => {
@@ -66,10 +70,20 @@ function SwitchWindow(props) {
         axios.get(`${baseUrl}api/v1/dailycontest/live/singleswitchcontest/${props.id}`, {withCredentials: true})
             .then((res) => {
                 setAllTrade(res.data.data);
+                console.log("res.data.data", res.data.data)
             }).catch((err) => {
                 return new Error(err);
             })
     }, [switchResponse])
+
+    useEffect(() => {
+        axios.get(`${baseUrl}api/v1/dailycontest/usercontestdata/${props.id}`, {withCredentials: true})
+            .then((res) => {
+                setUserContestDetails(res.data.data);
+            }).catch((err) => {
+                return new Error(err);
+            })
+    }, [])
 
     async function switchUser(userId){
         axios.get(`${baseUrl}api/v1/contestrealmocksingleuser/${userId}/${props.id}`, {withCredentials: true})
@@ -156,6 +170,10 @@ function SwitchWindow(props) {
             totalTraders += 1;
             totalAbsRunningLots += subelem.absRunninglots;
 
+            const userContestInfo = userContestDetail.filter((elem)=>{
+                return elem?.userId?.toString() === subelem?.userId?.toString();
+            })
+
             obj.userId = (
                 <MDTypography component="a" variant="caption" fontWeight="medium">
                     {subelem.userId}
@@ -186,21 +204,33 @@ function SwitchWindow(props) {
                 </MDTypography>
             );
 
-            obj.absRunningLots = (
-                <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
-                    {subelem.absRunninglots}
+            // obj.absRunningLots = (
+            //     <MDTypography component="a" variant="caption" color={runninglotscolor} backgroundColor={runninglotsbgcolor} fontWeight="medium">
+            //         {subelem.absRunninglots}
+            //     </MDTypography>
+            // );
+
+            obj.totalContest = (
+                <MDTypography component="a" variant="caption" backgroundColor={runninglotsbgcolor} fontWeight="medium">
+                    {userContestInfo[0]?.totalContestsCount}
                 </MDTypography>
             );
 
-            obj.lotUsed = (
-                <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-                    {subelem.lotUsed}
+            obj.paidContest = (
+                <MDTypography component="a" variant="caption" backgroundColor={runninglotsbgcolor} fontWeight="medium">
+                    {userContestInfo[0]?.totalPaidContests}
                 </MDTypography>
             );
 
-            obj.brokerage = (
-                <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-                    {"₹" + (subelem.brokerage).toFixed(2)}
+            obj.freeContest = (
+                <MDTypography component="a" variant="caption" backgroundColor={runninglotsbgcolor} fontWeight="medium">
+                    {userContestInfo[0]?.totalFreeContests}
+                </MDTypography>
+            );
+
+            obj.tradingDay = (
+                <MDTypography component="a" variant="caption" backgroundColor={runninglotsbgcolor} fontWeight="medium">
+                    {userContestInfo[0]?.totalTradingDays}
                 </MDTypography>
             );
 
