@@ -46,6 +46,7 @@ function SwitchWindow(props) {
 
     const [allTrade, setAllTrade] = useState([]);
     const [marketData, setMarketData] = useState([]);
+    let [switchResponse, setSwitchResponse] = useState(true);
 
     useEffect(() => {
 
@@ -68,9 +69,16 @@ function SwitchWindow(props) {
             }).catch((err) => {
                 return new Error(err);
             })
-    }, [])
+    }, [switchResponse])
 
-
+    async function switchUser(userId){
+        axios.get(`${baseUrl}api/v1/contestrealmocksingleuser/${userId}/${props.id}`, {withCredentials: true})
+        .then((res) => {
+            setSwitchResponse(!switchResponse);
+        }).catch((err) => {
+            return new Error(err);
+        })
+    }
 
     if (allTrade.length !== 0) {
         let mapForParticularUser = new Map();
@@ -204,7 +212,7 @@ function SwitchWindow(props) {
 
             obj.mockLive = (
                 <MDTypography component="a" variant="caption" color={npnlcolor} fontWeight="medium">
-                    <Switch checked={subelem.isLive} onChange={() => {}} />
+                    <Switch checked={subelem.isLive} onChange={() => {switchUser(subelem?.userId)}} />
                 </MDTypography>
             );
 

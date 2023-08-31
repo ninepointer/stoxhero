@@ -1419,16 +1419,6 @@ const saveToMockSwitchContest = async (orderData, traderData, startTime, res) =>
 
       await session.commitTransaction();
 
-    // console.log("data saved in retreive order for", AppOrderID)
-
-    // console.log("dontSendResp bahr", dontSendResp)
-    // if (!dontSendResp && redisApproval) {
-    //   await client.expire(`liveOrderBackupKey`, 600);
-    //   await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
-    //   io.emit(`sendResponse${trader.toString()}`, { message: { Quantity: Quantity, symbol: symbol }, status: "complete" })
-    //   // return res.status(201).json({ message: responseMsg, err: responseErr })
-    // }
-
   } catch (err) {
 
     await session.abortTransaction();

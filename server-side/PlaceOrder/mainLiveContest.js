@@ -12,6 +12,7 @@ const { xtsAccountType, zerodhaAccountType } = require("../constant");
 const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
 const {contestChecks} = require("../PlaceOrder/dailyContestChecks")
+const {contestTradeLive, contestRealMockSingleUser} = require("../services/xts/xtsHelper/switchAllDailyContestLive");
 
 
 router.post("/placingLiveOrderDailyContest", authentication, isAppLive, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
@@ -37,6 +38,10 @@ router.get("/switchRealToMock", authentication,  async (req, res)=>{
 
 router.get("/switchRealToMockSingleUser/:userId", authentication,  async (req, res)=>{
     await infinityTradeLiveSingle(res, req)
+})
+
+router.get("/contestrealmocksingleuser/:userId/:id", authentication,  async (req, res)=>{
+    await contestRealMockSingleUser(res, req)
 })
 
 module.exports = router;
