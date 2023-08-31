@@ -970,11 +970,15 @@ exports.getEligibleInternshipBatch = async(req,res, next) => {
 exports.downloadCertificate = async (req,res, next) => {
   try {
     // Load the existing PDF into pdf-lib
-    const{name} = req.body;
-    const start = '25th July 2023'
-    const end = '25th August 2023'
+    const batchId = req.params.id;
+    const batch = await Batch.findById(batchId).select('batchStartDate batchEndDate');
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('first_name last_name');
+    const name = `${user.first_name}' ' ${user.last_name}`;
+    const start = moment(batch?.batchStartDate.toString().split('T')[0]).format('Do MMMM YYYY');
+    const end = moment(batch?.batchEndDate.toString().split('T')[0]).format('Do MMMM YYYY');
     const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
-    console.log(existingPdfBytes);
+    // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     //Get the first page of the document
     const pages = pdfDoc.getPages();
@@ -1000,7 +1004,7 @@ exports.downloadCertificate = async (req,res, next) => {
     // console.log(firstPage);
     // Serialize the modified PDF back to bytes
     const pdfBytes = await pdfDoc.save();
-    console.log('file', pdfBytes);
+    // console.log('file', pdfBytes);
     const filePath = path.join(__dirname, '/certificateout.pdf');
     fs.writeFileSync(filePath, pdfBytes);
     res.download(path.join(__dirname, '/certificateout.pdf'));

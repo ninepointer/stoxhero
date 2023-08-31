@@ -49,6 +49,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [serverTime, setServerTime] = useState();
   const [batchEndDate, setBatchEndDate] = useState();
   const [currentBatch, setCurrentBatch] = useState();
+  const [certificateBatch, setCertificateBatch] = useState('');
   const [myReferralCount, setMyReferralCount] = useState(getDetails?.userDetails?.referrals?.length);
   // const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
   // const [portfolioValue, setPortfolioValue] = useState();
@@ -93,7 +94,33 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
 
   }
-
+  const handleDownload = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}api/v1/internbatch/download/${certificateBatch}`, {
+        responseType: 'blob',
+        withCredentials: true
+      });
+        console.log(response.data);
+        console.log(response.data.size, response.data.type);
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'certificate.pdf');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);  
+      // const blob = new Blob([response.data], { type: 'application/pdf' });
+      // const url = window.URL.createObjectURL(blob);
+      // const link = document.createElement('a');
+      // link.href = url;
+      // link.setAttribute('download', 'certificate.pdf');
+      // document.body.appendChild(link);
+      // link.click();
+  } catch (error) {
+      console.error('Error generating certificate:', error);
+  }
+  }
   useEffect(()=>{
     const startDate = currentBatch ? (currentBatch?.batchStartDate).toString().split('T')[0] : ''
     const endDate = moment(new Date().toString()).format("YYYY-MM-DD");
@@ -173,6 +200,13 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
       setBatchId(res?.data?.data?._id);
       setBatchEndDate(res?.data?.data?.batchEndDate);
       setCurrentBatch(res?.data?.data);
+    }
+  })()}, []);
+  useEffect(()=> {(async ()=>{
+    const res = await axios.get(`${baseUrl}api/v1/internbatch/eligibleforcertificate`, {withCredentials:true});
+    console.log("Batch certificate",res?.data?.batch);
+    if(res?.data?.batch){
+       setCertificateBatch(res.data.batch); 
     }
   })()}, []);
 
@@ -529,7 +563,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     </Grid>
     :
     <MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton></MDBox>}
-
+    {certificateBatch != '' && <MDBox mt={2} display='flex' alignItems='center' justifyContent='center'><MDButton onClick={handleDownload}>Download Internship Certificate</MDButton></MDBox>}
     </MDBox>
   );
 }
