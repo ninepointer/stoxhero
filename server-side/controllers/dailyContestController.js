@@ -57,7 +57,27 @@ exports.editContest = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
-
+        const contest = await Contest.findById(id);
+        if(updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold){
+            //Check if the update is before 5 minutes of the contest start time, send error
+            if(new Date()>= new Date(new Date(contest.contestStartTime.toString()).getTime() - 5 * 60 * 1000)){
+                return res.status(400).json({stauts:'error', message:'Can\'t edit live threshold five minutes before start time'});
+            }
+            //Update the participants according to the threshold
+            const usersNumContests = await calculateNumContestsForUsers(id);
+            const userIdsInSource = new Set(usersNumContests.filter(obj => obj.totalContestsCount <= updates?.liveThreshold).map(obj => obj.userId.toString()));
+            const  len = contest?.participants?.length;    
+            for (let i =0; i<len-1 ;i++) {
+                if (userIdsInSource.has(contest?.participants[i].userId.toString())) {
+                    contest?.participants[i]?.isLive = true;
+                }
+            }
+            await contest.save({validateBeforeSave:false});
+            res.status(200).json({
+                status: 'success',
+                message: "Contest updated successfully",
+            });
+        }
         const result = await Contest.findByIdAndUpdate(id, updates, { new: true });
 
         if (!result) {
@@ -76,6 +96,64 @@ exports.editContest = async (req, res) => {
         });
     }
 };
+
+//Function to calculate the number of contests users have already participated in
+
+async function calculateNumContestsForUsers(id){
+    const pipeline = [
+        // Match the contest with the given id
+        {
+          $match: {
+            _id: ObjectId("64ee4363394876e5334aa672"),
+          },
+        },
+        // Deconstruct the participants array to output a document for each participant
+        { $unwind: "$participants" },
+      
+                  // Gather the userIds of the participants
+        { $group: { _id: null, userIds: { $addToSet: "$participants.userId" } } },
+
+        // Match all contests that these users have participated in
+        { $unwind: "$userIds" },
+        { $lookup: {
+            from: "daily-contests",
+            localField: "userIds",
+            foreignField: "participants.userId",
+            as: "userContests"
+        } },
+
+        // Determine if the contest is free or paid
+        { $unwind: "$userContests" },
+        { $addFields: {
+            "userContests.isFree": { $eq: ["$userContests.entryFee", 0] },
+            "userContests.isPaid": { $ne: ["$userContests.entryFee", 0] },
+        } },
+
+        // Group by userId to count and aggregate required fields
+        { $group: { 
+            _id: "$userIds",
+            totalContestsCount: { $sum: 1 },
+            uniqueTradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$userContests.contestStartTime" } } },
+            totalFreeContests: { $sum: { $cond: ["$userContests.isFree", 1, 0] } },
+            totalPaidContests: { $sum: { $cond: ["$userContests.isPaid", 1, 0] } },
+        } },
+
+        // Format the output
+        {
+            $project: {
+                _id: 0,
+                userId: "$_id",
+                totalContestsCount: 1,
+                totalTradingDays: { $size: "$uniqueTradingDays" },  // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
+                totalFreeContests: 1,
+                totalPaidContests: 1
+            }
+        }
+    ];
+    const result = await Contest.aggregate(pipeline);
+
+    return result;
+}
 
 // Controller for deleting a contest
 exports.deleteContest = async (req, res) => {
