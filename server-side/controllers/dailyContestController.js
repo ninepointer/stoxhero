@@ -132,11 +132,23 @@ exports.getAllLiveContests = async (req, res) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
-    let tomorrowDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
-    tomorrowDate = tomorrowDate + "T00:00:00.000Z";
-    const tomorrow = new Date(tomorrowDate);
+    // let tomorrowDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
+    // tomorrowDate = tomorrowDate + "T00:00:00.000Z";
+    // const tomorrow = new Date(tomorrowDate);
+    // Calculate the next day by adding 24 hours (86400000 milliseconds) to the current date
+const nextDay = new Date(today.getTime() + 86400000);
+
+// Extract year, month, and day from the next day
+const nextYear = nextDay.getFullYear();
+const nextMonth = nextDay.getMonth() + 1; // Months are zero-based, so add 1
+const nextDate = nextDay.getDate();
+
+// Format the next day as a string in "YYYY-MM-DD" format
+const formattedNextDay = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-${nextDate.toString().padStart(2, '0')}`;
+const tomorrow = new Date(formattedNextDay);
   
   
+    console.log(today, tomorrow)
     try {
         const contests = await Contest.find({contestType: "Live", contestEndTime: {$lt: tomorrow}, contestStartTime: {$gte: today}})
         .populate('portfolio', 'portfolioValue portfolioName')
@@ -148,6 +160,7 @@ exports.getAllLiveContests = async (req, res) => {
             data: contests
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             status: "error",
             message: "Something went wrong",
