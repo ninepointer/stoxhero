@@ -52,7 +52,7 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
   }
 
 
-  console.log("activeUser", activeUser)
+  // console.log("activeUser", activeUser)
 
 
   let pnlData;
@@ -100,8 +100,20 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
       const batchEndDate = moment(elem.batchEndDate);
       const currentDate = moment();
       const endDate = batchEndDate.isBefore(currentDate) ? batchEndDate.format("YYYY-MM-DD") : currentDate.format("YYYY-MM-DD");
+      const endDate1 = batchEndDate.isBefore(currentDate) ? batchEndDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 }) : currentDate.clone().set({ hour: 19, minute: 0, second: 0, millisecond: 0 });
       const attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday));
-      let refCount = referral[0]?.referrals?.length;
+      let refCount = 0;
+      for (let subelem of referral[0]?.referrals) {
+        const joiningDate = moment(subelem?.referredUserId?.joining_date);
+      
+        console.log("joiningDate", moment(moment(elem.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
+        if (joiningDate.isSameOrAfter(moment(moment(elem.batchStartDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(endDate1)) {
+          // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
+          refCount += 1;
+          console.log("joiningDate if")
+        }
+      }
+      // referral[0]?.referrals?.length;
       elem.isPayout = false;
       const profitCap = 15000;
 
@@ -121,7 +133,7 @@ export default function TableView({collegeData, holiday, whichTab, dateWiseData,
         }
       }
 
-      elem.referral = referral[0]?.referrals?.length;
+      elem.referral = refCount;
       elem.payout = elem.isPayout ? Math.min((elem?.npnl * payoutPercentage / 100).toFixed(0), profitCap) : 0;
       elem.tradeDay = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0)
       elem.attendance = (elem?.tradingDays * 100 / (calculateWorkingDays(elem.batchStartDate, endDate) - holiday)).toFixed(0);

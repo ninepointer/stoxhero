@@ -7,7 +7,7 @@ const Careers = require("../models/Careers/careerSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const Holiday = require("../models/TradingHolidays/tradingHolidays");
-
+const moment = require('moment');
 const { ObjectId } = require("mongodb");
 
 
@@ -1125,7 +1125,9 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   ]
 
 
-  let userData = await User.find().select("referrals")
+  let userData = await User.find()
+  .populate('referrals.referredUserId', 'joining_date')
+  .select("referrals")
   let x = await InternTrades.aggregate(pipeline)
 
   // res.status(201).json(x);
@@ -1140,7 +1142,9 @@ exports.updateUserWallet = async () => {
   try {
 
     let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    //todo-vijay
+    // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    let todayDate = `2023-07-31`
 
     const internship = await Careers.aggregate([
       {
@@ -1329,13 +1333,29 @@ exports.updateUserWallet = async () => {
       }
 
       const referrals = async (user) => {
+        // elem.startDate, elem.endDate
+        let refCount = 0;
+        for (let subelem of user?.referrals) {
+          const joiningDate = moment(subelem?.referredUserId?.joining_date);
+        
+          // console.log((moment(moment(elem.startDate).format("YYYY-MM-DD"))), joiningDate, (moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 })))
+          // console.log("joiningDate", moment(moment(elem.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
+          if (joiningDate.isSameOrAfter(moment(moment(elem.startDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }))) {
+            // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
+            refCount = refCount + 1;
+            // console.log("joiningDate if")
+          }
+        }
 
-        return user?.referrals?.length;
+        // console.log(refCount)
+        return refCount;
+        // user?.referrals?.length;
       }
 
 
       for (let i = 0; i < users.length; i++) {
-        const user = await User.findOne({ _id: new ObjectId(users[i].user), status: "Active" });
+        const user = await User.findOne({ _id: new ObjectId(users[i].user), status: "Active" })
+        .populate('referrals.referredUserId', 'joining_date')
         if(user){
           const tradingdays = await tradingDays(users[i].user, batchId);
           const attendance = (tradingdays * 100) / (workingDays - holiday.length);
@@ -1345,6 +1365,7 @@ exports.updateUserWallet = async () => {
 
           const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) });
 
+          console.log( users[i].user, referral, creditAmount);
           if (creditAmount > 0) {
             if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
 
@@ -1357,92 +1378,93 @@ exports.updateUserWallet = async () => {
               }];
               wallet.save();
 
-              if (process.env.PROD == 'true') {
-                sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Amount Credited</title>
-                    <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        font-size: 16px;
-                        line-height: 1.5;
-                        margin: 0;
-                        padding: 0;
-                    }
+              //todo-vijay
+              // if (process.env.PROD == 'true') {
+              //   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+              //   <!DOCTYPE html>
+              //   <html>
+              //   <head>
+              //       <meta charset="UTF-8">
+              //       <title>Amount Credited</title>
+              //       <style>
+              //       body {
+              //           font-family: Arial, sans-serif;
+              //           font-size: 16px;
+              //           line-height: 1.5;
+              //           margin: 0;
+              //           padding: 0;
+              //       }
           
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        border: 1px solid #ccc;
-                    }
+              //       .container {
+              //           max-width: 600px;
+              //           margin: 0 auto;
+              //           padding: 20px;
+              //           border: 1px solid #ccc;
+              //       }
           
-                    h1 {
-                        font-size: 24px;
-                        margin-bottom: 20px;
-                    }
+              //       h1 {
+              //           font-size: 24px;
+              //           margin-bottom: 20px;
+              //       }
           
-                    p {
-                        margin: 0 0 20px;
-                    }
+              //       p {
+              //           margin: 0 0 20px;
+              //       }
           
-                    .userid {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+              //       .userid {
+              //           display: inline-block;
+              //           background-color: #f5f5f5;
+              //           padding: 10px;
+              //           font-size: 15px;
+              //           font-weight: bold;
+              //           border-radius: 5px;
+              //           margin-right: 10px;
+              //       }
           
-                    .password {
-                        display: inline-block;
-                        background-color: #f5f5f5;
-                        padding: 10px;
-                        font-size: 15px;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        margin-right: 10px;
-                    }
+              //       .password {
+              //           display: inline-block;
+              //           background-color: #f5f5f5;
+              //           padding: 10px;
+              //           font-size: 15px;
+              //           font-weight: bold;
+              //           border-radius: 5px;
+              //           margin-right: 10px;
+              //       }
           
-                    .login-button {
-                        display: inline-block;
-                        background-color: #007bff;
-                        color: #fff;
-                        padding: 10px 20px;
-                        font-size: 18px;
-                        font-weight: bold;
-                        text-decoration: none;
-                        border-radius: 5px;
-                    }
+              //       .login-button {
+              //           display: inline-block;
+              //           background-color: #007bff;
+              //           color: #fff;
+              //           padding: 10px 20px;
+              //           font-size: 18px;
+              //           font-weight: bold;
+              //           text-decoration: none;
+              //           border-radius: 5px;
+              //       }
           
-                    .login-button:hover {
-                        background-color: #0069d9;
-                    }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                    <h1>Amount Credited</h1>
-                    <p>Hello ${user.first_name},</p>
-                    <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                    <p>You can now purchase Tenx and participate in contest.</p>
+              //       .login-button:hover {
+              //           background-color: #0069d9;
+              //       }
+              //       </style>
+              //   </head>
+              //   <body>
+              //       <div class="container">
+              //       <h1>Amount Credited</h1>
+              //       <p>Hello ${user.first_name},</p>
+              //       <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+              //       <p>You can now purchase Tenx and participate in contest.</p>
                     
-                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                    <br/><br/>
-                    <p>Thanks,</p>
-                    <p>StoxHero Team</p>
+              //       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+              //       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+              //       <br/><br/>
+              //       <p>Thanks,</p>
+              //       <p>StoxHero Team</p>
           
-                    </div>
-                </body>
-                </html>
-                `);
-              }
+              //       </div>
+              //   </body>
+              //   </html>
+              //   `);
+              // }
 
               console.log("no relief", users[i].user, npnl, creditAmount);
 
@@ -1459,92 +1481,93 @@ exports.updateUserWallet = async () => {
                   transactionType: 'Cash'
                 }];
                 wallet.save();
-                if (process.env.PROD == 'true') {
-                  sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                      <meta charset="UTF-8">
-                      <title>Amount Credited</title>
-                      <style>
-                      body {
-                          font-family: Arial, sans-serif;
-                          font-size: 16px;
-                          line-height: 1.5;
-                          margin: 0;
-                          padding: 0;
-                      }
+                //todo-vijay
+                // if (process.env.PROD == 'true') {
+                //   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+                //   <!DOCTYPE html>
+                //   <html>
+                //   <head>
+                //       <meta charset="UTF-8">
+                //       <title>Amount Credited</title>
+                //       <style>
+                //       body {
+                //           font-family: Arial, sans-serif;
+                //           font-size: 16px;
+                //           line-height: 1.5;
+                //           margin: 0;
+                //           padding: 0;
+                //       }
             
-                      .container {
-                          max-width: 600px;
-                          margin: 0 auto;
-                          padding: 20px;
-                          border: 1px solid #ccc;
-                      }
+                //       .container {
+                //           max-width: 600px;
+                //           margin: 0 auto;
+                //           padding: 20px;
+                //           border: 1px solid #ccc;
+                //       }
             
-                      h1 {
-                          font-size: 24px;
-                          margin-bottom: 20px;
-                      }
+                //       h1 {
+                //           font-size: 24px;
+                //           margin-bottom: 20px;
+                //       }
             
-                      p {
-                          margin: 0 0 20px;
-                      }
+                //       p {
+                //           margin: 0 0 20px;
+                //       }
             
-                      .userid {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
+                //       .userid {
+                //           display: inline-block;
+                //           background-color: #f5f5f5;
+                //           padding: 10px;
+                //           font-size: 15px;
+                //           font-weight: bold;
+                //           border-radius: 5px;
+                //           margin-right: 10px;
+                //       }
             
-                      .password {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
+                //       .password {
+                //           display: inline-block;
+                //           background-color: #f5f5f5;
+                //           padding: 10px;
+                //           font-size: 15px;
+                //           font-weight: bold;
+                //           border-radius: 5px;
+                //           margin-right: 10px;
+                //       }
             
-                      .login-button {
-                          display: inline-block;
-                          background-color: #007bff;
-                          color: #fff;
-                          padding: 10px 20px;
-                          font-size: 18px;
-                          font-weight: bold;
-                          text-decoration: none;
-                          border-radius: 5px;
-                      }
+                //       .login-button {
+                //           display: inline-block;
+                //           background-color: #007bff;
+                //           color: #fff;
+                //           padding: 10px 20px;
+                //           font-size: 18px;
+                //           font-weight: bold;
+                //           text-decoration: none;
+                //           border-radius: 5px;
+                //       }
             
-                      .login-button:hover {
-                          background-color: #0069d9;
-                      }
-                      </style>
-                  </head>
-                  <body>
-                      <div class="container">
-                      <h1>Amount Credited</h1>
-                      <p>Hello ${user.first_name},</p>
-                      <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                      <p>You can now purchase Tenx and participate in contest.</p>
+                //       .login-button:hover {
+                //           background-color: #0069d9;
+                //       }
+                //       </style>
+                //   </head>
+                //   <body>
+                //       <div class="container">
+                //       <h1>Amount Credited</h1>
+                //       <p>Hello ${user.first_name},</p>
+                //       <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                //       <p>You can now purchase Tenx and participate in contest.</p>
                       
-                      <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                      <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                      <br/><br/>
-                      <p>Thanks,</p>
-                      <p>StoxHero Team</p>
+                //       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                //       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                //       <br/><br/>
+                //       <p>Thanks,</p>
+                //       <p>StoxHero Team</p>
             
-                      </div>
-                  </body>
-                  </html>
-                  `);
-                }
+                //       </div>
+                //   </body>
+                //   </html>
+                //   `);
+                // }
                 console.log("attendance relief");
               }
               if (referral < referralLimit && referral >= reliefReferralLimit) {
@@ -1556,92 +1579,93 @@ exports.updateUserWallet = async () => {
                   transactionType: 'Cash'
                 }];
                 wallet.save();
-                if (process.env.PROD == 'true') {
-                  sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                      <meta charset="UTF-8">
-                      <title>Amount Credited</title>
-                      <style>
-                      body {
-                          font-family: Arial, sans-serif;
-                          font-size: 16px;
-                          line-height: 1.5;
-                          margin: 0;
-                          padding: 0;
-                      }
+                //todo-vijay
+                // if (process.env.PROD == 'true') {
+                //   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
+                //   <!DOCTYPE html>
+                //   <html>
+                //   <head>
+                //       <meta charset="UTF-8">
+                //       <title>Amount Credited</title>
+                //       <style>
+                //       body {
+                //           font-family: Arial, sans-serif;
+                //           font-size: 16px;
+                //           line-height: 1.5;
+                //           margin: 0;
+                //           padding: 0;
+                //       }
             
-                      .container {
-                          max-width: 600px;
-                          margin: 0 auto;
-                          padding: 20px;
-                          border: 1px solid #ccc;
-                      }
+                //       .container {
+                //           max-width: 600px;
+                //           margin: 0 auto;
+                //           padding: 20px;
+                //           border: 1px solid #ccc;
+                //       }
             
-                      h1 {
-                          font-size: 24px;
-                          margin-bottom: 20px;
-                      }
+                //       h1 {
+                //           font-size: 24px;
+                //           margin-bottom: 20px;
+                //       }
             
-                      p {
-                          margin: 0 0 20px;
-                      }
+                //       p {
+                //           margin: 0 0 20px;
+                //       }
             
-                      .userid {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
+                //       .userid {
+                //           display: inline-block;
+                //           background-color: #f5f5f5;
+                //           padding: 10px;
+                //           font-size: 15px;
+                //           font-weight: bold;
+                //           border-radius: 5px;
+                //           margin-right: 10px;
+                //       }
             
-                      .password {
-                          display: inline-block;
-                          background-color: #f5f5f5;
-                          padding: 10px;
-                          font-size: 15px;
-                          font-weight: bold;
-                          border-radius: 5px;
-                          margin-right: 10px;
-                      }
+                //       .password {
+                //           display: inline-block;
+                //           background-color: #f5f5f5;
+                //           padding: 10px;
+                //           font-size: 15px;
+                //           font-weight: bold;
+                //           border-radius: 5px;
+                //           margin-right: 10px;
+                //       }
             
-                      .login-button {
-                          display: inline-block;
-                          background-color: #007bff;
-                          color: #fff;
-                          padding: 10px 20px;
-                          font-size: 18px;
-                          font-weight: bold;
-                          text-decoration: none;
-                          border-radius: 5px;
-                      }
+                //       .login-button {
+                //           display: inline-block;
+                //           background-color: #007bff;
+                //           color: #fff;
+                //           padding: 10px 20px;
+                //           font-size: 18px;
+                //           font-weight: bold;
+                //           text-decoration: none;
+                //           border-radius: 5px;
+                //       }
             
-                      .login-button:hover {
-                          background-color: #0069d9;
-                      }
-                      </style>
-                  </head>
-                  <body>
-                      <div class="container">
-                      <h1>Amount Credited</h1>
-                      <p>Hello ${user.first_name},</p>
-                      <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
-                      <p>You can now purchase Tenx and participate in contest.</p>
+                //       .login-button:hover {
+                //           background-color: #0069d9;
+                //       }
+                //       </style>
+                //   </head>
+                //   <body>
+                //       <div class="container">
+                //       <h1>Amount Credited</h1>
+                //       <p>Hello ${user.first_name},</p>
+                //       <p>Amount of ${creditAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                //       <p>You can now purchase Tenx and participate in contest.</p>
                       
-                      <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                      <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                      <br/><br/>
-                      <p>Thanks,</p>
-                      <p>StoxHero Team</p>
+                //       <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                //       <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                //       <br/><br/>
+                //       <p>Thanks,</p>
+                //       <p>StoxHero Team</p>
             
-                      </div>
-                  </body>
-                  </html>
-                  `);
-                }
+                //       </div>
+                //   </body>
+                //   </html>
+                //   `);
+                // }
                 console.log("referral relief", attendance, tradingdays, users[i].user, npnl);
               }
             }
