@@ -78,7 +78,10 @@ const marginXSchema = new Schema({
         type:Boolean,
         required: true
     },
-
+    liveTime:{
+        type: Date,
+        required: true
+    }
 })
 
 const marginXData = mongoose.model("marginX", marginXSchema);
