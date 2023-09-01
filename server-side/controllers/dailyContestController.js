@@ -1557,7 +1557,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             // Match the contest with the given id
             {
                 $match: {
-                    _id: new ObjectId(id),
+                    _id: new ObjectId(contestId),
                 },
             },
             // Deconstruct the participants array to output a document for each participant
