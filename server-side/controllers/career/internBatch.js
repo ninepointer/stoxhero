@@ -912,9 +912,11 @@ exports.getEligibleInternshipBatch = async(req,res, next) => {
       batch.batchEndDate <= new Date()
     );
     if(internshipBatches.length == 0){
+      console.log('no bathces');
       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
     }
     const lastBatch = internshipBatches[internshipBatches.length -1];
+    console.log('lastBatch', lastBatch);
     const attendanceDocs = await InternshipOrders.aggregate([
       {
         $match: {
@@ -945,13 +947,16 @@ exports.getEligibleInternshipBatch = async(req,res, next) => {
         },
       },
     ]);
-    
+    console.log('attendance', attendanceDocs);
     if(attendanceDocs.length == 0){
+      console.log('no attendance docs');
       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
     }
-    const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate);
+    const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate, lastBatch?.batchEndDate);
+    console.log('totalMarketDays', totalMarketDays);
 
     if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
+      console.log('condition passed');
       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
     }
     
@@ -974,9 +979,11 @@ exports.downloadCertificate = async (req,res, next) => {
     const batch = await Batch.findById(batchId).select('batchStartDate batchEndDate');
     const userId = req.user._id;
     const user = await User.findById(userId).select('first_name last_name');
-    const name = `${user.first_name}' ' ${user.last_name}`;
-    const start = moment(batch?.batchStartDate.toString().split('T')[0]).format('Do MMMM YYYY');
-    const end = moment(batch?.batchEndDate.toString().split('T')[0]).format('Do MMMM YYYY');
+    const name = `${user.first_name} ${user.last_name}`;
+    console.log('this', batch?.batchStartDate);
+    const start = moment(batch?.batchStartDate).format('Do MMMM YYYY').toString();
+    const end = moment(batch?.batchEndDate).format('Do MMMM YYYY').toString();
+    console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
     const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
     // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
@@ -993,13 +1000,13 @@ exports.downloadCertificate = async (req,res, next) => {
     });
     firstPage.drawText(start, {
         x: 450,
-        y: 342,
+        y: 344,
         size: 14
     });
     firstPage.drawText(end, {
         x: 620,
-        y: 342,
-        size: 14
+        y: 344,
+        size: 14,
     });
     // console.log(firstPage);
     // Serialize the modified PDF back to bytes
@@ -1021,9 +1028,9 @@ exports.downloadCertificate = async (req,res, next) => {
 
 
 
-async function countTradingDays(startDate) {
+async function countTradingDays(startDate, endDate) {
   let start = moment(startDate);
-  let end = moment();
+  let end = moment(endDate);
 
   let count = 0;
 
