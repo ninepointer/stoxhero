@@ -14,6 +14,10 @@ const marginXSchema = new Schema({
         type:Date,
         required: true
     },
+    liveTime:{
+        type:Date,
+        required: true
+    },
     marginXTemplate:{
         type: Schema.Types.ObjectId,
         ref: 'marginX-template',
