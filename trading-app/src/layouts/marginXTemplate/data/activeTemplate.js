@@ -19,7 +19,7 @@ const [activeTemplate,setActiveTemplate] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${apiUrl}battles/adminupcoming`,{
+    let call1 = axios.get(`${apiUrl}marginxtemplate/active`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -65,19 +65,19 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                           <Grid container>
                               
                               <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left" >
-                                  <MDTypography fontSize={15} style={{color:"black",paddingRight:4,fontWeight:'bold'}}>Template Name: {e?.contestName}</MDTypography>
+                                  <MDTypography fontSize={15} style={{color:"black",paddingRight:4,fontWeight:'bold'}}>Template Name: {e?.templateName}</MDTypography>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={2} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Value: <span style={{fontSize:11,fontWeight:700}}>{e?.registeredUsers?.length}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Portfolio Value: <span style={{fontSize:11,fontWeight:700}}>{e?.portfolioValue}</span></MDTypography>
                               </Grid>
       
                               <Grid item xs={12} md={6} lg={1.4} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>Entry Fee: <span style={{fontSize:11,fontWeight:700}}>{e?.contestStatus ? e?.contestStatus : 'Status not available'}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Entry Fee: <span style={{fontSize:11,fontWeight:700}}>{e?.entryFee }</span></MDTypography>
                               </Grid>
 
                               <Grid item xs={12} md={6} lg={2.3} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"black"}}>Status: <span style={{fontSize:11,fontWeight:700}}>{moment.utc(e?.contestStartTime).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
+                                  <MDTypography fontSize={9} style={{color:"black"}}>Status: <span style={{fontSize:11,fontWeight:700}}>{e?.status}</span></MDTypography>
                               </Grid>
       
                           </Grid>

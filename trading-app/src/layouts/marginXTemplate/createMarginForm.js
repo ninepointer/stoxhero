@@ -83,7 +83,7 @@ function Index() {
   
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
       const { templateName, portfolioValue, entryFee, status } = formState;
-      const res = await fetch(`${apiUrl}battles/`, {
+      const res = await fetch(`${apiUrl}marginxtemplate`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -129,7 +129,7 @@ function Index() {
     }
     const { templateName, portfolioValue, entryFee, status } = formState;
 
-    const res = await fetch(`${apiUrl}battles/${template?._id}`, {
+    const res = await fetch(`${apiUrl}marginxtemplate/${template?._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {

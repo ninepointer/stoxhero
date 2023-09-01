@@ -10,3 +10,4 @@ router.route('/active').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), get
 router.route('/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), editMarginXTemplate);
 
 module.exports = router;
+// marginxtemplate

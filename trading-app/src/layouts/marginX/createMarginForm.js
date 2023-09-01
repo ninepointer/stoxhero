@@ -57,7 +57,7 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const marginx = location?.state?.data;
-  const [collegeSelectedOption, setCollegeSelectedOption] = useState();
+  // const [collegeSelectedOption, setCollegeSelectedOption] = useState();
   // console.log('id hai', marginx);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -103,7 +103,7 @@ function Index() {
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/portfolio/battleportfolio`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/marginxtemplate/active`, {withCredentials: true})
       .then((res) => {
         console.log("Battle Portfolios :", res?.data?.data)
         setTemplate(res?.data?.data);
@@ -138,14 +138,14 @@ function Index() {
       if(formState.startTime > formState.endTime){
         return openErrorSB("Error", "Date range is not valid.")
       }
-      if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.payoutStatus || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
+      if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants  ) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         return openErrorSB("Missing Field", "Please fill all the mandatory fields")
       }
 
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
       const { marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
-      const res = await fetch(`${baseUrl}api/v1/battles/`, {
+      const res = await fetch(`${baseUrl}api/v1/marginx/`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -184,13 +184,13 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
     }
-    if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.payoutStatus || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
+    if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants  ) {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
     const { marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
 
-    const res = await fetch(`${baseUrl}api/v1/battles/${marginx?._id}`, {
+    const res = await fetch(`${baseUrl}api/v1/marginx/${marginx?._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
