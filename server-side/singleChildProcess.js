@@ -252,7 +252,7 @@ async function singleProcess() {
 
         }
         const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireTenXSubscription);
-        const internshipPayout = nodeCron.schedule(`0 0 11 * * *`, updateUserWallet);
+        const internshipPayout = nodeCron.schedule(`0 0 15 * * *`, updateUserWallet);
 
     }
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
@@ -281,6 +281,7 @@ async function singleProcess() {
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
 
     //  TODO toggle
+    app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
     app.use('/api/v1', require("./routes/contest/contestRuleRoute"));
     app.use('/api/v1', require("./services/xts/xtsHelper/getPosition"));
     app.use('/api/v1', require("./routes/dbEntry/dbEntryRoute"));

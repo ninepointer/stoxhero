@@ -11,8 +11,11 @@ router.get('/contest/dailyallcontestusers', Authenticate, restrictTo('Admin', 'S
 router.get('/contestusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getUsers);
 router.patch('/feededuct', Authenticate, contestController.deductSubscriptionAmount);
 router.get('/contest/:id', Authenticate, contestController.getContest);
+router.get('/usercontestdata/:id', Authenticate, contestController.userContestDetail);
 
 router.put('/contest/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editContest);
+router.patch('/switchUser/:contestId', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.switchUser);
+
 router.put('/purchaseintent/:id', Authenticate, contestController.purchaseIntent);
 
 router.delete('/contest/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.deleteContest);
@@ -27,6 +30,9 @@ router.put('/contest/:id/share',Authenticate, contestController.copyAndShare);
 
 // Routes for getting contests 
 router.get('/contests', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.getAllContests);
+router.route('/:id/rewards').get(contestController.getRewards).patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.addReward);
+router.route('/:id/rewards/:rewardId').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editReward);
+
 router.get('/contests/upcoming', Authenticate, contestController.getUpcomingContests);
 router.get('/contests/userlive', Authenticate, contestController.getUserLiveContests);
 router.get('/collegecontests/userupcoming', Authenticate, contestController.getCollegeUserUpcomingContests);

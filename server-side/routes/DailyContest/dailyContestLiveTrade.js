@@ -3,7 +3,7 @@ const router = express.Router({mergeParams: true});
 
 const {traderPnlTWiseSingleUserLive, companyDailyPnlTWiseSingleUserLive, 
         companyPnlReportLive, brokerReportMatchLive, traderPnlTWiseLive, traderMatrixPnlLive, pnlTraderCompany, overallLivePnlToday, 
-        getLetestLiveTradeCompany, overallLivePnlMismatchToday, overallAllContestPnlCompany,
+        switchWindowPnlData, overallLivePnlMismatchToday, overallAllContestPnlCompany,
         traderLiveComapny, DailyContestPnlTWiseTraderSide, DailyContestPnlTWise,
         overallDailyContestTraderPnl, overallDailyContestPnlYesterday,       
         overallDailyContestCompanySidePnlThisMonth, overallDailyContestCompanySidePnlLifetime, 
@@ -30,20 +30,9 @@ router.route('/live/traderwisetraderpnlreport/:id').get(Authenticate, restrictTo
 router.route('/live/traderwisecompanypnlreport/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), DailyContestPnlTWise)
 
 router.route('/live/traderWiseCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderLiveComapny)
+router.route('/live/singleswitchcontest/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), switchWindowPnlData)
 
 router.route('/live/traderPnlCompany/:id').get(Authenticate, restrictTo('Admin', 'Super Admin'), pnlTraderCompany)
-// router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), companyDailyPnlTWiseLive)
-// router.route('/live/brokerreportmatch/:printDate/:fromDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), brokerReportMatchLive)
-// router.route('/live/traderwisetraderpnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderPnlTWiseLive)
-
-// router.route('/live/tradermatrixpnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderMatrixPnlLive)
-// router.route('/live/mockPnlBatchWise/:batchname').get(Authenticate, restrictTo('Admin', 'Super Admin'), overallPnlBatchWiseLive)
-// router.route('/live/traderwiseBatchWise/:batchname').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderwiseBatchLive)
-// router.route('/live/traderwisetraderpnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderPnlTWiseLive)
-// router.route('/live/companypnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), companyPnlReportLive)
-// router.route('/live/traderwisecompanypnlreport/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), companyDailyPnlTWiseLive)
-// router.route('/live/companypnlreportsingleuser/:userId/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), companyDailyPnlTWiseSingleUserLive)
-// router.route('/live/traderpnlreportsingleuser/:userId/:startDate/:endDate').get(Authenticate, restrictTo('Admin', 'Super Admin'), traderPnlTWiseSingleUserLive)
 
 
 module.exports = router;

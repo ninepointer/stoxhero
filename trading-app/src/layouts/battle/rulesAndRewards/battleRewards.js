@@ -17,7 +17,7 @@ import CreateRewardForm from "./createReward"
 
 const BattleRewards = ({battle}) => {
 
-    const [reRender, setReRender] = useState(true);
+    // const [reRender, setReRender] = useState(true);
     const [createRewardForm,setCreateRewardForm] = useState(false);
     const [battleRewards,setbattleRewards] = useState([]);
     const { columns, rows } = battleRewardData();

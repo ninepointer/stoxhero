@@ -13,19 +13,9 @@ const emailService = require("../utils/emailService")
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
     try {
-        const { currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
+        const { liveThreshold, currentLiveStatus, contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
             contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex } = req.body;
-        // console.log(req.body)
-
-        // const getContest = await Contest.findOne({collegeCode: collegeCode});
-        // if(getContest?.collegeCode){
-        //     return res.status(500).json({
-        //         status:'error',
-        //         message: "College Code is already exist.",
-
-        //     });
-        // }
+            maxParticipants, contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, payoutType } = req.body;
 
         const getContest = await Contest.findOne({ contestName: contestName });
 
@@ -37,9 +27,9 @@ exports.createContest = async (req, res) => {
         }
 
         const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio,
+            maxParticipants, contestStatus, contestEndTime, contestStartTime, contestOn, description, portfolio, payoutType,
             contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus
+            contestExpiry, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold
         });
 
         // console.log(contest)
@@ -67,7 +57,35 @@ exports.editContest = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
-
+        const contest = await Contest.findById(id);
+        console.log('vals', updates?.liveThreshold, contest?.liveThreshold);
+        console.log('cond',updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold)
+        if(updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold){
+            //Check if the update is before 5 minutes of the contest start time, send error
+            if(new Date()>= new Date(new Date(contest.contestStartTime.toString()).getTime() - 5 * 60 * 1000)){
+                return res.status(400).json({stauts:'error', message:'Can\'t edit live threshold five minutes before start time'});
+            }
+            //Update the participants according to the threshold
+            const usersNumContests = await calculateNumContestsForUsers(id);
+            const userIdsInSource = new Set(usersNumContests.filter(obj => obj.totalContestsCount <= updates?.liveThreshold).map(obj => obj.userId.toString()));
+            const len = contest?.participants?.length;    
+            console.log('num', usersNumContests, userIdsInSource, len);
+            for (let i =0; i<len ;i++) {
+                if (userIdsInSource.has(contest?.participants[i].userId.toString())) {
+                    console.log('resetting true');
+                    contest.participants[i].isLive = true;
+                }else{
+                    console.log('resetting false');
+                    contest.participants[i].isLive = false;    
+                }
+            }
+            const resp = await Contest.findByIdAndUpdate(id, updates, { new: true });
+            await contest.save({validateBeforeSave:false});
+            return res.status(200).json({
+                status: 'success',
+                message: "Contest updated successfully",
+            });
+        }
         const result = await Contest.findByIdAndUpdate(id, updates, { new: true });
 
         if (!result) {
@@ -79,6 +97,7 @@ exports.editContest = async (req, res) => {
             message: "Contest updated successfully",
         });
     } catch (error) {
+        console.log('error' ,error);
         res.status(500).json({
             status: 'error',
             message: "Error in updating contest",
@@ -86,6 +105,111 @@ exports.editContest = async (req, res) => {
         });
     }
 };
+
+//Function to calculate the number of contests users have already participated in
+
+async function calculateNumContestsForUsers(contestId){
+    const pipeline = [
+        // Match the contest with the given id
+        {
+          $match: {
+            _id: new ObjectId(contestId),
+          },
+        },
+        // Deconstruct the participants array to output a document for each participant
+        { $unwind: "$participants" },
+      
+                  // Gather the userIds of the participants
+        { $group: { _id: null, userIds: { $addToSet: "$participants.userId" } } },
+
+        // Match all contests that these users have participated in
+        { $unwind: "$userIds" },
+        { $lookup: {
+            from: "daily-contests",
+            localField: "userIds",
+            foreignField: "participants.userId",
+            as: "userContests"
+        } },
+
+        // Determine if the contest is free or paid
+        { $unwind: "$userContests" },
+        { $addFields: {
+            "userContests.isFree": { $eq: ["$userContests.entryFee", 0] },
+            "userContests.isPaid": { $ne: ["$userContests.entryFee", 0] },
+        } },
+
+        // Group by userId to count and aggregate required fields
+        { $group: { 
+            _id: "$userIds",
+            totalContestsCount: { $sum: 1 },
+            uniqueTradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$userContests.contestStartTime" } } },
+            totalFreeContests: { $sum: { $cond: ["$userContests.isFree", 1, 0] } },
+            totalPaidContests: { $sum: { $cond: ["$userContests.isPaid", 1, 0] } },
+        } },
+
+        // Format the output
+        {
+            $project: {
+                _id: 0,
+                userId: "$_id",
+                totalContestsCount: 1,
+                totalTradingDays: { $size: "$uniqueTradingDays" },  // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
+                totalFreeContests: 1,
+                totalPaidContests: 1
+            }
+        }
+    ];
+    const result = await Contest.aggregate(pipeline);
+
+    return result;
+}
+
+exports.switchUser = async (req, res) => {
+    const { contestId } = req.params;
+    const {userId, isLive} = req.body;
+
+    try {
+        const contest = await Contest.findById(contestId);
+        for(elem of contest.participants){
+            if (elem.userId.toString() === userId.toString()){
+                elem.isLive = !isLive;
+            }
+        }
+        await contest.save();
+        res.status(200).json({
+            status: "success",
+            message: "Switched successfully",
+            data: contest
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+}
+
+exports.userContestDetail = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const data = await calculateNumContestsForUsers(id);
+        res.status(200).json({
+            status: "success",
+            message: "Fetched successfully",
+            data: data
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+}
 
 // Controller for deleting a contest
 exports.deleteContest = async (req, res) => {
@@ -142,15 +266,27 @@ exports.getAllLiveContests = async (req, res) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
 
-    let tomorrowDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
-    tomorrowDate = tomorrowDate + "T00:00:00.000Z";
-    const tomorrow = new Date(tomorrowDate);
-  
-  
+    // let tomorrowDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()+1).padStart(2, '0')}`
+    // tomorrowDate = tomorrowDate + "T00:00:00.000Z";
+    // const tomorrow = new Date(tomorrowDate);
+    // Calculate the next day by adding 24 hours (86400000 milliseconds) to the current date
+    const nextDay = new Date(today.getTime() + 86400000);
+
+    // Extract year, month, and day from the next day
+    const nextYear = nextDay.getFullYear();
+    const nextMonth = nextDay.getMonth() + 1; // Months are zero-based, so add 1
+    const nextDate = nextDay.getDate();
+
+    // Format the next day as a string in "YYYY-MM-DD" format
+    const formattedNextDay = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-${nextDate.toString().padStart(2, '0')}`;
+    const tomorrow = new Date(formattedNextDay);
+
+
+    console.log(today, tomorrow)
     try {
-        const contests = await Contest.find({contestType: "Live", contestEndTime: {$lt: tomorrow}, contestStartTime: {$gte: today}})
-        .populate('portfolio', 'portfolioValue portfolioName')
-        .sort({ contestStartTime: -1 })
+        const contests = await Contest.find({ contestType: "Live", contestEndTime: { $lt: tomorrow }, contestStartTime: { $gte: today } })
+            .populate('portfolio', 'portfolioValue portfolioName')
+            .sort({ contestStartTime: -1 })
 
         res.status(200).json({
             status: "success",
@@ -158,6 +294,7 @@ exports.getAllLiveContests = async (req, res) => {
             data: contests
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             status: "error",
             message: "Something went wrong",
@@ -585,7 +722,6 @@ exports.getCompletedContests = async (req, res) => {
     }
 };
 
-
 // Controller for getting completed contests
 exports.getCompletedCollegeContests = async (req, res) => {
     const userId = req.user._id;
@@ -702,6 +838,100 @@ exports.removeAllowedUser = async (req, res) => {
     }
 };
 
+exports.getRewards = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const contest = await Contest.findById(id);
+        if (!contest) {
+            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+        }
+        res.status(200).json({ status: 'success', message: 'rewards fetched', data: contest.rewards });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+}
+
+exports.addReward = async (req, res, next) => {
+    const { id } = req.params;
+    const { rankStart, rankEnd, prize } = req.body;
+    if (rankStart > rankEnd) {
+        return res.status(400).json({ status: 'error', message: 'Start Rank should be less than equal to end Rank' });
+    }
+    try {
+        const contest = await Contest.findById(id);
+        if (!contest) {
+            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+        }
+        for (let reward of contest.rewards) {
+            if (contest.rewards.length > 0) {
+                if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
+                    (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
+                    return res.status(400).json({ status: 'error', message: 'Ranks overlap with existing rewards' });
+                }
+            }
+        }
+        contest.rewards.push({ rankStart, rankEnd, prize });
+        await contest.save({ validateBeforeSave: false });
+        res.status(201).json({ status: 'success', message: 'Reward added' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+
+}
+
+exports.editReward = async (req, res) => {
+    const { rewardId, id } = req.params;
+    const { rankStart, rankEnd, prize } = req.body;
+
+    if (rankStart > rankEnd) {
+        return res.status(400).json({ status: 'error', message: 'rankStart must be less than rankEnd' });
+    }
+
+    try {
+        const contest = await Contest.findById(id);
+
+        if (!contest) {
+            return res.status(404).json({ status: 'error', message: 'Contest not found' });
+        }
+
+        const rewardIndex = contest.rewards.findIndex(r => r._id.toString() === rewardId);
+
+        if (rewardIndex === -1) {
+            return res.status(404).json({ status: 'error', message: 'Reward not found' });
+        }
+
+        // Check for overlap with other rewards, excluding the one being edited
+        for (const [index, reward] of contest.rewards.entries()) {
+            if (index === rewardIndex) continue; // Skip the current reward being edited
+            if ((rankStart >= reward.rankStart && rankStart <= reward.rankEnd) ||
+                (rankEnd >= reward.rankStart && rankEnd <= reward.rankEnd)) {
+                return res.status(400).json({ status: 'error', message: 'Ranks overlap with existing rewards' });
+            }
+        }
+
+        contest.rewards[rewardIndex] = { rankStart, rankEnd, prize };
+        await contest.save();
+
+        res.status(200).json({ status: 'success', message: 'Reward updated successfully' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
+        });
+    }
+}
 
 // Controller for getting users
 exports.getUsers = async (req, res) => {
@@ -745,18 +975,16 @@ exports.registerUserToContest = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ status: "error", message: "Invalid contest ID or user ID" });
         }
+
         const result = await Contest.findByIdAndUpdate(
             id,
             {
                 $addToSet: {
                     interestedUsers: {
-                        $each: [
-                            {
-                                userId: userId,
-                                registeredOn: new Date(),
-                                status: 'Joined',
-                            },
-                        ],
+                        userId: userId,
+                        registeredOn: new Date(),
+                        status: 'Joined',
+                        isLive: false // Default value, will be updated later
                     },
                 },
             },
@@ -888,8 +1116,6 @@ exports.participateUsers = async (req, res) => {
             ]
         })
 
-        // console.log("getActiveContest", getActiveContest)
-
         if (getActiveContest.length > 0) {
             if (!contest.potentialParticipants.includes(userId)) {
                 contest.potentialParticipants.push(userId);
@@ -897,8 +1123,6 @@ exports.participateUsers = async (req, res) => {
             }
             return res.status(404).json({ status: "error", message: "You can only participate in another contest once your current contest ends!" });
         }
-
-
 
         if (contest?.maxParticipants <= contest?.participants?.length) {
             if (!contest.potentialParticipants.includes(userId)) {
@@ -908,15 +1132,137 @@ exports.participateUsers = async (req, res) => {
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
-        const result = await Contest.findByIdAndUpdate(
-            id,
-            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
 
+        const noOfContest = await Contest.aggregate([
+            // Match the contest with the given id
+            {
+              $match: {
+                _id: new ObjectId(id),
+              },
+            },
+            // Deconstruct the participants array to output a document for each participant
+            {
+              $unwind: "$participants",
+            },
+            {
+              $match:
+                /**
+                 * query: The query in MQL.
+                 */
+                {
+                  "participants.userId": new ObjectId(
+                    userId
+                  ),
+                },
+            },
+            // Gather the userIds of the participants
+            {
+              $group: {
+                _id: null,
+                userIds: {
+                  $addToSet: "$participants.userId",
+                },
+              },
+            },
+            // Match all contests that these users have participated in
+            {
+              $unwind: "$userIds",
+            },
+            {
+              $lookup: {
+                from: "daily-contests",
+                localField: "userIds",
+                foreignField: "participants.userId",
+                as: "userContests",
+              },
+            },
+            // Determine if the contest is free or paid
+            {
+              $unwind: "$userContests",
+            },
+            {
+              $addFields: {
+                "userContests.isFree": {
+                  $eq: ["$userContests.entryFee", 0],
+                },
+                "userContests.isPaid": {
+                  $ne: ["$userContests.entryFee", 0],
+                },
+              },
+            },
+            // Group by userId to count and aggregate required fields
+            {
+              $group: {
+                _id: "$userIds",
+                totalContestsCount: {
+                  $sum: 1,
+                },
+                uniqueTradingDays: {
+                  $addToSet: {
+                    $dateToString: {
+                      format: "%Y-%m-%d",
+                      date: "$userContests.contestStartTime",
+                    },
+                  },
+                },
+                totalFreeContests: {
+                  $sum: {
+                    $cond: ["$userContests.isFree", 1, 0],
+                  },
+                },
+                totalPaidContests: {
+                  $sum: {
+                    $cond: ["$userContests.isPaid", 1, 0],
+                  },
+                },
+              },
+            },
+            // Format the output
+            {
+              $project: {
+                _id: 0,
+                userId: "$_id",
+                totalContestsCount: 1,
+                totalTradingDays: {
+                  $size: "$uniqueTradingDays",
+                },
+                // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
+                totalFreeContests: 1,
+                totalPaidContests: 1,
+              },
+            },
+          ])
+
+
+        const result = await Contest.findOne({ _id: new ObjectId(contestId) });
+
+        
         if (!result) {
             return res.status(404).json({ status: "error", message: "Something went wrong." });
         }
+
+        let obj = {
+            userId: userId,
+            participatedOn: new Date(),
+        }
+        // Now update the isLive field based on the liveThreshold value
+        if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+            obj.isLive = true;
+            console.log("in if")
+        } else {
+            console.log("in else")
+            obj.isLive = false;
+        }
+
+        result.participants.push(obj);
+
+
+
+
+        console.log(result)
+        // Save the updated document
+        await result.save();
+
 
         res.status(200).json({
             status: "success",
@@ -1216,11 +1562,126 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             return res.status(404).json({ status: "error", message: "The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest." });
         }
 
-        const result = await Contest.findByIdAndUpdate(
-            contestId,
-            { $push: { participants: { userId: userId, participatedOn: new Date() } } },
-            { new: true }  // This option ensures the updated document is returned
-        );
+        const noOfContest = await Contest.aggregate([
+            // Match the contest with the given id
+            {
+                $match: {
+                    _id: new ObjectId(contestId),
+                },
+            },
+            // Deconstruct the participants array to output a document for each participant
+            {
+                $unwind: "$participants",
+            },
+            {
+                $match:
+                /**
+                 * query: The query in MQL.
+                 */
+                {
+                    "participants.userId": new ObjectId(
+                        userId
+                    ),
+                },
+            },
+            // Gather the userIds of the participants
+            {
+                $group: {
+                    _id: null,
+                    userIds: {
+                        $addToSet: "$participants.userId",
+                    },
+                },
+            },
+            // Match all contests that these users have participated in
+            {
+                $unwind: "$userIds",
+            },
+            {
+                $lookup: {
+                    from: "daily-contests",
+                    localField: "userIds",
+                    foreignField: "participants.userId",
+                    as: "userContests",
+                },
+            },
+            // Determine if the contest is free or paid
+            {
+                $unwind: "$userContests",
+            },
+            {
+                $addFields: {
+                    "userContests.isFree": {
+                        $eq: ["$userContests.entryFee", 0],
+                    },
+                    "userContests.isPaid": {
+                        $ne: ["$userContests.entryFee", 0],
+                    },
+                },
+            },
+            // Group by userId to count and aggregate required fields
+            {
+                $group: {
+                    _id: "$userIds",
+                    totalContestsCount: {
+                        $sum: 1,
+                    },
+                    uniqueTradingDays: {
+                        $addToSet: {
+                            $dateToString: {
+                                format: "%Y-%m-%d",
+                                date: "$userContests.contestStartTime",
+                            },
+                        },
+                    },
+                    totalFreeContests: {
+                        $sum: {
+                            $cond: ["$userContests.isFree", 1, 0],
+                        },
+                    },
+                    totalPaidContests: {
+                        $sum: {
+                            $cond: ["$userContests.isPaid", 1, 0],
+                        },
+                    },
+                },
+            },
+            // Format the output
+            {
+                $project: {
+                    _id: 0,
+                    userId: "$_id",
+                    totalContestsCount: 1,
+                    totalTradingDays: {
+                        $size: "$uniqueTradingDays",
+                    },
+                    // Note: Ensure "contestExpiry" can be represented as a numerical value to sum
+                    totalFreeContests: 1,
+                    totalPaidContests: 1,
+                },
+            },
+        ])
+
+        const result = await Contest.findOne({ _id: new ObjectId(contestId) });
+
+        let obj = {
+            userId: userId,
+            participatedOn: new Date(),
+        }
+        // Now update the isLive field based on the liveThreshold value
+        if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
+            obj.isLive = true;
+            console.log("in if")
+        } else {
+            console.log("in else")
+            obj.isLive = false;
+        }
+
+        result.participants.push(obj);
+
+        // console.log(result)
+        // Save the updated document
+        await result.save();
 
 
         wallet.transactions = [...wallet.transactions, {

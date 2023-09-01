@@ -71,6 +71,22 @@ const InternBatch = require("../../models/Careers/internBatch")
 const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveCompany")
 
 
+
+
+router.get("/tenxSubs", async (req, res) => {
+
+  const subs = await TenxSubscription.find();
+
+  for(elem of subs){
+    for(subelem of elem.users){
+      if(subelem.expiredBy === "System" && subelem.expiredOn > new Date("2023-08-31")){
+        console.log(subelem);
+      }
+    }
+  }
+  // res.send(updateResult);
+});
+
 router.get("/addFeildInTenx", async (req, res) => {
   const updateResult = await TenxSubscription.updateMany(
     {}, // An empty filter matches all documents in the collection
@@ -1330,7 +1346,7 @@ router.get("/updateRole", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res)=>{
   let date = new Date();
-  let expiryDate = "2023-08-25T00:00:00.000+00:00"
+  let expiryDate = "2023-09-01T00:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   // let instrument = await Instrument.find({status: "Active"})

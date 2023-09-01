@@ -925,4 +925,42 @@ router.get("/normalusers", Authenticate, restrictTo('Admin', 'SuperAdmin'), asyn
 
 });
 
+router.get("/adminAndcr", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
+  const newuser = await UserDetail.aggregate([
+    {
+      $lookup: {
+        from: "role-details",
+        localField: "role",
+        foreignField: "_id",
+        as: "roles",
+      },
+    },
+    {
+      $unwind: {
+        path: "$roles",
+      },
+    },
+    {
+      $match: {
+        "roles.roleName": {
+          $in: ["Admin", "Customer Relations"],
+        },
+      },
+    },
+    {
+      $project:
+        {
+          first_name: 1,
+          last_name: 1,
+          employeeid: 1,
+          _id: 1,
+          email: 1,
+          mobile: 1,
+        },
+    },
+  ])
+  return res.status(200).json({data : newuser, count: newuser.length});
+
+});
+
 module.exports = router;

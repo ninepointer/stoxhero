@@ -164,7 +164,9 @@ import WalletPayment from "./layouts/walletPayment";
 import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 import InfinityContest from "./layouts/dailyContestDashboard/data/infinityContestHeader"
 import DailyContestLiveReport from "./layouts/dailyContestReportLive"
-
+import ContestMaster from "./layouts/dailyContest/contestMaster/contestMaster"
+// import CreateContestMaster from './layouts/dailyContest/ContestMaster/createContestMasterHeader'
+import CreateContestMasterHeader from "./layouts/dailyContest/contestMaster/createContestMasterHeader";
 const routes = [
 
   {
@@ -545,6 +547,20 @@ const routes = [
     // icon: <SupervisorAccountIcon/>,
     route: "/contestdashboard/dailycontestposition",
     component: <DailyContestPosition />,
+  },
+
+  {
+    // type: "collapse",
+    // name: "Tenx Position",
+    key: "contestmaster",
+    // icon: <SupervisorAccountIcon/>,
+    route: "/contestdashboard/contestmaster",
+    component: <ContestMaster />,
+  },
+
+  {
+    route: "/createContestMaster",
+    component: <CreateContestMasterHeader />,
   },
 
   {

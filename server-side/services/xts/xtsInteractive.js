@@ -68,10 +68,11 @@ const interactiveLogin = async () => {
         await ifServerCrashAfterOrder();
       }
 
-     if(process.env.PROD === "true"){
+      //todo-vijay
+    //  if(process.env.PROD === "true"){
         await client.set('interactive-token', JSON.stringify(logIn?.result?.token))
         await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
-     }
+    //  }
 
 
     })();
@@ -620,6 +621,7 @@ const autoPlaceOrder = (obj, res) => {
         reject({ message: "Something Went Wrong. Please Trade Again.", err: "Error" });
       }
 
+      
       if(!dontSendResp){
         setTimeout(()=>{
           res.status(200).json(`ok${Math.random()}`);
@@ -1417,17 +1419,8 @@ const saveToMockSwitchContest = async (orderData, traderData, startTime, res) =>
     const liveCompanyTrade = await DailyContestLiveCompany.updateOne({ order_id: order_id }, { $setOnInsert: companyDoc }, { upsert: true, session });
     const algoTraderLive = await DailyContestLiveTrader.updateOne({ order_id: order_id }, { $setOnInsert: traderDoc }, { upsert: true, session });
 
+    console.log(liveCompanyTrade, algoTraderLive)
       await session.commitTransaction();
-
-    // console.log("data saved in retreive order for", AppOrderID)
-
-    // console.log("dontSendResp bahr", dontSendResp)
-    // if (!dontSendResp && redisApproval) {
-    //   await client.expire(`liveOrderBackupKey`, 600);
-    //   await client.HDEL('liveOrderBackupKey', AppOrderID.toString());
-    //   io.emit(`sendResponse${trader.toString()}`, { message: { Quantity: Quantity, symbol: symbol }, status: "complete" })
-    //   // return res.status(201).json({ message: responseMsg, err: responseErr })
-    // }
 
   } catch (err) {
 

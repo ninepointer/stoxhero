@@ -5,6 +5,7 @@ const contestMasterSchema = new Schema({
     contestMaster:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true,
     },
     contestMasterMobile:{
         type: String,
@@ -13,15 +14,21 @@ const contestMasterSchema = new Schema({
     stoxheroPOC:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true,
     },
     college:{
         type: Schema.Types.ObjectId,
         ref: 'college',
+        required: true,
     },
     status:{
         type:String,
         required: true,
         enum: ['Active','Inactive']
+    },
+    inviteCode:{
+        type:String,
+        required: true,
     },
     createdOn:{
         type: Date,
