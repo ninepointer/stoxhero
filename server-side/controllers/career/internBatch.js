@@ -891,86 +891,168 @@ exports.getTodaysInternshipOrders = async (req, res, next) => {
     return res.json({status: 'success', active: activeUsers, inactive: inactiveUsers});
   }
   
-exports.getEligibleInternshipBatch = async(req,res, next) => {
-  try{
+// exports.getEligibleInternshipBatch = async(req,res, next) => {
+//   try{
+//     const user = await User.findById(req.user._id)
+//     .populate({
+//         path: 'internshipBatch',
+//         select: 'batchName career batchStartDate batchEndDate attendancePercentage',  // select only 'batchName' and 'career' fields from 'internshipBatch'
+//         populate: {
+//             path: 'career',
+//             select: 'listingType'  // select only 'listingType' from 'career'
+//         }
+//     });
+//     if(!user?.internshipBatch || user?.internshipBatch == 0){
+//       return res.status(200).json({data:{}, result:0, message:'No eligible batches'});
+//     }
+
+//     const batches = user?.internshipBatch;
+//     const internshipBatches = batches.filter(batch => 
+//       batch.career.listingType === 'Job' && 
+//       batch.batchEndDate <= new Date()
+//     );
+//     if(internshipBatches.length == 0){
+//       console.log('no bathces');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+//     const lastBatch = internshipBatches[internshipBatches.length -1];
+//     console.log('lastBatch', lastBatch);
+//     const attendanceDocs = await InternshipOrders.aggregate([
+//       {
+//         $match: {
+//           status: "COMPLETE",
+//           batch: new ObjectId(lastBatch._id),
+//           trader: new ObjectId(req.user._id)
+//         },
+//       },
+//       {
+//         $group: {
+//           _id:0,
+//           tradingDays: {
+//             $addToSet: {
+//               $dateToString: {
+//                 format: "%Y-%m-%d",
+//                 date: "$trade_time",
+//               },
+//             },
+//           },
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           tradingDays: {
+//             $size: "$tradingDays",
+//           },
+//         },
+//       },
+//     ]);
+//     console.log('attendance', attendanceDocs);
+//     if(attendanceDocs.length == 0){
+//       console.log('no attendance docs');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+//     const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate, lastBatch?.batchEndDate);
+//     console.log('totalMarketDays', totalMarketDays);
+
+//     if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
+//       console.log('condition passed');
+//       return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+//     }
+    
+//     return res.status(200).json({
+//       status:'success',
+//       message:'eligible for certificate',
+//       batch: lastBatch?._id
+//     });
+
+//   }catch(e){
+//     console.log(e);
+//     res.status(500).json({status:'error', message:'Something went wrong.'})
+//   }
+// }
+exports.getEligibleInternshipBatch = async(req, res, next) => {
+  try {
     const user = await User.findById(req.user._id)
-    .populate({
+      .populate({
         path: 'internshipBatch',
-        select: 'batchName career batchStartDate batchEndDate attendancePercentage',  // select only 'batchName' and 'career' fields from 'internshipBatch'
+        select: 'batchName career batchStartDate batchEndDate attendancePercentage',
         populate: {
-            path: 'career',
-            select: 'listingType'  // select only 'listingType' from 'career'
+          path: 'career',
+          select: 'listingType'
         }
-    });
-    if(!user?.internshipBatch || user?.internshipBatch == 0){
-      return res.status(200).json({data:{}, result:0, message:'No eligible batches'});
+      });
+    if (!user?.internshipBatch || user?.internshipBatch.length == 0) {
+      return res.status(200).json({ data: {}, result: 0, message: 'No eligible batches' });
     }
 
     const batches = user?.internshipBatch;
-    const internshipBatches = batches.filter(batch => 
-      batch.career.listingType === 'Job' && 
+    const internshipBatches = batches.filter(batch =>
+      batch.career.listingType === 'Job' &&
       batch.batchEndDate <= new Date()
     );
-    if(internshipBatches.length == 0){
-      console.log('no bathces');
-      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
-    }
-    const lastBatch = internshipBatches[internshipBatches.length -1];
-    console.log('lastBatch', lastBatch);
-    const attendanceDocs = await InternshipOrders.aggregate([
-      {
-        $match: {
-          status: "COMPLETE",
-          batch: new ObjectId(lastBatch._id),
-          trader: new ObjectId(req.user._id)
+
+    const eligibleBatches = []; // To hold eligible batches
+
+    for (let batch of internshipBatches) {
+      const attendanceDocs = await InternshipOrders.aggregate([
+        {
+          $match: {
+            status: "COMPLETE",
+            batch: new ObjectId(batch._id),
+            trader: new ObjectId(req.user._id)
+          },
         },
-      },
-      {
-        $group: {
-          _id:0,
-          tradingDays: {
-            $addToSet: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$trade_time",
+        {
+          $group: {
+            _id: 0,
+            tradingDays: {
+              $addToSet: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$trade_time",
+                },
               },
             },
-          },
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          tradingDays: {
-            $size: "$tradingDays",
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            tradingDays: {
+              $size: "$tradingDays",
+            },
           },
         },
-      },
-    ]);
-    console.log('attendance', attendanceDocs);
-    if(attendanceDocs.length == 0){
-      console.log('no attendance docs');
-      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
-    }
-    const totalMarketDays = await countTradingDays(lastBatch?.batchStartDate, lastBatch?.batchEndDate);
-    console.log('totalMarketDays', totalMarketDays);
+      ]);
 
-    if((attendanceDocs[0].tradingDays/totalMarketDays)*100 <= lastBatch?.attendancePercentage -5){
-      console.log('condition passed');
-      return res.status(200).json({data:internshipBatches, result:0, message:'No eligible batches'});
+      if (attendanceDocs.length == 0) continue; // Go to the next iteration
+
+      const totalMarketDays = await countTradingDays(batch?.batchStartDate, batch?.batchEndDate);
+      if ((attendanceDocs[0].tradingDays / totalMarketDays) * 100 > batch?.attendancePercentage - 5) {
+        eligibleBatches.push({
+          id: batch._id,
+          name: batch.batchName
+        });
+      }
     }
-    
+
+    if (eligibleBatches.length == 0) {
+      return res.status(200).json({ data: internshipBatches, result: 0, message: 'No eligible batches' });
+    }
+
     return res.status(200).json({
-      status:'success',
-      message:'eligible for certificate',
-      batch: lastBatch?._id
+      status: 'success',
+      message: 'Eligible for certificate',
+      batches: eligibleBatches
     });
 
-  }catch(e){
+  } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message:'Something went wrong.'})
+    res.status(500).json({ status: 'error', message: 'Something went wrong.' });
   }
 }
+
 
 exports.downloadCertificate = async (req,res, next) => {
   try {

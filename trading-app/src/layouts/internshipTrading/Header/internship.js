@@ -17,6 +17,7 @@ import beginner from '../../../assets/images/beginner.png'
 import intermediate from '../../../assets/images/intermediate.png'
 import pro from '../../../assets/images/pro.png'
 import checklist from '../../../assets/images/checklist.png'
+import {BiDownload} from 'react-icons/bi'
 
 // import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -49,7 +50,7 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   const [serverTime, setServerTime] = useState();
   const [batchEndDate, setBatchEndDate] = useState();
   const [currentBatch, setCurrentBatch] = useState();
-  const [certificateBatch, setCertificateBatch] = useState('');
+  const [certificateBatches, setCertificateBatches] = useState([]);
   const [myReferralCount, setMyReferralCount] = useState(getDetails?.userDetails?.referrals?.length);
   // const portfolioValue = getDetails?.userDetails?.internshipBatch[0]?.portfolio?.portfolioValue
   // const [portfolioValue, setPortfolioValue] = useState();
@@ -94,9 +95,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
 
 
   }
-  const handleDownload = async () => {
+  const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`${baseUrl}api/v1/internbatch/download/${certificateBatch}`, {
+      const response = await axios.get(`${baseUrl}api/v1/internbatch/download/${id}`, {
         responseType: 'blob',
         withCredentials: true
       });
@@ -204,9 +205,9 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
   })()}, []);
   useEffect(()=> {(async ()=>{
     const res = await axios.get(`${baseUrl}api/v1/internbatch/eligibleforcertificate`, {withCredentials:true});
-    console.log("Batch certificate",res?.data?.batch);
-    if(res?.data?.batch){
-       setCertificateBatch(res.data.batch); 
+    console.log("Batch certificate",res?.data?.batches);
+    if(res?.data?.batches){
+       setCertificateBatches(res.data.batches); 
     }
   })()}, []);
 
@@ -563,7 +564,10 @@ export default function TenXSubscriptions({myInternshipTradingDays,myOverallInte
     </Grid>
     :
     <MDBox display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{window.open('/careers','_blank')}}>Apply for Internships</MDButton></MDBox>}
-    {certificateBatch != '' && <MDBox mt={2} display='flex' alignItems='center' justifyContent='center'><MDButton onClick={handleDownload}>Download Internship Certificate</MDButton></MDBox>}
+    {certificateBatches.length !=0 && certificateBatches.map((elem)=>{
+      return <MDBox mt={2} display='flex' alignItems='center' justifyContent='center'><MDButton onClick={()=>{handleDownload(elem?.id)}}>Internship Certificate - {elem.name} <BiDownload color='green'/></MDButton></MDBox>
+    })
+      }
     </MDBox>
   );
 }
