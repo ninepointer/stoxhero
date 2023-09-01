@@ -250,13 +250,16 @@ function Index() {
 
     const data = await res.json();
     console.log(data);
-    if (data.status === 500 || data.error || !data) {
+    if (data.status === 500 || data.status == 400 || data.status==401 || data.status == 'error' || data.error || !data) {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
-    } else {
+    } else if(data.status == 'success') {
       openSuccessSB("Contest Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
+    }else{
+      openErrorSB("Error", data.message);
+      setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     }
   }
 

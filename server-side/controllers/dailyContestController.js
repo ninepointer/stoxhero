@@ -58,6 +58,8 @@ exports.editContest = async (req, res) => {
             return res.status(400).json({ status: "error", message: "Invalid contest ID" });
         }
         const contest = await Contest.findById(id);
+        console.log('vals', updates?.liveThreshold, contest?.liveThreshold);
+        console.log('cond',updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold)
         if(updates?.liveThreshold && updates?.liveThreshold != contest?.liveThreshold){
             //Check if the update is before 5 minutes of the contest start time, send error
             if(new Date()>= new Date(new Date(contest.contestStartTime.toString()).getTime() - 5 * 60 * 1000)){
@@ -66,14 +68,20 @@ exports.editContest = async (req, res) => {
             //Update the participants according to the threshold
             const usersNumContests = await calculateNumContestsForUsers(id);
             const userIdsInSource = new Set(usersNumContests.filter(obj => obj.totalContestsCount <= updates?.liveThreshold).map(obj => obj.userId.toString()));
-            const  len = contest?.participants?.length;    
-            for (let i =0; i<len-1 ;i++) {
+            const len = contest?.participants?.length;    
+            console.log('num', usersNumContests, userIdsInSource, len);
+            for (let i =0; i<len ;i++) {
                 if (userIdsInSource.has(contest?.participants[i].userId.toString())) {
+                    console.log('resetting true');
                     contest.participants[i].isLive = true;
+                }else{
+                    console.log('resetting false');
+                    contest.participants[i].isLive = false;    
                 }
             }
+            const resp = await Contest.findByIdAndUpdate(id, updates, { new: true });
             await contest.save({validateBeforeSave:false});
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 message: "Contest updated successfully",
             });
@@ -89,6 +97,7 @@ exports.editContest = async (req, res) => {
             message: "Contest updated successfully",
         });
     } catch (error) {
+        console.log('error' ,error);
         res.status(500).json({
             status: 'error',
             message: "Error in updating contest",
