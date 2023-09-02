@@ -12,7 +12,7 @@ import { socketContext } from '../../../socketContext';
 import LiveMarginXs from '../data/liveMarginXs';
 import UpcomingMarginXs from '../data/upcomingMarginXs';
 import CompletedMarginXs from '../data/completedMarginXs'
-import MarginXsLeaderboard from '../../contestScoreboard/Header'
+import MarginXsLeaderboard from '../../contestScoreboard/Header/marginXLeaderBoard'
 
 export default function LabTabs() {
     const [clicked, setClicked] = useState('live')

@@ -159,6 +159,30 @@ exports.getOngoingMarginXs = async (req, res) => {
     }
 };
 
+exports.getUserLiveMarginXs = async (req, res) => {
+    const now = new Date();
+    try {
+        const ongoingMarginXs = await MarginX.find({ 
+            startTime: { $lte: now }, 
+            endTime: { $gt: now },
+            status : 'Active' 
+        })
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee')
+
+        res.status(200).json({
+            status: 'success',
+            data: ongoingMarginXs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching ongoing MarginXs",
+            error: error.message
+        });
+    }
+};
+
 // Controller to fetch only Upcoming MarginXs
 exports.getUpcomingMarginXs = async (req, res) => {
     const now = new Date();
@@ -183,6 +207,29 @@ exports.getUpcomingMarginXs = async (req, res) => {
     }
 };
 
+exports.getUserUpcomingMarginXs = async (req, res) => {
+    const now = new Date();
+    try {
+        const upcomingMarginXs = await MarginX.find({ 
+            startTime: { $gt: now },
+            status : 'Active'
+        })
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee')
+        
+        res.status(200).json({
+            status: 'success',
+            data: upcomingMarginXs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching upcoming MarginXs",
+            error: error.message
+        });
+    }
+}
+
 // Controller for getting todaysMarinX 
 exports.todaysMarinX = async (req, res) => {
     let date = new Date();
@@ -206,8 +253,7 @@ exports.todaysMarinX = async (req, res) => {
         res.status(500).json({
             status: "error",
             message: "Error in fetching upcoming marginx",
-            error: error.message
-        });
+        })
     }
 };
 
@@ -216,8 +262,32 @@ exports.getCompletedMarginXs = async (req, res) => {
     const now = new Date();
     try {
         const completedMarginXs = await MarginX.find({ 
-            status: 'Completed'
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess');
+            status: 'Completed',
+        }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee');
+        
+        res.status(200).json({
+            status: 'success',
+            data: completedMarginXs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching completed MarginXs",
+            error: error.message
+        });
+    }
+};
+
+exports.getUserCompletedMarginXs = async (req, res) => {
+    const userId = req.user._id;
+    try {
+        const completedMarginXs = await MarginX.find({ 
+            status: 'Completed',
+            "participants.userId": new ObjectId(userId),
+        })
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee');
         
         res.status(200).json({
             status: 'success',

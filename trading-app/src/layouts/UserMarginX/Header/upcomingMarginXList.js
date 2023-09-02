@@ -62,7 +62,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
         document.execCommand('copy');
         document.body.removeChild(textarea);
         openSuccessSB('success', 'Link Copied', 'Share it with your friends');
-        const res = await fetch(`${baseUrl}api/v1/marginx/share/${id}`, {
+        const res = await fetch(`${baseUrl}api/v1/marginx/${id}/share`, {
             method: "PUT",
             credentials: "include",
             headers: {
@@ -157,7 +157,6 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
       const handleClose = () => {
         setOpen(false);
       };
-    
 
     // console.log("timediffrence", timeDifference)
 
@@ -349,23 +348,16 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             style={{minWidth:'95%', fontSize:10}} 
                                                             size='small' 
                                                             color='info'
-                                                            onClick={() => { navigate(`/marginxs/${elem?.marginXName}/${elem?.startTime.split('T')[0]}`,{ 
-                                                                state: { elem:elem, date:elem?.startTime, id:elem?._id}
-                                                            }) }}
+                                                            onClick={() => { navigate(`/marginxs/${elem?.marginXName}`) }}
                                                         >
                                                             View
                                                         </MDButton>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%'}} size='small' color='warning' onClick={() => { handleCopy(elem?._id) }}>Share</MDButton>
+                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='warning'>Share</MDButton>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        {/* <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} /> */}
-                                                        {isParticipated ?
-                                                                        <PopupTrading elem={elem} timeDifference={particularMarginXTime[0]?.value} />
-                                                                        :
-                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} />
-                                                                    }
+                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='success'>Buy</MDButton>
                                                     </Grid>
                                                 </Grid>
 

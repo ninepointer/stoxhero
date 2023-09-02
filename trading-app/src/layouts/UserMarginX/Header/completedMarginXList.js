@@ -9,14 +9,6 @@ import ReactGA from "react-ga"
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Paper from '@mui/material/Paper';
-import Draggable from 'react-draggable';
-import Button from '@mui/material/Button';
 
 // Images
 import ContestCarousel from '../../../assets/images/target.png'
@@ -31,23 +23,11 @@ import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
 import InfoIcon from '@mui/icons-material/Info';
 
-function PaperComponent(props) {
-    return (
-      <Draggable
-        handle="#draggable-dialog-title"
-        cancel={'[class*="MuiDialogContent-root"]'}
-      >
-        <Paper {...props} />
-      </Draggable>
-    );
-  }
-
 function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
-    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
@@ -62,7 +42,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
         document.execCommand('copy');
         document.body.removeChild(textarea);
         openSuccessSB('success', 'Link Copied', 'Share it with your friends');
-        const res = await fetch(`${baseUrl}api/v1/marginx/share/${id}`, {
+        const res = await fetch(`${baseUrl}api/v1/marginx/${id}/share`, {
             method: "PUT",
             credentials: "include",
             headers: {
@@ -150,16 +130,8 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
         />
     );
 
-    const handleClickOpen = () => {
-        setOpen(true);
-      };
-    
-      const handleClose = () => {
-        setOpen(false);
-      };
-    
-
     // console.log("timediffrence", timeDifference)
+
 
     return (
         <>
@@ -170,32 +142,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                         {
                             marginX?.map((elem) => {
                                 if (elem?.entryFee !== 0) {
-                                    // let contestOn = [];
-                                    if (elem.isNifty) {
-                                        // contestOn.push("NIFTY")
-                                    }
-                                    if (elem.isBankNifty) {
-                                        // contestOn.push("BANKNIFTY")
-                                    }
-                                    if (elem.isFinNifty) {
-                                        // contestOn.push("FINNIFTY")
-                                    }
-
-                                    // contestOn.push(elem.contestExpiry.toUpperCase());
-
-                                    let progressBar = elem?.participants?.length * 100 / elem?.maxParticipants
-                                    // let timeDifference = new Date(elem?.contestStartTime) - new Date(serverTime);
-                                    // let checkIsInterested = elem?.interestedUsers.some(elem => elem?.userId?._id?.toString() == getDetails?.userDetails?._id?.toString())
-
-                                    // let isTradingEnable = new Date(elem?.contestEndTime) - serverTime;
-                                    let particularMarginXTime = timeDifference.filter((subelem) => {
-                                        return subelem?.id?.toString() === elem?._id?.toString();
-                                    })
-
-                                    let isParticipated = elem?.participants.some(elem => {
-                                        return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
-                                    })
-
+                                    
                                     // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                                     return (
                                         <Grid item xs={12} md={6} lg={4} borderRadius={3}>
@@ -210,55 +157,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             </Grid>
                                                             <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='right'>
                                                                 <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                    <MDButton 
-                                                                        color='info' 
-                                                                        style={{padding:-2,margin:-2}} 
-                                                                        size='small' 
-                                                                        varaint='outlined'
-                                                                        onClick={handleClickOpen}
-                                                                    >
-                                                                        <InfoIcon color='blue' />
-                                                                    </MDButton>
-                                                                        <Dialog
-                                                                            open={open}
-                                                                            onClose={handleClose}
-                                                                            PaperComponent={PaperComponent}
-                                                                            aria-labelledby="draggable-dialog-title"
-                                                                        >
-                                                                            <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-                                                                                Introducing MarginX: Your Gateway to Realistic Trading
-                                                                            </DialogTitle>
-                                                                            <DialogContent>
-                                                                            <DialogContentText>
-                                                                                
-                                                                                <p style={{textAlign:'center', marginBottom:2}}>We've designed this innovative trading experience to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible.</p>
-
-                                                                                <p style={{textAlign:'center', fontWeight:'bold'}}>What is MarginX?</p>
-
-                                                                                <p style={{textAlign:'center'}}>In MarginX, you won't just learn about trading; you'll experience it. MarginX is designed to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible & also continue to make real profit using virtual currency. Your success in MarginX depends on your ability to make informed decisions, manage risk, and seize opportunities – just like in the real trading world.</p>
-
-                                                                                <p style={{textAlign:'center', fontWeight:'bold', marginBottom:2}}>Here's how it works:</p>
-
-                                                                                <p style={{textAlign:'center'}}>Profit on Your Investment: Just like real options trading, you'll make a profit on the amount you've invested. Let's say you've invested Rs. 100. If you grow your trading capital by 10%, your real profit will also be 10% of your invested amount, which is Rs. 10. So your final amount will be Rs. 100 (your invested amount) + Rs. 10 (profit earned), making the total Rs. 110.</p>
-
-                                                                                <p style={{textAlign:'center', fontWeight:'bold', marginBottom:2}}>Safety Net: If you end up with the same capital, your entire invested amount is safe.</p>
-
-                                                                                <p style={{textAlign:'center'}}>Proportional Loss: If your capital reduces by 10%, your real loss will also be in the same proportion, i.e., Rs. 10. So your final amount will be Rs. 100 (your invested amount) - Rs. 10 (loss made), making the total Rs. 90.</p>
-
-                                                                                <p style={{textAlign:'center', fontWeight:'bold'}}>When will I receive my profit in my wallet?</p>
-
-                                                                                <p style={{textAlign:'center'}}>You recieve the payout in your wallet as soon as the market closes for that day i.e after 3:30 PM</p>
-
-
-                                                                            </DialogContentText>
-                                                                            </DialogContent>
-                                                                            <DialogActions>
-                                                                            <Button autoFocus onClick={handleClose}>
-                                                                                Got it!
-                                                                            </Button>
-                                                                            {/* <Button onClick={handleClose}>Subscribe</Button> */}
-                                                                            </DialogActions>
-                                                                        </Dialog>
+                                                                    <MDButton color='info' style={{padding:-2,margin:-2}} size='small' varaint='outlined'><InfoIcon color='blue' /></MDButton>
                                                                 </MDBox>
                                                             </Grid>
                                                         </Grid>
@@ -278,10 +177,10 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pt={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>   
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                        <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>No. of Seats Left</MDTypography>
+                                                        <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Net P&L</MDTypography>
                                                     </Grid>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Time Remaining</MDTypography>
+                                                        <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Net Earnings</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
@@ -349,23 +248,16 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             style={{minWidth:'95%', fontSize:10}} 
                                                             size='small' 
                                                             color='info'
-                                                            onClick={() => { navigate(`/marginxs/${elem?.marginXName}/${elem?.startTime.split('T')[0]}`,{ 
-                                                                state: { elem:elem, date:elem?.startTime, id:elem?._id}
-                                                            }) }}
+                                                            onClick={() => { navigate(`/marginxs/${elem?.marginXName}`) }}
                                                         >
                                                             View
                                                         </MDButton>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%'}} size='small' color='warning' onClick={() => { handleCopy(elem?._id) }}>Share</MDButton>
+                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='warning'>Share P&L</MDButton>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        {/* <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} /> */}
-                                                        {isParticipated ?
-                                                                        <PopupTrading elem={elem} timeDifference={particularMarginXTime[0]?.value} />
-                                                                        :
-                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} />
-                                                                    }
+                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='success'>Orders</MDButton>
                                                     </Grid>
                                                 </Grid>
 

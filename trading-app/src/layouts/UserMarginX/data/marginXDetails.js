@@ -1,11 +1,10 @@
 import { React, useState, useEffect, useContext } from "react";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { userContext } from '../../../AuthContext';
 import moment from 'moment'
+import { useNavigate, useLocation } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
 import realtrading from '../../../assets/images/realtrading.png'
 import WinnerImage from '../../../assets/images/cup-image.png'
 
@@ -118,6 +117,7 @@ useEffect(() => {
             sx={{ borderLeft: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRight: `10px solid ${messageObj.icon == 'check' ? "green" : "red"}`, borderRadius: "15px", width: "auto" }}
         />
     );
+    const navigate = useNavigate();
 
   return (
     <Grid xs={12} md={12} lg={12} mt={2} container spacing={1} display='flex' flexDirection='row' alignItems='start'>
@@ -337,6 +337,19 @@ useEffect(() => {
                             <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
                                     <MDButton size='small' variant='contained' color='success' style={{minWidth:'100%'}}>Buy</MDButton>
+                                </MDBox>
+                            </Grid>
+                            <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
+                                <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
+                                    <MDButton 
+                                        size='small' 
+                                        variant='contained' 
+                                        color='info' 
+                                        style={{minWidth:'100%'}}
+                                        onClick={() => { navigate('/marginxs') }}
+                                    >
+                                        Back to MarginX Page
+                                    </MDButton>
                                 </MDBox>
                             </Grid>
                         </Grid>
