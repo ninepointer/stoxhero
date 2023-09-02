@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const MarginX = require('../../models/marginX/marginX'); 
 const Wallet  = require('../../models/UserWallet/userWalletSchema');
-const MarginXMockUser = require('../../models/marginX/marginXTrade');
+const MarginXMockUser = require('../../models/marginX/marginXUserMock');
 // const { ObjectId } = require('mongodb');
 // const uuid = require("uuid");
 // const emailService = require("../../utils/emailService");
@@ -9,7 +9,7 @@ const MarginXMockUser = require('../../models/marginX/marginXTrade');
 exports.createMarginX = async (req, res) => {
     try {
         const { 
-            marginXName, startTime, endTime, marginXTemplate, maxParticipants, 
+            marginXName, startTime, endTime, marginXTemplate, maxParticipants,
             status, payoutStatus, marginXExpiry, isNifty, isBankNifty, isFinNifty, liveTime 
         } = req.body;
 
@@ -139,7 +139,7 @@ exports.getOngoingMarginXs = async (req, res) => {
             startTime: { $lte: now }, 
             endTime: { $gt: now } 
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess' )
-        .populate('marginXTemplate', 'templateName portfolioValue')
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
         res.status(200).json({
             status: 'success',
@@ -162,7 +162,7 @@ exports.getUpcomingMarginXs = async (req, res) => {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now }
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('marginXTemplate', 'templateName portfolioValue')
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
         res.status(200).json({
             status: 'success',

@@ -16,12 +16,9 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import VideoChatIcon from '@mui/icons-material/VideoChat';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-// import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AutoFixNormalIcon from '@mui/icons-material/AutoFixNormal';
-// import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-// import { GiNinjaHeroicStance } from 'react-icons/gi';
-
+import MarginIcon from '@mui/icons-material/Margin';
 //page routes
 import Tnc from "./layouts/terms/tnc";
 import UserOrders from "./layouts/userorders";
@@ -61,11 +58,13 @@ import BattleDetails from './layouts/UserBattle/battleInfo'
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import CollegeContestTradingWindow from './layouts/UserDailyContestCollage/ContestTradingView'
-import MarginXTradingWindow from "./layouts/UserDailyContest copy/ContestTradingView";
+import MarginXTradingWindow from "./layouts/UserMarginX/MarginxTradingView";
 
 import Chart from './layouts/charts/index';
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
 import DailyCollegeContestOrder from "./layouts/UserDailyContestCollage/Orders"
+
+import MarginX from './layouts/UserMarginX'
 
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
 import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/pastContestMain"
@@ -138,6 +137,14 @@ const routes = [
     icon: <LocalFireDepartmentIcon/>,
     route: "/battleground",
     component: <UserBattle />,
+  },
+  {
+    type: "collapse",
+    name: "MarginXs",
+    key: "marginxs",
+    icon: <MarginIcon/>,
+    route: "/marginxs",
+    component: <MarginX />,
   },
   {
     type: "collapse",

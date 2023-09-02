@@ -15,7 +15,9 @@ router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftMa
 router.route('/share/:id').put(Authenticate, copyAndShare);    
 router.put('/purchaseintent/:id', Authenticate, purchaseIntent);
 router.put('participate/:id', Authenticate, participateUsers);    
+router.get('/live', Authenticate, getOngoingMarginXs);
 router.route('/:id').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'),editMarginX).
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getMarginXById);
+
 
 module.exports=router;
