@@ -85,6 +85,19 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     messege.thanksMessege && setShowPay(!showPay);
   };
 
+  async function captureIntent() {
+    handleClickOpen();
+    const res = await fetch(`${baseUrl}api/v1/marginxs/purchaseintent/${elem._id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": true
+      },
+      body: JSON.stringify({
+      })
+    });
+  }
 
   const buySubscription = async () => {
     if (userWallet < elem.entryFee) {
@@ -98,7 +111,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        marginXFee: elem?.entryFee, marginXName: elem?.marginXName, marginXId: elem?._id
+        entryFee: elem?.entryFee, marginXName: elem?.marginXName, marginXId: elem?._id
       })
     });
     const dataResp = await res.json();
@@ -112,7 +125,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     } else {
       setMessege({
         ...messege,
-        thanksMessege: `Thanks for the payment of ₹${elem.entryFee}, your seat is booked for the MarginX - ${elem.marginXName}, please click on "Start Trading" once the MarginX starts.`
+        thanksMessege: `Thanks for the payment of ₹${elem?.marginXTemplate?.entryFee}, your seat is booked for the MarginX - ${elem.marginXName}, please click on "Start Trading" once the MarginX starts.`
       })
     }
   }
@@ -122,11 +135,12 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     <>
       <MDBox>
         <MDButton
-          variant='outlined'
-          color='error'
-          size='small' 
+          color='success'
+          size='small'
+          style={{minWidth: '90px'}}
+          onClick={captureIntent} 
          >
-            Pay Now
+            Buy
         </MDButton>
       </MDBox>
 

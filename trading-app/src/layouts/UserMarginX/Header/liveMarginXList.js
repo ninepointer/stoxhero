@@ -270,10 +270,15 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                         <MDButton style={{minWidth:'95%'}} size='small' color='info'>View</MDButton>
                                                     </Grid>
                                                     <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%'}} size='small' color='warning'>Share</MDButton>
+                                                        <MDButton style={{minWidth:'95%'}} size='small' color='warning' onClick={() => { handleCopy(elem?._id) }}>Share</MDButton>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%'}} size='small' color='success'>Buy</MDButton>
+                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        {/* <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} /> */}
+                                                        {isParticipated ?
+                                                                        <PopupTrading elem={elem} timeDifference={particularMarginXTime[0]?.value} />
+                                                                        :
+                                                                        <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} />
+                                                                    }
                                                     </Grid>
                                                 </Grid>
 

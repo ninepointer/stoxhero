@@ -21,7 +21,7 @@ const PopupTrading = ({elem, timeDifference}) => {
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [data, setData] = useState("The contest is already full. We sincerely appreciate your enthusiasm to participate in our contest. Please join in our future contest.");
     const getDetails = useContext(userContext);
-    
+    console.log('time difference', timeDifference);
 
     // console.log("main data", open)
     const navigate = useNavigate();
@@ -32,7 +32,7 @@ const PopupTrading = ({elem, timeDifference}) => {
     };
 
 
-    async function participateUserToContest(elem) {
+    async function participateUserToMarginX(elem) {
         let isParticipated = elem?.participants.some(elem => {
             return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
         })
@@ -72,13 +72,13 @@ const PopupTrading = ({elem, timeDifference}) => {
         <div>
             {timeDifference ?
             <MDButton
-                variant='outlined'
-                color= {elem?.entryFee>0 ? "light" :'warning'}
+                // variant='outlined'
+                color= {"success" }
                 size='small'
                 disabled={timeDifference > 0}
-                onClick={() => { participateUserToContest(elem) }}
+                onClick={() => { participateUserToMarginX(elem) }}
             >
-                <MDTypography color={elem?.entryFee>0 ? "light" :'warning'} fontWeight='bold' fontSize={10}>START TRADING</MDTypography>
+                <MDTypography color={"light" } fontWeight='bold' fontSize={9}>START TRADING</MDTypography>
             </MDButton>
             :
             ""}

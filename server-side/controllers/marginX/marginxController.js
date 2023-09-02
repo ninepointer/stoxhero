@@ -2,9 +2,12 @@ const mongoose = require('mongoose');
 const MarginX = require('../../models/marginX/marginX'); 
 const Wallet  = require('../../models/UserWallet/userWalletSchema');
 const MarginXMockUser = require('../../models/marginX/marginXUserMock');
-// const { ObjectId } = require('mongodb');
-// const uuid = require("uuid");
-// const emailService = require("../../utils/emailService");
+const { ObjectId } = require('mongodb');
+const User = require('../../models/User/userDetailSchema');
+
+
+const uuid = require("uuid");
+const emailService = require("../../utils/emailService");
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -372,14 +375,14 @@ exports.copyAndShare = async (req, res) => {
         const userId = req.user._id;
 
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ status: "error", message: "Invalid contest ID or user ID" });
+            return res.status(400).json({ status: "error", message: "Invalid marginx ID or user ID" });
         }
 
         const result = await MarginX.findByIdAndUpdate(
             id,
             {
                 $addToSet: {
-                    contestSharedBy: {
+                    sharedBy: {
                         $each: [
                             {
                                 userId: userId,
@@ -393,12 +396,12 @@ exports.copyAndShare = async (req, res) => {
         );
 
         if (!result) {
-            return res.status(404).json({ status: "error", message: "Contest not found" });
+            return res.status(404).json({ status: "error", message: "MarginX not found" });
         }
 
         res.status(200).json({
             status: "success",
-            message: "User share to contest successfully",
+            message: "User shared marginx",
             data: result
         });
     } catch (error) {
@@ -429,15 +432,15 @@ exports.participateUsers = async (req, res) => {
                     userId: new ObjectId(userId)
                 }
             },
-            contestStatus: "Active",
+            status: "Active",
             // entryFee: 0,
             $or: [
                 { startTime: { $gte: new Date(marginx.startTime), $lte: new Date(marginx.endTime) } },
                 { endTime: { $gte: new Date(marginx.startTime), $lte: new Date(marginx.endTime) } },
                 {
                     $and: [
-                        { contestStartTime: { $lte: new Date(marginx.startTime) } },
-                        { contestEndTime: { $gte: new Date(marginx.endTime) } }
+                        { startTime: { $lte: new Date(marginx.startTime) } },
+                        { endTime: { $gte: new Date(marginx.endTime) } }
                     ]
                 }
             ]
@@ -458,6 +461,19 @@ exports.participateUsers = async (req, res) => {
             }
             return res.status(404).json({ status: "error", message: "The marginx is already full. We sincerely appreciate your enthusiasm to participate in the marginX. Please join in the next marginX." });
         }
+        const result = await MarginX.findOne({ _id: new ObjectId(id) });
+
+        let obj = {
+            userId: userId,
+            boughtAt: new Date(),
+        }
+
+        result.participants.push(obj);
+
+        // console.log(result)
+        // Save the updated document
+        await result.save();
+
         res.status(200).json({
             status: "success",
             message: "Participate successfully",
@@ -471,3 +487,174 @@ exports.participateUsers = async (req, res) => {
         });
     }
 };
+
+exports.deductMarginXAmount = async (req, res, next) => {
+
+    try {
+        const { entryFee, marginXName, marginXId } = req.body
+        const userId = req.user._id;
+
+        const marginx = await MarginX.findOne({ _id: marginXId }).populate('marginXTemplate', 'entryFee');
+        const wallet = await Wallet.findOne({ userId: userId });
+        const user = await User.findOne({ _id: userId });
+
+        const cashTransactions = (wallet)?.transactions?.filter((transaction) => {
+            return transaction.transactionType === "Cash";
+        });
+
+        const totalCashAmount = cashTransactions?.reduce((total, transaction) => {
+            return total + transaction?.amount;
+        }, 0);
+
+        if (totalCashAmount < marginx?.marginXTemplate?.entryFee) {
+            return res.status(404).json({ status: "error", message: "You do not have enough balance to join this marginx. Please add money to your wallet." });
+        }
+
+        for (let i = 0; i < marginx?.participants?.length; i++) {
+            if (marginx?.participants[i]?.userId?.toString() === userId?.toString()) {
+                return res.status(404).json({ status: "error", message: "You have already participated in this marginx" });
+            }
+        }
+
+        if (marginx?.maxParticipants <= marginx?.participants?.length) {
+            if (!marginx.potentialParticipants.includes(userId)) {
+                marginx.potentialParticipants.push(userId);
+                marginx.save();
+            }
+            return res.status(404).json({ status: "error", message: "The marginx is already full. We sincerely appreciate your enthusiasm. Please join another marginx" });
+        }
+
+        const result = await MarginX.findOne({ _id: new ObjectId(marginXId) });
+
+        let obj = {
+            userId: userId,
+            boughtAt: new Date(),
+        }
+
+        result.participants.push(obj);
+
+        // console.log(result)
+        // Save the updated document
+        await result.save();
+
+
+        wallet.transactions = [...wallet.transactions, {
+            title: 'MarginX Fee',
+            description: `Amount deducted for ${marginx?.marginXName} MarginX fee`,
+            transactionDate: new Date(),
+            amount: (-marginx?.marginXTemplate?.entryFee),
+            transactionId: uuid.v4(),
+            transactionType: 'Cash'
+        }];
+        wallet.save();
+
+        if (!result || !wallet) {
+            return res.status(404).json({ status: "error", message: "Something went wrong." });
+        }
+
+        let recipients = [user.email,'team@stoxhero.com'];
+        let recipientString = recipients.join(",");
+        let subject = "MarginX Fee - StoxHero";
+        let message = 
+        `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>MarginX Fee Deducted</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
+
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+
+                p {
+                    margin: 0 0 20px;
+                }
+
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>MarginX Fee</h1>
+                <p>Hello ${user.first_name},</p>
+                <p>Thanks for participating in marginX trading! Please find your transaction details below.</p>
+                <p>User ID: <span class="userid">${user.employeeid}</span></p>
+                <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+                <p>Email: <span class="password">${user.email}</span></p>
+                <p>Mobile: <span class="password">${user.mobile}</span></p>
+                <p>MarginX Name: <span class="password">${marginx?.marginXName}</span></p>
+                <p>MarginX Fee: <span class="password">₹${marginx?.marginXTemplate?.entryFee}/-</span></p>
+                </div>
+            </body>
+            </html>
+
+        `
+        if(process.env.PROD === "true"){
+            emailService(recipientString,subject,message);
+            console.log("Subscription Email Sent")
+        }
+
+        res.status(200).json({
+            status: "success",
+            message: "Paid successfully",
+            data: result
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+}

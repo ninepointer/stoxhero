@@ -53,7 +53,10 @@ const Timer = ({socket, date, setTimeDifference, id, elem, toggleContest, setTog
 
   return (
     <div>
-      <p style={{color: elem.entryFee>0 ? "white" : "black", fontSize:'10px', fontWeight:'bold'}}>{remainingTime}</p>
+      {remainingTime!= '00:00:00' ? 
+        <p style={{color: elem.entryFee>0 ? "white" : "black", fontSize:'10px', fontWeight:'bold'}}>{remainingTime}</p>:
+        <p style={{color: elem.entryFee>0 ? "white" : "black", fontSize:'10px', fontWeight:'bold'}}>MarginX Started</p>
+      }
     </div>
   );
 };

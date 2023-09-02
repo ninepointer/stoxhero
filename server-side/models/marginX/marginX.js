@@ -32,7 +32,7 @@ const marginXSchema = new Schema({
     potentialParticipants:[
         {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
     ],
-    contestSharedBy:[{
+    sharedBy:[{
         userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
         sharedAt:{type:Date}
     }],
