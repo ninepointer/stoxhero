@@ -47,7 +47,7 @@ const marginXSchema = new Schema({
     status:{
         type:String,
         required: true,
-        enum: ['Active','Draft','Cancelled', 'Completed']
+        enum: ['Active','Draft','Cancelled','Completed']
     },
     payoutStatus:{
         type:String,

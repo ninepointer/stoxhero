@@ -1,10 +1,7 @@
 import { React, useState, useEffect, useContext } from "react";
-import axios from "axios";
-import { userContext } from '../../../AuthContext';
-import moment from 'moment'
+import { useNavigate, useLocation } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
 import realtrading from '../../../assets/images/realtrading.png'
 import WinnerImage from '../../../assets/images/cup-image.png'
 
@@ -19,19 +16,11 @@ import MDBox from "../../../components/MDBox";
 // Images
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import {InfinityTraderRole, tenxTrader} from "../../../variables";
-import ContestCup from '../../../assets/images/candlestick-chart.png'
-import { Divider } from "@mui/material";
-import TelegramIcon from '@mui/icons-material/Telegram';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 
 
 function Header({ children }) {
-
+    const navigate = useNavigate();
 
   return (
     <Grid xs={12} md={12} lg={12} mt={2} container spacing={1} display='flex' flexDirection='row' alignItems='start'>
@@ -251,6 +240,19 @@ function Header({ children }) {
                             <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
                                 <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
                                     <MDButton size='small' variant='contained' color='success' style={{minWidth:'100%'}}>Buy</MDButton>
+                                </MDBox>
+                            </Grid>
+                            <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
+                                <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
+                                    <MDButton 
+                                        size='small' 
+                                        variant='contained' 
+                                        color='info' 
+                                        style={{minWidth:'100%'}}
+                                        onClick={() => { navigate('/marginxs') }}
+                                    >
+                                        Back to MarginX Page
+                                    </MDButton>
                                 </MDBox>
                             </Grid>
                         </Grid>

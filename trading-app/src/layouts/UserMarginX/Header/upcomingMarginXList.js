@@ -157,7 +157,6 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
       const handleClose = () => {
         setOpen(false);
       };
-    
 
     // console.log("timediffrence", timeDifference)
 

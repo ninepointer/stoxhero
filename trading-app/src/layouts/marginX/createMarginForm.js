@@ -422,7 +422,7 @@ function Index() {
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Draft">Draft</MenuItem>
                       <MenuItem value="Cancelled">Cancelled</MenuItem>
-                      <MenuItem value="Cancelled">Completed</MenuItem>
+                      <MenuItem value="Completed">Completed</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
