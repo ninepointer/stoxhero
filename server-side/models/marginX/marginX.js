@@ -14,6 +14,10 @@ const marginXSchema = new Schema({
         type:Date,
         required: true
     },
+    liveTime:{
+        type:Date,
+        required: true
+    },
     marginXTemplate:{
         type: Schema.Types.ObjectId,
         ref: 'marginX-template',
@@ -64,17 +68,16 @@ const marginXSchema = new Schema({
     },
     isNifty:{
         type:Boolean,
-        required: true
+        // required: true
     },
     isBankNifty:{
         type:Boolean,
-        required: true
+        // required: true
     },
     isFinNifty:{
         type:Boolean,
-        required: true
-    },
-
+        // required: true
+    }
 })
 
 const marginXData = mongoose.model("marginX", marginXSchema);

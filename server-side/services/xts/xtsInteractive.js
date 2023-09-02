@@ -68,11 +68,11 @@ const interactiveLogin = async () => {
         await ifServerCrashAfterOrder();
       }
 
-      //todo-vijay
-    //  if(process.env.PROD === "true"){
+   
+     if(process.env.PROD === "true"){
         await client.set('interactive-token', JSON.stringify(logIn?.result?.token))
         await save(logIn?.result?.userID, logIn?.result?.token, "Interactive")
-    //  }
+     }
 
 
     })();

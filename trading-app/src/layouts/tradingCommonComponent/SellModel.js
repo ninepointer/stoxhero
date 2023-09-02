@@ -31,7 +31,7 @@ import sound from "../../assets/sound/tradeSound.mp3"
 import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../variables";
 
 
-const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, contest}) => {
+const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchangeInstrumentToken, subscriptionId, sellState, exchange, symbol, instrumentToken, symbolName, lotSize, ltp, maxLot, fromSearchInstrument, expiry, from, setSellState, module}) => {
   // console.log("rendering in userPosition: sellModel", exchange)
   const {render, setRender} = useContext(renderContext);
   // const marketDetails = useContext(marketDataContext)
@@ -41,7 +41,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
     html5 : true
   })
   
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
@@ -201,7 +201,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
       trader = traderId;
       fromAdmin = true;
     }else if(from === dailyContest){
-      if(contest?.currentLiveStatus==="Live"){
+      if(module?.currentLiveStatus==="Live"){
         endPoint = 'placingLiveOrderDailyContest';
       } else{
         endPoint = 'placingOrderDailyContest';
@@ -215,7 +215,7 @@ const SellModel = ({chartInstrument, traderId, socket, exchangeSegment, exchange
         },
         body: JSON.stringify({
             
-          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId: contest?.data,
+          exchange, symbol, buyOrSell, Quantity, Price, subscriptionId, contestId: module?.data,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, internPath,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath

@@ -1234,7 +1234,7 @@ exports.participateUsers = async (req, res) => {
           ])
 
 
-        const result = await Contest.findOne({ _id: new ObjectId(contestId) });
+        const result = await Contest.findOne({ _id: new ObjectId(id) });
 
         
         if (!result) {
@@ -1564,11 +1564,11 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
         const noOfContest = await Contest.aggregate([
             // Match the contest with the given id
-            {
-                $match: {
-                    _id: new ObjectId(contestId),
-                },
-            },
+            // {
+            //     $match: {
+            //         _id: new ObjectId(contestId),
+            //     },
+            // },
             // Deconstruct the participants array to output a document for each participant
             {
                 $unwind: "$participants",
@@ -1668,6 +1668,8 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
             userId: userId,
             participatedOn: new Date(),
         }
+
+        console.log(noOfContest, noOfContest[0]?.totalContestsCount, result?.liveThreshold , result.currentLiveStatus)
         // Now update the isLive field based on the liveThreshold value
         if ((noOfContest[0]?.totalContestsCount < result?.liveThreshold) && result.currentLiveStatus === "Live") {
             obj.isLive = true;

@@ -7,7 +7,7 @@ const Careers = require("../models/Careers/careerSchema");
 const Wallet = require("../models/UserWallet/userWalletSchema");
 const uuid = require('uuid');
 const Holiday = require("../models/TradingHolidays/tradingHolidays");
-
+const moment = require('moment');
 const { ObjectId } = require("mongodb");
 
 
@@ -1125,7 +1125,9 @@ exports.internshipDailyPnlTWise = async (req, res, next) => {
   ]
 
 
-  let userData = await User.find().select("referrals")
+  let userData = await User.find()
+  .populate('referrals.referredUserId', 'joining_date')
+  .select("referrals")
   let x = await InternTrades.aggregate(pipeline)
 
   // res.status(201).json(x);
@@ -1140,7 +1142,9 @@ exports.updateUserWallet = async () => {
   try {
 
     let date = new Date();
+ 
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    // let todayDate = `2023-07-31`
 
     const internship = await Careers.aggregate([
       {
@@ -1329,13 +1333,29 @@ exports.updateUserWallet = async () => {
       }
 
       const referrals = async (user) => {
+        // elem.startDate, elem.endDate
+        let refCount = 0;
+        for (let subelem of user?.referrals) {
+          const joiningDate = moment(subelem?.referredUserId?.joining_date);
+        
+          // console.log((moment(moment(elem.startDate).format("YYYY-MM-DD"))), joiningDate, (moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 })))
+          // console.log("joiningDate", moment(moment(elem.batchStartDate).format("YYYY-MM-DD")), joiningDate ,endDate, endDate1, moment(endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }).format("YYYY-MM-DD HH:mm:ss"))
+          if (joiningDate.isSameOrAfter(moment(moment(elem.startDate).format("YYYY-MM-DD"))) && joiningDate.isSameOrBefore(moment(elem.endDate).set({ hour: 19, minute: 0, second: 0, millisecond: 0 }))) {
+            // console.log("joiningDate if", batchEndDate, batchEndDate.format("YYYY-MM-DD"))
+            refCount = refCount + 1;
+            // console.log("joiningDate if")
+          }
+        }
 
-        return user?.referrals?.length;
+        // console.log(refCount)
+        return refCount;
+        // user?.referrals?.length;
       }
 
 
       for (let i = 0; i < users.length; i++) {
-        const user = await User.findOne({ _id: new ObjectId(users[i].user), status: "Active" });
+        const user = await User.findOne({ _id: new ObjectId(users[i].user), status: "Active" })
+        .populate('referrals.referredUserId', 'joining_date')
         if(user){
           const tradingdays = await tradingDays(users[i].user, batchId);
           const attendance = (tradingdays * 100) / (workingDays - holiday.length);
@@ -1345,6 +1365,7 @@ exports.updateUserWallet = async () => {
 
           const wallet = await Wallet.findOne({ userId: new ObjectId(users[i].user) });
 
+          console.log( users[i].user, referral, creditAmount);
           if (creditAmount > 0) {
             if (attendance >= attendanceLimit && referral >= referralLimit && npnl > 0) {
 
@@ -1357,6 +1378,7 @@ exports.updateUserWallet = async () => {
               }];
               wallet.save();
 
+         
               if (process.env.PROD == 'true') {
                 sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
                 <!DOCTYPE html>
@@ -1459,6 +1481,7 @@ exports.updateUserWallet = async () => {
                   transactionType: 'Cash'
                 }];
                 wallet.save();
+               
                 if (process.env.PROD == 'true') {
                   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
                   <!DOCTYPE html>
@@ -1556,6 +1579,7 @@ exports.updateUserWallet = async () => {
                   transactionType: 'Cash'
                 }];
                 wallet.save();
+               
                 if (process.env.PROD == 'true') {
                   sendMail(user?.email, 'Internship Payout Credited - StoxHero', `
                   <!DOCTYPE html>

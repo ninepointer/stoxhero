@@ -34,7 +34,7 @@ import AutoCutPopUp from "./tradecutPopup";
 // import { AiOutlineLineChart } from "react-icons/ai";
 
 
-function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, contestData, setWatchList}) {
+function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, moduleData, setWatchList}) {
   const marketDetails = useContext(marketDataContext)
   const {render, setRender} = useContext(renderContext);
   const [buyState, setBuyState] = useState(false);
@@ -50,7 +50,7 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     opacity: 0.7
   }
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   // const { render, setRender } = Render;
   const [isAppLive, setisAppLive] = useState('');
@@ -101,10 +101,10 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
 
   const [instrumentData, setInstrumentData] = useState([]);
 
-  let isNifty = contestData?.isNifty;
-  let isBankNifty = contestData?.isBank;
-  let isFinNifty = contestData?.isFin;
-  let isAllIndex = contestData?.isAll;
+  let isNifty = moduleData?.isNifty;
+  let isBankNifty = moduleData?.isBank;
+  let isFinNifty = moduleData?.isFin;
+  let isAllIndex = moduleData?.isAll;
   let url = "";
   let endPoint = "";
 
@@ -211,11 +211,11 @@ function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionI
     }
 
     instrumentDetailObj.buy = (
-      <BuyModel contest={contestData} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
+      <BuyModel module={moduleData} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setBuyState={setBuyState}/> 
     );
     
     instrumentDetailObj.sell = (
-      <SellModel contest={contestData} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
+      <SellModel module={moduleData} socket={socket} exchangeInstrumentToken={elem.exchangeInstrumentToken} subscriptionId={subscriptionId} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.symbol} exchange={elem.exchange} instrumentToken={elem.instrumentToken} symbolName={ (elem.symbol).slice(-7)} lotSize={elem.lotSize} maxLot={elem.maxLot} ltp={(perticularInstrumentMarketData[0]?.last_price)?.toFixed(2)} setSellState={setSellState}/>
     );
 
     instrumentDetailObj.remove = (

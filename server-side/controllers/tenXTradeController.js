@@ -727,133 +727,133 @@ exports.autoExpireTenXSubscription = async () => {
           if(user){
 
             console.log(user._id, user.first_name)
-            // let len = user.subscription.length;
+            let len = user.subscription.length;
             
-            // for (let k = len - 1; k >= 0; k--) {
-            //   if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
-            //     user.subscription[k].status = "Expired";
-            //     user.subscription[k].expiredOn = new Date();
-            //     user.subscription[k].expiredBy = "System";
-            //     console.log("this is user", user)
-            //     await user.save();
-            //     break;
-            //   }
-            // }
+            for (let k = len - 1; k >= 0; k--) {
+              if (user.subscription[k].subscriptionId?.toString() === subscription[i]._id?.toString()) {
+                user.subscription[k].status = "Expired";
+                user.subscription[k].expiredOn = new Date();
+                user.subscription[k].expiredBy = "System";
+                console.log("this is user", user)
+                await user.save();
+                break;
+              }
+            }
 
-            // const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
-            // let Subslen = subs.users.length;
+            const subs = await Subscription.findOne({ _id: new ObjectId(subscription[i]._id) });
+            let Subslen = subs.users.length;
             
-            // for (let k = Subslen - 1; k >= 0; k--) {
-            //   if (subs.users[k].userId?.toString() === userId?.toString()) {
-            //     subs.users[k].status = "Expired";
-            //     subs.users[k].expiredOn = new Date();
-            //     subs.users[k].expiredBy = "System";
-            //     console.log("this is subs", subs)
-            //     await subs.save();
-            //     break;
-            //   }
-            // }
+            for (let k = Subslen - 1; k >= 0; k--) {
+              if (subs.users[k].userId?.toString() === userId?.toString()) {
+                subs.users[k].status = "Expired";
+                subs.users[k].expiredOn = new Date();
+                subs.users[k].expiredBy = "System";
+                console.log("this is subs", subs)
+                await subs.save();
+                break;
+              }
+            }
   
-            // console.log(payoutAmount, tradingDays[0]?.totalTradingDays, new ObjectId(userId));
-            // if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays >= validity){
-            //   const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
-            //   wallet.transactions = [...wallet.transactions, {
-            //         title: 'TenX Trading Payout',
-            //         description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
-            //         amount: (payoutAmount?.toFixed(2)),
-            //         transactionId: uuid.v4(),
-            //         transactionType: 'Cash'
-            //   }];
-            //   wallet.save();
+            console.log(payoutAmount, tradingDays[0]?.totalTradingDays, new ObjectId(userId));
+            if(payoutAmount > 0 && tradingDays[0]?.totalTradingDays >= validity){
+              const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
+              wallet.transactions = [...wallet.transactions, {
+                    title: 'TenX Trading Payout',
+                    description: `Amount Credited for the profit of ${subscription[i]?.plan_name} subscription`,
+                    amount: (payoutAmount?.toFixed(2)),
+                    transactionId: uuid.v4(),
+                    transactionType: 'Cash'
+              }];
+              wallet.save();
 
-            //   if (process.env.PROD == 'true') {
-            //     sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
-            //     <!DOCTYPE html>
-            //     <html>
-            //     <head>
-            //         <meta charset="UTF-8">
-            //         <title>Amount Credited</title>
-            //         <style>
-            //         body {
-            //             font-family: Arial, sans-serif;
-            //             font-size: 16px;
-            //             line-height: 1.5;
-            //             margin: 0;
-            //             padding: 0;
-            //         }
+              if (process.env.PROD == 'true') {
+                sendMail(user?.email, 'Tenx Payout Credited - StoxHero', `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Amount Credited</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
           
-            //         .container {
-            //             max-width: 600px;
-            //             margin: 0 auto;
-            //             padding: 20px;
-            //             border: 1px solid #ccc;
-            //         }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
           
-            //         h1 {
-            //             font-size: 24px;
-            //             margin-bottom: 20px;
-            //         }
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
           
-            //         p {
-            //             margin: 0 0 20px;
-            //         }
+                    p {
+                        margin: 0 0 20px;
+                    }
           
-            //         .userid {
-            //             display: inline-block;
-            //             background-color: #f5f5f5;
-            //             padding: 10px;
-            //             font-size: 15px;
-            //             font-weight: bold;
-            //             border-radius: 5px;
-            //             margin-right: 10px;
-            //         }
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
           
-            //         .password {
-            //             display: inline-block;
-            //             background-color: #f5f5f5;
-            //             padding: 10px;
-            //             font-size: 15px;
-            //             font-weight: bold;
-            //             border-radius: 5px;
-            //             margin-right: 10px;
-            //         }
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
           
-            //         .login-button {
-            //             display: inline-block;
-            //             background-color: #007bff;
-            //             color: #fff;
-            //             padding: 10px 20px;
-            //             font-size: 18px;
-            //             font-weight: bold;
-            //             text-decoration: none;
-            //             border-radius: 5px;
-            //         }
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
           
-            //         .login-button:hover {
-            //             background-color: #0069d9;
-            //         }
-            //         </style>
-            //     </head>
-            //     <body>
-            //         <div class="container">
-            //         <h1>Amount Credited</h1>
-            //         <p>Hello ${user.first_name},</p>
-            //         <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in you wallet</p>
-            //         <p>You can now purchase Tenx and participate in contest.</p>
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>Amount Credited</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Amount of ${payoutAmount?.toFixed(2)}INR has been credited in you wallet</p>
+                    <p>You can now purchase Tenx and participate in contest.</p>
                     
-            //         <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-            //         <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-            //         <br/><br/>
-            //         <p>Thanks,</p>
-            //         <p>StoxHero Team</p>
+                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                    <br/><br/>
+                    <p>Thanks,</p>
+                    <p>StoxHero Team</p>
           
-            //         </div>
-            //     </body>
-            //     </html>
-            //     `);
-            //   }
+                    </div>
+                </body>
+                </html>
+                `);
+              }
 
-            // }
+            }
           }
         }
       }

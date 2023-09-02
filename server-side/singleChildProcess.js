@@ -251,8 +251,8 @@ async function singleProcess() {
 
 
         }
-        const autoExpire = nodeCron.schedule(`0 0 15 * * *`, autoExpireTenXSubscription);
-        const internshipPayout = nodeCron.schedule(`0 0 15 * * *`, updateUserWallet);
+        const autoExpire = nodeCron.schedule(`0 30 13 * * *`, autoExpireTenXSubscription);
+        const internshipPayout = nodeCron.schedule(`0 30 13 * * *`, updateUserWallet);
 
     }
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
@@ -279,6 +279,8 @@ async function singleProcess() {
     app.use('/api/v1', require("./routes/expense/categoryAuth"))
     app.use('/api/v1', require("./routes/setting/settingAuth"))
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
+    app.use('/api/v1/marginxtemplate', require('./routes/marginx/marginxTemplateRoutes'));
+    app.use('/api/v1/marginx', require('./routes/marginx/marginxRoutes'));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
@@ -367,6 +369,8 @@ async function singleProcess() {
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
     app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
+    app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
+    app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
     
 
 

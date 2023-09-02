@@ -4,6 +4,7 @@ export const InfinityTraderRole = "Infinity Trader";
 export const paperTrader = "paperTrade";
 export const infinityTrader = "Infinity Trader";
 export const dailyContest = "Daily Contest";
+export const marginX = "MarginX";
 export const tenxTrader = "TenX Trader";
 export const zerodhaAccountType = "ZERODHA";
 export const xtsAccountType = "XTS";
@@ -16,5 +17,3 @@ export const maxLot_Nifty_DailyContest = 1800;
 export const lotSize_BankNifty = 15;
 export const lotSize_Nifty = 50;
 export const lotSize_FinNifty = 40;
-
-

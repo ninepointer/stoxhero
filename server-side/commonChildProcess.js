@@ -62,6 +62,8 @@ async function commonProcess() {
     app.use('/api/v1', require("./routes/setting/settingAuth"))
     app.use('/api/v1', require("./routes/DailyPnlData/dailyPnlDataRoute"))
     app.use('/api/v1/dailycontest', require('./routes/DailyContest/dailyContestLiveTrade'));
+    app.use('/api/v1/marginxtemplate', require('./routes/marginx/marginxTemplateRoutes'));
+    app.use('/api/v1/marginx', require('./routes/marginx/marginxRoutes'));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
@@ -148,6 +150,8 @@ async function commonProcess() {
     app.use('/api/v1/post', require("./routes/post/postRoutes"));
     app.use('/api/v1/signup', require("./routes/UserRoute/signUpUser"));
     app.use('/api/v1/battles', require("./routes/battle/battleRoutes"));
+    app.use('/api/v1/marginxs', require("./routes/marginx/marginxRoutes"));
+    app.use('/api/v1/marginxtemplates', require("./routes/marginx/marginxTemplateRoutes"));
 
     const PORT = process.env.PORT || 5002;
     const server = app.listen(PORT);

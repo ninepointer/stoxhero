@@ -30,7 +30,7 @@ import SellModel from "../SellModel";
 import { marketDataContext } from "../../../MarketDataContext";
 import uniqid from "uniqid"
 import { renderContext } from "../../../renderContext";
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
+import {marginX, paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
 import {maxLot_BankNifty, maxLot_Nifty, maxLot_FinNifty} from "../../../variables";
 
@@ -76,10 +76,10 @@ function reducer(state, action) {
 }
 
 
-function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, contestData, watchList}) {
+function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, moduleData, watchList}) {
 
   const {render, setRender} = useContext(renderContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let textRef = useRef(null);
   const PAGE_SIZE = 20;
   const marketDetails = useContext(marketDataContext)
@@ -159,10 +159,10 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       return;
     }
 
-    let isNifty = contestData?.isNifty;
-    let isBankNifty = contestData?.isBank;
-    let isFinNifty = contestData?.isFin;
-    let isAllIndex = contestData?.isAll;
+    let isNifty = moduleData?.isNifty;
+    let isBankNifty = moduleData?.isBank;
+    let isFinNifty = moduleData?.isFin;
+    let isAllIndex = moduleData?.isAll;
     let url = "";
     let endPoint = "";
 
@@ -380,7 +380,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
                       <Tooltip title="Buy" placement="top">
 
                         {!elem.buyState ?
-                          <BuyModel chartInstrument={elem.chartInstrument} socket={socket} subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} contest={contestData}/>
+                          <BuyModel chartInstrument={elem.chartInstrument} socket={socket} subscriptionId={subscriptionId} setBuyState={setBuyState} buyState={buyState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} module={moduleData}/>
                           :
                           <MDButton  size="small" color="info" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleBuyClick(index)}} >
                             B
@@ -391,7 +391,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
 
                     <Grid>
                         {!elem.sellState ?
-                          <SellModel chartInstrument={elem.chartInstrument} socket={socket} subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} contest={contestData}/>
+                          <SellModel chartInstrument={elem.chartInstrument} socket={socket} subscriptionId={subscriptionId} setSellState={setSellState} sellState={sellState} from={from} render={render} setRender={setRender} symbol={elem.tradingsymbol} exchange={elem.exchange} instrumentToken={elem.instrument_token} symbolName={`${elem.strike} ${elem.instrument_type}`} lotSize={elem.lot_size} maxLot={maxLot} ltp={(perticularMarketData[0]?.last_price)?.toFixed(2)} fromSearchInstrument={true} expiry={elem.expiry} exchangeInstrumentToken={elem.exchange_token} exchangeSegment={elem.segment} module={moduleData}/>
                           :
                           <MDButton  size="small" color="error" sx={{marginRight:0.5,minWidth:2,minHeight:3}} onClick={()=>{handleSellClick(index)}} >
                             S

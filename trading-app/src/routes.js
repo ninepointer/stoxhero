@@ -167,6 +167,12 @@ import DailyContestLiveReport from "./layouts/dailyContestReportLive"
 import ContestMaster from "./layouts/dailyContest/contestMaster/contestMaster"
 // import CreateContestMaster from './layouts/dailyContest/ContestMaster/createContestMasterHeader'
 import CreateContestMasterHeader from "./layouts/dailyContest/contestMaster/createContestMasterHeader";
+import MarginXDashboard from "./layouts/marginXDashboard"
+import MarginXTemplateDetail from "./layouts/marginXTemplate"
+import CreateMarginXTemplate from "./layouts/marginXTemplate/createMarginIndex"
+import CreateMarginX from "./layouts/marginX/createMarginIndex"
+import MarginX from "./layouts/marginX"
+
 const routes = [
 
   {
@@ -208,6 +214,14 @@ const routes = [
     icon: <EmojiEventsIcon/>,
     route: "/contestdashboard",
     component: <DailyContestDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "MarginX Dashboard",
+    key: "marginxdashboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/marginxdashboard",
+    component: <MarginXDashboard />,
   },
   {
     type: "collapse",
@@ -541,10 +555,27 @@ const routes = [
     component: <TenxPosition />,
   },
   {
-    // type: "collapse",
-    // name: "Tenx Position",
+    key: "marginxdetails",
+    route: "/marginxdashboard/marginxtemplate",
+    component: <MarginXTemplateDetail />,
+  },
+  {
+    key: "marginxdetails",
+    route: "/marginxdashboard/createmarginxtemplate",
+    component: <CreateMarginXTemplate />,
+  },
+  {
+    key: "marginx",
+    route: "/marginxdashboard/marginx",
+    component: <MarginX />,
+  },
+  {
+    key: "marginxdetails",
+    route: "/marginxdashboard/createmarginx",
+    component: <CreateMarginX />,
+  },
+  {
     key: "dailycontestposition",
-    // icon: <SupervisorAccountIcon/>,
     route: "/contestdashboard/dailycontestposition",
     component: <DailyContestPosition />,
   },
@@ -571,30 +602,11 @@ const routes = [
     route: "/contestdashboard/dailycontestpositiontrader",
     component: <DailyContestPositionTrader />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Batch",
-  //   key: "batch",
-  //   icon: <BatchIcon/>,
-  //   route: "/batch",
-  //   component: < Batch />,
-  // },
   {
-    // type: "collapse",
-    // name: "Virtual Position",
     key: "virtualposition",
-    // icon: <TryIcon/>,
     route: "/virtualposition",
     component: <VirtualPosition />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Batch",
-  //   key: "batch",
-  //   icon: <BatchIcon/>,
-  //   route: "/batch",
-  //   component: < Batch />,
-  // },
   {
     // type: "collapse",
     // name: "Margin Allocation",

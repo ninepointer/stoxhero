@@ -16,7 +16,7 @@ export default function LabTabs() {
   // const [tenXMarginDetails, setTenXMarginDetail] = useState([]);
   // const [myPortfolio,setMyPortfolio] = useState([]);
   const [tenX, setTenX] = useState([]);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const userPortfolio = getDetails?.userDetails?.portfolio
   const userTenXPortfolio = getDetails?.userDetails?.subscription
   // console.log(userTenXPortfolio)

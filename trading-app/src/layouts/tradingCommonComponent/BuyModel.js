@@ -34,14 +34,14 @@ import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest
 // import { borderBottom } from '@mui/system';
 // import { marketDataContext } from "../../../../../MarketDataContext";
 
-const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, contest}) => {
+const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, socket, subscriptionId, buyState, exchange, symbol, instrumentToken, symbolName, lotSize, maxLot, ltp, fromSearchInstrument, expiry, from, setBuyState, exchangeSegment, exchangeInstrumentToken, module}) => {
   const tradeSound = new Howl({
     src : [sound],
     html5 : true
   })
   
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const {render, setRender} = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   let uId = uniqid();
@@ -202,14 +202,14 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
       trader = traderId;
       fromAdmin = true;
     }else if(from === dailyContest){
-      if(contest?.currentLiveStatus==="Live"){
+      if(module?.currentLiveStatus==="Live"){
         endPoint = 'placingLiveOrderDailyContest';
       } else{
         endPoint = 'placingOrderDailyContest';
       }
     }
 
-    console.log("contest", contest)
+    console.log("module", module)
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
         method: "POST",
         credentials:"include",
@@ -217,7 +217,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
             "content-type": "application/json"
         },
         body: JSON.stringify({
-          exchange, symbol, buyOrSell, Quantity, Price, contestId: contest?.data,
+          exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
           validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
