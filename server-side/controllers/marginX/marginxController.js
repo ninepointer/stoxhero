@@ -12,11 +12,29 @@ exports.createMarginX = async (req, res) => {
         } = req.body;
 
         const getMarginX = await MarginX.findOne({ marginXName: marginXName });
+        if(startTime>endTime){
+            return res.status(400).json({
+                status: 'error',
+                message: "Validateion error: Start time can't be greater than end time",
+            });
+        }
+        if(startTime<liveTime){
+            return res.status(400).json({
+                status: 'error',
+                message: "Validateion error: Live time can't be greater than start time",
+            });
+        }
+        if(endTime<liveTime){
+            return res.status(400).json({
+                status: 'error',
+                message: "Validateion error: Live time can't be greater than end time",
+            });
+        }
 
         if (getMarginX) {
-            return res.status(500).json({
+            return res.status(400).json({
                 status: 'error',
-                message: "MarginX is already exist with this name.",
+                message: "MarginX already exists with this name.",
             });
         }
 
@@ -208,3 +226,24 @@ exports.getMarginXById = async (req, res) => {
         });
     }
 };
+
+exports.getDraftMarginXs = async (req,res,next) => {
+    const now = new Date();
+    try {
+        const draftMarginXs = await MarginX.find({ 
+            status:'Draft'
+        });
+        
+        res.status(200).json({
+            status: 'success',
+            data: draftMarginXs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching draft MarginXs",
+            error: error.message
+        });
+    }
+}
