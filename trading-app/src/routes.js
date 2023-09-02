@@ -141,6 +141,10 @@ import VirtualPosition from "./layouts/virtualtradePosition";
 import TenxPosition from "./layouts/tenxPosition";
 import DailyContestPosition from "./layouts/dailyContestPosition";
 import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
+
+import MarginXPosition from "./layouts/marginxCompanyPosition";
+import MarginXPositionTrader from "./layouts/marginxTraderPosition";
+
 import KYC from './layouts/KYC/index';
 import MarginDetails from './layouts/margindetails'
 // import BadgeIcon from '@mui/icons-material/Badge';
@@ -581,6 +585,11 @@ const routes = [
   },
 
   {
+    key: "marginxposition",
+    route: "/marginxdashboard/marginxposition",
+    component: <MarginXPosition />,
+  },
+  {
     // type: "collapse",
     // name: "Tenx Position",
     key: "contestmaster",
@@ -595,12 +604,15 @@ const routes = [
   },
 
   {
-    // type: "collapse",
-    // name: "Tenx Position",
     key: "dailycontestpositiontrader",
-    // icon: <SupervisorAccountIcon/>,
     route: "/contestdashboard/dailycontestpositiontrader",
     component: <DailyContestPositionTrader />,
+  },
+
+  {
+    key: "marginxtraderposition",
+    route: "/marginxdashboard/marginxtraderposition",
+    component: <MarginXPositionTrader />,
   },
   {
     key: "virtualposition",

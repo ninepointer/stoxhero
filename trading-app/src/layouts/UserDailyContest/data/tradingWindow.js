@@ -45,7 +45,7 @@ function Header({ socket, data }) {
     
     const handleSetIsGetStartedClicked = useCallback((value) => {
         setIsGetStartedClicked(value);
-      }, []);
+    }, []);
 
       const memoizedStockIndex = useMemo(() => {
         return <StockIndexDailyContest socket={socket} />;
