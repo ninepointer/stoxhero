@@ -29,7 +29,7 @@ import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
 
 function Header({ toggleContest, setToggleContest, contest, showPay, setShowPay, socket, setIsInterested }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
 

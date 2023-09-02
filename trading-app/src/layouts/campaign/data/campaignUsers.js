@@ -10,7 +10,7 @@ import axios from "axios";
 
 export default function Applicants({campaign, campaignUserCount}) {
     console.log("Campaign", campaign)
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [campaignUsers,setCampaignUsers] = React.useState([]);
     // async function getCampaignUsers(){
     //     let call1 = axios.get(`${baseUrl}api/v1/campaign/${campaign}`,{

@@ -47,7 +47,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId }) {
   // const [value, setValue] = React.useState<FilmOptionType | null>(null);
   // const [selectedTrader, setSelectedTrader] = useState("");
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,

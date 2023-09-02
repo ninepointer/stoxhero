@@ -43,7 +43,7 @@ function PaperComponent(props) {
   }
 
 function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, socket, setIsInterested }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
@@ -192,8 +192,8 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                         return subelem?.id?.toString() === elem?._id?.toString();
                                     })
 
-                                    let isParticipated = elem?.participants.some(elem => {
-                                        return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
+                                    let isParticipated = elem?.participants.some(subelem => {
+                                        return subelem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
                                     })
 
                                     // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
