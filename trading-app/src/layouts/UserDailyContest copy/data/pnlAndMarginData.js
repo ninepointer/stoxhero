@@ -4,7 +4,7 @@ import {useState, useContext, useEffect, memo} from "react"
 import axios from "axios";
 import { NetPnlContext } from '../../../PnlContext';
 import MDBox from '../../../components/MDBox';
-import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
+// import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from '../../../renderContext';
 import MDButton from '../../../components/MDButton';
 import AMargin from '../../../assets/images/amargin.png'

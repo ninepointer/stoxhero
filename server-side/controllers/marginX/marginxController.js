@@ -140,7 +140,8 @@ exports.getOngoingMarginXs = async (req, res) => {
     try {
         const ongoingMarginXs = await MarginX.find({ 
             startTime: { $lte: now }, 
-            endTime: { $gt: now } 
+            endTime: { $gt: now },
+            status : 'Active' 
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess' )
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
@@ -163,7 +164,8 @@ exports.getUpcomingMarginXs = async (req, res) => {
     const now = new Date();
     try {
         const upcomingMarginXs = await MarginX.find({ 
-            startTime: { $gt: now }
+            startTime: { $gt: now },
+            status : 'Active'
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
@@ -181,12 +183,40 @@ exports.getUpcomingMarginXs = async (req, res) => {
     }
 };
 
+// Controller for getting todaysMarinX 
+exports.todaysMarinX = async (req, res) => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    try {
+        const marginx = await MarginX.find({
+            contestEndTime: { $gte: today }
+        }).populate('marginXTemplate', 'templateName _id portfolioValue entryFee')
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .sort({ startTime: 1 })
+
+        res.status(200).json({
+            status: "success",
+            message: "Today's marginx fetched successfully",
+            data: marginx
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching upcoming marginx",
+            error: error.message
+        });
+    }
+};
+
 // Controller to fetch only Completed MarginXs
 exports.getCompletedMarginXs = async (req, res) => {
     const now = new Date();
     try {
         const completedMarginXs = await MarginX.find({ 
-            endTime: { $lte: now }
+            status: 'Completed'
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess');
         
         res.status(200).json({
@@ -655,6 +685,32 @@ exports.deductMarginXAmount = async (req, res, next) => {
             status: "error",
             message: "Something went wrong",
             error: error.message
+        });
+    }
+}
+
+exports.findMarginXByName = async(req,res) => {
+    try{
+        console.log('here');
+        const {name, date} = req.query;
+        console.log(name, date);
+        const result = await MarginX.findOne({marginXName: name, startTime:{$gte: new Date(date)}}).
+            select('-purchaseIntent -__v -sharedBy -potentialParticipants -__v -createdBy -lastModifiedBy -createdOn -lastModifiedOn').
+            populate('marginXTemplate', 'entryFee portfolioValue');
+        console.log('result', result);
+        if(!result){
+            res.status(404).json({
+                status: "error",
+                message: "No marginxs found",
+            });
+        }
+        res.status(200).json({data:result, status:'success'});
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: e.message
         });
     }
 }

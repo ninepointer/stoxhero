@@ -18,7 +18,7 @@ const CompletedContest = ({ type }) => {
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
-    let call1 = axios.get(`${apiUrl}battles/draft`, {
+    let call1 = axios.get(`${apiUrl}marginx/draft`, {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -62,41 +62,57 @@ const CompletedContest = ({ type }) => {
                     >
                       <Grid container>
 
-                        <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left" >
-                          <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>MarginX Name: {e?.marginXName}</MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left" >
+                        <MDTypography fontSize={15} style={{ color: "black", paddingRight: 4, fontWeight: 'bold' }}>MarginX Name: {e?.marginXName}</MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>No. of Participants: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.participants?.length}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>No. of Registrations: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.participants?.length}</span></MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>Start Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.startTime).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Total Seats: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.maxParticipants}</span></MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>End Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.endTime).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Seats Left: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.maxParticipants - e?.participants?.length}</span></MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>Live Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.liveTime).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Live Time: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.liveTime).utcOffset('+05:30').format('DD-MMM-YY hh:mm a')}</span></MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>Template: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.marginXTemplate?.templateName}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Start Time: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.startTime).utcOffset('+05:30').format('DD-MMM-YY hh:mm a')}</span></MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>Max Participants: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.maxParticipants}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>End Time: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.endTime).utcOffset('+05:30').format('DD-MMM-YY hh:mm a')}</span></MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>Status: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.status}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Expiry: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.marginXExpiry}</span></MDTypography>
+                      </Grid>
 
-                        <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
-                          <MDTypography fontSize={9} style={{ color: "black" }}>Index: <span style={{ fontSize: 11, fontWeight: 700 }}>{(`${e?.isNifty ? "NIFTY 50 | " : ""}${e?.isBankNifty ? "BANKNIFTY | " : ""}${e?.isFinNifty ? "FINNIFTY | " : ""}`).slice(0, -3)}</span></MDTypography>
-                        </Grid>
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Status: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.status}</span></MDTypography>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Index: <span style={{ fontSize: 11, fontWeight: 700 }}>{(`${e?.isNifty ? "NIFTY 50 | " : ""}${e?.isBankNifty ? "BANKNIFTY | " : ""}${e?.isFinNifty ? "FINNIFTY | " : ""}`).slice(0, -3)}</span></MDTypography>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Template: <span style={{ fontSize: 11, fontWeight: 700 }}>{e?.marginXTemplate?.templateName}</span></MDTypography>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Entry Fee: <span style={{ fontSize: 11, fontWeight: 700 }}>₹{e?.marginXTemplate?.entryFee}</span></MDTypography>
+                      </Grid>
+
+                      <Grid item xs={12} md={6} lg={3} mb={1} display="flex" justifyContent="left">
+                        <MDTypography fontSize={9} style={{ color: "black" }}>Portfolio: <span style={{ fontSize: 11, fontWeight: 700 }}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.marginXTemplate?.portfolioValue)}</span></MDTypography>
+                      </Grid>
 
                       </Grid>
                     </MDButton>
@@ -110,7 +126,7 @@ const CompletedContest = ({ type }) => {
         :
         <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Draft Battle(s)</MDTypography>
+            <MDTypography color="light">No Draft MarginX(s)</MDTypography>
           </Grid>
         </Grid>
       }
