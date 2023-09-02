@@ -3,22 +3,37 @@ import axios from "axios";
 import { useEffect, useState, useContext } from "react";
 import { userContext } from '../../../AuthContext';
 import moment from 'moment';
-//
+import TableContainer from '@mui/material/TableContainer';
+
+import Paper from '@mui/material/Paper';
+import { RiStockFill } from "react-icons/ri";
+import Card from "@mui/material/Card";
+import { Typography } from "@mui/material";
+
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
-import MDButton from "../../../components/MDButton";
+// import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import {CircularProgress} from "@mui/material";
-import { Grid } from "@mui/material";
+// import {CircularProgress} from "@mui/material";
+// import { Grid } from "@mui/material";
 import { apiUrl } from "../../../constants/constants";
-import { marginX } from "../../../variables";
+// import { marginX } from "../../../variables";
+import OrderHelper from "./orderHelper";
 
 
-export default function UserTodayTradeData({from}) {
+export default function Order({from}) {
 
 //   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let [skip, setSkip] = useState(0);
+let styleTD = {
+  textAlign: "center",
+  fontSize: "11px",
+  fontWeight: "900",
+  color: "#7b809a",
+  opacity: 0.7
+}
+
+let [skip, setSkip] = useState(0);
   const limitSetting = 10;
   const [count, setCount] = useState(0);
   const [isLoading,setIsLoading] = useState(false);
@@ -105,100 +120,134 @@ export default function UserTodayTradeData({from}) {
     })
   }
 
+
+  const orderArr = [];
+  data.map((elem)=>{
+    // console.log("instrument date", elem)
+    // const date = new Date(elem.contractDate);
+    // const day = date.getDate(); // returns the day of the month (4 in this case)
+    // const month = date.toLocaleString('default', { month: 'long' }); // returns the full month name (May in this case)
+    // const formattedDate = `${day}${day % 10 == 1 && day != 11 ? 'st' : day % 10 == 2 && day != 12 ? 'nd' : day % 10 == 3 && day != 13 ? 'rd' : 'th'} ${month}`; // formats the date as "4th May"
+    //console.log(formattedDate);
+
+    let orderObj = {}
+
+    orderObj.symbol = (
+      <MDTypography variant="caption" color={"text"} fontWeight="medium">
+        {elem?.symbol}
+      </MDTypography>
+    );
+    orderObj.averagePrice = (
+      <MDTypography variant="caption" color={"text"} fontWeight="medium">
+        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.average_price))}
+      </MDTypography>
+    );
+    orderObj.quantity = (
+      <MDTypography variant="caption" color="text" fontWeight="medium">
+        {elem?.Quantity}
+      </MDTypography>
+    );
+    orderObj.amount = (
+      <MDTypography variant="caption" color="text" fontWeight="medium">
+        ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.amount))}
+      </MDTypography>
+    );
+    orderObj.buyOrSell = (
+      <MDTypography component="a" href="#" variant="caption" color="dark" fontWeight="medium">
+        {elem?.buyOrSell}
+      </MDTypography>
+    );
+
+    orderObj.orderid = (
+      <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
+        {elem?.order_id}
+      </MDTypography>
+    );
+
+    orderObj.status = (
+      <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
+        {elem?.status}
+      </MDTypography>
+    );
+
+    orderObj.time = (
+      <MDTypography component="a" href="#" variant="caption" color={"text"} fontWeight="medium">
+        {moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}
+      </MDTypography>
+    );
+
+
+
+    orderArr.push(orderObj)
+  })
+
   return (
 
-    <MDBox bgColor="dark" color="light" mb={1} borderRadius={10} minWidth='100%' minHeight='auto'>
-      <Grid container spacing={1}>
-        <Grid container p={1} style={{border:'1px solid white', borderRadius:5}}>
-              <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Intern Name</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={2}>
-                <MDTypography color="light" fontSize={13} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">Contract</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Quantity</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Price</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Amount</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Type</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={1.6} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Order Id</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">Status</MDTypography>
-              </Grid>
-              <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                <MDTypography color="light" fontSize={13} fontWeight="bold">TimeStamp</MDTypography>
-              </Grid>
-        </Grid>
+    <Card>
+      <MDBox display="flex" justifyContent="space-between" alignItems="center" pl={2} pr={2} pt={2} pb={2}>
+        <MDBox display="flex">
+          <MDTypography variant="h6" gutterBottom>
+            My Orders
+          </MDTypography>
+          <MDBox display="flex" alignItems="center" lineHeight={0}>
+          </MDBox>
+        </MDBox>
+      </MDBox>
+      {orderArr?.length === 0 ? (
+      <MDBox display="flex" flexDirection="column" mb={4} sx={{alignItems:"center"}}>
+        <RiStockFill style={{fontSize: '30px'}}/>
+        <Typography style={{fontSize: '20px',color:"grey"}}>Nothing here</Typography>
+        <Typography mb={2} fontSize={15} color="grey">Please Take Trade.</Typography>
+        {/* <MDButton variant="outlined" size="small" color="info" onClick={()=>{setIsGetStartedClicked(true)}}>Add Instrument</MDButton> */}
+      </MDBox>)
+      :
+      (<MDBox>
+        <TableContainer component={Paper}>
+          <table style={{borderCollapse: "collapse", width: "100%", borderSpacing: "10px 5px"}}>
+            <thead>
+              <tr style={{borderBottom: "1px solid #D3D3D3"}}>
+                <td style={styleTD}>SYMBOL</td>
+                <td style={styleTD} >QUANTITY</td>
+                <td style={styleTD} >AVG. PRICE</td>
+                <td style={styleTD} >AMOUNT</td>
+                <td style={styleTD} >TRANSACTION</td>
+                <td style={styleTD} >ORDERID</td>
+                <td style={styleTD} >STATUS</td>
+                <td style={styleTD} >TIME</td>
+              </tr>
+            </thead>
+            <tbody>
 
-        
-            {!isLoading ?
-             data?.map((elem)=>{
-                const fullName = elem?.trader?.first_name + ' ' + elem?.trader?.last_name
-                const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
+              {orderArr.map((elem, index)=>{
                 return(
-              
-                    
-                    <Grid container mt={1} p={1} style={{border:'1px solid white', borderRadius:5}}>
-                        <Grid item xs={12} md={2} lg={2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{fullName.slice(0, 20) + (fullName.length > 20 ? '...' : '')}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={2}>
-                            <MDTypography color="light" fontSize={10} fontWeight="bold" display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem?.symbol}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color={typecolor} fontSize={10} fontWeight="bold">{elem?.Quantity}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.average_price))}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(elem?.amount))}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color={typecolor} fontSize={10} fontWeight="bold">{elem?.buyOrSell}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1.6} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.order_id}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{elem?.status}</MDTypography>
-                        </Grid>
-                        <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                            <MDTypography color="light" fontSize={10} fontWeight="bold">{moment.utc(elem?.trade_time).utcOffset('+00:00').format('DD-MMM HH:mm:ss')}</MDTypography>
-                        </Grid>
-                    </Grid>
-                    
-                
-                )
-            })
-            :
-            <Grid container display="flex" justifyContent="center" alignContent='center' alignItems="center">
-                <Grid item display="flex" justifyContent="center" alignContent='center' alignItems="center" lg={12}>
-                <MDBox mt={5} mb={5}>
-                    <CircularProgress color="info" />
-                </MDBox>
-                </Grid>
-            </Grid>
-            }
-            {!isLoading && count !== 0 &&
-            <MDBox mt={1} display="flex" justifyContent="space-between" alignItems='center' width='100%'>
-                <MDButton variant='outlined' color='warning' disabled={(skip+limitSetting)/limitSetting === 1 ? true : false} size="small" onClick={backHandler}>Back</MDButton>
-                <MDTypography color="light" fontSize={15} fontWeight='bold'>Total Order: {!count ? 0 : count} | Page {(skip+limitSetting)/limitSetting} of {!count ? 1 : Math.ceil(count/limitSetting)}</MDTypography>
-                <MDButton variant='outlined' color='warning' disabled={Math.ceil(count/limitSetting) === (skip+limitSetting)/limitSetting ? true : !count ? true : false} size="small" onClick={nextHandler}>Next</MDButton>
-            </MDBox>
-            }
+              <tr
+              style={{borderBottom: "1px solid #D3D3D3"}} key={elem.instrumentToken.props.children}
+              >
+                  <OrderHelper 
+                    symbol={elem.symbol.props.children}
+                    averagePrice={elem.averagePrice.props.children}
+                    amount={elem.amount.props.children}
+                    quantity={elem.quantity.props.children}
+                    buyOrSell={elem.buyOrSell.props.children}
 
-      </Grid>
-    </MDBox>
+                    orderid={elem.orderid.props.children}
+                    status={elem.status.props.children}
+                    time={elem.time.props.children}
+
+                    from={from}
+                  />
+      
+              </tr>
+
+                )
+              })}
+            </tbody>
+          </table>
+        </TableContainer>
+
+      </MDBox>
+      )}
+    </Card>
 
   );
 }

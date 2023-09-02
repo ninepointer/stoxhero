@@ -13,7 +13,7 @@ import Tcost from '../../../assets/images/tcost.png'
 import MDTypography from '../../../components/MDTypography';
 
 
-const PnlAndMarginData = ({contestId}) => {
+const PnlAndMarginData = ({marginxId}) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   const pnl = useContext(NetPnlContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -33,7 +33,7 @@ const PnlAndMarginData = ({contestId}) => {
 //   console.log("margin", todayAmount)
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/myPnlandCreditData`,{
+    axios.get(`${baseUrl}api/v1/marginxtrade/${marginxId}/myPnlandCreditData`,{
       withCredentials: true,
       headers: {
           Accept: "application/json",
@@ -45,7 +45,7 @@ const PnlAndMarginData = ({contestId}) => {
         // setyesterdayData(res.data.data);
       })
       
-  }, [render, contestId]);
+  }, [render, marginxId]);
 
 //   console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail)
 

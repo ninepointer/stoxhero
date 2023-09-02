@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 require("../db/conn");
 const authoizeTrade = require('../controllers/authoriseTrade');
-const {ApplyAlgo, DailyContestApplyAlgo} = require("../PlaceOrder/applyAlgo")
+const {ApplyAlgo, DailyContestApplyAlgo, MarginXApplyAlgo} = require("../PlaceOrder/applyAlgo")
 const MockTradeFunc = require("../PlaceOrder/mockTrade")
 const LiveTradeFunc = require("../PlaceOrder/liveTrade")
 const authentication = require("../authentication/authentication")
@@ -12,7 +12,7 @@ const { xtsAccountType, zerodhaAccountType } = require("../constant");
 const{isAppLive, isInfinityLive} = require('./tradeMiddlewares');
 const {infinityTradeLive, infinityTradeLiveSingle} = require("../services/xts/xtsHelper/switchAllUser");
 const {contestTradeLive} = require("../services/xts/xtsHelper/switchAllDailyContestLive");
-const {contestChecks} = require("../PlaceOrder/dailyContestChecks")
+const {contestChecks, marginxChecks} = require("../PlaceOrder/dailyContestChecks")
 
 router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoizeTrade.fundCheck,  async (req, res)=>{
     // console.log("caseStudy 4: placing")
@@ -33,11 +33,30 @@ router.post("/placingOrder", authentication, isInfinityLive, ApplyAlgo, authoize
 })
 
 router.post("/placingOrderDailyContest", isAppLive, authentication, contestChecks, DailyContestApplyAlgo, authoizeTrade.fundCheckDailyContest,  async (req, res)=>{
-    console.log("caseStudy 4: placing", req.body)
     req.dailyContest = true;
     const setting = await Setting.find();
 
     // console.log("settings", setting, req.user?.role?.roleName )
+    if(req.body.apiKey && req.body.accessToken){
+        if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){
+            // console.log("in xts if")
+            await liveTrade(req, res);
+        } else{
+            await LiveTradeFunc.liveTrade(req.body, res);
+        }
+        //  TODO toggle
+    } else{
+        MockTradeFunc.mockTrade(req, res);
+    }
+    
+})
+
+router.post("/placingOrderMarginx", isAppLive, authentication, marginxChecks, MarginXApplyAlgo, authoizeTrade.fundCheckMarginX, async (req, res)=>{
+    // console.log("caseStudy 4: placing", req.body)
+    req.marginx = true;
+    const setting = await Setting.find();
+
+    //  console.log("settings", setting, req.user?.role?.roleName )
     if(req.body.apiKey && req.body.accessToken){
         if(setting[0]?.toggle?.liveOrder !== zerodhaAccountType || setting[0]?.toggle?.complete !== zerodhaAccountType){
             // console.log("in xts if")

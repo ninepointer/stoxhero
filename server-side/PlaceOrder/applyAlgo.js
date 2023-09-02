@@ -7,6 +7,10 @@ const UserPermission = require("../models/User/permissionSchema");
 const InstrumentMapping = require("../models/AlgoBox/instrumentMappingSchema");
 const authoizeTrade = require('../controllers/authoriseTrade');
 const DailyContest = require("../models/DailyContest/dailyContest");
+const MarginX = require("../models/marginX/marginX");
+const {client, getValue} = require('../marketData/redisClient');
+
+
 const { ObjectId } = require("mongodb");
  
 
@@ -199,4 +203,102 @@ const DailyContestApplyAlgo = async (req, res, next)=>{
 
 }
 
-module.exports = {ApplyAlgo, DailyContestApplyAlgo};
+const MarginXApplyAlgo = async (req, res, next)=>{
+
+    const {symbol, instrumentToken, Quantity, buyOrSell, marginxId} = req.body;
+
+    // let userId = req.user._id;
+    let accessTokenDetails;
+    let apiKeyDetails;
+    let tradingAlgoData;
+
+    if(await client.exists('accessToken')){
+        accessTokenDetails = JSON.parse(await client.get('accessToken'));
+    } else{
+        accessTokenDetails = await AccessToken.find({status: "Active"});
+    }
+
+    if(await client.exists('apikey')){
+        apiKeyDetails = JSON.parse(await client.get('apikey'));
+    } else{
+        apiKeyDetails = await ApiKey.find({status: "Active"});
+    }
+
+    if(await client.exists('tradingAlgoData')){
+        tradingAlgoData = JSON.parse(await client.get('tradingAlgoData'));
+    } else{
+        tradingAlgoData = await TradingAlgo.find({status: "Active", isDefault: true});
+    }
+    
+    let companyTrade = {};
+
+    const tradingAlgoArr = [];
+    apiKeyDetails.map((elem) => {
+        accessTokenDetails.map((subelem) => {
+            tradingAlgoData.map((element) => {
+                if (element.status === "Active" && subelem.accountId == element.tradingAccount && elem.accountId == element.tradingAccount) {
+                    tradingAlgoArr.push(element);
+                }
+            })
+        })
+    })
+
+
+    async function tradingAlgo() {
+        tradingAlgoData?.map((elem) => {
+            if(elem.transactionChange) {
+                if(buyOrSell === "BUY"){
+                    companyTrade.realBuyOrSell = "SELL"
+                }
+                else if(buyOrSell === "SELL"){
+                    companyTrade.realBuyOrSell = "BUY"
+                }
+                
+            }else if(!elem.transactionChange){
+                if(buyOrSell === "BUY"){
+                    companyTrade.realBuyOrSell = "BUY"
+                }
+                else if(buyOrSell === "SELL"){
+                    companyTrade.realBuyOrSell = "SELL"
+                }
+            }else{
+                return;
+            }
+
+            if(elem.instrumentChange){
+                // instrumentMappingFunc();
+            } else{
+                companyTrade.realSymbol = symbol;
+                companyTrade.real_instrument_token = instrumentToken;
+            }
+
+            companyTrade.realQuantity = elem.lotMultipler * (Quantity);
+            let accessTokenParticular = accessTokenDetails.filter((element) => {
+                return elem.tradingAccount === element.accountId
+            })
+
+            let apiKeyParticular = apiKeyDetails.filter((element) => {
+                return elem.tradingAccount === element.accountId
+            })
+
+
+                req.body.realSymbol = companyTrade.realSymbol;
+                req.body.real_instrument_token = companyTrade.real_instrument_token;
+                req.body.realBuyOrSell = companyTrade.realBuyOrSell;
+                req.body.realQuantity = companyTrade.realQuantity;
+                req.body.algoBoxId = elem._id,
+                req.body.isAlgoTrader = req.user.isAlgoTrader;
+                req.body.marginx = true;    
+        })
+
+    }
+
+
+    await tradingAlgo();
+    //console.log("caseStudy 6: end apply aplgo")
+
+    next();
+
+}
+
+module.exports = {ApplyAlgo, DailyContestApplyAlgo, MarginXApplyAlgo};

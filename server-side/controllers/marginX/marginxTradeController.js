@@ -1,15 +1,15 @@
-const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
-const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockCompany");
+const MarginxMockUser = require("../../models/marginX/marginXUserMock");
+const MarginxMockCompany = require("../../models/marginX/marginXCompanyMock");
 // const InfinityTradeCompanyLive = require('../models/TradeDetails/liveTradeSchema')
 const { ObjectId } = require("mongodb");
-const { client, getValue } = require('../marketData/redisClient');
-const DailyContest = require("../models/DailyContest/dailyContest");
+const { client, getValue } = require('../../marketData/redisClient');
+const MarginX = require("../../models/marginX/marginX");
 // const InfinityTraderLive = require("../models/TradeDetails/infinityLiveUser")
-const User = require("../models/User/userDetailSchema")
-const Instrument = require("../models/Instruments/instrumentSchema")
-const getKiteCred = require('../marketData/getKiteCred');
+const User = require("../../models/User/userDetailSchema")
+const Instrument = require("../../models/Instruments/instrumentSchema")
+const getKiteCred = require('../../marketData/getKiteCred');
 const axios = require("axios")
-const {getIOValue} = require('../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 
 exports.overallPnlTrader = async (req, res, next) => {
     let isRedisConnected = getValue();
@@ -29,16 +29,16 @@ exports.overallPnlTrader = async (req, res, next) => {
 
     try {
         // console.log(req.user._id.toString(), id.toString())
-        if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)) {
-            let pnl = await client.get(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`)
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`)) {
+            let pnl = await client.get(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`)
             pnl = JSON.parse(pnl);
-            // console.log("pnl redis", pnl)
+            console.log("pnl redis", pnl)
 
             res.status(201).json({ message: "pnl received", data: pnl });
 
         } else {
 
-            let pnlDetails = await DailyContestMockUser.aggregate([
+            let pnlDetails = await MarginxMockUser.aggregate([
                 {
                     $match: {
                         trade_time: {
@@ -85,8 +85,8 @@ exports.overallPnlTrader = async (req, res, next) => {
             // //console.log("pnlDetails in else", pnlDetails)
 
             if (isRedisConnected) {
-                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, JSON.stringify(pnlDetails))
-                await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlDailyContest`, secondsRemaining);
+                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlMarginx`, JSON.stringify(pnlDetails))
+                await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlMarginx`, secondsRemaining);
             }
 
             // //console.log("pnlDetails", pnlDetails)
@@ -250,21 +250,18 @@ exports.myTodaysTrade = async (req, res, next) => {
 
     const { id } = req.params;
     const userId = req.user._id;
-    // console.log(id, userId);
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
-    // const today = new Date(todayDate);
     const skip = parseInt(req.query.skip) || 0;
-    const limit = parseInt(req.query.limit) || 10
-    const count = await DailyContestMockUser.countDocuments({ trader: new ObjectId(userId), contestId: new ObjectId(id) })
-    // //console.log("Under my today orders",userId, today)
+    const limit = parseInt(req.query.limit) || 5
+    const count = await MarginxMockUser.countDocuments({ trader: new ObjectId(userId), contestId: new ObjectId(id) })
+
     try {
-        const myTodaysTrade = await DailyContestMockUser.find({ trader: new ObjectId(userId), contestId: new ObjectId(id) }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
+        const myTodaysTrade = await MarginxMockUser.find({ trader: new ObjectId(userId), contestId: new ObjectId(id) }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
             .sort({ _id: -1 })
-            // .skip(skip)
-            // .limit(limit);
-        // //console.log(myTodaysTrade)
+            .skip(skip)
+            .limit(limit);
         res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
     } catch (e) {
         console.log(e);
@@ -272,7 +269,11 @@ exports.myTodaysTrade = async (req, res, next) => {
     }
 }
 
+
+//todo-vijay --> remove hardcoded feild
 exports.getMyPnlAndCreditData = async (req, res, next) => {
+
+
     let { id } = req.params;
     // console.log("Batch:",batch)
     let isRedisConnected = getValue();
@@ -290,39 +291,38 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
 
     try {
 
-        if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`)) {
-          let marginDetail = await client.get(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`)
-          marginDetail = JSON.parse(marginDetail);
-    
-          res.status(201).json({ message: "pnl received", data: marginDetail });
-    
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} openingBalanceAndMargin`)) {
+            let marginDetail = await client.get(`${req.user._id.toString()}${id.toString()} openingBalanceAndMargin`)
+            marginDetail = JSON.parse(marginDetail);
+
+            res.status(201).json({ message: "pnl received", data: marginDetail });
+
         } else {
-    
-            const subscription = await DailyContest.aggregate([
+
+            const marginx = await MarginX.aggregate([
                 {
                     $match: {
-                        _id: new ObjectId(id),
+                        _id: new ObjectId("64f2c081250ef784218c57b2"),
                     },
                 },
                 {
                     $lookup: {
-                        from: "user-portfolios",
-                        localField: "portfolio",
+                        from: "marginx-templates",
+                        localField: "marginXTemplate",
                         foreignField: "_id",
-                        as: "portfolioData",
+                        as: "templates",
                     },
                 },
                 {
                     $lookup: {
-                        from: "dailycontest-mock-users",
+                        from: "marginx-mock-users",
                         localField: "_id",
-                        foreignField: "contestId",
+                        foreignField: "marginxId",
                         as: "trades",
                     },
                 },
                 {
-                    $unwind:
-                    {
+                    $unwind: {
                         path: "$trades",
                         includeArrayIndex: "string",
                     },
@@ -331,18 +331,18 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                     $match: {
                         "trades.trade_time": { $lt: today },
                         "trades.status": "COMPLETE",
-                        "trades.trader": new ObjectId(req.user._id)
+                        "trades.trader": new ObjectId(
+                            "63971eec2ca5ce5b52f900b7"
+                        ),
                     },
                 },
                 {
-                    $group:
-    
-                    {
+                    $group: {
                         _id: {
-                            batch: "$_id",
+                            marginx: "$_id",
                             totalFund: {
                                 $arrayElemAt: [
-                                    "$portfolioData.portfolioValue",
+                                    "$templates.portfolioValue",
                                     0,
                                 ],
                             },
@@ -350,7 +350,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                         totalAmount: {
                             $sum: {
                                 $multiply: ["$trades.amount", -1],
-                            }
+                            },
                         },
                         totalBrokerage: {
                             $sum: "$trades.brokerage",
@@ -358,11 +358,9 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                     },
                 },
                 {
-                    $project:
-    
-                    {
+                    $project: {
                         _id: 0,
-                        batch: "$_id.batch",
+                        marginx: "$_id.marginx",
                         totalFund: "$_id.totalFund",
                         npnl: {
                             $subtract: [
@@ -373,68 +371,73 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                         openingBalance: {
                             $sum: [
                                 "$_id.totalFund",
-                                { $subtract: ["$totalAmount", "$totalBrokerage"] }
-                            ]
-                        }
-                    },
-                },
-            ])
-    
-          if (subscription.length > 0) {
-            if (isRedisConnected) {
-              await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, JSON.stringify(subscription[0]))
-              await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, secondsRemaining);
-            }
-            res.status(200).json({ status: 'success', data: subscription[0] });
-          } else {
-            const portfolioValue = await DailyContest.aggregate([
-                {
-                    $match: {
-                        _id: new ObjectId(id),
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "user-portfolios",
-                        localField: "portfolio",
-                        foreignField: "_id",
-                        as: "portfolioData",
-                    },
-                },
-                {
-                    $group: {
-                        _id: {
-                            contestId: "$_id",
-                            totalFund: {
-                                $arrayElemAt: [
-                                    "$portfolioData.portfolioValue",
-                                    0,
-                                ],
-                            },
+                                {
+                                    $subtract: [
+                                        "$totalAmount",
+                                        "$totalBrokerage",
+                                    ],
+                                },
+                            ],
                         },
                     },
                 },
-                {
-                    $project: {
-                        _id: 0,
-                        batch: "$_id.contestId",
-                        totalFund: "$_id.totalFund",
-                    },
-                },
             ])
-            if (isRedisConnected) {
-              await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, JSON.stringify(portfolioValue[0]))
-              await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginDailyContest`, secondsRemaining);
+
+            if (marginx.length > 0) {
+                if (isRedisConnected) {
+                    await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginMarginx`, JSON.stringify(marginx[0]))
+                    await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginMarginx`, secondsRemaining);
+                }
+                res.status(200).json({ status: 'success', data: marginx[0] });
+            } else {
+                const portfolioValue = await MarginX.aggregate([
+                    {
+                        $match: {
+                            _id: ObjectId("64f2c081250ef784218c57b2"),
+                        },
+                    },
+                    {
+                        $lookup: {
+                            from: "marginx-templates",
+                            localField: "marginXTemplate",
+                            foreignField: "_id",
+                            as: "templates",
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: {
+                                marginx: "$_id",
+                                totalFund: {
+                                    $arrayElemAt: [
+                                        "$templates.portfolioValue",
+                                        0,
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            marginx: "$_id.marginx",
+                            totalFund: "$_id.totalFund",
+                        },
+                    },
+                ])
+                if (isRedisConnected) {
+                    await client.set(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginMarginx`, JSON.stringify(portfolioValue[0]))
+                    await client.expire(`${req.user._id.toString()}${id.toString()} openingBalanceAndMarginMarginx`, secondsRemaining);
+                }
+                res.status(200).json({ status: 'success', data: portfolioValue[0] });
             }
-            res.status(200).json({ status: 'success', data: portfolioValue[0] });
-          }
-    
+
         }
-    
-      } catch (e) {
+
+    } catch (e) {
         console.log(e);
         return res.status(500).json({ status: 'success', message: 'something went wrong.' })
-      }
+    }
 }
 
 exports.myPnlAndPayout = async (req, res, next) => {
@@ -442,7 +445,7 @@ exports.myPnlAndPayout = async (req, res, next) => {
 
     try {
 
-        const data = await DailyContestMockUser.aggregate([
+        const data = await MarginxMockUser.aggregate([
             {
               $match:
                 {
@@ -540,7 +543,7 @@ exports.overallDailyContestTraderPnl = async (req, res, next) => {
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
     // console.log(today)
-    let pnlDetails = await DailyContestMockCompany.aggregate([
+    let pnlDetails = await MarginxMockCompany.aggregate([
         {
             $match: {
                 trade_time: {
@@ -600,7 +603,7 @@ exports.liveTotalTradersCount = async (req, res, next) => {
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
-    let pnlDetails = await DailyContestMockCompany.aggregate([
+    let pnlDetails = await MarginxMockCompany.aggregate([
         {
             $match: {
                 trade_time: {
@@ -659,7 +662,7 @@ exports.overallDailyContestPnlYesterday = async (req, res, next) => {
         let endTime = new Date(day.setHours(23, 59, 59, 999));
         date = startTime;
 
-        pnlDetailsData = await DailyContestMockCompany.aggregate([
+        pnlDetailsData = await MarginxMockCompany.aggregate([
             {
                 $match: {
                     trade_time: {
@@ -699,7 +702,7 @@ exports.overallDailyContestPnlYesterday = async (req, res, next) => {
             },
         ]);
 
-        const contest = await DailyContest.find({contestEndTime: {$gte: startTime, $lte: endTime}})
+        const contest = await MarginX.find({contestEndTime: {$gte: startTime, $lte: endTime}})
 
         if (!pnlDetailsData || pnlDetailsData.length === 0) {
             pnlDetailsData = null;  // reset the value to ensure the while loop continues
@@ -727,7 +730,7 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
     const startTime = new Date(yesterdayStartTime);
     const endTime = new Date(yesterdayEndTime);
     // console.log("Query Timing: ", startTime, endTime)  
-    let pnlDetails = await DailyContestMockCompany.aggregate([
+    let pnlDetails = await MarginxMockCompany.aggregate([
         {
             $match: {
                 trade_time: {
@@ -839,7 +842,7 @@ exports.traderWiseMockCompanySide = async (req, res, next) => {
 
     ]
 
-    let x = await DailyContestMockCompany.aggregate(pipeline)
+    let x = await MarginxMockCompany.aggregate(pipeline)
     // console.log(id, x)
     res.status(201).json({ message: "data received", data: x });
 }
@@ -895,7 +898,7 @@ exports.overallDailyContestCompanySidePnlThisMonth = async (req, res, next) => {
 
     ]
 
-    let x = await DailyContestMockCompany.aggregate(pipeline)
+    let x = await MarginxMockCompany.aggregate(pipeline)
     // console.log("MTD",x)
     res.status(201).json({ message: "data received", data: x });
 }
@@ -950,7 +953,7 @@ exports.overallDailyContestCompanySidePnlLifetime = async (req, res, next) => {
 
     ]
 
-    let x = await DailyContestMockCompany.aggregate(pipeline)
+    let x = await MarginxMockCompany.aggregate(pipeline)
     // console.log("Lifetime",x)
     res.status(201).json({ message: "data received", data: x });
 }
@@ -1021,7 +1024,7 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
 
     ]
 
-    let x = await DailyContestMockUser.aggregate(pipeline)
+    let x = await MarginxMockUser.aggregate(pipeline)
     // console.log(id, x)
     res.status(201).json({ message: "data received", data: x });
 }
@@ -1174,8 +1177,8 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
         },
     ]
 
-    let user = await DailyContestMockUser.aggregate(pipeline1)
-    let x = await DailyContestMockCompany.aggregate(pipeline)
+    let user = await MarginxMockUser.aggregate(pipeline1)
+    let x = await MarginxMockCompany.aggregate(pipeline)
 
     res.status(201).json({ message: "data received", data: x, user: user[0] });
 }
@@ -1328,8 +1331,8 @@ exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
         },
     ]
 
-    let user = await DailyContestMockUser.aggregate(pipeline1)
-    let x = await DailyContestMockUser.aggregate(pipeline)
+    let user = await MarginxMockUser.aggregate(pipeline1)
+    let x = await MarginxMockUser.aggregate(pipeline)
 
     res.status(201).json({ message: "data received", data: x, user: user[0] });
 }
@@ -1477,7 +1480,7 @@ exports.DailyContestPayoutChart = async (req, res, next) => {
         }
       ] 
 
-    let x = await DailyContestMockUser.aggregate(pipeline)
+    let x = await MarginxMockUser.aggregate(pipeline)
 
     res.status(201).json({ message: "data received", data: x });
 }
@@ -1573,7 +1576,7 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
                 // console.log('ranks in redis',ranks);
             } else {
 
-                ranks = await DailyContestMockUser.aggregate([
+                ranks = await MarginxMockUser.aggregate([
                     // Match documents for the given contestId
                     {
                         $match: {
@@ -1730,413 +1733,4 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
         return formattedLeaderboard;
     }
 
-}
-
-const dailyContestLeaderBoard = async (id) => {
-
-    
-
-    try {
-        
-        if (!await client.exists(`${id.toString()}employeeid`)) {
-            let allUsers = await User.find({ status: "Active" });
-
-            let obj = {};
-            for (let i = 0; i < allUsers.length; i++) {
-                let data = {
-                    employeeid: allUsers[i].employeeid,
-                    name: allUsers[i].first_name + " " + allUsers[i].last_name,
-                    photo: allUsers[i]?.profilePhoto?.url,
-                };
-
-                obj[allUsers[i]._id.toString()] = data;
-            }
-
-            try {
-                let temp = await client.set(`${id.toString()}employeeid`, JSON.stringify(obj));
-
-            } catch (err) {
-                console.log(err)
-            }
-        }
-
-        let addUrl;
-        let livePrices = {};
-        let dummyTesting = false;
-        if (dummyTesting) {
-            let filteredTicks = getFilteredTicks();
-            if (filteredTicks.length > 0) {
-                for (tick of filteredTicks) {
-                    livePrices[tick.instrument_token] = tick.last_price;
-                }
-            }
-        } else {
-            const contestInstruments = await Instrument.find({ status: "Active" }).select('instrumentToken exchange symbol');
-            const data = await getKiteCred.getAccess();
-            contestInstruments.forEach((elem, index) => {
-                if (index === 0) {
-                    addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
-                } else {
-                    addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
-                }
-            });
-            const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
-            let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
-
-            let authOptions = {
-                headers: {
-                    'X-Kite-Version': '3',
-                    Authorization: auth,
-                },
-            };
-
-            const response = await axios.get(ltpBaseUrl, authOptions);
-            for (let instrument in response.data.data) {
-                livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
-            }
-        }
-
-        let ranks;
-
-
-        ranks = await DailyContestMockUser.aggregate([
-            // Match documents for the given contestId
-            {
-                $match: {
-                    contestId: new ObjectId(id),
-                    status: "COMPLETE",
-                }
-            },
-            // Group by userId and sum the amount
-            {
-                $group: {
-                    _id: {
-                        trader: "$trader",
-                        // employeeid: "$employeeid",
-                        instrumentToken: "$instrumentToken",
-                        exchangeInstrumentToken: "$exchangeInstrumentToken",
-                        symbol: "$symbol",
-                        product: "$Product",
-                    },
-                    totalAmount: { $sum: { $multiply: ["$amount", -1] } },
-                    investedAmount: {
-                        $sum: {
-                            $cond: {
-                                if: { $gte: ["$amount", 0] },
-                                then: "$amount",
-                                else: 0
-                            }
-                        }
-                    },
-                    brokerage: {
-                        $sum: {
-                            $toDouble: "$brokerage",
-                        },
-                    },
-                    lots: {
-                        $sum: { $toInt: "$Quantity" }
-                    }
-                }
-            },
-            // Sort by totalAmount in descending order
-
-            // Project the result to include only userId and totalAmount
-            {
-                $project: {
-                    _id: 0,
-                    userId: "$_id",
-                    totalAmount: 1,
-                    investedAmount: 1,
-                    brokerage: 1,
-                    lots: 1
-                }
-            },
-            {
-                $addFields: {
-                    rpnl: {
-                        $multiply: ["$lots",]
-                    }
-                }
-            },
-        ]);
-
-        for (doc of ranks) {
-            doc.rpnl = doc.lots * livePrices[doc.userId.instrumentToken];
-            doc.npnl = doc.totalAmount + doc.rpnl - doc.brokerage;
-        }
-
-
-        async function aggregateRanks(ranks) {
-            const result = {};
-            for (const curr of ranks) {
-                const { userId, npnl, investedAmount } = curr;
-                const traderId = userId.trader;
-                let employeeidObj = await client.get(`${(id).toString()}employeeid`);
-
-                employeeidObj = JSON.parse(employeeidObj);
-                // console.log("employeeid", employeeidObj)
-                if (!result[traderId]) {
-                    result[traderId] = {
-                        traderId,
-                        name: employeeidObj[traderId.toString()]?.employeeid,
-                        npnl: 0,
-                        userName: employeeidObj[traderId.toString()]?.name,
-                        photo: employeeidObj[traderId.toString()]?.photo,
-                        investedAmount: 0,
-
-                    };
-                }
-                result[traderId].npnl += npnl;
-                result[traderId].investedAmount += investedAmount
-                // console.log("result", result)
-            }
-            return Object.entries(result).map(([key, value]) => value);
-        }
-
-        const result = await aggregateRanks(ranks);
-
-        // console.log("rsult", result.length, id)
-        for (rank of result) {
-
-            // if(id.toString() === "64b7770016c0eb3bec96a77b"){
-
-            
-                try {
-                    // if (await client.exists(`leaderboard:${id}`)) {
-                        await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
-                        await client.ZADD(`leaderboard:${id}`, {
-                            score: rank.npnl,
-                            value: JSON.stringify({ name: rank.name })
-                        });
-                    // }
-
-                } catch (err) {
-                    // console.log(err);
-                }
-            // }
-
-        }
-
-        
-        // await client.del(`leaderboard:${id}`)
-        const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard:${id}`, "0", "2", 'WITHSCORES'])
-        // console.log(leaderBoard, id)
-        const formattedLeaderboard = await formatData(leaderBoard)
-
-        return formattedLeaderboard;
-    } catch (e) {
-        console.log("redis error", e);
-    }
-
-    async function formatData(arr) {
-        const formattedLeaderboard = [];
-
-        for (let i = 0; i < arr.length; i += 2) {
-            // Parse the JSON string to an object
-            const obj = JSON.parse(arr[i]);
-            // Add the npnl property to the object
-            let data = await client.get(`${obj.name} investedAmount`)
-            data = JSON.parse(data);
-            obj.npnl = Number(arr[i + 1]);
-            // obj.investedAmount = Number(investedAmount);
-            obj.userName = data.userName;
-            obj.photo = data.photo;
-            // Add the object to the formattedLeaderboard array
-            formattedLeaderboard.push(obj);
-        }
-
-        return formattedLeaderboard;
-    }
-
-}
-
-const getRedisMyRank = async (id, employeeId) => {
-
-    // console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
-    try {
-        if (await client.exists(`leaderboard:${id}`)) {
-
-            const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
-            // console.log("leaderBoardRank", leaderBoardRank)
-            // await client.del(`leaderboard:${id}`)
-            if (leaderBoardRank == null) return null
-            return leaderBoardRank + 1
-        } else {
-            console.log("loading rank")
-        }
-
-    } catch (err) {
-        console.log(err);
-    }
-
-}
-
-exports.getRedisMyRankHTTP = async (req, res) => {
-
-    const {id} = req.params;
-    const employeeId = req.user.employeeid;
-    // console.log(id, employeeId, await client.exists(`leaderboard:${id}`))
-    try {
-        if (await client.exists(`leaderboard:${id}`)) {
-
-            const leaderBoardRank = await client.ZREVRANK(`leaderboard:${id}`, JSON.stringify({ name: employeeId }));
-            // console.log("leaderBoardRank", leaderBoardRank)
-
-            if (leaderBoardRank == null) return null
-
-            res.status(200).json({
-                message: "success",
-                data: leaderBoardRank+1
-            })
-            // return leaderBoardRank + 1
-        } else {
-            console.log("loading rank")
-            res.status(200).json({
-                message: "error",
-                data: "Loading rank"
-            })
-        }
-
-    } catch (err) {
-        console.log(err);
-    }
-
-}
-
-// exports.sendLeaderboardData = async () => {
-
-//     try{
-//         const activeContest = await DailyContest.find({contestStatus: "Active"});
-//         if(activeContest.length){
-//             const emitLeaderboardData = async () => {
-//                 const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
-    
-//                 for(let i = 0; i < contest?.length; i++){
-//                     const leaderBoard = await dailyContestLeaderBoard(contest[i]?._id?.toString());
-//                     // console.log("leaderBoard", leaderBoard, contest[i]?._id?.toString())
-//                     io.to(`${contest[i]?._id?.toString()}`).emit('contest-leaderboardData', leaderBoard);
-//                 }
-//             };
-//             emitLeaderboardData();
-//             interval = setInterval(emitLeaderboardData, 5000);    
-//         }
-//     } catch(err){
-//         console.log(err);
-//     }
-
-// }
-
-// Add a variable to keep track of the execution status
-
-let isProcessingQueue = false;
-const contestQueue = [];
-
-exports.sendLeaderboardData = async () => {
-    try {
-        const activeContest = await DailyContest.find({ contestStatus: "Active" });
-
-        if (activeContest.length) {
-            contestQueue.push(...activeContest);
-
-            if (!isProcessingQueue) {
-                // Start processing the queue and set the recurring interval
-                isProcessingQueue = true;
-                setInterval(processContestQueue, 5000);
-            }
-        }
-    } catch (err) {
-        console.log(err);
-    }
-};
-
-async function processContestQueue() {
-    const io = getIOValue();
-    // Get the current time
-    const currentTime = new Date();
-    // Define the start and end time for processing (9 am to 3:18 pm)
-    const startTime = new Date(currentTime);
-    startTime.setHours(3, 0, 0, 0);
-
-    const endTime = new Date(currentTime);
-    endTime.setHours(9, 48, 0, 0);
-
-    if (currentTime >= startTime && currentTime <= endTime) {
-        // console.log("1st if");
-
-        // If the queue is empty, reset the processing flag and return
-        if (contestQueue.length === 0) {
-            // console.log("2nd if");
-            isProcessingQueue = false;
-            return;
-        }
-
-        // Process contests and emit the data
-        for (const contest of contestQueue) {
-            if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
-                const leaderBoard = await dailyContestLeaderBoard(contest._id?.toString());
-                // console.log(leaderBoard, contest._id?.toString());
-                io.to(`${contest._id?.toString()}`).emit('contest-leaderboardData', leaderBoard);
-            }
-        }
-
-        // Clear the processed contests from the queue
-        // contestQueue.length = 0;
-    }
-}
-
-
-
-exports.sendMyRankData = async () => {
-    const io = getIOValue();
-    try{
-        const activeContest = await DailyContest.find({contestStatus: "Active"});
-
-
-        if(activeContest.length){
-            const emitLeaderboardData = async () => {
-                const currentTime = new Date();
-                // Define the start and end time for processing (9 am to 3:18 pm)
-                const startTime = new Date(currentTime);
-                startTime.setHours(3, 0, 0, 0);
-                const endTime = new Date(currentTime);
-                endTime.setHours(9, 48, 0, 0);
-                if (currentTime >= startTime && currentTime <= endTime) {
-                    const contest = await DailyContest.find({contestStatus: "Active", contestStartTime: {$lte: new Date()}});
-    
-                    for(let i = 0; i < contest?.length; i++){
-                        const room = io.sockets.adapter.rooms.get(contest[i]?._id?.toString());
-                        const socketIds = Array.from(room ?? []);
-                        for(let j = 0; j < socketIds?.length; j++){
-                            userId = await client.get(socketIds[j]);
-                            // console.log("userId", userId)
-                            let data = await client.get(`dailyContestData:${userId}`);
-                            data = JSON.parse(data);
-                            // console.log("data", data);
-                            if(data){
-                                let {id, employeeId} = data;
-                                const myRank = await getRedisMyRank(contest[i]?._id?.toString(), employeeId);
-                                io.to(`${contest[i]?._id?.toString()}${userId?.toString()}`).emit(`contest-myrank${userId}`, myRank);
-                                // await client.del(`leaderboard:${contest[i]?._id?.toString()}`)
-                                // io // Emit the leaderboard data to the client
-                            }
-        
-                        }
-            
-                    }
-                }
-            };
-            emitLeaderboardData();
-            interval = setInterval(emitLeaderboardData, 5000);    
-        }
-    } catch(err){
-        console.log(err);
-    }
-
-}
-
-exports.emitServerTime = async () => {
-    const io = getIOValue();
-    const interval = setInterval(() => {
-        io.emit('serverTime', new Date());
-    }, 1000); // Emit every second (adjust as needed)
 }

@@ -22,6 +22,7 @@ import StockIndexDailyContest from "../../tradingCommonComponent/StockIndex/Stoc
 // import DailyContestMyRank from '../data/dailyContestMyRank'
 import {useNavigate} from "react-router-dom"
 import PnlAndMarginData from "./pnlAndMarginData";
+import Order from "../../tradingCommonComponent/orders/Order";
 
 
 function Header({ socket, data }) {
@@ -52,14 +53,6 @@ function Header({ socket, data }) {
       const memoizedStockIndex = useMemo(() => {
         return <StockIndexDailyContest socket={socket} />;
       }, [socket]);
-
-    //   const memoizedLeaderboard = useMemo(() => {
-    //     return <Leaderboard socket={socket} name={data?.name} />;
-    //   }, [socket, data?.name]);
-
-    //   const memoizedDailyContestMyRank = useMemo(() => {
-    //     return <DailyContestMyRank socket={socket} />;
-    //   }, [socket]);
 
     const memoizedTradableInstrument = useMemo(() => {
         return <TradableInstrument
@@ -95,6 +88,14 @@ function Header({ socket, data }) {
         />;
       }, [data, marginxId, handleSetIsGetStartedClicked, isGetStartedClicked, socket]);
     
+      const memoizedOrder = useMemo(() => {
+        return <Order
+          from={marginX}
+          id={marginxId}
+          moduleData={data}
+        />;
+      }, [data, marginxId]);
+
 
     return (
         <>
@@ -147,6 +148,12 @@ function Header({ socket, data }) {
                 <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
                     <Grid item xs={12} md={6} lg={12} >
                         {memoizedOverallPnl}
+                    </Grid>
+                </Grid>
+
+                <Grid container p={1} mt={1} sx={{ backgroundColor: '#D3D3D3' }} borderRadius={3}>
+                    <Grid item xs={12} md={6} lg={12} >
+                        {memoizedOrder}
                     </Grid>
                 </Grid>
             </MDBox>

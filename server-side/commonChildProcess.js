@@ -64,10 +64,10 @@ async function commonProcess() {
     app.use('/api/v1/dailycontest', require('./routes/DailyContest/dailyContestLiveTrade'));
     app.use('/api/v1/marginxtemplate', require('./routes/marginx/marginxTemplateRoutes'));
     app.use('/api/v1/marginx', require('./routes/marginx/marginxRoutes'));
+    app.use('/api/v1/marginxtrade', require('./routes/marginx/marginxTradeRoute'));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
-    
     app.use('/api/v1', require("./marketData/Margin"));
     app.use('/api/v1', require("./routes/user/userLogin"));
     app.use('/api/v1', require('./routes/TradeData/getUserTrade'));

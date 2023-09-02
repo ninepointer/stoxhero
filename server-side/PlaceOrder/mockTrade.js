@@ -9,6 +9,7 @@ const {virtualTrade} = require("./saveDataInDB/paperTrade")
 const {tenxTrade} = require("./saveDataInDB/tenx")
 const {internTrade} = require("./saveDataInDB/internship")
 const {infinityTrade} = require("./saveDataInDB/infinity")
+const {marginxTrade} = require("./saveDataInDB/marginx")
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -22,7 +23,7 @@ exports.mockTrade = async (req, res) => {
 
     let {exchange, symbol, buyOrSell, Quantity, Product, OrderType,
         validity, variety, instrumentToken, tenxTraderPath, internPath,
-        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest } = req.body 
+        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx } = req.body 
 
     if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety){
         return res.status(422).json({error : "Something went wrong"})
@@ -157,6 +158,10 @@ exports.mockTrade = async (req, res) => {
 
     if(internPath){
         await internTrade(req, res, otherData)
+    }
+
+    if(marginx){
+        await marginxTrade(req, res, otherData)
     }
 }
 

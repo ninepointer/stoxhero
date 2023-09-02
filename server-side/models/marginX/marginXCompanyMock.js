@@ -1,10 +1,14 @@
-const mongoose = require('mongoose');
-const {Schema} = require('mongoose');
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const tenXTraderSchema = new mongoose.Schema({
+const marginxSchema = new mongoose.Schema({
     order_id:{
         type: String,
         required: true
+    },
+    appOrderId:{
+        type: String,
+        // required: true
     },
     status:{
         type: String,
@@ -12,10 +16,11 @@ const tenXTraderSchema = new mongoose.Schema({
     },
     status_message:{
         type: String,
+        // required: true
     },
     average_price:{
         type: Number,
-        required: true
+        // required: true
     },
     Quantity:{
         type: Number,
@@ -54,7 +59,7 @@ const tenXTraderSchema = new mongoose.Schema({
         required: true
     },
     brokerage:{
-        type: Number,     
+        type: Number,        
     },
     instrumentToken:{
         type: Number, 
@@ -64,41 +69,54 @@ const tenXTraderSchema = new mongoose.Schema({
         type: Number,
         required : true
     },
+    isRealTrade:{ 
+        type: Boolean,
+        required: true,
+        default: false
+    },
     amount:{
         type: Number,
-        required: true        
+        // required: true
     },
     trade_time:{
         type: Date,
         required: true        
     },
+    isMissed:{
+        type: Boolean,
+        default: false
+    },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
-        required : true
-    },
-    createdOn:{
-        type: Date,
-        default: ()=>new Date(),
-        required: true
+        // required : true
     },
     trade_time_utc:{
         type: Date,
-        default: ()=>new Date(),
-        required: true
+        default: ()=>new Date()      
+    },
+    createdOn:{
+        type: Date,
+        default: ()=>new Date()
     },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
-        required: true
     },
-    marginxId:{
+    algoBox:{
+        type: Schema.Types.ObjectId,
+        ref: 'algo-trading', 
+    },
+    liveAccount:{
+        type: String
+    },
+    marginxId: {
         type: Schema.Types.ObjectId,
         ref: 'marginX',
-        required: true
     }
-
 })
 
-const TenXTrader = mongoose.model('tenX-trade-user', tenXTraderSchema);
-module.exports = TenXTrader;
+const marginxCompanyDetail = mongoose.model("marginx-mock-company", marginxSchema);
+module.exports = marginxCompanyDetail;
+
+

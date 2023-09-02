@@ -27,7 +27,7 @@ import { Box } from '@mui/material';
 import { renderContext } from "../../renderContext";
 import {Howl} from "howler";
 import sound from "../../assets/sound/tradeSound.mp3"
-import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../variables";
+import {dailyContest, paperTrader, infinityTrader, tenxTrader, internshipTrader, marginX } from "../../variables";
 
 
 // import MDBox from '../../../../../components/MDBox';
@@ -207,6 +207,8 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
       } else{
         endPoint = 'placingOrderDailyContest';
       }
+    }else if(from === marginX){
+      endPoint = 'placingOrderMarginx';
     }
 
     console.log("module", module)
@@ -219,7 +221,7 @@ const BuyModel = ({chartInstrument, isOption, setOpenOptionChain, traderId, sock
         body: JSON.stringify({
           exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data,
           Product, OrderType, TriggerPrice, stopLoss, uId, exchangeInstrumentToken, fromAdmin,
-          validity, variety, createdBy, order_id:dummyOrderId, subscriptionId,
+          validity, variety, createdBy, order_id:dummyOrderId, subscriptionId, marginxId: subscriptionId,
           userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath, internPath
 
         })

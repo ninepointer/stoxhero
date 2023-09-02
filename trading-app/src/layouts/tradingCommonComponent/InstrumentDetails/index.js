@@ -31,7 +31,6 @@ import { InfinityTraderRole, dailyContest } from "../../../variables";
 import { userContext } from "../../../AuthContext";
 import Timer from "./timer";
 import AutoCutPopUp from "./tradecutPopup";
-// import { AiOutlineLineChart } from "react-icons/ai";
 
 
 function InstrumentDetails({socket , setIsGetStartedClicked, from, subscriptionId, moduleData, setWatchList}) {

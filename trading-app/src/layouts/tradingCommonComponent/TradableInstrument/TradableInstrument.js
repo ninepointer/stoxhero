@@ -78,6 +78,9 @@ function reducer(state, action) {
 
 function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, moduleData, watchList}) {
 
+  if(from === dailyContest){
+    from = marginX;
+  }
   const {render, setRender} = useContext(renderContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let textRef = useRef(null);
@@ -106,31 +109,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       setIsGetStartedClicked(false)
     }
   },[isGetStartedClicked])
-
-
-  // let url = `isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`
-  // let endPointUrl;
-  // if(from === dailyContest){
-  //   endPointUrl = `${baseUrl}api/v1/instrumentDetails?${url}&dailyContest=${true}`
-  // } else{
-  //   endPointUrl = `${baseUrl}api/v1/instrumentDetails`
-  // }
-  useEffect(()=>{
-    // axios.get(`${endPointUrl}`,{
-    //   withCredentials: true,
-    //   headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //       "Access-Control-Allow-Credentials": true
-    //   },
-    // })
-    // .then((res) => {
-       
-    // }).catch((err) => {
-    //     return new Error(err);
-    // })
-    // dispatch({ type: 'setUserInstrumentData', payload: (watchList) });
-  }, [render])
 
 
   function sendSearchReq(e) {
@@ -179,7 +157,7 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
       url = `&isNifty=${true}&isBankNifty=${true}&isFinNifty=${true}`;
     }
 
-    if(from === dailyContest){
+    if((from === dailyContest)){
       endPoint = `${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}${url}&dailyContest=${dailyContest}`
     } else{
       endPoint = `${baseUrl}api/v1/tradableInstruments?search=${data}&page=${1}&size=${PAGE_SIZE}`
@@ -292,9 +270,6 @@ function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked
     newRows[index].sellState = true;
     state.instrumentsData = (newRows);
   };
- //handleBuyClick
-
-//  console.log("watchList", watchList)
 
   return (
     <MDBox sx={{backgroundColor:"white", display:"flex", borderRadius:2, marginBottom:2}}>
