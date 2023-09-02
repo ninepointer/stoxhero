@@ -137,7 +137,8 @@ exports.getOngoingMarginXs = async (req, res) => {
     try {
         const ongoingMarginXs = await MarginX.find({ 
             startTime: { $lte: now }, 
-            endTime: { $gt: now } 
+            endTime: { $gt: now },
+            status : 'Active' 
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess' )
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
@@ -160,7 +161,8 @@ exports.getUpcomingMarginXs = async (req, res) => {
     const now = new Date();
     try {
         const upcomingMarginXs = await MarginX.find({ 
-            startTime: { $gt: now }
+            startTime: { $gt: now },
+            status : 'Active'
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
@@ -211,7 +213,7 @@ exports.getCompletedMarginXs = async (req, res) => {
     const now = new Date();
     try {
         const completedMarginXs = await MarginX.find({ 
-            endTime: { $lte: now }
+            status: 'Completed'
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess');
         
         res.status(200).json({

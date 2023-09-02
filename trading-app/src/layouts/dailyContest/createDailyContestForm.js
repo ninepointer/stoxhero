@@ -432,42 +432,6 @@ function Index() {
                     </Select>
                   </FormControl>
                 </Grid>
-
-                      {/* payout type --> todo-vijay */}
-                {/* <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
-                    <InputLabel id="demo-multiple-name-label">Payout Type</InputLabel>
-                    <Select
-                      labelId="demo-multiple-name-label"
-                      id="demo-multiple-name"
-                      name='payoutType'
-                      disabled={((isSubmitted || contest) && (!editing || saving))}
-                      // defaultValue={id ? portfolios?.portfolio : ''}
-                      value={formState?.payoutType}
-                      // onChange={handleTypeChange}
-                      onChange={(e) => {
-                        setFormState(prevState => ({
-                          ...prevState,
-                          payoutType: e.target.value
-                        }))
-                      }}
-                      input={<OutlinedInput label="Payout Type" />}
-                      sx={{ minHeight: 45 }}
-                      MenuProps={MenuProps}
-                    >
-                      <MenuItem
-                        value='Reward'
-                      >
-                        Reward
-                      </MenuItem>
-                      <MenuItem
-                        value='Percentage'
-                      >
-                        Percentage
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid> */}
                 
                 {(formState?.contestFor === "College" || contest?.contestFor === "College") &&
                   <>
@@ -504,13 +468,6 @@ function Index() {
                             InputLabelProps={{
                               style: { color: 'grey' },
                             }}
-                          // SelectProps={{
-                          //   MenuProps: {
-                          //     PaperProps: {
-                          //       style: { height: '10px' }, // Replace '200px' with your desired width
-                          //     },
-                          //   },
-                          // }}
                           />
                         )}
                       />
@@ -704,6 +661,7 @@ function Index() {
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Draft">Draft</MenuItem>
                       <MenuItem value="Cancelled">Cancelled</MenuItem>
+                      <MenuItem value="Cancelled">Completed</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>

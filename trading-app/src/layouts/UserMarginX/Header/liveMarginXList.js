@@ -1,5 +1,6 @@
 import { React, useState, useEffect, useContext } from "react";
 import { userContext } from '../../../AuthContext';
+import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
 import ReactGA from "react-ga"
@@ -26,7 +27,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
-    console.log("MarginX:",marginX)
+    const navigate = useNavigate();
 
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
@@ -168,11 +169,11 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
 
                                     // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                                     return (
-                                        <Grid item xs={12} md={12} lg={4} borderRadius={3}>
+                                        <Grid item xs={12} md={6} lg={4} borderRadius={3}>
                                             <MDBox p={1} style={{ backgroundColor: "lightgrey", minWidth:'100%', borderRadius:'5px 5px 0px 0px' }} color={"#252525"} size="small">
                                                 <Grid container display='flex' justifyContent='space-between' alignItems='center' minWidth='100%'>
                                                     <MDBox bgColor='lightgrey' minWidth='100%'>
-                                                        <Grid item xs={3} md={3} lg={12} mb={1} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
+                                                        <Grid item xs={3} md={2} lg={12} mb={1} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                             <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='left'>
                                                                 <MDBox display='flex' justifyContent='flex-start' alignItems='center'>
                                                                     <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.marginXName}</MDTypography>
@@ -187,10 +188,10 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
 
 
                                                         <Grid item xs={3} md={3} lg={12} ml={-0.5} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                            {elem?.isNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "green", padding: '2px 5px 0px 5px',border:"1px solid green", borderRadius:'5px 5px 5px 5px'}}>{elem?.isNifty === true ? 'NIFTY' : ''}</MDTypography></MDBox>}
-                                                            {elem?.isBankNifty && <MDBox><MDTypography color='black' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "lightyellow", padding: '2px 5px 0px 5px',border:"1px solid lightyellow", borderRadius:'5px 5px 5px 5px'}}>{elem?.isBankNifty === true ? 'BANKNIFTY' : ''}</MDTypography></MDBox>}
-                                                            {elem?.isFinNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "orange", padding: '2px 5px 0px 5px',border:"1px solid orange", borderRadius:'5px 5px 5px 5px'}}>{elem?.isFinNifty === true ? 'FINNIFTY' : ''}</MDTypography></MDBox>}
-                                                            {elem?.marginXExpiry && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "red", padding: '2px 5px 0px 5px',border:"1px solid red", borderRadius:'5px 5px 5px 5px'}}>{elem?.marginXExpiry}</MDTypography></MDBox>}
+                                                            {elem?.isNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "green", padding: '0px 5px 0px 5px',border:"1px solid green", borderRadius:'5px 5px 5px 5px'}}>{elem?.isNifty === true ? 'NIFTY' : ''}</MDTypography></MDBox>}
+                                                            {elem?.isBankNifty && <MDBox><MDTypography color='black' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "lightyellow", padding: '0px 5px 0px 5px',border:"1px solid lightyellow", borderRadius:'5px 5px 5px 5px'}}>{elem?.isBankNifty === true ? 'BANKNIFTY' : ''}</MDTypography></MDBox>}
+                                                            {elem?.isFinNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "orange", padding: '0px 5px 0px 5px',border:"1px solid orange", borderRadius:'5px 5px 5px 5px'}}>{elem?.isFinNifty === true ? 'FINNIFTY' : ''}</MDTypography></MDBox>}
+                                                            {elem?.marginXExpiry && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "red", padding: '0px 5px 0px 5px',border:"1px solid red", borderRadius:'5px 5px 5px 5px'}}>{elem?.marginXExpiry}</MDTypography></MDBox>}
                                                         </Grid>
                                                     </MDBox>
                                                     
@@ -199,19 +200,19 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                             <MDBox p={1} style={{ backgroundColor: "white", minWidth:'100%', borderRadius:'0px 0px 5px 5px' }} color={"#252525"}>
                                                 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pt={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>   
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>No. of Seats Left</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Time Remaining</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} container display='flex' justifyContent='center' alignItems='center'>
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.maxParticipants - elem?.participants.length}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <Timer toggleContest={toggleContest} setToggleContest={setToggleContest} socket={socket} elem={elem} date={elem?.startTime} id={elem?._id} setTimeDifference={setTimeDifference} />
                                                     </Grid>
                                                 </Grid>
@@ -224,56 +225,63 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>AS PER YOUR INVESTMENT</MDTypography></MDBox>
+                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>% OF YOUR INVESTMENT</MDTypography></MDBox>
                                                         </MDBox>
                                                     </MDBox>
                                                 </Grid>
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pt={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>   
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Start Time</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>End Time</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>   
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         <MDTypography color='black' fontSize={10} fontWeight='bold'>{changeDateFormat(elem.startTime)}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDTypography color='black' fontSize={10} fontWeight='bold'>{changeDateFormat(elem.endTime)}</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pt={0.5} pb={.5} container display='flex' justifyContent='center' alignItems='center'>   
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                        <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Entry Fee</MDTypography>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                        <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Investment</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDTypography style={{color:'grey'}} fontSize={12} fontWeight='bold'>Portfolio</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>   
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
                                                         <MDTypography color='black' fontSize={10} fontWeight='bold'>₹{elem?.marginXTemplate?.entryFee}</MDTypography>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
+                                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
                                                         <MDTypography color='black' fontSize={10} fontWeight='bold'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.marginXTemplate?.portfolioValue)}</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pb={.5} mt={0.5} mb={.5} container display='flex' justifyContent='space-around' alignItems='center'>   
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%'}} size='small' color='info'>View</MDButton>
+                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton 
+                                                            style={{minWidth:'95%', fontSize:10}} 
+                                                            size='small' 
+                                                            color='info'
+                                                            onClick={() => { navigate(`/marginxs/${elem?.marginXName}`) }}
+                                                        >
+                                                            View
+                                                        </MDButton>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%'}} size='small' color='warning'>Share</MDButton>
+                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='warning'>Share</MDButton>
                                                     </Grid>
-                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%'}} size='small' color='success'>Buy</MDButton>
+                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='success'>Buy</MDButton>
                                                     </Grid>
                                                 </Grid>
 

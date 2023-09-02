@@ -31,12 +31,6 @@ import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { apiUrl } from '../../constants/constants';
-// import User from './users';
-// import CreateRules from './rulesAndRewards/battleRules';
-// import CreateRewards from './rulesAndRewards/battleRewards';
-
-// const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
-
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -58,24 +52,15 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const marginx = location?.state?.data;
-  // const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  // console.log('id hai', marginx);
-  // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(marginx ? true : false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
   const navigate = useNavigate();
-  // const [newObjectId, setNewObjectId] = useState("");
-  // const [updatedDocument, setUpdatedDocument] = useState([]);
-  // const [battles, setBattles] = useState([]);
   const [templates, setTemplate] = useState([]);
-  // const [college, setCollege] = useState([]);
-  // const [action, setAction] = useState(false);
-  const [createdBattle, setCreatedBattle] = useState();
-  console.log('created marginx', createdBattle);
+  const [createdMarginX, setCreatedMarginX] = useState();
+  
   
   const [formState, setFormState] = useState({
     marginXName: '' || marginx?.marginXName,
@@ -107,7 +92,6 @@ function Index() {
   useEffect(() => {
     axios.get(`${apiUrl}marginxtemplate/active`, {withCredentials: true})
       .then((res) => {
-        console.log("Battle Portfolios :", res?.data?.data)
         setTemplate(res?.data?.data);
       }).catch((err) => {
         return new Error(err)
@@ -161,14 +145,13 @@ function Index() {
   
   
       const data = await res.json();
-      setCreatedBattle(data);
+      setCreatedMarginX(data);
       console.log(data, res.status);
       if (res.status !== 201) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-        openErrorSB("Battle not created", data?.message)
+        openErrorSB("MarginX not created", data?.message)
       } else {
-        openSuccessSB("Battle Created", data?.message)
-        // setNewObjectId(data?.data?._id)
+        openSuccessSB("MarginX Created", data?.message)
         setIsSubmitted(true);
         setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
       }
@@ -210,7 +193,7 @@ function Index() {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else {
-      openSuccessSB("Battle Edited", "Edited Successfully")
+      openSuccessSB("MarginX Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
     }
@@ -392,7 +375,7 @@ function Index() {
                 </Grid>
 
                 <Grid item xs={12} md={3} xl={3}>
-                  <FormControl sx={{ minHeight: 10, minWidth: 263 }}>
+                  <FormControl sx={{ minHeight: 10, minWidth: '100%' }}>
                     <InputLabel id="demo-multiple-name-label">Templates</InputLabel>
                     <Select
                       labelId="demo-multiple-name-label"
@@ -402,7 +385,7 @@ function Index() {
                       value={formState?.marginXTemplate?.name || marginx?.marginXTemplate?.templateName}
                       onChange={handleTemplateChange}
                       input={<OutlinedInput label="Portfolio" />}
-                      sx={{ minHeight: 45 }}
+                      sx={{ minHeight: 45, minWidth:'100%' }}
                       MenuProps={MenuProps}
                     >
                       {templates?.map((template) => (
@@ -439,6 +422,7 @@ function Index() {
                       <MenuItem value="Active">Active</MenuItem>
                       <MenuItem value="Draft">Draft</MenuItem>
                       <MenuItem value="Cancelled">Cancelled</MenuItem>
+                      <MenuItem value="Cancelled">Completed</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -467,7 +451,8 @@ function Index() {
                     </Select>
                   </FormControl>
                 </Grid>
-
+                
+              
                 <Grid item xs={12} md={6} xl={3}>
                   <FormGroup>
                     <FormControlLabel  
@@ -516,6 +501,7 @@ function Index() {
                       label="FINNIFTY" />
                   </FormGroup>
                 </Grid>
+               
 
               </Grid>
 
@@ -542,11 +528,11 @@ function Index() {
                 )}
                 {((isSubmitted || Boolean(marginx)) && !editing) && (
                   <>
-                  {marginx?.battleStatus !== "Completed" &&
+                  {marginx?.status !== "Completed" &&
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/marginxdashboard') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/marginxdashboard/marginx') }}>
                       Back
                     </MDButton>
                   </>
