@@ -41,7 +41,7 @@ const Timer = ({socket, date, setTimeDifference, id, elem, toggleContest, setTog
       if(setToggleContest){
         setToggleContest(!toggleContest);
       }
-      setRemainingTime('00:00:00');
+      setRemainingTime('Started (Buy Now)');
     }
   }, [serverTime]);
 

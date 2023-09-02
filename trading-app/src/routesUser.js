@@ -65,6 +65,7 @@ import DailyContestOrder from "./layouts/UserDailyContest/Orders"
 import DailyCollegeContestOrder from "./layouts/UserDailyContestCollage/Orders"
 
 import MarginX from './layouts/UserMarginX'
+import MarginXDetails from './layouts/UserMarginX/Header/marginXDetailsHeader'
 
 import CompletedDailyContest from "./layouts/UserDailyContest/pastContestMain"
 import CompletedDailyCollegeContest from "./layouts/UserDailyContestCollage/pastContestMain"
@@ -84,6 +85,10 @@ const routes = [
   {
     route: "/completedcollegecontests",
     component: <CompletedDailyCollegeContest />,
+  },
+  {
+    route: "/marginxs/:name",
+    component: <MarginXDetails />,
   },
   {
     route: "/completedcontests/:name",

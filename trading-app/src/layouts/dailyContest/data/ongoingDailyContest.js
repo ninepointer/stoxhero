@@ -76,11 +76,11 @@ const OngoiningContest = () => {
                           </Grid>
 
                           <Grid item xs={12} md={6} lg={2.4} mb={1} display="flex" justifyContent="center">
-                            <MDTypography fontSize={9} style={{ color: "black" }}>Start Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.contestStartTime).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "black" }}>Start Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.contestStartTime).utcOffset('+05:30').format('DD-MMM-YY hh:mm a')}</span></MDTypography>
                           </Grid>
 
                           <Grid item xs={12} md={6} lg={2.4} mb={1} display="flex" justifyContent="center">
-                            <MDTypography fontSize={9} style={{ color: "black" }}>End Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.contestEndTime).utcOffset('+05:30').format('DD-MMM-YY')}</span></MDTypography>
+                            <MDTypography fontSize={9} style={{ color: "black" }}>End Date: <span style={{ fontSize: 11, fontWeight: 700 }}>{moment.utc(e?.contestEndTime).utcOffset('+05:30').format('DD-MMM-YY hh:mm a')}</span></MDTypography>
                           </Grid>
 
                         </Grid>

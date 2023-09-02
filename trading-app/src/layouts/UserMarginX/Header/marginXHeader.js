@@ -50,12 +50,10 @@ function Header({ children }) {
                         Welcome StoxHeroes!
                     </MDTypography>
                     <MDTypography color='dark' fontSize={15} textAlign='center'>
-                        Start your trading journey by participating in virtual Futures & Options contest
-                        and win real cash rewards as per your portfolio value.
+                        Introducing MarginX: Your Gateway to Realistic Trading
                     </MDTypography>
                     <MDTypography color='dark' fontSize={15} textAlign='center'>
-                        अपनी ट्रेडिंग यात्रा शुरू करें वर्चुअल फ्यूचर्स और ऑप्शन कॉन्टेस्ट में हिस्सा लेकर और अपने पोर्टफोलियो की 
-                        मान्यता के हिसाब से वास्तविक नकदी रिवार्ड्स जीतें।
+                        We've designed this innovative trading experience to bridge the gap between learning and real-world trading, allowing you to get as close to the market as possible.
                     </MDTypography> 
                     </Grid>
                     <Grid item xs={12} md={12} lg={12} mt={1} display='flex' justifyContent='center'>
