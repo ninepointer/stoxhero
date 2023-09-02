@@ -29,6 +29,17 @@ const marginXSchema = new Schema({
         accountBlown: {type: Boolean},
         accountBlownAt:{type:Date}
     }],
+    potentialParticipants:[
+        {type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+    ],
+    contestSharedBy:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        sharedAt:{type:Date}
+    }],
+    purchaseIntent:[{
+        userId:{type:Schema.Types.ObjectId, ref: 'user-personal-detail'},
+        date:{type:Date},
+    }],
     maxParticipants:{
         type:Number,
         required: true
