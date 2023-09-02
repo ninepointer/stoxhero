@@ -265,7 +265,7 @@ function TraderwiseTraderPNL({ socket }) {
           <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDBox>
               <MDTypography variant="h6" gutterBottom p={3}>
-                Daily Contest Trader Position(Trader Side)
+                MarginX Trader Position(Trader Side)
               </MDTypography>
             </MDBox>
 
@@ -276,16 +276,16 @@ function TraderwiseTraderPNL({ socket }) {
             <TextField
               select
               label=""
-              value={selectedMarginx?.contestName ? selectedMarginx?.contestName : marginx[0]?.contestName}
+              value={selectedMarginx?.marginXName ? selectedMarginx?.marginXName : marginx[0]?.marginXName}
               minHeight="4em"
               // helperText="Please select subscription"
               variant="outlined"
               sx={{ margin: 1, padding: 1, width: "300px" }}
-              onChange={(e) => { setselectedMarginx(marginx.filter((item) => item.contestName == e.target.value)[0]); }}
+              onChange={(e) => { setselectedMarginx(marginx.filter((item) => item.marginXName == e.target.value)[0]); }}
             >
               {marginx?.map((option) => (
-                <MenuItem key={option.contestName} value={option.contestName} minHeight="4em">
-                  {option.contestName}
+                <MenuItem key={option.marginXName} value={option.marginXName} minHeight="4em">
+                  {option.marginXName}
                 </MenuItem>
               ))}
             </TextField>

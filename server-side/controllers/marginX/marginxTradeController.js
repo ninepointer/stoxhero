@@ -975,7 +975,7 @@ exports.traderWiseMockTraderSide = async (req, res, next) => {
                 //     $gte: today
                 // },
                 status: "COMPLETE",
-                contestId: new ObjectId(id)
+                marginxId: new ObjectId(id)
             }
         },
         {

@@ -256,19 +256,6 @@ function TraderwiseTraderPNL({ socket }) {
 
 
   rows.push(obj);
-const switchToMock = async () => {
-  const id = selectedMarginx?._id;
-  try{
-    const res = await axios.get(`${apiUrl}switchRealToMockContest/${id}`, {withCredentials:true});
-    if(res.status == 200){
-      // setIsLive(false);
-      setAction(!action);
-    }
-    console.log(res.data);
-  }catch(e){
-    console.log(e);
-  }
-}
 
   return (
     <>
@@ -277,7 +264,7 @@ const switchToMock = async () => {
           <MDBox display="flex" justifyContent="space-between" alignItems="center">
             <MDBox>
               <MDTypography variant="h6" gutterBottom p={3}>
-                Daily Contest Trader Position(Company Side)
+              MarginX Trader Position(Company Side)
               </MDTypography>
             </MDBox>
 
@@ -288,16 +275,16 @@ const switchToMock = async () => {
             <TextField
               select
               label=""
-              value={selectedMarginx?.contestName ? selectedMarginx?.contestName : marginx[0]?.contestName}
+              value={selectedMarginx?.marginXName ? selectedMarginx?.marginXName : marginx[0]?.marginXName}
               minHeight="4em"
               // helperText="Please select subscription"
               variant="outlined"
               sx={{ margin: 1, padding: 1, width: "300px" }}
-              onChange={(e) => { setselectedMarginx(marginx.filter((item) => item.contestName == e.target.value)[0]); }}
+              onChange={(e) => { setselectedMarginx(marginx.filter((item) => item.marginXName == e.target.value)[0]); }}
             >
               {marginx?.map((option) => (
-                <MenuItem key={option.contestName} value={option.contestName} minHeight="4em">
-                  {option.contestName}
+                <MenuItem key={option.marginXName} value={option.marginXName} minHeight="4em">
+                  {option.marginXName}
                 </MenuItem>
               ))}
             </TextField>
