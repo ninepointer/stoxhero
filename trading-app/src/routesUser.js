@@ -61,6 +61,7 @@ import BattleDetails from './layouts/UserBattle/battleInfo'
 
 import ContestTradingWindow from './layouts/UserDailyContest/ContestTradingView'
 import CollegeContestTradingWindow from './layouts/UserDailyContestCollage/ContestTradingView'
+import MarginXTradingWindow from "./layouts/UserDailyContest copy/ContestTradingView";
 
 import Chart from './layouts/charts/index';
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
@@ -74,7 +75,7 @@ import DailyCollegeContestResultPage from "./layouts/UserDailyContestCollage/dat
 import BattleIcon from "./assets/images/swords.png"
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
-import Challenge from './layouts/UserDailyChallenge'
+// import Challenge from './layouts/UserDailyChallenge'
 const routes = [
 
   {
@@ -196,6 +197,10 @@ const routes = [
   {
     route: "/contests/:name",
     component: <ContestTradingWindow />,
+  },
+  {
+    route: "/marginxtrade/:name",
+    component: <MarginXTradingWindow />,
   },
   {
     route: "/collegecontests/:name",

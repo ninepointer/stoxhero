@@ -117,7 +117,7 @@ function Index() {
 
   async function onEdit(e, formState) {
     e.preventDefault()
-    console.log("Edited FormState: ", new Date(formState.battleStartTime).toISOString(), new Date(formState.battleEndTime).toISOString())
+    // console.log("Edited FormState: ", new Date(formState.battleStartTime).toISOString(), new Date(formState.battleEndTime).toISOString())
     setSaving(true)
     console.log("formstate", formState)
 
@@ -130,7 +130,7 @@ function Index() {
     const { templateName, portfolioValue, entryFee, status } = formState;
 
     const res = await fetch(`${apiUrl}marginxtemplate/${template?._id}`, {
-      method: "PUT",
+      method: "PATCH",
       credentials: "include",
       headers: {
         "content-type": "application/json",
@@ -328,7 +328,7 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashboard") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/marginxdashboard") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -339,7 +339,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/battledashboard') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/marginxdashboard') }}>
                       Back
                     </MDButton>
                   </>

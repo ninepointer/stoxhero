@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const MarginXTemplate = require('../../models/marginX/marginXTemplate');
 
 exports.createMarginXTemplate = async (req, res) => {

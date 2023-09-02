@@ -30,6 +30,7 @@ import { pink } from '@mui/material/colors';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { apiUrl } from '../../constants/constants';
 // import User from './users';
 // import CreateRules from './rulesAndRewards/battleRules';
 // import CreateRewards from './rulesAndRewards/battleRewards';
@@ -61,7 +62,7 @@ function Index() {
   // console.log('id hai', marginx);
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading, setIsLoading] = useState(marginx ? true : false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -94,6 +95,7 @@ function Index() {
 
   });
 
+  console.log("formState", formState)
   useEffect(() => {
     setTimeout(() => {
       // marginx && setUpdatedDocument(marginx)
@@ -103,7 +105,7 @@ function Index() {
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/marginxtemplate/active`, {withCredentials: true})
+    axios.get(`${apiUrl}marginxtemplate/active`, {withCredentials: true})
       .then((res) => {
         console.log("Battle Portfolios :", res?.data?.data)
         setTemplate(res?.data?.data);
@@ -145,7 +147,7 @@ function Index() {
 
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
       const { marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty, marginXTemplate } = formState;
-      const res = await fetch(`${baseUrl}api/v1/marginx/`, {
+      const res = await fetch(`${apiUrl}marginx/`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -190,7 +192,7 @@ function Index() {
     }
     const { marginXTemplate, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
 
-    const res = await fetch(`${baseUrl}api/v1/marginx/${marginx?._id}`, {
+    const res = await fetch(`${apiUrl}marginx/${marginx?._id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -533,7 +535,7 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/battledashboard") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/marginxdashboard") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -544,7 +546,7 @@ function Index() {
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/battledashboard') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/marginxdashboard') }}>
                       Back
                     </MDButton>
                   </>

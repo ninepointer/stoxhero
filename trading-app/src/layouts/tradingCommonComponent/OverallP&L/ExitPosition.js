@@ -26,7 +26,7 @@ import sound from "../../../assets/sound/tradeSound.mp3"
 import { paperTrader, infinityTrader, tenxTrader, internshipTrader, dailyContest } from "../../../variables";
 
 
-function ExitPosition({contest, maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
+function ExitPosition({module, maxLot, lotSize, traderId, socket, subscriptionId, from, isFromHistory, product, symbol, quantity, exchange, instrumentToken, setExitState, exitState, exchangeInstrumentToken }) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const {render, setRender} = useContext(renderContext);
   const tradeSound = new Howl({
@@ -209,7 +209,7 @@ function ExitPosition({contest, maxLot, lotSize, traderId, socket, subscriptionI
       trader = traderId;
       fromAdmin = true;
     }else if(from === dailyContest){
-      if(contest?.currentLiveStatus==="Live"){
+      if(module?.currentLiveStatus==="Live"){
         endPoint = 'placingLiveOrderDailyContest';
       } else{
         endPoint = 'placingOrderDailyContest';
@@ -223,7 +223,7 @@ function ExitPosition({contest, maxLot, lotSize, traderId, socket, subscriptionI
       },
       body: JSON.stringify({
 
-        exchange, symbol, buyOrSell, Quantity, Price, contestId: contest?.data,
+        exchange, symbol, buyOrSell, Quantity, Price, contestId: module?.data,
         Product, OrderType, TriggerPrice, stopLoss, internPath,
         validity, variety, order_id: dummyOrderId, subscriptionId, exchangeInstrumentToken, fromAdmin,
         userId, instrumentToken, trader, paperTrade: paperTrade, tenxTraderPath

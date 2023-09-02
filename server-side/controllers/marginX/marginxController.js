@@ -136,8 +136,9 @@ exports.getOngoingMarginXs = async (req, res) => {
         const ongoingMarginXs = await MarginX.find({ 
             startTime: { $lte: now }, 
             endTime: { $gt: now } 
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess' );
-        
+        }).populate('participants.userId', 'first_name last_name email mobile creationProcess' )
+        .populate('marginXTemplate', 'templateName portfolioValue')
+
         res.status(200).json({
             status: 'success',
             data: ongoingMarginXs

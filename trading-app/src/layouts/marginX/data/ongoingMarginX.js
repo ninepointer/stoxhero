@@ -34,6 +34,8 @@ const OngoiningContest = () => {
       });
   }, [])
 
+  console.log("ongoingMarginX", ongoingMarginX)
+
   return (
     <>
       {ongoingMarginX.length > 0 ?
