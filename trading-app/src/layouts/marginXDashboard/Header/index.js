@@ -75,13 +75,13 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/contestdashboard/dailycontestposition`,
+                        pathname: `/marginxdashboard/marginxposition`,
                     }}
                 >
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Company)</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>MarginX Position(Company)</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">
@@ -111,13 +111,13 @@ export default function LabTabs({socket}) {
                     size="small"
                     component={Link}
                     to={{
-                        pathname: `/contestdashboard/dailycontestpositiontrader`,
+                        pathname: `/marginxdashboard/marginxtraderposition`,
                     }}
                 >
                     <Grid container xs={12} md={12} lg={12}>
 
                         <Grid item xs={12} md={12} lg={12} mt={1} display="flex" justifyContent="left">
-                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>Contest Position(Trader)</MDTypography>
+                            <MDTypography fontSize={15} style={{ color: "white", paddingLeft: 4, paddingRight: 4, fontWeight: 'bold' }}>MarginX Position(Trader)</MDTypography>
                         </Grid>
 
                         <Grid item xs={12} md={12} lg={12} mb={2} style={{ fontWeight: 1000 }} display="flex" alignContent="center" alignItems="center">

@@ -39,7 +39,7 @@ function Header({ socket, data }) {
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
             // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
-                navigate(`/contests/result`, {
+                navigate(`/marginx/result`, {
                     state: { marginxId: marginxId}
                 })
             }

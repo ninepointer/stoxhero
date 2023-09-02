@@ -178,6 +178,34 @@ exports.getUpcomingMarginXs = async (req, res) => {
     }
 };
 
+// Controller for getting todaysMarinX 
+exports.todaysMarinX = async (req, res) => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    try {
+        const marginx = await MarginX.find({
+            contestEndTime: { $gte: today }
+        }).populate('marginXTemplate', 'templateName _id portfolioValue entryFee')
+            .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+            .sort({ startTime: 1 })
+
+        res.status(200).json({
+            status: "success",
+            message: "Today's marginx fetched successfully",
+            data: marginx
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Error in fetching upcoming marginx",
+            error: error.message
+        });
+    }
+};
+
 // Controller to fetch only Completed MarginXs
 exports.getCompletedMarginXs = async (req, res) => {
     const now = new Date();
