@@ -68,7 +68,7 @@ const marginXSchema = new Schema({
     },
     isNifty:{
         type:Boolean,
-        required: true
+        // required: true
     },
     isBankNifty:{
         type:Boolean,
@@ -76,10 +76,6 @@ const marginXSchema = new Schema({
     },
     isFinNifty:{
         type:Boolean,
-        // required: true
-    },
-    liveTime:{
-        type: Date,
         // required: true
     }
 })

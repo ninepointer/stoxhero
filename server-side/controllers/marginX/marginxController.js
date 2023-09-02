@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const MarginX = require('../models/marginX/marginX'); // Assuming your model is exported as Contest from the mentioned path
+const MarginX = require('../../models/marginX/marginX'); // Assuming your model is exported as Contest from the mentioned path
 const { ObjectId } = require('mongodb');
 const uuid = require("uuid");
-const emailService = require("../utils/emailService");
+const emailService = require("../../utils/emailService");
 
 exports.createMarginX = async (req, res) => {
     try {
@@ -140,7 +140,8 @@ exports.getUpcomingMarginXs = async (req, res) => {
     try {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now }
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess');
+        }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('marginXTemplate', 'templateName portfolioValue')
         
         res.status(200).json({
             status: 'success',

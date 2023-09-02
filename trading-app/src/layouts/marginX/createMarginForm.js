@@ -134,7 +134,7 @@ function Index() {
     // console.log("inside submit")
     e.preventDefault();
     try{
-      console.log(formState)
+      console.log(formState, templates)
       if(formState.startTime > formState.endTime){
         return openErrorSB("Error", "Date range is not valid.")
       }
@@ -144,7 +144,7 @@ function Index() {
       }
 
       setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
-      const { marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
+      const { marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty, marginXTemplate } = formState;
       const res = await fetch(`${baseUrl}api/v1/marginx/`, {
         method: "POST",
         credentials: "include",
@@ -153,7 +153,7 @@ function Index() {
           "Access-Control-Allow-Credentials": true
         },
         body: JSON.stringify({
-          marginXTemplate: templates?._id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
+          marginXTemplate: marginXTemplate?.id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
         })
       });
   
@@ -188,7 +188,7 @@ function Index() {
       setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
-    const { marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
+    const { marginXTemplate, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
 
     const res = await fetch(`${baseUrl}api/v1/marginx/${marginx?._id}`, {
       method: "PUT",
@@ -198,7 +198,7 @@ function Index() {
         "Access-Control-Allow-Credentials": true
       },
       body: JSON.stringify({
-        marginXTemplate: templates?._id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
+        marginXTemplate: marginXTemplate?.id, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty
       })
     });
 

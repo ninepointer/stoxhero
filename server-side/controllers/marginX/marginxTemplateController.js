@@ -1,4 +1,4 @@
-const MarginXTemplate = require('../models/marginX/marginXTemplate');
+const MarginXTemplate = require('../../models/marginX/marginXTemplate');
 
 exports.createMarginXTemplate = async (req, res) => {
     try {

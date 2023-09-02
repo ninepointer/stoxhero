@@ -8,10 +8,10 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
-import UpcomingContest from '../data/activeBattles';
-import CompletedContest from '../data/completedBattles';
-import DraftContest from '../data/draftBattles'
-import OngoingDailyContest from '../data/ongoingBattles';
+import UpcomingMarginX from '../data/upcomingMarginX';
+import CompletedMarginX from '../data/completedMarginx';
+import DraftMarginX from '../data/draftMarginX'
+import OngoingMarginX from '../data/ongoingMarginX';
 
 
 export default function LabTabs() {
@@ -34,7 +34,7 @@ export default function LabTabs() {
     color="warning" 
     size="small"
     component={Link}
-    to='/battledashboard'
+    to='/marginxdashboard'
     >
         Back to MarginX Dashboard
     </MDButton>
@@ -65,7 +65,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <OngoingDailyContest/>
+          <OngoingMarginX/>
           </MDBox>
    
           }
@@ -78,7 +78,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <UpcomingContest/>
+          <UpcomingMarginX/>
           </MDBox>
    
           }
@@ -89,7 +89,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <CompletedContest/>
+          <CompletedMarginX/>
           }
         </TabPanel>
         <TabPanel value="4">
@@ -98,7 +98,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <DraftContest/>
+          <DraftMarginX/>
           }
         </TabPanel>
       </TabContext>

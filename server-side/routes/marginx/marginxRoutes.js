@@ -2,7 +2,7 @@ const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
 const {createMarginX, getAllMarginXs, getCompletedMarginXs, 
-    getOngoingMarginXs, getUpcomingMarginXs, editMarginX, getMarginXById} = require('../../controllers/marginxController');
+    getOngoingMarginXs, getUpcomingMarginXs, editMarginX, getMarginXById} = require('../../controllers/marginX/marginxController');
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createMarginX).
