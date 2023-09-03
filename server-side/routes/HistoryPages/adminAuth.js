@@ -73,6 +73,13 @@ const DailyLiveContest = require("../../models/DailyContest/dailyContestLiveComp
 
 
 
+router.get("/tradableupdate", async (req, res) => {
+
+  const data = await TradableInstrumentSchema.updateMany({}, {$set: {status: "Inactive"}});
+
+  res.send(data);
+});
+
 router.get("/tenxSubs", async (req, res) => {
 
   const subs = await TenxSubscription.find();
