@@ -62,6 +62,7 @@ import MarginXTradingWindow from "./layouts/UserMarginX/MarginxTradingView";
 
 import Chart from './layouts/charts/index';
 import DailyContestOrder from "./layouts/UserDailyContest/Orders"
+import MarginXOrder from "./layouts/UserMarginX/Orders"
 import DailyCollegeContestOrder from "./layouts/UserDailyContestCollage/Orders"
 
 import MarginX from './layouts/UserMarginX'
@@ -95,6 +96,10 @@ const routes = [
   {
     route: "/completedcontests/:name",
     component: <DailyContestOrder />,
+  },
+  {
+    route: "/completedmarginxs/:name",
+    component: <MarginXOrder />,
   },
   {
     route: "/completedcollegecontests/:name",

@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import ShareIcon from '@mui/icons-material/Share';
 import ReactGA from "react-ga"
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
@@ -12,7 +14,7 @@ import MDTypography from "../../../components/MDTypography";
 
 // Images
 import ContestCarousel from '../../../assets/images/target.png'
-import WinnerImage from '../../../assets/images/cup-image.png'
+import WinnerImage from '../../../assets/images/roi.png'
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
 import { HiUserGroup } from 'react-icons/hi';
@@ -22,6 +24,7 @@ import PopupMessage from "../data/popupMessage";
 import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment"
 import InfoIcon from '@mui/icons-material/Info';
+import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 
 function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
@@ -29,9 +32,33 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
 
+
     useEffect(() => {
         ReactGA.pageview(window.location.pathname)
     }, []);
+
+    async function handleNavigate(id, name) {
+        console.log("Details MarginX:",id,name)
+        axios.get(`${baseUrl}api/v1/marginx/trade/${id}/my/todayorders`, {
+            withCredentials: true,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Credentials": true
+            }
+        })
+            .then((res) => {
+                if (res.data.count > 0) {
+                    navigate(`/completedmarginx/${name}`, {
+                        state: { data: id }
+                    });
+                } else {
+                    openSuccessSB("error", "You dont have any trade for this contest.")
+                }
+            }).catch((err) => {
+                return new Error(err);
+            })
+        }
 
     const handleCopy = async (id) => {
         let text = 'https://stoxhero.com/marginxs'
@@ -157,7 +184,11 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             </Grid>
                                                             <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='right'>
                                                                 <MDBox display='flex' justifyContent='flex-end' alignItems='center'>
-                                                                    <MDButton color='info' style={{padding:-2,margin:-2}} size='small' varaint='outlined'><InfoIcon color='blue' /></MDButton>
+                                                                    <MDButton color='info' style={{padding:-2,margin:-2}} size='small' varaint='outlined'>
+                                                                        <Tooltip title={"Take Screenshot"} placement="top">
+                                                                            <ScreenshotMonitorIcon color='blue' />
+                                                                        </Tooltip>
+                                                                    </MDButton>
                                                                 </MDBox>
                                                             </Grid>
                                                         </Grid>
@@ -200,7 +231,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
+                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Return</MDTypography></MDBox>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>% OF YOUR INVESTMENT</MDTypography></MDBox>
                                                         </MDBox>
                                                     </MDBox>
@@ -248,7 +279,11 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             style={{minWidth:'95%', fontSize:10}} 
                                                             size='small' 
                                                             color='info'
-                                                            onClick={() => { navigate(`/marginxs/${elem?.marginXName}`) }}
+                                                            onClick={() => {
+                                                                navigate(`/marginxs/${elem?.marginXName}/${elem?.startTime.split('T')[0]}`, {
+                                                                    state: { elem: elem, date: elem?.startTime, id: elem?._id }
+                                                                })
+                                                            }}
                                                         >
                                                             View
                                                         </MDButton>
@@ -257,7 +292,15 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                         <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='warning'>Share P&L</MDButton>
                                                     </Grid>
                                                     <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='success'>Orders</MDButton>
+                                                        <MDButton 
+                                                            style={{minWidth:'95%', fontSize:10}} 
+                                                            size='small' 
+                                                            color='success'
+                                                            component={Link}
+                                                            onClick={() => { handleNavigate(elem?._id, elem?.marginXName) }}
+                                                        >
+                                                            Orders
+                                                        </MDButton>
                                                     </Grid>
                                                 </Grid>
 

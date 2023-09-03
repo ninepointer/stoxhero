@@ -118,7 +118,9 @@ exports.getAllMarginXs = async (req, res) => {
 // Controller to fetch all MarginXs
 exports.getAllMarginXs = async (req, res) => {
     try {
-        const allMarginXs = await MarginX.find({}).populate('participants.userId', 'first_name last_name email mobile creationProcess');
+        const allMarginXs = await MarginX.find({})
+        .sort({entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess');
         
         res.status(200).json({
             status: 'success',
@@ -142,7 +144,8 @@ exports.getOngoingMarginXs = async (req, res) => {
             startTime: { $lte: now }, 
             endTime: { $gt: now },
             status : 'Active' 
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess' )
+        }).sort({startTime: -1, entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess' )
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
         res.status(200).json({
@@ -167,6 +170,7 @@ exports.getUserLiveMarginXs = async (req, res) => {
             endTime: { $gt: now },
             status : 'Active' 
         })
+        .sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
         res.status(200).json({
@@ -190,7 +194,8 @@ exports.getUpcomingMarginXs = async (req, res) => {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now },
             status : 'Active'
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        }).sort({startTime: -1, entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
         res.status(200).json({
@@ -213,7 +218,7 @@ exports.getUserUpcomingMarginXs = async (req, res) => {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now },
             status : 'Active'
-        })
+        }).sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
         res.status(200).json({
@@ -263,7 +268,8 @@ exports.getCompletedMarginXs = async (req, res) => {
     try {
         const completedMarginXs = await MarginX.find({ 
             status: 'Completed',
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        }).sort({startTime: -1, entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee');
         
         res.status(200).json({
@@ -286,7 +292,7 @@ exports.getUserCompletedMarginXs = async (req, res) => {
         const completedMarginXs = await MarginX.find({ 
             status: 'Completed',
             "participants.userId": new ObjectId(userId),
-        })
+        }).sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee');
         
         res.status(200).json({
