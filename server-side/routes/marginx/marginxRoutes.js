@@ -4,7 +4,7 @@ const router = express.Router({mergeParams: true});
 const {createMarginX, getAllMarginXs, getCompletedMarginXs, todaysMarinX, getCancelledMarginXs,
     getOngoingMarginXs, getUpcomingMarginXs, editMarginX, getMarginXById, getDraftMarginXs, 
     participateUsers, copyAndShare, purchaseIntent, deductMarginXAmount, findMarginXByName,
-    getUserLiveMarginXs, getUserUpcomingMarginXs, getUserCompletedMarginXs, getMarginXByIdUser} = require('../../controllers/marginX/marginxController');
+    getUserLiveMarginXs, getUserUpcomingMarginXs, getUserCompletedMarginXs, getMarginXAllUsers,getMarginXByIdUser} = require('../../controllers/marginX/marginxController');
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createMarginX).
@@ -25,6 +25,7 @@ router.put('/purchaseintent/:id', Authenticate, purchaseIntent);
 router.put('participate/:id', Authenticate, participateUsers);
 router.patch('/feededuct', Authenticate, deductMarginXAmount);    
 router.get('/live', Authenticate, getOngoingMarginXs);
+router.get('/allmarginxusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), getMarginXAllUsers);
 router.route('/:id').put(Authenticate, restrictTo('Admin', 'SuperAdmin'),editMarginX).
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'),getMarginXById);
 

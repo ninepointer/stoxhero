@@ -1,10 +1,14 @@
-const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive, dailyContestMock, internshipTradeMod, dailyContestMockMod} = require("./collectingTradeManually");
+const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive,
+     dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod} = require("./collectingTradeManually");
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
+const marginxController = require("../../controllers/marginx/marginxController");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 const Contest = require('../../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
 // const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 const dailyContestLiveCompany = require("../../models/DailyContest/dailyContestLiveCompany")
+const MarginXMock = require("../../models/marginX/marginXCompanyMock");
+const MarginX = require("../../models/marginX/marginX");
 
 const autoCutMainManually = async() => {
     await infinityTradeLive();
@@ -69,6 +73,7 @@ const autoCutMainManuallyMock = async() => {
         await infinityTrade();
         // await dailyContestMock();
         await dailyContestMockMod();
+        await marginXMockMod();
         return;
     }
 
@@ -160,6 +165,91 @@ const changeStatus = async() => {
 
     await changeStatus();
 }
+const changeMarginXStatus = async() => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const data = await MarginXMock.aggregate(
+        [
+            {
+                $match:
+                {
+                    trade_time: {
+                        $gte: today
+                    },
+                    status: "COMPLETE",
+                    // appOrderId: null
+                },
+            },
+            {
+                $group:
+                {
+                    _id: {
+                        userId: "$trader",
+                        // subscriptionId: "$subscriptionId",
+                        exchange: "$exchange",
+                        symbol: "$symbol",
+                        instrumentToken: "$instrumentToken",
+                        exchangeInstrumentToken: "$exchangeInstrumentToken",
+                        variety: "$variety",
+                        validity: "$validity",
+                        order_type: "$order_type",
+                        Product: "$Product",
+                        algoBoxId: "$algoBox",
+                        marginxId: "$marginxId"
+                    },
+                    runningLots: {
+                        $sum: "$Quantity",
+                    },
+                    takeTradeQuantity: {
+                        $sum: {
+                            $multiply: ["$Quantity", -1],
+                        },
+                    },
+                },
+            },
+            {
+                $project:
+                {
+                    _id: 0,
+                    userId: "$_id.userId",
+                    // subscriptionId: "$_id.subscriptionId",
+                    exchange: "$_id.exchange",
+                    symbol: "$_id.symbol",
+                    instrumentToken: "$_id.instrumentToken",
+                    exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+                    variety: "$_id.variety",
+                    validity: "$_id.validity",
+                    order_type: "$_id.order_type",
+                    Product: "$_id.Product",
+                    runningLots: "$runningLots",
+                    takeTradeQuantity: "$takeTradeQuantity",
+                    algoBoxId: "$_id.algoBoxId",
+                    marginxId: "$_id.marginxId"
+                },
+            },
+            {
+                $match: {
+                    runningLots: {
+                        $ne: 0
+                    },
+                }
+            }
+
+        ]
+    );
+
+    if(data.length === 0){
+        console.log("in if change status..")
+        await changeMarginXDocStatus();
+        await creditAmountMarginX();
+        return;
+    }
+
+    await changeMarginXStatus();
+}
 
 const creditAmount = async() => {
     let date = new Date();
@@ -185,6 +275,31 @@ const creditAmount = async() => {
     }
 
     await creditAmount();
+}
+const creditAmountMarginX = async() => {
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
+    const todayEnd =  new Date(todayEndDate);
+
+
+    const data = await MarginX.find({ payoutStatus: null, status: "Completed", endTime: {$gte: today} });
+    // const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
+
+    // console.log("contest", contest.length, data.length);
+
+    // if(data.length === contest.length){
+        if(data.length > 0){
+        console.log("in if wallet..")
+        await marginxController.creditAmountToWallet();
+        return;
+        
+    }
+
+    await creditAmountMarginX();
 }
 
 const changeContestStatus = async () => {
@@ -214,6 +329,32 @@ const changeContestStatus = async () => {
 
     });
 }
+const changeMarginXDocStatus = async () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let date = new Date();
+            let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+            todayDate = todayDate + "T00:00:00.000Z";
+            let todayEndDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` + "T23:00:00.000Z";
+            const today = new Date(todayDate);
+            const todayEnd = new Date(todayEndDate);
 
 
-module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus}
+            const marginx = await MarginX.find({ status: "Active", endTime: { $gte: today, $lte: todayEnd } });
+
+            for (let j = 0; j < marginx.length; j++) {
+                marginx[j].status = "Completed";
+                await marginx[j].save();
+            }
+
+            resolve();
+
+        } catch (error) {
+            reject(error); // Reject the promise if an error occurs
+        }
+
+    });
+}
+
+
+module.exports = {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus}

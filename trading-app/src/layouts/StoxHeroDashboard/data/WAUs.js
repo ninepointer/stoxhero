@@ -39,7 +39,7 @@ export default function Charts({weeklyActiveUsers}) {
       }
     },
     legend: {
-        data: ['Virtual Trading', 'Contest', 'TenX Trading', 'Internship Trading', 'Total'],
+        data: ['Virtual', 'Contest', 'TenX', 'Internship','MarginX', 'Total'],
     },
     grid: {
         right: '2%', // Adjust the right margin as per your requirement
@@ -82,7 +82,7 @@ export default function Charts({weeklyActiveUsers}) {
         data: weeklyActiveUsers.map(item => item.total),
       },
       {
-        name: 'Virtual Trading',
+        name: 'Virtual',
         type: 'bar',
         data: weeklyActiveUsers.map(item => item.virtualTrading),
       },
@@ -92,14 +92,19 @@ export default function Charts({weeklyActiveUsers}) {
         data: weeklyActiveUsers.map(item => item.contest),
       },
       {
-        name: 'TenX Trading',
+        name: 'TenX',
         type: 'bar',
         data: weeklyActiveUsers.map(item => item.tenXTrading),
       },
       {
-        name: 'Internship Trading',
+        name: 'Internship',
         type: 'bar',
         data: weeklyActiveUsers.map(item => item.internshipTrading),
+      },
+      {
+        name: 'MarginX',
+        type: 'bar',
+        data: weeklyActiveUsers.map(item => item.marginXTrading),
       },
     ],
   };

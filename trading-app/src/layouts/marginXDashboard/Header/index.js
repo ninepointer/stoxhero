@@ -18,18 +18,18 @@ import XTSOverview from '../infinityContestComponent/xtsOverview';
 
 export default function LabTabs({socket}) {
   const [isLoading,setIsLoading] = useState(false);
-  const [dailyAllContestUsers, setDailyAllContestUsers] = useState();
-  const [completedContest,setCompletedContest] = useState();
+  const [allMarginXUsers, setAllMarginXUsers] = useState();
+  const [completedMarginX,setCompletedMarginX] = useState();
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(()=>{
 
-    axios.get(`${baseUrl}api/v1/dailycontest/trade/payoutchart`, {withCredentials: true})
+    axios.get(`${baseUrl}api/v1/marginxtrade/payoutchart`, {withCredentials: true})
     .then((res) => {
         console.log("Inside Payout chart data");
-        setCompletedContest(res.data.data);
-        console.log("Completed Contest Res:",res.data.data)
+        setCompletedMarginX(res.data.data);
+        // console.log("Completed Contest Res:",res.data.data)
     }).catch((err) => {
         setIsLoading(false)
         return new Error(err);
@@ -37,7 +37,7 @@ export default function LabTabs({socket}) {
   }, [])
 
   useEffect(()=>{
-    let call1 = axios.get((`${baseUrl}api/v1/dailycontest/contest/dailyallcontestusers`),{
+    let call1 = axios.get((`${baseUrl}api/v1/marginx/allmarginxusers`),{
         withCredentials: true,
         headers: {
             Accept: "application/json",
@@ -48,7 +48,7 @@ export default function LabTabs({socket}) {
     Promise.all([call1])
     .then(([api1Response]) => {
     //   setDailyContestUsers(api1Response.data.data)
-      setDailyAllContestUsers(api1Response.data.data)
+      setAllMarginXUsers(api1Response.data.data)
     })
     .catch((error) => {
       // Handle errors here
@@ -290,7 +290,7 @@ export default function LabTabs({socket}) {
         <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox p={1}>
-                    { completedContest && <CompanySideContestDailyChart completedContest={completedContest}/>}
+                    { completedMarginX && <CompanySideContestDailyChart completedMarginX={completedMarginX}/>}
                 </MDBox>
             </Grid>
         </Grid>
@@ -298,7 +298,7 @@ export default function LabTabs({socket}) {
         <Grid style={{backgroundColor:'white',borderRadius:5}} container xs={12} md={12} lg={12} mt={1}>
             <Grid item xs={12} md={12} lg={12}>
                 <MDBox p={0.5}>
-                    { dailyAllContestUsers && <DailyPaidContestUsers dailyAllContestUsers={dailyAllContestUsers}/>}
+                    { allMarginXUsers && <DailyPaidContestUsers allMarginXUsers={allMarginXUsers}/>}
                 </MDBox>
             </Grid>
         </Grid>
