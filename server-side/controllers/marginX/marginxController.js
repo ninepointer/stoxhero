@@ -118,7 +118,9 @@ exports.getAllMarginXs = async (req, res) => {
 // Controller to fetch all MarginXs
 exports.getAllMarginXs = async (req, res) => {
     try {
-        const allMarginXs = await MarginX.find({}).populate('participants.userId', 'first_name last_name email mobile creationProcess');
+        const allMarginXs = await MarginX.find({})
+        .sort({entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess');
         
         res.status(200).json({
             status: 'success',
@@ -142,7 +144,8 @@ exports.getOngoingMarginXs = async (req, res) => {
             startTime: { $lte: now }, 
             endTime: { $gt: now },
             status : 'Active' 
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess' )
+        }).sort({startTime: -1, entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess' )
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
         res.status(200).json({
@@ -167,6 +170,7 @@ exports.getUserLiveMarginXs = async (req, res) => {
             endTime: { $gt: now },
             status : 'Active' 
         })
+        .sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
         res.status(200).json({
@@ -190,7 +194,8 @@ exports.getUpcomingMarginXs = async (req, res) => {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now },
             status : 'Active'
-        }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        }).sort({startTime: -1, entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
         res.status(200).json({
@@ -213,7 +218,7 @@ exports.getUserUpcomingMarginXs = async (req, res) => {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now },
             status : 'Active'
-        })
+        }).sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
         res.status(200).json({
@@ -263,6 +268,30 @@ exports.getCompletedMarginXs = async (req, res) => {
     try {
         const completedMarginXs = await MarginX.find({ 
             status: 'Completed',
+        }).sort({startTime: -1, entryFee:-1})
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee');
+        
+        res.status(200).json({
+            status: 'success',
+            data: completedMarginXs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching completed MarginXs",
+            error: error.message
+        });
+    }
+};
+
+// Controller to fetch only Cancelled MarginXs
+exports.getCancelledMarginXs = async (req, res) => {
+    const now = new Date();
+    try {
+        const completedMarginXs = await MarginX.find({ 
+            status: 'Cancelled',
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee');
         
@@ -286,7 +315,7 @@ exports.getUserCompletedMarginXs = async (req, res) => {
         const completedMarginXs = await MarginX.find({ 
             status: 'Completed',
             "participants.userId": new ObjectId(userId),
-        })
+        }).sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee');
         
         res.status(200).json({
@@ -313,6 +342,39 @@ exports.getMarginXById = async (req, res) => {
 
         // Fetching the MarginX based on the id and populating the participants.userId field
         const marginX = await MarginX.findById(id).populate('participants.userId', 'first_name last_name email mobile creationProcess');
+
+        if (!marginX) {
+            return res.status(404).json({ status: "error", message: "MarginX not found" });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: marginX
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching MarginX by ID",
+            error: error.message
+        });
+    }
+};
+
+
+exports.getMarginXByIdUser = async (req, res) => {
+    try {
+        const { id } = req.params; // Extracting id from request parameters
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ status: "error", message: "Invalid MarginX ID" });
+        }
+
+        // Fetching the MarginX based on the id and populating the participants.userId field
+        const marginX = await MarginX.findById(id)
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee')
+        .select('marginXName marginXTemplate')
 
         if (!marginX) {
             return res.status(404).json({ status: "error", message: "MarginX not found" });

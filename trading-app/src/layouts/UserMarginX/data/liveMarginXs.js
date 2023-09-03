@@ -7,7 +7,7 @@ import MDButton from '../../../components/MDButton';
 import { Link } from "react-router-dom"
 import axios from "axios";
 import SchoolIcon from '@mui/icons-material/School';
-import WinnerImage from '../../../assets/images/cup-image.png'
+import WinnerImage from '../../../assets/images/roi.png'
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { io } from 'socket.io-client';

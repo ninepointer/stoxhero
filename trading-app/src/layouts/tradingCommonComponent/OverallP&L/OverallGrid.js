@@ -365,7 +365,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
               {from === marginX &&
                 <Grid item xs={6} md={3} lg={2.4} display="flex" justifyContent="center">
-                  <MDTypography fontSize={".75rem"} backgroundColor="#CCCCCC" color={`${(totalGrossPnl - totalTransactionCost)/xFactor > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Reward: {((totalGrossPnl - totalTransactionCost)/xFactor + moduleData?.entryFee) >= 0.00 ? "+₹" + (((totalGrossPnl - totalTransactionCost)/xFactor + moduleData?.entryFee).toFixed(2)) : "-₹" + (((-(totalGrossPnl - totalTransactionCost))/xFactor + moduleData?.entryFee).toFixed(2))}</MDTypography>
+                  <MDTypography fontSize={".75rem"} backgroundColor="#CCCCCC" color={`${(totalGrossPnl - totalTransactionCost)/xFactor > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Net Earnings: {((totalGrossPnl - totalTransactionCost)/xFactor + moduleData?.entryFee) >= 0.00 ? "+₹" + (((totalGrossPnl - totalTransactionCost)/xFactor + moduleData?.entryFee).toFixed(2)) : "-₹" + (((-(totalGrossPnl - totalTransactionCost))/xFactor + moduleData?.entryFee).toFixed(2))}</MDTypography>
                 </Grid>}
             </Grid>
           </TableContainer>

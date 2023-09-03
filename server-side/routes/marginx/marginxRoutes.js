@@ -1,10 +1,10 @@
 const express = require("express");
 const Authenticate = require('../../authentication/authentication');
 const router = express.Router({mergeParams: true});
-const {createMarginX, getAllMarginXs, getCompletedMarginXs, todaysMarinX,
+const {createMarginX, getAllMarginXs, getCompletedMarginXs, todaysMarinX, getCancelledMarginXs,
     getOngoingMarginXs, getUpcomingMarginXs, editMarginX, getMarginXById, getDraftMarginXs, 
     participateUsers, copyAndShare, purchaseIntent, deductMarginXAmount, findMarginXByName,
-    getUserLiveMarginXs, getUserUpcomingMarginXs, getUserCompletedMarginXs, getMarginXAllUsers} = require('../../controllers/marginX/marginxController');
+    getUserLiveMarginXs, getUserUpcomingMarginXs, getUserCompletedMarginXs, getMarginXAllUsers,getMarginXByIdUser} = require('../../controllers/marginX/marginxController');
 const restrictTo = require('../../authentication/authorization');
 
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createMarginX).
@@ -14,6 +14,8 @@ router.get('/today', Authenticate, todaysMarinX);
 router.get('/findbyname', Authenticate, findMarginXByName);
 router.get('/ongoing', Authenticate, restrictTo('Admin', 'SuperAdmin'), getOngoingMarginXs);
 router.get('/completed', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCompletedMarginXs);
+router.get('/cancelled', Authenticate, restrictTo('Admin', 'SuperAdmin'), getCancelledMarginXs);
+
 router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftMarginXs);
 router.route('/share/:id').put(Authenticate, copyAndShare);  
 router.get('/userlive', Authenticate, getUserLiveMarginXs);
@@ -25,7 +27,9 @@ router.patch('/feededuct', Authenticate, deductMarginXAmount);
 router.get('/live', Authenticate, getOngoingMarginXs);
 router.get('/allmarginxusers', Authenticate, restrictTo('Admin', 'SuperAdmin'), getMarginXAllUsers);
 router.route('/:id').put(Authenticate, restrictTo('Admin', 'SuperAdmin'),editMarginX).
-    get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getMarginXById);
+    get(Authenticate, restrictTo('Admin', 'SuperAdmin'),getMarginXById);
+
+router.get('/:id/user', Authenticate, getMarginXByIdUser);
 
 
 module.exports=router;

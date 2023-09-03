@@ -4,7 +4,7 @@ const {liveTotalTradersCount, overallDailyContestTraderPnl, overallDailyContestC
     overallPnlTrader, myTodaysTrade, getMyPnlAndCreditData, getRedisMyRankHTTP,overallDailyContestCompanySidePnlLifetime,
     myPnlAndPayout, overallDailyContestPnlYesterday, MarginXPayoutChart,
     liveTotalTradersCountYesterday, traderWiseMockCompanySide, DailyContestPnlTWiseTraderSide,
-    DailyContestPnlTWise, traderWiseMockTraderSide, getRedisLeaderBoard } = require('../../controllers/marginX/marginxTradeController');
+    DailyContestPnlTWise, traderWiseMockTraderSide, myAllOrder } = require('../../controllers/marginX/marginxTradeController');
 
 const restrictTo = require('../../authentication/authorization');
 const Authenticate = require('../../authentication/authentication');
@@ -26,6 +26,8 @@ router.route('/:id/traderWisePnlTside').get(Authenticate, restrictTo('Admin', 'S
 
 router.route('/:id/pnl').get(Authenticate, overallPnlTrader);
 router.route('/:id/my/todayorders').get(Authenticate, myTodaysTrade)
+router.route('/:id/my/allorders').get(Authenticate, myAllOrder)
+
 router.route('/:id/myPnlandCreditData').get(Authenticate, getMyPnlAndCreditData)
 
 

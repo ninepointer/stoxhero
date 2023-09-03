@@ -20,17 +20,10 @@ import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import MDSnackbar from "../../../components/MDSnackbar";
-// import {InfinityTraderRole, tenxTrader} from "../../../variables";
-// import ContestCup from '../../../assets/images/candlestick-chart.png'
-// import { Divider } from "@mui/material";
-// import TelegramIcon from '@mui/icons-material/Telegram';
-// import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-// import FacebookIcon from '@mui/icons-material/Facebook';
-// import InstagramIcon from '@mui/icons-material/Instagram';
-// import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { apiUrl } from '../../../constants/constants';
 import Payment from "./payment";
 import { userContext } from "../../../AuthContext";
+import { CircularProgress } from "@mui/material";
 
 
 
@@ -41,7 +34,8 @@ function Header() {
     const state = location?.state?.elem;
     const getDetails = useContext(userContext);
     let [showPay, setShowPay] = useState(true)
-
+    const [isLoading,setIsLoading] = useState(true);
+    console.log("isLoading",isLoading)
     const getMarginXDetails = async (name, date) => {
         try {
             const res = await axios.get(`${apiUrl}marginxs/findbyname?name=${name}&date=${date}`, { withCredentials: true });
@@ -56,8 +50,11 @@ function Header() {
             const url = location?.pathname?.split('/');
             const name = decodeURIComponent(url[2]);
             const date = url[3];
-            getMarginXDetails(name, date);
+            getMarginXDetails(name, date);       
         }
+        setTimeout(()=>{
+            setIsLoading(false);
+        },1000)
     }, [id, location]);
     const elem = {};
     const handleCopy = async (id) => {
@@ -126,10 +123,11 @@ function Header() {
     let isParticipated = state?.participants.some(subelem => {
         return subelem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
     })
-
+    console.log("isLoading",isLoading)
     return (
         <Grid xs={12} md={12} lg={12} mt={2} container spacing={1} display='flex' flexDirection='row' alignItems='start'>
-
+            {!isLoading ?
+            <>
             <Grid xs={12} md={12} lg={8} item>
 
                 <Grid item xs={12} md={12} lg={12} borderRadius={3}>
@@ -337,6 +335,34 @@ function Header() {
                             </MDBox>
                             <MDBox bgColor='white' minWidth='100%'>
                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
+                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Return</MDTypography>
+                                        </MDBox>
+                                    </Grid>
+                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.marginXTemplate?.entryFee : marginXDetails?.marginXTemplate?.entryFee}</MDTypography>
+                                        </MDBox>
+                                    </Grid>
+                                </Grid>
+                            </MDBox>
+                            <MDBox bgColor='white' minWidth='100%' mb={1}>
+                                <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
+                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>Return %</MDTypography>
+                                        </MDBox>
+                                    </Grid>
+                                    <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
+                                        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.marginXTemplate?.entryFee : marginXDetails?.marginXTemplate?.entryFee}</MDTypography>
+                                        </MDBox>
+                                    </Grid>
+                                </Grid>
+                            </MDBox>
+                            <MDBox bgColor='white' minWidth='100%'>
+                                <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                     <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
                                             <MDButton size='small' variant='contained' color='warning' style={{ minWidth: '100%' }} onClick={() => { handleCopy(state ? state._id : marginXDetails?._id) }}>Share with friends!</MDButton>
@@ -348,7 +374,7 @@ function Header() {
                                                 <MDButton
                                                     size='small'
                                                     variant='contained'
-                                                    color='warning'
+                                                    color='secondary'
                                                     style={{ minWidth: '100%' }}
                                                     onClick={() => {
                                                         navigate(`/marginx/${state?.marginXName}`, {
@@ -379,8 +405,19 @@ function Header() {
                         </Grid>
                     </MDBox>
                 </Grid>
-
             </Grid>
+            </>
+            :
+            <>
+            <Grid container display="flex" justifyContent="center" alignContent='center' alignItems="center">
+              <Grid item display="flex" justifyContent="center" alignContent='center' alignItems="center" xs={12} md={12} lg={12}>
+                <MDBox mt={5} mb={5}>
+                  <CircularProgress color="info" />
+                </MDBox>
+              </Grid>
+            </Grid>
+            </>
+            }
 
         </Grid>
 

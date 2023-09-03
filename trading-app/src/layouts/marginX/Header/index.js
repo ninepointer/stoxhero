@@ -12,6 +12,7 @@ import UpcomingMarginX from '../data/upcomingMarginX';
 import CompletedMarginX from '../data/completedMarginx';
 import DraftMarginX from '../data/draftMarginX'
 import OngoingMarginX from '../data/ongoingMarginX';
+import CancelledMarginX from '../data/cancelledMarginx';
 
 
 export default function LabTabs() {
@@ -55,6 +56,7 @@ export default function LabTabs() {
             <Tab label="Upcoming MarginX(s)" value="2" />
             <Tab label="Completed MarginX(s)" value="3" />
             <Tab label="Draft MarginX(s)" value="4" />
+            <Tab label="Cancelled MarginX(s)" value="5" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -99,6 +101,16 @@ export default function LabTabs() {
           </MDBox>
           : 
           <DraftMarginX/>
+          }
+        </TabPanel>
+
+        <TabPanel value="5">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <CancelledMarginX/>
           }
         </TabPanel>
       </TabContext>
