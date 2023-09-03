@@ -1,8 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.06af0c21.css",
-    "main.js": "/static/js/main.82c5a1c6.js",
-    "static/js/498.71b2877e.chunk.js": "/static/js/498.71b2877e.chunk.js",
+    "main.js": "/static/js/main.5e6495d1.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.562b0700.chunk.js": "/static/js/513.562b0700.chunk.js",
     "static/media/backgroundmatt.jpg": "/static/media/backgroundmatt.f34f28c63ba78e5986d2.jpg",
@@ -65,6 +64,7 @@
     "static/media/5.png": "/static/media/5.0eb9c5971ae69db96f0c.png",
     "static/media/mastercard.png": "/static/media/mastercard.27fca3e7637a9458fb64.png",
     "static/media/2.png": "/static/media/2.4eea9bc69fab094bc609.png",
+    "static/media/roi.png": "/static/media/roi.85690533713bcbf69020.png",
     "static/media/twitter.webp": "/static/media/twitter.6f157b8030dd5b66a747.webp",
     "static/media/4.png": "/static/media/4.01adb566d9fe539648dc.png",
     "static/media/swords.png": "/static/media/swords.cf101b7b0101ade92317.png",
@@ -165,13 +165,12 @@
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
     "main.06af0c21.css.map": "/static/css/main.06af0c21.css.map",
-    "main.82c5a1c6.js.map": "/static/js/main.82c5a1c6.js.map",
-    "498.71b2877e.chunk.js.map": "/static/js/498.71b2877e.chunk.js.map",
+    "main.5e6495d1.js.map": "/static/js/main.5e6495d1.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.562b0700.chunk.js.map": "/static/js/513.562b0700.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.06af0c21.css",
-    "static/js/main.82c5a1c6.js"
+    "static/js/main.5e6495d1.js"
   ]
 }
