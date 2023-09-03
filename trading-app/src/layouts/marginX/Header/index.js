@@ -55,6 +55,7 @@ export default function LabTabs() {
             <Tab label="Upcoming MarginX(s)" value="2" />
             <Tab label="Completed MarginX(s)" value="3" />
             <Tab label="Draft MarginX(s)" value="4" />
+            <Tab label="Cancelled MarginX(s)" value="4" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
