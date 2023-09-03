@@ -20,19 +20,19 @@ exports.createMarginX = async (req, res) => {
         if(startTime>endTime){
             return res.status(400).json({
                 status: 'error',
-                message: "Validateion error: Start time can't be greater than end time",
+                message: "Validation error: Start time can't be greater than end time",
             });
         }
         if(startTime<liveTime){
             return res.status(400).json({
                 status: 'error',
-                message: "Validateion error: Live time can't be greater than start time",
+                message: "Validation error: Live time can't be greater than start time",
             });
         }
         if(endTime<liveTime){
             return res.status(400).json({
                 status: 'error',
-                message: "Validateion error: Live time can't be greater than end time",
+                message: "Validation error: Live time can't be greater than end time",
             });
         }
 
@@ -148,7 +148,7 @@ exports.getOngoingMarginXs = async (req, res) => {
         }).sort({startTime: -1, entryFee:-1})
         .populate('participants.userId', 'first_name last_name email mobile creationProcess' )
         .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
-        .populate('potentialParticipants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
 
         res.status(200).json({
@@ -200,7 +200,7 @@ exports.getUpcomingMarginXs = async (req, res) => {
         }).sort({startTime: -1, entryFee:-1})
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
-        .populate('potentialParticipants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
         
         res.status(200).json({
@@ -276,7 +276,7 @@ exports.getCompletedMarginXs = async (req, res) => {
         }).sort({startTime: -1, entryFee:-1})
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
-        .populate('potentialParticipants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess')
         .populate('marginXTemplate', 'templateName portfolioValue entryFee');
         
         res.status(200).json({
@@ -300,7 +300,9 @@ exports.getCancelledMarginXs = async (req, res) => {
         const completedMarginXs = await MarginX.find({ 
             status: 'Cancelled',
         }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('marginXTemplate', 'templateName portfolioValue entryFee');
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee')
+        .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
         
         res.status(200).json({
             status: 'success',
@@ -350,7 +352,8 @@ exports.getMarginXById = async (req, res) => {
         // Fetching the MarginX based on the id and populating the participants.userId field
         const marginX = await MarginX.findById(id)
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
-        .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess');
+        .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
 
         if (!marginX) {
             return res.status(404).json({ status: "error", message: "MarginX not found" });
@@ -409,7 +412,10 @@ exports.getDraftMarginXs = async (req,res,next) => {
     try {
         const draftMarginXs = await MarginX.find({ 
             status:'Draft'
-        });
+        }).populate('marginXTemplate', 'templateName portfolioValue entryFee')
+        .populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess')
+        .populate('potentialParticipants', 'first_name last_name email mobile creationProcess');
         
         res.status(200).json({
             status: 'success',
