@@ -7,7 +7,7 @@ const { interactiveLogin } = require("./services/xts/xtsInteractive");
 
 const {sendLeaderboardData, sendMyRankData, emitServerTime} = require("./controllers/dailyContestTradeController");
 const {saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin} = require("./controllers/marginRequired")
-const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus} = require("./controllers/AutoTradeCut/mainManually");
+const {autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus} = require("./controllers/AutoTradeCut/mainManually");
 const { createNewTicker, disconnectTicker,
     subscribeTokens, onError,
     onOrderUpdate, getTicksForUserPosition,
@@ -231,6 +231,7 @@ async function singleProcess() {
                 autoCutMainManually();
                 autoCutMainManuallyMock();
                 changeStatus();
+                changeMarginXStatus();
                 // creditAmount();
             });
 

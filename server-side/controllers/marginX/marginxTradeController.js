@@ -1338,153 +1338,147 @@ exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
     res.status(201).json({ message: "data received", data: x, user: user[0] });
 }
 
-exports.DailyContestPayoutChart = async (req, res, next) => {
+exports.MarginXPayoutChart = async (req, res, next) => {
 
-    // let { id } = req.params
     let pipeline = [
         {
-          $match: {
-            status: "COMPLETE",
-          },
-        },
-        {
-          $lookup: {
-            from: "daily-contests",
-            localField: "contestId",
-            foreignField: "_id",
-            as: "contestData",
-          },
-        },
-        {
-          $unwind: {
-            path: "$contestData",
-          },
-        },
-        {
-          $match: {
-            "contestData.contestStatus": "Completed",
-          },
-        },
-        {
-          $group: {
-            _id: {
-              trader: "$trader",
-              contestId: "$contestId",
-              contestName: "$contestData.contestName",
-              date: {
-                $substr: [
-                  "$contestData.contestStartTime",
-                  0,
-                  10,
-                ],
-              },
-              payoutPer:
-                "$contestData.payoutPercentage",
+            $match: {
+                status: "Completed",
             },
-            gpnl: {
-              $sum: {
-                $multiply: ["$amount", -1],
-              },
-            },
-            brokerage: {
-              $sum: "$brokerage",
-            },
-          },
         },
         {
-          $project: {
-            _id: 1,
-            npnl: {
-              $subtract: ["$gpnl", "$brokerage"],
+            $lookup: {
+                from: "marginxes",
+                localField: "marginxId",
+                foreignField: "_id",
+                as: "marginXData",
             },
-            positiveNpnl: {
-              $max: [
-                0,
-                {
-                  $subtract: ["$gpnl", "$brokerage"],
+        },
+        {
+            $lookup: {
+                from: "marginx-templates",
+                localField: "marginXData.marginXTemplate",
+                foreignField: "_id",
+                as: "templateData",
+            },
+        },
+        {
+            $unwind: {
+                path: "$marginXData",
+            },
+        },
+        {
+            $unwind: {
+                path: "$templateData",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    trader: "$trader",
+                    marginXId: "$marginxId",
+                    marginXName: "$marginXData.marginXName",
+                    date: {
+                        $substr: ["$marginXData.startTime", 0, 10],
+                    },
+                    entryFee: "$templateData.entryFee",
+                    portfolioValue: "$templateData.portfolioValue"
                 },
-              ],
-            },
-            payoutPer: "$_id.payoutPer",
-          },
-        },
-        {
-          $group: {
-            _id: {
-              contestId: "$_id.contestId",
-              contestName: "$_id.contestName",
-              date: "$_id.date",
-              payoutPer: "$payoutPer",
-            },
-            totalNpnl: {
-              $sum: "$npnl",
-            },
-            totalPositiveNpnl: {
-              $sum: "$positiveNpnl",
-            },
-          },
-        },
-        {
-          $project: {
-            contestId: "$_id.contestId",
-            contestName: "$_id.contestName",
-            contestDate: "$_id.date",
-            totalNpnl: 1,
-            totalPayout: {
-              $multiply: [
-                "$totalPositiveNpnl",
-                {
-                  $divide: ["$_id.payoutPer", 100],
+                gpnl: {
+                    $sum: {
+                        $multiply: ["$amount", -1],
+                    },
                 },
-              ],
-            },
-            _id: 0,
-          },
-        },
-        {
-          $sort: {
-            contestDate: -1,
-          },
-        },
-        {
-          $group:
-            {
-              _id: {
-                contestDate: "$contestDate",
-              },
-              totalNpnl: {
-                $sum: "$totalNpnl",
-              },
-              totalPayout: {
-                $sum: "$totalPayout",
-              },
-              numberOfContests: {
-                $sum: 1,
-              },
+                brokerage: {
+                    $sum: "$brokerage",
+                },
             },
         },
         {
-            $project:
-              {
-                _id: 0,
-                contestDate: "$_id.contestDate",
+            $project: {
+                _id: 1,
+                npnl: {
+                    $subtract: ["$gpnl", "$brokerage"],
+                },
+                payout: {
+                    $add: [
+                        "$_id.entryFee",
+                        {
+                            $divide: ["$npnl", {
+                                $divide: ["$_id.portfolioValue", "$_id.entryFee"]
+                            }]
+                        }
+                    ]
+                }
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    marginXId: "$_id.marginXId",
+                    marginXName: "$_id.marginXName",
+                    date: "$_id.date",
+                },
+                totalNpnl: {
+                    $sum: "$npnl",
+                },
+                totalPayout: {
+                    $sum: "$payout",
+                },
+            },
+        },
+        {
+            $project: {
+                marginXId: "$_id.marginxId",
+                marginXName: "$_id.marginXName",
+                marginXDate: "$_id.date",
                 totalNpnl: 1,
                 totalPayout: 1,
-                numberOfContests: 1,
-              },
-          },
+                _id: 0,
+            },
+        },
         {
-            $sort:
-            {
-                contestDate : 1
+            $sort: {
+                marginXDate: -1,
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    marginXDate: "$marginXDate",
+                },
+                totalNpnl: {
+                    $sum: "$totalNpnl",
+                },
+                totalPayout: {
+                    $sum: "$totalPayout",
+                },
+                numberOfMarginX: {
+                    $sum: 1,
+                },
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                marginXDate: "$_id.marginXDate",
+                totalNpnl: 1,
+                totalPayout: 1,
+                numberOfMarginX: 1,
+            },
+        },
+        {
+            $sort: {
+                marginXDate: 1
             }
         }
-      ] 
+    ]
 
-    let x = await MarginxMockUser.aggregate(pipeline)
+    let x = await MarginxMockUser.aggregate(pipeline) 
 
     res.status(201).json({ message: "data received", data: x });
 }
+
 
 exports.getRedisLeaderBoard = async (req, res, next) => {
     const { id } = req.params;
