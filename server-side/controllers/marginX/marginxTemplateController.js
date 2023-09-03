@@ -106,3 +106,39 @@ exports.getActiveMarginXTemplates = async (req, res) => {
         });
     }
 };
+
+exports.getDraftMarginXTemplates = async (req, res) => {
+    try {
+        const activeTemplates = await MarginXTemplate.find({ status: 'Draft' });
+        
+        res.status(200).json({
+            status: 'success',
+            data: activeTemplates
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching draft templates",
+            error: error.message
+        });
+    }
+};
+
+exports.getInactiveMarginXTemplates = async (req, res) => {
+    try {
+        const activeTemplates = await MarginXTemplate.find({ status: 'Inactive' });
+        
+        res.status(200).json({
+            status: 'success',
+            data: activeTemplates
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching inactive templates",
+            error: error.message
+        });
+    }
+};

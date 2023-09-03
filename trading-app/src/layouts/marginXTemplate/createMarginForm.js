@@ -1,9 +1,6 @@
 
 import * as React from 'react';
 import { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useForm } from "react-hook-form";
-// import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
@@ -12,27 +9,10 @@ import MDButton from "../../components/MDButton"
 import { CircularProgress, formLabelClasses } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from '@mui/material/MenuItem';
-// import { styled } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import { useNavigate, useLocation } from "react-router-dom";
-// import { IoMdAddCircle } from 'react-icons/io';
-// import OutlinedInput from '@mui/material/OutlinedInput';
-// import dayjs from 'dayjs';
-// import Autocomplete from '@mui/material/Autocomplete';
-// import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
-// import { LocalizationProvider } from '@mui/x-date-pickers';
-// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-// import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
-// import { pink } from '@mui/material/colors';
-// import Checkbox from '@mui/material/Checkbox';
-// import FormGroup from '@mui/material/FormGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// // import User from './users';
-// import CreateRules from './rulesAndRewards/battleRules';
-// import CreateRewards from './rulesAndRewards/battleRewards';
 import { apiUrl } from '../../constants/constants';
 
 
@@ -46,13 +26,6 @@ function Index() {
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
   const navigate = useNavigate();
-  // const [newObjectId, setNewObjectId] = useState("");
-  // const [updatedDocument, setUpdatedDocument] = useState([]);
-  // const [createTemplates, setCreateTemplate] = useState([]);
-  // const [portfolios, setPortfolios] = useState([]);
-  // const [createdBattle, setCreatedBattle] = useState();
-  // console.log('created battle', createdBattle);
-  
   const [formState, setFormState] = useState({
     templateName: '' || template?.templateName,
     portfolioValue: '' || template?.portfolioValue,
@@ -62,13 +35,9 @@ function Index() {
 
   useEffect(() => {
     setTimeout(() => {
-      // template && setUpdatedDocument(template)
       setIsLoading(false);
     }, 500)
   }, [])
-
-
-
 
 
   async function onSubmit(e, formState) {
@@ -100,9 +69,9 @@ function Index() {
       // setCreateTemplate(data);
       if (res.status !== 201) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
-        openErrorSB("Battle not created", data?.message)
+        openErrorSB("MarginX Template not created", data?.message)
       } else {
-        openSuccessSB("Battle Created", data?.message)
+        openSuccessSB("MarginX Template Created", data?.message)
         // setNewObjectId(data?.data?._id)
         setIsSubmitted(true);
         // setTemplate(data?.data);
@@ -147,7 +116,7 @@ function Index() {
       openErrorSB("Error", data.error)
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
     } else {
-      openSuccessSB("Battle Edited", "Edited Successfully")
+      openSuccessSB("MarginX Template Edited", "Edited Successfully")
       setTimeout(() => { setSaving(false); setEditing(false) }, 500)
       console.log("entry succesfull");
     }
@@ -300,7 +269,7 @@ function Index() {
                           status: e.target.value
                         }))
                       }}
-                      label="Battle Status"
+                      label="Status"
                       sx={{ minHeight: 43 }}
                     >
                       <MenuItem value="Active">Active</MenuItem>
@@ -335,11 +304,11 @@ function Index() {
                 )}
                 {((isSubmitted || Boolean(template)) && !editing) && (
                   <>
-                  {template?.battleStatus !== "Completed" &&
+                  {template?.status !== "Completed" &&
                     <MDButton variant="contained" color="warning" size="small" sx={{ mr: 1, ml: 2 }} onClick={() => { setEditing(true) }}>
                       Edit
                     </MDButton>}
-                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/marginxdashboard') }}>
+                    <MDButton variant="contained" color="info" size="small" onClick={() => { navigate('/marginxdashboard/marginxtemplate') }}>
                       Back
                     </MDButton>
                   </>

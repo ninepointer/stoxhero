@@ -19,7 +19,7 @@ const [activeTemplate,setActiveTemplate] = useState([]);
 let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(()=>{
-    let call1 = axios.get(`${apiUrl}marginxtemplate/draft`,{
+    let call1 = axios.get(`${apiUrl}marginxtemplate/inactive`,{
                 withCredentials: true,
                 headers: {
                     Accept: "application/json",
@@ -29,8 +29,6 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
                 })
     Promise.all([call1])
     .then(([api1Response]) => {
-      // Process the responses here
-      // console.log(api1Response.data.data);
       setActiveTemplate(api1Response.data.data)
     })
     .catch((error) => {
@@ -92,7 +90,7 @@ let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:50
           :
          <Grid container spacing={1} xs={12} md={6} lg={12}>
           <Grid item mt={2} xs={6} md={3} lg={12} display="flex" justifyContent="center">
-            <MDTypography color="light">No Draft Template(s)</MDTypography>
+            <MDTypography color="light">No Inactive Template(s)</MDTypography>
           </Grid>
          </Grid>
          } 
