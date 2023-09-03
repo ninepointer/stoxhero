@@ -13,13 +13,13 @@ import moment from 'moment';
 import { apiUrl } from '../../../constants/constants';
 
 
-const CancelledContest = () => {
+const CancelledMarginX = () => {
   // const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
-  const [completedMarginX, setCompletedMarginX] = useState([]);
+  const [cancelledMarginX, setCancelledMarginX] = useState([]);
   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   useEffect(() => {
-    let call1 = axios.get(`${apiUrl}marginx/completed`, {
+    let call1 = axios.get(`${apiUrl}marginx/cancelled`, {
       withCredentials: true,
       headers: {
         Accept: "application/json",
@@ -30,7 +30,7 @@ const CancelledContest = () => {
     Promise.all([call1])
       .then(([api1Response]) => {
         // Process the responses here
-        setCompletedMarginX(api1Response.data.data)
+        setCancelledMarginX(api1Response.data.data)
       })
       .catch((error) => {
         // Handle errors here
@@ -40,11 +40,11 @@ const CancelledContest = () => {
 
   return (
     <>
-      {completedMarginX.length > 0 ?
+      {cancelledMarginX.length > 0 ?
 
         <MDBox>
           <Grid container spacing={2} bgColor="dark">
-            {completedMarginX?.map((e) => {
+            {cancelledMarginX?.map((e) => {
 
               return (
 
@@ -138,4 +138,4 @@ const CancelledContest = () => {
 
 
 
-export default CancelledContest;
+export default CancelledMarginX;

@@ -55,7 +55,7 @@ function ContestResultPage () {
 
     React.useEffect(()=>{
       
-      axios.get(`${baseUrl}api/v1/marginx/${marginxId}`)
+      axios.get(`${baseUrl}api/v1/marginx/${marginxId}/user`, {withCredentials: true})
       .then((res)=>{
             setMarginx(res?.data?.data);
             // console.log("data is", res?.data?.data)
@@ -67,7 +67,8 @@ function ContestResultPage () {
     },[])
 
 
-    const reward = (pnl?.netPnl) > 0 ? (pnl?.netPnl)*marginxData?.payoutPercentage/100 : 0;
+    const xFactor = marginxData?.marginXTemplate?.portfolioValue / marginxData?.marginXTemplate?.entryFee;
+    const reward = marginxData?.marginXTemplate?.entryFee + (pnl?.netPnl)/xFactor;
    
     return (
         <>
@@ -81,12 +82,12 @@ function ContestResultPage () {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6} lg={1} mb={2}>
                             <MDBox display="flex" alignItems="center" gap={"130px"} mt={1.3} >
-                                <Button color="light" style={{ border: "1px solid white", borderRadius: "7px" }} onClick={() => { nevigate('/contest') }}>< FastRewindIcon /></Button>
+                                <Button color="light" style={{ border: "1px solid white", borderRadius: "7px" }} onClick={() => { nevigate('/marginxs') }}>< FastRewindIcon /></Button>
                             </MDBox>
                         </Grid>
                         <Grid item xs={12} md={6} lg={11} mb={2}>
                             <MDTypography style={style} mt={1.5} color="light" display="flex" justifyContent="center">
-                                {`${marginxData?.contestName} has Ended`}
+                                {`${marginxData?.marginXName} has Ended`}
                             </MDTypography>
                         </Grid>
                     </Grid>
@@ -94,7 +95,7 @@ function ContestResultPage () {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6} lg={6} >
                             <MDBox color="light" >
-                                {reward ?
+                                {pnl?.netPnl >= 0 ?
                                     <div style={{ position: 'relative' }}>
                                         <img style={{ marginTop: '10px', maxWidth: '100%', height: 'auto', borderRadius: '5px', display: 'block' }} src={winnerCup} />
                                         <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: '#ffffff', textAlign: 'center', width: '100%', maxWidth: '600px' }}>
@@ -102,7 +103,7 @@ function ContestResultPage () {
                                                 {`Congratulations ${getDetails?.userDetails?.first_name} ${getDetails?.userDetails?.last_name}`}
                                             </MDTypography>
                                             <MDTypography mt={2} style={{ fontWeight: 600, fontSize: "13px" }} color="dark" display="flex" justifyContent="center">
-                                                {myRank ? `Your rank is ${myRank} and you have won ₹${reward.toFixed(2)}` : "Please wait while your rank is loading"}
+                                                {reward ? `You have won ₹${reward.toFixed(2)}` : "Please wait while your return is loading"}
                                             </MDTypography>
                                             <MDTypography mt={2} style={{ fontWeight: 700 }} color="dark" display="flex" justifyContent="center">
                                                 {/* {`${myReward[0]?.reward} ${myReward[0]?.currency}`} */}
@@ -133,7 +134,7 @@ function ContestResultPage () {
 
                                                     <Grid item xs={12} lg={12}>
 
-                                                        <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                                                        {/* <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center'>
 
 
                                                             <Grid item xs={12} lg={2} display='flex' justifyContent='center' alignItems='center'>
@@ -162,7 +163,7 @@ function ContestResultPage () {
                                                                 <MDBox><MDTypography fontSize={15} color='light' fontWeight='bold' style={{ cursor: 'pointer' }}><MDButton variant='text' size='small'><WhatsAppIcon /></MDButton></MDTypography></MDBox>
                                                             </Grid>
 
-                                                        </Grid>
+                                                        </Grid> */}
 
                                                         <Divider style={{ backgroundColor: 'white' }} />
                                                     </Grid>
@@ -223,7 +224,7 @@ function ContestResultPage () {
                                                                 <Divider style={{ backgroundColor: 'white' }} />
                                                                 <Grid item xs={12} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                                                                     <Grid item xs={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Payout: {(reward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(reward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-reward))}</MDTypography>
+                                                                        <MDTypography fontSize={20} color='light' fontWeight='bold'>Return: {(reward) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(reward)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-reward))}</MDTypography>
                                                                     </Grid>
                                                                 </Grid>
                                                             </Grid>

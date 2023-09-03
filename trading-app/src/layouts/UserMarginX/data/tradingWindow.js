@@ -37,7 +37,7 @@ function Header({ socket, data }) {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
             const endTimeString = new Date(endTime).toISOString().slice(0, 19); // Extract relevant parts
-            // console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
+            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
                 navigate(`/marginx/result`, {
                     state: { marginxId: marginxId}
