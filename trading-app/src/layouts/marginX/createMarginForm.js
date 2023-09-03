@@ -92,7 +92,7 @@ function Index() {
       // marginx && setUpdatedDocument(marginx)
       setIsLoading(false);
     }, 500)
-  }, [])
+  }, [saving,creating,editing])
 
 
   useEffect(() => {
@@ -130,7 +130,7 @@ function Index() {
       if(formState.startTime > formState.endTime){
         return openErrorSB("Error", "Date range is not valid.")
       }
-      if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants  ) {
+      if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty) ) {
         setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
         return openErrorSB("Missing Field", "Please fill all the mandatory fields")
       }
@@ -176,8 +176,8 @@ function Index() {
       setTimeout(() => { setSaving(false); setEditing(true) }, 500)
       return openErrorSB("Error", "Date range is not valid.")
     }
-    if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants  ) {
-      setTimeout(() => { setCreating(false); setIsSubmitted(false) }, 500)
+    if (!formState.marginXName || !formState.liveTime || !formState.startTime || !formState.endTime || !formState.status || !formState.marginXExpiry || !formState.maxParticipants || (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)  ) {
+      setTimeout(() => { setCreating(false); setIsSubmitted(false); setSaving(false) }, 500)
       return openErrorSB("Missing Field", "Please fill all the mandatory fields")
     }
     const { marginXTemplate, marginXName ,liveTime ,startTime ,endTime ,status ,marginXExpiry ,maxParticipants, isNifty, isBankNifty, isFinNifty } = formState;
@@ -551,7 +551,7 @@ function Index() {
                     >
                       {creating ? <CircularProgress size={20} color="inherit" /> : "Save"}
                     </MDButton>
-                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/marginxdashboard") }}>
+                    <MDButton variant="contained" color="error" size="small" disabled={creating} onClick={() => { navigate("/marginxdashboard/marginx") }}>
                       Cancel
                     </MDButton>
                   </>
@@ -584,31 +584,31 @@ function Index() {
                       color="error"
                       size="small"
                       disabled={saving}
-                      onClick={() => { setEditing(false) }}
+                      onClick={() => { setEditing(false); setFormState(
+                        {
+                          marginXName: '' || marginx?.marginXName,
+                          liveTime: dayjs(marginx?.liveTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+                          startTime: dayjs(marginx?.startTime) ?? dayjs(new Date()).set('hour', 0).set('minute', 0).set('second', 0),
+                          endTime: dayjs(marginx?.endTime) ?? dayjs(new Date()).set('hour', 23).set('minute', 59).set('second', 59),
+                          status: '' || marginx?.status,
+                          marginXExpiry: '' || marginx?.marginXExpiry,
+                          maxParticipants: '' || marginx?.maxParticipants,
+                          marginXTemplate: {
+                            id: "" || marginx?.marginXTemplate?._id,
+                            name: "" || marginx?.marginXTemplate?.templateName
+                          },
+                          isNifty:false || marginx?.isNifty,
+                          isBankNifty: false || marginx?.isBankNifty,
+                          isFinNifty: false || marginx?.isFinNifty,
+                      
+                        }
+                      ) }}
                     >
                       Cancel
                     </MDButton>
                   </>
                 )}
               </Grid>
-
-              {/* {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <RegisteredUsers dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-
-              {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <PotentialUser dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>}
-
-              {(contest || newObjectId) && <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
-                <MDBox>
-                  <Shared dailyContest={contest?._id ? contest : dailyContest} action={action} setAction={setAction} />
-                </MDBox>
-              </Grid>} */}
 
             </Grid>
 

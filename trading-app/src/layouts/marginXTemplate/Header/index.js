@@ -9,7 +9,7 @@ import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import {Link} from 'react-router-dom'
 import ActiveTemplate from '../data/activeTemplate';
-import CompletedTemplate from '../data/completedTemplates';
+import InactiveTemplate from '../data/inactiveTemplate';
 import DraftTemplate from '../data/draftTemplates'
 // import OngoingDailyContest from '../data/ongoingBattles';
 
@@ -34,7 +34,7 @@ export default function LabTabs() {
     color="warning" 
     size="small"
     component={Link}
-    to='/battledashboard'
+    to='/marginxdashboard'
     >
         Back to MarginX Dashboard
     </MDButton>
@@ -77,7 +77,7 @@ export default function LabTabs() {
           </MDBox>
           : 
           <MDBox style={{minWidth:'100%'}}>
-          <CompletedTemplate/>
+            <InactiveTemplate/>
           </MDBox>
    
           }
