@@ -3,8 +3,8 @@ import React, { useEffect, useRef } from 'react';
 import MDBox from '../../../components/MDBox';
 import moment from 'moment';
 
-export default function Charts({dailyAllContestUsers}) {
-    console.log("Daily All Contest Users:",dailyAllContestUsers)
+export default function Charts({allMarginXUsers}) {
+    // console.log("Daily All Contest Users:",dailyAllContestUsers)
     const chartRef = useRef(null);
   // Dummy data for example purposes
   const data = [
@@ -19,7 +19,7 @@ export default function Charts({dailyAllContestUsers}) {
 
   const options = {
     title: {
-      text: 'DAUs (Total, Free, Paid)',
+      text: 'DAUs',
       left: 'left',
     },
     tooltip: {
@@ -39,9 +39,7 @@ export default function Charts({dailyAllContestUsers}) {
         saveAsImage: { show: true }
       }
     },
-    legend: {
-        data: ['Paid', 'Free', 'Total'],
-    },
+
     grid: {
         right: '2%', // Adjust the right margin as per your requirement
         left: '2%',
@@ -55,7 +53,7 @@ export default function Charts({dailyAllContestUsers}) {
     xAxis: [
         {
           type: 'category',
-          data: dailyAllContestUsers?.map(item => item.date),
+          data: allMarginXUsers?.map(item => item.date),
           axisPointer: {
             type: 'shadow'
           }
@@ -80,18 +78,8 @@ export default function Charts({dailyAllContestUsers}) {
       {
         name: 'Total',
         type: 'line',
-        data: dailyAllContestUsers.map(item => item.total),
+        data: allMarginXUsers.map(item => item.total),
       },
-      {
-        name: 'Paid',
-        type: 'bar',
-        data: dailyAllContestUsers.map(item => item.paid),
-      },
-      {
-        name: 'Free',
-        type: 'bar',
-        data: dailyAllContestUsers.map(item => item.free),
-      }
     ],
   };
 
@@ -100,7 +88,7 @@ export default function Charts({dailyAllContestUsers}) {
   return () => {
     chart.dispose();
   };
-}, [dailyAllContestUsers]);
+}, [allMarginXUsers]);
 
   return <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };

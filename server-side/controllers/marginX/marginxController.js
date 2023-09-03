@@ -16,7 +16,7 @@ exports.createMarginX = async (req, res) => {
             status, payoutStatus, marginXExpiry, isNifty, isBankNifty, isFinNifty, liveTime 
         } = req.body;
 
-        const getMarginX = await MarginX.findOne({ marginXName: marginXName });
+        const getMarginX = await MarginX.findOne({ marginXName: marginXName, startTime:startTime});
         if(startTime>endTime){
             return res.status(400).json({
                 status: 'error',
@@ -249,7 +249,7 @@ exports.todaysMarinX = async (req, res) => {
 
     try {
         const marginx = await MarginX.find({
-            contestEndTime: { $gte: today }
+            endTime: { $gte: today }
         }).populate('marginXTemplate', 'templateName _id portfolioValue entryFee')
             .populate('participants.userId', 'first_name last_name email mobile creationProcess')
             .sort({ startTime: 1 })
@@ -443,8 +443,8 @@ exports.creditAmountToWallet = async () => {
         // console.log(contest.length, contest)
         for (let j = 0; j < marginxs.length; j++) {
             // if (contest[j].contestEndTime < new Date()) {
-            let leverage = marginxs[j]?.marginXTemplate?.portfolioValue/marginxs[j]?.entryFee;
-            let entryFee = marginxs[j]?.entryFee;
+            let leverage = marginxs[j]?.marginXTemplate?.portfolioValue/marginxs[j]?.marginXTemplate.entryFee;
+            let entryFee = marginxs[j]?.marginXTemplate?.entryFee;
             for (let i = 0; i < marginxs[j]?.participants?.length; i++) {
                 let userId = marginxs[j]?.participants[i]?.userId;
                 let id = marginxs[j]._id;
@@ -486,7 +486,7 @@ exports.creditAmountToWallet = async () => {
                 ])
 
                 // console.log(pnlDetails[0]);
-                const payoutAmount = pnlDetails[0]?.npnl/leverage + entryFee;
+                const payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
                 if(payoutAmount >0){
                     const wallet = await Wallet.findOne({ userId: userId });
                     console.log(userId, pnlDetails[0]);
@@ -861,3 +861,109 @@ exports.findMarginXByName = async(req,res) => {
         });
     }
 }
+
+exports.getMarginXAllUsers = async (req, res) => {
+    try {
+        const pipeline = 
+        [
+            {
+              $lookup: {
+                from: "marginxes",
+                localField: "marginxId",
+                foreignField: "_id",
+                as: "marginx",
+              },
+            },
+            {
+              $addFields: {
+                marginxdetails: {
+                  $arrayElemAt: ["$marginx", 0],
+                },
+              },
+            },
+            {
+              $facet: {
+                totalmarginx: [
+                  {
+                    $group: {
+                      _id: {
+                        date: {
+                          $substr: ["$trade_time", 0, 10],
+                        },
+                        trader: "$trader",
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: {
+                        date: "$_id.date",
+                      },
+                      traders: {
+                        $sum: 1,
+                      },
+                      uniqueUsers: {
+                        $addToSet: "$_id.trader",
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 0,
+                      date: "$_id.date",
+                      traders: 1,
+                    },
+                  },
+                  {
+                    $sort: {
+                      "_id.date": 1,
+                    },
+                  },
+                ],
+              },
+            },
+          ]
+
+        const marginxTraders = await MarginXMockUser.aggregate(pipeline);
+        
+        try{
+        
+        const marginxusers = []
+
+        // console.log("Contest Traders:",contestTraders)
+        marginxTraders[0].totalmarginx.forEach(entry => {
+            const { date, traders } = entry;
+
+            marginxusers.push(
+                {
+                    date:date, 
+                    total: traders
+                }
+                )
+            
+                marginxusers.sort((a,b)=>{
+                    if(a.date >= b.date) return 1
+                    if(a.date < b.date) return -1 
+                })
+            
+        });
+        // Create a date-wise mapping of DAUs for different products
+        
+        const response = {
+            status: "success",
+            message: "MarginX Users fetched successfully",
+            data: marginxusers
+        };
+
+        res.status(200).json(response);
+    }catch(err){
+        console.log(err);
+    }
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
+};

@@ -3,31 +3,31 @@ import * as echarts from 'echarts';
 import MDBox from '../../../components/MDBox';
 import moment, { min } from 'moment';
 
-export default function TraderDetails({completedContest, isLoading}) {
+export default function TraderDetails({completedMarginX, isLoading}) {
   const chartRef = useRef(null);
-  console.log("Completed Contest Data:", completedContest, isLoading);
+  // console.log("Completed Contest Data:", completedContest, isLoading);
 
   let dates = []
   let npnl = []
   let payout = []
-  let numberOfContests = []
+  let numberOfMarginXs = []
 
-  dates = completedContest?.map((e)=>{
-    let tradeDate = new Date(e?.contestDate)
+  dates = completedMarginX?.map((e)=>{
+    let tradeDate = new Date(e?.MarginXDate)
     let utcDateString = tradeDate.toLocaleString("en-US", { timeZone: "UTC" });
     return moment.utc(utcDateString).utcOffset('+00:00').format('DD-MMM')
   })
 
-  npnl = completedContest?.map((e)=>{
+  npnl = completedMarginX?.map((e)=>{
     return (e?.totalNpnl/100)?.toFixed(0)
   })
 
-  payout = completedContest?.map((e)=>{
+  payout = completedMarginX?.map((e)=>{
     return (e?.totalPayout)?.toFixed(0)
   })
 
-  numberOfContests = completedContest?.map((e)=>{
-    return (e?.numberOfContests)
+  numberOfMarginXs = completedMarginX?.map((e)=>{
+    return (e?.numberOfMarginX)
   })
 
   let npnlMax = Math.max(...npnl)
@@ -41,7 +41,7 @@ export default function TraderDetails({completedContest, isLoading}) {
 
     const option = {
       title: {
-        text: 'Contest NPNL & Payouts(Trader)',
+        text: 'MarginX NPNL & Payouts(Trader)',
         left: 'left',
       },
       tooltip: {
@@ -62,7 +62,7 @@ export default function TraderDetails({completedContest, isLoading}) {
         }
       },
       legend: {
-        data: ['Net P&L/100', 'Payout','# of Contests']
+        data: ['Net P&L/100', 'Payout','# of MarginXs']
       },
       grid: {
         right: '2.5%', // Adjust the right margin as per your requirement
@@ -92,7 +92,7 @@ export default function TraderDetails({completedContest, isLoading}) {
         },
         {
           type: 'value',
-          name: '# of Contests',
+          name: '# of MarginXs',
           min: -3.2,
           max: 8,
           offset: 0,
@@ -122,13 +122,13 @@ export default function TraderDetails({completedContest, isLoading}) {
           data: payout
         },
         {
-          name: '# of Contests',
+          name: '# of MarginXs',
           type: 'bar',
           yAxisIndex: 1,
           tooltip: {
             formatter: '{c}'
           },
-          data: numberOfContests
+          data: numberOfMarginXs
         },
       ]
     };
@@ -138,7 +138,7 @@ export default function TraderDetails({completedContest, isLoading}) {
     return () => {
       chart.dispose();
     };
-  }, [completedContest]);
+  }, [completedMarginX]);
 
   return isLoading ? <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px', filter: 'blur(2px)' }} /> : <MDBox ref={chartRef} style={{ minWidth: '100%', height: '400px' }} />;
 };
