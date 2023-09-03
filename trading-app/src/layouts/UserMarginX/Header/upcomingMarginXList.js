@@ -62,7 +62,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
         document.execCommand('copy');
         document.body.removeChild(textarea);
         openSuccessSB('success', 'Link Copied', 'Share it with your friends');
-        const res = await fetch(`${baseUrl}api/v1/marginx/${id}/share`, {
+        const res = await fetch(`${baseUrl}api/v1/marginx/share/${id}`, {
             method: "PUT",
             credentials: "include",
             headers: {
@@ -192,7 +192,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                     })
 
                                     let isParticipated = elem?.participants.some(elem => {
-                                        return elem?.userId?._id?.toString() === getDetails?.userDetails?._id?.toString()
+                                        return elem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
                                     })
 
                                     // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
@@ -355,11 +355,28 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             View
                                                         </MDButton>
                                                     </Grid>
-                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='warning'>Share</MDButton>
+                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        <MDButton style={{ minWidth: '95%' }} size='small' color='warning' onClick={() => { handleCopy(elem?._id) }}>Share</MDButton>
                                                     </Grid>
-                                                    <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{minWidth:'95%', fontSize:10}} size='small' color='success'>Buy</MDButton>
+                                                    <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
+                                                        {isParticipated ?
+                                                            // <PopupTrading elem={elem} timeDifference={particularMarginXTime[0]?.value} />
+                                                            <MDButton
+                                                                // variant='outlined'
+                                                                color={"success"}
+                                                                size='small'
+                                                                disabled={(particularMarginXTime[0]?.value) > 0}
+                                                                onClick={() => {
+                                                                    navigate(`/marginx/${elem?.marginXName}`, {
+                                                                        state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.endTime, entryFee: elem?.marginXTemplate?.entryFee, portfolioValue: elem?.marginXTemplate?.portfolioValue }
+                                                                    });
+                                                                }}
+                                                            >
+                                                                <MDTypography color={"light"} fontWeight='bold' fontSize={9}>START TRADING</MDTypography>
+                                                            </MDButton>
+                                                            :
+                                                            <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} />
+                                                        }
                                                     </Grid>
                                                 </Grid>
 

@@ -2,7 +2,7 @@ import { React, useState, useEffect, useContext } from "react";
 import { userContext } from '../../../AuthContext';
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
-import ShareIcon from '@mui/icons-material/Share';
+// import ShareIcon from '@mui/icons-material/Share';
 import ReactGA from "react-ga"
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -13,18 +13,18 @@ import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 
 // Images
-import WinnerImage from '../../../assets/images/roi.png'
-import Timer from '../timer'
 import { Tooltip } from "@mui/material";
-import MDSnackbar from "../../../components/MDSnackbar";
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
+import WinnerImage from '../../../assets/images/roi.png'
+import Timer from '../timer'
+import MDSnackbar from "../../../components/MDSnackbar";
 import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 
 function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, socket, setIsInterested }) {
     let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
-    const getDetails = useContext(userContext);
+    // const getDetails = useContext(userContext);
     const navigate = useNavigate();
     const [showDownloadButton, setShowDownloadButton] = useState(true);
 
@@ -35,7 +35,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
 
     async function handleNavigate(id, name) {
         console.log("Details MarginX:",id,name)
-        axios.get(`${baseUrl}api/v1/marginx/trade/${id}/my/todayorders`, {
+        axios.get(`${baseUrl}api/v1/marginxtrade/${id}/my/allorders`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -45,8 +45,8 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
         })
             .then((res) => {
                 if (res.data.count > 0) {
-                    navigate(`/completedmarginx/${name}`, {
-                        state: { data: id }
+                    navigate(`/completedmarginxs/${name}`, {
+                        state: { data: res.data.data }
                     });
                 } else {
                     openSuccessSB("error", "You dont have any trade for this contest.")
@@ -173,8 +173,6 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
         />
     );
 
-    // console.log("timediffrence", timeDifference)
-
 
     return (
         <>
@@ -186,7 +184,6 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                             marginX?.map((elem) => {
                                 if (elem?.entryFee !== 0) {
                                     
-                                    // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                                     return (
                                         
                                         <Grid item xs={12} md={6} lg={4} borderRadius={3}>

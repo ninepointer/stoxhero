@@ -293,6 +293,29 @@ exports.getCompletedMarginXs = async (req, res) => {
     }
 };
 
+// Controller to fetch only Cancelled MarginXs
+exports.getCancelledMarginXs = async (req, res) => {
+    const now = new Date();
+    try {
+        const completedMarginXs = await MarginX.find({ 
+            status: 'Cancelled',
+        }).populate('participants.userId', 'first_name last_name email mobile creationProcess')
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee');
+        
+        res.status(200).json({
+            status: 'success',
+            data: completedMarginXs
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching completed MarginXs",
+            error: error.message
+        });
+    }
+};
+
 exports.getUserCompletedMarginXs = async (req, res) => {
     const userId = req.user._id;
     try {
@@ -328,6 +351,39 @@ exports.getMarginXById = async (req, res) => {
         const marginX = await MarginX.findById(id)
         .populate('participants.userId', 'first_name last_name email mobile creationProcess')
         .populate('sharedBy.userId', 'first_name last_name email mobile creationProcess');
+
+        if (!marginX) {
+            return res.status(404).json({ status: "error", message: "MarginX not found" });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: marginX
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: "Error fetching MarginX by ID",
+            error: error.message
+        });
+    }
+};
+
+
+exports.getMarginXByIdUser = async (req, res) => {
+    try {
+        const { id } = req.params; // Extracting id from request parameters
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ status: "error", message: "Invalid MarginX ID" });
+        }
+
+        // Fetching the MarginX based on the id and populating the participants.userId field
+        const marginX = await MarginX.findById(id)
+        .populate('marginXTemplate', 'templateName portfolioValue entryFee')
+        .select('marginXName marginXTemplate')
 
         if (!marginX) {
             return res.status(404).json({ status: "error", message: "MarginX not found" });
