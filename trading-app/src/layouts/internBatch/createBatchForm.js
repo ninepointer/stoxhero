@@ -42,7 +42,7 @@ function Index() {
     const  id  = location?.state?.data;
     const [applicationCount, setApplicationCount] = useState(0);
     const [isSubmitted,setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading,setIsLoading] = useState(id ? true : false)
     const [editing,setEditing] = useState(false)
     const [saving,setSaving] = useState(false)

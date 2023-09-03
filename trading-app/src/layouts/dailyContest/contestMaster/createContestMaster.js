@@ -68,7 +68,7 @@ function Index() {
     console.log('id hai', contest);
     // const [applicationCount, setApplicationCount] = useState(0);
     const [isSubmitted, setIsSubmitted] = useState(false);
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [isLoading, setIsLoading] = useState(contest ? true : false)
     const [editing, setEditing] = useState(false)
     const [saving, setSaving] = useState(false)
