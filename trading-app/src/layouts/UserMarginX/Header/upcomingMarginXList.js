@@ -350,7 +350,11 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             style={{minWidth:'95%', fontSize:10}} 
                                                             size='small' 
                                                             color='info'
-                                                            onClick={() => { navigate(`/marginxs/${elem?.marginXName}`) }}
+                                                            onClick={() => {
+                                                                navigate(`/marginxs/${elem?.marginXName}/${elem?.startTime.split('T')[0]}`, {
+                                                                    state: { elem: elem, date: elem?.startTime, id: elem?._id }
+                                                                })
+                                                            }}
                                                         >
                                                             View
                                                         </MDButton>

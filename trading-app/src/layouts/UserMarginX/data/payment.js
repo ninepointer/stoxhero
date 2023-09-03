@@ -136,7 +136,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
     {whichTab === "view" ?
       <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' alignItems='center' minWidth='100%'>
         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
-            <MDButton size='small' variant='contained' color='success' style={{minWidth:'95%', fontSize:9}} fontSize={9} onClick={captureIntent} >Buy</MDButton>
+            <MDButton size='small' variant='contained' color='success' style={{minWidth:'100%', fontSize:9}} fontSize={9} onClick={captureIntent} >Buy</MDButton>
         </MDBox>
       </Grid>
       :
