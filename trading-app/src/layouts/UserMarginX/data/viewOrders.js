@@ -18,31 +18,31 @@ export default function DailyContestOrders() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [isLoading,setIsLoading] = useState(false);
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
   const location = useLocation();
 
-  let marginX = location?.state?.data;
+  let data = location?.state?.data;
   
-  useEffect(()=>{
-      setIsLoading(true)
-      axios.get(`${baseUrl}api/v1/marginx/trade/${marginX}/my/todayorders`, {
-        withCredentials: true,
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Credentials": true
-        }
-    })
-      .then((res)=>{
-          setData(res.data.data);
-          setIsLoading(false)
-      }).catch((err)=>{
-          setTimeout(()=>{
-            setIsLoading(false)
-          },500) 
-          return new Error(err);
-      })
-  },[])
+  // useEffect(()=>{
+  //     setIsLoading(true)
+  //     axios.get(`${baseUrl}api/v1/marginx/trade/${marginX}/my/todayorders`, {
+  //       withCredentials: true,
+  //       headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //           "Access-Control-Allow-Credentials": true
+  //       }
+  //   })
+  //     .then((res)=>{
+  //         setData(res.data.data);
+  //         setIsLoading(false)
+  //     }).catch((err)=>{
+  //         setTimeout(()=>{
+  //           setIsLoading(false)
+  //         },500) 
+  //         return new Error(err);
+  //     })
+  // },[])
 
   return (
 
@@ -90,7 +90,7 @@ export default function DailyContestOrders() {
         
             {!isLoading ?
              data?.map((elem)=>{
-                const fullName = elem?.trader?.first_name + ' ' + elem?.trader?.last_name
+                // const fullName = elem?.trader?.first_name + ' ' + elem?.trader?.last_name
                 const typecolor = elem?.buyOrSell === 'BUY' ? 'success' : 'error'
                 return(
               
