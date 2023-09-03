@@ -20,7 +20,7 @@ import Button from '@mui/material/Button';
 
 // Images
 import ContestCarousel from '../../../assets/images/target.png'
-import WinnerImage from '../../../assets/images/cup-image.png'
+import WinnerImage from '../../../assets/images/roi.png'
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
 import { HiUserGroup } from 'react-icons/hi';
@@ -217,7 +217,9 @@ function Header({ toggleContest, setToggleContest, marginX, showPay, setShowPay,
                                                                         varaint='outlined'
                                                                         onClick={handleClickOpen}
                                                                     >
+                                                                    <Tooltip title={"MarginX Info"} placement="top">
                                                                         <InfoIcon color='blue' />
+                                                                    </Tooltip>
                                                                     </MDButton>
                                                                     <Dialog
                                                                         open={open}
@@ -301,7 +303,7 @@ function Header({ toggleContest, setToggleContest, marginX, showPay, setShowPay,
                                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
+                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Return</MDTypography></MDBox>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>% OF YOUR INVESTMENT</MDTypography></MDBox>
                                                         </MDBox>
                                                     </MDBox>
@@ -346,9 +348,10 @@ function Header({ toggleContest, setToggleContest, marginX, showPay, setShowPay,
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pb={.5} mt={0.5} mb={.5} container display='flex' justifyContent='space-around' alignItems='center'>
                                                     <Grid item xs={4} md={4} lg={4} display='flex' justifyContent='center' alignItems='center'>
                                                         <MDButton
-                                                            style={{ minWidth: '95%', fontSize: 10 }}
+                                                            style={{ minWidth: '95%', fontSize: 9 }}
                                                             size='small'
                                                             color='info'
+                                                            fontSize={9}
                                                             onClick={() => {
                                                                 navigate(`/marginxs/${elem?.marginXName}/${elem?.startTime.split('T')[0]}`, {
                                                                     state: { elem: elem, date: elem?.startTime, id: elem?._id }
@@ -359,7 +362,7 @@ function Header({ toggleContest, setToggleContest, marginX, showPay, setShowPay,
                                                         </MDButton>
                                                     </Grid>
                                                     <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
-                                                        <MDButton style={{ minWidth: '95%' }} size='small' color='warning' onClick={() => { handleCopy(elem?._id) }}>Share</MDButton>
+                                                        <MDButton style={{ minWidth: '95%', fontSize:9 }} size='small' color='warning' onClick={() => { handleCopy(elem?._id) }}>Share</MDButton>
                                                     </Grid>
                                                     <Grid item xs={3} md={3} lg={4} display='flex' justifyContent='center' alignItems='center'>
                                                         {isParticipated ?
@@ -368,14 +371,15 @@ function Header({ toggleContest, setToggleContest, marginX, showPay, setShowPay,
                                                                 // variant='outlined'
                                                                 color={"success"}
                                                                 size='small'
+                                                                style={{minWidth:'95%', fontSize:9}}
                                                                 disabled={(particularMarginXTime[0]?.value) > 0}
                                                                 onClick={() => {
                                                                     navigate(`/marginx/${elem?.marginXName}`, {
-                                                                        state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.contestName, endTime: elem?.endTime, entryFee: elem?.marginXTemplate?.entryFee, portfolioValue: elem?.marginXTemplate?.portfolioValue }
+                                                                        state: { data: elem?._id, isNifty: elem?.isNifty, isBank: elem?.isBankNifty, isFin: elem.isFinNifty, timeDifference: timeDifference, name: elem?.marginXName, endTime: elem?.endTime, entryFee: elem?.marginXTemplate?.entryFee, portfolioValue: elem?.marginXTemplate?.portfolioValue }
                                                                     });
                                                                 }}
                                                             >
-                                                                <MDTypography color={"light"} fontWeight='bold' fontSize={9}>START TRADING</MDTypography>
+                                                                Start Trading
                                                             </MDButton>
                                                             :
                                                             <Payment elem={elem} showPay={showPay} setShowPay={setShowPay} timeDifference={particularMarginXTime[0]?.value} />

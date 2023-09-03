@@ -20,7 +20,7 @@ import Button from '@mui/material/Button';
 
 // Images
 import ContestCarousel from '../../../assets/images/target.png'
-import WinnerImage from '../../../assets/images/cup-image.png'
+import WinnerImage from '../../../assets/images/roi.png'
 import Timer from '../timer'
 import ProgressBar from "../progressBar";
 import { HiUserGroup } from 'react-icons/hi';
@@ -216,7 +216,9 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                                         varaint='outlined'
                                                                         onClick={handleClickOpen}
                                                                     >
+                                                                    <Tooltip title={"MarginX Info"} placement="top">
                                                                         <InfoIcon color='blue' />
+                                                                    </Tooltip>
                                                                     </MDButton>
                                                                         <Dialog
                                                                             open={open}
@@ -300,7 +302,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                                                     <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
                                                         <MDBox display='flex' justifyContent='flex-start' flexDirection='column'>
-                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Reward</MDTypography></MDBox>
+                                                            <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' color='success'>Return</MDTypography></MDBox>
                                                             <MDBox display='flex' justifyContent='center'><MDTypography fontSize={15} fontWeight='bold' sx={{ color: "#DBB670" }}>% OF YOUR INVESTMENT</MDTypography></MDBox>
                                                         </MDBox>
                                                     </MDBox>
