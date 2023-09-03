@@ -176,7 +176,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                         <Grid item xs={3} md={2} lg={12} mb={1} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                                             <Grid item xs={9} md={9} lg={9} display='flex' justifyContent='left'>
                                                                 <MDBox display='flex' justifyContent='flex-start' alignItems='center'>
-                                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.marginXName}</MDTypography>
+                                                                    <MDTypography color='black' fontSize={15} fontWeight='bold'>{elem?.marginxName}</MDTypography>
                                                                 </MDBox>
                                                             </Grid>
                                                             <Grid item xs={3} md={3} lg={3} display='flex' justifyContent='right'>
@@ -195,7 +195,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             {elem?.isNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "green", padding: '0px 5px 0px 5px',border:"1px solid green", borderRadius:'5px 5px 5px 5px'}}>{elem?.isNifty === true ? 'NIFTY' : ''}</MDTypography></MDBox>}
                                                             {elem?.isBankNifty && <MDBox><MDTypography color='black' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "lightyellow", padding: '0px 5px 0px 5px',border:"1px solid lightyellow", borderRadius:'5px 5px 5px 5px'}}>{elem?.isBankNifty === true ? 'BANKNIFTY' : ''}</MDTypography></MDBox>}
                                                             {elem?.isFinNifty && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "orange", padding: '0px 5px 0px 5px',border:"1px solid orange", borderRadius:'5px 5px 5px 5px'}}>{elem?.isFinNifty === true ? 'FINNIFTY' : ''}</MDTypography></MDBox>}
-                                                            {elem?.marginXExpiry && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "red", padding: '0px 5px 0px 5px',border:"1px solid red", borderRadius:'5px 5px 5px 5px'}}>{elem?.marginXExpiry}</MDTypography></MDBox>}
+                                                            {elem?.marginxExpiry && <MDBox><MDTypography color='white' fontSize={10} ml={0.5} mr={0.5} fontWeight='bold' style={{backgroundColor: "red", padding: '0px 5px 0px 5px',border:"1px solid red", borderRadius:'5px 5px 5px 5px'}}>{elem?.marginxExpiry}</MDTypography></MDBox>}
                                                         </Grid>
                                                     </MDBox>
                                                     
@@ -214,10 +214,10 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} container display='flex' justifyContent='center' alignItems='center'>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>{elem?.maxParticipants - elem?.participants.length}</MDTypography>
+                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>{ (elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.npnl))}</MDTypography>
                                                     </Grid>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <Timer toggleContest={toggleContest} setToggleContest={setToggleContest} socket={socket} elem={elem} date={elem?.startTime} id={elem?._id} setTimeDifference={setTimeDifference} />
+                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>{ (elem?.return) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.return)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-elem?.return))}</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
@@ -263,10 +263,10 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
 
                                                 <Grid xs={12} md={12} lg={12} pl={1} pr={1} pb={.5} container display='flex' justifyContent='center' alignItems='center'>   
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-start' alignItems='center'>
-                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>₹{elem?.marginXTemplate?.entryFee}</MDTypography>
+                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>₹{elem?.entryFee}</MDTypography>
                                                     </Grid>
                                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='flex-end' alignItems='center'>
-                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.marginXTemplate?.portfolioValue)}</MDTypography>
+                                                        <MDTypography color='black' fontSize={10} fontWeight='bold'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(elem?.portfolioValue)}</MDTypography>
                                                     </Grid>
                                                 </Grid>
 
@@ -277,8 +277,8 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             size='small' 
                                                             color='info'
                                                             onClick={() => {
-                                                                navigate(`/marginxs/${elem?.marginXName}/${elem?.startTime.split('T')[0]}`, {
-                                                                    state: { elem: elem, date: elem?.startTime, id: elem?._id }
+                                                                navigate(`/marginxs/${elem?.marginxName}/${elem?.startTime.split('T')[0]}`, {
+                                                                    state: { elem: elem, date: elem?.startTime, id: elem?.marginxId, whichTab: "Completed" }
                                                                 })
                                                             }}
                                                         >
@@ -294,7 +294,7 @@ function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, 
                                                             size='small' 
                                                             color='success'
                                                             component={Link}
-                                                            onClick={() => { handleNavigate(elem?._id, elem?.marginXName) }}
+                                                            onClick={() => { handleNavigate(elem?.marginxId, elem?.marginxName) }}
                                                         >
                                                             Orders
                                                         </MDButton>

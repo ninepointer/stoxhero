@@ -1130,7 +1130,7 @@ exports.fundCheckMarginX = async (req, res, next) => {
                 todayPnlData = await client.get(`${req.user._id.toString()}${marginxId.toString()} overallpnlMarginX`)
                 todayPnlData = JSON.parse(todayPnlData);
 
-                console.log("todayPnlData", todayPnlData, `${req.user._id.toString()}${marginxId.toString()} overallpnlMarginX`)
+                // console.log("todayPnlData", todayPnlData, `${req.user._id.toString()}${marginxId.toString()} overallpnlMarginX`)
 
                 for (let i = 0; i < todayPnlData?.length; i++) {
                     if (todayPnlData[i]?._id?.symbol === symbol) {
@@ -1142,7 +1142,7 @@ exports.fundCheckMarginX = async (req, res, next) => {
                             runningLots: todayPnlData[i]?.lots
                         })
                     }
-                    console.log("runningLots", runningLots)
+                    // console.log("runningLots", runningLots)
                 }
             }
         } catch (e) {

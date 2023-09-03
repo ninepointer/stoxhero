@@ -32,6 +32,7 @@ function Header() {
     const [marginXDetails, setMarginXDetails] = useState({});
     const id = location?.state?.id;
     const state = location?.state?.elem;
+    const whichTab = location?.state?.whichTab;
     const getDetails = useContext(userContext);
     let [showPay, setShowPay] = useState(true)
     const [isLoading,setIsLoading] = useState(true);
@@ -120,10 +121,13 @@ function Header() {
     );
     const navigate = useNavigate();
 
-    let isParticipated = state?.participants.some(subelem => {
-        return subelem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
-    })
-    console.log("isLoading",isLoading)
+    let isParticipated;
+    if(whichTab !== "Completed"){
+        isParticipated = state?.participants.some(subelem => {
+            return subelem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
+        })
+    }
+    console.log("isLoading",state?.return, state?.entryFee, state?.entryFee)
     return (
         <Grid xs={12} md={12} lg={12} mt={2} container spacing={1} display='flex' flexDirection='row' alignItems='start'>
             {!isLoading ?
@@ -244,7 +248,7 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>MarginX - Beginner</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{whichTab !== "Completed" ? state?.marginXName : state?.marginxName}</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>
@@ -291,6 +295,7 @@ function Header() {
                                     </Grid>
                                 </Grid>
                             </MDBox>
+                            {whichTab !== "Completed" &&
                             <MDBox bgColor='white' minWidth='100%'>
                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
@@ -304,7 +309,7 @@ function Header() {
                                         </MDBox>
                                     </Grid>
                                 </Grid>
-                            </MDBox>
+                            </MDBox>}
                             <MDBox bgColor='white' minWidth='100%'>
                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
@@ -314,7 +319,7 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.marginXTemplate?.portfolioValue : marginXDetails?.marginXTemplate?.portfolioValue}</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.marginXTemplate?.portfolioValue : state?.portfolioValue) : marginXDetails?.marginXTemplate?.portfolioValue}</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>
@@ -328,11 +333,13 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.marginXTemplate?.entryFee : marginXDetails?.marginXTemplate?.entryFee}</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.marginXTemplate?.entryFee : state?.entryFee) : marginXDetails?.marginXTemplate?.entryFee}</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>
                             </MDBox>
+                            {whichTab === "Completed" &&
+                            <>
                             <MDBox bgColor='white' minWidth='100%'>
                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
@@ -342,7 +349,7 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.marginXTemplate?.entryFee : marginXDetails?.marginXTemplate?.entryFee}</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state?.return?.toFixed(2)}</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>
@@ -356,11 +363,12 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.marginXTemplate?.entryFee : marginXDetails?.marginXTemplate?.entryFee}</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{(((state?.return.toFixed(2)-state?.entryFee)/state?.entryFee)*100).toFixed(2)}%</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>
                             </MDBox>
+                            </>}
                             <MDBox bgColor='white' minWidth='100%'>
                                 <Grid item xs={12} md={12} lg={12} container display='flex' flexDirection='row' alignItems='center' minWidth='100%'>
                                     <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
@@ -368,7 +376,10 @@ function Header() {
                                             <MDButton size='small' variant='contained' color='warning' style={{ minWidth: '100%' }} onClick={() => { handleCopy(state ? state._id : marginXDetails?._id) }}>Share with friends!</MDButton>
                                         </MDBox>
                                     </Grid>
-                                    {isParticipated || !showPay ?
+                                    {whichTab !== "Completed" &&
+                                    <>
+                                    {
+                                    isParticipated || !showPay ?
                                         <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
                                             <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
                                                 <MDButton
@@ -385,6 +396,9 @@ function Header() {
                                             </MDBox>
                                         </Grid> :
                                         <Payment elem={state} whichTab={"view"} showPay={showPay} setShowPay={setShowPay} />
+                                                }
+                                        </>
+
                                     }
                                     <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>

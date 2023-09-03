@@ -4,7 +4,7 @@ const Wallet  = require('../../models/UserWallet/userWalletSchema');
 const MarginXMockUser = require('../../models/marginX/marginXUserMock');
 const { ObjectId } = require('mongodb');
 const User = require('../../models/User/userDetailSchema');
-
+const MarginXUserMock = require("../../models/marginX/marginXUserMock");
 
 const uuid = require("uuid");
 const emailService = require("../../utils/emailService");
@@ -312,15 +312,129 @@ exports.getCancelledMarginXs = async (req, res) => {
 exports.getUserCompletedMarginXs = async (req, res) => {
     const userId = req.user._id;
     try {
-        const completedMarginXs = await MarginX.find({ 
-            status: 'Completed',
-            "participants.userId": new ObjectId(userId),
-        }).sort({startTime: -1, entryFee:-1})
-        .populate('marginXTemplate', 'templateName portfolioValue entryFee');
+
+
+        const completed = await MarginXUserMock.aggregate([
+            {
+                $match:
+                {
+                    status: "COMPLETE",
+                    trader: new ObjectId(
+                        userId
+                    ),
+                },
+            },
+            {
+                $group:
+                {
+                    _id: {
+                        marginxId: "$marginxId",
+                    },
+                    amount: {
+                        $sum: {
+                            $multiply: ["$amount", -1],
+                        },
+                    },
+                    brokerage: {
+                        $sum: {
+                            $toDouble: "$brokerage",
+                        },
+                    },
+                },
+            },
+            {
+                $project:
+                {
+                    marginxId: "$_id.marginxId",
+                    _id: 0,
+                    npnl: {
+                        $subtract: ["$amount", "$brokerage"],
+                    },
+                },
+            },
+            {
+                $lookup: {
+                    from: "marginxes",
+                    localField: "marginxId",
+                    foreignField: "_id",
+                    as: "marginx",
+                },
+            },
+            {
+                $lookup:
+                {
+                    from: "marginx-templates",
+                    localField: "marginx.marginXTemplate",
+                    foreignField: "_id",
+                    as: "templates",
+                },
+            },
+            {
+                $project:
+                {
+                    marginxId: "$marginxId",
+                    npnl: "$npnl",
+                    portfolioValue: {
+                        $arrayElemAt: [
+                            "$templates.portfolioValue",
+                            0,
+                        ],
+                    },
+                    entryFee: {
+                        $arrayElemAt: [
+                            "$templates.entryFee",
+                            0,
+                        ],
+                    },
+                    startTime: {
+                        $arrayElemAt: ["$marginx.startTime", 0],
+                    },
+                    endTime: {
+                        $arrayElemAt: ["$marginx.endTime", 0],
+                    },
+                    marginxName: {
+                        $arrayElemAt: ["$marginx.marginXName", 0],
+                    },
+                    isNifty: {
+                        $arrayElemAt: ["$marginx.isNifty", 0],
+                      },
+                        isBankNifty: {
+                        $arrayElemAt: ["$marginx.isBankNifty", 0],
+                      },
+                        isFinNifty: {
+                        $arrayElemAt: ["$marginx.isFinNifty", 0],
+                      },
+                        marginxExpiry: {
+                        $arrayElemAt: ["$marginx.marginXExpiry", 0],
+                      },
+                      maxParticipants: {
+                        $arrayElemAt: ["$marginx.maxParticipants", 0],
+                      },
+                },
+            },
+            {
+                $sort:
+                {
+                    startTime: 1,
+                },
+            },
+        ])
+
+        for(let elem of completed){
+            let xFactor = (elem.portfolioValue/elem.entryFee);
+            elem.return = elem.entryFee + elem.npnl/xFactor;
+            elem.return = elem.return > 0 ? elem.return : 0;
+        }
+
+        // const completedMarginXs = await MarginX.find({ 
+        //     status: 'Completed',
+        //     "participants.userId": new ObjectId(userId),
+        // }).sort({startTime: -1, entryFee:-1})
+        // .populate('marginXTemplate', 'templateName portfolioValue entryFee');
         
         res.status(200).json({
             status: 'success',
-            data: completedMarginXs
+            data: completed
         });
     } catch (error) {
         console.log(error);
