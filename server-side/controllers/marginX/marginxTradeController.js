@@ -28,11 +28,11 @@ exports.overallPnlTrader = async (req, res, next) => {
 
 
     try {
-        // console.log(req.user._id.toString(), id.toString())
+        // console.log(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`)
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`)) {
             let pnl = await client.get(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`)
             pnl = JSON.parse(pnl);
-            console.log("pnl redis", pnl)
+            // console.log("pnl redis", pnl)
 
             res.status(201).json({ message: "pnl received", data: pnl });
 
@@ -85,8 +85,8 @@ exports.overallPnlTrader = async (req, res, next) => {
             // //console.log("pnlDetails in else", pnlDetails)
 
             if (isRedisConnected) {
-                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlMarginx`, JSON.stringify(pnlDetails))
-                await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlMarginx`, secondsRemaining);
+                await client.set(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`, JSON.stringify(pnlDetails))
+                await client.expire(`${req.user._id.toString()}${id.toString()} overallpnlMarginX`, secondsRemaining);
             }
 
             // //console.log("pnlDetails", pnlDetails)
@@ -272,7 +272,6 @@ exports.myTodaysTrade = async (req, res, next) => {
 }
 
 
-//todo-vijay --> remove hardcoded feild
 exports.getMyPnlAndCreditData = async (req, res, next) => {
 
 
@@ -304,7 +303,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
             const marginx = await MarginX.aggregate([
                 {
                     $match: {
-                        _id: new ObjectId("64f2c081250ef784218c57b2"),
+                        _id: new ObjectId(id),
                     },
                 },
                 {
@@ -334,7 +333,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                         "trades.trade_time": { $lt: today },
                         "trades.status": "COMPLETE",
                         "trades.trader": new ObjectId(
-                            "63971eec2ca5ce5b52f900b7"
+                            req.user._id
                         ),
                     },
                 },
@@ -395,7 +394,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                 const portfolioValue = await MarginX.aggregate([
                     {
                         $match: {
-                            _id: ObjectId("64f2c081250ef784218c57b2"),
+                            _id: new ObjectId(id),
                         },
                     },
                     {

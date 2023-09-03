@@ -213,7 +213,7 @@ const routes = [
     component: <ContestTradingWindow />,
   },
   {
-    route: "/marginxtrade/:name",
+    route: "/marginx/:name",
     component: <MarginXTradingWindow />,
   },
   {

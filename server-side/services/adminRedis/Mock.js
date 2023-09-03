@@ -836,7 +836,7 @@ exports.lastTradeDataMockDailyContest = async (pnlData, contestId) => {
 //----------------marginx-------------------
 
 exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
-  console.log("in overallLivePnlRedis", pnlData)
+  // console.log("in overallLivePnlRedis", pnlData)
   const isRedisConnected = getValue();
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -872,7 +872,7 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
       });
     }
     // settingRedis = await client.set(`${trader.toString()} overallpnl`, JSON.stringify(pnl))
-    console.log("pnl", pnl)
+    // console.log("pnl", pnl)
     return  JSON.stringify(pnl);
   } else{
 
@@ -880,7 +880,7 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
     let pnl = await MarginXMockUser.aggregate([
       {
         $match: {
-          trade_time: {
+          trade_time_utc: {
             $gte: today
           },
           status: "COMPLETE",
@@ -922,7 +922,7 @@ exports.overallpnlMarginX = async (pnlData, trader, data, marginxId)=>{
       },
     ])
 
-    console.log("in else", pnl)
+    // console.log("in else", pnl)
     // console.log("pnlDetails in else", pnlDetails)
     // let settingRedis = await client.set(`overallMockPnlCompany`, JSON.stringify(pnlDetails))
 

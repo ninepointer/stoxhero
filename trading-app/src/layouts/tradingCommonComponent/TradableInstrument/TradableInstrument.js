@@ -78,8 +78,8 @@ function reducer(state, action) {
 
 function TradableInstrument({socket, isGetStartedClicked, setIsGetStartedClicked, from, subscriptionId, moduleData, watchList}) {
 
-  if(from === dailyContest){
-    from = marginX;
+  if(from === marginX){
+    from = dailyContest;
   }
   const {render, setRender} = useContext(renderContext);
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"

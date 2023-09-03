@@ -33,15 +33,14 @@ exports.marginxChecks = async(req,res,next) => {
             return res.status(201).json({ status: 'error', message: 'This MarginX Plan has ended.' });
         }
     
-        //todo-vijay
-        // let user = marginx.participants.filter((elem)=>{
-        //     // console.log(userId, elem?.userId)
-        //     return elem?.userId?.toString() === userId?.toString()
-        // })
+        let user = marginx.participants.filter((elem)=>{
+            // console.log(userId, elem?.userId)
+            return elem?.userId?.toString() === userId?.toString()
+        })
 
-        // if(user.length === 0){
-        //     return res.status(404).json({ status: "error", message: "You have not participated in this MarginX."}); 
-        // }
+        if(user.length === 0){
+            return res.status(404).json({ status: "error", message: "You have not participated in this MarginX."}); 
+        }
 
         next();
     }catch(e){
