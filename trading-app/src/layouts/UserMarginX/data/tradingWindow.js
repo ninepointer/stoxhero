@@ -29,10 +29,10 @@ function Header({ socket, data }) {
     const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
     const [watchList, setWatchList] = useState([]);
     const navigate = useNavigate();
-    const marginxId = "64f2c081250ef784218c57b2";
-    let endTime = "2023-09-02T04:56:03.136+00:00";
-    // const marginxId = data?.data;
-    // let endTime = data?.endTime;
+    // const marginxId = "64f2c081250ef784218c57b2";
+    // let endTime = "2023-09-02T04:56:03.136+00:00";
+    const marginxId = data?.data;
+    let endTime = data?.endTime;
     useEffect(() => {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts

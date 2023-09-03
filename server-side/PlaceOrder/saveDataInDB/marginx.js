@@ -68,7 +68,7 @@ exports.marginxTrade = async (req, res, otherData) => {
 
         const pipelineForSet = clientForIORedis.pipeline();
 
-        console.log("overallPnlUser", overallPnlUser)
+        // console.log("overallPnlUser", overallPnlUser)
 
         await pipelineForSet.set(`${trader.toString()}${marginxId.toString()} overallpnlMarginX`, overallPnlUser);
         await pipelineForSet.set(`overallMockPnlCompanyMarginX`, redisValueOverall);

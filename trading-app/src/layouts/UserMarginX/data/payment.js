@@ -12,11 +12,11 @@ import Title from '../../HomePage/components/Title'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import paymentQr from '../../../assets/images/paymentQrc.jpg';
 
 
-const Payment = ({ elem, setShowPay, showPay }) => {
+const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
   const [setting, setSetting] = useState([]);
@@ -27,7 +27,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   })
 
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
 
   useEffect(() => {
@@ -133,6 +133,13 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   return (
 
     <>
+    {whichTab === "view" ?
+                                        <Grid item xs={6} md={6} lg={12} display='flex' justifyContent='center' minWidth='100%'>
+                                        <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center' minWidth='100%'>
+                                            <MDButton size='small' variant='contained' color='success' style={{minWidth:'100%'}} onClick={captureIntent} >Buy</MDButton>
+                                        </MDBox>
+                                    </Grid>
+                                    :
       <MDBox>
         <MDButton
           color='success'
@@ -143,6 +150,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
             Buy
         </MDButton>
       </MDBox>
+}
 
       <Dialog
         open={open}

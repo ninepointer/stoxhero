@@ -43,6 +43,18 @@ async function singleProcess() {
     console.log(`Master ${process.pid} is running`);
 
 
+        client.connect()
+        .then(async (res) => {
+            // isRedisConnected = true ; 
+            setValue(true);
+            console.log("redis connected", res)
+        })
+        .catch((err) => {
+            // isRedisConnected = false;
+            setValue(false);
+            console.log("redis not connected", err)
+        })
+
     let setting;
     Setting.find()
         .then((res) => {
@@ -59,18 +71,6 @@ async function singleProcess() {
         .then(() => { })
         .catch((err) => {
             console.log(err, "xts interactive login")
-        })
-
-    client.connect()
-        .then(async (res) => {
-            // isRedisConnected = true ; 
-            setValue(true);
-            console.log("redis connected", res)
-        })
-        .catch((err) => {
-            // isRedisConnected = false;
-            setValue(false);
-            console.log("redis not connected", err)
         })
 
 

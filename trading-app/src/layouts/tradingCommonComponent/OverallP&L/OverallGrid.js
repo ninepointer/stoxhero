@@ -38,7 +38,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
   const [exitState, setExitState] = useState(false);
   const [buyState, setBuyState] = useState(false);
   const [sellState, setSellState] = useState(false);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,
@@ -248,8 +248,8 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
     rows = (newRows);
   };
 
-  // const xFactor = moduleData?.portfolioValue/moduleData?.entryFee;
-  const xFactor = 100000/100;
+  const xFactor = moduleData?.portfolioValue/moduleData?.entryFee;
+  // const xFactor = 100000/100;
 
   return (
     <Card>
@@ -365,7 +365,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId, mod
 
               {from === marginX &&
                 <Grid item xs={6} md={3} lg={2.4} display="flex" justifyContent="center">
-                  <MDTypography fontSize={".75rem"} backgroundColor="#CCCCCC" color={`${(totalGrossPnl - totalTransactionCost)/xFactor > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Reward: {((totalGrossPnl - totalTransactionCost)/xFactor) >= 0.00 ? "+₹" + (((totalGrossPnl - totalTransactionCost)/xFactor).toFixed(2)) : "-₹" + (((-(totalGrossPnl - totalTransactionCost))/xFactor).toFixed(2))}</MDTypography>
+                  <MDTypography fontSize={".75rem"} backgroundColor="#CCCCCC" color={`${(totalGrossPnl - totalTransactionCost)/xFactor > 0 ? 'success' : 'error'}`} style={{ borderRadius: "5px", padding: "5px", fontWeight: "600" }}>Reward: {((totalGrossPnl - totalTransactionCost)/xFactor + moduleData?.entryFee) >= 0.00 ? "+₹" + (((totalGrossPnl - totalTransactionCost)/xFactor + moduleData?.entryFee).toFixed(2)) : "-₹" + (((-(totalGrossPnl - totalTransactionCost))/xFactor + moduleData?.entryFee).toFixed(2))}</MDTypography>
                 </Grid>}
             </Grid>
           </TableContainer>

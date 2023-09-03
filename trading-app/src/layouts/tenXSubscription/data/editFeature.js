@@ -35,7 +35,7 @@ const EditFeature = ({data, setUpdatedDocument}) => {
 
 
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
   const [editData, setEditData] = useState(data);
 

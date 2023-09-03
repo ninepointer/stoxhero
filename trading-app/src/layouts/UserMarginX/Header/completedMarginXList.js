@@ -24,7 +24,7 @@ import Payment from "../data/payment"
 import InfoIcon from '@mui/icons-material/Info';
 
 function Header({toggleContest, setToggleContest, marginX, showPay, setShowPay, socket, setIsInterested }) {
-    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
+    let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
     const [timeDifference, setTimeDifference] = useState([]);
     const getDetails = useContext(userContext);
     const navigate = useNavigate();
