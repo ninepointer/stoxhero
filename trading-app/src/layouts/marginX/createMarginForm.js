@@ -31,6 +31,10 @@ import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { apiUrl } from '../../constants/constants';
+import RegisteredUsers from './data/registeredUsers';
+import PotentialUsers from './data/potentialUsers'
+import Shared from './data/shared'
+
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -57,10 +61,12 @@ function Index() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [newObjectId, setNewObjectId] = useState("");
   const navigate = useNavigate();
   const [templates, setTemplate] = useState([]);
   const [createdMarginX, setCreatedMarginX] = useState();
-  
+  const [action, setAction] = useState(false);
+  console.log("marginX:",marginx)
   
   const [formState, setFormState] = useState({
     marginXName: '' || marginx?.marginXName,
@@ -152,6 +158,7 @@ function Index() {
         openErrorSB("MarginX not created", data?.message)
       } else {
         openSuccessSB("MarginX Created", data?.message)
+        setNewObjectId(data?.data?._id)
         setIsSubmitted(true);
         setTimeout(() => { setCreating(false); setIsSubmitted(true) }, 500)
       }
@@ -502,6 +509,29 @@ function Index() {
                   </FormGroup>
                 </Grid>
                
+                {(marginx || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <RegisteredUsers marginx={marginx?._id ? marginx : marginx} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+
+                {(marginx || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <PotentialUsers marginx={marginx?._id ? marginx : marginx} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
+
+                {(marginx || newObjectId) && 
+                <Grid item xs={12} md={12} xl={12} mt={2} mb={2}>
+                  <MDBox>
+                    <Shared marginx={marginx?._id ? marginx : marginx} action={action} setAction={setAction} />
+                  </MDBox>
+                </Grid>
+                }
 
               </Grid>
 
