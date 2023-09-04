@@ -72,6 +72,7 @@ import VpnLockIcon from '@mui/icons-material/VpnLock';
 import BackReportXTS from "./layouts/backReportXTS";
 import OverallPnlTrader from "./layouts/overallPnlTrader";
 import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import ChallengeDashboard from './layouts/challengeDashboard'
 import DailyContestDashboard from './layouts/dailyContestDashboard'
 import BattleDashboard from './layouts/battleDashboard'
 import PaymentTest from './layouts/paymentTest/index'
@@ -173,6 +174,8 @@ import ContestMaster from "./layouts/dailyContest/contestMaster/contestMaster"
 import CreateContestMasterHeader from "./layouts/dailyContest/contestMaster/createContestMasterHeader";
 import MarginXDashboard from "./layouts/marginXDashboard"
 import MarginXTemplateDetail from "./layouts/marginXTemplate"
+import ChallengeTemplateDetail from "./layouts/challengeTemplate"
+import ChallengeTemplateForm from "./layouts/challengeTemplate/challengeTemplateIndex"
 import CreateMarginXTemplate from "./layouts/marginXTemplate/createMarginIndex"
 import CreateMarginX from "./layouts/marginX/createMarginIndex"
 import MarginX from "./layouts/marginX"
@@ -226,6 +229,14 @@ const routes = [
     icon: <EmojiEventsIcon/>,
     route: "/marginxdashboard",
     component: <MarginXDashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Challenge Dashboard",
+    key: "challengedashboard",
+    icon: <EmojiEventsIcon/>,
+    route: "/challengedashboard",
+    component: <ChallengeDashboard />,
   },
   {
     type: "collapse",
@@ -564,9 +575,17 @@ const routes = [
     component: <MarginXTemplateDetail />,
   },
   {
+    route: "/challengedashboard/challengetemplate",
+    component: <ChallengeTemplateDetail />,
+  },
+  {
     key: "marginxdetails",
     route: "/marginxdashboard/createmarginxtemplate",
     component: <CreateMarginXTemplate />,
+  },
+  {
+    route: "/challengedashboard/challengetemplateform",
+    component: <ChallengeTemplateForm/>,
   },
   {
     key: "marginx",
