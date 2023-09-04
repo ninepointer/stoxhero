@@ -1,7 +1,7 @@
 const {tenx, paperTrade, infinityTrade, internship, infinityTradeLive, contestTradeLive,
      dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod} = require("./collectingTradeManually");
 const {creditAmountToWallet} = require("../../controllers/dailyContestController");
-const marginxController = require("../../controllers/marginx/marginxController");
+const marginxController = require("../../controllers/marginX/marginxController");
 const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 const Contest = require('../../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
