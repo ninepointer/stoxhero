@@ -222,7 +222,7 @@ exports.getUserUpcomingMarginXs = async (req, res) => {
     try {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now },
-            liveTime:{$gt:now},
+            liveTime:{$lt:now},
             status : 'Active'
         }).sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
@@ -602,7 +602,7 @@ exports.creditAmountToWallet = async () => {
 
                 // console.log(pnlDetails[0]);
                 let payoutAmount = entryFee;
-                if(pnlDetails.length =!0 && pnlDetails[0]?.npnl){
+                if(pnlDetails?.length != 0 && pnlDetails[0]?.npnl){
                     payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
                 }
                 if(payoutAmount >=0){
@@ -611,7 +611,7 @@ exports.creditAmountToWallet = async () => {
 
                     wallet.transactions = [...wallet.transactions, {
                         title: 'Marginx Credit',
-                        description: `Amount credited for Marginx ${marginxs[j].name}`,
+                        description: `Amount credited for Marginx ${marginxs[j].marginXName}`,
                         transactionDate: new Date(),
                         amount: payoutAmount?.toFixed(2),
                         transactionId: uuid.v4(),
