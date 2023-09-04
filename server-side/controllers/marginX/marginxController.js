@@ -601,8 +601,11 @@ exports.creditAmountToWallet = async () => {
                 ])
 
                 // console.log(pnlDetails[0]);
-                const payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
-                if(payoutAmount >0){
+                let payoutAmount = entryFee;
+                if(pnlDetails?.length =!0 && pnlDetails[0]?.npnl){
+                    payoutAmount = (pnlDetails[0]?.npnl/leverage) + entryFee;
+                }
+                if(payoutAmount >=0){
                     const wallet = await Wallet.findOne({ userId: userId });
                     console.log(userId, pnlDetails[0]);
 
