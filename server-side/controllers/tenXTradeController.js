@@ -1659,6 +1659,8 @@ exports.tenxDailyPnlTWise = async (req, res, next) => {
     {
       $sort: {
         payout: -1,
+        tradingDays: -1,
+        npnl: -1
       },
     },
   ]
