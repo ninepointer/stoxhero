@@ -35,19 +35,19 @@ const disconnectTicker = () => {
 const subscribeTokens = async() => {
     let tokens = await fetchToken();
     let data = ticker?.subscribe(tokens);
-    ticker.setMode(ticker.modeFull, tokens);
+    ticker?.setMode(ticker.modeFull, tokens);
 }
 
 const subscribeSingleToken = async(instrumentToken) => {
   ticker?.subscribe(instrumentToken);
-  ticker.setMode(ticker.modeFull, instrumentToken);
+  ticker?.setMode(ticker.modeFull, instrumentToken);
  
 }
 
 const unSubscribeTokens = async(token) => {
     let tokens = [];
     tokens?.push(token)
-   let x =  ticker.unsubscribe(tokens);
+   let x =  ticker?.unsubscribe(tokens);
 }
 
 const getTicks = async (socket) => {

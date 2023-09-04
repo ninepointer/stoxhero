@@ -46,7 +46,7 @@ exports.overallPnlTrader = async (req, res, next) => {
                         },
                         status: "COMPLETE",
                         trader: new ObjectId(userId),
-                        contestId: new ObjectId(id)
+                        marginxId: new ObjectId(id)
                     },
                 },
                 {
@@ -135,7 +135,7 @@ exports.overallPnlTraderWise = async (req, res, next) => {
                     },
                     status: "COMPLETE",
                     trader: new ObjectId(traderId),
-                    contestId: new ObjectId(id)
+                    marginxId: new ObjectId(id)
                 },
             },
             {
@@ -204,7 +204,7 @@ exports.overallPnlCompanySide = async (req, res, next) => {
                 },
                 status: "COMPLETE",
                 trader: new ObjectId(userId),
-                contestId: new ObjectId(id)
+                marginxId: new ObjectId(id)
             },
         },
         {
@@ -356,7 +356,7 @@ exports.getMyPnlAndCreditData = async (req, res, next) => {
                 },
                 {
                     $match: {
-                        "trades.trade_time": { $lt: today },
+                        "trades.trade_time_utc": { $lt: today },
                         "trades.status": "COMPLETE",
                         "trades.trader": new ObjectId(
                             req.user._id
@@ -484,7 +484,7 @@ exports.myPnlAndPayout = async (req, res, next) => {
                 {
                   _id: {
                     userId: "$trader",
-                    contestId: "$contestId",
+                    marginxId: "$marginxId",
                   },
                   amount: {
                     $sum: {
@@ -500,7 +500,7 @@ exports.myPnlAndPayout = async (req, res, next) => {
               $lookup:
                 {
                   from: "daily-contests",
-                  localField: "_id.contestId",
+                  localField: "_id.marginxId",
                   foreignField: "_id",
                   as: "contestData",
                 },
@@ -529,7 +529,7 @@ exports.myPnlAndPayout = async (req, res, next) => {
             {
               $project: {
                 _id: 0,
-                contestId: "$_id.contestId",
+                marginxId: "$_id.marginxId",
                 npnl: {
                   $subtract: ["$amount", "$brokerage"],
                 },
@@ -1073,7 +1073,7 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
         {
             $match: {
                 status: "COMPLETE",
-                contestId: new ObjectId(id)
+                marginxId: new ObjectId(id)
             }
         },
         {
@@ -1119,14 +1119,14 @@ exports.DailyContestPnlTWise = async (req, res, next) => {
             $match:
             {
                 status: "COMPLETE",
-                contestId: new ObjectId(id)
+                marginxId: new ObjectId(id)
             },
         },
         {
             $lookup:
             {
                 from: "daily-contests",
-                localField: "contestId",
+                localField: "marginxId",
                 foreignField: "_id",
                 as: "contestData",
             },
@@ -1227,7 +1227,7 @@ exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
         {
             $match: {
                 status: "COMPLETE",
-                contestId: new ObjectId(id)
+                marginxId: new ObjectId(id)
             }
         },
         {
@@ -1273,14 +1273,14 @@ exports.DailyContestPnlTWiseTraderSide = async (req, res, next) => {
             $match:
             {
                 status: "COMPLETE",
-                contestId: new ObjectId(id)
+                marginxId: new ObjectId(id)
             },
         },
         {
             $lookup:
             {
                 from: "daily-contests",
-                localField: "contestId",
+                localField: "marginxId",
                 foreignField: "_id",
                 as: "contestData",
             },
@@ -1598,10 +1598,10 @@ exports.getRedisLeaderBoard = async (req, res, next) => {
             } else {
 
                 ranks = await MarginxMockUser.aggregate([
-                    // Match documents for the given contestId
+                    // Match documents for the given marginxId
                     {
                         $match: {
-                            contestId: new ObjectId(id),
+                            marginxId: new ObjectId(id),
                             status: "COMPLETE",
                         }
                     },
