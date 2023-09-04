@@ -16,6 +16,7 @@ import InfinityUpcomingCarousels from '../data/infinityUpcomingCarousels'
 import StoxHeroUpcomingCarousels from '../data/stoxHeroUpcomingCarousels'
 import DraftCarousels from '../data/draftCarousels'
 import MDTypography from '../../../components/MDTypography';
+import PastCarousels from '../data/pastCarousals';
 // import TradingPortfolioCard from '../data/tradingPortfolioCard'
 // import InactivePortfolioCard from '../data/inactivePortfolioCard'
 
@@ -54,6 +55,7 @@ export default function LabTabs() {
             <Tab label="Infinity Carousels" value="2" />
             <Tab label="All Carousels" value="3" />
             <Tab label="Draft Carousels" value="4" />
+            <Tab label="Past Carousels" value="5" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -112,6 +114,18 @@ export default function LabTabs() {
           : 
             <MDBox>
               <DraftCarousels/> 
+            </MDBox>
+          }
+        </TabPanel>
+
+        <TabPanel value="5">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+            <MDBox>
+              <PastCarousels/> 
             </MDBox>
           }
         </TabPanel>

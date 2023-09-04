@@ -9,7 +9,7 @@ import moment from 'moment'
 
 const CarouselBox = ({ image, elem }) => {
 
-  console.log( "dates checking", elem?.carouselStartDate, elem?.carouselEndDate)
+  // console.log( "dates checking", elem?.carouselStartDate, elem?.carouselEndDate)
   return (
     <Grid container spacing={2} display='flex' justifyContent='center'>
       <Grid item display='flex' justifyContent='center'>

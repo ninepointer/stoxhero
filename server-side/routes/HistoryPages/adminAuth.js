@@ -73,9 +73,26 @@ const {creditAmountToWallet} = require("../../controllers/marginX/marginxControl
 
 
 
-router.get("/marginxcredit", async (req, res) => {
+router.get("/tenxfeild", async (req, res) => {
 
-  const data = await creditAmountToWallet();
+  const data = await TenXTrade.updateMany(
+    {},
+    [
+      {
+        $set: {
+          trade_time_utc: {
+            $subtract: [
+              "$trade_time",
+              {
+                $multiply: [60 * 60 * 1000, 5.5] // 5.5 hours for IST to UTC conversion
+              }
+            ]
+          }
+        }
+      }
+    ]
+  );
+
 
   res.send(data);
 });
