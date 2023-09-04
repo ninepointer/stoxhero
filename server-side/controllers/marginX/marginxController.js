@@ -222,6 +222,7 @@ exports.getUserUpcomingMarginXs = async (req, res) => {
     try {
         const upcomingMarginXs = await MarginX.find({ 
             startTime: { $gt: now },
+            liveTime:{$gt:now},
             status : 'Active'
         }).sort({startTime: -1, entryFee:-1})
         .populate('marginXTemplate', 'templateName portfolioValue entryFee')
